@@ -5,7 +5,11 @@ import { indexableCountries } from "@/lib/countries";
 import { SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Atlas of Today's World — an interactive encyclopedia on a 3D globe",
+  // `absolute` obejde šablonu "%s — Atlas of Today's World" z root layoutu,
+  // jinak by se název webu v titulku úvodní stránky objevil dvakrát.
+  title: {
+    absolute: "Atlas of Today's World — an interactive encyclopedia on a 3D globe",
+  },
   description:
     "Spin the satellite globe, click any country and read its profile: human development, political regime, living conditions and the entries behind them.",
   alternates: { canonical: "/" },
