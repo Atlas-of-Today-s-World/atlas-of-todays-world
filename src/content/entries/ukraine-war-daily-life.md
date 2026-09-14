@@ -4,7 +4,7 @@ summary: "Air-raid schedules, rolling blackouts and a workforce reorganised arou
 category: "Living Conditions"
 region: "eastern-europe-central-asia"
 countries: ["UKR"]
-hero: "https://images.unsplash.com/photo-1647503690787-29d97a53e1e7?w=1600&q=70"
+hero: "https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=1600&q=70"
 author: "Atlas editorial team"
 published: "2026-01-22"
 readingMinutes: 7

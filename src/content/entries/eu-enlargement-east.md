@@ -4,7 +4,7 @@ summary: "Accession talks with Ukraine and Moldova reopened a debate the Union h
 category: "International Relations"
 region: "eastern-europe-central-asia"
 countries: ["UKR", "MDA", "GEO"]
-hero: "https://images.unsplash.com/photo-1529180184525-78f99adb8c60?w=1600&q=70"
+hero: "https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?w=1600&q=70"
 author: "Atlas editorial team"
 published: "2025-09-30"
 readingMinutes: 6

@@ -2,14 +2,22 @@
 
 import { usePathname } from "next/navigation";
 import EncyclopediaDock from "@/components/EncyclopediaDock";
+import type { HotNewsItem } from "@/components/HotNews";
+import ModeSwitch from "./ModeSwitch";
 import ViewSwitcher, { type ViewOption } from "./ViewSwitcher";
 
 /**
- * Lišta nad mapou vpravo nahoře: přepínač vrstev + Global Encyclopedia.
- * Když je otevřený profil regionu/země, odsune se doleva, aby ji bílý panel
- * nepřekrýval.
+ * Lišta nad mapou vpravo nahoře: přepínač států/regionů, přepínač datových
+ * vrstev, Global Encyclopedia a Hot News. Když je otevřený profil regionu nebo
+ * země, odsune se doleva, aby ji bílý panel nepřekrýval.
  */
-export default function MapControls({ options }: { options: ViewOption[] }) {
+export default function MapControls({
+  options,
+  hotNews,
+}: {
+  options: ViewOption[];
+  hotNews: HotNewsItem[];
+}) {
   const pathname = usePathname();
   const wideRail = /^\/(entry|region\/[^/]+\/full)/.test(pathname);
   const railOpen = pathname !== "/";
@@ -25,9 +33,10 @@ export default function MapControls({ options }: { options: ViewOption[] }) {
       className={`pointer-events-none absolute top-20 z-30 flex flex-col items-end gap-2.5 ${offset}`}
     >
       <div className="flex items-start gap-2.5">
+        <ModeSwitch />
         <ViewSwitcher options={options} />
       </div>
-      <EncyclopediaDock />
+      <EncyclopediaDock hotNews={hotNews} />
     </div>
   );
 }

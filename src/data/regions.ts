@@ -88,7 +88,7 @@ export const REGIONS: Region[] = [
     stroke: "#B99334",
     center: [35, 27],
     zoom: 2.4,
-    hero: "https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?w=1600&q=70",
+    hero: "https://images.unsplash.com/photo-1504198266287-1659872e6590?w=1600&q=70",
     heroCredit: "Unsplash",
     summary:
       "From the Atlantic coast of Morocco to the Iranian plateau, MENA is young, urban and unevenly rich. Hydrocarbon wealth has built city-states of extraordinary affluence next to countries hollowed out by war and sanctions. Water scarcity, a population bulge entering the labour market and the slow unwinding of the post-2011 settlements define the decade ahead.",

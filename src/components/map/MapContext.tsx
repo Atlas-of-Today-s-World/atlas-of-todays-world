@@ -31,12 +31,17 @@ const EMPTY_FOCUS: MapFocusState = {
   regionStroke: null,
 };
 
+/** Co se na globusu vybírá kliknutím: jednotlivé státy, nebo celé regiony. */
+export type SelectionMode = "countries" | "regions";
+
 interface MapContextValue {
   focus: MapFocusState;
   setFocus: (focus: MapFocusState) => void;
   /** id vrstvy: "encyclopedia" nebo id indikátoru (hdi, gdp-per-capita, ...) */
   view: string;
   setView: (view: string) => void;
+  mode: SelectionMode;
+  setMode: (mode: SelectionMode) => void;
   /** Panel s obsahem je sbalený – mapa je přes celou plochu. */
   panelCollapsed: boolean;
   setPanelCollapsed: (collapsed: boolean) => void;
@@ -53,6 +58,7 @@ export function MapProvider({
 }) {
   const [focus, setFocusState] = useState<MapFocusState>(EMPTY_FOCUS);
   const [view, setView] = useState(initialView);
+  const [mode, setMode] = useState<SelectionMode>("countries");
   const [panelCollapsed, setPanelCollapsed] = useState(false);
 
   // Stránky hlásí focus v effectu; bez porovnání by se globus přeletoval
@@ -72,8 +78,17 @@ export function MapProvider({
   }, []);
 
   const value = useMemo(
-    () => ({ focus, setFocus, view, setView, panelCollapsed, setPanelCollapsed }),
-    [focus, setFocus, view, panelCollapsed],
+    () => ({
+      focus,
+      setFocus,
+      view,
+      setView,
+      mode,
+      setMode,
+      panelCollapsed,
+      setPanelCollapsed,
+    }),
+    [focus, setFocus, view, mode, panelCollapsed],
   );
 
   return <MapContext.Provider value={value}>{children}</MapContext.Provider>;

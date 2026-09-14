@@ -1,4 +1,24 @@
-import type { StyleSpecification } from "maplibre-gl";
+import type {
+  FilterSpecification,
+  GeoJSONSourceSpecification,
+  StyleSpecification,
+} from "maplibre-gl";
+import { REGIONS } from "@/data/regions";
+
+/** Popisky regionů – jeden bod na region, pozice je ručně zvolený střed. */
+function regionLabelSource(): GeoJSONSourceSpecification {
+  return {
+    type: "geojson",
+    data: {
+      type: "FeatureCollection",
+      features: REGIONS.map((region) => ({
+        type: "Feature" as const,
+        properties: { name: region.name, slug: region.slug },
+        geometry: { type: "Point" as const, coordinates: region.center },
+      })),
+    },
+  };
+}
 
 /**
  * Satelitní podklad. S MapTiler klíčem jedeme na jejich dlaždice, bez klíče
@@ -27,11 +47,31 @@ function satelliteSource() {
 export const LAYERS = {
   satellite: "satellite",
   fill: "country-fill",
+  countryHover: "country-hover",
+  regionHover: "region-hover",
   border: "country-border",
   regionOutline: "region-outline",
   activeOutline: "active-outline",
   label: "country-label",
+  regionLabel: "region-label",
 } as const;
+
+/** Prázdný filtr – vrstva se nevykreslí, dokud jí nedáme konkrétní země. */
+export const NO_FEATURES: FilterSpecification = [
+  "==",
+  ["get", "iso3"],
+  "___none___",
+];
+
+/** Filtr na jednu zemi. */
+export function onlyCountry(iso3: string | null): FilterSpecification {
+  return iso3 ? ["==", ["get", "iso3"], iso3] : NO_FEATURES;
+}
+
+/** Filtr na seznam zemí (např. všechny státy regionu). */
+export function anyOfCountries(list: string[]): FilterSpecification {
+  return list.length ? ["in", ["get", "iso3"], ["literal", list]] : NO_FEATURES;
+}
 
 /**
  * Styl globusu. Obarvení zemí neřešíme tady – přepisuje se za běhu přes
@@ -57,6 +97,7 @@ export function buildStyle(): StyleSpecification {
         type: "geojson",
         data: "/data/country-labels.geo.json",
       },
+      "region-labels": regionLabelSource(),
     },
     sky: {
       "sky-color": "#0b1a3a",
@@ -96,15 +137,23 @@ export function buildStyle(): StyleSpecification {
         id: LAYERS.fill,
         type: "fill",
         source: "countries",
-        paint: {
-          "fill-color": "#7d8aa8",
-          "fill-opacity": [
-            "case",
-            ["boolean", ["feature-state", "hover"], false],
-            0.78,
-            0.55,
-          ],
-        },
+        paint: { "fill-color": "#7d8aa8", "fill-opacity": 0.55 },
+      },
+      {
+        // Zvýraznění pod kurzorem. Samostatné vrstvy s filtrem jsou levnější
+        // než přepisování feature-state u desítek zemí najednou.
+        id: LAYERS.countryHover,
+        type: "fill",
+        source: "countries",
+        filter: NO_FEATURES,
+        paint: { "fill-color": "#ffffff", "fill-opacity": 0.2 },
+      },
+      {
+        id: LAYERS.regionHover,
+        type: "fill",
+        source: "countries",
+        filter: NO_FEATURES,
+        paint: { "fill-color": "#ffffff", "fill-opacity": 0.22 },
       },
       {
         id: LAYERS.border,
@@ -119,7 +168,7 @@ export function buildStyle(): StyleSpecification {
         id: LAYERS.regionOutline,
         type: "line",
         source: "countries",
-        filter: ["==", ["get", "iso3"], "___none___"],
+        filter: NO_FEATURES,
         paint: {
           "line-color": "#b03a2e",
           "line-width": ["interpolate", ["linear"], ["zoom"], 1, 1, 5, 2.4],
@@ -129,7 +178,7 @@ export function buildStyle(): StyleSpecification {
         id: LAYERS.activeOutline,
         type: "line",
         source: "countries",
-        filter: ["==", ["get", "iso3"], "___none___"],
+        filter: NO_FEATURES,
         paint: {
           "line-color": "#ffffff",
           "line-width": ["interpolate", ["linear"], ["zoom"], 1, 1.4, 5, 3],
@@ -154,6 +203,26 @@ export function buildStyle(): StyleSpecification {
           "text-color": "rgba(255,255,255,0.92)",
           "text-halo-color": "rgba(6,10,20,0.85)",
           "text-halo-width": 1.3,
+        },
+      },
+      {
+        // Viditelné jen v režimu "Regions"; zapíná se v AtlasGlobe.
+        id: LAYERS.regionLabel,
+        type: "symbol",
+        source: "region-labels",
+        layout: {
+          visibility: "none",
+          "text-field": ["get", "name"],
+          "text-font": ["Noto Sans Regular"],
+          "text-size": ["interpolate", ["linear"], ["zoom"], 1, 11, 4, 17],
+          "text-max-width": 9,
+          "text-letter-spacing": 0.06,
+          "text-transform": "uppercase",
+        },
+        paint: {
+          "text-color": "rgba(255,255,255,0.96)",
+          "text-halo-color": "rgba(6,10,20,0.9)",
+          "text-halo-width": 1.6,
         },
       },
     ],

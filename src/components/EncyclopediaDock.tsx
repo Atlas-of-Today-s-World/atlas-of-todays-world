@@ -3,13 +3,18 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import EncyclopediaPanel from "./EncyclopediaPanel";
+import HotNews, { type HotNewsItem } from "./HotNews";
 
 /**
  * Na úvodní mapě je panel Global Encyclopedia rozbalený (jako ve Figmě),
  * nad profilem regionu nebo země se schová do skleněného tlačítka, aby
  * nepřekrýval obsah.
  */
-export default function EncyclopediaDock() {
+export default function EncyclopediaDock({
+  hotNews,
+}: {
+  hotNews: HotNewsItem[];
+}) {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const [open, setOpen] = useState(false);
@@ -37,6 +42,8 @@ export default function EncyclopediaDock() {
       ) : null}
 
       {visible ? <EncyclopediaPanel /> : null}
+
+      <HotNews items={hotNews} />
     </div>
   );
 }

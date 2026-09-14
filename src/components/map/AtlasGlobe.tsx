@@ -3,7 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import maplibregl, { type Map as MapLibreMap, type MapMouseEvent } from "maplibre-gl";
-import { buildStyle, LAYERS } from "./mapStyle";
+import {
+  anyOfCountries,
+  buildStyle,
+  LAYERS,
+  NO_FEATURES,
+  onlyCountry,
+} from "./mapStyle";
 import { useMapState } from "./MapContext";
 
 export interface GlobeColorSets {
@@ -11,10 +17,18 @@ export interface GlobeColorSets {
   [view: string]: Record<string, string>;
 }
 
+export interface RegionLookup {
+  /** ISO3 -> slug regionu. */
+  slugByCountry: Record<string, string>;
+  /** slug regionu -> jeho země a název. */
+  bySlug: Record<string, { name: string; countries: string[] }>;
+}
+
 interface Props {
   colorSets: GlobeColorSets;
   /** ISO3 -> slug země, pro navigaci po kliknutí. */
   slugs: Record<string, string>;
+  regions: RegionLookup;
 }
 
 const NEUTRAL = "#7d8aa8";
@@ -43,15 +57,27 @@ function matchExpression(colors: Record<string, string>): unknown[] {
   return ["match", ["get", "iso3"], ...stops, NEUTRAL];
 }
 
-export default function AtlasGlobe({ colorSets, slugs }: Props) {
+export default function AtlasGlobe({ colorSets, slugs, regions }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const hoveredRef = useRef<string | null>(null);
   const readyRef = useRef(false);
   const router = useRouter();
-  const { focus, view } = useMapState();
+  const { focus, view, mode } = useMapState();
   const [hoverLabel, setHoverLabel] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
+  /** Země, na kterou se právě kliklo – zvýrazníme ji dřív, než dorazí obsah. */
+  const [pendingIso3, setPendingIso3] = useState<string | null>(null);
+
+  // Obsluha myši se mění s režimem, ale mapu kvůli tomu nevytváříme znovu.
+  const modeRef = useRef(mode);
+  modeRef.current = mode;
+  const regionsRef = useRef(regions);
+  regionsRef.current = regions;
+  const slugsRef = useRef(slugs);
+  slugsRef.current = slugs;
+  /** URL, které už jsme předstáhli – ať neprefetchujeme totéž při každém pohybu. */
+  const prefetchedRef = useRef(new Set<string>());
 
   // --- inicializace mapy (jen jednou za celý život aplikace) ---
   useEffect(() => {
@@ -81,36 +107,73 @@ export default function AtlasGlobe({ colorSets, slugs }: Props) {
       setReady(true);
     });
 
-    const onMove = (event: MapMouseEvent) => {
-      const features = map.queryRenderedFeatures(event.point, {
+    /** Co je pod kurzorem: ISO3 země, její název a cílová URL podle režimu. */
+    const targetAt = (point: MapMouseEvent["point"]) => {
+      const feature = map.queryRenderedFeatures(point, {
         layers: [LAYERS.fill],
-      });
-      const iso3 = (features[0]?.properties?.iso3 as string | undefined) ?? null;
-      if (iso3 === hoveredRef.current) return;
+      })[0];
+      const iso3 = (feature?.properties?.iso3 as string | undefined) ?? null;
+      if (!iso3) return null;
 
-      if (hoveredRef.current) {
-        map.setFeatureState(
-          { source: "countries", id: hoveredRef.current },
-          { hover: false },
-        );
+      if (modeRef.current === "regions") {
+        const regionSlug = regionsRef.current.slugByCountry[iso3];
+        const region = regionSlug
+          ? regionsRef.current.bySlug[regionSlug]
+          : undefined;
+        if (!region) return null;
+        return {
+          iso3,
+          label: region.name,
+          href: `/region/${regionSlug}`,
+          countries: region.countries,
+        };
       }
-      hoveredRef.current = iso3;
-      if (iso3) {
-        map.setFeatureState({ source: "countries", id: iso3 }, { hover: true });
-      }
-      setHoverLabel(
-        iso3 ? ((features[0]?.properties?.name as string) ?? null) : null,
+
+      const slug = slugsRef.current[iso3];
+      if (!slug) return null;
+      return {
+        iso3,
+        label: (feature?.properties?.name as string) ?? iso3,
+        href: `/country/${slug}`,
+        countries: [iso3],
+      };
+    };
+
+    const onMove = (event: MapMouseEvent) => {
+      const target = targetAt(event.point);
+      const key = target?.href ?? null;
+      if (key === hoveredRef.current) return;
+      hoveredRef.current = key;
+
+      // Zvýraznění: jedna země, nebo celý region.
+      map.setFilter(
+        LAYERS.regionHover,
+        target && modeRef.current === "regions"
+          ? anyOfCountries(target.countries)
+          : NO_FEATURES,
       );
-      map.getCanvas().style.cursor = iso3 && slugs[iso3] ? "pointer" : "grab";
+      map.setFilter(
+        LAYERS.countryHover,
+        target && modeRef.current === "countries"
+          ? onlyCountry(target.iso3)
+          : NO_FEATURES,
+      );
+
+      setHoverLabel(target?.label ?? null);
+      map.getCanvas().style.cursor = target ? "pointer" : "grab";
+
+      // Obsah panelu stáhneme už při najetí, ať je klik okamžitý.
+      if (target && !prefetchedRef.current.has(target.href)) {
+        prefetchedRef.current.add(target.href);
+        router.prefetch(target.href);
+      }
     };
 
     const onClick = (event: MapMouseEvent) => {
-      const features = map.queryRenderedFeatures(event.point, {
-        layers: [LAYERS.fill],
-      });
-      const iso3 = features[0]?.properties?.iso3 as string | undefined;
-      const slug = iso3 ? slugs[iso3] : undefined;
-      if (slug) router.push(`/country/${slug}`);
+      const target = targetAt(event.point);
+      if (!target) return;
+      setPendingIso3(target.iso3);
+      router.push(target.href);
     };
 
     map.on("mousemove", onMove);
@@ -134,12 +197,7 @@ export default function AtlasGlobe({ colorSets, slugs }: Props) {
     map.setPaintProperty(LAYERS.fill, "fill-color", matchExpression(colors));
 
     const isData = view !== "encyclopedia";
-    map.setPaintProperty(LAYERS.fill, "fill-opacity", [
-      "case",
-      ["boolean", ["feature-state", "hover"], false],
-      isData ? 0.95 : 0.78,
-      isData ? 0.88 : 0.55,
-    ]);
+    map.setPaintProperty(LAYERS.fill, "fill-opacity", isData ? 0.88 : 0.55);
 
     // Datové vrstvy chtějí čitelné plochy, encyklopedie chce vidět terén.
     map.setPaintProperty(LAYERS.satellite, "raster-opacity", isData ? 0.28 : 1);
@@ -151,27 +209,66 @@ export default function AtlasGlobe({ colorSets, slugs }: Props) {
     );
   }, [colorSets, view, ready]);
 
+  // --- režim výběru: státy vs. regiony ---
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+
+    const isRegions = mode === "regions";
+
+    // V režimu regionů ustoupí vnitřní hranice a názvy států do pozadí,
+    // aby barevné celky četly jako regiony.
+    map.setPaintProperty(
+      LAYERS.border,
+      "line-opacity",
+      isRegions ? 0.25 : 1,
+    );
+    map.setLayoutProperty(
+      LAYERS.label,
+      "visibility",
+      isRegions ? "none" : "visible",
+    );
+    map.setLayoutProperty(
+      LAYERS.regionLabel,
+      "visibility",
+      isRegions ? "visible" : "none",
+    );
+
+    // Přepnutí režimu ruší rozpracované zvýraznění pod kurzorem.
+    map.setFilter(LAYERS.countryHover, NO_FEATURES);
+    map.setFilter(LAYERS.regionHover, NO_FEATURES);
+    hoveredRef.current = null;
+    setHoverLabel(null);
+  }, [mode, ready]);
+
   // --- zvýraznění aktivní země / regionu ---
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
 
-    map.setFilter(LAYERS.activeOutline, [
-      "==",
-      ["get", "iso3"],
-      focus.activeIso3 ?? "___none___",
-    ]);
+    // pendingIso3 drží zvýraznění hned po kliknutí, než dorazí nová stránka.
+    const active = focus.activeIso3 ?? pendingIso3;
+    map.setFilter(LAYERS.activeOutline, onlyCountry(active));
 
     map.setFilter(
       LAYERS.regionOutline,
-      focus.regionCountries.length
-        ? ["in", ["get", "iso3"], ["literal", focus.regionCountries]]
-        : ["==", ["get", "iso3"], "___none___"],
+      anyOfCountries(focus.regionCountries),
     );
     if (focus.regionStroke) {
       map.setPaintProperty(LAYERS.regionOutline, "line-color", focus.regionStroke);
     }
-  }, [focus.activeIso3, focus.regionCountries, focus.regionStroke, ready]);
+  }, [
+    focus.activeIso3,
+    focus.regionCountries,
+    focus.regionStroke,
+    pendingIso3,
+    ready,
+  ]);
+
+  // Jakmile dorazí obsah, převezme zvýraznění stránka a dočasné zmizí.
+  useEffect(() => {
+    if (focus.activeIso3) setPendingIso3(null);
+  }, [focus.activeIso3]);
 
   // --- přelet kamery ---
   useEffect(() => {
