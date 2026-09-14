@@ -1,0 +1,4842 @@
+[
+  {
+    "iso3": "AFG",
+    "iso2": "AF",
+    "name": "Afghanistan",
+    "nameFormal": "Islamic State of Afghanistan",
+    "slug": "afghanistan",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Southern Asia",
+    "population": 38041754,
+    "gdpMillionsUsd": 19291,
+    "labelLon": 66.496586,
+    "labelLat": 34.164262,
+    "bbox": [
+      60.486,
+      29.392,
+      74.891,
+      38.456
+    ]
+  },
+  {
+    "iso3": "ALA",
+    "iso2": "AX",
+    "name": "Åland",
+    "nameFormal": "Åland Islands",
+    "slug": "aland",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Northern Europe",
+    "population": 29884,
+    "gdpMillionsUsd": 1563,
+    "labelLon": 19.869671,
+    "labelLat": 60.156467,
+    "bbox": [
+      19.672,
+      60.082,
+      20.259,
+      60.406
+    ]
+  },
+  {
+    "iso3": "ALB",
+    "iso2": "AL",
+    "name": "Albania",
+    "nameFormal": "Republic of Albania",
+    "slug": "albania",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Southern Europe",
+    "population": 2854191,
+    "gdpMillionsUsd": 15279,
+    "labelLon": 20.11384,
+    "labelLat": 40.654855,
+    "bbox": [
+      19.281,
+      39.654,
+      21.031,
+      42.648
+    ]
+  },
+  {
+    "iso3": "DZA",
+    "iso2": "DZ",
+    "name": "Algeria",
+    "nameFormal": "People's Democratic Republic of Algeria",
+    "slug": "algeria",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Northern Africa",
+    "population": 43053054,
+    "gdpMillionsUsd": 171091,
+    "labelLon": 2.808241,
+    "labelLat": 27.397406,
+    "bbox": [
+      -8.683,
+      18.987,
+      11.968,
+      37.092
+    ]
+  },
+  {
+    "iso3": "ASM",
+    "iso2": "AS",
+    "name": "American Samoa",
+    "nameFormal": "American Samoa",
+    "slug": "american-samoa",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Polynesia",
+    "population": 55312,
+    "gdpMillionsUsd": 636,
+    "labelLon": -170.747153,
+    "labelLat": -14.32671,
+    "bbox": [
+      -170.821,
+      -14.36,
+      -170.568,
+      -14.257
+    ]
+  },
+  {
+    "iso3": "AND",
+    "iso2": "AD",
+    "name": "Andorra",
+    "nameFormal": "Principality of Andorra",
+    "slug": "andorra",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Southern Europe",
+    "population": 77142,
+    "gdpMillionsUsd": 3154,
+    "labelLon": 1.539409,
+    "labelLat": 42.547643,
+    "bbox": [
+      1.415,
+      42.434,
+      1.74,
+      42.643
+    ]
+  },
+  {
+    "iso3": "AGO",
+    "iso2": "AO",
+    "name": "Angola",
+    "nameFormal": "People's Republic of Angola",
+    "slug": "angola",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Middle Africa",
+    "population": 31825295,
+    "gdpMillionsUsd": 88815,
+    "labelLon": 17.984249,
+    "labelLat": -12.182762,
+    "bbox": [
+      11.743,
+      -18.02,
+      24.047,
+      -5.855
+    ]
+  },
+  {
+    "iso3": "AIA",
+    "iso2": "AI",
+    "name": "Anguilla",
+    "nameFormal": "Anguilla",
+    "slug": "anguilla",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 14731,
+    "gdpMillionsUsd": 175,
+    "labelLon": -63.026361,
+    "labelLat": 18.242979,
+    "bbox": [
+      -63.16,
+      18.171,
+      -62.98,
+      18.27
+    ]
+  },
+  {
+    "iso3": "ATA",
+    "iso2": "AQ",
+    "name": "Antarctica",
+    "nameFormal": "Antarctica",
+    "slug": "antarctica",
+    "continent": "Antarctica",
+    "unRegion": "Antarctica",
+    "unSubregion": "Antarctica",
+    "population": 4490,
+    "gdpMillionsUsd": 898,
+    "labelLon": 35.885455,
+    "labelLat": -79.843222,
+    "bbox": [
+      -180,
+      -89.999,
+      180,
+      -63.226
+    ]
+  },
+  {
+    "iso3": "ATG",
+    "iso2": "AG",
+    "name": "Antigua and Barb.",
+    "nameFormal": "Antigua and Barbuda",
+    "slug": "antigua-and-barb",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 97118,
+    "gdpMillionsUsd": 1661,
+    "labelLon": -61.790612,
+    "labelLat": 17.352249,
+    "bbox": [
+      -61.887,
+      16.997,
+      -61.686,
+      17.169
+    ]
+  },
+  {
+    "iso3": "ARG",
+    "iso2": "AR",
+    "name": "Argentina",
+    "nameFormal": "Argentine Republic",
+    "slug": "argentina",
+    "continent": "South America",
+    "unRegion": "Americas",
+    "unSubregion": "South America",
+    "population": 44938712,
+    "gdpMillionsUsd": 445445,
+    "labelLon": -64.173331,
+    "labelLat": -33.501159,
+    "bbox": [
+      -73.576,
+      -52.357,
+      -53.669,
+      -21.803
+    ]
+  },
+  {
+    "iso3": "ARM",
+    "iso2": "AM",
+    "name": "Armenia",
+    "nameFormal": "Republic of Armenia",
+    "slug": "armenia",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Western Asia",
+    "population": 2957731,
+    "gdpMillionsUsd": 13672,
+    "labelLon": 44.800564,
+    "labelLat": 40.459077,
+    "bbox": [
+      43.439,
+      38.869,
+      46.585,
+      41.291
+    ]
+  },
+  {
+    "iso3": "ABW",
+    "iso2": "AW",
+    "name": "Aruba",
+    "nameFormal": "Aruba",
+    "slug": "aruba",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 106314,
+    "gdpMillionsUsd": 3056,
+    "labelLon": -69.972795,
+    "labelLat": 12.5174,
+    "bbox": [
+      -70.066,
+      12.423,
+      -69.896,
+      12.614
+    ]
+  },
+  {
+    "iso3": "ATC",
+    "iso2": null,
+    "name": "Ashmore and Cartier Is.",
+    "nameFormal": "Territory of Ashmore and Cartier Islands",
+    "slug": "ashmore-and-cartier-is",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Australia and New Zealand",
+    "population": 0,
+    "gdpMillionsUsd": 0,
+    "labelLon": 123.586368,
+    "labelLat": -12.432571,
+    "bbox": [
+      123.572,
+      -12.436,
+      123.595,
+      -12.424
+    ]
+  },
+  {
+    "iso3": "AUS",
+    "iso2": "AU",
+    "name": "Australia",
+    "nameFormal": "Commonwealth of Australia",
+    "slug": "australia",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Australia and New Zealand",
+    "population": 25364307,
+    "gdpMillionsUsd": 1396567,
+    "labelLon": 134.04972,
+    "labelLat": -24.129522,
+    "bbox": [
+      113.185,
+      -39.146,
+      153.617,
+      -10.707
+    ]
+  },
+  {
+    "iso3": "AUT",
+    "iso2": "AT",
+    "name": "Austria",
+    "nameFormal": "Republic of Austria",
+    "slug": "austria",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Western Europe",
+    "population": 8877067,
+    "gdpMillionsUsd": 445075,
+    "labelLon": 14.130515,
+    "labelLat": 47.518859,
+    "bbox": [
+      9.524,
+      46.4,
+      17.147,
+      49.001
+    ]
+  },
+  {
+    "iso3": "AZE",
+    "iso2": "AZ",
+    "name": "Azerbaijan",
+    "nameFormal": "Republic of Azerbaijan",
+    "slug": "azerbaijan",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Western Asia",
+    "population": 10023318,
+    "gdpMillionsUsd": 48047,
+    "labelLon": 47.210994,
+    "labelLat": 40.402387,
+    "bbox": [
+      45.001,
+      38.399,
+      50.366,
+      41.891
+    ]
+  },
+  {
+    "iso3": "BHS",
+    "iso2": "BS",
+    "name": "Bahamas",
+    "nameFormal": "Commonwealth of the Bahamas",
+    "slug": "bahamas",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 389482,
+    "gdpMillionsUsd": 13578,
+    "labelLon": -77.146688,
+    "labelLat": 26.401789,
+    "bbox": [
+      -77.944,
+      25.895,
+      -77.038,
+      26.94
+    ]
+  },
+  {
+    "iso3": "BHR",
+    "iso2": "BH",
+    "name": "Bahrain",
+    "nameFormal": "Kingdom of Bahrain",
+    "slug": "bahrain",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Western Asia",
+    "population": 1641172,
+    "gdpMillionsUsd": 38574,
+    "labelLon": 50.554816,
+    "labelLat": 26.055972,
+    "bbox": [
+      50.452,
+      25.807,
+      50.617,
+      26.246
+    ]
+  },
+  {
+    "iso3": "BGD",
+    "iso2": "BD",
+    "name": "Bangladesh",
+    "nameFormal": "People's Republic of Bangladesh",
+    "slug": "bangladesh",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Southern Asia",
+    "population": 163046161,
+    "gdpMillionsUsd": 302571,
+    "labelLon": 89.684963,
+    "labelLat": 24.214956,
+    "bbox": [
+      88.023,
+      20.79,
+      92.632,
+      26.572
+    ]
+  },
+  {
+    "iso3": "BRB",
+    "iso2": "BB",
+    "name": "Barbados",
+    "nameFormal": "Barbados",
+    "slug": "barbados",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 287025,
+    "gdpMillionsUsd": 5209,
+    "labelLon": -59.568966,
+    "labelLat": 13.163709,
+    "bbox": [
+      -59.647,
+      13.062,
+      -59.428,
+      13.318
+    ]
+  },
+  {
+    "iso3": "BLR",
+    "iso2": "BY",
+    "name": "Belarus",
+    "nameFormal": "Republic of Belarus",
+    "slug": "belarus",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Eastern Europe",
+    "population": 9466856,
+    "gdpMillionsUsd": 63080,
+    "labelLon": 28.417701,
+    "labelLat": 53.821888,
+    "bbox": [
+      23.175,
+      51.265,
+      32.71,
+      56.146
+    ]
+  },
+  {
+    "iso3": "BEL",
+    "iso2": "BE",
+    "name": "Belgium",
+    "nameFormal": "Kingdom of Belgium",
+    "slug": "belgium",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Western Europe",
+    "population": 11484055,
+    "gdpMillionsUsd": 533097,
+    "labelLon": 4.800448,
+    "labelLat": 50.785392,
+    "bbox": [
+      2.525,
+      49.511,
+      6.364,
+      51.491
+    ]
+  },
+  {
+    "iso3": "BLZ",
+    "iso2": "BZ",
+    "name": "Belize",
+    "nameFormal": "Belize",
+    "slug": "belize",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Central America",
+    "population": 390353,
+    "gdpMillionsUsd": 1879,
+    "labelLon": -88.712962,
+    "labelLat": 17.202068,
+    "bbox": [
+      -89.237,
+      15.889,
+      -88.085,
+      18.482
+    ]
+  },
+  {
+    "iso3": "BEN",
+    "iso2": "BJ",
+    "name": "Benin",
+    "nameFormal": "Republic of Benin",
+    "slug": "benin",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Western Africa",
+    "population": 11801151,
+    "gdpMillionsUsd": 14390,
+    "labelLon": 2.352018,
+    "labelLat": 10.324775,
+    "bbox": [
+      0.763,
+      6.217,
+      3.834,
+      12.384
+    ]
+  },
+  {
+    "iso3": "BMU",
+    "iso2": "BM",
+    "name": "Bermuda",
+    "nameFormal": "The Bermudas or Somers Isles",
+    "slug": "bermuda",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Northern America",
+    "population": 63918,
+    "gdpMillionsUsd": 7484,
+    "labelLon": -64.763573,
+    "labelLat": 32.296592,
+    "bbox": [
+      -64.863,
+      32.26,
+      -64.668,
+      32.387
+    ]
+  },
+  {
+    "iso3": "BTN",
+    "iso2": "BT",
+    "name": "Bhutan",
+    "nameFormal": "Kingdom of Bhutan",
+    "slug": "bhutan",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Southern Asia",
+    "population": 763092,
+    "gdpMillionsUsd": 2530,
+    "labelLon": 90.040294,
+    "labelLat": 27.536685,
+    "bbox": [
+      88.739,
+      26.702,
+      92.083,
+      28.311
+    ]
+  },
+  {
+    "iso3": "BOL",
+    "iso2": "BO",
+    "name": "Bolivia",
+    "nameFormal": "Plurinational State of Bolivia",
+    "slug": "bolivia",
+    "continent": "South America",
+    "unRegion": "Americas",
+    "unSubregion": "South America",
+    "population": 11513100,
+    "gdpMillionsUsd": 40895,
+    "labelLon": -64.593433,
+    "labelLat": -16.666015,
+    "bbox": [
+      -69.646,
+      -22.892,
+      -57.496,
+      -9.71
+    ]
+  },
+  {
+    "iso3": "BIH",
+    "iso2": "BA",
+    "name": "Bosnia and Herz.",
+    "nameFormal": "Bosnia and Herzegovina",
+    "slug": "bosnia-and-herz",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Southern Europe",
+    "population": 3301000,
+    "gdpMillionsUsd": 20164,
+    "labelLon": 18.06841,
+    "labelLat": 44.091051,
+    "bbox": [
+      15.737,
+      42.56,
+      19.584,
+      45.277
+    ]
+  },
+  {
+    "iso3": "BWA",
+    "iso2": "BW",
+    "name": "Botswana",
+    "nameFormal": "Republic of Botswana",
+    "slug": "botswana",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Southern Africa",
+    "population": 2303697,
+    "gdpMillionsUsd": 18340,
+    "labelLon": 24.179216,
+    "labelLat": -22.102634,
+    "bbox": [
+      19.977,
+      -26.854,
+      29.365,
+      -17.788
+    ]
+  },
+  {
+    "iso3": "IOT",
+    "iso2": "IO",
+    "name": "Br. Indian Ocean Ter.",
+    "nameFormal": "British Indian Ocean Territory",
+    "slug": "br-indian-ocean-ter",
+    "continent": "Seven seas (open ocean)",
+    "unRegion": "Africa",
+    "unSubregion": "Seven seas (open ocean)",
+    "population": 3000,
+    "gdpMillionsUsd": 120,
+    "labelLon": 71.348349,
+    "labelLat": -6.190826,
+    "bbox": [
+      72.35,
+      -7.435,
+      72.499,
+      -7.22
+    ]
+  },
+  {
+    "iso3": "BRA",
+    "iso2": "BR",
+    "name": "Brazil",
+    "nameFormal": "Federative Republic of Brazil",
+    "slug": "brazil",
+    "continent": "South America",
+    "unRegion": "Americas",
+    "unSubregion": "South America",
+    "population": 211049527,
+    "gdpMillionsUsd": 1839758,
+    "labelLon": -49.55945,
+    "labelLat": -12.098687,
+    "bbox": [
+      -74.002,
+      -33.742,
+      -34.805,
+      5.258
+    ]
+  },
+  {
+    "iso3": "VGB",
+    "iso2": "VG",
+    "name": "British Virgin Is.",
+    "nameFormal": "British Virgin Islands",
+    "slug": "british-virgin-is",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 30030,
+    "gdpMillionsUsd": 500,
+    "labelLon": -64.63661,
+    "labelLat": 18.426606,
+    "bbox": [
+      -64.444,
+      18.457,
+      -64.325,
+      18.517
+    ]
+  },
+  {
+    "iso3": "BRN",
+    "iso2": "BN",
+    "name": "Brunei",
+    "nameFormal": "Negara Brunei Darussalam",
+    "slug": "brunei",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "South-Eastern Asia",
+    "population": 433285,
+    "gdpMillionsUsd": 13469,
+    "labelLon": 114.551943,
+    "labelLat": 4.448298,
+    "bbox": [
+      114.064,
+      4.024,
+      115.048,
+      5.022
+    ]
+  },
+  {
+    "iso3": "BGR",
+    "iso2": "BG",
+    "name": "Bulgaria",
+    "nameFormal": "Republic of Bulgaria",
+    "slug": "bulgaria",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Eastern Europe",
+    "population": 6975761,
+    "gdpMillionsUsd": 68558,
+    "labelLon": 25.15709,
+    "labelLat": 42.508785,
+    "bbox": [
+      22.344,
+      41.244,
+      28.585,
+      44.238
+    ]
+  },
+  {
+    "iso3": "BFA",
+    "iso2": "BF",
+    "name": "Burkina Faso",
+    "nameFormal": "Burkina Faso",
+    "slug": "burkina-faso",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Western Africa",
+    "population": 20321378,
+    "gdpMillionsUsd": 15990,
+    "labelLon": -1.36388,
+    "labelLat": 12.673048,
+    "bbox": [
+      -5.524,
+      9.425,
+      2.389,
+      15.078
+    ]
+  },
+  {
+    "iso3": "BDI",
+    "iso2": "BI",
+    "name": "Burundi",
+    "nameFormal": "Republic of Burundi",
+    "slug": "burundi",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Eastern Africa",
+    "population": 11530580,
+    "gdpMillionsUsd": 3012,
+    "labelLon": 29.917086,
+    "labelLat": -3.332836,
+    "bbox": [
+      29.014,
+      -4.456,
+      30.811,
+      -2.313
+    ]
+  },
+  {
+    "iso3": "CPV",
+    "iso2": "CV",
+    "name": "Cabo Verde",
+    "nameFormal": "Republic of Cabo Verde",
+    "slug": "cabo-verde",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Western Africa",
+    "population": 549935,
+    "gdpMillionsUsd": 1981,
+    "labelLon": -23.639434,
+    "labelLat": 15.074761,
+    "bbox": [
+      -23.785,
+      14.916,
+      -23.444,
+      15.329
+    ]
+  },
+  {
+    "iso3": "KHM",
+    "iso2": "KH",
+    "name": "Cambodia",
+    "nameFormal": "Kingdom of Cambodia",
+    "slug": "cambodia",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "South-Eastern Asia",
+    "population": 16486542,
+    "gdpMillionsUsd": 27089,
+    "labelLon": 104.50487,
+    "labelLat": 12.647584,
+    "bbox": [
+      102.32,
+      10.411,
+      107.605,
+      14.705
+    ]
+  },
+  {
+    "iso3": "CMR",
+    "iso2": "CM",
+    "name": "Cameroon",
+    "nameFormal": "Republic of Cameroon",
+    "slug": "cameroon",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Middle Africa",
+    "population": 25876380,
+    "gdpMillionsUsd": 39007,
+    "labelLon": 12.473488,
+    "labelLat": 4.585041,
+    "bbox": [
+      8.533,
+      1.676,
+      16.183,
+      13.079
+    ]
+  },
+  {
+    "iso3": "CAN",
+    "iso2": "CA",
+    "name": "Canada",
+    "nameFormal": "Canada",
+    "slug": "canada",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Northern America",
+    "population": 37589262,
+    "gdpMillionsUsd": 1736425,
+    "labelLon": -101.9107,
+    "labelLat": 60.324287,
+    "bbox": [
+      -141.002,
+      41.675,
+      -55.673,
+      71.987
+    ]
+  },
+  {
+    "iso3": "CYM",
+    "iso2": "KY",
+    "name": "Cayman Is.",
+    "nameFormal": "Cayman Islands",
+    "slug": "cayman-is",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 64948,
+    "gdpMillionsUsd": 5517,
+    "labelLon": -81.24055,
+    "labelLat": 19.319862,
+    "bbox": [
+      -81.419,
+      19.272,
+      -81.107,
+      19.385
+    ]
+  },
+  {
+    "iso3": "CAF",
+    "iso2": "CF",
+    "name": "Central African Rep.",
+    "nameFormal": "Central African Republic",
+    "slug": "central-african-rep",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Middle Africa",
+    "population": 4745185,
+    "gdpMillionsUsd": 2220,
+    "labelLon": 20.906897,
+    "labelLat": 6.989681,
+    "bbox": [
+      14.431,
+      2.27,
+      27.403,
+      10.996
+    ]
+  },
+  {
+    "iso3": "TCD",
+    "iso2": "TD",
+    "name": "Chad",
+    "nameFormal": "Republic of Chad",
+    "slug": "chad",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Middle Africa",
+    "population": 15946876,
+    "gdpMillionsUsd": 11314,
+    "labelLon": 18.645041,
+    "labelLat": 15.142959,
+    "bbox": [
+      13.448,
+      7.475,
+      23.983,
+      23.445
+    ]
+  },
+  {
+    "iso3": "CHL",
+    "iso2": "CL",
+    "name": "Chile",
+    "nameFormal": "Republic of Chile",
+    "slug": "chile",
+    "continent": "South America",
+    "unRegion": "Americas",
+    "unSubregion": "South America",
+    "population": 18952038,
+    "gdpMillionsUsd": 282318,
+    "labelLon": -72.318871,
+    "labelLat": -38.151771,
+    "bbox": [
+      -75.708,
+      -53.883,
+      -67.009,
+      -17.506
+    ]
+  },
+  {
+    "iso3": "CHN",
+    "iso2": "CN",
+    "name": "China",
+    "nameFormal": "People's Republic of China",
+    "slug": "china",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Eastern Asia",
+    "population": 1397715000,
+    "gdpMillionsUsd": 14342903,
+    "labelLon": 106.337289,
+    "labelLat": 32.498178,
+    "bbox": [
+      73.607,
+      20.264,
+      134.752,
+      53.556
+    ]
+  },
+  {
+    "iso3": "COL",
+    "iso2": "CO",
+    "name": "Colombia",
+    "nameFormal": "Republic of Colombia",
+    "slug": "colombia",
+    "continent": "South America",
+    "unRegion": "Americas",
+    "unSubregion": "South America",
+    "population": 50339443,
+    "gdpMillionsUsd": 323615,
+    "labelLon": -73.174347,
+    "labelLat": 3.373111,
+    "bbox": [
+      -79.025,
+      -4.236,
+      -66.876,
+      12.434
+    ]
+  },
+  {
+    "iso3": "COM",
+    "iso2": "KM",
+    "name": "Comoros",
+    "nameFormal": "Union of the Comoros",
+    "slug": "comoros",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Eastern Africa",
+    "population": 850886,
+    "gdpMillionsUsd": 1165,
+    "labelLon": 43.318094,
+    "labelLat": -11.727683,
+    "bbox": [
+      43.227,
+      -11.915,
+      43.492,
+      -11.368
+    ]
+  },
+  {
+    "iso3": "COG",
+    "iso2": "CG",
+    "name": "Congo",
+    "nameFormal": "Republic of the Congo",
+    "slug": "congo",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Middle Africa",
+    "population": 5380508,
+    "gdpMillionsUsd": 12267,
+    "labelLon": 15.9005,
+    "labelLat": 0.142331,
+    "bbox": [
+      11.13,
+      -5.004,
+      18.622,
+      3.687
+    ]
+  },
+  {
+    "iso3": "COK",
+    "iso2": "CK",
+    "name": "Cook Is.",
+    "nameFormal": "Cook Islands",
+    "slug": "cook-is",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Polynesia",
+    "population": 17459,
+    "gdpMillionsUsd": 244,
+    "labelLon": -159.785675,
+    "labelLat": -21.215993,
+    "bbox": [
+      -159.842,
+      -21.25,
+      -159.737,
+      -21.186
+    ]
+  },
+  {
+    "iso3": "CRI",
+    "iso2": "CR",
+    "name": "Costa Rica",
+    "nameFormal": "Republic of Costa Rica",
+    "slug": "costa-rica",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Central America",
+    "population": 5047561,
+    "gdpMillionsUsd": 61801,
+    "labelLon": -84.077922,
+    "labelLat": 10.0651,
+    "bbox": [
+      -85.908,
+      8.071,
+      -82.564,
+      11.189
+    ]
+  },
+  {
+    "iso3": "CIV",
+    "iso2": "CI",
+    "name": "Côte d'Ivoire",
+    "nameFormal": "Republic of Ivory Coast",
+    "slug": "cote-d-ivoire",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Western Africa",
+    "population": 25716544,
+    "gdpMillionsUsd": 58539,
+    "labelLon": -5.568618,
+    "labelLat": 7.49139,
+    "bbox": [
+      -8.604,
+      4.351,
+      -2.506,
+      10.724
+    ]
+  },
+  {
+    "iso3": "HRV",
+    "iso2": "HR",
+    "name": "Croatia",
+    "nameFormal": "Republic of Croatia",
+    "slug": "croatia",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Southern Europe",
+    "population": 4067500,
+    "gdpMillionsUsd": 60752,
+    "labelLon": 16.37241,
+    "labelLat": 45.805799,
+    "bbox": [
+      13.517,
+      42.938,
+      19.401,
+      46.535
+    ]
+  },
+  {
+    "iso3": "CUB",
+    "iso2": "CU",
+    "name": "Cuba",
+    "nameFormal": "Republic of Cuba",
+    "slug": "cuba",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 11333483,
+    "gdpMillionsUsd": 100023,
+    "labelLon": -77.975855,
+    "labelLat": 21.334024,
+    "bbox": [
+      -84.887,
+      19.855,
+      -74.137,
+      23.19
+    ]
+  },
+  {
+    "iso3": "CUW",
+    "iso2": "CW",
+    "name": "Curaçao",
+    "nameFormal": "Curaçao",
+    "slug": "curacao",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 157538,
+    "gdpMillionsUsd": 3101,
+    "labelLon": -68.920578,
+    "labelLat": 12.145039,
+    "bbox": [
+      -69.159,
+      12.045,
+      -68.751,
+      12.38
+    ]
+  },
+  {
+    "iso3": "CYP",
+    "iso2": "CY",
+    "name": "Cyprus",
+    "nameFormal": "Republic of Cyprus",
+    "slug": "cyprus",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Western Asia",
+    "population": 1198575,
+    "gdpMillionsUsd": 24948,
+    "labelLon": 33.084182,
+    "labelLat": 34.913329,
+    "bbox": [
+      32.301,
+      34.57,
+      34.05,
+      35.183
+    ]
+  },
+  {
+    "iso3": "CZE",
+    "iso2": "CZ",
+    "name": "Czechia",
+    "nameFormal": "Czech Republic",
+    "slug": "czechia",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Eastern Europe",
+    "population": 10669709,
+    "gdpMillionsUsd": 250680,
+    "labelLon": 15.377555,
+    "labelLat": 49.882364,
+    "bbox": [
+      12.09,
+      48.576,
+      18.832,
+      51.038
+    ]
+  },
+  {
+    "iso3": "COD",
+    "iso2": "CD",
+    "name": "Dem. Rep. Congo",
+    "nameFormal": "Democratic Republic of the Congo",
+    "slug": "dem-rep-congo",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Middle Africa",
+    "population": 86790567,
+    "gdpMillionsUsd": 50400,
+    "labelLon": 23.458829,
+    "labelLat": -1.858167,
+    "bbox": [
+      12.214,
+      -13.454,
+      31.274,
+      5.312
+    ]
+  },
+  {
+    "iso3": "DNK",
+    "iso2": "DK",
+    "name": "Denmark",
+    "nameFormal": "Kingdom of Denmark",
+    "slug": "denmark",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Northern Europe",
+    "population": 5818553,
+    "gdpMillionsUsd": 350104,
+    "labelLon": 9.018163,
+    "labelLat": 55.966965,
+    "bbox": [
+      8.121,
+      54.806,
+      10.926,
+      57.737
+    ]
+  },
+  {
+    "iso3": "DJI",
+    "iso2": "DJ",
+    "name": "Djibouti",
+    "nameFormal": "Republic of Djibouti",
+    "slug": "djibouti",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Eastern Africa",
+    "population": 973560,
+    "gdpMillionsUsd": 3324,
+    "labelLon": 42.498825,
+    "labelLat": 11.976343,
+    "bbox": [
+      41.765,
+      10.941,
+      43.41,
+      12.709
+    ]
+  },
+  {
+    "iso3": "DMA",
+    "iso2": "DM",
+    "name": "Dominica",
+    "nameFormal": "Commonwealth of Dominica",
+    "slug": "dominica",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 71808,
+    "gdpMillionsUsd": 582,
+    "labelLon": -61.344958,
+    "labelLat": 15.458829,
+    "bbox": [
+      -61.481,
+      15.227,
+      -61.251,
+      15.633
+    ]
+  },
+  {
+    "iso3": "DOM",
+    "iso2": "DO",
+    "name": "Dominican Rep.",
+    "nameFormal": "Dominican Republic",
+    "slug": "dominican-rep",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 10738958,
+    "gdpMillionsUsd": 88941,
+    "labelLon": -70.653998,
+    "labelLat": 19.104137,
+    "bbox": [
+      -72,
+      17.636,
+      -68.339,
+      19.914
+    ]
+  },
+  {
+    "iso3": "ECU",
+    "iso2": "EC",
+    "name": "Ecuador",
+    "nameFormal": "Republic of Ecuador",
+    "slug": "ecuador",
+    "continent": "South America",
+    "unRegion": "Americas",
+    "unSubregion": "South America",
+    "population": 17373662,
+    "gdpMillionsUsd": 107435,
+    "labelLon": -78.188375,
+    "labelLat": -1.259076,
+    "bbox": [
+      -80.963,
+      -4.991,
+      -75.25,
+      1.455
+    ]
+  },
+  {
+    "iso3": "EGY",
+    "iso2": "EG",
+    "name": "Egypt",
+    "nameFormal": "Arab Republic of Egypt",
+    "slug": "egypt",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Northern Africa",
+    "population": 100388073,
+    "gdpMillionsUsd": 303092,
+    "labelLon": 29.445837,
+    "labelLat": 26.186173,
+    "bbox": [
+      24.703,
+      21.995,
+      36.871,
+      31.655
+    ]
+  },
+  {
+    "iso3": "SLV",
+    "iso2": "SV",
+    "name": "El Salvador",
+    "nameFormal": "Republic of El Salvador",
+    "slug": "el-salvador",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Central America",
+    "population": 6453553,
+    "gdpMillionsUsd": 27022,
+    "labelLon": -88.890124,
+    "labelLat": 13.685371,
+    "bbox": [
+      -90.106,
+      13.164,
+      -87.715,
+      14.431
+    ]
+  },
+  {
+    "iso3": "GNQ",
+    "iso2": "GQ",
+    "name": "Eq. Guinea",
+    "nameFormal": "Republic of Equatorial Guinea",
+    "slug": "eq-guinea",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Middle Africa",
+    "population": 1355986,
+    "gdpMillionsUsd": 11026,
+    "labelLon": 8.9902,
+    "labelLat": 2.333,
+    "bbox": [
+      9.386,
+      0.96,
+      11.335,
+      2.304
+    ]
+  },
+  {
+    "iso3": "ERI",
+    "iso2": "ER",
+    "name": "Eritrea",
+    "nameFormal": "State of Eritrea",
+    "slug": "eritrea",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Eastern Africa",
+    "population": 6081196,
+    "gdpMillionsUsd": 2065,
+    "labelLon": 38.285566,
+    "labelLat": 15.787401,
+    "bbox": [
+      36.427,
+      12.377,
+      43.117,
+      18.005
+    ]
+  },
+  {
+    "iso3": "EST",
+    "iso2": "EE",
+    "name": "Estonia",
+    "nameFormal": "Republic of Estonia",
+    "slug": "estonia",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Northern Europe",
+    "population": 1326590,
+    "gdpMillionsUsd": 31471,
+    "labelLon": 25.867126,
+    "labelLat": 58.724865,
+    "bbox": [
+      23.432,
+      57.525,
+      28.151,
+      59.639
+    ]
+  },
+  {
+    "iso3": "SWZ",
+    "iso2": "SZ",
+    "name": "eSwatini",
+    "nameFormal": "Kingdom of eSwatini",
+    "slug": "eswatini",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Southern Africa",
+    "population": 1148130,
+    "gdpMillionsUsd": 4471,
+    "labelLon": 31.467264,
+    "labelLat": -26.533676,
+    "bbox": [
+      30.788,
+      -27.31,
+      32.113,
+      -25.743
+    ]
+  },
+  {
+    "iso3": "ETH",
+    "iso2": "ET",
+    "name": "Ethiopia",
+    "nameFormal": "Federal Democratic Republic of Ethiopia",
+    "slug": "ethiopia",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Eastern Africa",
+    "population": 112078730,
+    "gdpMillionsUsd": 95912,
+    "labelLon": 39.0886,
+    "labelLat": 8.032795,
+    "bbox": [
+      32.999,
+      3.456,
+      47.978,
+      14.852
+    ]
+  },
+  {
+    "iso3": "FRO",
+    "iso2": "FO",
+    "name": "Faeroe Is.",
+    "nameFormal": "Føroyar Is. (Faeroe Is.)",
+    "slug": "faeroe-is",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Northern Europe",
+    "population": 48678,
+    "gdpMillionsUsd": 3116,
+    "labelLon": -7.058429,
+    "labelLat": 62.185604,
+    "bbox": [
+      -7.172,
+      61.951,
+      -6.631,
+      62.316
+    ]
+  },
+  {
+    "iso3": "FLK",
+    "iso2": "FK",
+    "name": "Falkland Is.",
+    "nameFormal": "Falkland Islands",
+    "slug": "falkland-is",
+    "continent": "South America",
+    "unRegion": "Americas",
+    "unSubregion": "South America",
+    "population": 3398,
+    "gdpMillionsUsd": 282,
+    "labelLon": -58.738602,
+    "labelLat": -51.608913,
+    "bbox": [
+      -59.649,
+      -52.308,
+      -57.792,
+      -51.27
+    ]
+  },
+  {
+    "iso3": "FJI",
+    "iso2": "FJ",
+    "name": "Fiji",
+    "nameFormal": "Republic of Fiji",
+    "slug": "fiji",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Melanesia",
+    "population": 889953,
+    "gdpMillionsUsd": 5496,
+    "labelLon": 177.975427,
+    "labelLat": -17.826099,
+    "bbox": [
+      177.255,
+      -18.264,
+      178.668,
+      -17.313
+    ]
+  },
+  {
+    "iso3": "FIN",
+    "iso2": "FI",
+    "name": "Finland",
+    "nameFormal": "Republic of Finland",
+    "slug": "finland",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Northern Europe",
+    "population": 5520314,
+    "gdpMillionsUsd": 269296,
+    "labelLon": 27.276449,
+    "labelLat": 63.252361,
+    "bbox": [
+      20.622,
+      59.816,
+      31.537,
+      70.065
+    ]
+  },
+  {
+    "iso3": "PYF",
+    "iso2": "PF",
+    "name": "Fr. Polynesia",
+    "nameFormal": "French Polynesia",
+    "slug": "fr-polynesia",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Polynesia",
+    "population": 279287,
+    "gdpMillionsUsd": 5490,
+    "labelLon": -149.46157,
+    "labelLat": -17.628081,
+    "bbox": [
+      -149.635,
+      -17.862,
+      -149.151,
+      -17.496
+    ]
+  },
+  {
+    "iso3": "ATF",
+    "iso2": "TF",
+    "name": "Fr. S. Antarctic Lands",
+    "nameFormal": "Territory of the French Southern and Antarctic Lands",
+    "slug": "fr-s-antarctic-lands",
+    "continent": "Seven seas (open ocean)",
+    "unRegion": "Africa",
+    "unSubregion": "Seven seas (open ocean)",
+    "population": 140,
+    "gdpMillionsUsd": 16,
+    "labelLon": 69.122136,
+    "labelLat": -49.303721,
+    "bbox": [
+      68.77,
+      -49.71,
+      70.555,
+      -48.656
+    ]
+  },
+  {
+    "iso3": "FRA",
+    "iso2": null,
+    "name": "France",
+    "nameFormal": "French Republic",
+    "slug": "france",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Western Europe",
+    "population": 67059887,
+    "gdpMillionsUsd": 2715518,
+    "labelLon": 2.552275,
+    "labelLat": 46.696113,
+    "bbox": [
+      -4.763,
+      42.34,
+      8.14,
+      51.097
+    ]
+  },
+  {
+    "iso3": "GAB",
+    "iso2": "GA",
+    "name": "Gabon",
+    "nameFormal": "Gabonese Republic",
+    "slug": "gabon",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Middle Africa",
+    "population": 2172579,
+    "gdpMillionsUsd": 16874,
+    "labelLon": 11.835939,
+    "labelLat": -0.437739,
+    "bbox": [
+      8.703,
+      -3.916,
+      14.481,
+      2.302
+    ]
+  },
+  {
+    "iso3": "GMB",
+    "iso2": "GM",
+    "name": "Gambia",
+    "nameFormal": "Republic of the Gambia",
+    "slug": "gambia",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Western Africa",
+    "population": 2347706,
+    "gdpMillionsUsd": 1826,
+    "labelLon": -14.998318,
+    "labelLat": 13.641721,
+    "bbox": [
+      -16.825,
+      13.064,
+      -13.827,
+      13.812
+    ]
+  },
+  {
+    "iso3": "GEO",
+    "iso2": "GE",
+    "name": "Georgia",
+    "nameFormal": "Georgia",
+    "slug": "georgia",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Western Asia",
+    "population": 3720382,
+    "gdpMillionsUsd": 17477,
+    "labelLon": 43.735724,
+    "labelLat": 41.870087,
+    "bbox": [
+      39.978,
+      41.07,
+      46.673,
+      43.57
+    ]
+  },
+  {
+    "iso3": "DEU",
+    "iso2": "DE",
+    "name": "Germany",
+    "nameFormal": "Federal Republic of Germany",
+    "slug": "germany",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Western Europe",
+    "population": 83132799,
+    "gdpMillionsUsd": 3861123,
+    "labelLon": 9.678348,
+    "labelLat": 50.961733,
+    "bbox": [
+      5.858,
+      47.279,
+      15.017,
+      54.903
+    ]
+  },
+  {
+    "iso3": "GHA",
+    "iso2": "GH",
+    "name": "Ghana",
+    "nameFormal": "Republic of Ghana",
+    "slug": "ghana",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Western Africa",
+    "population": 30417856,
+    "gdpMillionsUsd": 66983,
+    "labelLon": -1.036941,
+    "labelLat": 7.717639,
+    "bbox": [
+      -3.244,
+      4.762,
+      1.187,
+      11.167
+    ]
+  },
+  {
+    "iso3": "GRC",
+    "iso2": "GR",
+    "name": "Greece",
+    "nameFormal": "Hellenic Republic",
+    "slug": "greece",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Southern Europe",
+    "population": 10716322,
+    "gdpMillionsUsd": 209852,
+    "labelLon": 21.72568,
+    "labelLat": 39.492763,
+    "bbox": [
+      20.001,
+      36.447,
+      26.625,
+      41.744
+    ]
+  },
+  {
+    "iso3": "GRL",
+    "iso2": "GL",
+    "name": "Greenland",
+    "nameFormal": "Greenland",
+    "slug": "greenland",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Northern America",
+    "population": 56225,
+    "gdpMillionsUsd": 3051,
+    "labelLon": -39.335251,
+    "labelLat": 74.319387,
+    "bbox": [
+      -72.818,
+      59.815,
+      -11.426,
+      83.6
+    ]
+  },
+  {
+    "iso3": "GRD",
+    "iso2": "GD",
+    "name": "Grenada",
+    "nameFormal": "Grenada",
+    "slug": "grenada",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 112003,
+    "gdpMillionsUsd": 1210,
+    "labelLon": -61.680461,
+    "labelLat": 12.113156,
+    "bbox": [
+      -61.782,
+      12.008,
+      -61.607,
+      12.237
+    ]
+  },
+  {
+    "iso3": "GUM",
+    "iso2": "GU",
+    "name": "Guam",
+    "nameFormal": "Territory of Guam",
+    "slug": "guam",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Micronesia",
+    "population": 167294,
+    "gdpMillionsUsd": 5920,
+    "labelLon": 144.703614,
+    "labelLat": 13.354173,
+    "bbox": [
+      144.649,
+      13.258,
+      144.941,
+      13.622
+    ]
+  },
+  {
+    "iso3": "GTM",
+    "iso2": "GT",
+    "name": "Guatemala",
+    "nameFormal": "Republic of Guatemala",
+    "slug": "guatemala",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Central America",
+    "population": 16604026,
+    "gdpMillionsUsd": 76710,
+    "labelLon": -90.497134,
+    "labelLat": 14.982133,
+    "bbox": [
+      -92.235,
+      13.737,
+      -88.228,
+      17.816
+    ]
+  },
+  {
+    "iso3": "GGY",
+    "iso2": "GG",
+    "name": "Guernsey",
+    "nameFormal": "Bailiwick of Guernsey",
+    "slug": "guernsey",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Northern Europe",
+    "population": 62792,
+    "gdpMillionsUsd": 3465,
+    "labelLon": -2.561736,
+    "labelLat": 49.463533,
+    "bbox": [
+      -2.646,
+      49.429,
+      -2.512,
+      49.507
+    ]
+  },
+  {
+    "iso3": "GIN",
+    "iso2": "GN",
+    "name": "Guinea",
+    "nameFormal": "Republic of Guinea",
+    "slug": "guinea",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Western Africa",
+    "population": 12771246,
+    "gdpMillionsUsd": 12296,
+    "labelLon": -10.016402,
+    "labelLat": 10.618516,
+    "bbox": [
+      -15.051,
+      7.216,
+      -7.681,
+      12.674
+    ]
+  },
+  {
+    "iso3": "GNB",
+    "iso2": "GW",
+    "name": "Guinea-Bissau",
+    "nameFormal": "Republic of Guinea-Bissau",
+    "slug": "guinea-bissau",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Western Africa",
+    "population": 1920922,
+    "gdpMillionsUsd": 1339,
+    "labelLon": -14.52413,
+    "labelLat": 12.163712,
+    "bbox": [
+      -16.712,
+      10.94,
+      -13.674,
+      12.68
+    ]
+  },
+  {
+    "iso3": "GUY",
+    "iso2": "GY",
+    "name": "Guyana",
+    "nameFormal": "Co-operative Republic of Guyana",
+    "slug": "guyana",
+    "continent": "South America",
+    "unRegion": "Americas",
+    "unSubregion": "South America",
+    "population": 782766,
+    "gdpMillionsUsd": 5173,
+    "labelLon": -58.942643,
+    "labelLat": 5.124317,
+    "bbox": [
+      -61.391,
+      1.201,
+      -56.483,
+      8.549
+    ]
+  },
+  {
+    "iso3": "HTI",
+    "iso2": "HT",
+    "name": "Haiti",
+    "nameFormal": "Republic of Haiti",
+    "slug": "haiti",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 11263077,
+    "gdpMillionsUsd": 14332,
+    "labelLon": -72.224051,
+    "labelLat": 19.263784,
+    "bbox": [
+      -74.478,
+      18.039,
+      -71.645,
+      19.928
+    ]
+  },
+  {
+    "iso3": "HMD",
+    "iso2": "HM",
+    "name": "Heard I. and McDonald Is.",
+    "nameFormal": "Territory of Heard Island and McDonald Islands",
+    "slug": "heard-i-and-mcdonald-is",
+    "continent": "Seven seas (open ocean)",
+    "unRegion": "Africa",
+    "unSubregion": "Seven seas (open ocean)",
+    "population": 0,
+    "gdpMillionsUsd": 0,
+    "labelLon": 73.50521,
+    "labelLat": -53.103462,
+    "bbox": [
+      73.251,
+      -53.185,
+      73.838,
+      -52.966
+    ]
+  },
+  {
+    "iso3": "HND",
+    "iso2": "HN",
+    "name": "Honduras",
+    "nameFormal": "Republic of Honduras",
+    "slug": "honduras",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Central America",
+    "population": 9746117,
+    "gdpMillionsUsd": 25095,
+    "labelLon": -86.887604,
+    "labelLat": 14.794801,
+    "bbox": [
+      -89.363,
+      12.979,
+      -83.158,
+      16.024
+    ]
+  },
+  {
+    "iso3": "HKG",
+    "iso2": "HK",
+    "name": "Hong Kong",
+    "nameFormal": "Hong Kong Special Administrative Region, PRC",
+    "slug": "hong-kong",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Eastern Asia",
+    "population": 7507400,
+    "gdpMillionsUsd": 365711,
+    "labelLon": 114.097769,
+    "labelLat": 22.448829,
+    "bbox": [
+      113.896,
+      22.296,
+      114.335,
+      22.565
+    ]
+  },
+  {
+    "iso3": "HUN",
+    "iso2": "HU",
+    "name": "Hungary",
+    "nameFormal": "Republic of Hungary",
+    "slug": "hungary",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Eastern Europe",
+    "population": 9769949,
+    "gdpMillionsUsd": 163469,
+    "labelLon": 19.447867,
+    "labelLat": 47.086841,
+    "bbox": [
+      16.093,
+      45.753,
+      22.877,
+      48.553
+    ]
+  },
+  {
+    "iso3": "ISL",
+    "iso2": "IS",
+    "name": "Iceland",
+    "nameFormal": "Republic of Iceland",
+    "slug": "iceland",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Northern Europe",
+    "population": 361313,
+    "gdpMillionsUsd": 24188,
+    "labelLon": -18.673711,
+    "labelLat": 64.779286,
+    "bbox": [
+      -24.476,
+      63.407,
+      -13.556,
+      66.526
+    ]
+  },
+  {
+    "iso3": "IND",
+    "iso2": "IN",
+    "name": "India",
+    "nameFormal": "Republic of India",
+    "slug": "india",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Southern Asia",
+    "population": 1366417754,
+    "gdpMillionsUsd": 2868929,
+    "labelLon": 79.358105,
+    "labelLat": 22.686852,
+    "bbox": [
+      68.165,
+      8.078,
+      97.344,
+      35.496
+    ]
+  },
+  {
+    "iso3": "IOA",
+    "iso2": null,
+    "name": "Indian Ocean Ter.",
+    "nameFormal": "Indian Ocean Territories",
+    "slug": "indian-ocean-ter",
+    "continent": "Asia",
+    "unRegion": "Africa",
+    "unSubregion": "Seven seas (open ocean)",
+    "population": 2387,
+    "gdpMillionsUsd": 35,
+    "labelLon": 105.67259,
+    "labelLat": -10.490789,
+    "bbox": [
+      105.584,
+      -10.564,
+      105.725,
+      -10.431
+    ]
+  },
+  {
+    "iso3": "IDN",
+    "iso2": "ID",
+    "name": "Indonesia",
+    "nameFormal": "Republic of Indonesia",
+    "slug": "indonesia",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "South-Eastern Asia",
+    "population": 270625568,
+    "gdpMillionsUsd": 1119190,
+    "labelLon": 101.892949,
+    "labelLat": -0.954404,
+    "bbox": [
+      95.207,
+      -5.908,
+      106.058,
+      5.629
+    ]
+  },
+  {
+    "iso3": "IRN",
+    "iso2": "IR",
+    "name": "Iran",
+    "nameFormal": "Islamic Republic of Iran",
+    "slug": "iran",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Southern Asia",
+    "population": 82913906,
+    "gdpMillionsUsd": 453996,
+    "labelLon": 54.931495,
+    "labelLat": 32.166225,
+    "bbox": [
+      44.023,
+      25.102,
+      63.305,
+      39.769
+    ]
+  },
+  {
+    "iso3": "IRQ",
+    "iso2": "IQ",
+    "name": "Iraq",
+    "nameFormal": "Republic of Iraq",
+    "slug": "iraq",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Western Asia",
+    "population": 39309783,
+    "gdpMillionsUsd": 234094,
+    "labelLon": 43.26181,
+    "labelLat": 33.09403,
+    "bbox": [
+      38.774,
+      29.064,
+      48.546,
+      37.372
+    ]
+  },
+  {
+    "iso3": "IRL",
+    "iso2": "IE",
+    "name": "Ireland",
+    "nameFormal": "Ireland",
+    "slug": "ireland",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Northern Europe",
+    "population": 4941444,
+    "gdpMillionsUsd": 388698,
+    "labelLon": -7.798588,
+    "labelLat": 53.078726,
+    "bbox": [
+      -10.39,
+      51.474,
+      -6.027,
+      55.366
+    ]
+  },
+  {
+    "iso3": "IMN",
+    "iso2": "IM",
+    "name": "Isle of Man",
+    "nameFormal": "Isle of Man",
+    "slug": "isle-of-man",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Northern Europe",
+    "population": 84584,
+    "gdpMillionsUsd": 7491,
+    "labelLon": -4.530069,
+    "labelLat": 54.220833,
+    "bbox": [
+      -4.785,
+      54.059,
+      -4.338,
+      54.407
+    ]
+  },
+  {
+    "iso3": "ISR",
+    "iso2": "IL",
+    "name": "Israel",
+    "nameFormal": "State of Israel",
+    "slug": "israel",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Western Asia",
+    "population": 9053300,
+    "gdpMillionsUsd": 394652,
+    "labelLon": 34.847915,
+    "labelLat": 30.911148,
+    "bbox": [
+      34.245,
+      29.477,
+      35.888,
+      33.416
+    ]
+  },
+  {
+    "iso3": "ITA",
+    "iso2": "IT",
+    "name": "Italy",
+    "nameFormal": "Italian Republic",
+    "slug": "italy",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Southern Europe",
+    "population": 60297396,
+    "gdpMillionsUsd": 2003576,
+    "labelLon": 11.076907,
+    "labelLat": 44.732482,
+    "bbox": [
+      6.628,
+      37.939,
+      18.486,
+      47.082
+    ]
+  },
+  {
+    "iso3": "JAM",
+    "iso2": "JM",
+    "name": "Jamaica",
+    "nameFormal": "Jamaica",
+    "slug": "jamaica",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 2948279,
+    "gdpMillionsUsd": 16458,
+    "labelLon": -77.318767,
+    "labelLat": 18.137124,
+    "bbox": [
+      -78.34,
+      17.715,
+      -76.211,
+      18.522
+    ]
+  },
+  {
+    "iso3": "JPN",
+    "iso2": "JP",
+    "name": "Japan",
+    "nameFormal": "Japan",
+    "slug": "japan",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Eastern Asia",
+    "population": 126264931,
+    "gdpMillionsUsd": 5081769,
+    "labelLon": 138.44217,
+    "labelLat": 36.142538,
+    "bbox": [
+      130.889,
+      33.487,
+      141.993,
+      41.506
+    ]
+  },
+  {
+    "iso3": "JEY",
+    "iso2": "JE",
+    "name": "Jersey",
+    "nameFormal": "Bailiwick of Jersey",
+    "slug": "jersey",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Northern Europe",
+    "population": 107800,
+    "gdpMillionsUsd": 5080,
+    "labelLon": -2.090146,
+    "labelLat": 49.220808,
+    "bbox": [
+      -2.236,
+      49.17,
+      -2.01,
+      49.266
+    ]
+  },
+  {
+    "iso3": "JOR",
+    "iso2": "JO",
+    "name": "Jordan",
+    "nameFormal": "Hashemite Kingdom of Jordan",
+    "slug": "jordan",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Western Asia",
+    "population": 10101694,
+    "gdpMillionsUsd": 44502,
+    "labelLon": 36.375991,
+    "labelLat": 30.805025,
+    "bbox": [
+      34.951,
+      29.19,
+      39.293,
+      33.372
+    ]
+  },
+  {
+    "iso3": "KAZ",
+    "iso2": "KZ",
+    "name": "Kazakhstan",
+    "nameFormal": "Republic of Kazakhstan",
+    "slug": "kazakhstan",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Central Asia",
+    "population": 18513930,
+    "gdpMillionsUsd": 181665,
+    "labelLon": 68.685548,
+    "labelLat": 49.054149,
+    "bbox": [
+      46.609,
+      40.609,
+      87.323,
+      55.39
+    ]
+  },
+  {
+    "iso3": "KEN",
+    "iso2": "KE",
+    "name": "Kenya",
+    "nameFormal": "Republic of Kenya",
+    "slug": "kenya",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Eastern Africa",
+    "population": 52573973,
+    "gdpMillionsUsd": 95503,
+    "labelLon": 37.907632,
+    "labelLat": 0.549043,
+    "bbox": [
+      33.9,
+      -4.692,
+      41.884,
+      5.492
+    ]
+  },
+  {
+    "iso3": "KIR",
+    "iso2": "KI",
+    "name": "Kiribati",
+    "nameFormal": "Republic of Kiribati",
+    "slug": "kiribati",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Micronesia",
+    "population": 117606,
+    "gdpMillionsUsd": 194,
+    "labelLon": -157.384577,
+    "labelLat": 1.820437,
+    "bbox": [
+      -157.579,
+      1.732,
+      -157.176,
+      2.029
+    ]
+  },
+  {
+    "iso3": "KOS",
+    "iso2": null,
+    "name": "Kosovo",
+    "nameFormal": "Republic of Kosovo",
+    "slug": "kosovo",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Southern Europe",
+    "population": 1794248,
+    "gdpMillionsUsd": 7926,
+    "labelLon": 20.860719,
+    "labelLat": 42.593587,
+    "bbox": [
+      20.029,
+      41.854,
+      21.753,
+      43.261
+    ]
+  },
+  {
+    "iso3": "KWT",
+    "iso2": "KW",
+    "name": "Kuwait",
+    "nameFormal": "State of Kuwait",
+    "slug": "kuwait",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Western Asia",
+    "population": 4207083,
+    "gdpMillionsUsd": 134628,
+    "labelLon": 47.313999,
+    "labelLat": 29.413628,
+    "bbox": [
+      46.531,
+      28.533,
+      48.442,
+      30.097
+    ]
+  },
+  {
+    "iso3": "KGZ",
+    "iso2": "KG",
+    "name": "Kyrgyzstan",
+    "nameFormal": "Kyrgyz Republic",
+    "slug": "kyrgyzstan",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Central Asia",
+    "population": 6456900,
+    "gdpMillionsUsd": 8454,
+    "labelLon": 74.532637,
+    "labelLat": 41.66854,
+    "bbox": [
+      69.229,
+      39.208,
+      80.246,
+      43.24
+    ]
+  },
+  {
+    "iso3": "LAO",
+    "iso2": "LA",
+    "name": "Laos",
+    "nameFormal": "Lao People's Democratic Republic",
+    "slug": "laos",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "South-Eastern Asia",
+    "population": 7169455,
+    "gdpMillionsUsd": 18173,
+    "labelLon": 102.533912,
+    "labelLat": 19.431821,
+    "bbox": [
+      100.115,
+      13.921,
+      107.653,
+      22.495
+    ]
+  },
+  {
+    "iso3": "LVA",
+    "iso2": "LV",
+    "name": "Latvia",
+    "nameFormal": "Republic of Latvia",
+    "slug": "latvia",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Northern Europe",
+    "population": 1912789,
+    "gdpMillionsUsd": 34102,
+    "labelLon": 25.458723,
+    "labelLat": 57.066872,
+    "bbox": [
+      21.015,
+      55.668,
+      28.202,
+      58.063
+    ]
+  },
+  {
+    "iso3": "LBN",
+    "iso2": "LB",
+    "name": "Lebanon",
+    "nameFormal": "Lebanese Republic",
+    "slug": "lebanon",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Western Asia",
+    "population": 6855713,
+    "gdpMillionsUsd": 51991,
+    "labelLon": 35.992892,
+    "labelLat": 34.133368,
+    "bbox": [
+      35.109,
+      33.076,
+      36.585,
+      34.679
+    ]
+  },
+  {
+    "iso3": "LSO",
+    "iso2": "LS",
+    "name": "Lesotho",
+    "nameFormal": "Kingdom of Lesotho",
+    "slug": "lesotho",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Southern Africa",
+    "population": 2125268,
+    "gdpMillionsUsd": 2376,
+    "labelLon": 28.246639,
+    "labelLat": -29.480158,
+    "bbox": [
+      27.052,
+      -30.642,
+      29.391,
+      -28.582
+    ]
+  },
+  {
+    "iso3": "LBR",
+    "iso2": "LR",
+    "name": "Liberia",
+    "nameFormal": "Republic of Liberia",
+    "slug": "liberia",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Western Africa",
+    "population": 4937374,
+    "gdpMillionsUsd": 3070,
+    "labelLon": -9.460379,
+    "labelLat": 6.447177,
+    "bbox": [
+      -11.508,
+      4.351,
+      -7.4,
+      8.538
+    ]
+  },
+  {
+    "iso3": "LBY",
+    "iso2": "LY",
+    "name": "Libya",
+    "nameFormal": "Libya",
+    "slug": "libya",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Northern Africa",
+    "population": 6777452,
+    "gdpMillionsUsd": 52091,
+    "labelLon": 18.011015,
+    "labelLat": 26.638944,
+    "bbox": [
+      9.31,
+      19.497,
+      25.15,
+      33.182
+    ]
+  },
+  {
+    "iso3": "LIE",
+    "iso2": "LI",
+    "name": "Liechtenstein",
+    "nameFormal": "Principality of Liechtenstein",
+    "slug": "liechtenstein",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Western Europe",
+    "population": 38019,
+    "gdpMillionsUsd": 6876,
+    "labelLon": 9.559439,
+    "labelLat": 47.111405,
+    "bbox": [
+      9.479,
+      47.057,
+      9.611,
+      47.271
+    ]
+  },
+  {
+    "iso3": "LTU",
+    "iso2": "LT",
+    "name": "Lithuania",
+    "nameFormal": "Republic of Lithuania",
+    "slug": "lithuania",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Northern Europe",
+    "population": 2786844,
+    "gdpMillionsUsd": 54627,
+    "labelLon": 24.089932,
+    "labelLat": 55.103703,
+    "bbox": [
+      21.046,
+      53.893,
+      26.776,
+      56.411
+    ]
+  },
+  {
+    "iso3": "LUX",
+    "iso2": "LU",
+    "name": "Luxembourg",
+    "nameFormal": "Grand Duchy of Luxembourg",
+    "slug": "luxembourg",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Western Europe",
+    "population": 619896,
+    "gdpMillionsUsd": 71104,
+    "labelLon": 6.07762,
+    "labelLat": 49.733732,
+    "bbox": [
+      5.725,
+      49.445,
+      6.494,
+      50.167
+    ]
+  },
+  {
+    "iso3": "MAC",
+    "iso2": "MO",
+    "name": "Macao",
+    "nameFormal": "Macao Special Administrative Region, PRC",
+    "slug": "macao",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Eastern Asia",
+    "population": 640445,
+    "gdpMillionsUsd": 53859,
+    "labelLon": 113.556038,
+    "labelLat": 22.129735,
+    "bbox": [
+      113.479,
+      22.196,
+      113.548,
+      22.246
+    ]
+  },
+  {
+    "iso3": "MDG",
+    "iso2": "MG",
+    "name": "Madagascar",
+    "nameFormal": "Republic of Madagascar",
+    "slug": "madagascar",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Eastern Africa",
+    "population": 26969307,
+    "gdpMillionsUsd": 14114,
+    "labelLon": 46.704241,
+    "labelLat": -18.628288,
+    "bbox": [
+      43.257,
+      -25.571,
+      50.483,
+      -12.08
+    ]
+  },
+  {
+    "iso3": "MWI",
+    "iso2": "MW",
+    "name": "Malawi",
+    "nameFormal": "Republic of Malawi",
+    "slug": "malawi",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Eastern Africa",
+    "population": 18628747,
+    "gdpMillionsUsd": 7666,
+    "labelLon": 33.608082,
+    "labelLat": -13.386737,
+    "bbox": [
+      32.67,
+      -17.131,
+      35.893,
+      -9.395
+    ]
+  },
+  {
+    "iso3": "MYS",
+    "iso2": "MY",
+    "name": "Malaysia",
+    "nameFormal": "Malaysia",
+    "slug": "malaysia",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "South-Eastern Asia",
+    "population": 31949777,
+    "gdpMillionsUsd": 364681,
+    "labelLon": 113.83708,
+    "labelLat": 2.528667,
+    "bbox": [
+      109.539,
+      0.862,
+      119.266,
+      6.99
+    ]
+  },
+  {
+    "iso3": "MDV",
+    "iso2": "MV",
+    "name": "Maldives",
+    "nameFormal": "Republic of Maldives",
+    "slug": "maldives",
+    "continent": "Seven seas (open ocean)",
+    "unRegion": "Asia",
+    "unSubregion": "Southern Asia",
+    "population": 530953,
+    "gdpMillionsUsd": 5642,
+    "labelLon": 73.507554,
+    "labelLat": 4.174441,
+    "bbox": [
+      73.473,
+      4.155,
+      73.528,
+      4.248
+    ]
+  },
+  {
+    "iso3": "MLI",
+    "iso2": "ML",
+    "name": "Mali",
+    "nameFormal": "Republic of Mali",
+    "slug": "mali",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Western Africa",
+    "population": 19658031,
+    "gdpMillionsUsd": 17279,
+    "labelLon": -2.038455,
+    "labelLat": 18.692713,
+    "bbox": [
+      -12.281,
+      10.143,
+      4.235,
+      24.996
+    ]
+  },
+  {
+    "iso3": "MLT",
+    "iso2": "MT",
+    "name": "Malta",
+    "nameFormal": "Republic of Malta",
+    "slug": "malta",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Southern Europe",
+    "population": 502653,
+    "gdpMillionsUsd": 14989,
+    "labelLon": 14.433005,
+    "labelLat": 35.892886,
+    "bbox": [
+      14.351,
+      35.82,
+      14.566,
+      35.978
+    ]
+  },
+  {
+    "iso3": "MHL",
+    "iso2": "MH",
+    "name": "Marshall Is.",
+    "nameFormal": "Republic of the Marshall Islands",
+    "slug": "marshall-is",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Micronesia",
+    "population": 58791,
+    "gdpMillionsUsd": 221,
+    "labelLon": 171.193609,
+    "labelLat": 7.082568,
+    "bbox": [
+      171.036,
+      7.069,
+      171.394,
+      7.172
+    ]
+  },
+  {
+    "iso3": "MRT",
+    "iso2": "MR",
+    "name": "Mauritania",
+    "nameFormal": "Islamic Republic of Mauritania",
+    "slug": "mauritania",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Western Africa",
+    "population": 4525696,
+    "gdpMillionsUsd": 7600,
+    "labelLon": -9.740299,
+    "labelLat": 19.587062,
+    "bbox": [
+      -17.064,
+      14.745,
+      -4.823,
+      27.286
+    ]
+  },
+  {
+    "iso3": "MUS",
+    "iso2": "MU",
+    "name": "Mauritius",
+    "nameFormal": "Republic of Mauritius",
+    "slug": "mauritius",
+    "continent": "Seven seas (open ocean)",
+    "unRegion": "Africa",
+    "unSubregion": "Eastern Africa",
+    "population": 1265711,
+    "gdpMillionsUsd": 14048,
+    "labelLon": 57.565848,
+    "labelLat": -20.299506,
+    "bbox": [
+      57.318,
+      -20.513,
+      57.792,
+      -19.99
+    ]
+  },
+  {
+    "iso3": "MEX",
+    "iso2": "MX",
+    "name": "Mexico",
+    "nameFormal": "United Mexican States",
+    "slug": "mexico",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Central America",
+    "population": 127575529,
+    "gdpMillionsUsd": 1268870,
+    "labelLon": -102.289448,
+    "labelLat": 23.919988,
+    "bbox": [
+      -117.128,
+      14.545,
+      -86.772,
+      32.715
+    ]
+  },
+  {
+    "iso3": "FSM",
+    "iso2": "FM",
+    "name": "Micronesia",
+    "nameFormal": "Federated States of Micronesia",
+    "slug": "micronesia",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Micronesia",
+    "population": 113815,
+    "gdpMillionsUsd": 401,
+    "labelLon": 158.234019,
+    "labelLat": 6.887553,
+    "bbox": [
+      158.128,
+      6.791,
+      158.335,
+      6.978
+    ]
+  },
+  {
+    "iso3": "MDA",
+    "iso2": "MD",
+    "name": "Moldova",
+    "nameFormal": "Republic of Moldova",
+    "slug": "moldova",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Eastern Europe",
+    "population": 2657637,
+    "gdpMillionsUsd": 11968,
+    "labelLon": 28.487904,
+    "labelLat": 47.434999,
+    "bbox": [
+      26.619,
+      45.45,
+      30.131,
+      48.478
+    ]
+  },
+  {
+    "iso3": "MCO",
+    "iso2": "MC",
+    "name": "Monaco",
+    "nameFormal": "Principality of Monaco",
+    "slug": "monaco",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Western Europe",
+    "population": 38964,
+    "gdpMillionsUsd": 7188,
+    "labelLon": 7.398291,
+    "labelLat": 43.739652,
+    "bbox": [
+      7.378,
+      43.732,
+      7.439,
+      43.771
+    ]
+  },
+  {
+    "iso3": "MNG",
+    "iso2": "MN",
+    "name": "Mongolia",
+    "nameFormal": "Mongolia",
+    "slug": "mongolia",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Eastern Asia",
+    "population": 3225167,
+    "gdpMillionsUsd": 13996,
+    "labelLon": 104.150405,
+    "labelLat": 45.997488,
+    "bbox": [
+      87.743,
+      41.596,
+      119.898,
+      52.117
+    ]
+  },
+  {
+    "iso3": "MNE",
+    "iso2": "ME",
+    "name": "Montenegro",
+    "nameFormal": "Montenegro",
+    "slug": "montenegro",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Southern Europe",
+    "population": 622137,
+    "gdpMillionsUsd": 5542,
+    "labelLon": 19.143727,
+    "labelLat": 42.803101,
+    "bbox": [
+      18.436,
+      41.869,
+      20.348,
+      43.542
+    ]
+  },
+  {
+    "iso3": "MSR",
+    "iso2": "MS",
+    "name": "Montserrat",
+    "nameFormal": "Montserrat",
+    "slug": "montserrat",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 4649,
+    "gdpMillionsUsd": 44,
+    "labelLon": -62.188252,
+    "labelLat": 16.73717,
+    "bbox": [
+      -62.223,
+      16.681,
+      -62.148,
+      16.81
+    ]
+  },
+  {
+    "iso3": "MAR",
+    "iso2": "MA",
+    "name": "Morocco",
+    "nameFormal": "Kingdom of Morocco",
+    "slug": "morocco",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Northern Africa",
+    "population": 36471769,
+    "gdpMillionsUsd": 119700,
+    "labelLon": -7.187296,
+    "labelLat": 31.650723,
+    "bbox": [
+      -17.003,
+      21.421,
+      -1.066,
+      35.93
+    ]
+  },
+  {
+    "iso3": "MOZ",
+    "iso2": "MZ",
+    "name": "Mozambique",
+    "nameFormal": "Republic of Mozambique",
+    "slug": "mozambique",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Eastern Africa",
+    "population": 30366036,
+    "gdpMillionsUsd": 15291,
+    "labelLon": 37.83789,
+    "labelLat": -13.94323,
+    "bbox": [
+      30.222,
+      -26.862,
+      40.845,
+      -10.464
+    ]
+  },
+  {
+    "iso3": "MMR",
+    "iso2": "MM",
+    "name": "Myanmar",
+    "nameFormal": "Republic of the Union of Myanmar",
+    "slug": "myanmar",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "South-Eastern Asia",
+    "population": 54045420,
+    "gdpMillionsUsd": 76085,
+    "labelLon": 95.804497,
+    "labelLat": 21.573855,
+    "bbox": [
+      92.18,
+      10.035,
+      101.147,
+      28.517
+    ]
+  },
+  {
+    "iso3": "CYN",
+    "iso2": null,
+    "name": "N. Cyprus",
+    "nameFormal": "Turkish Republic of Northern Cyprus",
+    "slug": "n-cyprus",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Western Asia",
+    "population": 326000,
+    "gdpMillionsUsd": 3600,
+    "labelLon": 33.692434,
+    "labelLat": 35.216071,
+    "bbox": [
+      32.713,
+      35,
+      34.556,
+      35.662
+    ]
+  },
+  {
+    "iso3": "MNP",
+    "iso2": "MP",
+    "name": "N. Mariana Is.",
+    "nameFormal": "Commonwealth of the Northern Mariana Islands",
+    "slug": "n-mariana-is",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Micronesia",
+    "population": 57216,
+    "gdpMillionsUsd": 1323,
+    "labelLon": 145.734397,
+    "labelLat": 15.188188,
+    "bbox": [
+      145.684,
+      15.107,
+      145.822,
+      15.265
+    ]
+  },
+  {
+    "iso3": "NAM",
+    "iso2": "NA",
+    "name": "Namibia",
+    "nameFormal": "Republic of Namibia",
+    "slug": "namibia",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Southern Africa",
+    "population": 2494530,
+    "gdpMillionsUsd": 12366,
+    "labelLon": 17.108166,
+    "labelLat": -20.575298,
+    "bbox": [
+      11.722,
+      -28.939,
+      25.259,
+      -16.968
+    ]
+  },
+  {
+    "iso3": "NRU",
+    "iso2": "NR",
+    "name": "Nauru",
+    "nameFormal": "Republic of Nauru",
+    "slug": "nauru",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Micronesia",
+    "population": 12581,
+    "gdpMillionsUsd": 118,
+    "labelLon": 166.932644,
+    "labelLat": -0.520261,
+    "bbox": [
+      166.907,
+      -0.551,
+      166.958,
+      -0.489
+    ]
+  },
+  {
+    "iso3": "NPL",
+    "iso2": "NP",
+    "name": "Nepal",
+    "nameFormal": "Nepal",
+    "slug": "nepal",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Southern Asia",
+    "population": 28608710,
+    "gdpMillionsUsd": 30641,
+    "labelLon": 83.639914,
+    "labelLat": 28.297925,
+    "bbox": [
+      80.052,
+      26.36,
+      88.162,
+      30.387
+    ]
+  },
+  {
+    "iso3": "NLD",
+    "iso2": "NL",
+    "name": "Netherlands",
+    "nameFormal": "Kingdom of the Netherlands",
+    "slug": "netherlands",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Western Europe",
+    "population": 17332850,
+    "gdpMillionsUsd": 907050,
+    "labelLon": 5.61144,
+    "labelLat": 52.422211,
+    "bbox": [
+      3.449,
+      50.75,
+      7.197,
+      53.441
+    ]
+  },
+  {
+    "iso3": "NCL",
+    "iso2": "NC",
+    "name": "New Caledonia",
+    "nameFormal": "New Caledonia",
+    "slug": "new-caledonia",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Melanesia",
+    "population": 287800,
+    "gdpMillionsUsd": 10770,
+    "labelLon": 165.084004,
+    "labelLat": -21.064697,
+    "bbox": [
+      164.037,
+      -22.376,
+      167.004,
+      -20.142
+    ]
+  },
+  {
+    "iso3": "NZL",
+    "iso2": "NZ",
+    "name": "New Zealand",
+    "nameFormal": "New Zealand",
+    "slug": "new-zealand",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Australia and New Zealand",
+    "population": 4917000,
+    "gdpMillionsUsd": 206928,
+    "labelLon": 172.787,
+    "labelLat": -39.759,
+    "bbox": [
+      166.478,
+      -46.631,
+      174.37,
+      -40.49
+    ]
+  },
+  {
+    "iso3": "NIC",
+    "iso2": "NI",
+    "name": "Nicaragua",
+    "nameFormal": "Republic of Nicaragua",
+    "slug": "nicaragua",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Central America",
+    "population": 6545502,
+    "gdpMillionsUsd": 12520,
+    "labelLon": -85.069347,
+    "labelLat": 12.670697,
+    "bbox": [
+      -87.67,
+      10.735,
+      -83.158,
+      15.008
+    ]
+  },
+  {
+    "iso3": "NER",
+    "iso2": "NE",
+    "name": "Niger",
+    "nameFormal": "Republic of Niger",
+    "slug": "niger",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Western Africa",
+    "population": 23310715,
+    "gdpMillionsUsd": 12911,
+    "labelLon": 9.504356,
+    "labelLat": 17.446195,
+    "bbox": [
+      0.164,
+      11.696,
+      15.963,
+      23.518
+    ]
+  },
+  {
+    "iso3": "NGA",
+    "iso2": "NG",
+    "name": "Nigeria",
+    "nameFormal": "Federal Republic of Nigeria",
+    "slug": "nigeria",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Western Africa",
+    "population": 200963599,
+    "gdpMillionsUsd": 448120,
+    "labelLon": 7.50322,
+    "labelLat": 9.439799,
+    "bbox": [
+      2.686,
+      4.277,
+      14.627,
+      13.873
+    ]
+  },
+  {
+    "iso3": "NIU",
+    "iso2": "NU",
+    "name": "Niue",
+    "nameFormal": "Niue",
+    "slug": "niue",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Polynesia",
+    "population": 1620,
+    "gdpMillionsUsd": 10,
+    "labelLon": -169.862565,
+    "labelLat": -19.045956,
+    "bbox": [
+      -169.948,
+      -19.138,
+      -169.793,
+      -18.966
+    ]
+  },
+  {
+    "iso3": "NFK",
+    "iso2": "NF",
+    "name": "Norfolk Island",
+    "nameFormal": "Territory of Norfolk Island",
+    "slug": "norfolk-island",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Australia and New Zealand",
+    "population": 2169,
+    "gdpMillionsUsd": 32,
+    "labelLon": 167.954531,
+    "labelLat": -29.033042,
+    "bbox": [
+      167.906,
+      -29.096,
+      167.99,
+      -29.014
+    ]
+  },
+  {
+    "iso3": "PRK",
+    "iso2": "KP",
+    "name": "North Korea",
+    "nameFormal": "Democratic People's Republic of Korea",
+    "slug": "north-korea",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Eastern Asia",
+    "population": 25666161,
+    "gdpMillionsUsd": 40000,
+    "labelLon": 126.444516,
+    "labelLat": 39.885252,
+    "bbox": [
+      124.349,
+      37.719,
+      130.687,
+      42.998
+    ]
+  },
+  {
+    "iso3": "MKD",
+    "iso2": "MK",
+    "name": "North Macedonia",
+    "nameFormal": "Republic of North Macedonia",
+    "slug": "north-macedonia",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Southern Europe",
+    "population": 2083459,
+    "gdpMillionsUsd": 12547,
+    "labelLon": 21.555839,
+    "labelLat": 41.558223,
+    "bbox": [
+      20.449,
+      40.85,
+      23.006,
+      42.358
+    ]
+  },
+  {
+    "iso3": "NOR",
+    "iso2": null,
+    "name": "Norway",
+    "nameFormal": "Kingdom of Norway",
+    "slug": "norway",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Northern Europe",
+    "population": 5347896,
+    "gdpMillionsUsd": 403336,
+    "labelLon": 9.679975,
+    "labelLat": 61.357092,
+    "bbox": [
+      4.91,
+      58.021,
+      30.961,
+      71.091
+    ]
+  },
+  {
+    "iso3": "OMN",
+    "iso2": "OM",
+    "name": "Oman",
+    "nameFormal": "Sultanate of Oman",
+    "slug": "oman",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Western Asia",
+    "population": 4974986,
+    "gdpMillionsUsd": 76331,
+    "labelLon": 57.336553,
+    "labelLat": 22.120427,
+    "bbox": [
+      51.978,
+      16.648,
+      59.837,
+      24.979
+    ]
+  },
+  {
+    "iso3": "PAK",
+    "iso2": "PK",
+    "name": "Pakistan",
+    "nameFormal": "Islamic Republic of Pakistan",
+    "slug": "pakistan",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Southern Asia",
+    "population": 216565318,
+    "gdpMillionsUsd": 278221,
+    "labelLon": 68.545632,
+    "labelLat": 29.328389,
+    "bbox": [
+      60.843,
+      23.753,
+      77.049,
+      37.037
+    ]
+  },
+  {
+    "iso3": "PLW",
+    "iso2": "PW",
+    "name": "Palau",
+    "nameFormal": "Republic of Palau",
+    "slug": "palau",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Micronesia",
+    "population": 18008,
+    "gdpMillionsUsd": 268,
+    "labelLon": 134.580157,
+    "labelLat": 7.518252,
+    "bbox": [
+      134.506,
+      7.361,
+      134.66,
+      7.712
+    ]
+  },
+  {
+    "iso3": "PSE",
+    "iso2": "PS",
+    "name": "Palestine",
+    "nameFormal": "West Bank and Gaza",
+    "slug": "palestine",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Western Asia",
+    "population": 4685306,
+    "gdpMillionsUsd": 16276,
+    "labelLon": 35.291341,
+    "labelLat": 32.047431,
+    "bbox": [
+      34.873,
+      31.351,
+      35.572,
+      32.534
+    ]
+  },
+  {
+    "iso3": "PAN",
+    "iso2": "PA",
+    "name": "Panama",
+    "nameFormal": "Republic of Panama",
+    "slug": "panama",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Central America",
+    "population": 4246439,
+    "gdpMillionsUsd": 66800,
+    "labelLon": -80.352106,
+    "labelLat": 8.72198,
+    "bbox": [
+      -83.027,
+      7.22,
+      -77.196,
+      9.598
+    ]
+  },
+  {
+    "iso3": "PNG",
+    "iso2": "PG",
+    "name": "Papua New Guinea",
+    "nameFormal": "Independent State of Papua New Guinea",
+    "slug": "papua-new-guinea",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Melanesia",
+    "population": 8776109,
+    "gdpMillionsUsd": 24829,
+    "labelLon": 143.910216,
+    "labelLat": -5.695285,
+    "bbox": [
+      140.862,
+      -10.655,
+      150.85,
+      -2.61
+    ]
+  },
+  {
+    "iso3": "PRY",
+    "iso2": "PY",
+    "name": "Paraguay",
+    "nameFormal": "Republic of Paraguay",
+    "slug": "paraguay",
+    "continent": "South America",
+    "unRegion": "Americas",
+    "unSubregion": "South America",
+    "population": 7044636,
+    "gdpMillionsUsd": 38145,
+    "labelLon": -60.146394,
+    "labelLat": -21.674509,
+    "bbox": [
+      -62.651,
+      -27.554,
+      -54.242,
+      -19.286
+    ]
+  },
+  {
+    "iso3": "PER",
+    "iso2": "PE",
+    "name": "Peru",
+    "nameFormal": "Republic of Peru",
+    "slug": "peru",
+    "continent": "South America",
+    "unRegion": "Americas",
+    "unSubregion": "South America",
+    "population": 32510453,
+    "gdpMillionsUsd": 226848,
+    "labelLon": -72.90016,
+    "labelLat": -12.976679,
+    "bbox": [
+      -81.337,
+      -18.346,
+      -68.685,
+      -0.042
+    ]
+  },
+  {
+    "iso3": "PHL",
+    "iso2": "PH",
+    "name": "Philippines",
+    "nameFormal": "Republic of the Philippines",
+    "slug": "philippines",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "South-Eastern Asia",
+    "population": 108116615,
+    "gdpMillionsUsd": 376795,
+    "labelLon": 122.465,
+    "labelLat": 11.198,
+    "bbox": [
+      119.762,
+      12.567,
+      124.143,
+      18.615
+    ]
+  },
+  {
+    "iso3": "PCN",
+    "iso2": "PN",
+    "name": "Pitcairn Is.",
+    "nameFormal": "Pitcairn, Henderson, Ducie and Oeno Islands",
+    "slug": "pitcairn-is",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Polynesia",
+    "population": 54,
+    "gdpMillionsUsd": 0,
+    "labelLon": -128.317536,
+    "labelLat": -24.364576,
+    "bbox": [
+      -128.35,
+      -24.413,
+      -128.29,
+      -24.323
+    ]
+  },
+  {
+    "iso3": "POL",
+    "iso2": "PL",
+    "name": "Poland",
+    "nameFormal": "Republic of Poland",
+    "slug": "poland",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Eastern Europe",
+    "population": 37970874,
+    "gdpMillionsUsd": 595858,
+    "labelLon": 19.490468,
+    "labelLat": 51.990316,
+    "bbox": [
+      14.129,
+      49.021,
+      24.106,
+      54.838
+    ]
+  },
+  {
+    "iso3": "PRT",
+    "iso2": "PT",
+    "name": "Portugal",
+    "nameFormal": "Portuguese Republic",
+    "slug": "portugal",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Southern Europe",
+    "population": 10269417,
+    "gdpMillionsUsd": 238785,
+    "labelLon": -8.271754,
+    "labelLat": 39.606675,
+    "bbox": [
+      -9.48,
+      37.005,
+      -6.213,
+      42.137
+    ]
+  },
+  {
+    "iso3": "PRI",
+    "iso2": "PR",
+    "name": "Puerto Rico",
+    "nameFormal": "Commonwealth of Puerto Rico",
+    "slug": "puerto-rico",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 3193694,
+    "gdpMillionsUsd": 104988,
+    "labelLon": -66.481065,
+    "labelLat": 18.234668,
+    "bbox": [
+      -67.264,
+      17.947,
+      -65.621,
+      18.522
+    ]
+  },
+  {
+    "iso3": "QAT",
+    "iso2": "QA",
+    "name": "Qatar",
+    "nameFormal": "State of Qatar",
+    "slug": "qatar",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Western Asia",
+    "population": 2832067,
+    "gdpMillionsUsd": 175837,
+    "labelLon": 51.143509,
+    "labelLat": 25.237383,
+    "bbox": [
+      50.755,
+      24.565,
+      51.609,
+      26.153
+    ]
+  },
+  {
+    "iso3": "ROU",
+    "iso2": "RO",
+    "name": "Romania",
+    "nameFormal": "Romania",
+    "slug": "romania",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Eastern Europe",
+    "population": 19356544,
+    "gdpMillionsUsd": 250077,
+    "labelLon": 24.972624,
+    "labelLat": 45.733237,
+    "bbox": [
+      20.242,
+      43.671,
+      29.706,
+      48.263
+    ]
+  },
+  {
+    "iso3": "RUS",
+    "iso2": "RU",
+    "name": "Russia",
+    "nameFormal": "Russian Federation",
+    "slug": "russia",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Eastern Europe",
+    "population": 144373535,
+    "gdpMillionsUsd": 1699876,
+    "labelLon": 44.686469,
+    "labelLat": 58.249357,
+    "bbox": [
+      27.352,
+      41.199,
+      180,
+      77.73
+    ]
+  },
+  {
+    "iso3": "RWA",
+    "iso2": "RW",
+    "name": "Rwanda",
+    "nameFormal": "Republic of Rwanda",
+    "slug": "rwanda",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Eastern Africa",
+    "population": 12626950,
+    "gdpMillionsUsd": 10354,
+    "labelLon": 30.103894,
+    "labelLat": -1.897196,
+    "bbox": [
+      28.858,
+      -2.809,
+      30.877,
+      -1.063
+    ]
+  },
+  {
+    "iso3": "SGS",
+    "iso2": "GS",
+    "name": "S. Geo. and the Is.",
+    "nameFormal": "South Georgia and the Islands",
+    "slug": "s-geo-and-the-is",
+    "continent": "Seven seas (open ocean)",
+    "unRegion": "Americas",
+    "unSubregion": "Seven seas (open ocean)",
+    "population": 30,
+    "gdpMillionsUsd": 0,
+    "labelLon": -31.063179,
+    "labelLat": -55.683402,
+    "bbox": [
+      -38.017,
+      -54.867,
+      -35.799,
+      -53.984
+    ]
+  },
+  {
+    "iso3": "SSD",
+    "iso2": "SS",
+    "name": "S. Sudan",
+    "nameFormal": "Republic of South Sudan",
+    "slug": "s-sudan",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Eastern Africa",
+    "population": 11062113,
+    "gdpMillionsUsd": 11998,
+    "labelLon": 30.390151,
+    "labelLat": 7.230477,
+    "bbox": [
+      24.147,
+      3.491,
+      35.268,
+      12.223
+    ]
+  },
+  {
+    "iso3": "SHN",
+    "iso2": "SH",
+    "name": "Saint Helena",
+    "nameFormal": "Saint Helena",
+    "slug": "saint-helena",
+    "continent": "Seven seas (open ocean)",
+    "unRegion": "Africa",
+    "unSubregion": "Western Africa",
+    "population": 4534,
+    "gdpMillionsUsd": 31,
+    "labelLon": -5.71262,
+    "labelLat": -15.950487,
+    "bbox": [
+      -5.783,
+      -16.004,
+      -5.66,
+      -15.906
+    ]
+  },
+  {
+    "iso3": "LCA",
+    "iso2": "LC",
+    "name": "Saint Lucia",
+    "nameFormal": "Saint Lucia",
+    "slug": "saint-lucia",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 182790,
+    "gdpMillionsUsd": 2122,
+    "labelLon": -60.980094,
+    "labelLat": 13.892371,
+    "bbox": [
+      -61.073,
+      13.718,
+      -60.887,
+      14.093
+    ]
+  },
+  {
+    "iso3": "WSM",
+    "iso2": "WS",
+    "name": "Samoa",
+    "nameFormal": "Independent State of Samoa",
+    "slug": "samoa",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Polynesia",
+    "population": 197097,
+    "gdpMillionsUsd": 852,
+    "labelLon": -172.438241,
+    "labelLat": -13.639139,
+    "bbox": [
+      -172.779,
+      -13.804,
+      -172.177,
+      -13.465
+    ]
+  },
+  {
+    "iso3": "SMR",
+    "iso2": "SM",
+    "name": "San Marino",
+    "nameFormal": "Republic of San Marino",
+    "slug": "san-marino",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Southern Europe",
+    "population": 33860,
+    "gdpMillionsUsd": 1655,
+    "labelLon": 12.441206,
+    "labelLat": 43.933916,
+    "bbox": [
+      12.397,
+      43.894,
+      12.515,
+      43.99
+    ]
+  },
+  {
+    "iso3": "STP",
+    "iso2": "ST",
+    "name": "São Tomé and Principe",
+    "nameFormal": "Democratic Republic of São Tomé and Principe",
+    "slug": "sao-tome-and-principe",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Middle Africa",
+    "population": 215056,
+    "gdpMillionsUsd": 418,
+    "labelLon": 7.021,
+    "labelLat": 0.9709,
+    "bbox": [
+      6.468,
+      0.047,
+      6.75,
+      0.404
+    ]
+  },
+  {
+    "iso3": "SAU",
+    "iso2": "SA",
+    "name": "Saudi Arabia",
+    "nameFormal": "Kingdom of Saudi Arabia",
+    "slug": "saudi-arabia",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Western Asia",
+    "population": 34268528,
+    "gdpMillionsUsd": 792966,
+    "labelLon": 44.6996,
+    "labelLat": 23.806908,
+    "bbox": [
+      34.616,
+      16.372,
+      55.641,
+      32.125
+    ]
+  },
+  {
+    "iso3": "SEN",
+    "iso2": "SN",
+    "name": "Senegal",
+    "nameFormal": "Republic of Senegal",
+    "slug": "senegal",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Western Africa",
+    "population": 16296364,
+    "gdpMillionsUsd": 23578,
+    "labelLon": -14.778586,
+    "labelLat": 15.138125,
+    "bbox": [
+      -17.536,
+      12.328,
+      -11.382,
+      16.679
+    ]
+  },
+  {
+    "iso3": "SRB",
+    "iso2": "RS",
+    "name": "Serbia",
+    "nameFormal": "Republic of Serbia",
+    "slug": "serbia",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Southern Europe",
+    "population": 6944975,
+    "gdpMillionsUsd": 51475,
+    "labelLon": 20.787989,
+    "labelLat": 44.189919,
+    "bbox": [
+      18.839,
+      42.242,
+      22.977,
+      46.169
+    ]
+  },
+  {
+    "iso3": "SYC",
+    "iso2": "SC",
+    "name": "Seychelles",
+    "nameFormal": "Republic of Seychelles",
+    "slug": "seychelles",
+    "continent": "Seven seas (open ocean)",
+    "unRegion": "Africa",
+    "unSubregion": "Eastern Africa",
+    "population": 97625,
+    "gdpMillionsUsd": 1703,
+    "labelLon": 55.480175,
+    "labelLat": -4.676659,
+    "bbox": [
+      55.383,
+      -4.786,
+      55.543,
+      -4.559
+    ]
+  },
+  {
+    "iso3": "KAS",
+    "iso2": null,
+    "name": "Siachen Glacier",
+    "nameFormal": "Siachen Glacier",
+    "slug": "siachen-glacier",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Southern Asia",
+    "population": 6000,
+    "gdpMillionsUsd": 15,
+    "labelLon": 77.129553,
+    "labelLat": 35.340606,
+    "bbox": [
+      76.767,
+      35.11,
+      77.799,
+      35.662
+    ]
+  },
+  {
+    "iso3": "SLE",
+    "iso2": "SL",
+    "name": "Sierra Leone",
+    "nameFormal": "Republic of Sierra Leone",
+    "slug": "sierra-leone",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Western Africa",
+    "population": 7813215,
+    "gdpMillionsUsd": 4121,
+    "labelLon": -11.763677,
+    "labelLat": 8.617449,
+    "bbox": [
+      -13.293,
+      6.907,
+      -10.283,
+      9.997
+    ]
+  },
+  {
+    "iso3": "SGP",
+    "iso2": "SG",
+    "name": "Singapore",
+    "nameFormal": "Republic of Singapore",
+    "slug": "singapore",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "South-Eastern Asia",
+    "population": 5703569,
+    "gdpMillionsUsd": 372062,
+    "labelLon": 103.816925,
+    "labelLat": 1.366587,
+    "bbox": [
+      103.65,
+      1.265,
+      103.996,
+      1.447
+    ]
+  },
+  {
+    "iso3": "SXM",
+    "iso2": "SX",
+    "name": "Sint Maarten",
+    "nameFormal": "Sint Maarten (Dutch part)",
+    "slug": "sint-maarten",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 40733,
+    "gdpMillionsUsd": 1185,
+    "labelLon": -63.070133,
+    "labelLat": 18.04088,
+    "bbox": [
+      -63.125,
+      18.019,
+      -63.011,
+      18.069
+    ]
+  },
+  {
+    "iso3": "SVK",
+    "iso2": "SK",
+    "name": "Slovakia",
+    "nameFormal": "Slovak Republic",
+    "slug": "slovakia",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Eastern Europe",
+    "population": 5454073,
+    "gdpMillionsUsd": 105079,
+    "labelLon": 19.049868,
+    "labelLat": 48.734044,
+    "bbox": [
+      16.863,
+      47.763,
+      22.539,
+      49.598
+    ]
+  },
+  {
+    "iso3": "SVN",
+    "iso2": "SI",
+    "name": "Slovenia",
+    "nameFormal": "Republic of Slovenia",
+    "slug": "slovenia",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Southern Europe",
+    "population": 2087946,
+    "gdpMillionsUsd": 54174,
+    "labelLon": 14.915312,
+    "labelLat": 46.06076,
+    "bbox": [
+      13.378,
+      45.428,
+      16.516,
+      46.863
+    ]
+  },
+  {
+    "iso3": "SLB",
+    "iso2": "SB",
+    "name": "Solomon Is.",
+    "nameFormal": "Solomon Islands",
+    "slug": "solomon-is",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Melanesia",
+    "population": 669823,
+    "gdpMillionsUsd": 1589,
+    "labelLon": 159.170468,
+    "labelLat": -8.029548,
+    "bbox": [
+      158.457,
+      -8.557,
+      159.881,
+      -7.545
+    ]
+  },
+  {
+    "iso3": "SOM",
+    "iso2": "SO",
+    "name": "Somalia",
+    "nameFormal": "Federal Republic of Somalia",
+    "slug": "somalia",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Eastern Africa",
+    "population": 10192317,
+    "gdpMillionsUsd": 4719,
+    "labelLon": 45.19238,
+    "labelLat": 3.568925,
+    "bbox": [
+      40.964,
+      -1.695,
+      51.39,
+      11.984
+    ]
+  },
+  {
+    "iso3": "SOL",
+    "iso2": null,
+    "name": "Somaliland",
+    "nameFormal": "Republic of Somaliland",
+    "slug": "somaliland",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Eastern Africa",
+    "population": 5096159,
+    "gdpMillionsUsd": 17836,
+    "labelLon": 46.731595,
+    "labelLat": 9.443889,
+    "bbox": [
+      42.656,
+      7.997,
+      48.939,
+      11.5
+    ]
+  },
+  {
+    "iso3": "ZAF",
+    "iso2": "ZA",
+    "name": "South Africa",
+    "nameFormal": "Republic of South Africa",
+    "slug": "south-africa",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Southern Africa",
+    "population": 58558270,
+    "gdpMillionsUsd": 351431,
+    "labelLon": 23.665734,
+    "labelLat": -29.708776,
+    "bbox": [
+      16.448,
+      -34.786,
+      32.886,
+      -22.146
+    ]
+  },
+  {
+    "iso3": "KOR",
+    "iso2": "KR",
+    "name": "South Korea",
+    "nameFormal": "Republic of Korea",
+    "slug": "south-korea",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Eastern Asia",
+    "population": 51709098,
+    "gdpMillionsUsd": 1646739,
+    "labelLon": 128.129504,
+    "labelLat": 36.384924,
+    "bbox": [
+      126.161,
+      34.314,
+      129.573,
+      38.623
+    ]
+  },
+  {
+    "iso3": "ESP",
+    "iso2": "ES",
+    "name": "Spain",
+    "nameFormal": "Kingdom of Spain",
+    "slug": "spain",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Southern Europe",
+    "population": 47076781,
+    "gdpMillionsUsd": 1393490,
+    "labelLon": -3.464718,
+    "labelLat": 40.090953,
+    "bbox": [
+      -9.236,
+      36.026,
+      3.307,
+      43.765
+    ]
+  },
+  {
+    "iso3": "LKA",
+    "iso2": "LK",
+    "name": "Sri Lanka",
+    "nameFormal": "Democratic Socialist Republic of Sri Lanka",
+    "slug": "sri-lanka",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Southern Asia",
+    "population": 21803000,
+    "gdpMillionsUsd": 84008,
+    "labelLon": 80.704823,
+    "labelLat": 7.581097,
+    "bbox": [
+      79.708,
+      5.949,
+      81.877,
+      9.813
+    ]
+  },
+  {
+    "iso3": "BLM",
+    "iso2": "BL",
+    "name": "St-Barthélemy",
+    "nameFormal": "Saint-Barthélemy",
+    "slug": "st-barthelemy",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 9961,
+    "gdpMillionsUsd": 255,
+    "labelLon": -62.833193,
+    "labelLat": 17.901987,
+    "bbox": [
+      -62.875,
+      17.875,
+      -62.8,
+      17.922
+    ]
+  },
+  {
+    "iso3": "MAF",
+    "iso2": "MF",
+    "name": "St-Martin",
+    "nameFormal": "Saint-Martin (French part)",
+    "slug": "st-martin",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 38002,
+    "gdpMillionsUsd": 562,
+    "labelLon": -63.049399,
+    "labelLat": 18.081302,
+    "bbox": [
+      -63.123,
+      18.069,
+      -63.009,
+      18.115
+    ]
+  },
+  {
+    "iso3": "KNA",
+    "iso2": "KN",
+    "name": "St. Kitts and Nevis",
+    "nameFormal": "Federation of Saint Kitts and Nevis",
+    "slug": "st-kitts-and-nevis",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 52834,
+    "gdpMillionsUsd": 1053,
+    "labelLon": -62.757975,
+    "labelLat": 17.336558,
+    "bbox": [
+      -62.84,
+      17.224,
+      -62.631,
+      17.403
+    ]
+  },
+  {
+    "iso3": "SPM",
+    "iso2": "PM",
+    "name": "St. Pierre and Miquelon",
+    "nameFormal": "Saint Pierre and Miquelon",
+    "slug": "st-pierre-and-miquelon",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Northern America",
+    "population": 5997,
+    "gdpMillionsUsd": 215,
+    "labelLon": -56.332352,
+    "labelLat": 47.040344,
+    "bbox": [
+      -56.387,
+      46.795,
+      -56.255,
+      47.099
+    ]
+  },
+  {
+    "iso3": "VCT",
+    "iso2": "VC",
+    "name": "St. Vin. and Gren.",
+    "nameFormal": "Saint Vincent and the Grenadines",
+    "slug": "st-vin-and-gren",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 110589,
+    "gdpMillionsUsd": 824,
+    "labelLon": -61.3359,
+    "labelLat": 13.0879,
+    "bbox": [
+      -61.277,
+      13.142,
+      -61.124,
+      13.359
+    ]
+  },
+  {
+    "iso3": "SDN",
+    "iso2": "SD",
+    "name": "Sudan",
+    "nameFormal": "Republic of the Sudan",
+    "slug": "sudan",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Northern Africa",
+    "population": 42813238,
+    "gdpMillionsUsd": 30513,
+    "labelLon": 29.260657,
+    "labelLat": 16.330746,
+    "bbox": [
+      21.825,
+      8.666,
+      38.609,
+      22.202
+    ]
+  },
+  {
+    "iso3": "SUR",
+    "iso2": "SR",
+    "name": "Suriname",
+    "nameFormal": "Republic of Suriname",
+    "slug": "suriname",
+    "continent": "South America",
+    "unRegion": "Americas",
+    "unSubregion": "South America",
+    "population": 581363,
+    "gdpMillionsUsd": 3697,
+    "labelLon": -55.91094,
+    "labelLat": 4.143987,
+    "bbox": [
+      -58.054,
+      1.842,
+      -53.99,
+      5.993
+    ]
+  },
+  {
+    "iso3": "SWE",
+    "iso2": "SE",
+    "name": "Sweden",
+    "nameFormal": "Kingdom of Sweden",
+    "slug": "sweden",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Northern Europe",
+    "population": 10285453,
+    "gdpMillionsUsd": 530883,
+    "labelLon": 19.01705,
+    "labelLat": 65.85918,
+    "bbox": [
+      11.147,
+      55.346,
+      24.155,
+      69.037
+    ]
+  },
+  {
+    "iso3": "CHE",
+    "iso2": "CH",
+    "name": "Switzerland",
+    "nameFormal": "Swiss Confederation",
+    "slug": "switzerland",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Western Europe",
+    "population": 8574832,
+    "gdpMillionsUsd": 703082,
+    "labelLon": 7.463965,
+    "labelLat": 46.719114,
+    "bbox": [
+      5.97,
+      45.83,
+      10.455,
+      47.776
+    ]
+  },
+  {
+    "iso3": "SYR",
+    "iso2": "SY",
+    "name": "Syria",
+    "nameFormal": "Syrian Arab Republic",
+    "slug": "syria",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Western Asia",
+    "population": 17070135,
+    "gdpMillionsUsd": 98830,
+    "labelLon": 38.277783,
+    "labelLat": 35.006636,
+    "bbox": [
+      35.764,
+      32.317,
+      42.359,
+      37.297
+    ]
+  },
+  {
+    "iso3": "TWN",
+    "iso2": "CN-TW",
+    "name": "Taiwan",
+    "nameFormal": "Taiwan",
+    "slug": "taiwan",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Eastern Asia",
+    "population": 23568378,
+    "gdpMillionsUsd": 1127000,
+    "labelLon": 120.868204,
+    "labelLat": 23.652408,
+    "bbox": [
+      120.072,
+      21.925,
+      121.929,
+      25.277
+    ]
+  },
+  {
+    "iso3": "TJK",
+    "iso2": "TJ",
+    "name": "Tajikistan",
+    "nameFormal": "Republic of Tajikistan",
+    "slug": "tajikistan",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Central Asia",
+    "population": 9321018,
+    "gdpMillionsUsd": 8116,
+    "labelLon": 72.587276,
+    "labelLat": 38.199835,
+    "bbox": [
+      67.35,
+      36.684,
+      75.119,
+      41.035
+    ]
+  },
+  {
+    "iso3": "TZA",
+    "iso2": "TZ",
+    "name": "Tanzania",
+    "nameFormal": "United Republic of Tanzania",
+    "slug": "tanzania",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Eastern Africa",
+    "population": 58005463,
+    "gdpMillionsUsd": 63177,
+    "labelLon": 34.959183,
+    "labelLat": -6.051866,
+    "bbox": [
+      29.323,
+      -11.716,
+      40.464,
+      -0.995
+    ]
+  },
+  {
+    "iso3": "THA",
+    "iso2": "TH",
+    "name": "Thailand",
+    "nameFormal": "Kingdom of Thailand",
+    "slug": "thailand",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "South-Eastern Asia",
+    "population": 69625582,
+    "gdpMillionsUsd": 543548,
+    "labelLon": 101.073198,
+    "labelLat": 15.45974,
+    "bbox": [
+      97.374,
+      5.637,
+      105.641,
+      20.424
+    ]
+  },
+  {
+    "iso3": "TLS",
+    "iso2": "TL",
+    "name": "Timor-Leste",
+    "nameFormal": "Democratic Republic of Timor-Leste",
+    "slug": "timor-leste",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "South-Eastern Asia",
+    "population": 1293119,
+    "gdpMillionsUsd": 2017,
+    "labelLon": 125.854679,
+    "labelLat": -8.803705,
+    "bbox": [
+      124.915,
+      -9.512,
+      127.296,
+      -8.316
+    ]
+  },
+  {
+    "iso3": "TGO",
+    "iso2": "TG",
+    "name": "Togo",
+    "nameFormal": "Togolese Republic",
+    "slug": "togo",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Western Africa",
+    "population": 8082366,
+    "gdpMillionsUsd": 5490,
+    "labelLon": 1.058113,
+    "labelLat": 8.80722,
+    "bbox": [
+      -0.09,
+      6.089,
+      1.778,
+      11.116
+    ]
+  },
+  {
+    "iso3": "TON",
+    "iso2": "TO",
+    "name": "Tonga",
+    "nameFormal": "Kingdom of Tonga",
+    "slug": "tonga",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Polynesia",
+    "population": 104494,
+    "gdpMillionsUsd": 512,
+    "labelLon": -175.163014,
+    "labelLat": -21.210026,
+    "bbox": [
+      -175.362,
+      -21.264,
+      -175.078,
+      -21.068
+    ]
+  },
+  {
+    "iso3": "TTO",
+    "iso2": "TT",
+    "name": "Trinidad and Tobago",
+    "nameFormal": "Republic of Trinidad and Tobago",
+    "slug": "trinidad-and-tobago",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 1394973,
+    "gdpMillionsUsd": 24269,
+    "labelLon": -60.9184,
+    "labelLat": 10.9989,
+    "bbox": [
+      -61.906,
+      10.065,
+      -60.918,
+      10.84
+    ]
+  },
+  {
+    "iso3": "TUN",
+    "iso2": "TN",
+    "name": "Tunisia",
+    "nameFormal": "Republic of Tunisia",
+    "slug": "tunisia",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Northern Africa",
+    "population": 11694719,
+    "gdpMillionsUsd": 38796,
+    "labelLon": 9.007881,
+    "labelLat": 33.687263,
+    "bbox": [
+      7.496,
+      30.229,
+      11.536,
+      37.34
+    ]
+  },
+  {
+    "iso3": "TUR",
+    "iso2": "TR",
+    "name": "Turkey",
+    "nameFormal": "Republic of Turkey",
+    "slug": "turkey",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Western Asia",
+    "population": 83429615,
+    "gdpMillionsUsd": 761425,
+    "labelLon": 34.508268,
+    "labelLat": 39.345388,
+    "bbox": [
+      26.096,
+      35.831,
+      44.817,
+      42.063
+    ]
+  },
+  {
+    "iso3": "TKM",
+    "iso2": "TM",
+    "name": "Turkmenistan",
+    "nameFormal": "Turkmenistan",
+    "slug": "turkmenistan",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Central Asia",
+    "population": 5942089,
+    "gdpMillionsUsd": 40761,
+    "labelLon": 58.676647,
+    "labelLat": 39.855246,
+    "bbox": [
+      52.494,
+      35.171,
+      66.629,
+      42.778
+    ]
+  },
+  {
+    "iso3": "TCA",
+    "iso2": "TC",
+    "name": "Turks and Caicos Is.",
+    "nameFormal": "Turks and Caicos Islands",
+    "slug": "turks-and-caicos-is",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 38191,
+    "gdpMillionsUsd": 1197,
+    "labelLon": -71.752704,
+    "labelLat": 21.81663,
+    "bbox": [
+      -71.848,
+      21.752,
+      -71.637,
+      21.852
+    ]
+  },
+  {
+    "iso3": "TUV",
+    "iso2": "TV",
+    "name": "Tuvalu",
+    "nameFormal": "Tuvalu",
+    "slug": "tuvalu",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Polynesia",
+    "population": 11646,
+    "gdpMillionsUsd": 47,
+    "labelLon": 179.209587,
+    "labelLat": -8.513717,
+    "bbox": [
+      179.196,
+      -8.535,
+      179.217,
+      -8.466
+    ]
+  },
+  {
+    "iso3": "VIR",
+    "iso2": "VI",
+    "name": "U.S. Virgin Is.",
+    "nameFormal": "Virgin Islands of the United States",
+    "slug": "u-s-virgin-is",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Caribbean",
+    "population": 106631,
+    "gdpMillionsUsd": 3855,
+    "labelLon": -64.779172,
+    "labelLat": 17.746706,
+    "bbox": [
+      -64.889,
+      17.702,
+      -64.58,
+      17.794
+    ]
+  },
+  {
+    "iso3": "UGA",
+    "iso2": "UG",
+    "name": "Uganda",
+    "nameFormal": "Republic of Uganda",
+    "slug": "uganda",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Eastern Africa",
+    "population": 44269594,
+    "gdpMillionsUsd": 35165,
+    "labelLon": 32.948555,
+    "labelLat": 1.972589,
+    "bbox": [
+      29.562,
+      -1.47,
+      34.978,
+      4.22
+    ]
+  },
+  {
+    "iso3": "UKR",
+    "iso2": "UA",
+    "name": "Ukraine",
+    "nameFormal": "Ukraine",
+    "slug": "ukraine",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Eastern Europe",
+    "population": 44385155,
+    "gdpMillionsUsd": 153781,
+    "labelLon": 32.140865,
+    "labelLat": 49.724739,
+    "bbox": [
+      22.132,
+      45.234,
+      40.128,
+      52.354
+    ]
+  },
+  {
+    "iso3": "ARE",
+    "iso2": "AE",
+    "name": "United Arab Emirates",
+    "nameFormal": "United Arab Emirates",
+    "slug": "united-arab-emirates",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Western Asia",
+    "population": 9770529,
+    "gdpMillionsUsd": 421142,
+    "labelLon": 54.547256,
+    "labelLat": 23.466285,
+    "bbox": [
+      51.568,
+      22.621,
+      56.388,
+      26.068
+    ]
+  },
+  {
+    "iso3": "GBR",
+    "iso2": "GB",
+    "name": "United Kingdom",
+    "nameFormal": "United Kingdom of Great Britain and Northern Ireland",
+    "slug": "united-kingdom",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Northern Europe",
+    "population": 66834405,
+    "gdpMillionsUsd": 2829108,
+    "labelLon": -2.116346,
+    "labelLat": 54.402739,
+    "bbox": [
+      -6.134,
+      50.021,
+      1.747,
+      58.65
+    ]
+  },
+  {
+    "iso3": "USA",
+    "iso2": "US",
+    "name": "United States of America",
+    "nameFormal": "United States of America",
+    "slug": "united-states-of-america",
+    "continent": "North America",
+    "unRegion": "Americas",
+    "unSubregion": "Northern America",
+    "population": 328239523,
+    "gdpMillionsUsd": 21433226,
+    "labelLon": -97.482602,
+    "labelLat": 39.538479,
+    "bbox": [
+      -124.71,
+      25.133,
+      -66.987,
+      49.37
+    ]
+  },
+  {
+    "iso3": "URY",
+    "iso2": "UY",
+    "name": "Uruguay",
+    "nameFormal": "Oriental Republic of Uruguay",
+    "slug": "uruguay",
+    "continent": "South America",
+    "unRegion": "Americas",
+    "unSubregion": "South America",
+    "population": 3461734,
+    "gdpMillionsUsd": 56045,
+    "labelLon": -55.966942,
+    "labelLat": -32.961127,
+    "bbox": [
+      -58.438,
+      -34.933,
+      -53.126,
+      -30.101
+    ]
+  },
+  {
+    "iso3": "UZB",
+    "iso2": "UZ",
+    "name": "Uzbekistan",
+    "nameFormal": "Republic of Uzbekistan",
+    "slug": "uzbekistan",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Central Asia",
+    "population": 33580650,
+    "gdpMillionsUsd": 57921,
+    "labelLon": 64.005429,
+    "labelLat": 41.693603,
+    "bbox": [
+      55.976,
+      37.172,
+      73.137,
+      45.555
+    ]
+  },
+  {
+    "iso3": "VUT",
+    "iso2": "VU",
+    "name": "Vanuatu",
+    "nameFormal": "Republic of Vanuatu",
+    "slug": "vanuatu",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Melanesia",
+    "population": 299882,
+    "gdpMillionsUsd": 934,
+    "labelLon": 166.908762,
+    "labelLat": -15.37153,
+    "bbox": [
+      166.526,
+      -15.635,
+      167.201,
+      -14.637
+    ]
+  },
+  {
+    "iso3": "VAT",
+    "iso2": "VA",
+    "name": "Vatican",
+    "nameFormal": "State of the Vatican City",
+    "slug": "vatican",
+    "continent": "Europe",
+    "unRegion": "Europe",
+    "unSubregion": "Southern Europe",
+    "population": 825,
+    "gdpMillionsUsd": -99,
+    "labelLon": 12.453418,
+    "labelLat": 41.903323,
+    "bbox": [
+      12.428,
+      41.898,
+      12.439,
+      41.906
+    ]
+  },
+  {
+    "iso3": "VEN",
+    "iso2": "VE",
+    "name": "Venezuela",
+    "nameFormal": "Bolivarian Republic of Venezuela",
+    "slug": "venezuela",
+    "continent": "South America",
+    "unRegion": "Americas",
+    "unSubregion": "South America",
+    "population": 28515829,
+    "gdpMillionsUsd": 482359,
+    "labelLon": -64.599381,
+    "labelLat": 7.182476,
+    "bbox": [
+      -73.366,
+      0.688,
+      -59.829,
+      12.178
+    ]
+  },
+  {
+    "iso3": "VNM",
+    "iso2": "VN",
+    "name": "Vietnam",
+    "nameFormal": "Socialist Republic of Vietnam",
+    "slug": "vietnam",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "South-Eastern Asia",
+    "population": 96462106,
+    "gdpMillionsUsd": 261921,
+    "labelLon": 105.387292,
+    "labelLat": 21.715416,
+    "bbox": [
+      102.127,
+      8.583,
+      109.445,
+      23.345
+    ]
+  },
+  {
+    "iso3": "ESH",
+    "iso2": "EH",
+    "name": "W. Sahara",
+    "nameFormal": "Sahrawi Arab Democratic Republic",
+    "slug": "w-sahara",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Northern Africa",
+    "population": 603253,
+    "gdpMillionsUsd": 907,
+    "labelLon": -12.630304,
+    "labelLat": 23.967592,
+    "bbox": [
+      -17.099,
+      20.806,
+      -8.682,
+      27.656
+    ]
+  },
+  {
+    "iso3": "WLF",
+    "iso2": "WF",
+    "name": "Wallis and Futuna Is.",
+    "nameFormal": "Wallis and Futuna Islands",
+    "slug": "wallis-and-futuna-is",
+    "continent": "Oceania",
+    "unRegion": "Oceania",
+    "unSubregion": "Polynesia",
+    "population": 11558,
+    "gdpMillionsUsd": 60,
+    "labelLon": -178.137436,
+    "labelLat": -14.286415,
+    "bbox": [
+      -178.194,
+      -14.325,
+      -178.044,
+      -14.232
+    ]
+  },
+  {
+    "iso3": "YEM",
+    "iso2": "YE",
+    "name": "Yemen",
+    "nameFormal": "Republic of Yemen",
+    "slug": "yemen",
+    "continent": "Asia",
+    "unRegion": "Asia",
+    "unSubregion": "Western Asia",
+    "population": 29161922,
+    "gdpMillionsUsd": 22581,
+    "labelLon": 45.874383,
+    "labelLat": 15.328226,
+    "bbox": [
+      42.658,
+      12.608,
+      53.086,
+      18.996
+    ]
+  },
+  {
+    "iso3": "ZMB",
+    "iso2": "ZM",
+    "name": "Zambia",
+    "nameFormal": "Republic of Zambia",
+    "slug": "zambia",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Eastern Africa",
+    "population": 17861030,
+    "gdpMillionsUsd": 23309,
+    "labelLon": 26.395298,
+    "labelLat": -14.660804,
+    "bbox": [
+      21.979,
+      -18.042,
+      33.662,
+      -8.194
+    ]
+  },
+  {
+    "iso3": "ZWE",
+    "iso2": "ZW",
+    "name": "Zimbabwe",
+    "nameFormal": "Republic of Zimbabwe",
+    "slug": "zimbabwe",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Eastern Africa",
+    "population": 14645468,
+    "gdpMillionsUsd": 21440,
+    "labelLon": 29.925444,
+    "labelLat": -18.91164,
+    "bbox": [
+      25.224,
+      -22.402,
+      33.007,
+      -15.643
+    ]
+  }
+]
