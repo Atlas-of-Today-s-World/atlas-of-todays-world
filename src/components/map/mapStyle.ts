@@ -160,8 +160,3 @@ export function buildStyle(): StyleSpecification {
   } as StyleSpecification;
 }
 
-// Ladicí úchyt pro konzoli prohlížeče (jen ve vývoji).
-if (process.env.NODE_ENV !== "production" && typeof window !== "undefined") {
-  (window as unknown as { buildAtlasStyle?: typeof buildStyle }).buildAtlasStyle =
-    buildStyle;
-}
