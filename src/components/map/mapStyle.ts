@@ -194,7 +194,7 @@ export function buildStyle(): StyleSpecification {
         filter: ["<=", ["get", "rank"], ["+", 1, ["*", 1.1, ["zoom"]]]],
         layout: {
           "text-field": ["get", "name"],
-          "text-font": ["Noto Sans Regular"],
+          "text-font": ["Open Sans Regular"],
           "text-size": ["interpolate", ["linear"], ["zoom"], 2.2, 10.5, 6, 15],
           "text-max-width": 8,
           "text-padding": 6,
@@ -213,7 +213,7 @@ export function buildStyle(): StyleSpecification {
         layout: {
           visibility: "none",
           "text-field": ["get", "name"],
-          "text-font": ["Noto Sans Regular"],
+          "text-font": ["Open Sans Regular"],
           "text-size": ["interpolate", ["linear"], ["zoom"], 1, 11, 4, 17],
           "text-max-width": 9,
           "text-letter-spacing": 0.06,

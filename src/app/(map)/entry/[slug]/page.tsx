@@ -5,7 +5,15 @@ import ContentRail from "@/components/ContentRail";
 import MapFocus from "@/components/map/MapFocus";
 import { SectionLabel } from "@/components/atlas-ui";
 import { allEntries, entryBySlug } from "@/lib/content";
-import { SITE_URL } from "@/lib/site";
+import { countryByIso3 } from "@/lib/countries";
+import {
+  absoluteUrl,
+  alternates,
+  breadcrumbJsonLd,
+  geoCoordinates,
+  geoMeta,
+  jsonLdHtml,
+} from "@/lib/seo";
 
 export const dynamicParams = false;
 
@@ -25,14 +33,28 @@ export async function generateMetadata({
   return {
     title: entry.title,
     description: entry.summary,
-    alternates: { canonical: `/entry/${entry.slug}` },
+    alternates: alternates(`/entry/${entry.slug}`),
     openGraph: {
       type: "article",
       title: `${entry.title} — Atlas of Today's World`,
       description: entry.summary,
       images: entry.hero ? [entry.hero] : undefined,
-      url: `${SITE_URL}/entry/${entry.slug}`,
+      url: absoluteUrl(`/entry/${entry.slug}`),
+      publishedTime: entry.published,
+      modifiedTime: entry.updated ?? entry.published,
+      authors: entry.author ? [entry.author] : undefined,
+      section: entry.category,
     },
+    keywords: [entry.title, entry.category, entry.regionRef?.name ?? ""].filter(
+      Boolean,
+    ),
+    other: entry.regionRef
+      ? geoMeta({
+          lat: entry.regionRef.center[1],
+          lon: entry.regionRef.center[0],
+          placename: entry.regionRef.name,
+        })
+      : undefined,
   };
 }
 
@@ -46,6 +68,9 @@ export default async function EntryPage({
   if (!entry) notFound();
 
   const region = entry.regionRef;
+  const countriesCovered = (entry.countries ?? [])
+    .map((iso3) => countryByIso3(iso3))
+    .filter((country): country is NonNullable<typeof country> => country !== null);
 
   return (
     <>
@@ -112,22 +137,50 @@ export default async function EntryPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Article",
-            headline: entry.title,
-            description: entry.summary,
-            datePublished: entry.published,
-            dateModified: entry.updated ?? entry.published,
-            author: entry.author
-              ? { "@type": "Person", name: entry.author }
-              : { "@type": "Organization", name: "Atlas of Today's World" },
-            publisher: {
-              "@type": "Organization",
-              name: "Atlas of Today's World",
+          __html: jsonLdHtml([
+            {
+              "@context": "https://schema.org",
+              "@type": "Article",
+              headline: entry.title,
+              description: entry.summary,
+              image: entry.hero ? [entry.hero] : undefined,
+              articleSection: entry.category,
+              datePublished: entry.published,
+              dateModified: entry.updated ?? entry.published,
+              wordCount: entry.plain.split(/\s+/).length,
+              inLanguage: "en",
+              isAccessibleForFree: true,
+              author: entry.author
+                ? { "@type": "Person", name: entry.author }
+                : { "@type": "Organization", name: "Atlas of Today's World" },
+              publisher: {
+                "@type": "Organization",
+                name: "Atlas of Today's World",
+                url: absoluteUrl("/"),
+              },
+              mainEntityOfPage: absoluteUrl(`/entry/${entry.slug}`),
+              // Kterých míst se heslo týká – tohle roboti čtou pro geo kontext.
+              contentLocation: region
+                ? {
+                    "@type": "Place",
+                    name: region.name,
+                    url: absoluteUrl(`/region/${region.slug}`),
+                    geo: geoCoordinates(region.center[1], region.center[0]),
+                  }
+                : undefined,
+              about: countriesCovered.map((country) => ({
+                "@type": "Country",
+                name: country.name,
+                url: absoluteUrl(`/country/${country.slug}`),
+              })),
             },
-            mainEntityOfPage: `${SITE_URL}/entry/${entry.slug}`,
-          }),
+            breadcrumbJsonLd([
+              { name: "Atlas of Today's World", path: "/" },
+              { name: "Entries", path: "/entries" },
+              ...(region ? [{ name: region.name, path: `/region/${region.slug}` }] : []),
+              { name: entry.title, path: `/entry/${entry.slug}` },
+            ]),
+          ]),
         }}
       />
     </>

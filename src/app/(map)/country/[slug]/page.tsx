@@ -10,7 +10,14 @@ import {
   type Country,
 } from "@/lib/countries";
 import { countryProfile, entriesOfCountry } from "@/lib/content";
-import { SITE_URL } from "@/lib/site";
+import {
+  absoluteUrl,
+  alternates,
+  breadcrumbJsonLd,
+  geoCoordinates,
+  geoMeta,
+  jsonLdHtml,
+} from "@/lib/seo";
 
 export const dynamicParams = false;
 
@@ -57,12 +64,28 @@ export async function generateMetadata({
   return {
     title: `${country.name} — country profile`,
     description: description.slice(0, 180),
-    alternates: { canonical: `/country/${country.slug}` },
+    alternates: alternates(`/country/${country.slug}`),
+    keywords: [
+      country.name,
+      country.nameFormal ?? country.name,
+      `${country.name} profile`,
+      `${country.name} human development index`,
+      `${country.name} political system`,
+      country.region?.name ?? "",
+    ].filter(Boolean),
     openGraph: {
+      type: "profile",
       title: `${country.name} — Atlas of Today's World`,
       description: description.slice(0, 180),
-      url: `${SITE_URL}/country/${country.slug}`,
+      url: absoluteUrl(`/country/${country.slug}`),
+      images: country.region ? [country.region.hero] : undefined,
     },
+    other: geoMeta({
+      lat: country.labelLat,
+      lon: country.labelLon,
+      placename: country.name,
+      regionCode: country.iso2,
+    }),
   };
 }
 
@@ -111,17 +134,51 @@ export default async function CountryPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Country",
-            name: country.name,
-            alternateName: country.nameFormal ?? undefined,
-            description,
-            url: `${SITE_URL}/country/${country.slug}`,
-            containedInPlace: region
-              ? { "@type": "Place", name: region.name, url: `${SITE_URL}/region/${region.slug}` }
-              : undefined,
-          }),
+          __html: jsonLdHtml([
+            {
+              "@context": "https://schema.org",
+              "@type": "Country",
+              "@id": absoluteUrl(`/country/${country.slug}#country`),
+              name: country.name,
+              alternateName: country.nameFormal ?? undefined,
+              description,
+              url: absoluteUrl(`/country/${country.slug}`),
+              identifier: [
+                { "@type": "PropertyValue", propertyID: "ISO 3166-1 alpha-3", value: country.iso3 },
+                ...(country.iso2
+                  ? [{ "@type": "PropertyValue", propertyID: "ISO 3166-1 alpha-2", value: country.iso2 }]
+                  : []),
+              ],
+              geo: geoCoordinates(country.labelLat, country.labelLon),
+              hasMap: absoluteUrl(`/country/${country.slug}`),
+              containedInPlace: region
+                ? {
+                    "@type": "Place",
+                    name: region.name,
+                    url: absoluteUrl(`/region/${region.slug}`),
+                  }
+                : undefined,
+              // Ukazatele jako strojově čitelné hodnoty i se zdrojem a rokem.
+              additionalProperty: country.stats.map((stat) => ({
+                "@type": "PropertyValue",
+                name: stat.label,
+                value: stat.raw,
+                unitText: stat.value.replace(/^[\d.,\s]+/, "").trim() || undefined,
+                valueReference: `${stat.source} (${stat.year})`,
+                url: stat.sourceUrl,
+              })),
+              subjectOf: entries.map((entry) => ({
+                "@type": "Article",
+                headline: entry.title,
+                url: absoluteUrl(`/entry/${entry.slug}`),
+              })),
+            },
+            breadcrumbJsonLd([
+              { name: "Atlas of Today's World", path: "/" },
+              ...(region ? [{ name: region.name, path: `/region/${region.slug}` }] : []),
+              { name: country.name, path: `/country/${country.slug}` },
+            ]),
+          ]),
         }}
       />
     </>

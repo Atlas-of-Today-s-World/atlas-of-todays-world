@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import MapFocus from "@/components/map/MapFocus";
 import { REGIONS } from "@/data/regions";
 import { indexableCountries } from "@/lib/countries";
-import { SITE_URL } from "@/lib/site";
+import { INDICATORS } from "@/lib/indicators";
+import { absoluteUrl, alternates, jsonLdHtml } from "@/lib/seo";
 
 export const metadata: Metadata = {
   // `absolute` obejde šablonu "%s — Atlas of Today's World" z root layoutu,
@@ -12,30 +13,79 @@ export const metadata: Metadata = {
   },
   description:
     "Spin the satellite globe, click any country and read its profile: human development, political regime, living conditions and the entries behind them.",
-  alternates: { canonical: "/" },
+  alternates: alternates("/"),
+  keywords: [
+    "world atlas",
+    "interactive globe",
+    "country profiles",
+    "world regions",
+    "human development index map",
+    "political regime map",
+    "encyclopedia of the present",
+  ],
 };
 
 export default function HomePage() {
   const countries = indexableCountries();
 
   // Strukturovaná data, aby vyhledávače pochopily, že mapa je rozcestník
-  // na profily regionů a zemí.
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "Atlas of Today's World",
-    url: SITE_URL,
-    potentialAction: {
-      "@type": "SearchAction",
-      target: `${SITE_URL}/search?q={search_term_string}`,
-      "query-input": "required name=search_term_string",
+  // na profily regionů a zemí, a aby uměly nabídnout vyhledávání v Atlasu.
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": absoluteUrl("/#website"),
+      name: "Atlas of Today's World",
+      alternateName: "Atlas",
+      url: absoluteUrl("/"),
+      inLanguage: "en",
+      publisher: { "@id": absoluteUrl("/#organization") },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: absoluteUrl("/search?q={search_term_string}"),
+        },
+        "query-input": "required name=search_term_string",
+      },
     },
-    hasPart: REGIONS.map((region) => ({
-      "@type": "WebPage",
-      name: region.name,
-      url: `${SITE_URL}/region/${region.slug}`,
-    })),
-  };
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "@id": absoluteUrl("/#organization"),
+      name: "Atlas of Today's World",
+      url: absoluteUrl("/"),
+      logo: absoluteUrl("/icon.svg"),
+      description:
+        "An independent encyclopedia of the present, built around an interactive 3D globe.",
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      name: "World regions of the Atlas",
+      numberOfItems: REGIONS.length,
+      itemListElement: REGIONS.map((region, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: region.name,
+        url: absoluteUrl(`/region/${region.slug}`),
+      })),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Dataset",
+      name: "Country indicators of Atlas of Today's World",
+      description: `Latest available values of ${INDICATORS.length} development, governance and environment indicators for the countries of the world.`,
+      url: absoluteUrl("/"),
+      isAccessibleForFree: true,
+      spatialCoverage: { "@type": "Place", name: "World" },
+      variableMeasured: INDICATORS.map((indicator) => ({
+        "@type": "PropertyValue",
+        name: indicator.label,
+        url: absoluteUrl(`/view/${indicator.id}`),
+      })),
+    },
+  ];
 
   return (
     <>
@@ -70,7 +120,7 @@ export default function HomePage() {
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}
       />
     </>
   );

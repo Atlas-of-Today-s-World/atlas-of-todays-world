@@ -56,12 +56,32 @@ Každý má vlastní legendu, zdroj a samostatnou URL (`/view/hdi`).
 - `/api/chat` – chatbot nad stejným indexem: odpovídá **jen** z obsahu Atlasu
   a ke každé odpovědi připojí odkazy na hesla, ze kterých čerpal.
 
-**SEO**
+**Přepínač Countries / Regions**
+
+Na globusu se dá vybírat buď po státech, nebo rovnou po regionech Atlasu – tedy
+po těch barevných celcích. V režimu regionů se najetím zvýrazní celý region,
+kliknutí otevře jeho profil, naběhnou názvy regionů a hranice států ustoupí.
+
+**SEO a geo optimalizace**
 
 Každý region, země, datová vrstva i heslo mají vlastní předrenderovanou URL
-(`/region/…`, `/country/…`, `/view/…`, `/entry/…`), `<title>`, meta description,
-Open Graph, JSON-LD (`Country`, `Place`, `Article`, `Dataset`) a záznam v
-`sitemap.xml`. Build vygeneruje ~250 statických stránek.
+(`/region/…`, `/country/…`, `/view/…`, `/entry/…`). Build vygeneruje ~270
+statických stránek. K tomu:
+
+- **Strukturovaná data** – `Country` s geo souřadnicemi, ISO identifikátory a
+  všemi ukazateli jako `PropertyValue` (včetně zdroje a roku); `Place` pro
+  regiony; `Article` s `contentLocation` a `about`; `Dataset` pro datové vrstvy;
+  `FAQPage` z dossieru regionu; `BreadcrumbList` všude; `WebSite` +
+  `Organization` + `SearchAction` na úvodní stránce.
+- **Geo meta tagy** – `geo.position`, `geo.region` (ISO 3166-1 alpha-2),
+  `geo.placename`, `ICBM` a `place:location:*` na profilech zemí a regionů.
+- **robots.txt** otevřený všem robotům včetně AI crawlerů, `/api/` mimo index.
+  Kdyby ATW obsah pro trénink modelů nechtělo, mění se to v `src/app/robots.ts`.
+- **sitemap.xml** s `changeFrequency`, prioritami a obrázky.
+- **hreflang** (zatím `en` a `x-default`) připravený na jazykové mutace.
+- `max-image-preview: large` a neomezené úryvky pro Googlebot.
+- Ikona webu, webový manifest a `/search?q=…` jako serverová stránka výsledků
+  (neindexuje se, ale díky ní je `SearchAction` platná).
 
 ---
 
@@ -80,6 +100,19 @@ importu. Legenda, obarvení globusu, přepínač i karta země se z těch metada
 vygenerují samy.
 
 Když jeden zdroj spadne, ostatní se doimportují a stará data se nepřepíší.
+
+---
+
+## Ověření buildu, když běží dev server
+
+`npm run build` píše do `.next`, ze které čte i běžící `npm run dev` – build by
+ho shodil. Na kontrolu proto slouží:
+
+```bash
+npm run verify
+```
+
+Postaví produkční build do `.next-build` a vývojový server běží dál.
 
 ---
 

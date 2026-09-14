@@ -6,7 +6,14 @@ import MapFocus from "@/components/map/MapFocus";
 import { REGIONS, REGION_BY_SLUG } from "@/data/regions";
 import { countriesOfRegion } from "@/lib/countries";
 import { entriesOfRegion } from "@/lib/content";
-import { SITE_URL } from "@/lib/site";
+import {
+  absoluteUrl,
+  alternates,
+  breadcrumbJsonLd,
+  geoCoordinates,
+  geoMeta,
+  jsonLdHtml,
+} from "@/lib/seo";
 
 export const dynamicParams = false;
 
@@ -25,13 +32,24 @@ export async function generateMetadata({
   return {
     title: region.name,
     description: region.summary.slice(0, 180),
-    alternates: { canonical: `/region/${region.slug}` },
+    alternates: alternates(`/region/${region.slug}`),
+    keywords: [
+      region.name,
+      `${region.name} countries`,
+      `${region.name} profile`,
+      "world region",
+    ],
     openGraph: {
       title: `${region.name} — Atlas of Today's World`,
       description: region.summary.slice(0, 180),
       images: [region.hero],
-      url: `${SITE_URL}/region/${region.slug}`,
+      url: absoluteUrl(`/region/${region.slug}`),
     },
+    other: geoMeta({
+      lat: region.center[1],
+      lon: region.center[0],
+      placename: region.name,
+    }),
   };
 }
 
@@ -61,18 +79,33 @@ export default async function RegionPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Place",
-            name: region.name,
-            description: region.summary,
-            url: `${SITE_URL}/region/${region.slug}`,
-            containsPlace: countries.map((country) => ({
-              "@type": "Country",
-              name: country.name,
-              url: `${SITE_URL}/country/${country.slug}`,
-            })),
-          }),
+          __html: jsonLdHtml([
+            {
+              "@context": "https://schema.org",
+              "@type": "Place",
+              "@id": absoluteUrl(`/region/${region.slug}#region`),
+              name: region.name,
+              description: region.summary,
+              url: absoluteUrl(`/region/${region.slug}`),
+              image: region.hero,
+              hasMap: absoluteUrl(`/region/${region.slug}`),
+              geo: geoCoordinates(region.center[1], region.center[0]),
+              containsPlace: countries.map((country) => ({
+                "@type": "Country",
+                name: country.name,
+                url: absoluteUrl(`/country/${country.slug}`),
+              })),
+              subjectOf: entries.map((entry) => ({
+                "@type": "Article",
+                headline: entry.title,
+                url: absoluteUrl(`/entry/${entry.slug}`),
+              })),
+            },
+            breadcrumbJsonLd([
+              { name: "Atlas of Today's World", path: "/" },
+              { name: region.name, path: `/region/${region.slug}` },
+            ]),
+          ]),
         }}
       />
     </>

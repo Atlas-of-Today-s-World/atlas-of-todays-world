@@ -4,3 +4,7 @@ out
 .env*.local
 *.tsbuildinfo
 next-env.d.ts
+
+# Ověřovací build mimo .next, aby nesestřelil běžící dev server
+.next-build
+.next-dev

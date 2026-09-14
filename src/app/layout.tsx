@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Manrope } from "next/font/google";
 import "./globals.css";
 
@@ -25,12 +25,35 @@ export const metadata: Metadata = {
   },
   description:
     "Explore every country and world region on an interactive satellite globe: political systems, living conditions, human development and the stories behind them.",
+  applicationName: "Atlas of Today's World",
+  authors: [{ name: "Atlas of Today's World" }],
+  publisher: "Atlas of Today's World",
+  category: "reference",
   openGraph: {
     type: "website",
     siteName: "Atlas of Today's World",
+    locale: "en",
     url: SITE_URL,
   },
   twitter: { card: "summary_large_image" },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      // Bez limitů na náhledy – atlas žije z obrázků a dlouhých úryvků.
+      "max-snippet": -1,
+      "max-image-preview": "large",
+      "max-video-preview": -1,
+    },
+  },
+  formatDetection: { telephone: false },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0a1020",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({

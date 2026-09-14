@@ -7,7 +7,7 @@ import MapViewSetter from "@/components/map/MapViewSetter";
 import { SectionLabel } from "@/components/atlas-ui";
 import { INDICATORS, formatValue, getIndicator } from "@/lib/indicators";
 import { countryByIso3 } from "@/lib/countries";
-import { SITE_URL } from "@/lib/site";
+import { absoluteUrl, alternates, breadcrumbJsonLd, jsonLdHtml } from "@/lib/seo";
 
 export const dynamicParams = false;
 
@@ -27,7 +27,7 @@ export async function generateMetadata({
   return {
     title: `${indicator.label} by country`,
     description,
-    alternates: { canonical: `/view/${indicator.id}` },
+    alternates: alternates(`/view/${indicator.id}`),
     openGraph: { title: `${indicator.label} by country`, description },
   };
 }
@@ -108,16 +108,31 @@ export default async function IndicatorViewPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Dataset",
-            name: `${indicator.label} by country`,
-            description: `${indicator.label}, latest available value per country (${indicator.latestYear}).`,
-            url: `${SITE_URL}/view/${indicator.id}`,
-            creator: { "@type": "Organization", name: indicator.source },
-            isBasedOn: indicator.sourceUrl,
-            temporalCoverage: String(indicator.latestYear ?? ""),
-          }),
+          __html: jsonLdHtml([
+            {
+              "@context": "https://schema.org",
+              "@type": "Dataset",
+              name: `${indicator.label} by country`,
+              description: `${indicator.label}, latest available value per country (${indicator.latestYear}). Covers ${indicator.countryCount} countries.`,
+              url: absoluteUrl(`/view/${indicator.id}`),
+              creator: { "@type": "Organization", name: indicator.source },
+              isBasedOn: indicator.sourceUrl,
+              temporalCoverage: String(indicator.latestYear ?? ""),
+              // Dataset pokrývá celou planetu – ať je to pro roboty explicitní.
+              spatialCoverage: { "@type": "Place", name: "World" },
+              variableMeasured: {
+                "@type": "PropertyValue",
+                name: indicator.label,
+                unitText: indicator.unit.trim() || undefined,
+              },
+              license: "https://creativecommons.org/licenses/by/4.0/",
+              isAccessibleForFree: true,
+            },
+            breadcrumbJsonLd([
+              { name: "Atlas of Today's World", path: "/" },
+              { name: indicator.label, path: `/view/${indicator.id}` },
+            ]),
+          ]),
         }}
       />
     </>
