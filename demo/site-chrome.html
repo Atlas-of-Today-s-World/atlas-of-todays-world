@@ -1,0 +1,167 @@
+<style>
+/* Obálka kolem globusu: hrubá podoba atlasoftodaysworld.org, aby bylo vidět,
+   jak by hero vypadalo s živou mapou místo modrého obrázku. Barvy a texty
+   jsou převzaté ze stávajícího webu, rozvržení je zjednodušené. */
+body.site {
+  overflow: auto;
+  background: #05070f;
+}
+.site-wrap { max-width: 1180px; margin: 0 auto; padding: 0 22px; }
+
+.site-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; padding: 18px 0 0;
+}
+.site-mark {
+  display: inline-block; border: 1px solid rgba(255,255,255,.75); border-radius: 4px;
+  padding: 7px 12px; font-family: var(--display); font-weight: 800;
+  font-size: 11px; letter-spacing: .13em; text-transform: uppercase; color: #fff;
+  text-decoration: none;
+}
+.site-nav nav { display: flex; align-items: center; gap: 10px; }
+.site-nav a.link {
+  border-radius: 5px; padding: 7px 15px; font-size: 13.5px; text-decoration: none;
+  color: rgba(255,255,255,.88); background: rgba(255,255,255,.07);
+}
+.site-nav a.link:hover { background: rgba(255,255,255,.14); }
+.site-nav a.primary { background: #2f5bff; color: #fff; }
+.site-nav a.primary:hover { background: #4a71ff; }
+
+.site-hero { padding: 62px 0 26px; text-align: center; }
+.site-hero h1 {
+  margin: 0 auto; max-width: 15ch; font-family: var(--display);
+  font-size: clamp(32px, 5vw, 52px); font-weight: 700; line-height: 1.1; color: #fff;
+  text-wrap: balance;
+}
+.site-hero p {
+  margin: 18px auto 0; max-width: 56ch; font-size: 15px; line-height: 1.65;
+  color: rgba(255,255,255,.72);
+}
+.site-hero p b { color: #fff; font-weight: 600; }
+.site-cta { display: flex; justify-content: center; gap: 12px; margin-top: 26px; flex-wrap: wrap; }
+.site-cta a {
+  border-radius: 6px; padding: 11px 24px; font-size: 14px; font-weight: 500; text-decoration: none;
+}
+.site-cta .white { background: #fff; color: #0b1020; }
+.site-cta .blue { background: #2f5bff; color: #fff; }
+
+/* Globus místo statického modrého obrázku. */
+.site-stage-frame {
+  position: relative; margin: 34px auto 0; max-width: 1180px;
+  border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,.09);
+  box-shadow: 0 40px 90px rgba(0,0,0,.6);
+}
+body.site #stage { position: relative; inset: auto; height: min(78vh, 780px); }
+body.site #rail { border-radius: 0; }
+.site-note {
+  margin: 12px 4px 0; font-size: 12px; color: rgba(255,255,255,.5);
+  display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+
+.site-band { padding: 72px 0 0; }
+.site-eyebrow {
+  display: inline-block; border-radius: 999px; background: rgba(47,91,255,.18);
+  color: #9db1ff; padding: 5px 13px; font-size: 11px; letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.site-band h2 {
+  margin: 16px 0 0; font-family: var(--display); font-size: clamp(24px, 3.4vw, 34px);
+  font-weight: 700; color: #fff; max-width: 22ch;
+}
+.site-band p.lead {
+  margin: 14px 0 0; max-width: 62ch; font-size: 14.5px; line-height: 1.7;
+  color: rgba(255,255,255,.7);
+}
+.site-cards { display: grid; gap: 14px; margin: 28px 0 0; grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 860px) { .site-cards { grid-template-columns: 1fr; } }
+.site-card {
+  display: block; text-decoration: none; border: 1px solid rgba(255,255,255,.1);
+  border-radius: 14px; padding: 18px; background: rgba(255,255,255,.03);
+}
+.site-card:hover { border-color: rgba(47,91,255,.6); background: rgba(47,91,255,.08); }
+.site-card span.kind {
+  font-size: 10.5px; letter-spacing: .09em; text-transform: uppercase; color: #9db1ff;
+}
+.site-card h3 { margin: 8px 0 0; font-family: var(--display); font-size: 17px; font-weight: 700; color: #fff; }
+.site-card p { margin: 7px 0 0; font-size: 12.5px; line-height: 1.55; color: rgba(255,255,255,.6); }
+
+.site-foot {
+  margin: 76px 0 0; border-top: 1px solid rgba(255,255,255,.08);
+  padding: 22px 0 34px; display: flex; justify-content: space-between; gap: 16px;
+  flex-wrap: wrap; font-size: 12.5px; color: rgba(255,255,255,.5);
+}
+.site-foot nav { display: flex; gap: 18px; }
+.site-foot a { text-decoration: none; color: rgba(255,255,255,.5); }
+</style>
+
+<div class="site-wrap">
+  <div class="site-nav">
+    <a class="site-mark" href="#/">Atlas of Today&rsquo;s World</a>
+    <nav>
+      <a class="link" href="#/">Home</a>
+      <a class="link" href="#/about">About</a>
+      <a class="link primary" href="#/support">Atlas Patrons</a>
+    </nav>
+  </div>
+
+  <div class="site-hero">
+    <h1>A Complete Picture of Our World</h1>
+    <p>
+      We are developing a new encyclopedia. <b>So everyone can understand the
+      broad socio-political reality of today&rsquo;s world.</b>
+    </p>
+    <div class="site-cta">
+      <a class="white" href="#/region/middle-east-north-africa">Learn More</a>
+      <a class="blue" href="#/support">Atlas Patrons</a>
+    </div>
+  </div>
+</div>
+
+<div class="site-wrap">
+  <div class="site-stage-frame">
+<!--GLOBE-->
+  </div>
+  <p class="site-note">
+    <span>Drag to spin &middot; scroll to zoom &middot; click any country to open its profile</span>
+    <span>Imagery: political map &middot; data from Natural Earth, UNDP, World Bank, V-Dem</span>
+  </p>
+</div>
+
+<div class="site-wrap">
+  <section class="site-band">
+    <span class="site-eyebrow">Next milestone &mdash; running above</span>
+    <h2>The encyclopedia inside an interactive map</h2>
+    <p class="lead">
+      The globe above is the prototype of that milestone: every country carries its
+      profile, the layers recolour the world by human development, political regime
+      or corruption, and the regional portraits open without ever leaving the map.
+    </p>
+
+    <div class="site-cards">
+      <a class="site-card" href="#/region/middle-east-north-africa">
+        <span class="kind">An example of global topics</span>
+        <h3>Middle East and North Africa</h3>
+        <p>A comprehensive regional portrait, opened inside the globe.</p>
+      </a>
+      <a class="site-card" href="#/country/russia">
+        <span class="kind">An example of countries</span>
+        <h3>Russia</h3>
+        <p>Society, government, living conditions and the news behind them.</p>
+      </a>
+      <a class="site-card" href="#/news/putins-regime">
+        <span class="kind">An example of entries</span>
+        <h3>The Regime of Vladimir Putin</h3>
+        <p>A written entry that keeps the map beside the text.</p>
+      </a>
+    </div>
+  </section>
+
+  <div class="site-foot">
+    <span>Atlas of Today&rsquo;s World &copy; 2025 &middot; prototype of the map section</span>
+    <nav>
+      <a href="#/">Home</a>
+      <a href="#/about">About</a>
+      <a href="#/support">Atlas Patrons</a>
+    </nav>
+  </div>
+</div>

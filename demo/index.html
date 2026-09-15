@@ -856,6 +856,10 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
   });
 
   canvas.addEventListener("wheel", (event) => {
+    // Globus zasazený do stránky nechá kolečko projít na rolování; přibližuje
+    // se tlačítky nebo s Ctrl. Samostatná ukázka zoomuje kolečkem rovnou.
+    const insidePage = document.body.classList.contains("site");
+    if (insidePage && !event.ctrlKey && !event.metaKey) return;
     event.preventDefault();
     setScale(state.scale * Math.pow(1.0016, -event.deltaY));
   }, { passive: false });
@@ -1775,11 +1779,20 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
 
   /* ---------- routování ---------- */
 
+  /** Na webové stránce doroluje ke globusu, když se otevře panel z odkazu. */
+  function revealStage() {
+    if (!document.body.classList.contains("site")) return;
+    const box = document.getElementById("stage").getBoundingClientRect();
+    if (box.top >= 0 && box.bottom <= window.innerHeight) return;
+    document.getElementById("stage").scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
   function openRail(html, wide) {
     railScroll.innerHTML = html;
     railScroll.scrollTop = 0;
     rail.classList.toggle("wide", Boolean(wide));
     rail.classList.add("on");
+    revealStage();
     requestAnimationFrame(() => { needsDraw = true; });
   }
   function closeRail() {

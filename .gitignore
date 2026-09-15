@@ -11,3 +11,4 @@ next-env.d.ts
 
 # sestavená ukázka (npm run demo:build)
 demo/atlas.html
+demo/site.html
