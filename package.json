@@ -14,7 +14,8 @@
     "data:optimise": "node scripts/optimise-geodata.mjs",
     "demo:data": "node demo/data.mjs",
     "demo:build": "node demo/build.mjs",
-    "demo:geo": "node demo/geo.mjs"
+    "demo:geo": "node demo/geo.mjs",
+    "demo:texture": "node demo/texture.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.0",

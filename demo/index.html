@@ -400,9 +400,9 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
       <li><b>Real data.</b> 228 countries, 9 Atlas regions and 9 data layers
         imported from Natural Earth, UNDP, the World Bank, V-Dem, Transparency
         International and others.</li>
-      <li><b>No satellite imagery.</b> Shared pages cannot load map tiles, so the
-        globe is drawn as a political map. The real build shows satellite terrain
-        under the same colours.</li>
+      <li><b>One baked-in basemap.</b> A shared page cannot load map tiles, so the
+        terrain comes from a single NASA Blue Marble texture projected onto the
+        globe. The real build streams sharper satellite tiles at every zoom.</li>
       <li><b>No chatbot.</b> It needs a server-side API key; search beside it is
         the same index the chatbot answers from.</li>
     </ul>
@@ -417,6 +417,7 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <script src="atlas-geo.js"></script>
 <script src="atlas-data.js"></script>
+<script src="atlas-texture.js"></script>
 <script>
 (() => {
   "use strict";
@@ -556,6 +557,95 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
     renderHotNews();
   }
 
+  /* ---------- družicový podklad ----------
+     Aplikace bere dlaždice z Esri, sdílená stránka na síť nesmí, takže má
+     vlepenou jednu celosvětovou texturu (NASA Blue Marble) a přepočítává si ji
+     na kouli sama. Přepočet stojí desítky milisekund, proto se dělá jen když
+     globus stojí; při otáčení zůstane hladká barevná mapa. */
+  let texturePixels = null;
+  const textureCanvas = document.createElement("canvas");
+  let textureKey = "";
+
+  if (window.ATLAS_TEXTURE) {
+    const image = new Image();
+    image.onload = () => {
+      const source = document.createElement("canvas");
+      source.width = image.naturalWidth;
+      source.height = image.naturalHeight;
+      const sctx = source.getContext("2d", { willReadFrequently: true });
+      sctx.drawImage(image, 0, 0);
+      texturePixels = sctx.getImageData(0, 0, source.width, source.height);
+      needsDraw = true;
+    };
+    image.src = window.ATLAS_TEXTURE;
+  }
+
+  /**
+   * Vykreslí kouli s texturou do pomocného plátna. Pro každý pixel spočítá,
+   * na jakou zeměpisnou polohu se dívá (obrácená ortografická projekce), a
+   * vezme barvu z equirektangulární předlohy.
+   */
+  function textureBitmap(radius, dpr) {
+    const key = [
+      state.rotate[0].toFixed(2),
+      state.rotate[1].toFixed(2),
+      Math.round(radius),
+      dpr,
+    ].join("|");
+    if (key === textureKey) return textureCanvas;
+
+    const side = Math.max(2, Math.round(radius * 2 * dpr));
+    textureCanvas.width = side;
+    textureCanvas.height = side;
+    const target = textureCanvas.getContext("2d");
+    const out = target.createImageData(side, side);
+    const pixels = out.data;
+
+    const lon0 = (-state.rotate[0] * Math.PI) / 180;
+    const lat0 = (-state.rotate[1] * Math.PI) / 180;
+    const cosLon = Math.cos(lon0);
+    const sinLon = Math.sin(lon0);
+    const cosLat = Math.cos(lat0);
+    const sinLat = Math.sin(lat0);
+
+    const tex = texturePixels.data;
+    const tw = texturePixels.width;
+    const th = texturePixels.height;
+    const half = side / 2;
+    const TAU = Math.PI * 2;
+
+    for (let y = 0; y < side; y += 1) {
+      const ny = (half - y - 0.5) / half;
+      for (let x = 0; x < side; x += 1) {
+        const nx = (x + 0.5 - half) / half;
+        const rho = nx * nx + ny * ny;
+        if (rho > 1) continue;
+        const nz = Math.sqrt(1 - rho);
+
+        // Bod na kouli = nx·východ + ny·sever + nz·střed pohledu.
+        const px = nx * -sinLon + ny * -sinLat * cosLon + nz * cosLat * cosLon;
+        const py = nx * cosLon + ny * -sinLat * sinLon + nz * cosLat * sinLon;
+        const pz = ny * cosLat + nz * sinLat;
+
+        let u = (((Math.atan2(py, px) + Math.PI) / TAU) * tw) | 0;
+        let v = (((Math.PI / 2 - Math.asin(pz)) / Math.PI) * th) | 0;
+        if (u < 0) u = 0; else if (u >= tw) u = tw - 1;
+        if (v < 0) v = 0; else if (v >= th) v = th - 1;
+
+        const from = (v * tw + u) * 4;
+        const to = (y * side + x) * 4;
+        pixels[to] = tex[from];
+        pixels[to + 1] = tex[from + 1];
+        pixels[to + 2] = tex[from + 2];
+        pixels[to + 3] = 255;
+      }
+    }
+
+    target.putImageData(out, 0, 0);
+    textureKey = key;
+    return textureCanvas;
+  }
+
   const NEUTRAL = "#63748c";
   const state = {
     view: "encyclopedia",
@@ -632,6 +722,31 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
     ocean.addColorStop(1, "#0b2236");
     ctx.beginPath(); path({ type: "Sphere" }); ctx.fillStyle = ocean; ctx.fill();
 
+    // Družicový podklad jen v klidu – přepočet textury by otáčení zadrhával.
+    const withTexture = Boolean(texturePixels) && !state.dragging && !flight;
+    if (withTexture) {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      ctx.save();
+      ctx.beginPath(); path({ type: "Sphere" }); ctx.clip();
+      ctx.drawImage(textureBitmap(r, dpr), cx - r, cy - r, r * 2, r * 2);
+      // Oceán na předloze je skoro černý. Režim "screen" zesvětlí hlavně tmavá
+      // místa, takže voda dostane modrozelený nádech Atlasu a pevnina zůstane.
+      ctx.globalCompositeOperation = "screen";
+      ctx.globalAlpha = 0.42;
+      ctx.fillStyle = ocean;
+      ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = "source-over";
+      // Nasvícení, ať koule nevypadá jako nalepený obrázek.
+      const shade = ctx.createRadialGradient(cx - r * 0.3, cy - r * 0.35, r * 0.15, cx, cy, r);
+      shade.addColorStop(0, "rgba(255,255,255,.10)");
+      shade.addColorStop(0.6, "rgba(0,0,0,0)");
+      shade.addColorStop(1, "rgba(2,8,18,.55)");
+      ctx.fillStyle = shade;
+      ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+      ctx.restore();
+    }
+
     // Při tažení sáhneme po hrubší geometrii jen tehdy, když plné kreslení
     // nestíhá snímek; na svižném stroji zůstane detail i během otáčení.
     const collection = state.dragging && lastFullDraw > 15 ? GEO_LITE : GEO;
@@ -654,7 +769,10 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
       ctx.beginPath();
       path(f);
       ctx.fillStyle = colorFor(iso);
-      ctx.globalAlpha = state.view === "encyclopedia" ? 0.92 : 1;
+      // Přes družicový podklad jdou barvy zemí průsvitně, ať je vidět terén.
+      ctx.globalAlpha = withTexture
+        ? (state.view === "encyclopedia" ? 0.46 : 0.62)
+        : (state.view === "encyclopedia" ? 0.92 : 1);
       ctx.fill();
       ctx.globalAlpha = 1;
       ctx.lineWidth = 0.5;
