@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     absolute: "Atlas of Today's World — an interactive encyclopedia on a 3D globe",
   },
   description:
-    "Spin the satellite globe, click any country and read its profile: human development, political regime, living conditions and the newsItems behind them.",
+    "Spin the satellite globe, click any country and read its profile: human development, political regime, living conditions and the news behind them.",
   alternates: alternates("/"),
   keywords: [
     "world atlas",

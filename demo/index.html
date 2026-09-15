@@ -287,6 +287,20 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
 #note ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
 #note b { color: #fff; font-weight: 600; }
 
+/* --- vnořená podoba (?embed=1) ---
+   Stránka se otevírá v <iframe> na cizím webu, takže z ní zmizí všechno, co
+   patří samostatné ukázce: vlastní hlavička, poznámka o demu a vyhledávání.
+   Zůstane globus, přepínač pohledů a panel s profilem. */
+.embed header,
+.embed #noteBtn,
+.embed #note,
+.embed #encyclopedia,
+.embed #hotBtn,
+.embed #hotList { display: none !important; }
+.embed #controls { top: 16px; }
+.embed #zoom { top: 16px; }
+.embed #legend { bottom: 14px; }
+
 /* --- mobil: panel je spodní sheet --- */
 @media (max-width: 760px) {
   nav { display: none; }
@@ -428,6 +442,11 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
       }
     }
     capOfIso.set(feature.properties.iso3, { centre, radius });
+  }
+
+  // Vnořená podoba pro cizí web: ?embed=1 (viz .embed v CSS).
+  if (new URLSearchParams(location.search).has("embed")) {
+    document.body.classList.add("embed");
   }
 
   const byIso = new Map(DATA.countries.map((c) => [c.iso3, c]));
