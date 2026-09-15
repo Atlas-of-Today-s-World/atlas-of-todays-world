@@ -97,6 +97,7 @@ nav .muted { color: rgba(255,255,255,.6); }
   pointer-events: none; transition: transform .3s;
 }
 #controls > * { pointer-events: auto; }
+#controls.tucked { opacity: 0; pointer-events: none; }
 .row { display: flex; gap: 10px; align-items: flex-start; }
 
 .seg-wrap { position: relative; }
@@ -1961,16 +1962,45 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
     document.getElementById("stage").scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
+  /**
+   * Přepínače a Hot News sedí vpravo nahoře, kam se otevírá panel s obsahem.
+   * Uhneme s nimi doleva vedle panelu; když tam na ně nezbude místo (úzké
+   * okno, široký panel), schovají se úplně, ať nepřekrývají text.
+   */
+  function syncControls() {
+    const controls = document.getElementById("controls");
+    const stage = document.getElementById("stage");
+    if (!controls || !stage) return;
+    const open = rail.classList.contains("on");
+    const sheet = window.innerWidth <= 760;
+    if (!open || sheet) {
+      controls.style.transform = "";
+      controls.classList.remove("tucked");
+      return;
+    }
+    // Šířku panelu počítáme ze stejného předpisu jako CSS: měřit ji nejde,
+    // protože se právě roztahuje a naměřili bychom tu starou.
+    const vw = window.innerWidth;
+    const railWidth = rail.classList.contains("wide")
+      ? Math.min(vw * 0.52, 46 * 16)
+      : Math.min(vw * 0.38, 27 * 16);
+    const room = stage.getBoundingClientRect().width - railWidth;
+    controls.style.transform = "translateX(" + -railWidth + "px)";
+    controls.classList.toggle("tucked", room < 420);
+  }
+
   function openRail(html, wide) {
     railScroll.innerHTML = html;
     railScroll.scrollTop = 0;
     rail.classList.toggle("wide", Boolean(wide));
     rail.classList.add("on");
+    syncControls();
     revealStage();
     requestAnimationFrame(() => { needsDraw = true; });
   }
   function closeRail() {
     rail.classList.remove("on");
+    syncControls();
     requestAnimationFrame(() => { needsDraw = true; });
   }
 
@@ -2173,7 +2203,7 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
   /* ---------- start ---------- */
 
   window.addEventListener("hashchange", route);
-  window.addEventListener("resize", () => { resize(); route.length; needsDraw = true; });
+  window.addEventListener("resize", () => { resize(); syncControls(); needsDraw = true; });
 
   refreshNews();
   state.rotate = homeRotate().map((v) => -v);
