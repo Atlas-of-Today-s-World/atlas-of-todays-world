@@ -78,6 +78,8 @@ export default function AtlasGlobe({ colorSets, slugs, regions }: Props) {
   slugsRef.current = slugs;
   /** URL, které už jsme předstáhli – ať neprefetchujeme totéž při každém pohybu. */
   const prefetchedRef = useRef(new Set<string>());
+  /** Poslední pozice kurzoru nad mapou, pro přepočet po dojezdu kamery. */
+  const cursorRef = useRef<MapMouseEvent["point"] | null>(null);
 
   // --- inicializace mapy (jen jednou za celý život aplikace) ---
   useEffect(() => {
@@ -139,8 +141,9 @@ export default function AtlasGlobe({ colorSets, slugs, regions }: Props) {
       };
     };
 
-    const onMove = (event: MapMouseEvent) => {
-      const target = targetAt(event.point);
+    /** Přepočítá zvýraznění pro daný bod na plátně. */
+    const applyHover = (point: MapMouseEvent["point"] | null) => {
+      const target = point ? targetAt(point) : null;
       const key = target?.href ?? null;
       if (key === hoveredRef.current) return;
       hoveredRef.current = key;
@@ -169,6 +172,11 @@ export default function AtlasGlobe({ colorSets, slugs, regions }: Props) {
       }
     };
 
+    const onMove = (event: MapMouseEvent) => {
+      cursorRef.current = event.point;
+      applyHover(event.point);
+    };
+
     const onClick = (event: MapMouseEvent) => {
       const target = targetAt(event.point);
       if (!target) return;
@@ -176,8 +184,22 @@ export default function AtlasGlobe({ colorSets, slugs, regions }: Props) {
       router.push(target.href);
     };
 
+    // Během přeletu kamery se pod nehybným kurzorem vystřídají různé země.
+    // Zvýraznění proto na začátku pohybu zhasneme a po dojezdu přepočítáme,
+    // jinak by na mapě zůstala viset náhodná země z půlky animace.
+    const onMoveStart = () => {
+      hoveredRef.current = null;
+      map.setFilter(LAYERS.countryHover, NO_FEATURES);
+      map.setFilter(LAYERS.regionHover, NO_FEATURES);
+      setHoverLabel(null);
+    };
+    const onMoveEnd = () => applyHover(cursorRef.current);
+
     map.on("mousemove", onMove);
     map.on("click", onClick);
+    map.on("movestart", onMoveStart);
+    map.on("moveend", onMoveEnd);
+    map.on("mouseout", () => applyHover(null));
 
     return () => {
       map.remove();
