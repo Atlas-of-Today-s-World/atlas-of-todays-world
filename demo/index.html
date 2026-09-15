@@ -974,17 +974,21 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
   });
 
   canvas.addEventListener("wheel", (event) => {
-    // Globus zasazený do stránky nechá kolečko projít na rolování; přibližuje
-    // se tlačítky nebo s Ctrl. Samostatná ukázka zoomuje kolečkem rovnou.
-    const insidePage = document.body.classList.contains("site");
-    if (insidePage && !event.ctrlKey && !event.metaKey) return;
-    event.preventDefault();
-    setScale(state.scale * Math.pow(1.0016, -event.deltaY));
+    const next = state.scale * Math.pow(1.0016, -event.deltaY);
+    const applied = setScale(next);
+    // Ve stránce nesmí mapa uvěznit rolování: jakmile je globus na dorazu
+    // přiblížení, kolečko propustíme dál a stránka jede dál sama.
+    const atLimit = !applied && document.body.classList.contains("site");
+    if (!atLimit) event.preventDefault();
   }, { passive: false });
 
+  /** Vrátí false, když je globus na dorazu a přiblížení už se nehnulo. */
   function setScale(next) {
-    state.scale = Math.max(0.85, Math.min(9, next));
+    const clamped = Math.max(0.85, Math.min(9, next));
+    const moved = Math.abs(clamped - state.scale) > 1e-4;
+    state.scale = clamped;
     needsDraw = true;
+    return moved;
   }
   document.getElementById("zoomIn").onclick = () => animateTo({ scale: state.scale * 1.5 });
   document.getElementById("zoomOut").onclick = () => animateTo({ scale: state.scale / 1.5 });
