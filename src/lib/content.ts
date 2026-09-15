@@ -24,6 +24,11 @@ export interface Entry extends EntryFrontmatter {
 
 let entryCache: Entry[] | null = null;
 
+/** Po zápisu nového hesla je potřeba zahodit cache, jinak se neobjeví. */
+export function invalidateEntries() {
+  entryCache = null;
+}
+
 export async function allEntries(): Promise<Entry[]> {
   if (entryCache) return entryCache;
 

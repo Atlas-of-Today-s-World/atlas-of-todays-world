@@ -3,13 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import maplibregl, { type Map as MapLibreMap, type MapMouseEvent } from "maplibre-gl";
-import {
-  anyOfCountries,
-  buildStyle,
-  LAYERS,
-  NO_FEATURES,
-  onlyCountry,
-} from "./mapStyle";
+import { buildStyle, LAYERS } from "./mapStyle";
 import { useMapState } from "./MapContext";
 
 export interface GlobeColorSets {
@@ -49,6 +43,39 @@ function railPadding() {
   };
 }
 
+type StateKey = "hover" | "inRegion" | "active";
+
+/**
+ * Přepne feature-state u zadaných zemí a zhasne ty předchozí.
+ * Ref si drží, co právě svítí, aby se sahalo jen na rozdíl.
+ */
+function applyFeatureState(
+  map: MapLibreMap,
+  ref: { current: string[] },
+  next: string[],
+  key: StateKey,
+) {
+  const nextSet = new Set(next);
+  for (const iso3 of ref.current) {
+    if (!nextSet.has(iso3)) {
+      map.setFeatureState({ source: "countries", id: iso3 }, { [key]: false });
+    }
+  }
+  const previous = new Set(ref.current);
+  for (const iso3 of next) {
+    if (!previous.has(iso3)) {
+      map.setFeatureState({ source: "countries", id: iso3 }, { [key]: true });
+    }
+  }
+  ref.current = next;
+}
+
+const setHoverState = (
+  map: MapLibreMap,
+  ref: { current: string[] },
+  next: string[],
+) => applyFeatureState(map, ref, next, "hover");
+
 /** Z mapy ISO3->barva udělá MapLibre `match` výraz. */
 function matchExpression(colors: Record<string, string>): unknown[] {
   const stops: unknown[] = [];
@@ -80,6 +107,10 @@ export default function AtlasGlobe({ colorSets, slugs, regions }: Props) {
   const prefetchedRef = useRef(new Set<string>());
   /** Poslední pozice kurzoru nad mapou, pro přepočet po dojezdu kamery. */
   const cursorRef = useRef<MapMouseEvent["point"] | null>(null);
+  // Co právě svítí ve feature-state, ať se při změně sahá jen na rozdíl.
+  const hoveredIsoRef = useRef<string[]>([]);
+  const regionIsoRef = useRef<string[]>([]);
+  const activeIsoRef = useRef<string[]>([]);
 
   // --- inicializace mapy (jen jednou za celý život aplikace) ---
   useEffect(() => {
@@ -148,19 +179,9 @@ export default function AtlasGlobe({ colorSets, slugs, regions }: Props) {
       if (key === hoveredRef.current) return;
       hoveredRef.current = key;
 
-      // Zvýraznění: jedna země, nebo celý region.
-      map.setFilter(
-        LAYERS.regionHover,
-        target && modeRef.current === "regions"
-          ? anyOfCountries(target.countries)
-          : NO_FEATURES,
-      );
-      map.setFilter(
-        LAYERS.countryHover,
-        target && modeRef.current === "countries"
-          ? onlyCountry(target.iso3)
-          : NO_FEATURES,
-      );
+      // Zvýrazněné země držíme ve feature-state. Je to jen příznak na už
+      // nahrané geometrii, takže mapa nic nepřetesává a nebliká.
+      setHoverState(map, hoveredIsoRef, target ? target.countries : []);
 
       setHoverLabel(target?.label ?? null);
       map.getCanvas().style.cursor = target ? "pointer" : "grab";
@@ -189,8 +210,7 @@ export default function AtlasGlobe({ colorSets, slugs, regions }: Props) {
     // jinak by na mapě zůstala viset náhodná země z půlky animace.
     const onMoveStart = () => {
       hoveredRef.current = null;
-      map.setFilter(LAYERS.countryHover, NO_FEATURES);
-      map.setFilter(LAYERS.regionHover, NO_FEATURES);
+      setHoverState(map, hoveredIsoRef, []);
       setHoverLabel(null);
     };
     const onMoveEnd = () => applyHover(cursorRef.current);
@@ -257,8 +277,7 @@ export default function AtlasGlobe({ colorSets, slugs, regions }: Props) {
     );
 
     // Přepnutí režimu ruší rozpracované zvýraznění pod kurzorem.
-    map.setFilter(LAYERS.countryHover, NO_FEATURES);
-    map.setFilter(LAYERS.regionHover, NO_FEATURES);
+    setHoverState(map, hoveredIsoRef, []);
     hoveredRef.current = null;
     setHoverLabel(null);
   }, [mode, ready]);
@@ -270,12 +289,9 @@ export default function AtlasGlobe({ colorSets, slugs, regions }: Props) {
 
     // pendingIso3 drží zvýraznění hned po kliknutí, než dorazí nová stránka.
     const active = focus.activeIso3 ?? pendingIso3;
-    map.setFilter(LAYERS.activeOutline, onlyCountry(active));
+    applyFeatureState(map, activeIsoRef, active ? [active] : [], "active");
+    applyFeatureState(map, regionIsoRef, focus.regionCountries, "inRegion");
 
-    map.setFilter(
-      LAYERS.regionOutline,
-      anyOfCountries(focus.regionCountries),
-    );
     if (focus.regionStroke) {
       map.setPaintProperty(LAYERS.regionOutline, "line-color", focus.regionStroke);
     }

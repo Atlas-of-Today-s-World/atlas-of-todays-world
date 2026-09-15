@@ -26,6 +26,9 @@ export default function PagesLayout({
             <Link href="/about" className="hover:text-[var(--color-accent)]">
               About
             </Link>
+            <Link href="/admin" className="hover:text-[var(--color-accent)]">
+              Admin
+            </Link>
             <Link
               href="/support"
               className="rounded-full bg-[var(--color-accent)] px-4 py-1.5 text-white"

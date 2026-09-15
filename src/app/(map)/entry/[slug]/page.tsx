@@ -15,7 +15,8 @@ import {
   jsonLdHtml,
 } from "@/lib/seo";
 
-export const dynamicParams = false;
+// true, aby se heslo přidané v adminu objevilo hned, bez nového buildu.
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const entries = await allEntries();

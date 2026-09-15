@@ -1,8 +1,4 @@
-import type {
-  FilterSpecification,
-  GeoJSONSourceSpecification,
-  StyleSpecification,
-} from "maplibre-gl";
+import type { GeoJSONSourceSpecification, StyleSpecification } from "maplibre-gl";
 import { REGIONS } from "@/data/regions";
 
 /** Popisky regionů – jeden bod na region, pozice je ručně zvolený střed. */
@@ -48,30 +44,12 @@ export const LAYERS = {
   satellite: "satellite",
   fill: "country-fill",
   countryHover: "country-hover",
-  regionHover: "region-hover",
   border: "country-border",
   regionOutline: "region-outline",
   activeOutline: "active-outline",
   label: "country-label",
   regionLabel: "region-label",
 } as const;
-
-/** Prázdný filtr – vrstva se nevykreslí, dokud jí nedáme konkrétní země. */
-export const NO_FEATURES: FilterSpecification = [
-  "==",
-  ["get", "iso3"],
-  "___none___",
-];
-
-/** Filtr na jednu zemi. */
-export function onlyCountry(iso3: string | null): FilterSpecification {
-  return iso3 ? ["==", ["get", "iso3"], iso3] : NO_FEATURES;
-}
-
-/** Filtr na seznam zemí (např. všechny státy regionu). */
-export function anyOfCountries(list: string[]): FilterSpecification {
-  return list.length ? ["in", ["get", "iso3"], ["literal", list]] : NO_FEATURES;
-}
 
 /**
  * Styl globusu. Obarvení zemí neřešíme tady – přepisuje se za běhu přes
@@ -140,20 +118,22 @@ export function buildStyle(): StyleSpecification {
         paint: { "fill-color": "#7d8aa8", "fill-opacity": 0.55 },
       },
       {
-        // Zvýraznění pod kurzorem. Samostatné vrstvy s filtrem jsou levnější
-        // než přepisování feature-state u desítek zemí najednou.
+        // Zvýraznění pod kurzorem. Vrstva je vykreslená pořád, jen průhledná –
+        // mění se výhradně feature-state, takže mapa nepřetesává geometrii.
+        // (setFilter by při každém pohybu myši překreslil celou vrstvu a blikal.)
         id: LAYERS.countryHover,
         type: "fill",
         source: "countries",
-        filter: NO_FEATURES,
-        paint: { "fill-color": "#ffffff", "fill-opacity": 0.2 },
-      },
-      {
-        id: LAYERS.regionHover,
-        type: "fill",
-        source: "countries",
-        filter: NO_FEATURES,
-        paint: { "fill-color": "#ffffff", "fill-opacity": 0.22 },
+        paint: {
+          "fill-color": "#ffffff",
+          "fill-opacity": [
+            "case",
+            ["boolean", ["feature-state", "hover"], false],
+            0.2,
+            0,
+          ],
+          "fill-opacity-transition": { duration: 120, delay: 0 },
+        },
       },
       {
         id: LAYERS.border,
@@ -168,21 +148,33 @@ export function buildStyle(): StyleSpecification {
         id: LAYERS.regionOutline,
         type: "line",
         source: "countries",
-        filter: NO_FEATURES,
         paint: {
           "line-color": "#b03a2e",
           "line-width": ["interpolate", ["linear"], ["zoom"], 1, 1, 5, 2.4],
+          "line-opacity": [
+            "case",
+            ["boolean", ["feature-state", "inRegion"], false],
+            1,
+            0,
+          ],
+          "line-opacity-transition": { duration: 180, delay: 0 },
         },
       },
       {
         id: LAYERS.activeOutline,
         type: "line",
         source: "countries",
-        filter: NO_FEATURES,
         paint: {
           "line-color": "#ffffff",
           "line-width": ["interpolate", ["linear"], ["zoom"], 1, 1.4, 5, 3],
           "line-blur": 0.3,
+          "line-opacity": [
+            "case",
+            ["boolean", ["feature-state", "active"], false],
+            1,
+            0,
+          ],
+          "line-opacity-transition": { duration: 180, delay: 0 },
         },
       },
       {
