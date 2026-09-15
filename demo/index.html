@@ -627,16 +627,38 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
         const py = nx * cosLon + ny * -sinLat * sinLon + nz * cosLat * sinLon;
         const pz = ny * cosLat + nz * sinLat;
 
-        let u = (((Math.atan2(py, px) + Math.PI) / TAU) * tw) | 0;
-        let v = (((Math.PI / 2 - Math.asin(pz)) / Math.PI) * th) | 0;
-        if (u < 0) u = 0; else if (u >= tw) u = tw - 1;
-        if (v < 0) v = 0; else if (v >= th) v = th - 1;
+        // Bilineární vzorkování: mezi čtyřmi sousedy se míchá, jinak by při
+        // přiblížení vylezly čtverce pixelů předlohy.
+        const fu = ((Math.atan2(py, px) + Math.PI) / TAU) * tw - 0.5;
+        const fv = ((Math.PI / 2 - Math.asin(pz)) / Math.PI) * th - 0.5;
+        const u0 = Math.floor(fu);
+        const v0 = Math.floor(fv);
+        const du = fu - u0;
+        const dv = fv - v0;
 
-        const from = (v * tw + u) * 4;
+        // Zeměpisná délka se za okrajem předlohy vrací, šířka se u pólů zarazí.
+        const ua = ((u0 % tw) + tw) % tw;
+        const ub = (ua + 1) % tw;
+        const va = v0 < 0 ? 0 : v0 >= th ? th - 1 : v0;
+        const vb = v0 + 1 < 0 ? 0 : v0 + 1 >= th ? th - 1 : v0 + 1;
+
+        const i00 = (va * tw + ua) * 4;
+        const i10 = (va * tw + ub) * 4;
+        const i01 = (vb * tw + ua) * 4;
+        const i11 = (vb * tw + ub) * 4;
+
+        const w00 = (1 - du) * (1 - dv);
+        const w10 = du * (1 - dv);
+        const w01 = (1 - du) * dv;
+        const w11 = du * dv;
+
         const to = (y * side + x) * 4;
-        pixels[to] = tex[from];
-        pixels[to + 1] = tex[from + 1];
-        pixels[to + 2] = tex[from + 2];
+        pixels[to] =
+          tex[i00] * w00 + tex[i10] * w10 + tex[i01] * w01 + tex[i11] * w11;
+        pixels[to + 1] =
+          tex[i00 + 1] * w00 + tex[i10 + 1] * w10 + tex[i01 + 1] * w01 + tex[i11 + 1] * w11;
+        pixels[to + 2] =
+          tex[i00 + 2] * w00 + tex[i10 + 2] * w10 + tex[i01 + 2] * w01 + tex[i11 + 2] * w11;
         pixels[to + 3] = 255;
       }
     }
@@ -722,13 +744,19 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
     ocean.addColorStop(1, "#0b2236");
     ctx.beginPath(); path({ type: "Sphere" }); ctx.fillStyle = ocean; ctx.fill();
 
-    // Družicový podklad jen v klidu – přepočet textury by otáčení zadrhával.
-    const withTexture = Boolean(texturePixels) && !state.dragging && !flight;
+    /* Družicový podklad jen v klidu – přepočet textury by otáčení zadrhával.
+       A protože je textura na celou planetu jedna, při velkém přiblížení už
+       nemá co ukázat: postupně se vytrácí a zůstane ostrá kreslená mapa. */
+    const textureFade = Math.max(0, Math.min(1, (7.5 - state.scale) / 2.5));
+    const withTexture =
+      Boolean(texturePixels) && !state.dragging && !flight && textureFade > 0.02;
     if (withTexture) {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       ctx.save();
       ctx.beginPath(); path({ type: "Sphere" }); ctx.clip();
+      ctx.globalAlpha = textureFade;
       ctx.drawImage(textureBitmap(r, dpr), cx - r, cy - r, r * 2, r * 2);
+      ctx.globalAlpha = 1;
       // Oceán na předloze je skoro černý. Režim "screen" zesvětlí hlavně tmavá
       // místa, takže voda dostane modrozelený nádech Atlasu a pevnina zůstane.
       ctx.globalCompositeOperation = "screen";
@@ -770,9 +798,11 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
       path(f);
       ctx.fillStyle = colorFor(iso);
       // Přes družicový podklad jdou barvy zemí průsvitně, ať je vidět terén.
+      const opaque = state.view === "encyclopedia" ? 0.92 : 1;
+      const overTexture = state.view === "encyclopedia" ? 0.46 : 0.62;
       ctx.globalAlpha = withTexture
-        ? (state.view === "encyclopedia" ? 0.46 : 0.62)
-        : (state.view === "encyclopedia" ? 0.92 : 1);
+        ? overTexture + (opaque - overTexture) * (1 - textureFade)
+        : opaque;
       ctx.fill();
       ctx.globalAlpha = 1;
       ctx.lineWidth = 0.5;
