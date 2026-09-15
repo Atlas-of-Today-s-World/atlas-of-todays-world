@@ -47,6 +47,14 @@ body {
 #globe.dragging { cursor: grabbing; }
 #globe.pickable { cursor: pointer; }
 
+/* Bez tohohle začne tažení globusu vybírat text celé stránky: přes mapu se
+   přetáhne zvýraznění výběru (v prohlížeči klidně růžové) a canvas navíc
+   přijde o pointerup, takže koule zůstane v hrubé geometrii pro tažení.
+   Panel s textem výběr dál umožňuje, aby se dal obsah zkopírovat. */
+#stage { user-select: none; -webkit-user-select: none; }
+#globe { -webkit-user-drag: none; }
+#rail, #rail * { user-select: text; -webkit-user-select: text; }
+
 /* --- skleněné ovládání --- */
 .glass {
   background: var(--glass);
@@ -403,6 +411,25 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
   const GEO = window.ATLAS_GEO;
   const GEO_LITE = window.ATLAS_GEO_LITE;
 
+  /* Střed a úhlový poloměr každé země. Půlka světa je vždycky odvrácená od
+     kamery a d3 stejně počítá průmět bod po bodu, takže zahodit ji dopředu
+     ušetří skoro polovinu práce při každém překreslení. */
+  const capOfIso = new Map();
+  for (const feature of window.ATLAS_GEO.features) {
+    const centre = d3.geoCentroid(feature);
+    if (!Number.isFinite(centre[0])) continue;
+    let radius = 0;
+    const geometry = feature.geometry;
+    const rings = geometry.type === "Polygon" ? geometry.coordinates : geometry.coordinates.flat();
+    for (const ring of rings) {
+      for (const point of ring) {
+        const distance = d3.geoDistance(centre, point);
+        if (distance > radius) radius = distance;
+      }
+    }
+    capOfIso.set(feature.properties.iso3, { centre, radius });
+  }
+
   const byIso = new Map(DATA.countries.map((c) => [c.iso3, c]));
   const bySlug = new Map(DATA.countries.map((c) => [c.slug, c]));
   const regionBySlug = new Map(DATA.regions.map((r) => [r.slug, r]));
@@ -532,6 +559,9 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
   const path = d3.geoPath(projection, ctx);
   let size = { w: 0, h: 0 };
   let needsDraw = true;
+  // Kolik milisekund zabralo poslední plné překreslení – podle toho se
+  // rozhoduje, jestli tažení zvládne detailní geometrii.
+  let lastFullDraw = 0;
 
   function baseRadius() {
     return Math.min(size.w, size.h) * 0.42;
@@ -583,7 +613,16 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
     ocean.addColorStop(1, "#0b2236");
     ctx.beginPath(); path({ type: "Sphere" }); ctx.fillStyle = ocean; ctx.fill();
 
-    const collection = state.dragging ? GEO_LITE : GEO;
+    // Při tažení sáhneme po hrubší geometrii jen tehdy, když plné kreslení
+    // nestíhá snímek; na svižném stroji zůstane detail i během otáčení.
+    const collection = state.dragging && lastFullDraw > 15 ? GEO_LITE : GEO;
+    const camera = [-state.rotate[0], -state.rotate[1]];
+    const facing = (feature) => {
+      const cap = capOfIso.get(feature.properties.iso3);
+      return !cap || d3.geoDistance(cap.centre, camera) < Math.PI / 2 + cap.radius;
+    };
+    const drawn = collection.features.filter(facing);
+    const started = performance.now();
     const hoverSet = state.hover ? new Set(state.hover.countries) : null;
     const regionSet = state.activeRegion
       ? new Set(regionBySlug.get(state.activeRegion).countries)
@@ -591,7 +630,7 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
 
     // pevnina
     ctx.lineJoin = "round";
-    for (const f of collection.features) {
+    for (const f of drawn) {
       const iso = f.properties.iso3;
       ctx.beginPath();
       path(f);
@@ -608,7 +647,7 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
     if (hoverSet) {
       ctx.globalAlpha = 0.22;
       ctx.fillStyle = "#ffffff";
-      for (const f of collection.features) {
+      for (const f of drawn) {
         if (!hoverSet.has(f.properties.iso3)) continue;
         ctx.beginPath(); path(f); ctx.fill();
       }
@@ -619,7 +658,7 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
     if (regionSet) {
       ctx.lineWidth = 1.6;
       ctx.strokeStyle = regionBySlug.get(state.activeRegion).stroke;
-      for (const f of collection.features) {
+      for (const f of drawn) {
         if (!regionSet.has(f.properties.iso3)) continue;
         ctx.beginPath(); path(f); ctx.stroke();
       }
@@ -627,7 +666,7 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
 
     // vybraná země
     if (state.activeIso) {
-      const f = collection.features.find((x) => x.properties.iso3 === state.activeIso);
+      const f = drawn.find((x) => x.properties.iso3 === state.activeIso);
       if (f) {
         ctx.lineWidth = 2.2;
         ctx.strokeStyle = "#ffffff";
@@ -642,6 +681,8 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
     ctx.stroke();
 
     drawLabels();
+
+    if (collection === GEO) lastFullDraw = performance.now() - started;
   }
 
   /** Země seřazené podle počtu obyvatel – podle toho, kolik popisků se vejde. */
@@ -730,8 +771,11 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
 
   let pointer = null;
   canvas.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount) selection.removeAllRanges();
     pointer = { x: event.clientX, y: event.clientY, rotate: state.rotate.slice(), moved: 0 };
-    canvas.setPointerCapture(event.pointerId);
+    try { canvas.setPointerCapture(event.pointerId); } catch (e) { /* jiné zařízení */ }
   });
 
   canvas.addEventListener("pointermove", (event) => {
@@ -774,8 +818,20 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
       if (target) location.hash = target.href;
     }
   }
+  function stopDrag() {
+    if (!pointer && !state.dragging) return;
+    pointer = null;
+    state.dragging = false;
+    canvas.classList.remove("dragging");
+    needsDraw = true;
+  }
   canvas.addEventListener("pointerup", endPointer);
-  canvas.addEventListener("pointercancel", () => { pointer = null; state.dragging = false; canvas.classList.remove("dragging"); needsDraw = true; });
+  canvas.addEventListener("pointercancel", stopDrag);
+  // Záchranná brzda: kdyby se pointerup ztratil (přetažení mimo okno, přepnutí
+  // karty), globus by jinak zůstal v hrubé geometrii pro tažení.
+  window.addEventListener("pointerup", stopDrag);
+  window.addEventListener("blur", stopDrag);
+  document.addEventListener("selectstart", (event) => { if (pointer) event.preventDefault(); });
   canvas.addEventListener("pointerleave", () => {
     state.hover = null; hoverChip.classList.remove("on"); needsDraw = true;
   });

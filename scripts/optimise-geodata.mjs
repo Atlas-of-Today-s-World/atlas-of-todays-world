@@ -80,6 +80,40 @@ function simplifyRing(points, tolerance) {
   return out;
 }
 
+/**
+ * Shoelace se znaménkem: kladné = prstenec obtočený proti směru hodinových
+ * ručiček. Zjednodušení a zaokrouhlení dokáže u drobného ostrova směr obrátit
+ * a na kouli pak takový prstenec znamená "všechno kromě" – jeden takový ostrov
+ * přebarví celou planetu. Proto směr po úpravě vždycky srovnáváme s předlohou.
+ */
+function signedArea(ring) {
+  let sum = 0;
+  for (let i = 0, n = ring.length - 1; i < n; i += 1) {
+    sum += ring[i][0] * ring[i + 1][1] - ring[i + 1][0] * ring[i][1];
+  }
+  return sum / 2;
+}
+
+/** Prstenec po zjednodušení: uzavřený, bez splynulých bodů, ve správném směru. */
+function tidyRing(source, tolerance) {
+  const simplified = simplifyRing(source, tolerance).map((point) => [
+    round(point[0]),
+    round(point[1]),
+  ]);
+  const compact = simplified.filter(
+    (point, i) =>
+      i === 0 || point[0] !== simplified[i - 1][0] || point[1] !== simplified[i - 1][1],
+  );
+  if (compact.length < 4) return null;
+
+  const first = compact[0];
+  const last = compact[compact.length - 1];
+  if (first[0] !== last[0] || first[1] !== last[1]) compact.push([first[0], first[1]]);
+  if (compact.length < 4 || Math.abs(signedArea(compact)) < 1e-7) return null;
+  if (Math.sign(signedArea(compact)) !== Math.sign(signedArea(source))) compact.reverse();
+  return compact;
+}
+
 /** Plocha prstence ve čtverečních stupních (shoelace), korigovaná o šířku. */
 function ringArea(ring) {
   let sum = 0;
@@ -93,16 +127,16 @@ function ringArea(ring) {
 const round = (value) => Number(value.toFixed(DIGITS));
 
 function processPolygon(polygon) {
-  const outer = simplifyRing(polygon[0], TOLERANCE);
-  if (ringArea(outer) < MIN_AREA) return null;
+  const outer = tidyRing(polygon[0], TOLERANCE);
+  if (!outer || ringArea(outer) < MIN_AREA) return null;
 
   const rings = [outer];
   // Díry (jezera, enklávy) necháváme jen ty, co po zjednodušení něco znamenají.
   for (let i = 1; i < polygon.length; i += 1) {
-    const hole = simplifyRing(polygon[i], TOLERANCE);
-    if (ringArea(hole) >= MIN_AREA * 4) rings.push(hole);
+    const hole = tidyRing(polygon[i], TOLERANCE);
+    if (hole && ringArea(hole) >= MIN_AREA * 4) rings.push(hole);
   }
-  return rings.map((ring) => ring.map((p) => [round(p[0]), round(p[1])]));
+  return rings;
 }
 
 function countPoints(coords) {
@@ -131,9 +165,8 @@ async function main() {
       const biggest = polygons
         .map((p) => ({ p, area: ringArea(p[0]) }))
         .sort((a, b) => b.area - a.area)[0];
-      kept.push([
-        simplifyRing(biggest.p[0], TOLERANCE / 3).map((c) => [round(c[0]), round(c[1])]),
-      ]);
+      const ring = tidyRing(biggest.p[0], TOLERANCE / 3);
+      if (ring) kept.push([ring]);
       dropped += polygons.length - 1;
     } else {
       dropped += polygons.length - kept.length;

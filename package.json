@@ -13,7 +13,8 @@
     "verify": "node scripts/verify-build.mjs",
     "data:optimise": "node scripts/optimise-geodata.mjs",
     "demo:data": "node demo/data.mjs",
-    "demo:build": "node demo/build.mjs"
+    "demo:build": "node demo/build.mjs",
+    "demo:geo": "node demo/geo.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.0",
