@@ -823,8 +823,8 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
       ctx.fillStyle = colorFor(iso);
       // Přes družicový podklad jdou barvy zemí průsvitně, ať je vidět terén.
       ctx.globalAlpha = withTexture
-        ? (state.view === "encyclopedia" ? 0.46 : 0.62)
-        : (state.view === "encyclopedia" ? 0.92 : 1);
+        ? (state.view === "encyclopedia" ? 0.51 : 0.68)
+        : (state.view === "encyclopedia" ? 1 : 1);
       ctx.fill();
       ctx.globalAlpha = 1;
       ctx.lineWidth = borderWidth;

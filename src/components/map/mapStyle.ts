@@ -115,7 +115,7 @@ export function buildStyle(): StyleSpecification {
         id: LAYERS.fill,
         type: "fill",
         source: "countries",
-        paint: { "fill-color": "#7d8aa8", "fill-opacity": 0.55 },
+        paint: { "fill-color": "#7d8aa8", "fill-opacity": 0.61 },
       },
       {
         // Zvýraznění pod kurzorem. Vrstva je vykreslená pořád, jen průhledná –
