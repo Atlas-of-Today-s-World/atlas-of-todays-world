@@ -813,6 +813,9 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
 
     // pevnina
     ctx.lineJoin = "round";
+    // Hranice o kousek výraznější a rostou s přiblížením: na celém globusu
+    // by silná čára zaplevelila drobné státy, v detailu je naopak potřeba.
+    const borderWidth = Math.min(1.15, 0.6 + state.scale * 0.06);
     for (const f of drawn) {
       const iso = f.properties.iso3;
       ctx.beginPath();
@@ -824,8 +827,8 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
         : (state.view === "encyclopedia" ? 0.92 : 1);
       ctx.fill();
       ctx.globalAlpha = 1;
-      ctx.lineWidth = 0.5;
-      ctx.strokeStyle = "rgba(255,255,255,.35)";
+      ctx.lineWidth = borderWidth;
+      ctx.strokeStyle = "rgba(255,255,255,.55)";
       ctx.stroke();
     }
 
