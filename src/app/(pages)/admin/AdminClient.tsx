@@ -9,10 +9,19 @@ export interface AdminNewsItem {
   title: string;
   category: string;
   region: string;
+  special: string | null;
+  specialName: string | null;
   published: string | null;
 }
 
 export interface AdminRegion {
+  slug: string;
+  name: string;
+  countries: { iso3: string; name: string }[];
+}
+
+/** Vlastní celek ke zvolení u novinky. */
+export interface AdminSpecial {
   slug: string;
   name: string;
   countries: { iso3: string; name: string }[];
@@ -25,20 +34,33 @@ const LABEL = "block text-[12px] font-medium text-[var(--color-ink-muted)]";
 export default function AdminClient({
   newsItems,
   regions,
+  specials,
   categories,
 }: {
   newsItems: AdminNewsItem[];
   regions: AdminRegion[];
+  specials: AdminSpecial[];
   categories: string[];
 }) {
   const router = useRouter();
   const [regionSlug, setRegionSlug] = useState(regions[0]?.slug ?? "");
+  const [specialSlug, setSpecialSlug] = useState("");
   const [countries, setCountries] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
 
   const region = regions.find((item) => item.slug === regionSlug);
+  const special = specials.find((item) => item.slug === specialSlug);
+
+  // Nabídka zemí = země regionu + země zvoleného celku. Celek sahá napříč
+  // regiony, takže bez toho by se jeho země nedaly u novinky zaškrtnout.
+  const pickable = [
+    ...(region?.countries ?? []),
+    ...(special?.countries ?? []).filter(
+      (item) => !(region?.countries ?? []).some((c) => c.iso3 === item.iso3),
+    ),
+  ];
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -57,6 +79,7 @@ export default function AdminClient({
           summary: form.get("summary"),
           category: form.get("category"),
           region: regionSlug,
+          special: specialSlug,
           countries,
           hero: form.get("hero"),
           author: form.get("author"),
@@ -69,6 +92,7 @@ export default function AdminClient({
       setDone(data.url);
       (event.target as HTMLFormElement).reset();
       setCountries([]);
+      setSpecialSlug("");
       router.refresh();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Uložení selhalo.");
@@ -152,7 +176,10 @@ export default function AdminClient({
                   id="region"
                   name="region"
                   value={regionSlug}
-                  onChange={(event) => { setRegionSlug(event.target.value); setCountries([]); }}
+                  onChange={(event) => {
+                    setRegionSlug(event.target.value);
+                    setCountries([]);
+                  }}
                   className={`mt-1.5 ${FIELD}`}
                 >
                   {regions.map((item) => (
@@ -163,6 +190,45 @@ export default function AdminClient({
             </div>
 
             <div>
+              <label className={LABEL} htmlFor="news-special">
+                Vlastní celek{" "}
+                <span className="font-normal">
+                  (nepovinné – novinka se pak ukáže i v profilu celku)
+                </span>
+              </label>
+              <select
+                id="news-special"
+                name="special"
+                value={specialSlug}
+                onChange={(event) => setSpecialSlug(event.target.value)}
+                className={`mt-1.5 ${FIELD}`}
+              >
+                <option value="">— žádný —</option>
+                {specials.map((item) => (
+                  <option key={item.slug} value={item.slug}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+              {special ? (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setCountries((current) => [
+                      ...current,
+                      ...special.countries
+                        .map((item) => item.iso3)
+                        .filter((iso3) => !current.includes(iso3)),
+                    ])
+                  }
+                  className="mt-2 rounded-full border border-[var(--color-line)] px-3 py-1 text-[12px] text-[var(--color-ink-soft)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+                >
+                  + označit všech {special.countries.length} zemí celku
+                </button>
+              ) : null}
+            </div>
+
+            <div>
               <span className={LABEL}>
                 Země, kterých se novinka týká{" "}
                 <span className="font-normal">
@@ -170,7 +236,7 @@ export default function AdminClient({
                 </span>
               </span>
               <div className="mt-2 flex max-h-40 flex-wrap gap-1.5 overflow-y-auto rounded-lg border border-[var(--color-line)] p-2.5">
-                {(region?.countries ?? []).map((country) => {
+                {pickable.map((country) => {
                   const on = countries.includes(country.iso3);
                   return (
                     <button
@@ -257,6 +323,7 @@ export default function AdminClient({
                   </Link>
                   <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-muted)]">
                     {item.category} · {item.region}
+                    {item.specialName ? ` · ${item.specialName}` : ""}
                     {item.published ? ` · ${item.published}` : ""}
                   </p>
                 </div>

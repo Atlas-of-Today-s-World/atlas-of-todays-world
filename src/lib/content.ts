@@ -75,6 +75,12 @@ export async function newsOfCountry(iso3: string): Promise<NewsItem[]> {
   return newsItems.filter((item) => item.countries?.includes(iso3));
 }
 
+/** Novinky přiřazené přímo k vlastnímu celku (pole `special` ve frontmatteru). */
+export async function newsOfSpecial(specialSlug: string): Promise<NewsItem[]> {
+  const newsItems = await allNews();
+  return newsItems.filter((item) => item.special === specialSlug);
+}
+
 /** Redakční doplňky portrétu regionu; když soubor chybí, sekce se nevykreslí. */
 export async function regionDossier(slug: string): Promise<RegionDossier> {
   try {

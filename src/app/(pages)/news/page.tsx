@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { allNews, NEWS_CATEGORIES } from "@/lib/content";
+import { allSpecialRegions } from "@/lib/special-regions";
 import { REGIONS } from "@/data/regions";
 
 export const metadata: Metadata = {
@@ -11,7 +12,11 @@ export const metadata: Metadata = {
 };
 
 export default async function NewsIndexPage() {
-  const newsItems = await allNews();
+  const [newsItems, specials] = await Promise.all([
+    allNews(),
+    allSpecialRegions(),
+  ]);
+  const specialName = new Map(specials.map((item) => [item.slug, item.name]));
 
   return (
     <main>
@@ -36,6 +41,14 @@ export default async function NewsIndexPage() {
                   >
                     <span className="text-[11px] uppercase tracking-wide text-[var(--color-ink-muted)]">
                       {item.regionRef?.name}
+                      {item.special ? (
+                        <>
+                          {" · "}
+                          <span className="text-[var(--color-link)]">
+                            {specialName.get(item.special) ?? item.special}
+                          </span>
+                        </>
+                      ) : null}
                     </span>
                     <span className="mt-1 block font-display text-[15px] font-bold group-hover:text-[var(--color-accent)]">
                       {item.title}

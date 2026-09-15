@@ -48,9 +48,18 @@ export default function Header() {
           className="flex items-center gap-1.5 text-white/70 transition hover:text-white"
           title="Mock administrace novinek"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-            <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke="currentColor" strokeWidth="1.6" />
-            <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.94-1.16l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 3 15a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.16-2.94l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 5a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.94 1.16l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 21 11a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" stroke="currentColor" strokeWidth="1.4" />
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+            aria-hidden
+          >
+            <path d="M10.01 6.23L9.93 3.04L14.07 3.04L13.99 6.23A6.1 6.1 0 0 1 15.27 6.85L17.72 4.79L20.30 8.03L17.75 9.96A6.1 6.1 0 0 1 18.06 11.35L21.20 11.98L20.28 16.01L17.18 15.22A6.1 6.1 0 0 1 16.29 16.33L17.75 19.18L14.02 20.97L12.71 18.06A6.1 6.1 0 0 1 11.29 18.06L9.98 20.97L6.25 19.18L7.71 16.33A6.1 6.1 0 0 1 6.82 15.22L3.72 16.01L2.80 11.98L5.94 11.35A6.1 6.1 0 0 1 6.25 9.96L3.70 8.03L6.28 4.79L8.73 6.85A6.1 6.1 0 0 1 10.01 6.23Z" />
+            <circle cx="12" cy="12" r="3.1" />
           </svg>
           Admin
         </Link>

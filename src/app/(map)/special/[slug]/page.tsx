@@ -66,11 +66,19 @@ export default async function SpecialRegionPage({
     .filter((country): country is NonNullable<typeof country> => country !== null)
     .sort((a, b) => (b.population ?? 0) - (a.population ?? 0));
 
-  // Novinky, které se týkají některé ze zemí celku.
+  // Napřed novinky přiřazené přímo k celku (pole `special`), za nimi ty, které
+  // se trefily některou ze zemí celku. Bez duplicit.
   const members = new Set(region.countries);
-  const related = (await allNews()).filter((item) =>
-    (item.countries ?? []).some((iso3) => members.has(iso3)),
-  );
+  const news = await allNews();
+  const tagged = news.filter((item) => item.special === region.slug);
+  const related = [
+    ...tagged,
+    ...news.filter(
+      (item) =>
+        item.special !== region.slug &&
+        (item.countries ?? []).some((iso3) => members.has(iso3)),
+    ),
+  ];
 
   const population = countries.reduce(
     (sum, country) => sum + (country.population ?? 0),

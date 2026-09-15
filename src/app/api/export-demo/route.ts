@@ -92,6 +92,7 @@ export async function GET() {
       summary: item.summary,
       category: item.category,
       region: item.region,
+      special: item.special ?? null,
       countries: item.countries ?? [],
       published: item.published ?? null,
       author: item.author ?? null,

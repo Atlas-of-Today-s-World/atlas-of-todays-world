@@ -6,6 +6,7 @@ import MapFocus from "@/components/map/MapFocus";
 import { SectionLabel } from "@/components/atlas-ui";
 import { allNews, newsBySlug } from "@/lib/content";
 import { countryByIso3 } from "@/lib/countries";
+import { specialRegionBySlug } from "@/lib/special-regions";
 import {
   absoluteUrl,
   alternates,
@@ -69,6 +70,7 @@ export default async function NewsPage({
   if (!item) notFound();
 
   const region = item.regionRef;
+  const special = item.special ? await specialRegionBySlug(item.special) : null;
   const countriesCovered = (item.countries ?? [])
     .map((iso3) => countryByIso3(iso3))
     .filter((country): country is NonNullable<typeof country> => country !== null);
@@ -112,6 +114,14 @@ export default async function NewsPage({
                   className="font-medium text-[var(--color-link)] hover:underline"
                 >
                   {region.name}
+                </Link>
+              ) : null}
+              {special ? (
+                <Link
+                  href={`/special/${special.slug}`}
+                  className="rounded-full border border-[var(--color-line)] px-2 py-0.5 font-medium text-[var(--color-link)] transition hover:border-[var(--color-accent)]"
+                >
+                  {special.name}
                 </Link>
               ) : null}
               {item.author ? <span>By {item.author}</span> : null}
@@ -179,6 +189,9 @@ export default async function NewsPage({
               { name: "Atlas of Today's World", path: "/" },
               { name: "News", path: "/news" },
               ...(region ? [{ name: region.name, path: `/region/${region.slug}` }] : []),
+              ...(special
+                ? [{ name: special.name, path: `/special/${special.slug}` }]
+                : []),
               { name: item.title, path: `/news/${item.slug}` },
             ]),
           ]),
