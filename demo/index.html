@@ -43,7 +43,8 @@ body {
 }
 
 #stage { position: fixed; inset: 0; }
-#globe { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+#globeGL { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+#globe { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; background: transparent; }
 #globe.dragging { cursor: grabbing; }
 #globe.pickable { cursor: pointer; }
 
@@ -316,6 +317,7 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
 </style>
 
 <div id="stage">
+  <canvas id="globeGL" aria-hidden="true"></canvas>
   <canvas id="globe"></canvas>
   <div id="regionLabels" aria-hidden="true"></div>
 
@@ -557,137 +559,157 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
     renderHotNews();
   }
 
-  /* ---------- družicový podklad ----------
-     Aplikace bere dlaždice z Esri, sdílená stránka na síť nesmí, takže má
-     vlepenou jednu celosvětovou texturu (NASA Blue Marble) a přepočítává si ji
-     na kouli sama. Přepočet stojí desítky milisekund, proto se dělá jen když
-     globus stojí; při otáčení zůstane hladká barevná mapa. */
-  let texturePixels = null;
-  const textureCanvas = document.createElement("canvas");
-  let textureKey = "";
+  /* ---------- družicový podklad na grafické kartě ----------
+     Dřív se koule s texturou počítala v JavaScriptu pixel po pixelu. Při
+     přiblížení to znamenalo miliony pixelů s goniometrií na každé překreslení,
+     takže se podklad kreslil jen v klidu a stejně to trhalo. Teď se textura
+     jednou nahraje do grafické karty a stejný výpočet dělá fragment shader –
+     podklad je vidět i během otáčení a překreslení stojí zlomek milisekundy. */
+  const glCanvas = document.getElementById("globeGL");
+  let gl = null;
+  let glProgram = null;
+  let glUniforms = null;
+  let glReady = false;
+
+  const VERTEX_SHADER = [
+    "attribute vec2 aCorner;",
+    "void main() { gl_Position = vec4(aCorner, 0.0, 1.0); }",
+  ].join("\n");
+
+  const FRAGMENT_SHADER = [
+    "precision highp float;",
+    "uniform vec2 uCentre;",     // střed koule v pixelech plátna
+    "uniform float uRadius;",
+    "uniform vec2 uRotate;",     // zeměpisná délka a šířka pod středem
+    "uniform sampler2D uTexture;",
+    "const float PI = 3.141592653589793;",
+    "void main() {",
+    "  float nx = (gl_FragCoord.x - uCentre.x) / uRadius;",
+    "  float ny = (gl_FragCoord.y - uCentre.y) / uRadius;",
+    "  float rho = nx * nx + ny * ny;",
+    "  if (rho > 1.0) discard;",
+    "  float nz = sqrt(1.0 - rho);",
+    "  float cosLon = cos(uRotate.x);",
+    "  float sinLon = sin(uRotate.x);",
+    "  float cosLat = cos(uRotate.y);",
+    "  float sinLat = sin(uRotate.y);",
+    // bod na kouli = nx·východ + ny·sever + nz·střed pohledu
+    "  vec3 point = vec3(",
+    "    nx * -sinLon + ny * -sinLat * cosLon + nz * cosLat * cosLon,",
+    "    nx *  cosLon + ny * -sinLat * sinLon + nz * cosLat * sinLon,",
+    "    ny *  cosLat + nz * sinLat);",
+    "  float lon = atan(point.y, point.x);",
+    "  float lat = asin(clamp(point.z, -1.0, 1.0));",
+    "  vec2 uv = vec2((lon + PI) / (2.0 * PI), (PI / 2.0 - lat) / PI);",
+    "  vec3 colour = texture2D(uTexture, uv).rgb;",
+    // oceán na předloze je skoro černý – "screen" ho zvedne do modrozelené
+    "  vec3 tint = vec3(0.09, 0.26, 0.37);",
+    "  colour = 1.0 - (1.0 - colour) * (1.0 - tint * 0.42);",
+    // nasvícení zleva shora, ať koule není placka
+    "  float light = 0.55 + 0.45 * clamp(0.35 * nx + 0.45 * ny + 0.8 * nz, 0.0, 1.0);",
+    "  colour *= light;",
+    "  float edge = smoothstep(0.86, 1.0, sqrt(rho));",
+    "  colour = mix(colour, vec3(0.012, 0.035, 0.07), edge * 0.55);",
+    "  gl_FragColor = vec4(colour, 1.0);",
+    "}",
+  ].join("\n");
+
+  function compile(type, source) {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      throw new Error(gl.getShaderInfoLog(shader) || "shader se nepřeložil");
+    }
+    return shader;
+  }
+
+  /** Předlohu zmenší, když ji karta v plné velikosti nepobere. */
+  function textureSource(image) {
+    const limit = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+    if (image.naturalWidth <= limit) return image;
+    const width = Math.min(limit, 4096);
+    const scaled = document.createElement("canvas");
+    scaled.width = width;
+    scaled.height = width / 2;
+    scaled.getContext("2d").drawImage(image, 0, 0, width, width / 2);
+    return scaled;
+  }
+
+  function startGL(image) {
+    gl = glCanvas.getContext("webgl", { alpha: false, antialias: false, depth: false })
+      || glCanvas.getContext("experimental-webgl", { alpha: false, antialias: false, depth: false });
+    if (!gl) return;
+
+    glProgram = gl.createProgram();
+    gl.attachShader(glProgram, compile(gl.VERTEX_SHADER, VERTEX_SHADER));
+    gl.attachShader(glProgram, compile(gl.FRAGMENT_SHADER, FRAGMENT_SHADER));
+    gl.linkProgram(glProgram);
+    if (!gl.getProgramParameter(glProgram, gl.LINK_STATUS)) {
+      throw new Error(gl.getProgramInfoLog(glProgram) || "program se nesestavil");
+    }
+    gl.useProgram(glProgram);
+
+    const corners = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, corners);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    const aCorner = gl.getAttribLocation(glProgram, "aCorner");
+    gl.enableVertexAttribArray(aCorner);
+    gl.vertexAttribPointer(aCorner, 2, gl.FLOAT, false, 0, 0);
+
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, textureSource(image));
+    // Zmenšeniny (mipmapy) drží kouli hladkou i při oddálení.
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    glUniforms = {
+      centre: gl.getUniformLocation(glProgram, "uCentre"),
+      radius: gl.getUniformLocation(glProgram, "uRadius"),
+      rotate: gl.getUniformLocation(glProgram, "uRotate"),
+    };
+    gl.uniform1i(gl.getUniformLocation(glProgram, "uTexture"), 0);
+    gl.clearColor(0.027, 0.043, 0.086, 1);
+    // Když karta kontext ztratí (uspání, přepnutí grafiky), spadneme zpátky
+    // na kreslený oceán místo prázdné plochy.
+    glCanvas.addEventListener("webglcontextlost", (event) => {
+      event.preventDefault();
+      glReady = false;
+      needsDraw = true;
+    });
+
+    glReady = true;
+    resize();
+    needsDraw = true;
+  }
 
   if (window.ATLAS_TEXTURE) {
     const image = new Image();
     image.onload = () => {
-      const tw = image.naturalWidth;
-      const th = image.naturalHeight;
-
-      /* Předloha má 8192×4096, což je nad limitem plátna na některých
-         mobilech, a jako RGBA by zabrala 128 MB. Rozkreslíme ji proto po
-         pruzích a necháme si jen tři složky – ušetří to čtvrtinu paměti. */
-      const rgb = new Uint8Array(tw * th * 3);
-      const stripe = document.createElement("canvas");
-      stripe.width = tw;
-      const sctx = stripe.getContext("2d", { willReadFrequently: true });
-
-      for (let top = 0; top < th; top += 1024) {
-        const height = Math.min(1024, th - top);
-        if (stripe.height !== height) stripe.height = height;
-        sctx.clearRect(0, 0, tw, height);
-        sctx.drawImage(image, 0, top, tw, height, 0, 0, tw, height);
-        const strip = sctx.getImageData(0, 0, tw, height).data;
-        let to = top * tw * 3;
-        for (let i = 0; i < strip.length; i += 4) {
-          rgb[to] = strip[i];
-          rgb[to + 1] = strip[i + 1];
-          rgb[to + 2] = strip[i + 2];
-          to += 3;
-        }
-      }
-
-      texturePixels = { data: rgb, width: tw, height: th };
-      needsDraw = true;
+      try { startGL(image); } catch (error) { glReady = false; }
     };
-    image.onerror = () => { texturePixels = null; };
+    image.onerror = () => { glReady = false; };
     image.src = window.ATLAS_TEXTURE;
   }
 
-  /**
-   * Vykreslí kouli s texturou do pomocného plátna. Pro každý pixel spočítá,
-   * na jakou zeměpisnou polohu se dívá (obrácená ortografická projekce), a
-   * vezme barvu z equirektangulární předlohy.
-   */
-  function textureBitmap(radius, dpr) {
-    const key = [
-      state.rotate[0].toFixed(2),
-      state.rotate[1].toFixed(2),
-      Math.round(radius),
-      dpr,
-    ].join("|");
-    if (key === textureKey) return textureCanvas;
-
-    const side = Math.max(2, Math.round(radius * 2 * dpr));
-    textureCanvas.width = side;
-    textureCanvas.height = side;
-    const target = textureCanvas.getContext("2d");
-    const out = target.createImageData(side, side);
-    const pixels = out.data;
-
-    const lon0 = (-state.rotate[0] * Math.PI) / 180;
-    const lat0 = (-state.rotate[1] * Math.PI) / 180;
-    const cosLon = Math.cos(lon0);
-    const sinLon = Math.sin(lon0);
-    const cosLat = Math.cos(lat0);
-    const sinLat = Math.sin(lat0);
-
-    const tex = texturePixels.data;
-    const tw = texturePixels.width;
-    const th = texturePixels.height;
-    const half = side / 2;
-    const TAU = Math.PI * 2;
-
-    for (let y = 0; y < side; y += 1) {
-      const ny = (half - y - 0.5) / half;
-      for (let x = 0; x < side; x += 1) {
-        const nx = (x + 0.5 - half) / half;
-        const rho = nx * nx + ny * ny;
-        if (rho > 1) continue;
-        const nz = Math.sqrt(1 - rho);
-
-        // Bod na kouli = nx·východ + ny·sever + nz·střed pohledu.
-        const px = nx * -sinLon + ny * -sinLat * cosLon + nz * cosLat * cosLon;
-        const py = nx * cosLon + ny * -sinLat * sinLon + nz * cosLat * sinLon;
-        const pz = ny * cosLat + nz * sinLat;
-
-        // Bilineární vzorkování: mezi čtyřmi sousedy se míchá, jinak by při
-        // přiblížení vylezly čtverce pixelů předlohy.
-        const fu = ((Math.atan2(py, px) + Math.PI) / TAU) * tw - 0.5;
-        const fv = ((Math.PI / 2 - Math.asin(pz)) / Math.PI) * th - 0.5;
-        const u0 = Math.floor(fu);
-        const v0 = Math.floor(fv);
-        const du = fu - u0;
-        const dv = fv - v0;
-
-        // Zeměpisná délka se za okrajem předlohy vrací, šířka se u pólů zarazí.
-        const ua = ((u0 % tw) + tw) % tw;
-        const ub = (ua + 1) % tw;
-        const va = v0 < 0 ? 0 : v0 >= th ? th - 1 : v0;
-        const vb = v0 + 1 < 0 ? 0 : v0 + 1 >= th ? th - 1 : v0 + 1;
-
-        const i00 = (va * tw + ua) * 3;
-        const i10 = (va * tw + ub) * 3;
-        const i01 = (vb * tw + ua) * 3;
-        const i11 = (vb * tw + ub) * 3;
-
-        const w00 = (1 - du) * (1 - dv);
-        const w10 = du * (1 - dv);
-        const w01 = (1 - du) * dv;
-        const w11 = du * dv;
-
-        const to = (y * side + x) * 4;
-        pixels[to] =
-          tex[i00] * w00 + tex[i10] * w10 + tex[i01] * w01 + tex[i11] * w11;
-        pixels[to + 1] =
-          tex[i00 + 1] * w00 + tex[i10 + 1] * w10 + tex[i01 + 1] * w01 + tex[i11 + 1] * w11;
-        pixels[to + 2] =
-          tex[i00 + 2] * w00 + tex[i10 + 2] * w10 + tex[i01 + 2] * w01 + tex[i11 + 2] * w11;
-        pixels[to + 3] = 255;
-      }
-    }
-
-    target.putImageData(out, 0, 0);
-    textureKey = key;
-    return textureCanvas;
+  /** Vykreslí kouli s podkladem. Stojí zlomek milisekundy, běží každý snímek. */
+  function drawGlobeGL(radius, centreX, centreY, dpr) {
+    if (!glReady) return;
+    gl.viewport(0, 0, glCanvas.width, glCanvas.height);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.uniform2f(glUniforms.centre, centreX * dpr, glCanvas.height - centreY * dpr);
+    gl.uniform1f(glUniforms.radius, radius * dpr);
+    gl.uniform2f(
+      glUniforms.rotate,
+      (-state.rotate[0] * Math.PI) / 180,
+      (-state.rotate[1] * Math.PI) / 180,
+    );
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
 
   const NEUTRAL = "#63748c";
@@ -726,6 +748,9 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
     canvas.width = Math.round(size.w * dpr);
     canvas.height = Math.round(size.h * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // Plátno grafické karty drží stejnou velikost jako to kreslené.
+    glCanvas.width = canvas.width;
+    glCanvas.height = canvas.height;
     needsDraw = true;
   }
 
@@ -752,47 +777,26 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
 
     ctx.clearRect(0, 0, size.w, size.h);
 
-    // vesmír
-    ctx.fillStyle = "#070b16";
-    ctx.fillRect(0, 0, size.w, size.h);
-
-    // oceán se světelným nádechem, ať koule nevypadá plochá
     const r = baseRadius() * state.scale;
     const cx = centerX();
     const cy = size.h / 2;
-    const ocean = ctx.createRadialGradient(cx - r * 0.35, cy - r * 0.4, r * 0.1, cx, cy, r);
-    ocean.addColorStop(0, "#1d5578");
-    ocean.addColorStop(0.55, "#17415f");
-    ocean.addColorStop(1, "#0b2236");
-    ctx.beginPath(); path({ type: "Sphere" }); ctx.fillStyle = ocean; ctx.fill();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const withTexture = glReady;
 
-    // Družicový podklad jen v klidu – přepočet textury by otáčení zadrhával.
-    const withTexture = Boolean(texturePixels) && !state.dragging && !flight;
+    // Podklad kreslí grafická karta pod tímhle plátnem; bez ní zůstane
+    // vesmír a barevný oceán jako dřív.
     if (withTexture) {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      ctx.save();
-      ctx.beginPath(); path({ type: "Sphere" }); ctx.clip();
-      ctx.drawImage(textureBitmap(r, dpr), cx - r, cy - r, r * 2, r * 2);
-      // Oceán na předloze je skoro černý. Režim "screen" zesvětlí hlavně tmavá
-      // místa, takže voda dostane modrozelený nádech Atlasu a pevnina zůstane.
-      ctx.globalCompositeOperation = "screen";
-      ctx.globalAlpha = 0.42;
-      ctx.fillStyle = ocean;
-      ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
-      ctx.globalAlpha = 1;
-      ctx.globalCompositeOperation = "source-over";
-      // Nasvícení, ať koule nevypadá jako nalepený obrázek.
-      const shade = ctx.createRadialGradient(cx - r * 0.3, cy - r * 0.35, r * 0.15, cx, cy, r);
-      shade.addColorStop(0, "rgba(255,255,255,.10)");
-      shade.addColorStop(0.6, "rgba(0,0,0,0)");
-      shade.addColorStop(1, "rgba(2,8,18,.55)");
-      ctx.fillStyle = shade;
-      ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
-      ctx.restore();
+      drawGlobeGL(r, cx, cy, dpr);
+    } else {
+      ctx.fillStyle = "#070b16";
+      ctx.fillRect(0, 0, size.w, size.h);
+      const ocean = ctx.createRadialGradient(cx - r * 0.35, cy - r * 0.4, r * 0.1, cx, cy, r);
+      ocean.addColorStop(0, "#1d5578");
+      ocean.addColorStop(0.55, "#17415f");
+      ocean.addColorStop(1, "#0b2236");
+      ctx.beginPath(); path({ type: "Sphere" }); ctx.fillStyle = ocean; ctx.fill();
     }
 
-    // Při tažení sáhneme po hrubší geometrii jen tehdy, když plné kreslení
-    // nestíhá snímek; na svižném stroji zůstane detail i během otáčení.
     const collection = state.dragging && lastFullDraw > 15 ? GEO_LITE : GEO;
     const camera = [-state.rotate[0], -state.rotate[1]];
     const facing = (feature) => {
@@ -927,7 +931,11 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
     const point = [clientX - rect.left, clientY - rect.top];
     const lonlat = projection.invert(point);
     if (!lonlat || Number.isNaN(lonlat[0])) return null;
+    // Bod v mnohoúhelníku je na kouli drahý, takže napřed zahodíme země,
+    // jejichž obalová čepička kurzor vůbec neobsahuje – zbude jich pár.
     for (const f of GEO.features) {
+      const cap = capOfIso.get(f.properties.iso3);
+      if (cap && d3.geoDistance(cap.centre, lonlat) > cap.radius) continue;
       if (d3.geoContains(f, lonlat)) return f.properties.iso3;
     }
     return null;
