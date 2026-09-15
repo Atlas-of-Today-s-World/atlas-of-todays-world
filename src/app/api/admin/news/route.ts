@@ -2,16 +2,16 @@ import { writeFile, unlink } from "node:fs/promises";
 import { join } from "node:path";
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { ENTRY_CATEGORIES } from "@/lib/content-types";
-import { allEntries, invalidateEntries } from "@/lib/content";
+import { NEWS_CATEGORIES } from "@/lib/content-types";
+import { allNews, invalidateNews } from "@/lib/content";
 import { REGION_BY_SLUG } from "@/data/regions";
 
 export const dynamic = "force-dynamic";
 
-const ENTRIES_DIR = join(process.cwd(), "src", "content", "entries");
+const NEWS_DIR = join(process.cwd(), "src", "content", "news");
 
 /**
- * Zápis encyklopedických hesel z administrace.
+ * Zápis novinek z administrace.
  *
  * MOCK: nemá autentizaci a zapisuje přímo do souborů v repozitáři, takže běží
  * jen lokálně a při vývoji. Před ostrým nasazením tohle nahradit redakčním
@@ -33,10 +33,10 @@ function yamlString(value: string): string {
 }
 
 function refreshPaths(slug: string, region: string) {
-  invalidateEntries();
-  revalidatePath("/entries");
+  invalidateNews();
+  revalidatePath("/news");
   revalidatePath("/admin");
-  revalidatePath(`/entry/${slug}`);
+  revalidatePath(`/news/${slug}`);
   if (region) {
     revalidatePath(`/region/${region}`);
     revalidatePath(`/region/${region}/full`);
@@ -44,14 +44,14 @@ function refreshPaths(slug: string, region: string) {
 }
 
 export async function GET() {
-  const entries = await allEntries();
+  const newsItems = await allNews();
   return NextResponse.json({
-    entries: entries.map((entry) => ({
-      slug: entry.slug,
-      title: entry.title,
-      category: entry.category,
-      region: entry.region,
-      published: entry.published ?? null,
+    newsItems: newsItems.map((item) => ({
+      slug: item.slug,
+      title: item.title,
+      category: item.category,
+      region: item.region,
+      published: item.published ?? null,
     })),
   });
 }
@@ -70,10 +70,10 @@ export async function POST(request: Request) {
   const region = String(body.region ?? "").trim();
   const markdown = String(body.markdown ?? "").trim();
 
-  if (!title) return NextResponse.json({ error: "Doplň název hesla." }, { status: 400 });
+  if (!title) return NextResponse.json({ error: "Doplň název novinky." }, { status: 400 });
   if (!summary) return NextResponse.json({ error: "Doplň perex." }, { status: 400 });
-  if (!markdown) return NextResponse.json({ error: "Doplň text hesla." }, { status: 400 });
-  if (!ENTRY_CATEGORIES.includes(category as (typeof ENTRY_CATEGORIES)[number])) {
+  if (!markdown) return NextResponse.json({ error: "Doplň text novinky." }, { status: 400 });
+  if (!NEWS_CATEGORIES.includes(category as (typeof NEWS_CATEGORIES)[number])) {
     return NextResponse.json({ error: "Neznámá kategorie." }, { status: 400 });
   }
   if (!REGION_BY_SLUG[region]) {
@@ -111,10 +111,10 @@ export async function POST(request: Request) {
     .filter((line) => line !== null)
     .join("\n");
 
-  await writeFile(join(ENTRIES_DIR, `${slug}.md`), `${frontmatter}${markdown}\n`, "utf8");
+  await writeFile(join(NEWS_DIR, `${slug}.md`), `${frontmatter}${markdown}\n`, "utf8");
   refreshPaths(slug, region);
 
-  return NextResponse.json({ ok: true, slug, url: `/entry/${slug}` });
+  return NextResponse.json({ ok: true, slug, url: `/news/${slug}` });
 }
 
 export async function DELETE(request: Request) {
@@ -122,12 +122,12 @@ export async function DELETE(request: Request) {
   const slug = slugify(searchParams.get("slug") ?? "");
   if (!slug) return NextResponse.json({ error: "Chybí slug." }, { status: 400 });
 
-  const entries = await allEntries();
-  const entry = entries.find((item) => item.slug === slug);
-  if (!entry) return NextResponse.json({ error: "Heslo neexistuje." }, { status: 404 });
+  const newsItems = await allNews();
+  const item = newsItems.find((item) => item.slug === slug);
+  if (!item) return NextResponse.json({ error: "Novinka neexistuje." }, { status: 404 });
 
-  await unlink(join(ENTRIES_DIR, `${slug}.md`));
-  refreshPaths(slug, entry.region);
+  await unlink(join(NEWS_DIR, `${slug}.md`));
+  refreshPaths(slug, item.region);
 
   return NextResponse.json({ ok: true });
 }

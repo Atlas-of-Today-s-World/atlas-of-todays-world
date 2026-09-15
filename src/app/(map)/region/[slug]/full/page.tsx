@@ -4,7 +4,7 @@ import ContentRail from "@/components/ContentRail";
 import RegionPortrait from "@/components/RegionPortrait";
 import MapFocus from "@/components/map/MapFocus";
 import { REGIONS, REGION_BY_SLUG } from "@/data/regions";
-import { entriesOfRegion, regionDossier } from "@/lib/content";
+import { newsOfRegion, regionDossier } from "@/lib/content";
 import { alternates, breadcrumbJsonLd, jsonLdHtml } from "@/lib/seo";
 
 export const dynamicParams = false;
@@ -37,8 +37,8 @@ export default async function RegionFullPage({
   const region = REGION_BY_SLUG[slug];
   if (!region) notFound();
 
-  const [entries, dossier] = await Promise.all([
-    entriesOfRegion(region.slug),
+  const [newsItems, dossier] = await Promise.all([
+    newsOfRegion(region.slug),
     regionDossier(region.slug),
   ]);
 
@@ -51,7 +51,7 @@ export default async function RegionFullPage({
         regionStroke={region.stroke}
       />
       <ContentRail wide closeHref={`/region/${region.slug}`}>
-        <RegionPortrait region={region} entries={entries} dossier={dossier} />
+        <RegionPortrait region={region} newsItems={newsItems} dossier={dossier} />
       </ContentRail>
 
       <script

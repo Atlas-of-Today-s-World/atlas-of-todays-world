@@ -78,7 +78,7 @@ export function geoShape(bbox: [number, number, number, number] | null) {
 
 /**
  * Vykreslí JSON-LD. Escapuje `<`, aby obsah nemohl uzavřít <script> –
- * texty hesel píše redakce, ale i ta se občas splete.
+ * texty novinek píše redakce, ale i ta se občas splete.
  */
 export function jsonLdHtml(data: unknown): string {
   return JSON.stringify(data).replace(/</g, "\\u003c");

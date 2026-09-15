@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 const NAV = [
   { href: "/about", label: "About" },
   { href: "/", label: "Home" },
-  { href: "/entries", label: "Entries" },
+  { href: "/news", label: "News" },
 ];
 
 /**
@@ -15,7 +15,7 @@ const NAV = [
  */
 export default function Header() {
   const pathname = usePathname();
-  const wideRail = /^\/(entry|region\/[^/]+\/full)/.test(pathname);
+  const wideRail = /^\/(news|region\/[^/]+\/full)/.test(pathname);
   const railOpen = pathname !== "/";
 
   const navOffset = wideRail
@@ -46,7 +46,7 @@ export default function Header() {
         <Link
           href="/admin"
           className="flex items-center gap-1.5 text-white/70 transition hover:text-white"
-          title="Mock administrace hesel"
+          title="Mock administrace novinek"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
             <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke="currentColor" strokeWidth="1.6" />

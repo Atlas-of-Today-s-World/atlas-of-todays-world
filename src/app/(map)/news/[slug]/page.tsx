@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import ContentRail from "@/components/ContentRail";
 import MapFocus from "@/components/map/MapFocus";
 import { SectionLabel } from "@/components/atlas-ui";
-import { allEntries, entryBySlug } from "@/lib/content";
+import { allNews, newsBySlug } from "@/lib/content";
 import { countryByIso3 } from "@/lib/countries";
 import {
   absoluteUrl,
@@ -15,12 +15,12 @@ import {
   jsonLdHtml,
 } from "@/lib/seo";
 
-// true, aby se heslo přidané v adminu objevilo hned, bez nového buildu.
+// true, aby se novinka přidaná v adminu objevila hned, bez nového buildu.
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  const entries = await allEntries();
-  return entries.map((entry) => ({ slug: entry.slug }));
+  const newsItems = await allNews();
+  return newsItems.map((item) => ({ slug: item.slug }));
 }
 
 export async function generateMetadata({
@@ -29,47 +29,47 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const entry = await entryBySlug(slug);
-  if (!entry) return {};
+  const item = await newsBySlug(slug);
+  if (!item) return {};
   return {
-    title: entry.title,
-    description: entry.summary,
-    alternates: alternates(`/entry/${entry.slug}`),
+    title: item.title,
+    description: item.summary,
+    alternates: alternates(`/news/${item.slug}`),
     openGraph: {
       type: "article",
-      title: `${entry.title} — Atlas of Today's World`,
-      description: entry.summary,
-      images: entry.hero ? [entry.hero] : undefined,
-      url: absoluteUrl(`/entry/${entry.slug}`),
-      publishedTime: entry.published,
-      modifiedTime: entry.updated ?? entry.published,
-      authors: entry.author ? [entry.author] : undefined,
-      section: entry.category,
+      title: `${item.title} — Atlas of Today's World`,
+      description: item.summary,
+      images: item.hero ? [item.hero] : undefined,
+      url: absoluteUrl(`/news/${item.slug}`),
+      publishedTime: item.published,
+      modifiedTime: item.updated ?? item.published,
+      authors: item.author ? [item.author] : undefined,
+      section: item.category,
     },
-    keywords: [entry.title, entry.category, entry.regionRef?.name ?? ""].filter(
+    keywords: [item.title, item.category, item.regionRef?.name ?? ""].filter(
       Boolean,
     ),
-    other: entry.regionRef
+    other: item.regionRef
       ? geoMeta({
-          lat: entry.regionRef.center[1],
-          lon: entry.regionRef.center[0],
-          placename: entry.regionRef.name,
+          lat: item.regionRef.center[1],
+          lon: item.regionRef.center[0],
+          placename: item.regionRef.name,
         })
       : undefined,
   };
 }
 
-export default async function EntryPage({
+export default async function NewsPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const entry = await entryBySlug(slug);
-  if (!entry) notFound();
+  const item = await newsBySlug(slug);
+  if (!item) notFound();
 
-  const region = entry.regionRef;
-  const countriesCovered = (entry.countries ?? [])
+  const region = item.regionRef;
+  const countriesCovered = (item.countries ?? [])
     .map((iso3) => countryByIso3(iso3))
     .filter((country): country is NonNullable<typeof country> => country !== null);
 
@@ -80,29 +80,29 @@ export default async function EntryPage({
         zoom={region?.zoom ?? null}
         regionCountries={region?.countries ?? []}
         regionStroke={region?.stroke ?? null}
-        activeIso3={entry.countries?.[0] ?? null}
+        activeIso3={item.countries?.[0] ?? null}
       />
 
       <ContentRail wide closeHref={region ? `/region/${region.slug}` : "/"}>
         <article>
-          {entry.hero ? (
+          {item.hero ? (
             <div
               className="h-52 w-full bg-cover bg-center"
-              style={{ backgroundImage: `url(${entry.hero})` }}
+              style={{ backgroundImage: `url(${item.hero})` }}
               role="img"
-              aria-label={entry.title}
+              aria-label={item.title}
             />
           ) : null}
 
           <div className="px-6 pb-12 pt-7 sm:px-10">
-            <SectionLabel>{entry.category}</SectionLabel>
+            <SectionLabel>{item.category}</SectionLabel>
 
             <h1 className="mt-4 font-display text-[30px] font-bold leading-tight text-[var(--color-ink)]">
-              {entry.title}
+              {item.title}
             </h1>
 
             <p className="mt-3 text-[14px] leading-relaxed text-[var(--color-ink-soft)]">
-              {entry.summary}
+              {item.summary}
             </p>
 
             <p className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-[var(--color-ink-muted)]">
@@ -114,22 +114,22 @@ export default async function EntryPage({
                   {region.name}
                 </Link>
               ) : null}
-              {entry.author ? <span>By {entry.author}</span> : null}
-              {entry.published ? (
-                <time dateTime={entry.published}>
-                  {new Date(entry.published).toLocaleDateString("en-GB", {
+              {item.author ? <span>By {item.author}</span> : null}
+              {item.published ? (
+                <time dateTime={item.published}>
+                  {new Date(item.published).toLocaleDateString("en-GB", {
                     day: "numeric",
                     month: "long",
                     year: "numeric",
                   })}
                 </time>
               ) : null}
-              {entry.readingMinutes ? <span>{entry.readingMinutes} min read</span> : null}
+              {item.readingMinutes ? <span>{item.readingMinutes} min read</span> : null}
             </p>
 
             <div
               className="prose-atlas mt-7 border-t border-[var(--color-line)] pt-6"
-              dangerouslySetInnerHTML={{ __html: entry.html }}
+              dangerouslySetInnerHTML={{ __html: item.html }}
             />
           </div>
         </article>
@@ -142,25 +142,25 @@ export default async function EntryPage({
             {
               "@context": "https://schema.org",
               "@type": "Article",
-              headline: entry.title,
-              description: entry.summary,
-              image: entry.hero ? [entry.hero] : undefined,
-              articleSection: entry.category,
-              datePublished: entry.published,
-              dateModified: entry.updated ?? entry.published,
-              wordCount: entry.plain.split(/\s+/).length,
+              headline: item.title,
+              description: item.summary,
+              image: item.hero ? [item.hero] : undefined,
+              articleSection: item.category,
+              datePublished: item.published,
+              dateModified: item.updated ?? item.published,
+              wordCount: item.plain.split(/\s+/).length,
               inLanguage: "en",
               isAccessibleForFree: true,
-              author: entry.author
-                ? { "@type": "Person", name: entry.author }
+              author: item.author
+                ? { "@type": "Person", name: item.author }
                 : { "@type": "Organization", name: "Atlas of Today's World" },
               publisher: {
                 "@type": "Organization",
                 name: "Atlas of Today's World",
                 url: absoluteUrl("/"),
               },
-              mainEntityOfPage: absoluteUrl(`/entry/${entry.slug}`),
-              // Kterých míst se heslo týká – tohle roboti čtou pro geo kontext.
+              mainEntityOfPage: absoluteUrl(`/news/${item.slug}`),
+              // Kterých míst se novinka týká – tohle roboti čtou pro geo kontext.
               contentLocation: region
                 ? {
                     "@type": "Place",
@@ -177,9 +177,9 @@ export default async function EntryPage({
             },
             breadcrumbJsonLd([
               { name: "Atlas of Today's World", path: "/" },
-              { name: "Entries", path: "/entries" },
+              { name: "News", path: "/news" },
               ...(region ? [{ name: region.name, path: `/region/${region.slug}` }] : []),
-              { name: entry.title, path: `/entry/${entry.slug}` },
+              { name: item.title, path: `/news/${item.slug}` },
             ]),
           ]),
         }}

@@ -45,8 +45,8 @@ const HIDDEN_FROM_INDEX = new Set(["ATA", "ATF", "HMD", "BVT", "SGS", "UMI"]);
 
 function rankWithin(indicator: Indicator, iso3: string): [number, number] | null {
   if (indicator.type === "categorical") return null;
-  const entries = Object.entries(indicator.values);
-  const sorted = entries.sort((a, b) =>
+  const newsItems = Object.entries(indicator.values);
+  const sorted = newsItems.sort((a, b) =>
     indicator.higherIsBetter ? b[1].value - a[1].value : a[1].value - b[1].value,
   );
   const index = sorted.findIndex(([code]) => code === iso3);
@@ -56,16 +56,16 @@ function rankWithin(indicator: Indicator, iso3: string): [number, number] | null
 function statsFor(iso3: string): CountryStat[] {
   const stats: CountryStat[] = [];
   for (const indicator of INDICATORS) {
-    const entry = indicator.values[iso3];
-    if (!entry) continue;
+    const item = indicator.values[iso3];
+    if (!item) continue;
     const rank = rankWithin(indicator, iso3);
     stats.push({
       id: indicator.id,
       label: indicator.label,
       shortLabel: indicator.shortLabel,
-      value: formatValue(indicator, entry.value),
-      raw: entry.value,
-      year: entry.year,
+      value: formatValue(indicator, item.value),
+      raw: item.value,
+      year: item.year,
       source: indicator.source,
       sourceUrl: indicator.sourceUrl,
       rank: rank?.[0] ?? null,

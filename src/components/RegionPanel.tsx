@@ -1,8 +1,8 @@
 import Link from "next/link";
 import type { Region } from "@/data/regions";
 import type { Country } from "@/lib/countries";
-import type { Entry } from "@/lib/content";
-import { EntriesBadge, PrimaryButton, TaglinePill, GhostButton } from "./atlas-ui";
+import type { NewsItem } from "@/lib/content";
+import { NewsBadge, PrimaryButton, TaglinePill, GhostButton } from "./atlas-ui";
 
 /**
  * Zmenšený portrét regionu v pravém panelu mapy (Figma: "Main HP 2 / Region View").
@@ -10,11 +10,11 @@ import { EntriesBadge, PrimaryButton, TaglinePill, GhostButton } from "./atlas-u
 export default function RegionPanel({
   region,
   countries,
-  entries,
+  newsItems,
 }: {
   region: Region;
   countries: Country[];
-  entries: Entry[];
+  newsItems: NewsItem[];
 }) {
   return (
     <article>
@@ -33,11 +33,11 @@ export default function RegionPanel({
         </h1>
 
         <div className="mt-3">
-          <EntriesBadge count={entries.length} />
+          <NewsBadge count={newsItems.length} />
         </div>
 
         <div className="mt-4">
-          {entries.length ? (
+          {newsItems.length ? (
             <PrimaryButton href={`/region/${region.slug}/full`}>
               Open the full portrait
             </PrimaryButton>
@@ -50,23 +50,23 @@ export default function RegionPanel({
           {region.summary}
         </p>
 
-        {entries.length ? (
+        {newsItems.length ? (
           <div className="mt-7 text-left">
             <h2 className="font-display text-[15px] font-bold text-[var(--color-ink)]">
-              Our entries
+              Our news
             </h2>
             <ul className="mt-3 space-y-2">
-              {entries.slice(0, 5).map((entry) => (
-                <li key={entry.slug}>
+              {newsItems.slice(0, 5).map((item) => (
+                <li key={item.slug}>
                   <Link
-                    href={`/entry/${entry.slug}`}
+                    href={`/news/${item.slug}`}
                     className="group block rounded-xl border border-[var(--color-line)] p-3 transition hover:border-[var(--color-accent)]"
                   >
                     <span className="text-[10.5px] uppercase tracking-wide text-[var(--color-ink-muted)]">
-                      {entry.category}
+                      {item.category}
                     </span>
                     <span className="mt-0.5 block text-[13.5px] font-medium text-[var(--color-ink)] group-hover:text-[var(--color-accent)]">
-                      {entry.title}
+                      {item.title}
                     </span>
                   </Link>
                 </li>

@@ -19,7 +19,7 @@ export default function AboutPage() {
         present. Instead of an A&ndash;Z list, it starts from a satellite globe:
         you spin it, click a country, and the Atlas opens that country&rsquo;s
         profile together with the portrait of the world region it belongs to.
-        Entries open inside the same map, so the geographic context never
+        News opens inside the same map, so the geographic context never
         disappears.
       </p>
 
@@ -40,7 +40,7 @@ export default function AboutPage() {
 
       <h2>Editorial content</h2>
       <p>
-        Region portraits, country profiles and encyclopedia entries are written
+        Region portraits, country profiles and news are written
         by the Atlas team and stored as plain Markdown, so writers never have to
         touch the codebase.
       </p>

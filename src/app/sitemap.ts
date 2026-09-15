@@ -2,22 +2,22 @@ import type { MetadataRoute } from "next";
 import { REGIONS } from "@/data/regions";
 import { indexableCountries } from "@/lib/countries";
 import { INDICATORS } from "@/lib/indicators";
-import { allEntries } from "@/lib/content";
+import { allNews } from "@/lib/content";
 import { SITE_URL } from "@/lib/site";
 
 /**
- * Kompletní mapa webu – každý region, země, datová vrstva i heslo má URL.
+ * Kompletní mapa webu – každý region, země, datová vrstva i novinka má URL.
  * `changeFrequency` říká robotům, jak často se sem vracet: datové vrstvy se
- * mění jednou ročně, hesla průběžně.
+ * mění jednou ročně, novinky průběžně.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
-  const entries = await allEntries();
+  const newsItems = await allNews();
 
   return [
     { url: SITE_URL, lastModified: now, changeFrequency: "daily", priority: 1 },
     {
-      url: `${SITE_URL}/entries`,
+      url: `${SITE_URL}/news`,
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.7,
@@ -62,12 +62,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "yearly" as const,
       priority: 0.7,
     })),
-    ...entries.map((entry) => ({
-      url: `${SITE_URL}/entry/${entry.slug}`,
-      lastModified: entry.updated ? new Date(entry.updated) : now,
+    ...newsItems.map((item) => ({
+      url: `${SITE_URL}/news/${item.slug}`,
+      lastModified: item.updated ? new Date(item.updated) : now,
       changeFrequency: "monthly" as const,
       priority: 0.9,
-      images: entry.hero ? [entry.hero] : undefined,
+      images: item.hero ? [item.hero] : undefined,
     })),
   ];
 }

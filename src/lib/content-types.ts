@@ -3,14 +3,14 @@
  * importovat i klientská komponenta. Načítání souborů žije v `content.ts`.
  */
 
-export type EntryCategory =
+export type NewsCategory =
   | "Living Conditions"
   | "Political System"
   | "Society"
   | "International Relations"
   | "Historical Roots";
 
-export const ENTRY_CATEGORIES: EntryCategory[] = [
+export const NEWS_CATEGORIES: NewsCategory[] = [
   "Living Conditions",
   "Political System",
   "Society",
@@ -37,10 +37,10 @@ export interface FaqItem {
   answer: string;
 }
 
-export interface EntryFrontmatter {
+export interface NewsFrontmatter {
   title: string;
   summary: string;
-  category: EntryCategory;
+  category: NewsCategory;
   region: string;
   countries?: string[];
   hero?: string;

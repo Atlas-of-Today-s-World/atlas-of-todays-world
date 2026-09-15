@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
 
-export interface AdminEntry {
+export interface AdminNewsItem {
   slug: string;
   title: string;
   category: string;
@@ -23,11 +23,11 @@ const FIELD =
 const LABEL = "block text-[12px] font-medium text-[var(--color-ink-muted)]";
 
 export default function AdminClient({
-  entries,
+  newsItems,
   regions,
   categories,
 }: {
-  entries: AdminEntry[];
+  newsItems: AdminNewsItem[];
   regions: AdminRegion[];
   categories: string[];
 }) {
@@ -48,7 +48,7 @@ export default function AdminClient({
     setDone(null);
 
     try {
-      const res = await fetch("/api/admin/entries", {
+      const res = await fetch("/api/admin/news", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -78,11 +78,11 @@ export default function AdminClient({
   }
 
   async function remove(slug: string) {
-    if (!confirm(`Smazat heslo „${slug}"? Soubor se odstraní z disku.`)) return;
+    if (!confirm(`Smazat novinku „${slug}"? Soubor se odstraní z disku.`)) return;
     setBusy(true);
     setError(null);
     try {
-      const res = await fetch(`/api/admin/entries?slug=${encodeURIComponent(slug)}`, {
+      const res = await fetch(`/api/admin/news?slug=${encodeURIComponent(slug)}`, {
         method: "DELETE",
       });
       const data = await res.json();
@@ -107,14 +107,14 @@ export default function AdminClient({
     <>
       <div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-[12.5px] leading-relaxed text-amber-900">
         <strong className="font-semibold">Mock administrace.</strong> Žádné
-        přihlášení, zapisuje přímo do <code>src/content/entries/</code> na disku.
+        přihlášení, zapisuje přímo do <code>src/content/news/</code> na disku.
         Funguje jen při lokálním běhu; před ostrým nasazením tohle nahradí
         redakční systém s účty.
       </div>
 
       <div className="mt-10 grid gap-10 lg:grid-cols-[1.35fr_1fr]">
         <section>
-          <h2 className="font-display text-[20px] font-bold">Nové heslo</h2>
+          <h2 className="font-display text-[20px] font-bold">Nová novinka</h2>
 
           <form onSubmit={submit} className="mt-5 grid gap-4">
             <div className="grid gap-4 sm:grid-cols-2">
@@ -164,7 +164,7 @@ export default function AdminClient({
 
             <div>
               <span className={LABEL}>
-                Země, kterých se heslo týká{" "}
+                Země, kterých se novinka týká{" "}
                 <span className="font-normal">
                   (jedna země = štítek země v Hot News, víc = štítek regionu)
                 </span>
@@ -210,7 +210,7 @@ export default function AdminClient({
             </div>
 
             <div>
-              <label className={LABEL} htmlFor="markdown">Text hesla (Markdown)</label>
+              <label className={LABEL} htmlFor="markdown">Text novinky (Markdown)</label>
               <textarea id="markdown" name="markdown" required rows={12}
                 className={`mt-1.5 font-mono text-[13px] ${FIELD}`}
                 placeholder={"Úvodní odstavec.\n\n## Mezinadpis\n\nDalší text, **tučně**, [odkaz](https://…)."} />
@@ -223,7 +223,7 @@ export default function AdminClient({
               <p className="rounded-lg bg-emerald-50 px-3 py-2 text-[13px] text-emerald-800">
                 Uloženo.{" "}
                 <Link href={done} className="font-medium underline">
-                  Otevřít heslo v mapě
+                  Otevřít novinku v mapě
                 </Link>
               </p>
             ) : null}
@@ -234,7 +234,7 @@ export default function AdminClient({
                 disabled={busy}
                 className="rounded-full bg-[var(--color-accent)] px-6 py-2.5 text-[14px] font-medium text-white transition hover:bg-[var(--color-accent-strong)] disabled:opacity-50"
               >
-                {busy ? "Ukládám…" : "Publikovat heslo"}
+                {busy ? "Ukládám…" : "Publikovat novinku"}
               </button>
             </div>
           </form>
@@ -242,27 +242,27 @@ export default function AdminClient({
 
         <section>
           <h2 className="font-display text-[20px] font-bold">
-            Publikovaná hesla <span className="text-[var(--color-ink-muted)]">({entries.length})</span>
+            Publikované novinky <span className="text-[var(--color-ink-muted)]">({newsItems.length})</span>
           </h2>
 
           <ul className="mt-5 divide-y divide-[var(--color-line)]">
-            {entries.map((entry) => (
-              <li key={entry.slug} className="flex items-start gap-3 py-3">
+            {newsItems.map((item) => (
+              <li key={item.slug} className="flex items-start gap-3 py-3">
                 <div className="min-w-0 flex-1">
                   <Link
-                    href={`/entry/${entry.slug}`}
+                    href={`/news/${item.slug}`}
                     className="block text-[14px] font-medium text-[var(--color-ink)] hover:text-[var(--color-accent)]"
                   >
-                    {entry.title}
+                    {item.title}
                   </Link>
                   <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-muted)]">
-                    {entry.category} · {entry.region}
-                    {entry.published ? ` · ${entry.published}` : ""}
+                    {item.category} · {item.region}
+                    {item.published ? ` · ${item.published}` : ""}
                   </p>
                 </div>
                 <button
                   type="button"
-                  onClick={() => remove(entry.slug)}
+                  onClick={() => remove(item.slug)}
                   disabled={busy}
                   className="shrink-0 rounded-full border border-[var(--color-line)] px-3 py-1 text-[12px] text-[var(--color-ink-muted)] transition hover:border-red-300 hover:text-red-600 disabled:opacity-50"
                 >
@@ -272,9 +272,9 @@ export default function AdminClient({
             ))}
           </ul>
 
-          {!entries.length ? (
+          {!newsItems.length ? (
             <p className="mt-4 text-[13px] text-[var(--color-ink-muted)]">
-              Zatím žádná hesla.
+              Zatím žádné novinky.
             </p>
           ) : null}
         </section>

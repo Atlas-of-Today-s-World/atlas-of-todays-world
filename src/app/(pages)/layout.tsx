@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-/** Jednoduchý světlý layout pro stránky mimo mapu (About, Entries, Support). */
+/** Jednoduchý světlý layout pro stránky mimo mapu (About, News, Support). */
 export default function PagesLayout({
   children,
 }: {
@@ -20,9 +20,7 @@ export default function PagesLayout({
             <Link href="/" className="hover:text-[var(--color-accent)]">
               Map
             </Link>
-            <Link href="/entries" className="hover:text-[var(--color-accent)]">
-              Entries
-            </Link>
+            <Link href="/news" className="hover:text-[var(--color-accent)]">News</Link>
             <Link href="/about" className="hover:text-[var(--color-accent)]">
               About
             </Link>

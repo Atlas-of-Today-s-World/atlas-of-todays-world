@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 /**
  * Panel s obsahem vedle mapy. Nese profil regionu, kartu země i celé
- * encyklopedické heslo – uživatel tak nikdy neopustí mapu.
+ * novinku – uživatel tak nikdy neopustí mapu.
  *
  * Na desktopu je to pravý sloupec, na mobilu spodní sheet; obsah se renderuje
  * jen jednou, aby se v HTML neduplikoval.

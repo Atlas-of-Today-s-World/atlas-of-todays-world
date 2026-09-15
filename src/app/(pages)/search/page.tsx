@@ -9,14 +9,14 @@ import { search } from "@/lib/search";
  */
 export const metadata: Metadata = {
   title: "Search the Atlas",
-  description: "Search every region, country and encyclopedia entry of the Atlas.",
+  description: "Search every region, country and encyclopedia item of the Atlas.",
   robots: { index: false, follow: true },
 };
 
 const KIND_LABEL: Record<string, string> = {
   region: "Region",
   country: "Country",
-  entry: "Entry",
+  news: "News",
 };
 
 export default async function SearchPage({

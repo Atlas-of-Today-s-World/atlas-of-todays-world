@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import MapFocus from "@/components/map/MapFocus";
+import HomeFocus from "@/components/map/HomeFocus";
 import { REGIONS } from "@/data/regions";
 import { indexableCountries } from "@/lib/countries";
 import { INDICATORS } from "@/lib/indicators";
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     absolute: "Atlas of Today's World — an interactive encyclopedia on a 3D globe",
   },
   description:
-    "Spin the satellite globe, click any country and read its profile: human development, political regime, living conditions and the entries behind them.",
+    "Spin the satellite globe, click any country and read its profile: human development, political regime, living conditions and the newsItems behind them.",
   alternates: alternates("/"),
   keywords: [
     "world atlas",
@@ -27,6 +27,14 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   const countries = indexableCountries();
+
+  // ISO2 -> [lon, lat]: podle toho HomeFocus otočí globus nad zemi návštěvníka.
+  const homeCenters: Record<string, [number, number]> = {};
+  for (const country of countries) {
+    if (country.iso2 && country.labelLon !== null && country.labelLat !== null) {
+      homeCenters[country.iso2] = [country.labelLon, country.labelLat];
+    }
+  }
 
   // Strukturovaná data, aby vyhledávače pochopily, že mapa je rozcestník
   // na profily regionů a zemí, a aby uměly nabídnout vyhledávání v Atlasu.
@@ -89,7 +97,7 @@ export default function HomePage() {
 
   return (
     <>
-      <MapFocus center={[18, 28]} zoom={1.7} />
+      <HomeFocus centers={homeCenters} />
 
       {/* Text pro vyhledávače a čtečky – vizuálně skrytý, mapa je v layoutu. */}
       <div className="sr-only">

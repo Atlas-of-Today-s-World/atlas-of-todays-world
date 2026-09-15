@@ -1,20 +1,20 @@
 import Link from "next/link";
 import type { Country } from "@/lib/countries";
 import { formatPopulation } from "@/lib/countries";
-import type { Entry } from "@/lib/content";
-import { EntriesBadge, StatIcon } from "./atlas-ui";
+import type { NewsItem } from "@/lib/content";
+import { NewsBadge, StatIcon } from "./atlas-ui";
 
 /**
  * Karta země po kliknutí na globus (Figma: "Country View").
- * Nahoře jméno a region, pak popis, počet hesel a mřížka ukazatelů.
+ * Nahoře jméno a region, pak popis, počet novinek a mřížka ukazatelů.
  */
 export default function CountryCard({
   country,
-  entries,
+  newsItems,
   description,
 }: {
   country: Country;
-  entries: Entry[];
+  newsItems: NewsItem[];
   description: string;
 }) {
   const region = country.region;
@@ -49,7 +49,7 @@ export default function CountryCard({
       </p>
 
       <div className="mt-4">
-        <EntriesBadge count={entries.length} />
+        <NewsBadge count={newsItems.length} />
       </div>
 
       <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-6">
@@ -96,26 +96,26 @@ export default function CountryCard({
         </div>
       </div>
 
-      {entries.length ? (
+      {newsItems.length ? (
         <div className="mt-7">
           <h2 className="font-display text-[15px] font-bold text-[var(--color-ink)]">
-            Entries about {country.name}
+            News about {country.name}
           </h2>
           <ul className="mt-3 space-y-2">
-            {entries.map((entry) => (
-              <li key={entry.slug}>
+            {newsItems.map((item) => (
+              <li key={item.slug}>
                 <Link
-                  href={`/entry/${entry.slug}`}
+                  href={`/news/${item.slug}`}
                   className="group block rounded-xl border border-[var(--color-line)] p-3 transition hover:border-[var(--color-accent)]"
                 >
                   <span className="text-[10.5px] uppercase tracking-wide text-[var(--color-ink-muted)]">
-                    {entry.category}
+                    {item.category}
                   </span>
                   <span className="mt-0.5 block text-[13.5px] font-medium text-[var(--color-ink)] group-hover:text-[var(--color-accent)]">
-                    {entry.title}
+                    {item.title}
                   </span>
                   <span className="mt-1 block text-[12px] leading-snug text-[var(--color-ink-muted)]">
-                    {entry.summary}
+                    {item.summary}
                   </span>
                 </Link>
               </li>

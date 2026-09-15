@@ -3,7 +3,7 @@ import { search } from "@/lib/search";
 
 export const dynamic = "force-dynamic";
 
-/** Fulltext nad celým Atlasem: regiony, země i encyklopedická hesla. */
+/** Fulltext nad celým Atlasem: regiony, země i novinky. */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get("q") ?? "";

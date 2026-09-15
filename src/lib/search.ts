@@ -1,9 +1,9 @@
 import MiniSearch from "minisearch";
 import { REGIONS } from "@/data/regions";
-import { allEntries } from "@/lib/content";
+import { allNews } from "@/lib/content";
 import { indexableCountries } from "@/lib/countries";
 
-export type SearchKind = "region" | "country" | "entry";
+export type SearchKind = "region" | "country" | "news";
 
 export interface SearchDoc {
   id: string;
@@ -59,16 +59,16 @@ async function buildDocs(): Promise<SearchDoc[]> {
     });
   }
 
-  for (const entry of await allEntries()) {
+  for (const item of await allNews()) {
     docs.push({
-      id: `entry:${entry.slug}`,
-      kind: "entry",
-      title: entry.title,
-      subtitle: `${entry.category} · ${entry.regionRef?.name ?? ""}`.trim(),
-      body: `${entry.summary} ${entry.plain}`,
-      url: `/entry/${entry.slug}`,
-      center: entry.regionRef?.center,
-      zoom: entry.regionRef?.zoom,
+      id: `news:${item.slug}`,
+      kind: "news",
+      title: item.title,
+      subtitle: `${item.category} · ${item.regionRef?.name ?? ""}`.trim(),
+      body: `${item.summary} ${item.plain}`,
+      url: `/news/${item.slug}`,
+      center: item.regionRef?.center,
+      zoom: item.regionRef?.zoom,
     });
   }
 

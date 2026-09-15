@@ -15,7 +15,7 @@ interface ChatMessage {
 const KIND_LABEL: Record<string, string> = {
   region: "Region",
   country: "Country",
-  entry: "Entry",
+  news: "News",
 };
 
 /**
@@ -128,7 +128,7 @@ export default function EncyclopediaPanel() {
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search places, regions, entries…"
+              placeholder="Search places, regions, news…"
               className="w-full bg-transparent text-[13px] text-white placeholder:text-white/45 focus:outline-none"
             />
           </label>
@@ -181,7 +181,7 @@ export default function EncyclopediaPanel() {
             {messages.length === 0 ? (
               <p className="px-1 text-[11.5px] leading-relaxed text-white/50">
                 Ask anything about the Atlas. The assistant answers only from
-                published Atlas content and always links the source entry.
+                published Atlas content and always links the source item.
               </p>
             ) : null}
 

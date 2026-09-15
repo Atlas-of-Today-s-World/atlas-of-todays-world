@@ -5,7 +5,7 @@ import RegionPanel from "@/components/RegionPanel";
 import MapFocus from "@/components/map/MapFocus";
 import { REGIONS, REGION_BY_SLUG } from "@/data/regions";
 import { countriesOfRegion } from "@/lib/countries";
-import { entriesOfRegion } from "@/lib/content";
+import { newsOfRegion } from "@/lib/content";
 import {
   absoluteUrl,
   alternates,
@@ -63,7 +63,7 @@ export default async function RegionPage({
   if (!region) notFound();
 
   const countries = countriesOfRegion(region);
-  const entries = await entriesOfRegion(region.slug);
+  const newsItems = await newsOfRegion(region.slug);
 
   return (
     <>
@@ -74,7 +74,7 @@ export default async function RegionPage({
         regionStroke={region.stroke}
       />
       <ContentRail>
-        <RegionPanel region={region} countries={countries} entries={entries} />
+        <RegionPanel region={region} countries={countries} newsItems={newsItems} />
       </ContentRail>
       <script
         type="application/ld+json"
@@ -95,10 +95,10 @@ export default async function RegionPage({
                 name: country.name,
                 url: absoluteUrl(`/country/${country.slug}`),
               })),
-              subjectOf: entries.map((entry) => ({
+              subjectOf: newsItems.map((item) => ({
                 "@type": "Article",
-                headline: entry.title,
-                url: absoluteUrl(`/entry/${entry.slug}`),
+                headline: item.title,
+                url: absoluteUrl(`/news/${item.slug}`),
               })),
             },
             breadcrumbJsonLd([

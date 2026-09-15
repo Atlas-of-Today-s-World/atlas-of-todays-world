@@ -9,7 +9,7 @@ import {
   indexableCountries,
   type Country,
 } from "@/lib/countries";
-import { countryProfile, entriesOfCountry } from "@/lib/content";
+import { countryProfile, newsOfCountry } from "@/lib/content";
 import {
   absoluteUrl,
   alternates,
@@ -98,9 +98,9 @@ export default async function CountryPage({
   const country = countryBySlug(slug);
   if (!country) notFound();
 
-  const [profile, entries] = await Promise.all([
+  const [profile, newsItems] = await Promise.all([
     countryProfile(slug),
-    entriesOfCountry(country.iso3),
+    newsOfCountry(country.iso3),
   ]);
 
   const description = profile?.summary || fallbackDescription(country);
@@ -122,7 +122,7 @@ export default async function CountryPage({
       />
 
       <ContentRail closeHref={region ? `/region/${region.slug}` : "/"}>
-        <CountryCard country={country} entries={entries} description={description} />
+        <CountryCard country={country} newsItems={newsItems} description={description} />
         {profile?.html ? (
           <div
             className="prose-atlas px-6 pb-10"
@@ -167,10 +167,10 @@ export default async function CountryPage({
                 valueReference: `${stat.source} (${stat.year})`,
                 url: stat.sourceUrl,
               })),
-              subjectOf: entries.map((entry) => ({
+              subjectOf: newsItems.map((item) => ({
                 "@type": "Article",
-                headline: entry.title,
-                url: absoluteUrl(`/entry/${entry.slug}`),
+                headline: item.title,
+                url: absoluteUrl(`/news/${item.slug}`),
               })),
             },
             breadcrumbJsonLd([

@@ -6,7 +6,7 @@ import Link from "next/link";
 export interface HotNewsItem {
   slug: string;
   title: string;
-  /** Země, region nebo problematika, ke které se heslo váže. */
+  /** Země, region nebo problematika, ke které se novinka váže. */
   scope: string;
   /** "country" | "region" | "topic" – jen pro barvu štítku. */
   scopeKind: "country" | "region" | "topic";
@@ -28,7 +28,7 @@ function formatDate(value: string | null) {
 }
 
 /**
- * Hot News pod panelem Global Encyclopedia: jen náhledy nejnovějších hesel –
+ * Hot News pod panelem Global Encyclopedia: jen náhledy nejnovějších novinek –
  * štítek (země / region / problematika), titulek a datum. Celý článek se
  * otevře až kliknutím na vlastní stránce.
  */
@@ -58,7 +58,7 @@ export default function HotNews({ items }: { items: HotNewsItem[] }) {
             {items.map((item) => (
               <li key={item.slug}>
                 <Link
-                  href={`/entry/${item.slug}`}
+                  href={`/news/${item.slug}`}
                   onClick={() => setOpen(false)}
                   className="flex gap-2.5 rounded-xl p-2 transition hover:bg-white/10"
                 >

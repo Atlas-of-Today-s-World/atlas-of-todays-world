@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { REGIONS } from "@/data/regions";
 import { indexableCountries, regionColorMap } from "@/lib/countries";
 import { INDICATORS, colorMapFor, legendFor } from "@/lib/indicators";
-import { allEntries, regionDossier } from "@/lib/content";
+import { allNews, regionDossier } from "@/lib/content";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
  * robots.txt má /api/ mimo index.
  */
 export async function GET() {
-  const entries = await allEntries();
+  const newsItems = await allNews();
   const dossiers = Object.fromEntries(
     await Promise.all(
       REGIONS.map(async (region) => [region.slug, await regionDossier(region.slug)] as const),
@@ -81,17 +81,17 @@ export async function GET() {
     ],
     colorSets,
     dossiers,
-    entries: entries.map((entry) => ({
-      slug: entry.slug,
-      title: entry.title,
-      summary: entry.summary,
-      category: entry.category,
-      region: entry.region,
-      countries: entry.countries ?? [],
-      published: entry.published ?? null,
-      author: entry.author ?? null,
-      readingMinutes: entry.readingMinutes ?? null,
-      html: entry.html,
+    newsItems: newsItems.map((item) => ({
+      slug: item.slug,
+      title: item.title,
+      summary: item.summary,
+      category: item.category,
+      region: item.region,
+      countries: item.countries ?? [],
+      published: item.published ?? null,
+      author: item.author ?? null,
+      readingMinutes: item.readingMinutes ?? null,
+      html: item.html,
     })),
   });
 }

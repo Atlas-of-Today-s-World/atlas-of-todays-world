@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import maplibregl, { type Map as MapLibreMap, type MapMouseEvent } from "maplibre-gl";
 import { buildStyle, LAYERS } from "./mapStyle";
+import { EUROPE_CENTER, globeFillZoom } from "@/lib/home-location";
 import { useMapState } from "./MapContext";
 
 export interface GlobeColorSets {
@@ -119,8 +120,10 @@ export default function AtlasGlobe({ colorSets, slugs, regions }: Props) {
     const map = new maplibregl.Map({
       container: containerRef.current,
       style: buildStyle(),
-      center: [18, 30],
-      zoom: 1.6,
+      // První snímek rovnou ve výchozí vzdálenosti, ať se mapa nezobrazí
+      // nejdřív jako malá kulička a teprve pak nepřiletí.
+      center: EUROPE_CENTER,
+      zoom: globeFillZoom(),
       minZoom: 0.8,
       maxZoom: 9,
       attributionControl: { compact: true },

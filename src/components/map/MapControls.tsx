@@ -19,7 +19,7 @@ export default function MapControls({
   hotNews: HotNewsItem[];
 }) {
   const pathname = usePathname();
-  const wideRail = /^\/(entry|region\/[^/]+\/full)/.test(pathname);
+  const wideRail = /^\/(news|region\/[^/]+\/full)/.test(pathname);
   const railOpen = pathname !== "/";
 
   const offset = wideRail

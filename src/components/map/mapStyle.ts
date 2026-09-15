@@ -181,13 +181,15 @@ export function buildStyle(): StyleSpecification {
         id: LAYERS.label,
         type: "symbol",
         source: "country-labels",
-        minzoom: 2.2,
+        // Nízko, aby názvy států byly čitelné i na malém okně, kde koule
+        // vyplní plochu při menším zoomu.
+        minzoom: 1.6,
         // LABELRANK: 1 = velké státy, 8 = drobná území. Menší se objeví až v zoomu.
-        filter: ["<=", ["get", "rank"], ["+", 1, ["*", 1.1, ["zoom"]]]],
+        filter: ["<=", ["get", "rank"], ["+", 0.5, ["*", 1.45, ["zoom"]]]],
         layout: {
           "text-field": ["get", "name"],
           "text-font": ["Open Sans Regular"],
-          "text-size": ["interpolate", ["linear"], ["zoom"], 2.2, 10.5, 6, 15],
+          "text-size": ["interpolate", ["linear"], ["zoom"], 1.6, 9.5, 3, 11.5, 6, 15],
           "text-max-width": 8,
           "text-padding": 6,
         },

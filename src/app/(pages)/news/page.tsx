@@ -1,47 +1,47 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { allEntries, ENTRY_CATEGORIES } from "@/lib/content";
+import { allNews, NEWS_CATEGORIES } from "@/lib/content";
 import { REGIONS } from "@/data/regions";
 
 export const metadata: Metadata = {
-  title: "All encyclopedia entries",
+  title: "All news",
   description:
-    "Every published entry of Atlas of Today's World, by region and by theme.",
-  alternates: { canonical: "/entries" },
+    "Every published item of Atlas of Today's World, by region and by theme.",
+  alternates: { canonical: "/news" },
 };
 
-export default async function EntriesPage() {
-  const entries = await allEntries();
+export default async function NewsIndexPage() {
+  const newsItems = await allNews();
 
   return (
     <main>
-      <h1 className="font-display text-[34px] font-bold">Encyclopedia entries</h1>
+      <h1 className="font-display text-[34px] font-bold">News</h1>
       <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-[var(--color-ink-soft)]">
-        Each entry opens inside the world map, so you never lose the geographic
-        context. {entries.length} published so far.
+        Each news item opens inside the world map, so you never lose the geographic
+        context. {newsItems.length} published so far.
       </p>
 
-      {ENTRY_CATEGORIES.map((category) => {
-        const group = entries.filter((entry) => entry.category === category);
+      {NEWS_CATEGORIES.map((category) => {
+        const group = newsItems.filter((item) => item.category === category);
         if (!group.length) return null;
         return (
           <section key={category} className="mt-10">
             <h2 className="font-display text-[18px] font-bold">{category}</h2>
             <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-              {group.map((entry) => (
-                <li key={entry.slug}>
+              {group.map((item) => (
+                <li key={item.slug}>
                   <Link
-                    href={`/entry/${entry.slug}`}
+                    href={`/news/${item.slug}`}
                     className="group block h-full rounded-xl border border-[var(--color-line)] p-4 transition hover:border-[var(--color-accent)]"
                   >
                     <span className="text-[11px] uppercase tracking-wide text-[var(--color-ink-muted)]">
-                      {entry.regionRef?.name}
+                      {item.regionRef?.name}
                     </span>
                     <span className="mt-1 block font-display text-[15px] font-bold group-hover:text-[var(--color-accent)]">
-                      {entry.title}
+                      {item.title}
                     </span>
                     <span className="mt-1.5 block text-[12.5px] leading-relaxed text-[var(--color-ink-muted)]">
-                      {entry.summary}
+                      {item.summary}
                     </span>
                   </Link>
                 </li>

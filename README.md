@@ -39,7 +39,7 @@ cp .env.example .env.local
 - Kliknutí na zemi → globus doletí na výřez její hlavní pevniny (Lucembursko
   zblízka, Rusko z dálky) a vpravo se otevře karta země se třemi a více daty.
 - Zároveň se zvýrazní celý region, ke kterému země patří, a odkaz na jeho profil.
-- Portrét regionu i encyklopedické heslo se vykreslují **uvnitř mapy** –
+- Portrét regionu i novinku se vykreslují **uvnitř mapy** –
   uživatel s ní neztratí kontakt.
 
 **2. Datové vrstvy (plná verze)**
@@ -65,7 +65,7 @@ kliknutí otevře jeho profil, naběhnou názvy regionů a hranice států ustou
 **SEO a geo optimalizace**
 
 Každý region, země, datová vrstva i heslo mají vlastní předrenderovanou URL
-(`/region/…`, `/country/…`, `/view/…`, `/entry/…`). Build vygeneruje ~270
+(`/region/…`, `/country/…`, `/view/…`, `/news/…`). Build vygeneruje ~270
 statických stránek. K tomu:
 
 - **Strukturovaná data** – `Country` s geo souřadnicemi, ISO identifikátory a
@@ -122,7 +122,7 @@ Redakce nesahá do kódu:
 
 | Co | Kde |
 |---|---|
-| Encyklopedické heslo | `src/content/entries/<slug>.md` (Markdown + frontmatter) |
+| Encyklopedické heslo | `src/content/news/<slug>.md` (Markdown + frontmatter) |
 | Doplňky portrétu regionu (timeline, mapy, zdroje, FAQ) | `src/content/regions/<slug>.json` |
 | Text profilu země | `src/content/countries/<slug>.md` |
 | Definice regionů a jejich barvy | `src/data/regions.ts` |

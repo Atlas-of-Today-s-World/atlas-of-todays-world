@@ -1,0 +1,112 @@
+[
+  {
+    "slug": "demo-region-1",
+    "name": "Demo region 1",
+    "subtitle": "Nordic & Baltic rim",
+    "summary": "The countries around the Baltic and the North Atlantic that share long winters, high trust in institutions and small open economies. Cuts across the Atlas regions on purpose: the Baltic states sit here rather than with Central Europe.",
+    "fill": "#A8C8E8",
+    "stroke": "#3E7AA8",
+    "center": [18, 61],
+    "zoom": 2.6,
+    "countries": ["NOR", "SWE", "FIN", "DNK", "ISL", "EST", "LVA", "LTU", "FRO", "ALA"]
+  },
+  {
+    "slug": "demo-region-2",
+    "name": "Demo region 2",
+    "subtitle": "Alpine & Danube basin",
+    "summary": "Everything draining into the Danube plus the Alpine states around its headwaters. A watershed, not a political bloc, which is why it mixes EU founders, newer members and candidates.",
+    "fill": "#C9E0A8",
+    "stroke": "#5C8C36",
+    "center": [19, 47],
+    "zoom": 3.1,
+    "countries": ["AUT", "CHE", "LIE", "SVN", "HUN", "SVK", "CZE", "HRV", "SRB", "ROU", "BGR", "MDA"]
+  },
+  {
+    "slug": "demo-region-3",
+    "name": "Demo region 3",
+    "subtitle": "Western Mediterranean arc",
+    "summary": "Both shores of the western Mediterranean, from the Atlantic mouth to the Italian peninsula. Deliberately spans Europe and North Africa, which the standard regional split keeps apart.",
+    "fill": "#F4C89A",
+    "stroke": "#B06A22",
+    "center": [4, 38],
+    "zoom": 2.9,
+    "countries": ["ESP", "PRT", "FRA", "ITA", "MLT", "MAR", "DZA", "TUN", "AND", "MCO"]
+  },
+  {
+    "slug": "demo-region-4",
+    "name": "Demo region 4",
+    "subtitle": "Black Sea & Caucasus",
+    "summary": "The littoral of one sea and the mountain barrier behind it — the region where European, Russian and Turkish spheres meet and grind against each other.",
+    "fill": "#E0A8C0",
+    "stroke": "#A03E6B",
+    "center": [40, 43],
+    "zoom": 2.8,
+    "countries": ["TUR", "UKR", "GEO", "ARM", "AZE", "RUS"]
+  },
+  {
+    "slug": "demo-region-5",
+    "name": "Demo region 5",
+    "subtitle": "Gulf & Horn of Africa",
+    "summary": "The Arabian Peninsula together with the African coast facing it across the Red Sea and the Gulf of Aden — one trade corridor, two continents.",
+    "fill": "#E8CE8A",
+    "stroke": "#A8842A",
+    "center": [45, 15],
+    "zoom": 2.8,
+    "countries": ["SAU", "ARE", "QAT", "KWT", "BHR", "OMN", "YEM", "DJI", "SOM", "ERI", "ETH"]
+  },
+  {
+    "slug": "demo-region-6",
+    "name": "Demo region 6",
+    "subtitle": "Sahel belt",
+    "summary": "The band between the Sahara and the savannah, from the Atlantic to the Red Sea. It runs straight through the usual North Africa / Sub-Saharan boundary, which is exactly the point.",
+    "fill": "#D9B48A",
+    "stroke": "#95602A",
+    "center": [8, 15],
+    "zoom": 2.6,
+    "countries": ["MRT", "MLI", "BFA", "NER", "TCD", "SDN", "SSD", "SEN", "GMB", "NGA"]
+  },
+  {
+    "slug": "demo-region-7",
+    "name": "Demo region 7",
+    "subtitle": "Himalaya & Central Asia",
+    "summary": "The high interior of Asia and the states that ring it — landlocked, mountainous, and shaped by the distance to any coastline.",
+    "fill": "#B6A8E0",
+    "stroke": "#5C46A8",
+    "center": [75, 36],
+    "zoom": 2.5,
+    "countries": ["AFG", "PAK", "IND", "NPL", "BTN", "BGD", "TJK", "KGZ", "UZB", "TKM", "KAZ", "MNG"]
+  },
+  {
+    "slug": "demo-region-8",
+    "name": "Demo region 8",
+    "subtitle": "Mekong & maritime Asia",
+    "summary": "Mainland Southeast Asia along the Mekong plus the archipelagos beyond it — the world's densest cluster of shipping lanes and contested waters.",
+    "fill": "#8FD6C4",
+    "stroke": "#217F68",
+    "center": [112, 6],
+    "zoom": 2.6,
+    "countries": ["MMR", "THA", "LAO", "KHM", "VNM", "MYS", "SGP", "BRN", "IDN", "PHL", "TLS"]
+  },
+  {
+    "slug": "demo-region-9",
+    "name": "Demo region 9",
+    "subtitle": "Andes & Southern Cone",
+    "summary": "The Pacific spine of South America and the temperate south below it — one mountain chain, a shared commodity cycle and a shared history of boom and default.",
+    "fill": "#F2A9A0",
+    "stroke": "#B04236",
+    "center": [-66, -22],
+    "zoom": 2.4,
+    "countries": ["COL", "ECU", "PER", "BOL", "CHL", "ARG", "URY", "PRY"]
+  },
+  {
+    "slug": "demo-region-10",
+    "name": "Demo region 10",
+    "subtitle": "North Atlantic",
+    "summary": "The states facing each other across the North Atlantic. A security and trade space rather than a geographic one, which is why it puts North America and the British Isles in the same block.",
+    "fill": "#9EC3D6",
+    "stroke": "#356F8C",
+    "center": [-40, 55],
+    "zoom": 2.2,
+    "countries": ["USA", "CAN", "GRL", "GBR", "IRL"]
+  }
+]

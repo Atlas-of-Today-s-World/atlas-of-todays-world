@@ -5,34 +5,34 @@ import MapControls from "@/components/map/MapControls";
 import { MapProvider } from "@/components/map/MapContext";
 import { MapLegend, type ViewOption } from "@/components/map/ViewSwitcher";
 import { REGIONS } from "@/data/regions";
-import { allEntries } from "@/lib/content";
+import { allNews } from "@/lib/content";
 import { countryByIso3, indexableCountries, regionColorMap } from "@/lib/countries";
 import { INDICATORS, colorMapFor, legendFor } from "@/lib/indicators";
 
-/** Osm nejnovějších hesel pro blok Hot News. */
+/** Osm nejnovějších novinek pro blok Hot News. */
 async function buildHotNews(): Promise<HotNewsItem[]> {
-  const entries = await allEntries();
-  return entries.slice(0, 8).map((entry) => {
-    // Heslo o jedné zemi nese jméno země, jinak region; bez obojího je to téma.
+  const newsItems = await allNews();
+  return newsItems.slice(0, 8).map((item) => {
+    // Novinka o jedné zemi nese jméno země, jinak region; bez obojího je to téma.
     const onlyCountry =
-      entry.countries?.length === 1 ? countryByIso3(entry.countries[0]) : null;
+      item.countries?.length === 1 ? countryByIso3(item.countries[0]) : null;
     if (onlyCountry) {
       return {
-        slug: entry.slug,
-        title: entry.title,
+        slug: item.slug,
+        title: item.title,
         scope: onlyCountry.name,
         scopeKind: "country" as const,
-        published: entry.published ?? null,
-        hero: entry.hero,
+        published: item.published ?? null,
+        hero: item.hero,
       };
     }
     return {
-      slug: entry.slug,
-      title: entry.title,
-      scope: entry.regionRef?.name ?? entry.category,
-      scopeKind: entry.regionRef ? ("region" as const) : ("topic" as const),
-      published: entry.published ?? null,
-      hero: entry.hero,
+      slug: item.slug,
+      title: item.title,
+      scope: item.regionRef?.name ?? item.category,
+      scopeKind: item.regionRef ? ("region" as const) : ("topic" as const),
+      published: item.published ?? null,
+      hero: item.hero,
     };
   });
 }

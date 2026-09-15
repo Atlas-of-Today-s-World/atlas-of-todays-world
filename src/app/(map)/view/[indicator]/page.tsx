@@ -42,7 +42,7 @@ export default async function IndicatorViewPage({
   if (!indicator) notFound();
 
   const ranked = Object.entries(indicator.values)
-    .map(([iso3, entry]) => ({ country: countryByIso3(iso3), ...entry }))
+    .map(([iso3, item]) => ({ country: countryByIso3(iso3), ...item }))
     .filter((row) => row.country !== null)
     .sort((a, b) =>
       indicator.higherIsBetter ? b.value - a.value : a.value - b.value,

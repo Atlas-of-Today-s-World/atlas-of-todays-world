@@ -110,8 +110,8 @@ export function colorMapFor(indicatorId: string): Record<string, string> {
   const indicator = getIndicator(indicatorId);
   if (!indicator) return {};
   const out: Record<string, string> = {};
-  for (const [iso3, entry] of Object.entries(indicator.values)) {
-    out[iso3] = colorForValue(indicator, entry.value);
+  for (const [iso3, item] of Object.entries(indicator.values)) {
+    out[iso3] = colorForValue(indicator, item.value);
   }
   return out;
 }

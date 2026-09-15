@@ -1,8 +1,8 @@
 import Link from "next/link";
 import type { Region } from "@/data/regions";
-import type { Entry, RegionDossier } from "@/lib/content";
-import EntryTabs from "./EntryTabs";
-import { EntriesBadge, PrimaryButton, SectionLabel, TaglinePill } from "./atlas-ui";
+import type { NewsItem, RegionDossier } from "@/lib/content";
+import NewsTabs from "./NewsTabs";
+import { NewsBadge, PrimaryButton, SectionLabel, TaglinePill } from "./atlas-ui";
 
 /**
  * Plný portrét regionu (Figma: "Full view Desktop"), ale vykreslený uvnitř
@@ -10,11 +10,11 @@ import { EntriesBadge, PrimaryButton, SectionLabel, TaglinePill } from "./atlas-
  */
 export default function RegionPortrait({
   region,
-  entries,
+  newsItems,
   dossier,
 }: {
   region: Region;
-  entries: Entry[];
+  newsItems: NewsItem[];
   dossier: RegionDossier;
 }) {
   return (
@@ -32,7 +32,7 @@ export default function RegionPortrait({
           {region.name}
         </h1>
         <div className="mt-3">
-          <EntriesBadge count={entries.length} />
+          <NewsBadge count={newsItems.length} />
         </div>
         <div className="mt-4">
           <PrimaryButton href="/support">Join us to help complete it!</PrimaryButton>
@@ -81,13 +81,13 @@ export default function RegionPortrait({
         </section>
       ) : null}
 
-      <EntryTabs
-        entries={entries.map((entry) => ({
-          slug: entry.slug,
-          title: entry.title,
-          summary: entry.summary,
-          category: entry.category,
-          hero: entry.hero,
+      <NewsTabs
+        newsItems={newsItems.map((item) => ({
+          slug: item.slug,
+          title: item.title,
+          summary: item.summary,
+          category: item.category,
+          hero: item.hero,
         }))}
       />
 

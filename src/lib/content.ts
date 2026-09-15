@@ -4,75 +4,75 @@ import matter from "gray-matter";
 import { marked } from "marked";
 import { REGION_BY_SLUG, type Region } from "@/data/regions";
 import {
-  ENTRY_CATEGORIES,
-  type EntryCategory,
-  type EntryFrontmatter,
+  NEWS_CATEGORIES,
+  type NewsCategory,
+  type NewsFrontmatter,
   type RegionDossier,
 } from "@/lib/content-types";
 
 export * from "@/lib/content-types";
 
 const CONTENT_DIR = join(process.cwd(), "src", "content");
-const ENTRIES_DIR = join(CONTENT_DIR, "entries");
+const NEWS_DIR = join(CONTENT_DIR, "news");
 
-export interface Entry extends EntryFrontmatter {
+export interface NewsItem extends NewsFrontmatter {
   slug: string;
   html: string;
   plain: string;
   regionRef: Region | null;
 }
 
-let entryCache: Entry[] | null = null;
+let newsCache: NewsItem[] | null = null;
 
-/** Po zápisu nového hesla je potřeba zahodit cache, jinak se neobjeví. */
-export function invalidateEntries() {
-  entryCache = null;
+/** Po zápisu nového novinky je potřeba zahodit cache, jinak se neobjeví. */
+export function invalidateNews() {
+  newsCache = null;
 }
 
-export async function allEntries(): Promise<Entry[]> {
-  if (entryCache) return entryCache;
+export async function allNews(): Promise<NewsItem[]> {
+  if (newsCache) return newsCache;
 
   let files: string[] = [];
   try {
-    files = (await readdir(ENTRIES_DIR)).filter((name) => name.endsWith(".md"));
+    files = (await readdir(NEWS_DIR)).filter((name) => name.endsWith(".md"));
   } catch {
     return [];
   }
 
-  const entries = await Promise.all(
+  const newsItems = await Promise.all(
     files.map(async (file) => {
-      const source = await readFile(join(ENTRIES_DIR, file), "utf8");
+      const source = await readFile(join(NEWS_DIR, file), "utf8");
       const { data, content } = matter(source);
-      const frontmatter = data as EntryFrontmatter;
+      const frontmatter = data as NewsFrontmatter;
       return {
         ...frontmatter,
         slug: file.replace(/\.md$/, ""),
         html: await marked.parse(content),
         plain: content.replace(/[#*_>`[\]()]/g, " ").replace(/\s+/g, " ").trim(),
         regionRef: REGION_BY_SLUG[frontmatter.region] ?? null,
-      } satisfies Entry;
+      } satisfies NewsItem;
     }),
   );
 
-  entryCache = entries.sort((a, b) =>
+  newsCache = newsItems.sort((a, b) =>
     (b.published ?? "").localeCompare(a.published ?? ""),
   );
-  return entryCache;
+  return newsCache;
 }
 
-export async function entryBySlug(slug: string): Promise<Entry | null> {
-  const entries = await allEntries();
-  return entries.find((entry) => entry.slug === slug) ?? null;
+export async function newsBySlug(slug: string): Promise<NewsItem | null> {
+  const newsItems = await allNews();
+  return newsItems.find((item) => item.slug === slug) ?? null;
 }
 
-export async function entriesOfRegion(regionSlug: string): Promise<Entry[]> {
-  const entries = await allEntries();
-  return entries.filter((entry) => entry.region === regionSlug);
+export async function newsOfRegion(regionSlug: string): Promise<NewsItem[]> {
+  const newsItems = await allNews();
+  return newsItems.filter((item) => item.region === regionSlug);
 }
 
-export async function entriesOfCountry(iso3: string): Promise<Entry[]> {
-  const entries = await allEntries();
-  return entries.filter((entry) => entry.countries?.includes(iso3));
+export async function newsOfCountry(iso3: string): Promise<NewsItem[]> {
+  const newsItems = await allNews();
+  return newsItems.filter((item) => item.countries?.includes(iso3));
 }
 
 /** Redakční doplňky portrétu regionu; když soubor chybí, sekce se nevykreslí. */
@@ -111,5 +111,5 @@ export async function countryProfile(
   }
 }
 
-export { ENTRY_CATEGORIES };
-export type { EntryCategory };
+export { NEWS_CATEGORIES };
+export type { NewsCategory };
