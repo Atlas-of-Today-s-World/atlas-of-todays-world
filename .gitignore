@@ -8,3 +8,6 @@ next-env.d.ts
 # Ověřovací build mimo .next, aby nesestřelil běžící dev server
 .next-build
 .next-dev
+
+# sestavená ukázka (npm run demo:build)
+demo/atlas.html

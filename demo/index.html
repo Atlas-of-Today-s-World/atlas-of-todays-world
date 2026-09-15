@@ -1,0 +1,1925 @@
+<title>Atlas of Today's World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600&display=swap">
+
+<style>
+/* Atlas of Today's World — tokeny odvozené z Figma návrhu Atlas MVP Design.
+   Stránka se vědomě drží jednoho vizuálního světa: tmavý vesmír + bílý panel,
+   proto žádné přepínání motivu. Všechny barvy jsou vypsané explicitně. */
+:root {
+  --space: #070b16;
+  --space-soft: #0d1526;
+  --ocean-core: #17415f;
+  --ocean-rim: #0b2236;
+  --land: #63748c;
+  --ink: #16192b;
+  --ink-soft: #474c63;
+  --ink-muted: #6b7189;
+  --line: #e3e6ee;
+  --band: #141a2b;
+  --accent: #3b4ce0;
+  --accent-strong: #2c3bc4;
+  --link: #1f4fd8;
+  --live: #22c55e;
+  --glass: rgba(15, 21, 38, 0.74);
+  --glass-line: rgba(255, 255, 255, 0.14);
+  --rail-w: min(38vw, 27rem);
+  --rail-w-wide: min(52vw, 46rem);
+  --display: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--space);
+  color: #fff;
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+#stage { position: fixed; inset: 0; }
+#globe { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+#globe.dragging { cursor: grabbing; }
+#globe.pickable { cursor: pointer; }
+
+/* --- skleněné ovládání --- */
+.glass {
+  background: var(--glass);
+  border: 1px solid var(--glass-line);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.glass-btn { color: rgba(255,255,255,.9); transition: background .15s, border-color .15s; }
+.glass-btn:hover { background: rgba(32,42,68,.85); border-color: rgba(255,255,255,.3); }
+
+button { font: inherit; cursor: pointer; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid #8fa2ff; outline-offset: 2px; }
+
+/* --- hlavička --- */
+header {
+  position: absolute; inset-inline: 0; top: 0; z-index: 40;
+  padding: 16px 20px; pointer-events: none;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+}
+.wordmark {
+  pointer-events: auto; display: inline-block; text-decoration: none;
+  background: #fff; color: #0d1324; border-radius: 6px;
+  padding: 8px 14px; font-family: var(--display); font-weight: 800;
+  font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+  box-shadow: 0 8px 22px rgba(0,0,0,.35);
+}
+nav { pointer-events: auto; display: flex; align-items: center; gap: 22px; font-size: 14px; color: rgba(255,255,255,.9); transition: transform .3s; }
+nav a { text-decoration: none; }
+nav a:hover { color: #fff; }
+nav .ghost { border: 1px solid rgba(255,255,255,.7); border-radius: 6px; padding: 5px 13px; }
+nav .ghost:hover { background: #fff; color: #0d1324; }
+nav .muted { color: rgba(255,255,255,.6); }
+
+/* --- lišta ovládání vpravo --- */
+#controls {
+  position: absolute; top: 76px; right: 20px; z-index: 35;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+  pointer-events: none; transition: transform .3s;
+}
+#controls > * { pointer-events: auto; }
+.row { display: flex; gap: 10px; align-items: flex-start; }
+
+.seg-wrap { position: relative; }
+.seg { display: flex; border-radius: 999px; padding: 3px; font-size: 12.5px; }
+.seg button { border: 0; background: none; border-radius: 999px; padding: 6px 14px; color: rgba(255,255,255,.75); }
+.seg button[aria-checked="true"] { background: #fff; color: #0d1324; font-weight: 500; }
+.seg-wrap.hint .seg { box-shadow: 0 0 0 1px rgba(127,151,255,.5); }
+
+/* Jiskra: dokud návštěvník přepínač nezkusí, pulzuje u něj tečka. */
+.spark { position: absolute; top: -4px; right: -4px; width: 12px; height: 12px; pointer-events: none; }
+.seg-wrap:not(.hint) .spark { display: none; }
+.spark i, .spark u { position: absolute; inset: 0; border-radius: 999px; display: block; }
+.spark u { background: #3b4ce0; box-shadow: 0 0 10px rgba(127,151,255,.9); text-decoration: none; }
+.spark i { background: #7f97ff; opacity: .8; animation: ping 1.6s cubic-bezier(0,0,.2,1) infinite; }
+@keyframes ping { 75%, 100% { transform: scale(2.2); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .spark i { animation: none; } }
+
+.pill { border-radius: 999px; padding: 8px 16px; font-size: 13px; display: flex; align-items: center; gap: 8px; border: 1px solid var(--glass-line); background: var(--glass); white-space: nowrap; }
+.pill .chev { transition: transform .2s; }
+.pill[aria-expanded="true"] .chev { transform: rotate(180deg); }
+
+#viewMenu { position: absolute; top: 44px; right: 0; width: 290px; border-radius: 16px; padding: 6px; z-index: 50; box-shadow: 0 24px 60px rgba(0,0,0,.55); }
+#viewMenu button { display: flex; width: 100%; align-items: center; gap: 10px; border: 0; background: none; border-radius: 12px; padding: 8px 12px; text-align: left; font-size: 13px; color: rgba(255,255,255,.78); }
+#viewMenu button:hover { background: rgba(255,255,255,.1); color: #fff; }
+#viewMenu button[aria-current="true"] { background: rgba(255,255,255,.16); color: #fff; }
+.swatches { display: flex; border-radius: 999px; overflow: hidden; flex: 0 0 auto; }
+.swatches i { width: 12px; height: 12px; display: block; }
+
+/* --- panel encyklopedie --- */
+.panel { width: min(92vw, 22rem); border-radius: 18px; padding: 16px; box-shadow: 0 24px 60px rgba(0,0,0,.45); }
+.panel h2 { margin: 0; font-family: var(--display); font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.search { margin-top: 12px; display: flex; align-items: center; gap: 8px; border: 1px solid var(--glass-line); background: rgba(0,0,0,.28); border-radius: 999px; padding: 8px 14px; }
+.search input { flex: 1; min-width: 0; background: none; border: 0; color: #fff; font: inherit; font-size: 13px; }
+.search input::placeholder { color: rgba(255,255,255,.45); }
+.search input:focus { outline: none; }
+.hint { margin: 10px 4px 0; font-size: 11.5px; line-height: 1.55; color: rgba(255,255,255,.5); }
+#results { margin: 12px 0 0; padding: 0; list-style: none; max-height: min(44vh, 19rem); overflow-y: auto; display: none; }
+#results.on { display: block; }
+#results a { display: block; padding: 8px 12px; border-radius: 12px; text-decoration: none; }
+#results a:hover { background: rgba(255,255,255,.1); }
+.kind { display: inline-block; border-radius: 999px; background: rgba(255,255,255,.14); padding: 2px 7px; font-size: 9.5px; letter-spacing: .06em; text-transform: uppercase; color: rgba(255,255,255,.72); vertical-align: 2px; }
+.res-title { font-size: 13.5px; font-weight: 500; color: #fff; margin-left: 7px; }
+.res-sub { display: block; margin-top: 2px; font-size: 11.5px; color: rgba(255,255,255,.55); }
+
+/* --- Hot News --- */
+#hotList { width: min(92vw, 22rem); border-radius: 18px; padding: 8px; box-shadow: 0 24px 60px rgba(0,0,0,.45); display: none; }
+#hotList.on { display: block; }
+#hotList ul { margin: 0; padding: 0; list-style: none; max-height: min(44vh, 19rem); overflow-y: auto; }
+#hotList a { display: flex; gap: 10px; padding: 8px; border-radius: 12px; text-decoration: none; }
+#hotList a:hover { background: rgba(255,255,255,.1); }
+.scope { border-radius: 999px; padding: 2px 7px; font-size: 9.5px; letter-spacing: .06em; text-transform: uppercase; }
+.scope.country { background: rgba(59,76,224,.28); color: #b9c4ff; }
+.scope.region { background: rgba(224,133,133,.26); color: #ffc2c2; }
+.scope.topic { background: rgba(255,255,255,.14); color: rgba(255,255,255,.75); }
+.hot-date { font-size: 10px; color: rgba(255,255,255,.45); }
+.hot-title { display: block; margin-top: 5px; font-size: 12.5px; line-height: 1.35; color: rgba(255,255,255,.9); }
+.count { border-radius: 999px; background: rgba(255,255,255,.16); padding: 1px 7px; font-size: 10.5px; font-variant-numeric: tabular-nums; }
+
+/* --- legenda a popisek --- */
+#legend { position: absolute; left: 20px; bottom: 18px; z-index: 30; width: min(80vw, 24rem); pointer-events: none; }
+.ramp { display: flex; border-radius: 6px; overflow: hidden; }
+.ramp > div { flex: 1; }
+.ramp b { display: block; height: 10px; }
+.ramp span { display: block; margin-top: 4px; text-align: center; font-size: 10px; color: rgba(255,255,255,.65); font-variant-numeric: tabular-nums; }
+#legendCaption { margin: 6px 0 0; font-size: 10.5px; line-height: 1.45; color: rgba(255,255,255,.55); }
+#hoverChip { position: absolute; left: 50%; transform: translateX(-50%); bottom: 22px; z-index: 30; border-radius: 999px; padding: 6px 14px; font-size: 12px; color: rgba(255,255,255,.9); pointer-events: none; display: none; }
+#hoverChip.on { display: block; }
+#zoom { position: absolute; left: 20px; top: 88px; z-index: 30; display: flex; flex-direction: column; gap: 6px; }
+#zoom button { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--glass-line); background: var(--glass); font-size: 18px; line-height: 1; }
+#regionLabels { position: absolute; inset: 0; z-index: 25; pointer-events: none; }
+#regionLabels span.country-label {
+  font-size: 9.5px; letter-spacing: .01em; text-transform: none;
+  color: rgba(255,255,255,.88); max-width: 84px;
+}
+#regionLabels span {
+  position: absolute; transform: translate(-50%, -50%);
+  font-size: 11px; letter-spacing: .07em; text-transform: uppercase; text-align: center;
+  color: rgba(255,255,255,.96); text-shadow: 0 0 6px rgba(6,10,20,.95), 0 0 3px rgba(6,10,20,.95);
+  max-width: 130px; line-height: 1.25;
+}
+
+/* --- bílý panel s obsahem --- */
+#rail {
+  position: absolute; top: 0; right: 0; bottom: 0; z-index: 30;
+  width: var(--rail-w); background: #fff; color: var(--ink);
+  box-shadow: 0 0 60px rgba(0,0,0,.45);
+  transform: translateX(100%); transition: transform .3s ease, width .3s ease;
+  display: flex; flex-direction: column;
+}
+#rail.on { transform: translateX(0); }
+#rail.wide { width: var(--rail-w-wide); }
+#railScroll { flex: 1; overflow-y: auto; overscroll-behavior: contain; }
+#railClose {
+  position: absolute; right: 14px; top: 14px; z-index: 5;
+  width: 32px; height: 32px; border-radius: 999px; border: 0;
+  background: rgba(255,255,255,.88); color: var(--ink-soft); font-size: 20px; line-height: 1;
+  backdrop-filter: blur(6px);
+}
+#railClose:hover { background: var(--line); }
+
+.rail-pad { padding: 26px 24px 40px; }
+.hero { height: 168px; background-size: cover; background-position: center; }
+.tagline { display: inline-block; border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 11.5px; color: var(--ink-muted); }
+h1.rail-title { margin: 14px 0 0; font-family: var(--display); font-size: 27px; font-weight: 700; line-height: 1.15; text-wrap: balance; }
+.region-link { display: inline-block; margin-top: 6px; font-family: var(--display); font-weight: 700; font-size: 15px; color: var(--link); text-decoration: none; }
+.region-link:hover { text-decoration: underline; }
+.entries-badge { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--ink-muted); }
+.dot { width: 8px; height: 8px; border-radius: 999px; background: var(--live); }
+.btn-primary { display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 999px; background: var(--accent); color: #fff; padding: 10px 24px; font-size: 13px; font-weight: 500; text-decoration: none; }
+.btn-primary:hover { background: var(--accent-strong); }
+.btn-ghost { display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 999px; background: none; color: var(--ink); padding: 10px 20px; font-size: 13px; font-weight: 500; text-decoration: none; }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.lede { margin: 18px 0 0; font-size: 13px; line-height: 1.7; color: var(--ink-soft); }
+.center { text-align: center; }
+
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 18px; margin: 22px 0 0; }
+.stat-top { display: flex; align-items: center; gap: 9px; color: var(--ink); }
+.stat-val { font-family: var(--display); font-size: 21px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+.stat-label { margin: 7px 0 0; font-size: 13px; font-weight: 500; line-height: 1.3; color: var(--ink); }
+.stat-meta { margin: 4px 0 0; font-size: 11px; line-height: 1.4; color: var(--ink-muted); }
+
+.facts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 26px 0 0; padding: 18px 0 0; border-top: 1px solid var(--line); font-size: 12.5px; }
+.facts dt { color: var(--ink-muted); }
+.facts dd { margin: 2px 0 0; font-weight: 500; }
+
+h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font-weight: 700; }
+.entry-list { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.entry-list a { display: block; border: 1px solid var(--line); border-radius: 12px; padding: 12px; text-decoration: none; }
+.entry-list a:hover { border-color: var(--accent); }
+.entry-cat { font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-muted); }
+.entry-name { display: block; margin-top: 3px; font-size: 13.5px; font-weight: 500; color: var(--ink); }
+.entry-list a:hover .entry-name { color: var(--accent); }
+.entry-sum { display: block; margin-top: 5px; font-size: 12px; line-height: 1.45; color: var(--ink-muted); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 0; }
+.chips a { border: 1px solid var(--line); border-radius: 999px; padding: 4px 11px; font-size: 12px; color: var(--ink-soft); text-decoration: none; }
+.chips a:hover { border-color: var(--accent); color: var(--accent); }
+
+.section-label { display: inline-block; border-radius: 999px; background: #1b2233; color: rgba(255,255,255,.88); padding: 4px 12px; font-size: 10.5px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; }
+.band { background: var(--band); color: #fff; padding: 34px 24px; }
+.band h2 { margin: 0; font-family: var(--display); font-size: 23px; font-weight: 700; }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px 20px; margin: 16px 0 0; font-size: 13px; }
+.tabs button { border: 0; background: none; padding: 0; color: rgba(255,255,255,.65); }
+.tabs button[aria-selected="true"] { color: #7f97ff; font-weight: 600; }
+.cards { display: flex; gap: 12px; overflow-x: auto; margin: 20px -4px 0; padding: 0 4px 8px; scroll-snap-type: x mandatory; }
+.cards > * { flex: 0 0 14rem; scroll-snap-align: start; }
+.card { background: #fff; color: var(--ink); border-radius: 12px; overflow: hidden; text-decoration: none; display: block; }
+.card .body { padding: 12px; }
+.card h3 { margin: 0; font-family: var(--display); font-size: 13.5px; font-weight: 700; line-height: 1.3; }
+.card p { margin: 5px 0 0; font-size: 11.5px; line-height: 1.4; color: var(--ink-muted); }
+
+.timeline { display: flex; gap: 24px; overflow-x: auto; margin: 26px -4px 0; padding: 0 4px 10px; scroll-snap-type: x mandatory; }
+.tl-item { flex: 0 0 15rem; scroll-snap-align: start; }
+.tl-item h3 { margin: 0; font-family: var(--display); font-size: 14px; font-weight: 700; line-height: 1.3; }
+.tl-date { margin: 4px 0 0; font-size: 11.5px; color: var(--ink-muted); }
+.tl-rule { display: flex; align-items: center; margin: 12px 0; }
+.tl-rule i { width: 12px; height: 12px; border-radius: 999px; background: var(--accent); flex: 0 0 auto; }
+.tl-rule u { flex: 1; height: 1px; background: var(--line); text-decoration: none; }
+.tl-item p { margin: 0; font-size: 12.5px; line-height: 1.6; color: var(--ink-soft); }
+
+.faq { display: grid; gap: 8px; margin: 20px 0 0; }
+.faq details { border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; }
+.faq summary { cursor: pointer; list-style: none; font-size: 13px; font-weight: 500; display: flex; justify-content: space-between; gap: 12px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq p { margin: 10px 0 0; font-size: 12.5px; line-height: 1.6; color: var(--ink-soft); }
+
+.prose { font-size: 15px; line-height: 1.75; color: var(--ink-soft); }
+.prose h2 { font-family: var(--display); color: var(--ink); font-size: 21px; font-weight: 700; margin: 30px 0 10px; }
+.prose h3 { font-family: var(--display); color: var(--ink); font-size: 16px; font-weight: 700; margin: 22px 0 7px; }
+.prose p { margin: 0 0 15px; }
+.prose ul, .prose ol { margin: 0 0 15px 20px; padding: 0; }
+.prose li { margin-bottom: 6px; }
+.prose strong { color: var(--ink); }
+.prose blockquote { margin: 18px 0; padding-left: 16px; border-left: 3px solid var(--accent); color: var(--ink); font-style: italic; }
+
+.meta-line { margin: 14px 0 0; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 11.5px; color: var(--ink-muted); }
+
+/* --- poznámka k ukázce --- */
+#noteBtn { position: absolute; right: 20px; bottom: 18px; z-index: 36; border-radius: 999px; padding: 7px 14px; font-size: 12px; border: 1px solid var(--glass-line); background: var(--glass); }
+#note {
+  position: absolute; right: 20px; bottom: 60px; z-index: 37; width: min(92vw, 25rem);
+  border-radius: 18px; padding: 18px; display: none; box-shadow: 0 24px 60px rgba(0,0,0,.5);
+}
+#note.on { display: block; }
+#note h3 { margin: 0 0 8px; font-family: var(--display); font-size: 14px; font-weight: 700; }
+#note p, #note li { font-size: 12px; line-height: 1.6; color: rgba(255,255,255,.72); }
+#note p { margin: 0 0 10px; }
+#note ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+#note b { color: #fff; font-weight: 600; }
+
+/* --- mobil: panel je spodní sheet --- */
+@media (max-width: 760px) {
+  nav { display: none; }
+  #rail { top: auto; left: 0; width: auto; max-height: 72dvh; border-radius: 22px 22px 0 0; transform: translateY(100%); }
+  #rail.on { transform: translateY(0); }
+  #rail.wide { width: auto; }
+  #controls { top: 70px; right: 14px; left: 14px; align-items: stretch; }
+  .row { justify-content: flex-end; }
+  #legend, #noteBtn, #note { display: none; }
+  .rail-pad { padding: 22px 18px 34px; }
+  .stats { gap: 20px 14px; }
+}
+</style>
+
+<div id="stage">
+  <canvas id="globe"></canvas>
+  <div id="regionLabels" aria-hidden="true"></div>
+
+  <header>
+    <a class="wordmark" href="#/">Atlas of Today&rsquo;s World</a>
+    <nav>
+      <a href="#/">Map</a>
+      <a href="#/news">News</a>
+      <a href="#/about">About</a>
+      <a href="#/admin" title="Mock administration">Admin</a>
+      <a class="ghost" href="#/support">Support us</a>
+      <span class="muted">EN</span>
+    </nav>
+  </header>
+
+  <div id="zoom">
+    <button class="glass-btn" id="zoomIn" aria-label="Zoom in">+</button>
+    <button class="glass-btn" id="zoomOut" aria-label="Zoom out">&minus;</button>
+  </div>
+
+  <div id="controls">
+    <div class="row">
+      <div class="seg-wrap hint" id="segWrap">
+        <span class="spark" aria-hidden="true"><i></i><u></u></span>
+        <div class="seg glass" role="radiogroup" aria-label="Selection mode">
+          <button id="modeCountries" role="radio" aria-checked="true">Countries</button>
+          <button id="modeRegions" role="radio" aria-checked="false">Regions</button>
+          <button id="modeSpecial" role="radio" aria-checked="false">Special regions</button>
+        </div>
+      </div>
+      <div style="position:relative">
+        <button class="pill glass-btn" id="viewBtn" aria-expanded="false">
+          <span id="viewLabel">Encyclopedia view</span><span class="chev" aria-hidden="true">&#8964;</span>
+        </button>
+        <div class="glass" id="viewMenu" hidden></div>
+      </div>
+    </div>
+
+    <section class="panel glass" id="encyclopedia">
+      <div class="panel-head">
+        <h2>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M3 5.5A1.5 1.5 0 0 1 4.5 4H9a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H3V5.5ZM21 5.5A1.5 1.5 0 0 0 19.5 4H15a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5H21V5.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+          Global Encyclopedia
+        </h2>
+      </div>
+      <label class="search" for="q">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="11" cy="11" r="6.5" stroke="rgba(255,255,255,.6)" stroke-width="1.7"/>
+          <path d="m16 16 4 4" stroke="rgba(255,255,255,.6)" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+        <input id="q" type="search" placeholder="Search places, regions, news…" autocomplete="off">
+      </label>
+      <ul id="results"></ul>
+      <p class="hint" id="searchHint">Try &ldquo;political situation in Russia&rdquo;, &ldquo;Ukraine&rdquo; or &ldquo;Eastern Europe&rdquo;.</p>
+    </section>
+
+    <button class="pill glass-btn" id="hotBtn" aria-expanded="false">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 3s5.5 4.2 5.5 9a5.5 5.5 0 1 1-11 0c0-1.9 1-3.4 1.8-4.3.2 1.3.9 2.2 1.8 2.2 1.3 0 1.6-1.6 1.4-3.1A6.6 6.6 0 0 1 12 3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+      </svg>
+      Hot News <span class="count" id="hotCount">0</span>
+    </button>
+    <div class="glass" id="hotList"><ul id="hotItems"></ul></div>
+  </div>
+
+  <div id="legend">
+    <div class="ramp" id="legendRamp"></div>
+    <p id="legendCaption"></p>
+  </div>
+
+  <div class="glass" id="hoverChip"></div>
+
+  <button class="glass-btn" id="noteBtn">About this demo</button>
+  <div class="glass" id="note">
+    <h3>What you are looking at</h3>
+    <p>A shareable slice of the Atlas MVP, running entirely in this page. The
+      real build is a Next.js app with a MapLibre globe; this demo carries the
+      same data and design so it can be opened from a link.</p>
+    <ul>
+      <li><b>Real data.</b> 228 countries, 9 Atlas regions and 9 data layers
+        imported from Natural Earth, UNDP, the World Bank, V-Dem, Transparency
+        International and others.</li>
+      <li><b>No satellite imagery.</b> Shared pages cannot load map tiles, so the
+        globe is drawn as a political map. The real build shows satellite terrain
+        under the same colours.</li>
+      <li><b>No chatbot.</b> It needs a server-side API key; search beside it is
+        the same index the chatbot answers from.</li>
+    </ul>
+  </div>
+
+  <aside id="rail">
+    <button id="railClose" aria-label="Close panel">&times;</button>
+    <div id="railScroll"></div>
+  </aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="atlas-geo.js"></script>
+<script src="atlas-data.js"></script>
+<script>
+(() => {
+  "use strict";
+
+  const DATA = window.ATLAS_DATA;
+  const GEO = window.ATLAS_GEO;
+  const GEO_LITE = window.ATLAS_GEO_LITE;
+
+  const byIso = new Map(DATA.countries.map((c) => [c.iso3, c]));
+  const bySlug = new Map(DATA.countries.map((c) => [c.slug, c]));
+  const regionBySlug = new Map(DATA.regions.map((r) => [r.slug, r]));
+  const regionOfIso = new Map();
+  DATA.regions.forEach((r) => r.countries.forEach((iso) => regionOfIso.set(iso, r)));
+  const viewById = new Map(DATA.views.map((v) => [v.id, v]));
+
+  /* ---------- vlastní celky ("special regions") ----------
+     Můžou křížit regiony Atlasu. Deset jich přichází s ukázkou, další si
+     návštěvník skládá v administraci; ty žijí v jeho prohlížeči. Úprava
+     ukázkového celku se uloží jako jeho kopie pod stejným slugem. */
+  const GROUP_KEY = "atlas.demoSpecials";
+  const PALETTE = [
+    { fill: "#A8C8E8", stroke: "#3E7AA8" },
+    { fill: "#C9E0A8", stroke: "#5C8C36" },
+    { fill: "#F4C89A", stroke: "#B06A22" },
+    { fill: "#E0A8C0", stroke: "#A03E6B" },
+    { fill: "#E8CE8A", stroke: "#A8842A" },
+    { fill: "#B6A8E0", stroke: "#5C46A8" },
+    { fill: "#8FD6C4", stroke: "#217F68" },
+    { fill: "#F2A9A0", stroke: "#B04236" },
+  ];
+
+  function loadGroupStore() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(GROUP_KEY) || "{}");
+      return {
+        custom: Array.isArray(raw.custom) ? raw.custom : [],
+        removed: Array.isArray(raw.removed) ? raw.removed : [],
+      };
+    } catch (e) { return { custom: [], removed: [] }; }
+  }
+  function saveGroupStore() {
+    try { localStorage.setItem(GROUP_KEY, JSON.stringify(groupStore)); } catch (e) { /* plná kvóta */ }
+  }
+
+  let groupStore = loadGroupStore();
+  let SPECIALS = [];
+  const specialBySlug = new Map();
+  const specialOfIso = new Map();
+
+  function refreshSpecials() {
+    const edited = new Map(groupStore.custom.map((g) => [g.slug, g]));
+    const base = (DATA.specials || [])
+      .filter((g) => !groupStore.removed.includes(g.slug))
+      .map((g) => edited.get(g.slug) || g);
+    const known = new Set((DATA.specials || []).map((g) => g.slug));
+    SPECIALS = base.concat(
+      groupStore.custom.filter((g) => !known.has(g.slug) && !groupStore.removed.includes(g.slug)),
+    );
+
+    specialBySlug.clear();
+    specialOfIso.clear();
+    const colors = {};
+    SPECIALS.forEach((group) => {
+      specialBySlug.set(group.slug, group);
+      group.countries.forEach((iso) => {
+        if (!specialOfIso.has(iso)) {
+          specialOfIso.set(iso, group);
+          colors[iso] = group.fill;
+        }
+      });
+    });
+    DATA.colorSets.special = colors;
+
+    const button = document.getElementById("modeSpecial");
+    if (button) button.style.display = SPECIALS.length ? "" : "none";
+  }
+  refreshSpecials();
+
+  /** Střed celku = průměr souřadnic členských zemí, stejně jako v aplikaci. */
+  function groupCenter(isoList) {
+    const points = isoList.map((iso) => byIso.get(iso)).filter((c) => c && typeof c.lon === "number");
+    if (!points.length) return [14, 49.5];
+    const lon = points.reduce((sum, c) => sum + c.lon, 0) / points.length;
+    const lat = points.reduce((sum, c) => sum + c.lat, 0) / points.length;
+    return [Number(lon.toFixed(2)), Number(lat.toFixed(2))];
+  }
+
+  /* ---------- hesla přidaná v administraci ----------
+     Ukázka běží bez serveru, takže nová hesla žijí v prohlížeči návštěvníka.
+     V ostré aplikaci je stejný formulář zapisuje jako Markdown do obsahu. */
+  const DRAFT_KEY = "atlas.demoEntries";
+  const CATEGORIES = ["Living Conditions", "Political System", "Society", "International Relations", "Historical Roots"];
+
+  function loadDrafts() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(DRAFT_KEY) || "[]");
+      return Array.isArray(raw) ? raw : [];
+    } catch (e) { return []; }
+  }
+  function saveDrafts(list) {
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(list)); } catch (e) { /* plná kvóta */ }
+  }
+
+  let drafts = loadDrafts();
+  let entries = [];
+  let entryBySlug = new Map();
+
+  function refreshNews() {
+    entries = [...drafts, ...DATA.newsItems].sort((a, b) =>
+      String(b.published || "").localeCompare(String(a.published || "")));
+    entryBySlug = new Map(entries.map((e) => [e.slug, e]));
+    buildDocs();
+    renderHotNews();
+  }
+
+  const NEUTRAL = "#63748c";
+  const state = {
+    view: "encyclopedia",
+    mode: "countries",
+    hover: null,        // { iso3, label, href, countries }
+    activeIso: null,
+    activeRegion: null, // slug
+    rotate: [-18, -28],
+    scale: 1,           // násobič základního poloměru
+    dragging: false,
+  };
+
+  /* ---------- globus ---------- */
+
+  const canvas = document.getElementById("globe");
+  const ctx = canvas.getContext("2d");
+  const labelsBox = document.getElementById("regionLabels");
+  const hoverChip = document.getElementById("hoverChip");
+  const projection = d3.geoOrthographic().clipAngle(90).precision(0.4);
+  const path = d3.geoPath(projection, ctx);
+  let size = { w: 0, h: 0 };
+  let needsDraw = true;
+
+  function baseRadius() {
+    return Math.min(size.w, size.h) * 0.42;
+  }
+
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    size = { w: canvas.clientWidth, h: canvas.clientHeight };
+    canvas.width = Math.round(size.w * dpr);
+    canvas.height = Math.round(size.h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    needsDraw = true;
+  }
+
+  /** Střed globusu posuneme doleva, když je otevřený bílý panel. */
+  function centerX() {
+    const rail = document.getElementById("rail");
+    if (!rail.classList.contains("on") || window.innerWidth <= 760) return size.w / 2;
+    return (size.w - rail.getBoundingClientRect().width) / 2;
+  }
+
+  function colorFor(iso3) {
+    const set =
+      state.mode === "special" && state.view === "encyclopedia"
+        ? DATA.colorSets.special
+        : DATA.colorSets[state.view];
+    return (set || {})[iso3] || NEUTRAL;
+  }
+
+  function draw() {
+    projection
+      .rotate(state.rotate)
+      .scale(baseRadius() * state.scale)
+      .translate([centerX(), size.h / 2]);
+
+    ctx.clearRect(0, 0, size.w, size.h);
+
+    // vesmír
+    ctx.fillStyle = "#070b16";
+    ctx.fillRect(0, 0, size.w, size.h);
+
+    // oceán se světelným nádechem, ať koule nevypadá plochá
+    const r = baseRadius() * state.scale;
+    const cx = centerX();
+    const cy = size.h / 2;
+    const ocean = ctx.createRadialGradient(cx - r * 0.35, cy - r * 0.4, r * 0.1, cx, cy, r);
+    ocean.addColorStop(0, "#1d5578");
+    ocean.addColorStop(0.55, "#17415f");
+    ocean.addColorStop(1, "#0b2236");
+    ctx.beginPath(); path({ type: "Sphere" }); ctx.fillStyle = ocean; ctx.fill();
+
+    const collection = state.dragging ? GEO_LITE : GEO;
+    const hoverSet = state.hover ? new Set(state.hover.countries) : null;
+    const regionSet = state.activeRegion
+      ? new Set(regionBySlug.get(state.activeRegion).countries)
+      : null;
+
+    // pevnina
+    ctx.lineJoin = "round";
+    for (const f of collection.features) {
+      const iso = f.properties.iso3;
+      ctx.beginPath();
+      path(f);
+      ctx.fillStyle = colorFor(iso);
+      ctx.globalAlpha = state.view === "encyclopedia" ? 0.92 : 1;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.lineWidth = 0.5;
+      ctx.strokeStyle = "rgba(255,255,255,.35)";
+      ctx.stroke();
+    }
+
+    // zvýraznění pod kurzorem
+    if (hoverSet) {
+      ctx.globalAlpha = 0.22;
+      ctx.fillStyle = "#ffffff";
+      for (const f of collection.features) {
+        if (!hoverSet.has(f.properties.iso3)) continue;
+        ctx.beginPath(); path(f); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    // obrys regionu otevřeného v panelu
+    if (regionSet) {
+      ctx.lineWidth = 1.6;
+      ctx.strokeStyle = regionBySlug.get(state.activeRegion).stroke;
+      for (const f of collection.features) {
+        if (!regionSet.has(f.properties.iso3)) continue;
+        ctx.beginPath(); path(f); ctx.stroke();
+      }
+    }
+
+    // vybraná země
+    if (state.activeIso) {
+      const f = collection.features.find((x) => x.properties.iso3 === state.activeIso);
+      if (f) {
+        ctx.lineWidth = 2.2;
+        ctx.strokeStyle = "#ffffff";
+        ctx.beginPath(); path(f); ctx.stroke();
+      }
+    }
+
+    // jemný okraj koule
+    ctx.beginPath(); path({ type: "Sphere" });
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "rgba(150,190,220,.35)";
+    ctx.stroke();
+
+    drawLabels();
+  }
+
+  /** Země seřazené podle počtu obyvatel – podle toho, kolik popisků se vejde. */
+  const BY_POPULATION = [...DATA.countries].sort(
+    (a, b) => (b.population || 0) - (a.population || 0),
+  );
+
+  /** Je bod na přivrácené straně koule? */
+  function facingUs(lonlat) {
+    return (
+      d3.geoDistance(lonlat, [-state.rotate[0], -state.rotate[1]]) < Math.PI / 2.15
+    );
+  }
+
+  function drawLabels() {
+    const frag = document.createDocumentFragment();
+
+    if (state.mode === "countries") {
+      // Čím blíž, tím víc jmen; bez toho by se při oddálení slila do kaše.
+      const limit = Math.round(18 * Math.pow(state.scale, 1.6));
+      for (const country of BY_POPULATION.slice(0, limit)) {
+        if (country.lon === null || country.lat === null) continue;
+        const lonlat = [country.lon, country.lat];
+        if (!facingUs(lonlat)) continue;
+        const point = projection(lonlat);
+        if (!point) continue;
+        const el = document.createElement("span");
+        el.className = "country-label";
+        el.textContent = country.name;
+        el.style.left = point[0] + "px";
+        el.style.top = point[1] + "px";
+        frag.appendChild(el);
+      }
+      labelsBox.replaceChildren(frag);
+      return;
+    }
+
+    const groups = state.mode === "special" ? SPECIALS : DATA.regions;
+    for (const group of groups) {
+      if (!facingUs(group.center)) continue;
+      const point = projection(group.center);
+      if (!point) continue;
+      const el = document.createElement("span");
+      el.textContent = group.name;
+      el.style.left = point[0] + "px";
+      el.style.top = point[1] + "px";
+      frag.appendChild(el);
+    }
+    labelsBox.replaceChildren(frag);
+  }
+
+  function tick() {
+    if (needsDraw) { needsDraw = false; draw(); }
+    requestAnimationFrame(tick);
+  }
+
+  /* ---------- interakce s globusem ---------- */
+
+  function isoAt(clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    const point = [clientX - rect.left, clientY - rect.top];
+    const lonlat = projection.invert(point);
+    if (!lonlat || Number.isNaN(lonlat[0])) return null;
+    for (const f of GEO.features) {
+      if (d3.geoContains(f, lonlat)) return f.properties.iso3;
+    }
+    return null;
+  }
+
+  function targetFor(iso3) {
+    if (!iso3) return null;
+    if (state.mode === "regions") {
+      const region = regionOfIso.get(iso3);
+      if (!region) return null;
+      return { iso3, label: region.name, href: "#/region/" + region.slug, countries: region.countries };
+    }
+    if (state.mode === "special") {
+      const group = specialOfIso.get(iso3);
+      if (!group) return null;
+      return { iso3, label: group.name, href: "#/special/" + group.slug, countries: group.countries };
+    }
+    const country = byIso.get(iso3);
+    if (!country) return null;
+    return { iso3, label: country.name, href: "#/country/" + country.slug, countries: [iso3] };
+  }
+
+  let pointer = null;
+  canvas.addEventListener("pointerdown", (event) => {
+    pointer = { x: event.clientX, y: event.clientY, rotate: state.rotate.slice(), moved: 0 };
+    canvas.setPointerCapture(event.pointerId);
+  });
+
+  canvas.addEventListener("pointermove", (event) => {
+    if (pointer) {
+      const dx = event.clientX - pointer.x;
+      const dy = event.clientY - pointer.y;
+      pointer.moved += Math.abs(dx) + Math.abs(dy);
+      if (pointer.moved > 4) {
+        state.dragging = true;
+        canvas.classList.add("dragging");
+        const k = 0.26 / state.scale;
+        state.rotate = [
+          pointer.rotate[0] + dx * k * 1.2,
+          Math.max(-85, Math.min(85, pointer.rotate[1] - dy * k * 1.2)),
+        ];
+        needsDraw = true;
+      }
+      return;
+    }
+    const target = targetFor(isoAt(event.clientX, event.clientY));
+    const changed = (target && target.href) !== (state.hover && state.hover.href);
+    if (changed) {
+      state.hover = target;
+      canvas.classList.toggle("pickable", Boolean(target));
+      hoverChip.textContent = target ? target.label : "";
+      hoverChip.classList.toggle("on", Boolean(target));
+      needsDraw = true;
+    }
+  });
+
+  function endPointer(event) {
+    if (!pointer) return;
+    const wasClick = pointer.moved <= 4;
+    pointer = null;
+    state.dragging = false;
+    canvas.classList.remove("dragging");
+    needsDraw = true;
+    if (wasClick) {
+      const target = targetFor(isoAt(event.clientX, event.clientY));
+      if (target) location.hash = target.href;
+    }
+  }
+  canvas.addEventListener("pointerup", endPointer);
+  canvas.addEventListener("pointercancel", () => { pointer = null; state.dragging = false; canvas.classList.remove("dragging"); needsDraw = true; });
+  canvas.addEventListener("pointerleave", () => {
+    state.hover = null; hoverChip.classList.remove("on"); needsDraw = true;
+  });
+
+  canvas.addEventListener("wheel", (event) => {
+    event.preventDefault();
+    setScale(state.scale * Math.pow(1.0016, -event.deltaY));
+  }, { passive: false });
+
+  function setScale(next) {
+    state.scale = Math.max(0.85, Math.min(9, next));
+    needsDraw = true;
+  }
+  document.getElementById("zoomIn").onclick = () => animateTo({ scale: state.scale * 1.5 });
+  document.getElementById("zoomOut").onclick = () => animateTo({ scale: state.scale / 1.5 });
+
+  /** Plynulý přelet kamery na zadané otočení a přiblížení. */
+  let flight = null;
+  function animateTo({ rotate, scale, duration = 900 }) {
+    const from = { rotate: state.rotate.slice(), scale: state.scale };
+    const to = {
+      rotate: rotate ? d3.geoInterpolate([-from.rotate[0], -from.rotate[1]], rotate) : null,
+      scale: Math.max(0.85, Math.min(9, scale == null ? from.scale : scale)),
+    };
+    const start = performance.now();
+    flight = (now) => {
+      const t = Math.min(1, (now - start) / duration);
+      const e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      if (to.rotate) {
+        const p = to.rotate(e);
+        state.rotate = [-p[0], -p[1]];
+      }
+      state.scale = from.scale + (to.scale - from.scale) * e;
+      needsDraw = true;
+      if (t >= 1) flight = null;
+    };
+  }
+
+  function frame(now) {
+    if (flight) flight(now);
+    if (needsDraw) { needsDraw = false; draw(); }
+    requestAnimationFrame(frame);
+  }
+
+  /** Přiblížení tak, aby se země vešla do viditelné části mapy. */
+  function scaleForBbox(bbox) {
+    if (!bbox) return 2.6;
+    const spanLon = Math.max(1, bbox[2] - bbox[0]);
+    const spanLat = Math.max(1, bbox[3] - bbox[1]);
+    const span = Math.max(spanLon * Math.cos((((bbox[1] + bbox[3]) / 2) * Math.PI) / 180), spanLat);
+    return Math.max(1, Math.min(7.5, 95 / span));
+  }
+
+  /* ---------- přepínače nad mapou ---------- */
+
+  const viewBtn = document.getElementById("viewBtn");
+  const viewMenu = document.getElementById("viewMenu");
+  const viewLabel = document.getElementById("viewLabel");
+
+  DATA.views.forEach((view) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    const swatches = document.createElement("span");
+    swatches.className = "swatches";
+    (view.swatches.length ? view.swatches.slice(0, 4) : [{ color: "rgba(255,255,255,.4)" }])
+      .forEach((s) => {
+        const i = document.createElement("i");
+        i.style.background = s.color;
+        swatches.appendChild(i);
+      });
+    button.appendChild(swatches);
+    button.appendChild(document.createTextNode(view.label));
+    button.onclick = () => { setView(view.id); toggleViewMenu(false); };
+    button.dataset.view = view.id;
+    viewMenu.appendChild(button);
+  });
+
+  function toggleViewMenu(open) {
+    viewMenu.hidden = !open;
+    viewBtn.setAttribute("aria-expanded", String(open));
+  }
+  viewBtn.onclick = () => toggleViewMenu(viewMenu.hidden);
+  document.addEventListener("pointerdown", (event) => {
+    if (!viewMenu.hidden && !viewMenu.contains(event.target) && event.target !== viewBtn) {
+      toggleViewMenu(false);
+    }
+  });
+
+  function setView(id) {
+    state.view = id;
+    const view = viewById.get(id);
+    viewLabel.textContent = view.short;
+    viewMenu.querySelectorAll("button").forEach((b) => {
+      b.setAttribute("aria-current", String(b.dataset.view === id));
+    });
+    renderLegend(view);
+    needsDraw = true;
+  }
+
+  function renderLegend(view) {
+    const ramp = document.getElementById("legendRamp");
+    ramp.replaceChildren();
+    view.swatches.forEach((s) => {
+      const cell = document.createElement("div");
+      const bar = document.createElement("b");
+      bar.style.background = s.color;
+      const label = document.createElement("span");
+      label.textContent = s.label;
+      cell.append(bar, label);
+      ramp.appendChild(cell);
+    });
+    document.getElementById("legendCaption").textContent = view.caption;
+  }
+
+  const modeCountries = document.getElementById("modeCountries");
+  const modeRegions = document.getElementById("modeRegions");
+  const modeSpecial = document.getElementById("modeSpecial");
+  const segWrap = document.getElementById("segWrap");
+  const SEEN_KEY = "atlas.modeSwitchSeen";
+
+  function setMode(mode) {
+    state.mode = mode;
+    modeCountries.setAttribute("aria-checked", String(mode === "countries"));
+    modeRegions.setAttribute("aria-checked", String(mode === "regions"));
+    modeSpecial.setAttribute("aria-checked", String(mode === "special"));
+    state.hover = null;
+    hoverChip.classList.remove("on");
+    needsDraw = true;
+  }
+  function chooseMode(mode) {
+    setMode(mode);
+    segWrap.classList.remove("hint");
+    try { localStorage.setItem(SEEN_KEY, "1"); } catch (e) { /* privátní režim */ }
+  }
+  modeCountries.onclick = () => chooseMode("countries");
+  modeRegions.onclick = () => chooseMode("regions");
+  modeSpecial.onclick = () => chooseMode("special");
+  if (!SPECIALS.length) modeSpecial.style.display = "none";
+  try {
+    if (localStorage.getItem(SEEN_KEY) === "1") segWrap.classList.remove("hint");
+  } catch (e) { /* privátní režim: jiskra zůstane */ }
+
+  /* ---------- fulltext ---------- */
+
+  let docs = [];
+  function buildDocs() {
+    docs = [
+      ...DATA.regions.map((r) => ({
+        kind: "Region", title: r.name, subtitle: "World region",
+        body: r.summary, href: "#/region/" + r.slug,
+      })),
+      ...DATA.countries.map((c) => ({
+        kind: "Country", title: c.name,
+        subtitle: (regionBySlug.get(c.region) || {}).name || "Country",
+        body: [c.nameFormal, c.unSubregion, ...c.stats.map((s) => s.label + " " + s.value)].join(" "),
+        href: "#/country/" + c.slug,
+      })),
+      ...SPECIALS.map((g) => ({
+        kind: "Special", title: g.name, subtitle: g.subtitle,
+        body: g.summary, href: "#/special/" + g.slug,
+      })),
+      ...entries.map((e) => ({
+        kind: "News", title: e.title,
+        subtitle: e.category + " · " + ((regionBySlug.get(e.region) || {}).name || ""),
+        body: e.summary + " " + e.html.replace(/<[^>]+>/g, " "),
+        href: "#/news/" + e.slug,
+      })),
+    ];
+    docs.forEach((d) => {
+      d.hay = (d.title + " " + d.subtitle + " " + d.body).toLowerCase();
+      d.lowTitle = d.title.toLowerCase();
+    });
+  }
+
+  function runSearch(query) {
+    const terms = query.toLowerCase().split(/\s+/).filter((t) => t.length > 1);
+    if (!terms.length) return [];
+    return docs
+      .map((doc) => {
+        let score = 0;
+        for (const term of terms) {
+          if (doc.lowTitle.startsWith(term)) score += 12;
+          else if (doc.lowTitle.includes(term)) score += 8;
+          else if (doc.hay.includes(term)) score += 1;
+        }
+        return { doc, score };
+      })
+      .filter((r) => r.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 12)
+      .map((r) => r.doc);
+  }
+
+  const input = document.getElementById("q");
+  const results = document.getElementById("results");
+  const hint = document.getElementById("searchHint");
+  input.addEventListener("input", () => {
+    const query = input.value.trim();
+    results.replaceChildren();
+    if (query.length < 2) { results.classList.remove("on"); hint.hidden = false; return; }
+    hint.hidden = true;
+    const hits = runSearch(query);
+    if (!hits.length) {
+      const li = document.createElement("li");
+      li.className = "hint";
+      li.textContent = "Nothing in the Atlas matches that yet.";
+      results.appendChild(li);
+    }
+    hits.forEach((doc) => {
+      const li = document.createElement("li");
+      const a = document.createElement("a");
+      a.href = doc.href;
+      a.onclick = () => { input.value = ""; results.classList.remove("on"); hint.hidden = false; };
+      const kind = document.createElement("span"); kind.className = "kind"; kind.textContent = doc.kind;
+      const title = document.createElement("span"); title.className = "res-title"; title.textContent = doc.title;
+      const sub = document.createElement("span"); sub.className = "res-sub"; sub.textContent = doc.subtitle;
+      a.append(kind, title, sub);
+      li.appendChild(a);
+      results.appendChild(li);
+    });
+    results.classList.add("on");
+  });
+
+  /* ---------- Hot News ---------- */
+
+  const hotItems = document.getElementById("hotItems");
+  const hotList = document.getElementById("hotList");
+  const hotBtn = document.getElementById("hotBtn");
+
+  function scopeOf(entry) {
+    const only = entry.countries.length === 1 ? byIso.get(entry.countries[0]) : null;
+    if (only) return { label: only.name, kind: "country" };
+    const region = regionBySlug.get(entry.region);
+    if (region) return { label: region.name, kind: "region" };
+    return { label: entry.category, kind: "topic" };
+  }
+
+  function renderHotNews() {
+    document.getElementById("hotCount").textContent = String(entries.length);
+    hotItems.replaceChildren();
+
+    entries.slice(0, 8).forEach((entry) => {
+      const scope = scopeOf(entry);
+      const li = document.createElement("li");
+      const a = document.createElement("a");
+      a.href = "#/news/" + entry.slug;
+      a.onclick = () => hotList.classList.remove("on");
+
+      const col = document.createElement("span");
+      const head = document.createElement("span");
+      head.style.display = "flex";
+      head.style.alignItems = "center";
+      head.style.gap = "6px";
+      const badge = document.createElement("span");
+      badge.className = "scope " + scope.kind;
+      badge.textContent = scope.label;
+      head.appendChild(badge);
+      if (entry.published) {
+        const date = document.createElement("span");
+        date.className = "hot-date";
+        date.textContent = new Date(entry.published).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+        head.appendChild(date);
+      }
+      const title = document.createElement("span");
+      title.className = "hot-title";
+      title.textContent = entry.title;
+      col.append(head, title);
+      a.appendChild(col);
+      li.appendChild(a);
+      hotItems.appendChild(li);
+    });
+  }
+
+  hotBtn.onclick = () => {
+    const open = !hotList.classList.contains("on");
+    hotList.classList.toggle("on", open);
+    hotBtn.setAttribute("aria-expanded", String(open));
+  };
+
+  const noteBtn = document.getElementById("noteBtn");
+  const note = document.getElementById("note");
+  noteBtn.onclick = () => note.classList.toggle("on");
+
+  /* ---------- panel s obsahem ---------- */
+
+  const rail = document.getElementById("rail");
+  const railScroll = document.getElementById("railScroll");
+  document.getElementById("railClose").onclick = () => {
+    location.hash = state.activeRegion && state.activeIso ? "#/region/" + state.activeRegion : "#/";
+  };
+
+  const esc = (value) => String(value == null ? "" : value)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+  const fmtPop = (value) => {
+    if (!value) return "—";
+    if (value >= 1e9) return (value / 1e9).toFixed(2) + " bn";
+    if (value >= 1e6) return (value / 1e6).toFixed(1) + " m";
+    if (value >= 1e3) return Math.round(value / 1e3) + " k";
+    return String(value);
+  };
+
+  const STAT_ICON = {
+    "hdi": '<path d="M4 20V10M9 20V5M14 20v-7M19 20V8"/><path d="M3 20h18"/>',
+    "life-expectancy": '<path d="M20.8 8.6a4.9 4.9 0 0 0-8.8-2.9 4.9 4.9 0 0 0-8.8 2.9c0 5 8.8 10.4 8.8 10.4s8.8-5.4 8.8-10.4Z"/>',
+    "gdp-per-capita": '<circle cx="12" cy="12" r="8.5"/><path d="M12 7v10M14.6 9.4A2.8 2.8 0 0 0 12 8.2c-1.6 0-2.6.8-2.6 1.9 0 2.6 5.2 1.4 5.2 4 0 1.2-1.1 2-2.6 2a2.9 2.9 0 0 1-2.7-1.3"/>',
+    "political-regime": '<path d="M4 20h16M6 20V9M10 20V9M14 20V9M18 20V9M3.5 9 12 4l8.5 5"/>',
+    "democracy-index": '<path d="M4 20h16M6 20V9M10 20V9M14 20V9M18 20V9M3.5 9 12 4l8.5 5"/>',
+    "corruption": '<path d="M12 3 4.5 6v6c0 4.3 3.2 7.6 7.5 9 4.3-1.4 7.5-4.7 7.5-9V6L12 3Z"/><path d="m9.5 12 1.8 1.8 3.6-3.6"/>',
+    "extreme-poverty": '<circle cx="12" cy="7" r="3"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/>',
+    "co2-per-capita": '<path d="M5 16a3.5 3.5 0 0 1 .6-6.9 5 5 0 0 1 9.6-1.3A4 4 0 0 1 19 16H5Z"/><path d="M8 20h8"/>',
+    "internet-users": '<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.2 2.4 3.3 5.3 3.3 8.5S14.2 18.1 12 20.5c-2.2-2.4-3.3-5.3-3.3-8.5S9.8 5.9 12 3.5Z"/>',
+  };
+  const statIcon = (id) =>
+    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    (STAT_ICON[id] || '<circle cx="12" cy="12" r="8.5"/><path d="M12 8v5M12 16h.01"/>') + "</svg>";
+
+  function entriesForCountry(iso3) {
+    return entries.filter((e) => e.countries.includes(iso3));
+  }
+  function entriesForRegion(slug) {
+    return entries.filter((e) => e.region === slug);
+  }
+
+  function entryListHtml(entries, withSummary) {
+    if (!entries.length) return "";
+    return '<ul class="entry-list">' + entries.map((e) =>
+      '<li><a href="#/news/' + esc(e.slug) + '">' +
+      '<span class="entry-cat">' + esc(e.category) + "</span>" +
+      '<span class="entry-name">' + esc(e.title) + "</span>" +
+      (withSummary ? '<span class="entry-sum">' + esc(e.summary) + "</span>" : "") +
+      "</a></li>").join("") + "</ul>";
+  }
+
+  function countryHtml(country) {
+    const region = regionBySlug.get(country.region);
+    const list = entriesForCountry(country.iso3);
+    const stats = country.stats.slice(0, 6).map((s) =>
+      '<div><div class="stat-top">' + statIcon(s.id) +
+      '<span class="stat-val">' + esc(s.value) + "</span></div>" +
+      '<p class="stat-label">' + esc(s.label) + "</p>" +
+      '<p class="stat-meta">' + (s.rank ? "Ranked " + s.rank + " of " + s.rankOf + " · " : "") +
+      esc(s.year) + "<br>" + esc(s.source) + "</p></div>").join("");
+
+    return '<div class="rail-pad">' +
+      '<h1 class="rail-title">' + esc(country.name) + "</h1>" +
+      (region ? '<a class="region-link" href="#/region/' + esc(region.slug) + '">' + esc(region.name) + "</a>" : "") +
+      '<p class="lede">' + esc(describeCountry(country)) + "</p>" +
+      '<p style="margin:16px 0 0"><span class="entries-badge"><span class="dot"></span>' +
+      list.length + (list.length === 1 ? " news item" : " news items") + " published</span></p>" +
+      '<div class="stats">' + stats + "</div>" +
+      '<dl class="facts"><div><dt>Population</dt><dd>' + fmtPop(country.population) + "</dd></div>" +
+      "<div><dt>Subregion</dt><dd>" + esc(country.unSubregion || "—") + "</dd></div></dl>" +
+      (list.length ? '<h2 class="rail-h">News about ' + esc(country.name) + "</h2>" + entryListHtml(list, true) : "") +
+      "</div>";
+  }
+
+  /** Text pro země bez redakčního popisu – složený z importovaných dat. */
+  function describeCountry(country) {
+    const region = regionBySlug.get(country.region);
+    const parts = [];
+    parts.push((country.nameFormal || country.name) + " is a country in " +
+      (country.unSubregion || "the world") + ", covered by the Atlas as part of " +
+      (region ? region.name : "the world") + ".");
+    if (country.population) parts.push("It is home to about " + fmtPop(country.population) + " people.");
+    const hdi = country.stats.find((s) => s.id === "hdi");
+    if (hdi && hdi.rank) parts.push("Its Human Development Index of " + hdi.value + " ranks it " + hdi.rank + " of " + hdi.rankOf + " countries (" + hdi.year + ").");
+    const regime = country.stats.find((s) => s.id === "political-regime");
+    if (regime) parts.push("Its political system is classified as " + regime.value.toLowerCase() + ".");
+    return parts.join(" ");
+  }
+
+  function regionHtml(region) {
+    const list = entriesForRegion(region.slug);
+    const countries = DATA.countries
+      .filter((c) => c.region === region.slug)
+      .sort((a, b) => (b.population || 0) - (a.population || 0));
+
+    return '<div class="rail-pad center">' +
+      '<span class="tagline">' + esc(region.tagline) + "</span>" +
+      '<h1 class="rail-title">' + esc(region.name) + "</h1>" +
+      '<p style="margin:14px 0 0"><span class="entries-badge"><span class="dot"></span>' +
+      list.length + (list.length === 1 ? " news item" : " news items") + " published</span></p>" +
+      '<p style="margin:18px 0 0">' +
+      (list.length
+        ? '<a class="btn-primary" href="#/region/' + esc(region.slug) + '/full">Open the full portrait</a>'
+        : '<a class="btn-primary" href="#/support">Join us to help complete it!</a>') +
+      "</p>" +
+      '<p class="lede" style="text-align:left">' + esc(region.summary) + "</p>" +
+      (list.length ? '<h2 class="rail-h" style="text-align:left">Our entries</h2>' + entryListHtml(list, false) : "") +
+      '<h2 class="rail-h" style="text-align:left">Countries in this region</h2>' +
+      '<div class="chips">' + countries.map((c) =>
+        '<a href="#/country/' + esc(c.slug) + '">' + esc(c.name) + "</a>").join("") + "</div>" +
+      "</div>";
+  }
+
+  function regionFullHtml(region) {
+    const dossier = DATA.dossiers[region.slug] || {};
+    const list = entriesForRegion(region.slug);
+    let html = '<div class="rail-pad center">' +
+      '<span class="tagline">' + esc(region.tagline) + "</span>" +
+      '<h1 class="rail-title" style="font-size:31px">' + esc(region.name) + "</h1>" +
+      '<p style="margin:14px 0 0"><span class="entries-badge"><span class="dot"></span>' +
+      list.length + " entries published</span></p>" +
+      '<p style="margin:18px 0 0"><a class="btn-primary" href="#/support">Join us to help complete it!</a></p>' +
+      '<p class="lede" style="max-width:36rem;margin-inline:auto">' + esc(region.summary) + "</p></div>";
+
+    if (dossier.timeline && dossier.timeline.length) {
+      html += '<div class="rail-pad center" style="border-top:1px solid var(--line);padding-top:32px">' +
+        '<span class="section-label">Timeline</span>' +
+        '<h2 style="margin:16px 0 0;font-family:var(--display);font-size:23px;font-weight:700">' +
+        esc(dossier.timelineTitle || "Historical Context of the Region") + "</h2>" +
+        (dossier.timelineSubtitle ? '<p style="margin:8px auto 0;max-width:32rem;font-size:12.5px;color:var(--ink-muted)">' + esc(dossier.timelineSubtitle) + "</p>" : "") +
+        '<div class="timeline" style="text-align:left">' + dossier.timeline.map((item) =>
+          '<div class="tl-item"><h3>' + esc(item.title) + "</h3>" +
+          '<p class="tl-date">' + esc(item.date) + "</p>" +
+          '<div class="tl-rule"><i></i><u></u></div>' +
+          "<p>" + esc(item.text) + "</p></div>").join("") + "</div>" +
+        '<p style="margin:2px 0 0;text-align:left;font-size:11px;color:var(--ink-muted)">↔ Drag to navigate the timeline</p></div>';
+    }
+
+    html += '<div class="band"><h2>Our News</h2>' +
+      (list.length
+        ? '<div class="cards">' + list.map((e) =>
+            '<a class="card" href="#/news/' + esc(e.slug) + '"><div class="body">' +
+            "<h3>" + esc(e.title) + "</h3><p>" + esc(e.summary) + "</p></div></a>").join("") + "</div>"
+        : '<p style="margin:16px 0 0;font-size:13px;color:rgba(255,255,255,.6)">No news published in this region yet.</p>') +
+      "</div>";
+
+    if (dossier.faq && dossier.faq.length) {
+      html += '<div class="rail-pad"><h2 style="margin:0;font-family:var(--display);font-size:23px;font-weight:700">Common Questions About the Region</h2>' +
+        '<div class="faq">' + dossier.faq.map((item) =>
+          "<details><summary>" + esc(item.question) + '<span aria-hidden="true">&#8964;</span></summary><p>' +
+          esc(item.answer) + "</p></details>").join("") + "</div></div>";
+    }
+
+    html += '<div class="rail-pad center" style="border-top:1px solid var(--line)">' +
+      '<h2 style="margin:0;font-family:var(--display);font-size:25px;font-weight:700">Together We Can Build a New Encyclopedia</h2>' +
+      '<p style="margin:10px auto 0;max-width:32rem;font-size:12.5px;line-height:1.6;color:var(--ink-muted)">By joining our membership community, you can support Atlas development and gradually secure its independent funding.</p>' +
+      '<p style="margin:22px 0 0"><a class="btn-primary" href="#/support">Donate &amp; Join</a></p>' +
+      '<p style="margin:18px 0 0;font-size:11.5px"><a href="#/region/' + esc(region.slug) + '" style="color:var(--ink-muted)">← Back to the compact region panel</a></p></div>';
+
+    return html;
+  }
+
+  function specialHtml(group) {
+    const members = group.countries
+      .map((iso3) => byIso.get(iso3))
+      .filter(Boolean)
+      .sort((a, b) => (b.population || 0) - (a.population || 0));
+    const population = members.reduce((sum, c) => sum + (c.population || 0), 0);
+    const tagged = entries.filter((item) => item.special === group.slug);
+    const related = tagged.concat(
+      entries.filter((item) =>
+        item.special !== group.slug &&
+        item.countries.some((iso3) => group.countries.includes(iso3)),
+      ),
+    );
+
+    return '<div class="rail-pad">' +
+      '<span class="section-label">Special region</span>' +
+      '<h1 class="rail-title">' + esc(group.name) + "</h1>" +
+      '<p style="margin:5px 0 0;font-family:var(--display);font-weight:700;font-size:15px;color:var(--link)">' +
+      esc(group.subtitle) + "</p>" +
+      '<div style="margin:16px 0 0;height:8px;border-radius:999px;background:' + esc(group.fill) + '"></div>' +
+      '<p class="lede">' + esc(group.summary) + "</p>" +
+      '<dl class="facts"><div><dt>Countries</dt><dd>' + members.length + "</dd></div>" +
+      "<div><dt>Combined population</dt><dd>" + fmtPop(population) + "</dd></div></dl>" +
+      '<h2 class="rail-h">Countries in this group</h2>' +
+      '<div class="chips">' + members.map((c) =>
+        '<a href="#/country/' + esc(c.slug) + '">' + esc(c.name) + "</a>").join("") + "</div>" +
+      (related.length
+        ? '<h2 class="rail-h">News from this group</h2>' + entryListHtml(related, false)
+        : "") +
+      '<p style="margin:28px 0 0;font-size:11.5px;color:var(--ink-muted)">Special regions are assembled by the Atlas team and can cross the boundaries of the nine Atlas regions.</p>' +
+      "</div>";
+  }
+
+  function entryHtml(entry) {
+    const region = regionBySlug.get(entry.region);
+    const group = entry.special ? specialBySlug.get(entry.special) : null;
+    const meta = [];
+    if (entry.author) meta.push("By " + entry.author);
+    if (entry.published) meta.push(new Date(entry.published).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }));
+    if (entry.readingMinutes) meta.push(entry.readingMinutes + " min read");
+
+    return '<div class="rail-pad">' +
+      '<span class="section-label">' + esc(entry.category) + "</span>" +
+      '<h1 class="rail-title" style="font-size:29px">' + esc(entry.title) + "</h1>" +
+      '<p class="lede" style="font-size:14px">' + esc(entry.summary) + "</p>" +
+      '<p class="meta-line">' +
+      (region ? '<a href="#/region/' + esc(region.slug) + '" style="color:var(--link);font-weight:500;text-decoration:none">' + esc(region.name) + "</a>" : "") +
+      (group ? '<a href="#/special/' + esc(group.slug) + '" style="border:1px solid var(--line);border-radius:999px;padding:2px 9px;color:var(--link);font-weight:500;text-decoration:none">' + esc(group.name) + "</a>" : "") +
+      meta.map((m) => "<span>" + esc(m) + "</span>").join("") + "</p>" +
+      '<div class="prose" style="margin-top:26px;border-top:1px solid var(--line);padding-top:24px">' + entry.html + "</div></div>";
+  }
+
+  function listHtml(title, lede, body) {
+    return '<div class="rail-pad"><h1 class="rail-title">' + esc(title) + "</h1>" +
+      '<p class="lede">' + lede + "</p>" + body + "</div>";
+  }
+
+  /* ---------- administrace hesel ---------- */
+
+  function slugify(value) {
+    return value.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
+  }
+
+  /** Minimální Markdown: nadpisy, odstavce, tučné, kurzíva, odkazy, seznamy. */
+  function markdownToHtml(source) {
+    const blocks = source.replace(/\r/g, "").split(/\n{2,}/);
+    const inline = (text) => esc(text)
+      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+      .replace(/(^|[^*])\*([^*]+)\*/g, "$1<em>$2</em>")
+      .replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
+
+    return blocks.map((block) => {
+      const trimmed = block.trim();
+      if (!trimmed) return "";
+      if (/^###\s+/.test(trimmed)) return "<h3>" + inline(trimmed.replace(/^###\s+/, "")) + "</h3>";
+      if (/^##\s+/.test(trimmed)) return "<h2>" + inline(trimmed.replace(/^##\s+/, "")) + "</h2>";
+      if (/^>\s?/.test(trimmed)) return "<blockquote>" + inline(trimmed.replace(/^>\s?/gm, "")) + "</blockquote>";
+      if (/^[-*]\s+/m.test(trimmed) && trimmed.split("\n").every((l) => /^[-*]\s+/.test(l.trim()))) {
+        return "<ul>" + trimmed.split("\n").map((l) => "<li>" + inline(l.trim().replace(/^[-*]\s+/, "")) + "</li>").join("") + "</ul>";
+      }
+      if (/^\d+\.\s+/m.test(trimmed) && trimmed.split("\n").every((l) => /^\d+\.\s+/.test(l.trim()))) {
+        return "<ol>" + trimmed.split("\n").map((l) => "<li>" + inline(l.trim().replace(/^\d+\.\s+/, "")) + "</li>").join("") + "</ol>";
+      }
+      return "<p>" + inline(trimmed).replace(/\n/g, "<br>") + "</p>";
+    }).join("");
+  }
+
+  function adminHtml() {
+    const fieldStyle = "width:100%;border:1px solid var(--line);border-radius:9px;padding:9px 11px;font:inherit;font-size:14px;color:var(--ink);background:#fff";
+    const labelStyle = "display:block;font-size:12px;font-weight:500;color:var(--ink-muted)";
+    const drafted = entries.filter((e) => e.draft);
+
+    return '<div class="rail-pad">' +
+      '<h1 class="rail-title">Administration</h1>' +
+      '<p class="lede">News and custom regions. Changes show up on the globe, in Hot News and in search straight away.</p>' +
+
+      '<div style="margin:18px 0 0;border:1px solid #f0d49b;background:#fdf6e6;border-radius:12px;padding:12px 14px;font-size:12.5px;line-height:1.6;color:#7a5a12">' +
+      '<b>Mock, and this is a shared page.</b> News you add here is stored in ' +
+      'your own browser only — nobody else sees them, and clearing site data removes them. ' +
+      'In the real build the same form writes a Markdown file into the Atlas content.</div>' +
+
+      '<h2 class="rail-h">News</h2>' +
+      '<form id="adminForm" style="display:grid;gap:14px;margin-top:16px">' +
+        '<div style="display:grid;gap:14px;grid-template-columns:1fr 1fr">' +
+          '<div><label style="' + labelStyle + '" for="aTitle">Title</label>' +
+          '<input id="aTitle" required style="margin-top:6px;' + fieldStyle + '" placeholder="The Regime of Vladimir Putin"></div>' +
+          '<div><label style="' + labelStyle + '" for="aDate">Date</label>' +
+          '<input id="aDate" type="date" style="margin-top:6px;' + fieldStyle + '"></div>' +
+        '</div>' +
+
+        '<div><label style="' + labelStyle + '" for="aSummary">Summary</label>' +
+        '<textarea id="aSummary" required rows="2" style="margin-top:6px;' + fieldStyle + '" placeholder="One or two sentences shown in Hot News and search results."></textarea></div>' +
+
+        '<div style="display:grid;gap:14px;grid-template-columns:1fr 1fr">' +
+          '<div><label style="' + labelStyle + '" for="aCategory">Category</label>' +
+          '<select id="aCategory" style="margin-top:6px;' + fieldStyle + '">' +
+          CATEGORIES.map((c) => '<option value="' + esc(c) + '">' + esc(c) + "</option>").join("") +
+          "</select></div>" +
+          '<div><label style="' + labelStyle + '" for="aRegion">Region</label>' +
+          '<select id="aRegion" style="margin-top:6px;' + fieldStyle + '">' +
+          DATA.regions.map((r) => '<option value="' + esc(r.slug) + '">' + esc(r.name) + "</option>").join("") +
+          "</select></div>" +
+        "</div>" +
+
+        '<div><label style="' + labelStyle + '" for="aSpecial">Special region ' +
+        '<span style="font-weight:400">(optional — the item then also shows in that group)</span></label>' +
+        '<select id="aSpecial" style="margin-top:6px;' + fieldStyle + '">' +
+        '<option value="">— none —</option>' +
+        (DATA.specials || []).map((g) => '<option value="' + esc(g.slug) + '">' + esc(g.name) + "</option>").join("") +
+        "</select></div>" +
+
+        '<div><span style="' + labelStyle + '">Countries this item is about ' +
+        '<span style="font-weight:400">(one country shows its name in Hot News, several show the region)</span></span>' +
+        '<div id="aCountries" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;max-height:150px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;padding:10px"></div></div>' +
+
+        '<div><label style="' + labelStyle + '" for="aAuthor">Author</label>' +
+        '<input id="aAuthor" style="margin-top:6px;' + fieldStyle + '" placeholder="Atlas editorial team"></div>' +
+
+        '<div><label style="' + labelStyle + '" for="aBody">Text (Markdown)</label>' +
+        '<textarea id="aBody" required rows="10" style="margin-top:6px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;' + fieldStyle + '" placeholder="Opening paragraph.&#10;&#10;## A heading&#10;&#10;More text, **bold**, [a link](https://example.org)."></textarea></div>' +
+
+        '<p id="aError" style="display:none;margin:0;border-radius:9px;background:#fdecec;padding:9px 12px;font-size:13px;color:#a12727"></p>' +
+        '<p id="aDone" style="display:none;margin:0;border-radius:9px;background:#e8f7ef;padding:9px 12px;font-size:13px;color:#1c6b43"></p>' +
+
+        '<div><button type="submit" class="btn-primary" style="border:0">Publish news item</button></div>' +
+      "</form>" +
+
+      '<h2 class="rail-h">News you added (' + drafted.length + ")</h2>" +
+      (drafted.length
+        ? '<ul class="entry-list" id="aList">' + drafted.map((e) =>
+            '<li><div style="display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:12px">' +
+            '<span style="flex:1;min-width:0"><span class="entry-cat">' + esc(e.category) + "</span>" +
+            '<a class="entry-name" style="display:block;text-decoration:none" href="#/news/' + esc(e.slug) + '">' + esc(e.title) + "</a></span>" +
+            '<button type="button" data-del="' + esc(e.slug) + '" style="flex:0 0 auto;border:1px solid var(--line);background:none;border-radius:999px;padding:4px 12px;font-size:12px;color:var(--ink-muted)">Remove</button>' +
+            "</div></li>").join("") + "</ul>"
+        : '<p style="margin:12px 0 0;font-size:13px;color:var(--ink-muted)">Nothing yet. The published items come with the Atlas.</p>') +
+
+      groupsHtml(fieldStyle, labelStyle) +
+      "</div>";
+  }
+
+  /* ---------- administrace vlastních celků ---------- */
+
+  function emptyGroupDraft() {
+    return { slug: null, name: "", subtitle: "", summary: "", colour: 0, countries: [] };
+  }
+  let groupDraft = emptyGroupDraft();
+
+  function groupsHtml(fieldStyle, labelStyle) {
+    const demoSlugs = new Set((DATA.specials || []).map((g) => g.slug));
+    const editing = Boolean(groupDraft.slug);
+
+    return '<h2 class="rail-h" style="margin-top:42px;border-top:1px solid var(--line);padding-top:30px">Custom regions</h2>' +
+      '<p style="margin:8px 0 0;font-size:13px;line-height:1.7;color:var(--ink-soft)">' +
+      'A group can be assembled from any countries and may cross the boundaries of the nine Atlas regions. ' +
+      'It gets its own colour on the globe under <b>Special regions</b>. Groups you add or edit here live in your browser only.</p>' +
+
+      '<form id="groupForm" style="display:grid;gap:14px;margin-top:20px">' +
+        '<div style="display:grid;gap:14px;grid-template-columns:1fr 1fr">' +
+          '<div><label style="' + labelStyle + '" for="gName">Name</label>' +
+          '<input id="gName" required style="margin-top:6px;' + fieldStyle + '" placeholder="Baltic rim" value="' + esc(groupDraft.name) + '"></div>' +
+          '<div><label style="' + labelStyle + '" for="gSub">Subtitle</label>' +
+          '<input id="gSub" style="margin-top:6px;' + fieldStyle + '" placeholder="What holds it together" value="' + esc(groupDraft.subtitle) + '"></div>' +
+        '</div>' +
+
+        '<div><label style="' + labelStyle + '" for="gSummary">Summary</label>' +
+        '<textarea id="gSummary" rows="3" style="margin-top:6px;' + fieldStyle + '" placeholder="A few sentences shown in the panel.">' + esc(groupDraft.summary) + '</textarea></div>' +
+
+        '<div><span style="' + labelStyle + '">Colour on the globe</span>' +
+        '<div id="gPalette" style="display:flex;gap:8px;margin-top:8px"></div></div>' +
+
+        '<div><span style="' + labelStyle + '">Countries in the group <span id="gCount" style="font-weight:400"></span></span>' +
+        '<div style="display:flex;gap:8px;margin-top:8px">' +
+        '<input id="gFilter" placeholder="Filter by name…" style="' + fieldStyle + '">' +
+        '<select id="gRegionAdd" style="' + fieldStyle + ';flex:0 0 42%">' +
+        '<option value="">+ whole Atlas region</option>' +
+        DATA.regions.map((r) => '<option value="' + esc(r.slug) + '">' + esc(r.name) + "</option>").join("") +
+        '</select></div>' +
+        '<div id="gCountries" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;max-height:190px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;padding:10px"></div></div>' +
+
+        '<p id="gError" style="display:none;margin:0;border-radius:9px;background:#fdecec;padding:9px 12px;font-size:13px;color:#a12727"></p>' +
+
+        '<div style="display:flex;gap:10px;align-items:center">' +
+        '<button type="submit" class="btn-primary" style="border:0">' + (editing ? "Save changes" : "Create group") + '</button>' +
+        (editing ? '<button type="button" id="gCancel" class="btn-ghost">Cancel</button>' : "") +
+        '</div>' +
+      '</form>' +
+
+      '<h2 class="rail-h">Groups on the globe (' + SPECIALS.length + ')</h2>' +
+      '<ul class="entry-list" id="gList">' + SPECIALS.map((group) =>
+        '<li><div style="display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:12px">' +
+        '<i style="flex:0 0 auto;width:12px;height:12px;border-radius:999px;margin-top:3px;background:' + esc(group.fill) + '"></i>' +
+        '<span style="flex:1;min-width:0">' +
+        '<a class="entry-name" style="display:block;margin:0;text-decoration:none" href="#/special/' + esc(group.slug) + '">' + esc(group.name) + "</a>" +
+        '<span class="entry-sum" style="margin-top:2px">' + esc(group.subtitle || "") + " · " + group.countries.length + " countries" +
+        (demoSlugs.has(group.slug) ? "" : " · yours") + "</span></span>" +
+        '<span style="flex:0 0 auto;display:flex;gap:6px">' +
+        '<button type="button" data-gedit="' + esc(group.slug) + '" style="border:1px solid var(--line);background:none;border-radius:999px;padding:4px 12px;font-size:12px;color:var(--ink-muted)">Edit</button>' +
+        '<button type="button" data-gdel="' + esc(group.slug) + '" style="border:1px solid var(--line);background:none;border-radius:999px;padding:4px 12px;font-size:12px;color:var(--ink-muted)">Remove</button>' +
+        "</span></div></li>").join("") + "</ul>" +
+      (groupStore.custom.length || groupStore.removed.length
+        ? '<p style="margin:14px 0 0"><button type="button" id="gReset" class="btn-ghost">Restore the ten demo groups</button></p>'
+        : "");
+  }
+
+  function wireGroups() {
+    const form = document.getElementById("groupForm");
+    if (!form) return;
+    const palette = document.getElementById("gPalette");
+    const box = document.getElementById("gCountries");
+    const filter = document.getElementById("gFilter");
+    const counter = document.getElementById("gCount");
+    const errorBox = document.getElementById("gError");
+    const demoSlugs = new Set((DATA.specials || []).map((g) => g.slug));
+
+    function renderPalette() {
+      palette.replaceChildren();
+      PALETTE.forEach((colour, index) => {
+        const swatch = document.createElement("button");
+        swatch.type = "button";
+        swatch.title = colour.fill;
+        swatch.setAttribute("aria-pressed", String(index === groupDraft.colour));
+        swatch.style.cssText = "width:30px;height:30px;border-radius:9px;background:" + colour.fill +
+          ";border:2px solid " + (index === groupDraft.colour ? colour.stroke : "transparent");
+        swatch.onclick = () => { groupDraft.colour = index; renderPalette(); };
+        palette.appendChild(swatch);
+      });
+    }
+
+    function renderCountries() {
+      const needle = filter.value.trim().toLowerCase();
+      box.replaceChildren();
+      counter.textContent = groupDraft.countries.length ? "(" + groupDraft.countries.length + " selected)" : "";
+      DATA.countries
+        .filter((c) => !needle || c.name.toLowerCase().includes(needle) || groupDraft.countries.includes(c.iso3))
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .forEach((country) => {
+          const on = groupDraft.countries.includes(country.iso3);
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = country.name;
+          button.setAttribute("aria-pressed", String(on));
+          button.style.cssText = "border:1px solid " + (on ? "var(--accent)" : "var(--line)") +
+            ";background:" + (on ? "var(--accent)" : "none") + ";color:" + (on ? "#fff" : "var(--ink-soft)") +
+            ";border-radius:999px;padding:4px 11px;font-size:12px";
+          button.onclick = () => {
+            groupDraft.countries = on
+              ? groupDraft.countries.filter((iso) => iso !== country.iso3)
+              : groupDraft.countries.concat([country.iso3]);
+            renderCountries();
+          };
+          box.appendChild(button);
+        });
+    }
+
+    renderPalette();
+    renderCountries();
+    filter.oninput = renderCountries;
+
+    document.getElementById("gRegionAdd").onchange = (event) => {
+      const region = regionBySlug.get(event.target.value);
+      if (region) {
+        region.countries.forEach((iso) => {
+          if (byIso.has(iso) && !groupDraft.countries.includes(iso)) groupDraft.countries.push(iso);
+        });
+        renderCountries();
+      }
+      event.target.value = "";
+    };
+
+    function reopen() {
+      saveGroupStore();
+      refreshSpecials();
+      buildDocs();
+      openRail(adminHtml(), true);
+      wireAdmin();
+      needsDraw = true;
+    }
+
+    form.onsubmit = (event) => {
+      event.preventDefault();
+      errorBox.style.display = "none";
+      groupDraft.name = document.getElementById("gName").value.trim();
+      groupDraft.subtitle = document.getElementById("gSub").value.trim();
+      groupDraft.summary = document.getElementById("gSummary").value.trim();
+
+      const slug = groupDraft.slug || slugify(groupDraft.name);
+      if (!slug) {
+        errorBox.textContent = "The name cannot be turned into a URL.";
+        errorBox.style.display = "block";
+        return;
+      }
+      if (groupDraft.countries.length < 2) {
+        errorBox.textContent = "Pick at least two countries.";
+        errorBox.style.display = "block";
+        return;
+      }
+      if (!groupDraft.slug && specialBySlug.has(slug)) {
+        errorBox.textContent = "A group with this name already exists.";
+        errorBox.style.display = "block";
+        return;
+      }
+
+      const colour = PALETTE[groupDraft.colour] || PALETTE[0];
+      const group = {
+        slug: slug,
+        name: groupDraft.name,
+        subtitle: groupDraft.subtitle || "Custom group",
+        summary: groupDraft.summary || "Assembled in the administration of this demo.",
+        fill: colour.fill,
+        stroke: colour.stroke,
+        center: groupCenter(groupDraft.countries),
+        zoom: 2.6,
+        countries: groupDraft.countries.slice(),
+      };
+
+      groupStore.custom = groupStore.custom.filter((g) => g.slug !== slug).concat([group]);
+      groupStore.removed = groupStore.removed.filter((s) => s !== slug);
+      groupDraft = emptyGroupDraft();
+      reopen();
+      location.hash = "#/special/" + slug;
+    };
+
+    const cancel = document.getElementById("gCancel");
+    if (cancel) cancel.onclick = () => { groupDraft = emptyGroupDraft(); reopen(); };
+
+    const reset = document.getElementById("gReset");
+    if (reset) reset.onclick = () => {
+      groupStore = { custom: [], removed: [] };
+      groupDraft = emptyGroupDraft();
+      reopen();
+    };
+
+    document.querySelectorAll("[data-gedit]").forEach((button) => {
+      button.onclick = () => {
+        const group = specialBySlug.get(button.dataset.gedit);
+        if (!group) return;
+        const index = PALETTE.findIndex((c) => c.fill === group.fill);
+        groupDraft = {
+          slug: group.slug,
+          name: group.name,
+          subtitle: group.subtitle || "",
+          summary: group.summary || "",
+          colour: index < 0 ? 0 : index,
+          countries: group.countries.slice(),
+        };
+        openRail(adminHtml(), true);
+        wireAdmin();
+        const target = document.getElementById("groupForm");
+        if (target) target.scrollIntoView({ block: "start" });
+      };
+    });
+
+    document.querySelectorAll("[data-gdel]").forEach((button) => {
+      button.onclick = () => {
+        const slug = button.dataset.gdel;
+        groupStore.custom = groupStore.custom.filter((g) => g.slug !== slug);
+        if (demoSlugs.has(slug)) groupStore.removed = groupStore.removed.concat([slug]);
+        if (groupDraft.slug === slug) groupDraft = emptyGroupDraft();
+        reopen();
+      };
+    });
+  }
+
+  function wireAdmin() {
+    const form = document.getElementById("adminForm");
+    if (!form) return;
+    const regionSelect = document.getElementById("aRegion");
+    const specialSelect = document.getElementById("aSpecial");
+    const countryBox = document.getElementById("aCountries");
+    const errorBox = document.getElementById("aError");
+    const doneBox = document.getElementById("aDone");
+    let picked = [];
+
+    function renderCountries() {
+      picked = [];
+      countryBox.replaceChildren();
+      // Celek sahá napříč regiony, takže jeho země přidáváme k nabídce ručně.
+      const group = specialBySlug.get(specialSelect.value);
+      const members = group ? group.countries : [];
+      DATA.countries
+        .filter((c) => c.region === regionSelect.value || members.includes(c.iso3))
+        .sort((a, b) => (b.population || 0) - (a.population || 0))
+        .forEach((country) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = country.name;
+          button.style.cssText = "border:1px solid var(--line);background:none;border-radius:999px;padding:4px 11px;font-size:12px;color:var(--ink-soft)";
+          button.onclick = () => {
+            const on = picked.includes(country.iso3);
+            picked = on ? picked.filter((i) => i !== country.iso3) : [...picked, country.iso3];
+            button.style.background = on ? "none" : "var(--accent)";
+            button.style.color = on ? "var(--ink-soft)" : "#fff";
+            button.style.borderColor = on ? "var(--line)" : "var(--accent)";
+            button.setAttribute("aria-pressed", String(!on));
+          };
+          countryBox.appendChild(button);
+        });
+    }
+    regionSelect.onchange = renderCountries;
+    specialSelect.onchange = renderCountries;
+    renderCountries();
+
+    form.onsubmit = (event) => {
+      event.preventDefault();
+      errorBox.style.display = "none";
+      doneBox.style.display = "none";
+
+      const title = document.getElementById("aTitle").value.trim();
+      const summary = document.getElementById("aSummary").value.trim();
+      const body = document.getElementById("aBody").value.trim();
+      const slug = slugify(title);
+
+      if (!slug) {
+        errorBox.textContent = "The title cannot be turned into a URL.";
+        errorBox.style.display = "block";
+        return;
+      }
+      if (entryBySlug.has(slug)) {
+        errorBox.textContent = "An item with this title already exists.";
+        errorBox.style.display = "block";
+        return;
+      }
+
+      drafts = [{
+        slug,
+        title,
+        summary,
+        category: document.getElementById("aCategory").value,
+        region: regionSelect.value,
+        special: specialSelect.value || null,
+        countries: picked,
+        author: document.getElementById("aAuthor").value.trim() || null,
+        published: document.getElementById("aDate").value || new Date().toISOString().slice(0, 10),
+        readingMinutes: Math.max(1, Math.round(body.split(/\s+/).length / 220)),
+        html: markdownToHtml(body),
+        draft: true,
+      }, ...drafts];
+
+      saveDrafts(drafts);
+      refreshNews();
+      location.hash = "#/news/" + slug;
+    };
+
+    document.querySelectorAll("[data-del]").forEach((button) => {
+      button.onclick = () => {
+        drafts = drafts.filter((d) => d.slug !== button.dataset.del);
+        saveDrafts(drafts);
+        refreshNews();
+        route();
+      };
+    });
+
+    wireGroups();
+  }
+
+  /* ---------- routování ---------- */
+
+  function openRail(html, wide) {
+    railScroll.innerHTML = html;
+    railScroll.scrollTop = 0;
+    rail.classList.toggle("wide", Boolean(wide));
+    rail.classList.add("on");
+    requestAnimationFrame(() => { needsDraw = true; });
+  }
+  function closeRail() {
+    rail.classList.remove("on");
+    requestAnimationFrame(() => { needsDraw = true; });
+  }
+
+  function route() {
+    const hash = location.hash.replace(/^#\/?/, "");
+    const parts = hash.split("/").filter(Boolean);
+    const encyclopedia = document.getElementById("encyclopedia");
+
+    state.activeIso = null;
+    state.activeRegion = null;
+
+    if (!parts.length) {
+      closeRail();
+      encyclopedia.style.display = "";
+      animateTo({ rotate: homeRotate(), scale: 1.16 });
+      needsDraw = true;
+      return;
+    }
+    encyclopedia.style.display = "none";
+
+    if (parts[0] === "country" && bySlug.has(parts[1])) {
+      const country = bySlug.get(parts[1]);
+      state.activeIso = country.iso3;
+      state.activeRegion = country.region;
+      openRail(countryHtml(country), false);
+      animateTo({
+        rotate: [country.lon, country.lat],
+        scale: scaleForBbox(country.bbox),
+      });
+      return;
+    }
+
+    if (parts[0] === "region" && regionBySlug.has(parts[1])) {
+      const region = regionBySlug.get(parts[1]);
+      state.activeRegion = region.slug;
+      const full = parts[2] === "full";
+      openRail(full ? regionFullHtml(region) : regionHtml(region), full);
+      animateTo({ rotate: region.center, scale: Math.max(1.1, region.zoom / 1.7) });
+      return;
+    }
+
+    if (parts[0] === "news" && entryBySlug.has(parts[1])) {
+      const entry = entryBySlug.get(parts[1]);
+      const region = regionBySlug.get(entry.region);
+      if (region) {
+        state.activeRegion = region.slug;
+        animateTo({ rotate: region.center, scale: Math.max(1.1, region.zoom / 1.7) });
+      }
+      if (entry.countries.length === 1) state.activeIso = entry.countries[0];
+      openRail(entryHtml(entry), true);
+      return;
+    }
+
+    if (parts[0] === "news" && !parts[1]) {
+      openRail(listHtml("News",
+        "Each news item opens inside the world map, so you never lose the geographic context. " +
+        entries.length + " published so far.",
+        entryListHtml(entries, true) +
+        '<h2 class="rail-h">Browse by region</h2><div class="chips">' +
+        DATA.regions.map((r) => '<a href="#/region/' + esc(r.slug) + '">' + esc(r.name) + "</a>").join("") +
+        "</div>"), false);
+      return;
+    }
+
+    if (parts[0] === "about") {
+      openRail(listHtml("About the Atlas",
+        "An independent encyclopedia of the present. Instead of an A–Z list, it starts from a globe: spin it, click a country, and the Atlas opens that country’s profile together with the portrait of the region it belongs to.",
+        '<h2 class="rail-h">Data layers</h2><ul class="entry-list">' +
+        DATA.views.filter((v) => v.id !== "encyclopedia").map((v) =>
+          '<li><a href="#/view/' + esc(v.id) + '"><span class="entry-name">' + esc(v.label) + "</span>" +
+          '<span class="entry-sum">' + esc(v.caption) + "</span></a></li>").join("") +
+        "</ul>"), false);
+      return;
+    }
+
+    if (parts[0] === "view" && viewById.has(parts[1])) {
+      setView(parts[1]);
+      const view = viewById.get(parts[1]);
+      const ranked = DATA.countries
+        .filter((c) => c.stats.some((s) => s.id === parts[1]))
+        .map((c) => ({ c, s: c.stats.find((s) => s.id === parts[1]) }))
+        .sort((a, b) => (a.s.rank || 999) - (b.s.rank || 999));
+      openRail(listHtml(view.label, esc(view.caption),
+        '<ul class="entry-list" style="gap:0">' + ranked.map((row, i) =>
+          '<li><a href="#/country/' + esc(row.c.slug) + '" style="border:0;border-bottom:1px solid var(--line);border-radius:0;display:flex;justify-content:space-between;gap:12px;padding:9px 2px">' +
+          '<span class="entry-name" style="margin:0">' + (row.s.rank ? row.s.rank + ". " : "") + esc(row.c.name) + "</span>" +
+          '<span style="font-size:13px;font-weight:500;font-variant-numeric:tabular-nums">' + esc(row.s.value) + "</span>" +
+          "</a></li>").join("") + "</ul>"), false);
+      return;
+    }
+
+    if (parts[0] === "special" && specialBySlug.has(parts[1])) {
+      const group = specialBySlug.get(parts[1]);
+      setMode("special");
+      state.activeRegion = null;
+      openRail(specialHtml(group), false);
+      animateTo({ rotate: group.center, scale: Math.max(1.1, group.zoom / 1.7) });
+      return;
+    }
+
+    if (parts[0] === "admin") {
+      openRail(adminHtml(), true);
+      wireAdmin();
+      return;
+    }
+
+    if (parts[0] === "support") {
+      openRail(listHtml("Together We Can Build a New Encyclopedia",
+        "By joining our membership community, you support Atlas development and gradually secure its independent funding.",
+        '<p style="margin:22px 0 0"><span class="btn-ghost">Payments are not part of this demo</span></p>'), false);
+      return;
+    }
+
+    location.hash = "#/";
+  }
+
+  /* ---------- výchozí pohled podle prohlížeče ---------- */
+
+  /**
+   * Nad čím globus otevřít. Bereme časové pásmo, pak jazyk (i "cs" se přes
+   * Intl.Locale rozbalí na CZ), jinak střed Evropy. Geolokaci nepoužíváme,
+   * ať stránka nevyskakuje s dotazem na povolení.
+   */
+  const ZONE_ISO2 = {
+    "Europe/Prague": "CZ", "Europe/Bratislava": "SK", "Europe/Vienna": "AT",
+    "Europe/Berlin": "DE", "Europe/Warsaw": "PL", "Europe/Budapest": "HU",
+    "Europe/Zurich": "CH", "Europe/Paris": "FR", "Europe/Madrid": "ES",
+    "Europe/Rome": "IT", "Europe/London": "GB", "Europe/Dublin": "IE",
+    "Europe/Amsterdam": "NL", "Europe/Brussels": "BE", "Europe/Lisbon": "PT",
+    "Europe/Stockholm": "SE", "Europe/Oslo": "NO", "Europe/Copenhagen": "DK",
+    "Europe/Helsinki": "FI", "Europe/Kyiv": "UA", "Europe/Moscow": "RU",
+    "Europe/Athens": "GR", "Europe/Bucharest": "RO", "Europe/Sofia": "BG",
+    "Europe/Istanbul": "TR", "Europe/Ljubljana": "SI", "Europe/Zagreb": "HR",
+    "America/New_York": "US", "America/Chicago": "US", "America/Denver": "US",
+    "America/Los_Angeles": "US", "America/Toronto": "CA", "America/Vancouver": "CA",
+    "America/Mexico_City": "MX", "America/Sao_Paulo": "BR", "America/Bogota": "CO",
+    "America/Argentina/Buenos_Aires": "AR", "America/Santiago": "CL",
+    "Asia/Tokyo": "JP", "Asia/Seoul": "KR", "Asia/Shanghai": "CN",
+    "Asia/Hong_Kong": "HK", "Asia/Singapore": "SG", "Asia/Kolkata": "IN",
+    "Asia/Calcutta": "IN", "Asia/Dubai": "AE", "Asia/Jerusalem": "IL",
+    "Asia/Bangkok": "TH", "Asia/Jakarta": "ID", "Asia/Manila": "PH",
+    "Africa/Cairo": "EG", "Africa/Lagos": "NG", "Africa/Nairobi": "KE",
+    "Africa/Johannesburg": "ZA", "Africa/Casablanca": "MA",
+    "Australia/Sydney": "AU", "Australia/Melbourne": "AU", "Pacific/Auckland": "NZ",
+  };
+  const CONTINENT_CENTER = {
+    Europe: [14, 49.5], America: [-96, 39], Asia: [88, 30], Africa: [20, 4],
+    Australia: [134, -25], Pacific: [174, -18], Atlantic: [-25, 38], Indian: [72, -8],
+  };
+  const byIso2 = new Map(
+    DATA.countries.filter((c) => c.lon !== null).map((c) => [c.iso3.slice(0, 2), c]),
+  );
+
+  function homeRotate() {
+    let zone = null;
+    try { zone = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch (e) { /* ignorujeme */ }
+
+    const iso2 = zone ? ZONE_ISO2[zone] : null;
+    const byCode = (code) =>
+      DATA.countries.find((c) => c.slug && c.lon !== null && isoTwo(c) === code);
+
+    if (iso2) {
+      const hit = byCode(iso2);
+      if (hit) return [hit.lon, hit.lat];
+    }
+
+    const tags = navigator.languages && navigator.languages.length
+      ? navigator.languages
+      : [navigator.language].filter(Boolean);
+    for (const tag of tags) {
+      let region = (tag.split("-")[1] || "").toUpperCase();
+      if (!/^[A-Z]{2}$/.test(region)) {
+        try { region = (new Intl.Locale(tag).maximize().region || "").toUpperCase(); }
+        catch (e) { region = ""; }
+      }
+      const hit = region ? byCode(region) : null;
+      if (hit) return [hit.lon, hit.lat];
+    }
+
+    const continent = zone ? zone.split("/")[0] : null;
+    if (continent && CONTINENT_CENTER[continent]) return CONTINENT_CENTER[continent];
+    return [14, 49.5];
+  }
+
+  /** ISO2 v balíku nemáme, odvodíme ho z tabulky časových pásem i z ISO3. */
+  const ISO3_TO_ISO2 = {
+    CZE: "CZ", SVK: "SK", AUT: "AT", DEU: "DE", POL: "PL", HUN: "HU", CHE: "CH",
+    FRA: "FR", ESP: "ES", ITA: "IT", GBR: "GB", IRL: "IE", NLD: "NL", BEL: "BE",
+    PRT: "PT", SWE: "SE", NOR: "NO", DNK: "DK", FIN: "FI", UKR: "UA", RUS: "RU",
+    GRC: "GR", ROU: "RO", BGR: "BG", TUR: "TR", SVN: "SI", HRV: "HR", USA: "US",
+    CAN: "CA", MEX: "MX", BRA: "BR", COL: "CO", ARG: "AR", CHL: "CL", JPN: "JP",
+    KOR: "KR", CHN: "CN", HKG: "HK", SGP: "SG", IND: "IN", ARE: "AE", ISR: "IL",
+    THA: "TH", IDN: "ID", PHL: "PH", EGY: "EG", NGA: "NG", KEN: "KE", ZAF: "ZA",
+    MAR: "MA", AUS: "AU", NZL: "NZ",
+  };
+  function isoTwo(country) {
+    return ISO3_TO_ISO2[country.iso3] || null;
+  }
+
+  /* ---------- start ---------- */
+
+  window.addEventListener("hashchange", route);
+  window.addEventListener("resize", () => { resize(); route.length; needsDraw = true; });
+
+  refreshNews();
+  state.rotate = homeRotate().map((v) => -v);
+  state.scale = 1.16;
+  setView("encyclopedia");
+  setMode("countries");
+  resize();
+  requestAnimationFrame(frame);
+  route();
+})();
+</script>
