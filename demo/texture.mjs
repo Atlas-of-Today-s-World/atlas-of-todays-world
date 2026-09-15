@@ -10,20 +10,21 @@ import sharp from "sharp";
  * vlepený ve stránce jako data URI. Zdroj je NASA Blue Marble (public domain,
  * 5400×2700) v equirektangulární projekci; stránka si ho přepočítá na kouli.
  *
- * Velikost je kompromis: 4096×2048 je čtyřikrát víc detailu než původní 2048,
- * v stránce zabere ~0,9 MB a v paměti prohlížeče ~33 MB. Větší textura vypadá
- * při velkém přiblížení líp, ale paměť roste kvadraticky.
+ * Velikost je kompromis: 8192×4096 udrží podklad čitelný i v největším
+ * přiblížení, ve stránce zabere ~2,5 MB a v paměti prohlížeče ~96 MB (stránka
+ * si ji drží jen jako RGB). Menší textura stránku odlehčí, ale při zanoření
+ * do země se rozmaže.
  *
  * Použití: npm run demo:texture [šířka] [kvalita]
  */
 const dir = dirname(fileURLToPath(import.meta.url));
 const SOURCE_URL =
-  "https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73776/world.topo.bathy.200408.3x5400x2700.jpg";
-const source = join(dir, "blue-marble-src.jpg");
+  "https://eoimages.gsfc.nasa.gov/images/imagerecords/57000/57752/land_shallow_topo_8192.tif";
+const source = join(dir, "blue-marble-8k.tif");
 const target = join(dir, "blue-marble.jpg");
 
-const width = Number(process.argv[2] ?? 4096);
-const quality = Number(process.argv[3] ?? 80);
+const width = Number(process.argv[2] ?? 8192);
+const quality = Number(process.argv[3] ?? 70);
 
 if (!existsSync(source)) {
   process.stdout.write(`stahuji předlohu…\n`);
@@ -34,6 +35,7 @@ if (!existsSync(source)) {
 
 const resized = await sharp(source)
   .resize(width, width / 2, { kernel: "lanczos3" })
+  .sharpen({ sigma: 0.6 })
   .jpeg({ quality, mozjpeg: true })
   .toBuffer();
 

@@ -569,14 +569,36 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
   if (window.ATLAS_TEXTURE) {
     const image = new Image();
     image.onload = () => {
-      const source = document.createElement("canvas");
-      source.width = image.naturalWidth;
-      source.height = image.naturalHeight;
-      const sctx = source.getContext("2d", { willReadFrequently: true });
-      sctx.drawImage(image, 0, 0);
-      texturePixels = sctx.getImageData(0, 0, source.width, source.height);
+      const tw = image.naturalWidth;
+      const th = image.naturalHeight;
+
+      /* Předloha má 8192×4096, což je nad limitem plátna na některých
+         mobilech, a jako RGBA by zabrala 128 MB. Rozkreslíme ji proto po
+         pruzích a necháme si jen tři složky – ušetří to čtvrtinu paměti. */
+      const rgb = new Uint8Array(tw * th * 3);
+      const stripe = document.createElement("canvas");
+      stripe.width = tw;
+      const sctx = stripe.getContext("2d", { willReadFrequently: true });
+
+      for (let top = 0; top < th; top += 1024) {
+        const height = Math.min(1024, th - top);
+        if (stripe.height !== height) stripe.height = height;
+        sctx.clearRect(0, 0, tw, height);
+        sctx.drawImage(image, 0, top, tw, height, 0, 0, tw, height);
+        const strip = sctx.getImageData(0, 0, tw, height).data;
+        let to = top * tw * 3;
+        for (let i = 0; i < strip.length; i += 4) {
+          rgb[to] = strip[i];
+          rgb[to + 1] = strip[i + 1];
+          rgb[to + 2] = strip[i + 2];
+          to += 3;
+        }
+      }
+
+      texturePixels = { data: rgb, width: tw, height: th };
       needsDraw = true;
     };
+    image.onerror = () => { texturePixels = null; };
     image.src = window.ATLAS_TEXTURE;
   }
 
@@ -642,10 +664,10 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
         const va = v0 < 0 ? 0 : v0 >= th ? th - 1 : v0;
         const vb = v0 + 1 < 0 ? 0 : v0 + 1 >= th ? th - 1 : v0 + 1;
 
-        const i00 = (va * tw + ua) * 4;
-        const i10 = (va * tw + ub) * 4;
-        const i01 = (vb * tw + ua) * 4;
-        const i11 = (vb * tw + ub) * 4;
+        const i00 = (va * tw + ua) * 3;
+        const i10 = (va * tw + ub) * 3;
+        const i01 = (vb * tw + ua) * 3;
+        const i11 = (vb * tw + ub) * 3;
 
         const w00 = (1 - du) * (1 - dv);
         const w10 = du * (1 - dv);
@@ -744,19 +766,13 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
     ocean.addColorStop(1, "#0b2236");
     ctx.beginPath(); path({ type: "Sphere" }); ctx.fillStyle = ocean; ctx.fill();
 
-    /* Družicový podklad jen v klidu – přepočet textury by otáčení zadrhával.
-       A protože je textura na celou planetu jedna, při velkém přiblížení už
-       nemá co ukázat: postupně se vytrácí a zůstane ostrá kreslená mapa. */
-    const textureFade = Math.max(0, Math.min(1, (7.5 - state.scale) / 2.5));
-    const withTexture =
-      Boolean(texturePixels) && !state.dragging && !flight && textureFade > 0.02;
+    // Družicový podklad jen v klidu – přepočet textury by otáčení zadrhával.
+    const withTexture = Boolean(texturePixels) && !state.dragging && !flight;
     if (withTexture) {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       ctx.save();
       ctx.beginPath(); path({ type: "Sphere" }); ctx.clip();
-      ctx.globalAlpha = textureFade;
       ctx.drawImage(textureBitmap(r, dpr), cx - r, cy - r, r * 2, r * 2);
-      ctx.globalAlpha = 1;
       // Oceán na předloze je skoro černý. Režim "screen" zesvětlí hlavně tmavá
       // místa, takže voda dostane modrozelený nádech Atlasu a pevnina zůstane.
       ctx.globalCompositeOperation = "screen";
@@ -798,11 +814,9 @@ h2.rail-h { margin: 28px 0 0; font-family: var(--display); font-size: 15px; font
       path(f);
       ctx.fillStyle = colorFor(iso);
       // Přes družicový podklad jdou barvy zemí průsvitně, ať je vidět terén.
-      const opaque = state.view === "encyclopedia" ? 0.92 : 1;
-      const overTexture = state.view === "encyclopedia" ? 0.46 : 0.62;
       ctx.globalAlpha = withTexture
-        ? overTexture + (opaque - overTexture) * (1 - textureFade)
-        : opaque;
+        ? (state.view === "encyclopedia" ? 0.46 : 0.62)
+        : (state.view === "encyclopedia" ? 0.92 : 1);
       ctx.fill();
       ctx.globalAlpha = 1;
       ctx.lineWidth = 0.5;
