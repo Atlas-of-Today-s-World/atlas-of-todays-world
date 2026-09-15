@@ -21,7 +21,7 @@ export function NewsBadge({ count }: { count: number }) {
   return (
     <span className="inline-flex items-center gap-1.5 text-[12px] text-[var(--color-ink-muted)]">
       <span className="h-2 w-2 rounded-full bg-[var(--color-live)]" />
-      {count} {count === 1 ? "item" : "newsItems"} published
+      {count} {count === 1 ? "news item" : "news items"} published
     </span>
   );
 }

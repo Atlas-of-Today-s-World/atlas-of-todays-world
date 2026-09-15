@@ -14,9 +14,11 @@ import ViewSwitcher, { type ViewOption } from "./ViewSwitcher";
 export default function MapControls({
   options,
   hotNews,
+  hasSpecial,
 }: {
   options: ViewOption[];
   hotNews: HotNewsItem[];
+  hasSpecial: boolean;
 }) {
   const pathname = usePathname();
   const wideRail = /^\/(news|region\/[^/]+\/full)/.test(pathname);
@@ -33,7 +35,7 @@ export default function MapControls({
       className={`pointer-events-none absolute top-20 z-30 flex flex-col items-end gap-2.5 ${offset}`}
     >
       <div className="flex items-start gap-2.5">
-        <ModeSwitch />
+        <ModeSwitch hasSpecial={hasSpecial} />
         <ViewSwitcher options={options} />
       </div>
       <EncyclopediaDock hotNews={hotNews} />

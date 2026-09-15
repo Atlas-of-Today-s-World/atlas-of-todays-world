@@ -56,11 +56,19 @@ Každý má vlastní legendu, zdroj a samostatnou URL (`/view/hdi`).
 - `/api/chat` – chatbot nad stejným indexem: odpovídá **jen** z obsahu Atlasu
   a ke každé odpovědi připojí odkazy na hesla, ze kterých čerpal.
 
-**Přepínač Countries / Regions**
+**Přepínač Countries / Regions / Special regions**
 
-Na globusu se dá vybírat buď po státech, nebo rovnou po regionech Atlasu – tedy
-po těch barevných celcích. V režimu regionů se najetím zvýrazní celý region,
-kliknutí otevře jeho profil, naběhnou názvy regionů a hranice států ustoupí.
+Na globusu se dá vybírat po státech, po devíti regionech Atlasu, nebo po
+vlastních celcích, které si redakce skládá v administraci. Vlastní celky můžou
+hranice regionů Atlasu libovolně křížit – deset ukázkových (Demo region 1–10)
+jde od severského a baltského pásu přes Sahel po severní Atlantik.
+
+**Výchozí pohled**
+
+Globus se otevře ve vzdálenosti, kde vyplní okno a jsou čitelné názvy států,
+otočený nad zemí návštěvníka. Poloha se bere z časového pásma prohlížeče,
+jinak z jazyka, jinak střed Evropy. Geolokace se nepoužívá, aby stránka
+nevyskakovala s dotazem na povolení.
 
 **SEO a geo optimalizace**
 

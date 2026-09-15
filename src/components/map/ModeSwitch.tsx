@@ -3,21 +3,27 @@
 import { useEffect, useState } from "react";
 import { useMapState, type SelectionMode } from "./MapContext";
 
-const OPTIONS: { id: SelectionMode; label: string }[] = [
-  { id: "countries", label: "Countries" },
-  { id: "regions", label: "Regions" },
-];
-
 const SEEN_KEY = "atlas.modeSwitchSeen";
 
 /**
- * Přepínač, jestli se na globusu vybírají jednotlivé státy, nebo rovnou celé
- * regiony Atlasu. Dokud ho uživatel poprvé nepoužije, pulzuje u něj jiskra –
- * jinak si přepínače nikdo nevšimne. Po prvním kliknutí zhasne natrvalo.
+ * Co se na globusu vybírá: státy, regiony Atlasu, nebo vlastní celky.
+ * Dokud návštěvník přepínač poprvé nepoužije, pulzuje u něj jiskra – jinak si
+ * ho nikdo nevšimne. Po prvním kliknutí zhasne natrvalo.
  */
-export default function ModeSwitch() {
+export default function ModeSwitch({
+  hasSpecial,
+}: {
+  /** Volbu „Special" schováme, když redakce žádný vlastní celek nemá. */
+  hasSpecial: boolean;
+}) {
   const { mode, setMode } = useMapState();
   const [hinting, setHinting] = useState(false);
+
+  const options: { id: SelectionMode; label: string }[] = [
+    { id: "countries", label: "Countries" },
+    { id: "regions", label: "Regions" },
+    ...(hasSpecial ? [{ id: "special" as const, label: "Special regions" }] : []),
+  ];
 
   // Až po připojení, aby se server a klient neshodly na jiném HTML.
   useEffect(() => {
@@ -57,14 +63,14 @@ export default function ModeSwitch() {
           hinting ? "ring-1 ring-[#7f97ff]/50" : ""
         }`}
       >
-        {OPTIONS.map((option) => (
+        {options.map((option) => (
           <button
             key={option.id}
             type="button"
             role="radio"
             aria-checked={mode === option.id}
             onClick={() => choose(option.id)}
-            className={`rounded-full px-3.5 py-1.5 transition ${
+            className={`rounded-full px-3.5 py-1.5 whitespace-nowrap transition ${
               mode === option.id
                 ? "bg-white font-medium text-[#0d1324]"
                 : "text-white/75 hover:text-white"

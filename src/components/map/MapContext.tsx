@@ -31,8 +31,11 @@ const EMPTY_FOCUS: MapFocusState = {
   regionStroke: null,
 };
 
-/** Co se na globusu vybírá kliknutím: jednotlivé státy, nebo celé regiony. */
-export type SelectionMode = "countries" | "regions";
+/**
+ * Co se na globusu vybírá kliknutím: jednotlivé státy, regiony Atlasu,
+ * nebo vlastní celky složené redakcí.
+ */
+export type SelectionMode = "countries" | "regions" | "special";
 
 interface MapContextValue {
   focus: MapFocusState;

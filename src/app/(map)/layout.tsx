@@ -8,6 +8,7 @@ import { REGIONS } from "@/data/regions";
 import { allNews } from "@/lib/content";
 import { countryByIso3, indexableCountries, regionColorMap } from "@/lib/countries";
 import { INDICATORS, colorMapFor, legendFor } from "@/lib/indicators";
+import { specialColorMap, specialLookup } from "@/lib/special-regions";
 
 /** Osm nejnovějších novinek pro blok Hot News. */
 async function buildHotNews(): Promise<HotNewsItem[]> {
@@ -96,14 +97,28 @@ export default async function MapLayout({
   };
 
   const viewOptions = buildViewOptions();
-  const hotNews = await buildHotNews();
+  const [hotNews, special, specialColors] = await Promise.all([
+    buildHotNews(),
+    specialLookup(),
+    specialColorMap(),
+  ]);
+  colorSets.special = specialColors;
 
   return (
     <MapProvider>
       <main className="relative h-dvh w-full overflow-hidden bg-[var(--color-space-deep)]">
-        <AtlasGlobe colorSets={colorSets} slugs={slugs} regions={regionLookup} />
+        <AtlasGlobe
+          colorSets={colorSets}
+          slugs={slugs}
+          regions={regionLookup}
+          special={special}
+        />
         <Header />
-        <MapControls options={viewOptions} hotNews={hotNews} />
+        <MapControls
+          options={viewOptions}
+          hotNews={hotNews}
+          hasSpecial={Object.keys(special.bySlug).length > 0}
+        />
         <MapLegend options={viewOptions} />
         {children}
       </main>
