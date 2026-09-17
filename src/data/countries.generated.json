@@ -10,6 +10,8 @@
     "unSubregion": "Southern Asia",
     "population": 38041754,
     "gdpMillionsUsd": 19291,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 66.496586,
     "labelLat": 34.164262,
     "bbox": [
@@ -30,6 +32,8 @@
     "unSubregion": "Northern Europe",
     "population": 29884,
     "gdpMillionsUsd": 1563,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 19.869671,
     "labelLat": 60.156467,
     "bbox": [
@@ -50,6 +54,8 @@
     "unSubregion": "Southern Europe",
     "population": 2854191,
     "gdpMillionsUsd": 15279,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 20.11384,
     "labelLat": 40.654855,
     "bbox": [
@@ -70,6 +76,8 @@
     "unSubregion": "Northern Africa",
     "population": 43053054,
     "gdpMillionsUsd": 171091,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 2.808241,
     "labelLat": 27.397406,
     "bbox": [
@@ -90,6 +98,8 @@
     "unSubregion": "Polynesia",
     "population": 55312,
     "gdpMillionsUsd": 636,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -170.747153,
     "labelLat": -14.32671,
     "bbox": [
@@ -110,6 +120,8 @@
     "unSubregion": "Southern Europe",
     "population": 77142,
     "gdpMillionsUsd": 3154,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 1.539409,
     "labelLat": 42.547643,
     "bbox": [
@@ -130,6 +142,8 @@
     "unSubregion": "Middle Africa",
     "population": 31825295,
     "gdpMillionsUsd": 88815,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 17.984249,
     "labelLat": -12.182762,
     "bbox": [
@@ -150,6 +164,8 @@
     "unSubregion": "Caribbean",
     "population": 14731,
     "gdpMillionsUsd": 175,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -63.026361,
     "labelLat": 18.242979,
     "bbox": [
@@ -170,6 +186,8 @@
     "unSubregion": "Antarctica",
     "population": 4490,
     "gdpMillionsUsd": 898,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 35.885455,
     "labelLat": -79.843222,
     "bbox": [
@@ -190,6 +208,8 @@
     "unSubregion": "Caribbean",
     "population": 97118,
     "gdpMillionsUsd": 1661,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -61.790612,
     "labelLat": 17.352249,
     "bbox": [
@@ -210,6 +230,8 @@
     "unSubregion": "South America",
     "population": 44938712,
     "gdpMillionsUsd": 445445,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -64.173331,
     "labelLat": -33.501159,
     "bbox": [
@@ -230,6 +252,8 @@
     "unSubregion": "Western Asia",
     "population": 2957731,
     "gdpMillionsUsd": 13672,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 44.800564,
     "labelLat": 40.459077,
     "bbox": [
@@ -250,6 +274,8 @@
     "unSubregion": "Caribbean",
     "population": 106314,
     "gdpMillionsUsd": 3056,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -69.972795,
     "labelLat": 12.5174,
     "bbox": [
@@ -270,6 +296,8 @@
     "unSubregion": "Australia and New Zealand",
     "population": 0,
     "gdpMillionsUsd": 0,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 123.586368,
     "labelLat": -12.432571,
     "bbox": [
@@ -290,6 +318,8 @@
     "unSubregion": "Australia and New Zealand",
     "population": 25364307,
     "gdpMillionsUsd": 1396567,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 134.04972,
     "labelLat": -24.129522,
     "bbox": [
@@ -310,6 +340,8 @@
     "unSubregion": "Western Europe",
     "population": 8877067,
     "gdpMillionsUsd": 445075,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 14.130515,
     "labelLat": 47.518859,
     "bbox": [
@@ -330,6 +362,8 @@
     "unSubregion": "Western Asia",
     "population": 10023318,
     "gdpMillionsUsd": 48047,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 47.210994,
     "labelLat": 40.402387,
     "bbox": [
@@ -350,6 +384,8 @@
     "unSubregion": "Caribbean",
     "population": 389482,
     "gdpMillionsUsd": 13578,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -77.146688,
     "labelLat": 26.401789,
     "bbox": [
@@ -370,6 +406,8 @@
     "unSubregion": "Western Asia",
     "population": 1641172,
     "gdpMillionsUsd": 38574,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 50.554816,
     "labelLat": 26.055972,
     "bbox": [
@@ -390,6 +428,8 @@
     "unSubregion": "Southern Asia",
     "population": 163046161,
     "gdpMillionsUsd": 302571,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 89.684963,
     "labelLat": 24.214956,
     "bbox": [
@@ -410,6 +450,8 @@
     "unSubregion": "Caribbean",
     "population": 287025,
     "gdpMillionsUsd": 5209,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -59.568966,
     "labelLat": 13.163709,
     "bbox": [
@@ -430,6 +472,8 @@
     "unSubregion": "Eastern Europe",
     "population": 9466856,
     "gdpMillionsUsd": 63080,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 28.417701,
     "labelLat": 53.821888,
     "bbox": [
@@ -450,6 +494,8 @@
     "unSubregion": "Western Europe",
     "population": 11484055,
     "gdpMillionsUsd": 533097,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 4.800448,
     "labelLat": 50.785392,
     "bbox": [
@@ -470,6 +516,8 @@
     "unSubregion": "Central America",
     "population": 390353,
     "gdpMillionsUsd": 1879,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -88.712962,
     "labelLat": 17.202068,
     "bbox": [
@@ -490,6 +538,8 @@
     "unSubregion": "Western Africa",
     "population": 11801151,
     "gdpMillionsUsd": 14390,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 2.352018,
     "labelLat": 10.324775,
     "bbox": [
@@ -510,6 +560,8 @@
     "unSubregion": "Northern America",
     "population": 63918,
     "gdpMillionsUsd": 7484,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -64.763573,
     "labelLat": 32.296592,
     "bbox": [
@@ -530,6 +582,8 @@
     "unSubregion": "Southern Asia",
     "population": 763092,
     "gdpMillionsUsd": 2530,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 90.040294,
     "labelLat": 27.536685,
     "bbox": [
@@ -550,6 +604,8 @@
     "unSubregion": "South America",
     "population": 11513100,
     "gdpMillionsUsd": 40895,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -64.593433,
     "labelLat": -16.666015,
     "bbox": [
@@ -570,6 +626,8 @@
     "unSubregion": "Southern Europe",
     "population": 3301000,
     "gdpMillionsUsd": 20164,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 18.06841,
     "labelLat": 44.091051,
     "bbox": [
@@ -590,6 +648,8 @@
     "unSubregion": "Southern Africa",
     "population": 2303697,
     "gdpMillionsUsd": 18340,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 24.179216,
     "labelLat": -22.102634,
     "bbox": [
@@ -610,6 +670,8 @@
     "unSubregion": "Seven seas (open ocean)",
     "population": 3000,
     "gdpMillionsUsd": 120,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 71.348349,
     "labelLat": -6.190826,
     "bbox": [
@@ -630,6 +692,8 @@
     "unSubregion": "South America",
     "population": 211049527,
     "gdpMillionsUsd": 1839758,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -49.55945,
     "labelLat": -12.098687,
     "bbox": [
@@ -650,6 +714,8 @@
     "unSubregion": "Caribbean",
     "population": 30030,
     "gdpMillionsUsd": 500,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -64.63661,
     "labelLat": 18.426606,
     "bbox": [
@@ -670,6 +736,8 @@
     "unSubregion": "South-Eastern Asia",
     "population": 433285,
     "gdpMillionsUsd": 13469,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 114.551943,
     "labelLat": 4.448298,
     "bbox": [
@@ -690,6 +758,8 @@
     "unSubregion": "Eastern Europe",
     "population": 6975761,
     "gdpMillionsUsd": 68558,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 25.15709,
     "labelLat": 42.508785,
     "bbox": [
@@ -710,6 +780,8 @@
     "unSubregion": "Western Africa",
     "population": 20321378,
     "gdpMillionsUsd": 15990,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -1.36388,
     "labelLat": 12.673048,
     "bbox": [
@@ -730,6 +802,8 @@
     "unSubregion": "Eastern Africa",
     "population": 11530580,
     "gdpMillionsUsd": 3012,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 29.917086,
     "labelLat": -3.332836,
     "bbox": [
@@ -750,6 +824,8 @@
     "unSubregion": "Western Africa",
     "population": 549935,
     "gdpMillionsUsd": 1981,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -23.639434,
     "labelLat": 15.074761,
     "bbox": [
@@ -770,6 +846,8 @@
     "unSubregion": "South-Eastern Asia",
     "population": 16486542,
     "gdpMillionsUsd": 27089,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 104.50487,
     "labelLat": 12.647584,
     "bbox": [
@@ -790,6 +868,8 @@
     "unSubregion": "Middle Africa",
     "population": 25876380,
     "gdpMillionsUsd": 39007,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 12.473488,
     "labelLat": 4.585041,
     "bbox": [
@@ -810,6 +890,8 @@
     "unSubregion": "Northern America",
     "population": 37589262,
     "gdpMillionsUsd": 1736425,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -101.9107,
     "labelLat": 60.324287,
     "bbox": [
@@ -830,6 +912,8 @@
     "unSubregion": "Caribbean",
     "population": 64948,
     "gdpMillionsUsd": 5517,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -81.24055,
     "labelLat": 19.319862,
     "bbox": [
@@ -850,6 +934,8 @@
     "unSubregion": "Middle Africa",
     "population": 4745185,
     "gdpMillionsUsd": 2220,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 20.906897,
     "labelLat": 6.989681,
     "bbox": [
@@ -870,6 +956,8 @@
     "unSubregion": "Middle Africa",
     "population": 15946876,
     "gdpMillionsUsd": 11314,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 18.645041,
     "labelLat": 15.142959,
     "bbox": [
@@ -890,6 +978,8 @@
     "unSubregion": "South America",
     "population": 18952038,
     "gdpMillionsUsd": 282318,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -72.318871,
     "labelLat": -38.151771,
     "bbox": [
@@ -910,6 +1000,8 @@
     "unSubregion": "Eastern Asia",
     "population": 1397715000,
     "gdpMillionsUsd": 14342903,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 106.337289,
     "labelLat": 32.498178,
     "bbox": [
@@ -930,6 +1022,8 @@
     "unSubregion": "South America",
     "population": 50339443,
     "gdpMillionsUsd": 323615,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -73.174347,
     "labelLat": 3.373111,
     "bbox": [
@@ -950,6 +1044,8 @@
     "unSubregion": "Eastern Africa",
     "population": 850886,
     "gdpMillionsUsd": 1165,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 43.318094,
     "labelLat": -11.727683,
     "bbox": [
@@ -970,6 +1066,8 @@
     "unSubregion": "Middle Africa",
     "population": 5380508,
     "gdpMillionsUsd": 12267,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 15.9005,
     "labelLat": 0.142331,
     "bbox": [
@@ -990,6 +1088,8 @@
     "unSubregion": "Polynesia",
     "population": 17459,
     "gdpMillionsUsd": 244,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -159.785675,
     "labelLat": -21.215993,
     "bbox": [
@@ -1010,6 +1110,8 @@
     "unSubregion": "Central America",
     "population": 5047561,
     "gdpMillionsUsd": 61801,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -84.077922,
     "labelLat": 10.0651,
     "bbox": [
@@ -1030,6 +1132,8 @@
     "unSubregion": "Western Africa",
     "population": 25716544,
     "gdpMillionsUsd": 58539,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -5.568618,
     "labelLat": 7.49139,
     "bbox": [
@@ -1050,6 +1154,8 @@
     "unSubregion": "Southern Europe",
     "population": 4067500,
     "gdpMillionsUsd": 60752,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 16.37241,
     "labelLat": 45.805799,
     "bbox": [
@@ -1070,6 +1176,8 @@
     "unSubregion": "Caribbean",
     "population": 11333483,
     "gdpMillionsUsd": 100023,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -77.975855,
     "labelLat": 21.334024,
     "bbox": [
@@ -1090,6 +1198,8 @@
     "unSubregion": "Caribbean",
     "population": 157538,
     "gdpMillionsUsd": 3101,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -68.920578,
     "labelLat": 12.145039,
     "bbox": [
@@ -1108,15 +1218,21 @@
     "continent": "Asia",
     "unRegion": "Asia",
     "unSubregion": "Western Asia",
-    "population": 1198575,
+    "population": 1524575,
     "gdpMillionsUsd": 24948,
+    "status": null,
+    "territoryNote": {
+      "status": "disputed",
+      "note": "The northern part of the island has been administered since 1974 by the self-declared Turkish Republic of Northern Cyprus, which the UN does not recognise. The UN treats the area as part of Cyprus, separated by a buffer zone under the UNFICYP mission.",
+      "basis": "UN Security Council resolution 541 (1983)"
+    },
     "labelLon": 33.084182,
     "labelLat": 34.913329,
     "bbox": [
       32.301,
       34.57,
-      34.05,
-      35.183
+      34.556,
+      35.662
     ]
   },
   {
@@ -1130,6 +1246,8 @@
     "unSubregion": "Eastern Europe",
     "population": 10669709,
     "gdpMillionsUsd": 250680,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 15.377555,
     "labelLat": 49.882364,
     "bbox": [
@@ -1150,6 +1268,8 @@
     "unSubregion": "Middle Africa",
     "population": 86790567,
     "gdpMillionsUsd": 50400,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 23.458829,
     "labelLat": -1.858167,
     "bbox": [
@@ -1170,6 +1290,8 @@
     "unSubregion": "Northern Europe",
     "population": 5818553,
     "gdpMillionsUsd": 350104,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 9.018163,
     "labelLat": 55.966965,
     "bbox": [
@@ -1190,6 +1312,8 @@
     "unSubregion": "Eastern Africa",
     "population": 973560,
     "gdpMillionsUsd": 3324,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 42.498825,
     "labelLat": 11.976343,
     "bbox": [
@@ -1210,6 +1334,8 @@
     "unSubregion": "Caribbean",
     "population": 71808,
     "gdpMillionsUsd": 582,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -61.344958,
     "labelLat": 15.458829,
     "bbox": [
@@ -1230,6 +1356,8 @@
     "unSubregion": "Caribbean",
     "population": 10738958,
     "gdpMillionsUsd": 88941,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -70.653998,
     "labelLat": 19.104137,
     "bbox": [
@@ -1250,6 +1378,8 @@
     "unSubregion": "South America",
     "population": 17373662,
     "gdpMillionsUsd": 107435,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -78.188375,
     "labelLat": -1.259076,
     "bbox": [
@@ -1270,6 +1400,8 @@
     "unSubregion": "Northern Africa",
     "population": 100388073,
     "gdpMillionsUsd": 303092,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 29.445837,
     "labelLat": 26.186173,
     "bbox": [
@@ -1290,6 +1422,8 @@
     "unSubregion": "Central America",
     "population": 6453553,
     "gdpMillionsUsd": 27022,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -88.890124,
     "labelLat": 13.685371,
     "bbox": [
@@ -1310,6 +1444,8 @@
     "unSubregion": "Middle Africa",
     "population": 1355986,
     "gdpMillionsUsd": 11026,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 8.9902,
     "labelLat": 2.333,
     "bbox": [
@@ -1330,6 +1466,8 @@
     "unSubregion": "Eastern Africa",
     "population": 6081196,
     "gdpMillionsUsd": 2065,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 38.285566,
     "labelLat": 15.787401,
     "bbox": [
@@ -1350,6 +1488,8 @@
     "unSubregion": "Northern Europe",
     "population": 1326590,
     "gdpMillionsUsd": 31471,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 25.867126,
     "labelLat": 58.724865,
     "bbox": [
@@ -1370,6 +1510,8 @@
     "unSubregion": "Southern Africa",
     "population": 1148130,
     "gdpMillionsUsd": 4471,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 31.467264,
     "labelLat": -26.533676,
     "bbox": [
@@ -1390,6 +1532,8 @@
     "unSubregion": "Eastern Africa",
     "population": 112078730,
     "gdpMillionsUsd": 95912,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 39.0886,
     "labelLat": 8.032795,
     "bbox": [
@@ -1410,6 +1554,8 @@
     "unSubregion": "Northern Europe",
     "population": 48678,
     "gdpMillionsUsd": 3116,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -7.058429,
     "labelLat": 62.185604,
     "bbox": [
@@ -1430,6 +1576,8 @@
     "unSubregion": "South America",
     "population": 3398,
     "gdpMillionsUsd": 282,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -58.738602,
     "labelLat": -51.608913,
     "bbox": [
@@ -1450,6 +1598,8 @@
     "unSubregion": "Melanesia",
     "population": 889953,
     "gdpMillionsUsd": 5496,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 177.975427,
     "labelLat": -17.826099,
     "bbox": [
@@ -1470,6 +1620,8 @@
     "unSubregion": "Northern Europe",
     "population": 5520314,
     "gdpMillionsUsd": 269296,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 27.276449,
     "labelLat": 63.252361,
     "bbox": [
@@ -1490,6 +1642,8 @@
     "unSubregion": "Polynesia",
     "population": 279287,
     "gdpMillionsUsd": 5490,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -149.46157,
     "labelLat": -17.628081,
     "bbox": [
@@ -1510,6 +1664,8 @@
     "unSubregion": "Seven seas (open ocean)",
     "population": 140,
     "gdpMillionsUsd": 16,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 69.122136,
     "labelLat": -49.303721,
     "bbox": [
@@ -1530,6 +1686,8 @@
     "unSubregion": "Western Europe",
     "population": 67059887,
     "gdpMillionsUsd": 2715518,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 2.552275,
     "labelLat": 46.696113,
     "bbox": [
@@ -1550,6 +1708,8 @@
     "unSubregion": "Middle Africa",
     "population": 2172579,
     "gdpMillionsUsd": 16874,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 11.835939,
     "labelLat": -0.437739,
     "bbox": [
@@ -1570,6 +1730,8 @@
     "unSubregion": "Western Africa",
     "population": 2347706,
     "gdpMillionsUsd": 1826,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -14.998318,
     "labelLat": 13.641721,
     "bbox": [
@@ -1590,6 +1752,8 @@
     "unSubregion": "Western Asia",
     "population": 3720382,
     "gdpMillionsUsd": 17477,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 43.735724,
     "labelLat": 41.870087,
     "bbox": [
@@ -1610,6 +1774,8 @@
     "unSubregion": "Western Europe",
     "population": 83132799,
     "gdpMillionsUsd": 3861123,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 9.678348,
     "labelLat": 50.961733,
     "bbox": [
@@ -1630,6 +1796,8 @@
     "unSubregion": "Western Africa",
     "population": 30417856,
     "gdpMillionsUsd": 66983,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -1.036941,
     "labelLat": 7.717639,
     "bbox": [
@@ -1650,6 +1818,8 @@
     "unSubregion": "Southern Europe",
     "population": 10716322,
     "gdpMillionsUsd": 209852,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 21.72568,
     "labelLat": 39.492763,
     "bbox": [
@@ -1670,6 +1840,8 @@
     "unSubregion": "Northern America",
     "population": 56225,
     "gdpMillionsUsd": 3051,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -39.335251,
     "labelLat": 74.319387,
     "bbox": [
@@ -1690,6 +1862,8 @@
     "unSubregion": "Caribbean",
     "population": 112003,
     "gdpMillionsUsd": 1210,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -61.680461,
     "labelLat": 12.113156,
     "bbox": [
@@ -1710,6 +1884,8 @@
     "unSubregion": "Micronesia",
     "population": 167294,
     "gdpMillionsUsd": 5920,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 144.703614,
     "labelLat": 13.354173,
     "bbox": [
@@ -1730,6 +1906,8 @@
     "unSubregion": "Central America",
     "population": 16604026,
     "gdpMillionsUsd": 76710,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -90.497134,
     "labelLat": 14.982133,
     "bbox": [
@@ -1750,6 +1928,8 @@
     "unSubregion": "Northern Europe",
     "population": 62792,
     "gdpMillionsUsd": 3465,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -2.561736,
     "labelLat": 49.463533,
     "bbox": [
@@ -1770,6 +1950,8 @@
     "unSubregion": "Western Africa",
     "population": 12771246,
     "gdpMillionsUsd": 12296,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -10.016402,
     "labelLat": 10.618516,
     "bbox": [
@@ -1790,6 +1972,8 @@
     "unSubregion": "Western Africa",
     "population": 1920922,
     "gdpMillionsUsd": 1339,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -14.52413,
     "labelLat": 12.163712,
     "bbox": [
@@ -1810,6 +1994,8 @@
     "unSubregion": "South America",
     "population": 782766,
     "gdpMillionsUsd": 5173,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -58.942643,
     "labelLat": 5.124317,
     "bbox": [
@@ -1830,6 +2016,8 @@
     "unSubregion": "Caribbean",
     "population": 11263077,
     "gdpMillionsUsd": 14332,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -72.224051,
     "labelLat": 19.263784,
     "bbox": [
@@ -1850,6 +2038,8 @@
     "unSubregion": "Seven seas (open ocean)",
     "population": 0,
     "gdpMillionsUsd": 0,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 73.50521,
     "labelLat": -53.103462,
     "bbox": [
@@ -1870,6 +2060,8 @@
     "unSubregion": "Central America",
     "population": 9746117,
     "gdpMillionsUsd": 25095,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -86.887604,
     "labelLat": 14.794801,
     "bbox": [
@@ -1890,6 +2082,8 @@
     "unSubregion": "Eastern Asia",
     "population": 7507400,
     "gdpMillionsUsd": 365711,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 114.097769,
     "labelLat": 22.448829,
     "bbox": [
@@ -1910,6 +2104,8 @@
     "unSubregion": "Eastern Europe",
     "population": 9769949,
     "gdpMillionsUsd": 163469,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 19.447867,
     "labelLat": 47.086841,
     "bbox": [
@@ -1930,6 +2126,8 @@
     "unSubregion": "Northern Europe",
     "population": 361313,
     "gdpMillionsUsd": 24188,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -18.673711,
     "labelLat": 64.779286,
     "bbox": [
@@ -1950,6 +2148,8 @@
     "unSubregion": "Southern Asia",
     "population": 1366417754,
     "gdpMillionsUsd": 2868929,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 79.358105,
     "labelLat": 22.686852,
     "bbox": [
@@ -1970,6 +2170,8 @@
     "unSubregion": "Seven seas (open ocean)",
     "population": 2387,
     "gdpMillionsUsd": 35,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 105.67259,
     "labelLat": -10.490789,
     "bbox": [
@@ -1990,6 +2192,8 @@
     "unSubregion": "South-Eastern Asia",
     "population": 270625568,
     "gdpMillionsUsd": 1119190,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 101.892949,
     "labelLat": -0.954404,
     "bbox": [
@@ -2010,6 +2214,8 @@
     "unSubregion": "Southern Asia",
     "population": 82913906,
     "gdpMillionsUsd": 453996,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 54.931495,
     "labelLat": 32.166225,
     "bbox": [
@@ -2030,6 +2236,8 @@
     "unSubregion": "Western Asia",
     "population": 39309783,
     "gdpMillionsUsd": 234094,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 43.26181,
     "labelLat": 33.09403,
     "bbox": [
@@ -2050,6 +2258,8 @@
     "unSubregion": "Northern Europe",
     "population": 4941444,
     "gdpMillionsUsd": 388698,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -7.798588,
     "labelLat": 53.078726,
     "bbox": [
@@ -2070,6 +2280,8 @@
     "unSubregion": "Northern Europe",
     "population": 84584,
     "gdpMillionsUsd": 7491,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -4.530069,
     "labelLat": 54.220833,
     "bbox": [
@@ -2090,13 +2302,15 @@
     "unSubregion": "Western Asia",
     "population": 9053300,
     "gdpMillionsUsd": 394652,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 34.847915,
     "labelLat": 30.911148,
     "bbox": [
       34.245,
       29.477,
-      35.888,
-      33.416
+      35.672,
+      33.271
     ]
   },
   {
@@ -2110,6 +2324,8 @@
     "unSubregion": "Southern Europe",
     "population": 60297396,
     "gdpMillionsUsd": 2003576,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 11.076907,
     "labelLat": 44.732482,
     "bbox": [
@@ -2130,6 +2346,8 @@
     "unSubregion": "Caribbean",
     "population": 2948279,
     "gdpMillionsUsd": 16458,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -77.318767,
     "labelLat": 18.137124,
     "bbox": [
@@ -2150,6 +2368,8 @@
     "unSubregion": "Eastern Asia",
     "population": 126264931,
     "gdpMillionsUsd": 5081769,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 138.44217,
     "labelLat": 36.142538,
     "bbox": [
@@ -2170,6 +2390,8 @@
     "unSubregion": "Northern Europe",
     "population": 107800,
     "gdpMillionsUsd": 5080,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -2.090146,
     "labelLat": 49.220808,
     "bbox": [
@@ -2190,6 +2412,8 @@
     "unSubregion": "Western Asia",
     "population": 10101694,
     "gdpMillionsUsd": 44502,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 36.375991,
     "labelLat": 30.805025,
     "bbox": [
@@ -2210,6 +2434,8 @@
     "unSubregion": "Central Asia",
     "population": 18513930,
     "gdpMillionsUsd": 181665,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 68.685548,
     "labelLat": 49.054149,
     "bbox": [
@@ -2230,6 +2456,8 @@
     "unSubregion": "Eastern Africa",
     "population": 52573973,
     "gdpMillionsUsd": 95503,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 37.907632,
     "labelLat": 0.549043,
     "bbox": [
@@ -2250,6 +2478,8 @@
     "unSubregion": "Micronesia",
     "population": 117606,
     "gdpMillionsUsd": 194,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -157.384577,
     "labelLat": 1.820437,
     "bbox": [
@@ -2260,7 +2490,7 @@
     ]
   },
   {
-    "iso3": "KOS",
+    "iso3": "XKX",
     "iso2": null,
     "name": "Kosovo",
     "nameFormal": "Republic of Kosovo",
@@ -2270,6 +2500,12 @@
     "unSubregion": "Southern Europe",
     "population": 1794248,
     "gdpMillionsUsd": 7926,
+    "status": "disputed",
+    "territoryNote": {
+      "status": "disputed",
+      "note": "Kosovo's status remains undetermined for the UN. The territory falls under resolution 1244 and Kosovo is not a UN member state; its 2008 declaration of independence is recognised by some states and rejected by Serbia and others.",
+      "basis": "UN Security Council resolution 1244 (1999)"
+    },
     "labelLon": 20.860719,
     "labelLat": 42.593587,
     "bbox": [
@@ -2290,6 +2526,8 @@
     "unSubregion": "Western Asia",
     "population": 4207083,
     "gdpMillionsUsd": 134628,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 47.313999,
     "labelLat": 29.413628,
     "bbox": [
@@ -2310,6 +2548,8 @@
     "unSubregion": "Central Asia",
     "population": 6456900,
     "gdpMillionsUsd": 8454,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 74.532637,
     "labelLat": 41.66854,
     "bbox": [
@@ -2330,6 +2570,8 @@
     "unSubregion": "South-Eastern Asia",
     "population": 7169455,
     "gdpMillionsUsd": 18173,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 102.533912,
     "labelLat": 19.431821,
     "bbox": [
@@ -2350,6 +2592,8 @@
     "unSubregion": "Northern Europe",
     "population": 1912789,
     "gdpMillionsUsd": 34102,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 25.458723,
     "labelLat": 57.066872,
     "bbox": [
@@ -2370,6 +2614,8 @@
     "unSubregion": "Western Asia",
     "population": 6855713,
     "gdpMillionsUsd": 51991,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 35.992892,
     "labelLat": 34.133368,
     "bbox": [
@@ -2390,6 +2636,8 @@
     "unSubregion": "Southern Africa",
     "population": 2125268,
     "gdpMillionsUsd": 2376,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 28.246639,
     "labelLat": -29.480158,
     "bbox": [
@@ -2410,6 +2658,8 @@
     "unSubregion": "Western Africa",
     "population": 4937374,
     "gdpMillionsUsd": 3070,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -9.460379,
     "labelLat": 6.447177,
     "bbox": [
@@ -2430,6 +2680,8 @@
     "unSubregion": "Northern Africa",
     "population": 6777452,
     "gdpMillionsUsd": 52091,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 18.011015,
     "labelLat": 26.638944,
     "bbox": [
@@ -2450,6 +2702,8 @@
     "unSubregion": "Western Europe",
     "population": 38019,
     "gdpMillionsUsd": 6876,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 9.559439,
     "labelLat": 47.111405,
     "bbox": [
@@ -2470,6 +2724,8 @@
     "unSubregion": "Northern Europe",
     "population": 2786844,
     "gdpMillionsUsd": 54627,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 24.089932,
     "labelLat": 55.103703,
     "bbox": [
@@ -2490,6 +2746,8 @@
     "unSubregion": "Western Europe",
     "population": 619896,
     "gdpMillionsUsd": 71104,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 6.07762,
     "labelLat": 49.733732,
     "bbox": [
@@ -2510,6 +2768,8 @@
     "unSubregion": "Eastern Asia",
     "population": 640445,
     "gdpMillionsUsd": 53859,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 113.556038,
     "labelLat": 22.129735,
     "bbox": [
@@ -2530,6 +2790,8 @@
     "unSubregion": "Eastern Africa",
     "population": 26969307,
     "gdpMillionsUsd": 14114,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 46.704241,
     "labelLat": -18.628288,
     "bbox": [
@@ -2550,6 +2812,8 @@
     "unSubregion": "Eastern Africa",
     "population": 18628747,
     "gdpMillionsUsd": 7666,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 33.608082,
     "labelLat": -13.386737,
     "bbox": [
@@ -2570,6 +2834,8 @@
     "unSubregion": "South-Eastern Asia",
     "population": 31949777,
     "gdpMillionsUsd": 364681,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 113.83708,
     "labelLat": 2.528667,
     "bbox": [
@@ -2590,6 +2856,8 @@
     "unSubregion": "Southern Asia",
     "population": 530953,
     "gdpMillionsUsd": 5642,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 73.507554,
     "labelLat": 4.174441,
     "bbox": [
@@ -2610,6 +2878,8 @@
     "unSubregion": "Western Africa",
     "population": 19658031,
     "gdpMillionsUsd": 17279,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -2.038455,
     "labelLat": 18.692713,
     "bbox": [
@@ -2630,6 +2900,8 @@
     "unSubregion": "Southern Europe",
     "population": 502653,
     "gdpMillionsUsd": 14989,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 14.433005,
     "labelLat": 35.892886,
     "bbox": [
@@ -2650,6 +2922,8 @@
     "unSubregion": "Micronesia",
     "population": 58791,
     "gdpMillionsUsd": 221,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 171.193609,
     "labelLat": 7.082568,
     "bbox": [
@@ -2670,6 +2944,8 @@
     "unSubregion": "Western Africa",
     "population": 4525696,
     "gdpMillionsUsd": 7600,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -9.740299,
     "labelLat": 19.587062,
     "bbox": [
@@ -2690,6 +2966,8 @@
     "unSubregion": "Eastern Africa",
     "population": 1265711,
     "gdpMillionsUsd": 14048,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 57.565848,
     "labelLat": -20.299506,
     "bbox": [
@@ -2710,6 +2988,8 @@
     "unSubregion": "Central America",
     "population": 127575529,
     "gdpMillionsUsd": 1268870,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -102.289448,
     "labelLat": 23.919988,
     "bbox": [
@@ -2730,6 +3010,8 @@
     "unSubregion": "Micronesia",
     "population": 113815,
     "gdpMillionsUsd": 401,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 158.234019,
     "labelLat": 6.887553,
     "bbox": [
@@ -2750,6 +3032,8 @@
     "unSubregion": "Eastern Europe",
     "population": 2657637,
     "gdpMillionsUsd": 11968,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 28.487904,
     "labelLat": 47.434999,
     "bbox": [
@@ -2770,6 +3054,8 @@
     "unSubregion": "Western Europe",
     "population": 38964,
     "gdpMillionsUsd": 7188,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 7.398291,
     "labelLat": 43.739652,
     "bbox": [
@@ -2790,6 +3076,8 @@
     "unSubregion": "Eastern Asia",
     "population": 3225167,
     "gdpMillionsUsd": 13996,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 104.150405,
     "labelLat": 45.997488,
     "bbox": [
@@ -2810,6 +3098,8 @@
     "unSubregion": "Southern Europe",
     "population": 622137,
     "gdpMillionsUsd": 5542,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 19.143727,
     "labelLat": 42.803101,
     "bbox": [
@@ -2830,6 +3120,8 @@
     "unSubregion": "Caribbean",
     "population": 4649,
     "gdpMillionsUsd": 44,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -62.188252,
     "labelLat": 16.73717,
     "bbox": [
@@ -2850,11 +3142,13 @@
     "unSubregion": "Northern Africa",
     "population": 36471769,
     "gdpMillionsUsd": 119700,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -7.187296,
     "labelLat": 31.650723,
     "bbox": [
-      -17.003,
-      21.421,
+      -13.168,
+      27.661,
       -1.066,
       35.93
     ]
@@ -2870,6 +3164,8 @@
     "unSubregion": "Eastern Africa",
     "population": 30366036,
     "gdpMillionsUsd": 15291,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 37.83789,
     "labelLat": -13.94323,
     "bbox": [
@@ -2890,6 +3186,8 @@
     "unSubregion": "South-Eastern Asia",
     "population": 54045420,
     "gdpMillionsUsd": 76085,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 95.804497,
     "labelLat": 21.573855,
     "bbox": [
@@ -2897,26 +3195,6 @@
       10.035,
       101.147,
       28.517
-    ]
-  },
-  {
-    "iso3": "CYN",
-    "iso2": null,
-    "name": "N. Cyprus",
-    "nameFormal": "Turkish Republic of Northern Cyprus",
-    "slug": "n-cyprus",
-    "continent": "Asia",
-    "unRegion": "Asia",
-    "unSubregion": "Western Asia",
-    "population": 326000,
-    "gdpMillionsUsd": 3600,
-    "labelLon": 33.692434,
-    "labelLat": 35.216071,
-    "bbox": [
-      32.713,
-      35,
-      34.556,
-      35.662
     ]
   },
   {
@@ -2930,6 +3208,8 @@
     "unSubregion": "Micronesia",
     "population": 57216,
     "gdpMillionsUsd": 1323,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 145.734397,
     "labelLat": 15.188188,
     "bbox": [
@@ -2950,6 +3230,8 @@
     "unSubregion": "Southern Africa",
     "population": 2494530,
     "gdpMillionsUsd": 12366,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 17.108166,
     "labelLat": -20.575298,
     "bbox": [
@@ -2970,6 +3252,8 @@
     "unSubregion": "Micronesia",
     "population": 12581,
     "gdpMillionsUsd": 118,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 166.932644,
     "labelLat": -0.520261,
     "bbox": [
@@ -2990,6 +3274,8 @@
     "unSubregion": "Southern Asia",
     "population": 28608710,
     "gdpMillionsUsd": 30641,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 83.639914,
     "labelLat": 28.297925,
     "bbox": [
@@ -3010,6 +3296,8 @@
     "unSubregion": "Western Europe",
     "population": 17332850,
     "gdpMillionsUsd": 907050,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 5.61144,
     "labelLat": 52.422211,
     "bbox": [
@@ -3030,6 +3318,8 @@
     "unSubregion": "Melanesia",
     "population": 287800,
     "gdpMillionsUsd": 10770,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 165.084004,
     "labelLat": -21.064697,
     "bbox": [
@@ -3050,6 +3340,8 @@
     "unSubregion": "Australia and New Zealand",
     "population": 4917000,
     "gdpMillionsUsd": 206928,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 172.787,
     "labelLat": -39.759,
     "bbox": [
@@ -3070,6 +3362,8 @@
     "unSubregion": "Central America",
     "population": 6545502,
     "gdpMillionsUsd": 12520,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -85.069347,
     "labelLat": 12.670697,
     "bbox": [
@@ -3090,6 +3384,8 @@
     "unSubregion": "Western Africa",
     "population": 23310715,
     "gdpMillionsUsd": 12911,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 9.504356,
     "labelLat": 17.446195,
     "bbox": [
@@ -3110,6 +3406,8 @@
     "unSubregion": "Western Africa",
     "population": 200963599,
     "gdpMillionsUsd": 448120,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 7.50322,
     "labelLat": 9.439799,
     "bbox": [
@@ -3130,6 +3428,8 @@
     "unSubregion": "Polynesia",
     "population": 1620,
     "gdpMillionsUsd": 10,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -169.862565,
     "labelLat": -19.045956,
     "bbox": [
@@ -3150,6 +3450,8 @@
     "unSubregion": "Australia and New Zealand",
     "population": 2169,
     "gdpMillionsUsd": 32,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 167.954531,
     "labelLat": -29.033042,
     "bbox": [
@@ -3170,6 +3472,8 @@
     "unSubregion": "Eastern Asia",
     "population": 25666161,
     "gdpMillionsUsd": 40000,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 126.444516,
     "labelLat": 39.885252,
     "bbox": [
@@ -3190,6 +3494,8 @@
     "unSubregion": "Southern Europe",
     "population": 2083459,
     "gdpMillionsUsd": 12547,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 21.555839,
     "labelLat": 41.558223,
     "bbox": [
@@ -3210,6 +3516,8 @@
     "unSubregion": "Northern Europe",
     "population": 5347896,
     "gdpMillionsUsd": 403336,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 9.679975,
     "labelLat": 61.357092,
     "bbox": [
@@ -3230,6 +3538,8 @@
     "unSubregion": "Western Asia",
     "population": 4974986,
     "gdpMillionsUsd": 76331,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 57.336553,
     "labelLat": 22.120427,
     "bbox": [
@@ -3250,6 +3560,8 @@
     "unSubregion": "Southern Asia",
     "population": 216565318,
     "gdpMillionsUsd": 278221,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 68.545632,
     "labelLat": 29.328389,
     "bbox": [
@@ -3270,6 +3582,8 @@
     "unSubregion": "Micronesia",
     "population": 18008,
     "gdpMillionsUsd": 268,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 134.580157,
     "labelLat": 7.518252,
     "bbox": [
@@ -3290,6 +3604,12 @@
     "unSubregion": "Western Asia",
     "population": 4685306,
     "gdpMillionsUsd": 16276,
+    "status": "disputed",
+    "territoryNote": {
+      "status": "disputed",
+      "note": "The State of Palestine holds non-member observer state status at the UN. Its borders remain subject to negotiation and part of the territory is under Israeli administration.",
+      "basis": "UN General Assembly resolution 67/19 (2012)"
+    },
     "labelLon": 35.291341,
     "labelLat": 32.047431,
     "bbox": [
@@ -3310,6 +3630,8 @@
     "unSubregion": "Central America",
     "population": 4246439,
     "gdpMillionsUsd": 66800,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -80.352106,
     "labelLat": 8.72198,
     "bbox": [
@@ -3330,6 +3652,8 @@
     "unSubregion": "Melanesia",
     "population": 8776109,
     "gdpMillionsUsd": 24829,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 143.910216,
     "labelLat": -5.695285,
     "bbox": [
@@ -3350,6 +3674,8 @@
     "unSubregion": "South America",
     "population": 7044636,
     "gdpMillionsUsd": 38145,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -60.146394,
     "labelLat": -21.674509,
     "bbox": [
@@ -3370,6 +3696,8 @@
     "unSubregion": "South America",
     "population": 32510453,
     "gdpMillionsUsd": 226848,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -72.90016,
     "labelLat": -12.976679,
     "bbox": [
@@ -3390,6 +3718,8 @@
     "unSubregion": "South-Eastern Asia",
     "population": 108116615,
     "gdpMillionsUsd": 376795,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 122.465,
     "labelLat": 11.198,
     "bbox": [
@@ -3410,6 +3740,8 @@
     "unSubregion": "Polynesia",
     "population": 54,
     "gdpMillionsUsd": 0,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -128.317536,
     "labelLat": -24.364576,
     "bbox": [
@@ -3430,6 +3762,8 @@
     "unSubregion": "Eastern Europe",
     "population": 37970874,
     "gdpMillionsUsd": 595858,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 19.490468,
     "labelLat": 51.990316,
     "bbox": [
@@ -3450,6 +3784,8 @@
     "unSubregion": "Southern Europe",
     "population": 10269417,
     "gdpMillionsUsd": 238785,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -8.271754,
     "labelLat": 39.606675,
     "bbox": [
@@ -3470,6 +3806,8 @@
     "unSubregion": "Caribbean",
     "population": 3193694,
     "gdpMillionsUsd": 104988,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -66.481065,
     "labelLat": 18.234668,
     "bbox": [
@@ -3490,6 +3828,8 @@
     "unSubregion": "Western Asia",
     "population": 2832067,
     "gdpMillionsUsd": 175837,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 51.143509,
     "labelLat": 25.237383,
     "bbox": [
@@ -3510,6 +3850,8 @@
     "unSubregion": "Eastern Europe",
     "population": 19356544,
     "gdpMillionsUsd": 250077,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 24.972624,
     "labelLat": 45.733237,
     "bbox": [
@@ -3530,6 +3872,8 @@
     "unSubregion": "Eastern Europe",
     "population": 144373535,
     "gdpMillionsUsd": 1699876,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 44.686469,
     "labelLat": 58.249357,
     "bbox": [
@@ -3550,6 +3894,8 @@
     "unSubregion": "Eastern Africa",
     "population": 12626950,
     "gdpMillionsUsd": 10354,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 30.103894,
     "labelLat": -1.897196,
     "bbox": [
@@ -3570,6 +3916,8 @@
     "unSubregion": "Seven seas (open ocean)",
     "population": 30,
     "gdpMillionsUsd": 0,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -31.063179,
     "labelLat": -55.683402,
     "bbox": [
@@ -3590,6 +3938,8 @@
     "unSubregion": "Eastern Africa",
     "population": 11062113,
     "gdpMillionsUsd": 11998,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 30.390151,
     "labelLat": 7.230477,
     "bbox": [
@@ -3610,6 +3960,8 @@
     "unSubregion": "Western Africa",
     "population": 4534,
     "gdpMillionsUsd": 31,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -5.71262,
     "labelLat": -15.950487,
     "bbox": [
@@ -3630,6 +3982,8 @@
     "unSubregion": "Caribbean",
     "population": 182790,
     "gdpMillionsUsd": 2122,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -60.980094,
     "labelLat": 13.892371,
     "bbox": [
@@ -3650,6 +4004,8 @@
     "unSubregion": "Polynesia",
     "population": 197097,
     "gdpMillionsUsd": 852,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -172.438241,
     "labelLat": -13.639139,
     "bbox": [
@@ -3670,6 +4026,8 @@
     "unSubregion": "Southern Europe",
     "population": 33860,
     "gdpMillionsUsd": 1655,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 12.441206,
     "labelLat": 43.933916,
     "bbox": [
@@ -3690,6 +4048,8 @@
     "unSubregion": "Middle Africa",
     "population": 215056,
     "gdpMillionsUsd": 418,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 7.021,
     "labelLat": 0.9709,
     "bbox": [
@@ -3710,6 +4070,8 @@
     "unSubregion": "Western Asia",
     "population": 34268528,
     "gdpMillionsUsd": 792966,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 44.6996,
     "labelLat": 23.806908,
     "bbox": [
@@ -3730,6 +4092,8 @@
     "unSubregion": "Western Africa",
     "population": 16296364,
     "gdpMillionsUsd": 23578,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -14.778586,
     "labelLat": 15.138125,
     "bbox": [
@@ -3750,6 +4114,8 @@
     "unSubregion": "Southern Europe",
     "population": 6944975,
     "gdpMillionsUsd": 51475,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 20.787989,
     "labelLat": 44.189919,
     "bbox": [
@@ -3770,6 +4136,8 @@
     "unSubregion": "Eastern Africa",
     "population": 97625,
     "gdpMillionsUsd": 1703,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 55.480175,
     "labelLat": -4.676659,
     "bbox": [
@@ -3790,6 +4158,8 @@
     "unSubregion": "Southern Asia",
     "population": 6000,
     "gdpMillionsUsd": 15,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 77.129553,
     "labelLat": 35.340606,
     "bbox": [
@@ -3810,6 +4180,8 @@
     "unSubregion": "Western Africa",
     "population": 7813215,
     "gdpMillionsUsd": 4121,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -11.763677,
     "labelLat": 8.617449,
     "bbox": [
@@ -3830,6 +4202,8 @@
     "unSubregion": "South-Eastern Asia",
     "population": 5703569,
     "gdpMillionsUsd": 372062,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 103.816925,
     "labelLat": 1.366587,
     "bbox": [
@@ -3850,6 +4224,8 @@
     "unSubregion": "Caribbean",
     "population": 40733,
     "gdpMillionsUsd": 1185,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -63.070133,
     "labelLat": 18.04088,
     "bbox": [
@@ -3870,6 +4246,8 @@
     "unSubregion": "Eastern Europe",
     "population": 5454073,
     "gdpMillionsUsd": 105079,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 19.049868,
     "labelLat": 48.734044,
     "bbox": [
@@ -3890,6 +4268,8 @@
     "unSubregion": "Southern Europe",
     "population": 2087946,
     "gdpMillionsUsd": 54174,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 14.915312,
     "labelLat": 46.06076,
     "bbox": [
@@ -3910,6 +4290,8 @@
     "unSubregion": "Melanesia",
     "population": 669823,
     "gdpMillionsUsd": 1589,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 159.170468,
     "labelLat": -8.029548,
     "bbox": [
@@ -3928,8 +4310,14 @@
     "continent": "Africa",
     "unRegion": "Africa",
     "unSubregion": "Eastern Africa",
-    "population": 10192317,
+    "population": 15288476,
     "gdpMillionsUsd": 4719,
+    "status": null,
+    "territoryNote": {
+      "status": "disputed",
+      "note": "Somaliland declared independence in 1991 and governs itself. No state and no UN body has recognised it; the UN lists the territory as part of Somalia.",
+      "basis": "UN practice; Somaliland is neither a member nor an observer state"
+    },
     "labelLon": 45.19238,
     "labelLat": 3.568925,
     "bbox": [
@@ -3937,26 +4325,6 @@
       -1.695,
       51.39,
       11.984
-    ]
-  },
-  {
-    "iso3": "SOL",
-    "iso2": null,
-    "name": "Somaliland",
-    "nameFormal": "Republic of Somaliland",
-    "slug": "somaliland",
-    "continent": "Africa",
-    "unRegion": "Africa",
-    "unSubregion": "Eastern Africa",
-    "population": 5096159,
-    "gdpMillionsUsd": 17836,
-    "labelLon": 46.731595,
-    "labelLat": 9.443889,
-    "bbox": [
-      42.656,
-      7.997,
-      48.939,
-      11.5
     ]
   },
   {
@@ -3970,6 +4338,8 @@
     "unSubregion": "Southern Africa",
     "population": 58558270,
     "gdpMillionsUsd": 351431,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 23.665734,
     "labelLat": -29.708776,
     "bbox": [
@@ -3990,6 +4360,8 @@
     "unSubregion": "Eastern Asia",
     "population": 51709098,
     "gdpMillionsUsd": 1646739,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 128.129504,
     "labelLat": 36.384924,
     "bbox": [
@@ -4010,6 +4382,8 @@
     "unSubregion": "Southern Europe",
     "population": 47076781,
     "gdpMillionsUsd": 1393490,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -3.464718,
     "labelLat": 40.090953,
     "bbox": [
@@ -4030,6 +4404,8 @@
     "unSubregion": "Southern Asia",
     "population": 21803000,
     "gdpMillionsUsd": 84008,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 80.704823,
     "labelLat": 7.581097,
     "bbox": [
@@ -4050,6 +4426,8 @@
     "unSubregion": "Caribbean",
     "population": 9961,
     "gdpMillionsUsd": 255,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -62.833193,
     "labelLat": 17.901987,
     "bbox": [
@@ -4070,6 +4448,8 @@
     "unSubregion": "Caribbean",
     "population": 38002,
     "gdpMillionsUsd": 562,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -63.049399,
     "labelLat": 18.081302,
     "bbox": [
@@ -4090,6 +4470,8 @@
     "unSubregion": "Caribbean",
     "population": 52834,
     "gdpMillionsUsd": 1053,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -62.757975,
     "labelLat": 17.336558,
     "bbox": [
@@ -4110,6 +4492,8 @@
     "unSubregion": "Northern America",
     "population": 5997,
     "gdpMillionsUsd": 215,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -56.332352,
     "labelLat": 47.040344,
     "bbox": [
@@ -4130,6 +4514,8 @@
     "unSubregion": "Caribbean",
     "population": 110589,
     "gdpMillionsUsd": 824,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -61.3359,
     "labelLat": 13.0879,
     "bbox": [
@@ -4150,6 +4536,8 @@
     "unSubregion": "Northern Africa",
     "population": 42813238,
     "gdpMillionsUsd": 30513,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 29.260657,
     "labelLat": 16.330746,
     "bbox": [
@@ -4170,6 +4558,8 @@
     "unSubregion": "South America",
     "population": 581363,
     "gdpMillionsUsd": 3697,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -55.91094,
     "labelLat": 4.143987,
     "bbox": [
@@ -4190,6 +4580,8 @@
     "unSubregion": "Northern Europe",
     "population": 10285453,
     "gdpMillionsUsd": 530883,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 19.01705,
     "labelLat": 65.85918,
     "bbox": [
@@ -4210,6 +4602,8 @@
     "unSubregion": "Western Europe",
     "population": 8574832,
     "gdpMillionsUsd": 703082,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 7.463965,
     "labelLat": 46.719114,
     "bbox": [
@@ -4230,10 +4624,16 @@
     "unSubregion": "Western Asia",
     "population": 17070135,
     "gdpMillionsUsd": 98830,
+    "status": null,
+    "territoryNote": {
+      "status": "occupied",
+      "note": "The Golan Heights are shown as occupied Syrian territory. Israel extended its jurisdiction there in 1981; the Security Council declared that step without legal effect.",
+      "basis": "UN Security Council resolution 497 (1981)"
+    },
     "labelLon": 38.277783,
     "labelLat": 35.006636,
     "bbox": [
-      35.764,
+      35.588,
       32.317,
       42.359,
       37.297
@@ -4250,6 +4650,12 @@
     "unSubregion": "Eastern Asia",
     "population": 23568378,
     "gdpMillionsUsd": 1127000,
+    "status": "disputed",
+    "territoryNote": {
+      "status": "disputed",
+      "note": "Taiwan governs itself. Since resolution 2758 the UN has not treated it as a separate state and recognises the government in Beijing as the representative of China. The Atlas maps it separately because its society and its data differ from mainland China.",
+      "basis": "UN General Assembly resolution 2758 (1971); this is a deliberate departure from UN practice"
+    },
     "labelLon": 120.868204,
     "labelLat": 23.652408,
     "bbox": [
@@ -4270,6 +4676,8 @@
     "unSubregion": "Central Asia",
     "population": 9321018,
     "gdpMillionsUsd": 8116,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 72.587276,
     "labelLat": 38.199835,
     "bbox": [
@@ -4290,6 +4698,8 @@
     "unSubregion": "Eastern Africa",
     "population": 58005463,
     "gdpMillionsUsd": 63177,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 34.959183,
     "labelLat": -6.051866,
     "bbox": [
@@ -4310,6 +4720,8 @@
     "unSubregion": "South-Eastern Asia",
     "population": 69625582,
     "gdpMillionsUsd": 543548,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 101.073198,
     "labelLat": 15.45974,
     "bbox": [
@@ -4330,6 +4742,8 @@
     "unSubregion": "South-Eastern Asia",
     "population": 1293119,
     "gdpMillionsUsd": 2017,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 125.854679,
     "labelLat": -8.803705,
     "bbox": [
@@ -4350,6 +4764,8 @@
     "unSubregion": "Western Africa",
     "population": 8082366,
     "gdpMillionsUsd": 5490,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 1.058113,
     "labelLat": 8.80722,
     "bbox": [
@@ -4370,6 +4786,8 @@
     "unSubregion": "Polynesia",
     "population": 104494,
     "gdpMillionsUsd": 512,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -175.163014,
     "labelLat": -21.210026,
     "bbox": [
@@ -4390,6 +4808,8 @@
     "unSubregion": "Caribbean",
     "population": 1394973,
     "gdpMillionsUsd": 24269,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -60.9184,
     "labelLat": 10.9989,
     "bbox": [
@@ -4410,6 +4830,8 @@
     "unSubregion": "Northern Africa",
     "population": 11694719,
     "gdpMillionsUsd": 38796,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 9.007881,
     "labelLat": 33.687263,
     "bbox": [
@@ -4430,6 +4852,8 @@
     "unSubregion": "Western Asia",
     "population": 83429615,
     "gdpMillionsUsd": 761425,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 34.508268,
     "labelLat": 39.345388,
     "bbox": [
@@ -4450,6 +4874,8 @@
     "unSubregion": "Central Asia",
     "population": 5942089,
     "gdpMillionsUsd": 40761,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 58.676647,
     "labelLat": 39.855246,
     "bbox": [
@@ -4470,6 +4896,8 @@
     "unSubregion": "Caribbean",
     "population": 38191,
     "gdpMillionsUsd": 1197,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -71.752704,
     "labelLat": 21.81663,
     "bbox": [
@@ -4490,6 +4918,8 @@
     "unSubregion": "Polynesia",
     "population": 11646,
     "gdpMillionsUsd": 47,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 179.209587,
     "labelLat": -8.513717,
     "bbox": [
@@ -4510,6 +4940,8 @@
     "unSubregion": "Caribbean",
     "population": 106631,
     "gdpMillionsUsd": 3855,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -64.779172,
     "labelLat": 17.746706,
     "bbox": [
@@ -4530,6 +4962,8 @@
     "unSubregion": "Eastern Africa",
     "population": 44269594,
     "gdpMillionsUsd": 35165,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 32.948555,
     "labelLat": 1.972589,
     "bbox": [
@@ -4550,11 +4984,17 @@
     "unSubregion": "Eastern Europe",
     "population": 44385155,
     "gdpMillionsUsd": 153781,
+    "status": null,
+    "territoryNote": {
+      "status": "occupied",
+      "note": "Crimea and Sevastopol are shown as part of Ukraine. They have been administered by the Russian Federation since 2014; the UN General Assembly has not recognised the annexation.",
+      "basis": "UN General Assembly resolution 68/262 (2014)"
+    },
     "labelLon": 32.140865,
     "labelLat": 49.724739,
     "bbox": [
       22.132,
-      45.234,
+      44.381,
       40.128,
       52.354
     ]
@@ -4570,6 +5010,8 @@
     "unSubregion": "Western Asia",
     "population": 9770529,
     "gdpMillionsUsd": 421142,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 54.547256,
     "labelLat": 23.466285,
     "bbox": [
@@ -4590,6 +5032,8 @@
     "unSubregion": "Northern Europe",
     "population": 66834405,
     "gdpMillionsUsd": 2829108,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -2.116346,
     "labelLat": 54.402739,
     "bbox": [
@@ -4610,6 +5054,8 @@
     "unSubregion": "Northern America",
     "population": 328239523,
     "gdpMillionsUsd": 21433226,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -97.482602,
     "labelLat": 39.538479,
     "bbox": [
@@ -4630,6 +5076,8 @@
     "unSubregion": "South America",
     "population": 3461734,
     "gdpMillionsUsd": 56045,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -55.966942,
     "labelLat": -32.961127,
     "bbox": [
@@ -4650,6 +5098,8 @@
     "unSubregion": "Central Asia",
     "population": 33580650,
     "gdpMillionsUsd": 57921,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 64.005429,
     "labelLat": 41.693603,
     "bbox": [
@@ -4670,6 +5120,8 @@
     "unSubregion": "Melanesia",
     "population": 299882,
     "gdpMillionsUsd": 934,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 166.908762,
     "labelLat": -15.37153,
     "bbox": [
@@ -4690,6 +5142,8 @@
     "unSubregion": "Southern Europe",
     "population": 825,
     "gdpMillionsUsd": -99,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 12.453418,
     "labelLat": 41.903323,
     "bbox": [
@@ -4710,6 +5164,8 @@
     "unSubregion": "South America",
     "population": 28515829,
     "gdpMillionsUsd": 482359,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -64.599381,
     "labelLat": 7.182476,
     "bbox": [
@@ -4730,6 +5186,8 @@
     "unSubregion": "South-Eastern Asia",
     "population": 96462106,
     "gdpMillionsUsd": 261921,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 105.387292,
     "labelLat": 21.715416,
     "bbox": [
@@ -4737,26 +5195,6 @@
       8.583,
       109.445,
       23.345
-    ]
-  },
-  {
-    "iso3": "ESH",
-    "iso2": "EH",
-    "name": "W. Sahara",
-    "nameFormal": "Sahrawi Arab Democratic Republic",
-    "slug": "w-sahara",
-    "continent": "Africa",
-    "unRegion": "Africa",
-    "unSubregion": "Northern Africa",
-    "population": 603253,
-    "gdpMillionsUsd": 907,
-    "labelLon": -12.630304,
-    "labelLat": 23.967592,
-    "bbox": [
-      -17.099,
-      20.806,
-      -8.682,
-      27.656
     ]
   },
   {
@@ -4770,6 +5208,8 @@
     "unSubregion": "Polynesia",
     "population": 11558,
     "gdpMillionsUsd": 60,
+    "status": null,
+    "territoryNote": null,
     "labelLon": -178.137436,
     "labelLat": -14.286415,
     "bbox": [
@@ -4777,6 +5217,32 @@
       -14.325,
       -178.044,
       -14.232
+    ]
+  },
+  {
+    "iso3": "ESH",
+    "iso2": "EH",
+    "name": "Western Sahara",
+    "nameFormal": "Sahrawi Arab Democratic Republic",
+    "slug": "western-sahara",
+    "continent": "Africa",
+    "unRegion": "Africa",
+    "unSubregion": "Northern Africa",
+    "population": 603253,
+    "gdpMillionsUsd": 907,
+    "status": "non-self-governing",
+    "territoryNote": {
+      "status": "non-self-governing",
+      "note": "Western Sahara is on the UN list of Non-Self-Governing Territories and still awaits a referendum on self-determination. Morocco controls most of it, the Polisario Front the remainder. The UN does not treat it as part of Morocco.",
+      "basis": "UN list of Non-Self-Governing Territories (Charter, Chapter XI); General Assembly resolution 1514 (XV)"
+    },
+    "labelLon": -12.630304,
+    "labelLat": 23.967592,
+    "bbox": [
+      -17.105,
+      20.767,
+      -8.681,
+      27.663
     ]
   },
   {
@@ -4790,6 +5256,8 @@
     "unSubregion": "Western Asia",
     "population": 29161922,
     "gdpMillionsUsd": 22581,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 45.874383,
     "labelLat": 15.328226,
     "bbox": [
@@ -4810,6 +5278,8 @@
     "unSubregion": "Eastern Africa",
     "population": 17861030,
     "gdpMillionsUsd": 23309,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 26.395298,
     "labelLat": -14.660804,
     "bbox": [
@@ -4830,6 +5300,8 @@
     "unSubregion": "Eastern Africa",
     "population": 14645468,
     "gdpMillionsUsd": 21440,
+    "status": null,
+    "territoryNote": null,
     "labelLon": 29.925444,
     "labelLat": -18.91164,
     "bbox": [

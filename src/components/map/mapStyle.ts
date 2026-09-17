@@ -41,6 +41,8 @@ function satelliteSource() {
 }
 
 export const LAYERS = {
+  /** Čárkovaný obrys území, jejichž status OSN nepovažuje za vyřešený. */
+  disputedOutline: "country-disputed",
   satellite: "satellite",
   fill: "country-fill",
   countryHover: "country-hover",
@@ -142,6 +144,21 @@ export function buildStyle(): StyleSpecification {
         paint: {
           "line-color": "rgba(255,255,255,0.45)",
           "line-width": ["interpolate", ["linear"], ["zoom"], 1, 0.3, 5, 1.1],
+        },
+      },
+      {
+        // Sporná a nesamosprávná území (Kosovo, Západní Sahara, Palestina,
+        // Tchaj-wan) mají čárkovaný obrys – Atlas se drží praxe OSN a tohle
+        // je vizuální poznámka, že hranice není uzavřená věc.
+        // Předpis: src/data/territories.json
+        id: LAYERS.disputedOutline,
+        type: "line",
+        source: "countries",
+        filter: ["has", "status"],
+        paint: {
+          "line-color": "rgba(255,255,255,0.85)",
+          "line-width": ["interpolate", ["linear"], ["zoom"], 1, 0.8, 5, 2],
+          "line-dasharray": [2.5, 1.8],
         },
       },
       {

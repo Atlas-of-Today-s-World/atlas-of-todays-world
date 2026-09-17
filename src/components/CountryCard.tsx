@@ -8,6 +8,13 @@ import { NewsBadge, StatIcon } from "./atlas-ui";
  * Karta země po kliknutí na globus (Figma: "Country View").
  * Nahoře jméno a region, pak popis, počet novinek a mřížka ukazatelů.
  */
+/** Jak se status pojmenuje v profilu země. */
+const TERRITORY_STATUS_LABEL: Record<string, string> = {
+  disputed: "Disputed territory.",
+  "non-self-governing": "UN Non-Self-Governing Territory.",
+  occupied: "Territory under foreign administration.",
+};
+
 export default function CountryCard({
   country,
   newsItems,
@@ -95,6 +102,21 @@ export default function CountryCard({
           </span>
         </div>
       </div>
+
+      {country.territoryNote ? (
+        // Atlas kreslí hranice podle praxe OSN. Kde se to liší od faktické
+        // kontroly, musí u profilu stát proč a podle čeho – jinak to čtenář
+        // čte jako tvrzení Atlasu.
+        <p className="mt-5 rounded-xl border border-[var(--color-line)] bg-[var(--color-paper-soft,#f6f7fb)] px-4 py-3 text-[12px] leading-relaxed text-[var(--color-ink-soft)]">
+          <span className="font-medium text-[var(--color-ink)]">
+            {TERRITORY_STATUS_LABEL[country.territoryNote.status]}
+          </span>{" "}
+          {country.territoryNote.note}{" "}
+          <span className="text-[var(--color-ink-muted)]">
+            ({country.territoryNote.basis})
+          </span>
+        </p>
+      ) : null}
 
       {newsItems.length ? (
         <div className="mt-7">

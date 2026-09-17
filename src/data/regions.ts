@@ -116,7 +116,7 @@ export const REGIONS: Region[] = [
       "COG", "COD", "CIV", "DJI", "GNQ", "ERI", "SWZ", "ETH", "GAB", "GMB",
       "GHA", "GIN", "GNB", "KEN", "LSO", "LBR", "MDG", "MWI", "MLI", "MRT",
       "MUS", "MOZ", "NAM", "NER", "NGA", "RWA", "STP", "SEN", "SYC", "SLE",
-      "SOM", "ZAF", "SSD", "SDN", "TZA", "TGO", "UGA", "ZMB", "ZWE", "SOL",
+      "SOM", "ZAF", "SSD", "SDN", "TZA", "TGO", "UGA", "ZMB", "ZWE",
     ],
   },
   {

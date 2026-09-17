@@ -2,6 +2,13 @@ import generated from "@/data/countries.generated.json";
 import { REGIONS, regionOf, type Region } from "@/data/regions";
 import { INDICATORS, formatValue, type Indicator } from "@/lib/indicators";
 
+/** Vysvětlení, proč hranice země vypadá tak, jak vypadá (viz territories.json). */
+export interface TerritoryNote {
+  status: "disputed" | "non-self-governing" | "occupied";
+  note: string;
+  basis: string;
+}
+
 export interface GeneratedCountry {
   iso3: string;
   iso2: string | null;
@@ -13,6 +20,10 @@ export interface GeneratedCountry {
   unSubregion: string | null;
   population: number | null;
   gdpMillionsUsd: number | null;
+  /** Sporný status samotného území; null u běžných států. */
+  status: TerritoryNote["status"] | null;
+  /** Poznámka k hranicím podle praxe OSN; null, když není co vysvětlovat. */
+  territoryNote: TerritoryNote | null;
   labelLon: number | null;
   labelLat: number | null;
   /** Výřez hlavní pevniny [minLon, minLat, maxLon, maxLat] pro zoom na zemi. */

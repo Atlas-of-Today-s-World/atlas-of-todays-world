@@ -1,0 +1,74 @@
+[
+  {
+    "source": "Crimea",
+    "action": "transfer",
+    "from": "RUS",
+    "to": "UKR",
+    "status": "occupied",
+    "note": "Crimea and Sevastopol are shown as part of Ukraine. They have been administered by the Russian Federation since 2014; the UN General Assembly has not recognised the annexation.",
+    "basis": "UN General Assembly resolution 68/262 (2014)"
+  },
+  {
+    "source": "Golan Heights",
+    "action": "transfer",
+    "from": "ISR",
+    "to": "SYR",
+    "status": "occupied",
+    "note": "The Golan Heights are shown as occupied Syrian territory. Israel extended its jurisdiction there in 1981; the Security Council declared that step without legal effect.",
+    "basis": "UN Security Council resolution 497 (1981)"
+  },
+  {
+    "source": "N. Cyprus",
+    "action": "merge",
+    "to": "CYP",
+    "status": "disputed",
+    "note": "The northern part of the island has been administered since 1974 by the self-declared Turkish Republic of Northern Cyprus, which the UN does not recognise. The UN treats the area as part of Cyprus, separated by a buffer zone under the UNFICYP mission.",
+    "basis": "UN Security Council resolution 541 (1983)"
+  },
+  {
+    "source": "Somaliland",
+    "action": "merge",
+    "to": "SOM",
+    "status": "disputed",
+    "note": "Somaliland declared independence in 1991 and governs itself. No state and no UN body has recognised it; the UN lists the territory as part of Somalia.",
+    "basis": "UN practice; Somaliland is neither a member nor an observer state"
+  },
+  {
+    "source": "Kosovo",
+    "action": "flag",
+    "iso3": "XKX",
+    "label": "Kosovo",
+    "status": "disputed",
+    "note": "Kosovo's status remains undetermined for the UN. The territory falls under resolution 1244 and Kosovo is not a UN member state; its 2008 declaration of independence is recognised by some states and rejected by Serbia and others.",
+    "basis": "UN Security Council resolution 1244 (1999)"
+  },
+  {
+    "source": "W. Sahara",
+    "action": "transfer",
+    "from": "MAR",
+    "to": "ESH",
+    "statusOn": "to",
+    "label": "Western Sahara",
+    "status": "non-self-governing",
+    "note": "Western Sahara is on the UN list of Non-Self-Governing Territories and still awaits a referendum on self-determination. Morocco controls most of it, the Polisario Front the remainder. The UN does not treat it as part of Morocco.",
+    "basis": "UN list of Non-Self-Governing Territories (Charter, Chapter XI); General Assembly resolution 1514 (XV)"
+  },
+  {
+    "source": "Palestine",
+    "action": "flag",
+    "iso3": "PSE",
+    "label": "Palestine",
+    "status": "disputed",
+    "note": "The State of Palestine holds non-member observer state status at the UN. Its borders remain subject to negotiation and part of the territory is under Israeli administration.",
+    "basis": "UN General Assembly resolution 67/19 (2012)"
+  },
+  {
+    "source": "Taiwan",
+    "action": "flag",
+    "iso3": "TWN",
+    "label": "Taiwan",
+    "status": "disputed",
+    "note": "Taiwan governs itself. Since resolution 2758 the UN has not treated it as a separate state and recognises the government in Beijing as the representative of China. The Atlas maps it separately because its society and its data differ from mainland China.",
+    "basis": "UN General Assembly resolution 2758 (1971); this is a deliberate departure from UN practice"
+  }
+]
