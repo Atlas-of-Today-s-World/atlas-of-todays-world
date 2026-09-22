@@ -31,8 +31,8 @@ export default async function AdminPage() {
     <main>
       <h1 className="font-display text-[34px] font-bold">Administrace</h1>
       <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-[var(--color-ink-soft)]">
-        Novinky a Global Issues Atlasu. Změny se projeví hned v mapě, v Hot
-        News i ve vyhledávání.
+        Novinky a Global Issues Atlasu. Změny se projeví hned v mapě
+        i ve vyhledávání.
       </p>
 
       <nav className="mt-8 flex gap-5 border-b border-[var(--color-line)] pb-3 text-[14px]">

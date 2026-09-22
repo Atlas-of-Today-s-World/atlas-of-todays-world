@@ -158,7 +158,7 @@ export default function AdminClient({
               <label className={LABEL} htmlFor="summary">Perex</label>
               <textarea id="summary" name="summary" required rows={2}
                 className={`mt-1.5 ${FIELD}`}
-                placeholder="Jedna až dvě věty, které se ukážou v Hot News a ve výsledcích hledání." />
+                placeholder="Jedna až dvě věty do přehledu novinek a do výsledků hledání." />
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -232,7 +232,7 @@ export default function AdminClient({
               <span className={LABEL}>
                 Země, kterých se novinka týká{" "}
                 <span className="font-normal">
-                  (jedna země = štítek země v Hot News, víc = štítek regionu)
+                  (novinka se pak ukáže v profilu každé z nich)
                 </span>
               </span>
               <div className="mt-2 flex max-h-40 flex-wrap gap-1.5 overflow-y-auto rounded-lg border border-[var(--color-line)] p-2.5">
