@@ -16,3 +16,6 @@ demo/atlas-texture.js
 demo/blue-marble-src.jpg
 demo/blue-marble-8k.tif
 demo/blue-marble.jpg
+test-results/
+playwright-report/
+.env.local

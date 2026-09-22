@@ -85,7 +85,7 @@ export default async function NewsPage({
         activeIso3={item.countries?.[0] ?? null}
       />
 
-      <ContentRail wide closeHref={region ? `/region/${region.slug}` : "/"}>
+      <ContentRail wide>
         <article>
           {item.hero ? (
             <div

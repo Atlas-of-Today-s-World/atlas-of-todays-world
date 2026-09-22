@@ -2,6 +2,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import matter from "gray-matter";
 import { marked } from "marked";
+import sanitizeHtml from "sanitize-html";
 import { REGION_BY_SLUG, type Region } from "@/data/regions";
 import {
   NEWS_CATEGORIES,
@@ -11,6 +12,34 @@ import {
 } from "@/lib/content-types";
 
 export * from "@/lib/content-types";
+
+/**
+ * Markdown smí do stránky, ale ne jako libovolné HTML.
+ *
+ * Text píše redakce přes administraci, takže do něj může spadnout `<script>`
+ * nebo `onclick` – buď omylem, nebo když se někdo do administrace dostane.
+ * Povolujeme proto jen značky, které encyklopedické heslo potřebuje, a u odkazů
+ * jen http(s) a kotvy.
+ */
+function toSafeHtml(markdown: string): string {
+  return sanitizeHtml(marked.parse(markdown, { async: false }) as string, {
+    allowedTags: [
+      "h2", "h3", "h4", "p", "blockquote", "ul", "ol", "li", "strong", "em",
+      "a", "code", "pre", "hr", "br", "table", "thead", "tbody", "tr", "th",
+      "td", "figure", "figcaption", "img", "sup", "sub",
+    ],
+    allowedAttributes: {
+      a: ["href", "title"],
+      img: ["src", "alt", "title", "loading"],
+    },
+    allowedSchemes: ["http", "https", "mailto"],
+    transformTags: {
+      // Odkazy ven nesmí dostat přístup k našemu oknu.
+      a: sanitizeHtml.simpleTransform("a", { rel: "noreferrer noopener" }),
+      img: sanitizeHtml.simpleTransform("img", { loading: "lazy" }),
+    },
+  });
+}
 
 const CONTENT_DIR = join(process.cwd(), "src", "content");
 const NEWS_DIR = join(CONTENT_DIR, "news");
@@ -47,7 +76,7 @@ export async function allNews(): Promise<NewsItem[]> {
       return {
         ...frontmatter,
         slug: file.replace(/\.md$/, ""),
-        html: await marked.parse(content),
+        html: toSafeHtml(content),
         plain: content.replace(/[#*_>`[\]()]/g, " ").replace(/\s+/g, " ").trim(),
         regionRef: REGION_BY_SLUG[frontmatter.region] ?? null,
       } satisfies NewsItem;
@@ -110,7 +139,7 @@ export async function countryProfile(
     const { data, content } = matter(source);
     return {
       summary: (data as { summary?: string }).summary ?? "",
-      html: await marked.parse(content),
+      html: toSafeHtml(content),
     };
   } catch {
     return null;

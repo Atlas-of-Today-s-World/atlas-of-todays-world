@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 
 /**
@@ -12,7 +12,10 @@ import { useRouter } from "next/navigation";
  */
 export default function ContentRail({
   children,
-  /** Kam se vrátit křížkem. Výchozí je globus bez výběru. */
+  /**
+   * Kam se vrátit křížkem. Výchozí je globus: křížek má panel zavřít, ne
+   * otevřít jiný – o cestu "o úroveň výš" se stará drobečková navigace.
+   */
   closeHref = "/",
   wide = false,
 }: {
@@ -22,10 +25,29 @@ export default function ContentRail({
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const router = useRouter();
+  const panel = useRef<HTMLElement>(null);
+
+  // Panel se zavírá i klávesou Esc – jinak by se z něj klávesnicí nešlo dostat.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") router.push(closeHref);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [closeHref, router]);
+
+  // Po otevření patří ohnisko do panelu, ať čtečka i klávesnice pokračují tam,
+  // kde přibyl obsah, a ne na začátku stránky.
+  useEffect(() => {
+    panel.current?.focus({ preventScroll: true });
+  }, []);
 
   return (
     <aside
-      className={`pointer-events-auto absolute inset-x-0 bottom-0 z-20 max-h-[72dvh] overflow-hidden rounded-t-3xl bg-white text-[var(--color-ink)] shadow-[0_-8px_40px_rgba(0,0,0,0.45)] transition-transform duration-300 md:inset-x-auto md:inset-y-0 md:left-auto md:right-0 md:max-h-none md:rounded-none md:shadow-[0_0_60px_rgba(0,0,0,0.45)] ${
+      ref={panel}
+      tabIndex={-1}
+      aria-label="Content panel"
+      className={`pointer-events-auto absolute inset-x-0 bottom-0 z-20 outline-none max-h-[72dvh] overflow-hidden rounded-t-3xl bg-white text-[var(--color-ink)] shadow-[0_-8px_40px_rgba(0,0,0,0.45)] transition-transform duration-300 md:inset-x-auto md:inset-y-0 md:left-auto md:right-0 md:max-h-none md:rounded-none md:shadow-[0_0_60px_rgba(0,0,0,0.45)] ${
         wide ? "md:w-[min(52vw,46rem)]" : "md:w-[min(38vw,27rem)]"
       } ${collapsed ? "md:translate-x-full" : "md:translate-x-0"}`}
     >
@@ -39,7 +61,7 @@ export default function ContentRail({
         type="button"
         aria-label={collapsed ? "Show panel" : "Hide panel"}
         onClick={() => setCollapsed((value) => !value)}
-        className="absolute -left-7 top-1/2 hidden h-14 w-7 -translate-y-1/2 items-center justify-center rounded-l-lg bg-[#1b2233] text-white/80 transition hover:bg-[#283148] md:flex"
+        className="absolute -left-7 top-1/2 hidden h-14 w-7 -translate-y-1/2 items-center justify-center rounded-l-lg bg-[#1b2233] text-white/80 transition hover:bg-[#283148] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] md:flex"
       >
         <span aria-hidden>{collapsed ? "‹" : "›"}</span>
       </button>
@@ -48,9 +70,16 @@ export default function ContentRail({
         type="button"
         aria-label="Close"
         onClick={() => router.push(closeHref)}
-        className="absolute right-4 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/85 text-lg text-[var(--color-ink-soft)] backdrop-blur transition hover:bg-[var(--color-line)] md:top-4"
+        className="absolute right-3 top-2 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/85 text-[var(--color-ink-soft)] backdrop-blur transition hover:bg-[var(--color-line)] hover:text-[var(--color-ink)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] active:scale-95 md:top-3"
       >
-        ×
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <path
+            d="m6 6 12 12M18 6 6 18"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+          />
+        </svg>
       </button>
 
       <div className="panel-scroll max-h-[calc(72dvh-1.75rem)] overflow-y-auto overscroll-contain pb-6 md:h-full md:max-h-none md:pb-0">

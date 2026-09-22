@@ -121,7 +121,7 @@ export default async function CountryPage({
         regionStroke={region?.stroke ?? null}
       />
 
-      <ContentRail closeHref={region ? `/region/${region.slug}` : "/"}>
+      <ContentRail>
         <CountryCard country={country} newsItems={newsItems} description={description} />
         {profile?.html ? (
           <div

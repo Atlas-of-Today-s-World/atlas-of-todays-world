@@ -15,19 +15,24 @@
     "demo:data": "node demo/data.mjs",
     "demo:build": "node demo/build.mjs",
     "demo:geo": "node demo/geo.mjs",
-    "demo:texture": "node demo/texture.mjs"
+    "demo:texture": "node demo/texture.mjs",
+    "test:smoke": "node scripts/smoke-test.mjs",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.0",
+    "@types/sanitize-html": "^2.16.1",
     "gray-matter": "^4.0.3",
     "maplibre-gl": "^5.9.0",
     "marked": "^16.4.0",
     "minisearch": "^7.2.0",
     "next": "^15.5.4",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "sanitize-html": "^2.17.7"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.1.14",
     "@types/node": "^22.18.0",
     "@types/react": "^19.2.0",
