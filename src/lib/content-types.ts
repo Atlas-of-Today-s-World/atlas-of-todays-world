@@ -43,8 +43,8 @@ export interface NewsFrontmatter {
   category: NewsCategory;
   region: string;
   countries?: string[];
-  /** Slug vlastního celku ze special-regions.json. Novinka může viset i na něm. */
-  special?: string;
+  /** Slug global issue ze global-issues.json. Novinka může viset i na něm. */
+  issue?: string;
   hero?: string;
   heroCredit?: string;
   author?: string;

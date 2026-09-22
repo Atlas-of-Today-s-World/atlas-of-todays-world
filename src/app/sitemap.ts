@@ -42,13 +42,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.9,
         images: [region.hero],
       },
-      {
-        url: `${SITE_URL}/region/${region.slug}/full`,
-        lastModified: now,
-        changeFrequency: "weekly" as const,
-        priority: 0.8,
-        images: [region.hero],
-      },
     ]),
     ...indexableCountries().map((country) => ({
       url: `${SITE_URL}/country/${country.slug}`,

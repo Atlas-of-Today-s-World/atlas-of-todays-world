@@ -2,26 +2,23 @@
 
 import { usePathname } from "next/navigation";
 import EncyclopediaDock from "@/components/EncyclopediaDock";
-import type { HotNewsItem } from "@/components/HotNews";
 import ModeSwitch from "./ModeSwitch";
 import ViewSwitcher, { type ViewOption } from "./ViewSwitcher";
 
 /**
  * Lišta nad mapou vpravo nahoře: přepínač států/regionů, přepínač datových
- * vrstev, Global Encyclopedia a Hot News. Když je otevřený profil regionu nebo
+ * vrstev a vyhledávání. Když je otevřený profil regionu nebo
  * země, odsune se doleva, aby ji bílý panel nepřekrýval.
  */
 export default function MapControls({
   options,
-  hotNews,
-  hasSpecial,
+  hasIssues,
 }: {
   options: ViewOption[];
-  hotNews: HotNewsItem[];
-  hasSpecial: boolean;
+  hasIssues: boolean;
 }) {
   const pathname = usePathname();
-  const wideRail = /^\/(news|region\/[^/]+\/full)/.test(pathname);
+  const wideRail = /^\/(news|region|global-issue)\//.test(pathname);
   const railOpen = pathname !== "/";
 
   const offset = wideRail
@@ -32,13 +29,13 @@ export default function MapControls({
 
   return (
     <div
-      className={`pointer-events-none absolute top-20 z-30 flex flex-col items-end gap-2.5 ${offset}`}
+      className={`pointer-events-none absolute top-16 left-4 z-30 flex flex-col items-end gap-2.5 sm:top-20 sm:left-auto ${offset}`}
     >
-      <div className="flex items-start gap-2.5">
-        <ModeSwitch hasSpecial={hasSpecial} />
+      <div className="flex flex-wrap items-start justify-end gap-2.5">
+        <ModeSwitch hasIssues={hasIssues} />
         <ViewSwitcher options={options} />
       </div>
-      <EncyclopediaDock hotNews={hotNews} />
+      <EncyclopediaDock />
     </div>
   );
 }

@@ -4,7 +4,7 @@ summary: "A corridor two dozen kilometres wide at its narrowest point carries a 
 category: "International Relations"
 region: "middle-east-north-africa"
 countries: ["SAU", "ARE", "YEM", "DJI", "SOM", "ERI", "ETH"]
-special: "demo-region-5"
+issue: "energy-transition"
 author: "Atlas editorial team"
 published: "2026-08-07"
 readingMinutes: 7

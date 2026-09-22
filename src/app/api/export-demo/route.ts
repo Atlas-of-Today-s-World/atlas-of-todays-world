@@ -3,7 +3,7 @@ import { REGIONS } from "@/data/regions";
 import { indexableCountries, regionColorMap } from "@/lib/countries";
 import { INDICATORS, colorMapFor, legendFor } from "@/lib/indicators";
 import { allNews, regionDossier } from "@/lib/content";
-import { allSpecialRegions, specialColorMap } from "@/lib/special-regions";
+import { allGlobalIssues, issueColorMap } from "@/lib/global-issues";
 
 export const dynamic = "force-dynamic";
 
@@ -20,11 +20,11 @@ export async function GET() {
     ),
   );
 
-  const specials = await allSpecialRegions();
+  const issues = await allGlobalIssues();
 
   const colorSets: Record<string, Record<string, string>> = {
     encyclopedia: regionColorMap(),
-    special: await specialColorMap(),
+    issue: await issueColorMap(),
   };
   for (const indicator of INDICATORS) {
     colorSets[indicator.id] = colorMapFor(indicator.id);
@@ -85,14 +85,14 @@ export async function GET() {
     ],
     colorSets,
     dossiers,
-    specials,
+    issues,
     newsItems: newsItems.map((item) => ({
       slug: item.slug,
       title: item.title,
       summary: item.summary,
       category: item.category,
       region: item.region,
-      special: item.special ?? null,
+      issue: item.issue ?? null,
       countries: item.countries ?? [],
       published: item.published ?? null,
       author: item.author ?? null,

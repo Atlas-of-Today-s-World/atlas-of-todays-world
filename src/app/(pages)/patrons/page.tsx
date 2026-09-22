@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   title: "Support the Atlas",
   description:
     "Join the membership community and help build an independent encyclopedia of the present.",
-  alternates: { canonical: "/support" },
+  alternates: { canonical: "/patrons" },
 };
 
 const CARDS = [

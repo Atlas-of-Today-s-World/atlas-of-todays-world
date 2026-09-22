@@ -4,7 +4,7 @@ summary: "A band of states from the Atlantic to the Red Sea has spent the past d
 category: "Political System"
 region: "sub-saharan-africa"
 countries: ["MLI", "BFA", "NER", "TCD", "SDN"]
-special: "demo-region-6"
+issue: "food-insecurity"
 author: "Atlas editorial team"
 published: "2026-09-02"
 readingMinutes: 7

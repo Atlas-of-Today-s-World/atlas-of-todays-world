@@ -24,8 +24,8 @@ interface Props {
   /** ISO3 -> slug země, pro navigaci po kliknutí. */
   slugs: Record<string, string>;
   regions: RegionLookup;
-  /** Vlastní celky redakce; prázdné, když žádné nejsou. */
-  special: RegionLookup;
+  /** Global Issues redakce; prázdné, když žádné nejsou. */
+  issue: RegionLookup;
 }
 
 const NEUTRAL = "#7d8aa8";
@@ -87,7 +87,7 @@ function matchExpression(colors: Record<string, string>): unknown[] {
   return ["match", ["get", "iso3"], ...stops, NEUTRAL];
 }
 
-export default function AtlasGlobe({ colorSets, slugs, regions, special }: Props) {
+export default function AtlasGlobe({ colorSets, slugs, regions, issue }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const hoveredRef = useRef<string | null>(null);
@@ -104,8 +104,8 @@ export default function AtlasGlobe({ colorSets, slugs, regions, special }: Props
   modeRef.current = mode;
   const regionsRef = useRef(regions);
   regionsRef.current = regions;
-  const specialRef = useRef(special);
-  specialRef.current = special;
+  const issueRef = useRef(issue);
+  issueRef.current = issue;
   const slugsRef = useRef(slugs);
   slugsRef.current = slugs;
   /** URL, které už jsme předstáhli – ať neprefetchujeme totéž při každém pohybu. */
@@ -156,16 +156,16 @@ export default function AtlasGlobe({ colorSets, slugs, regions, special }: Props
       if (!iso3) return null;
 
       // Skupinové režimy: kliknutí otevře celý celek, ne jednu zemi.
-      if (modeRef.current === "regions" || modeRef.current === "special") {
-        const isSpecial = modeRef.current === "special";
-        const lookup = isSpecial ? specialRef.current : regionsRef.current;
+      if (modeRef.current === "regions" || modeRef.current === "issue") {
+        const isIssue = modeRef.current === "issue";
+        const lookup = isIssue ? issueRef.current : regionsRef.current;
         const slug = lookup.slugByCountry[iso3];
         const group = slug ? lookup.bySlug[slug] : undefined;
         if (!group) return null;
         return {
           iso3,
           label: group.name,
-          href: isSpecial ? `/special/${slug}` : `/region/${slug}`,
+          href: isIssue ? `/global-issue/${slug}` : `/region/${slug}`,
           countries: group.countries,
         };
       }
@@ -244,8 +244,8 @@ export default function AtlasGlobe({ colorSets, slugs, regions, special }: Props
     if (!map || !ready) return;
 
     const colors =
-      mode === "special" && view === "encyclopedia"
-        ? (colorSets.special ?? {})
+      mode === "issue" && view === "encyclopedia"
+        ? (colorSets.issue ?? {})
         : (colorSets[view] ?? colorSets.encyclopedia ?? {});
     map.setPaintProperty(LAYERS.fill, "fill-color", matchExpression(colors));
 

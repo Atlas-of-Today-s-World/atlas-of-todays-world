@@ -2,25 +2,25 @@ import type { Metadata } from "next";
 import { REGIONS } from "@/data/regions";
 import { allNews, NEWS_CATEGORIES } from "@/lib/content";
 import { countriesOfRegion, indexableCountries } from "@/lib/countries";
-import { allSpecialRegions } from "@/lib/special-regions";
+import { allGlobalIssues } from "@/lib/global-issues";
 import AdminClient from "./AdminClient";
-import SpecialRegionsAdmin from "./SpecialRegionsAdmin";
+import GlobalIssuesAdmin from "./GlobalIssuesAdmin";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Administrace",
-  description: "Mock administrace novinek a vlastních regionů Atlasu.",
+  description: "Mock administrace novinek a Global Issues Atlasu.",
   robots: { index: false, follow: false },
 };
 
 export default async function AdminPage() {
-  const [newsItems, specials] = await Promise.all([
+  const [newsItems, issues] = await Promise.all([
     allNews(),
-    allSpecialRegions(),
+    allGlobalIssues(),
   ]);
 
-  const specialName = new Map(specials.map((item) => [item.slug, item.name]));
+  const issueName = new Map(issues.map((item) => [item.slug, item.name]));
   // Jména zemí pro celky – ty sahají napříč regiony, takže si je výběr zemí
   // v administraci nedokáže odvodit z jednoho regionu Atlasu.
   const countryName = new Map(
@@ -31,7 +31,7 @@ export default async function AdminPage() {
     <main>
       <h1 className="font-display text-[34px] font-bold">Administrace</h1>
       <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-[var(--color-ink-soft)]">
-        Novinky a vlastní regiony Atlasu. Změny se projeví hned v mapě, v Hot
+        Novinky a Global Issues Atlasu. Změny se projeví hned v mapě, v Hot
         News i ve vyhledávání.
       </p>
 
@@ -43,10 +43,10 @@ export default async function AdminPage() {
           Novinky ({newsItems.length})
         </a>
         <a
-          href="#special"
+          href="#issue"
           className="font-medium text-[var(--color-ink)] hover:text-[var(--color-accent)]"
         >
-          Vlastní regiony ({specials.length})
+          Global Issues ({issues.length})
         </a>
       </nav>
 
@@ -67,7 +67,7 @@ export default async function AdminPage() {
               name: country.name,
             })),
           }))}
-          specials={specials.map((region) => ({
+          issues={issues.map((region) => ({
             slug: region.slug,
             name: region.name,
             countries: region.countries.map((iso3) => ({
@@ -80,9 +80,9 @@ export default async function AdminPage() {
             title: item.title,
             category: item.category,
             region: item.region,
-            special: item.special ?? null,
-            specialName: item.special
-              ? specialName.get(item.special) ?? item.special
+            issue: item.issue ?? null,
+            issueName: item.issue
+              ? issueName.get(item.issue) ?? item.issue
               : null,
             published: item.published ?? null,
           }))}
@@ -90,13 +90,13 @@ export default async function AdminPage() {
       </section>
 
       <section
-        id="special"
+        id="issue"
         className="mt-14 scroll-mt-6 border-t border-[var(--color-line)] pt-10"
       >
-        <h2 className="font-display text-[24px] font-bold">Vlastní regiony</h2>
+        <h2 className="font-display text-[24px] font-bold">Global Issues</h2>
 
-        <SpecialRegionsAdmin
-          regions={specials.map((region) => ({
+        <GlobalIssuesAdmin
+          regions={issues.map((region) => ({
             slug: region.slug,
             name: region.name,
             subtitle: region.subtitle,

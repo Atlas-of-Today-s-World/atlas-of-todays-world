@@ -6,15 +6,15 @@ import { useMapState, type SelectionMode } from "./MapContext";
 const SEEN_KEY = "atlas.modeSwitchSeen";
 
 /**
- * Co se na globusu vybírá: státy, regiony Atlasu, nebo vlastní celky.
+ * Co se na globusu vybírá: státy, regiony Atlasu, nebo global issues.
  * Dokud návštěvník přepínač poprvé nepoužije, pulzuje u něj jiskra – jinak si
  * ho nikdo nevšimne. Po prvním kliknutí zhasne natrvalo.
  */
 export default function ModeSwitch({
-  hasSpecial,
+  hasIssues,
 }: {
-  /** Volbu „Special" schováme, když redakce žádný vlastní celek nemá. */
-  hasSpecial: boolean;
+  /** Volbu „Issue" schováme, když redakce žádný global issue nemá. */
+  hasIssues: boolean;
 }) {
   const { mode, setMode } = useMapState();
   const [hinting, setHinting] = useState(false);
@@ -22,7 +22,7 @@ export default function ModeSwitch({
   const options: { id: SelectionMode; label: string }[] = [
     { id: "countries", label: "Countries" },
     { id: "regions", label: "Regions" },
-    ...(hasSpecial ? [{ id: "special" as const, label: "Special regions" }] : []),
+    ...(hasIssues ? [{ id: "issue" as const, label: "Global Issues" }] : []),
   ];
 
   // Až po připojení, aby se server a klient neshodly na jiném HTML.

@@ -2,11 +2,14 @@ import Link from "next/link";
 import type { Country } from "@/lib/countries";
 import { formatPopulation } from "@/lib/countries";
 import type { NewsItem } from "@/lib/content";
-import { NewsBadge, StatIcon } from "./atlas-ui";
+import { StatIcon } from "./atlas-ui";
 
 /**
  * Karta země po kliknutí na globus (Figma: "Country View").
- * Nahoře jméno a region, pak popis, počet novinek a mřížka ukazatelů.
+ *
+ * Nahoře drobečková navigace do regionu, jméno, popis a ukazatele. Region není
+ * jen textový odkaz kdesi dole – dostal vlastní kartu s obrázkem a tlačítkem,
+ * protože z profilu země je to nejčastější cesta dál.
  */
 /** Jak se status pojmenuje v profilu země. */
 const TERRITORY_STATUS_LABEL: Record<string, string> = {
@@ -29,35 +32,28 @@ export default function CountryCard({
 
   return (
     <article className="px-6 pb-10 pt-6">
-      <h1 className="font-display text-[26px] font-bold leading-tight text-[var(--color-ink)]">
+      {region ? (
+        <nav aria-label="Breadcrumb" className="text-[12px] text-[var(--color-ink-muted)]">
+          <Link
+            href={`/region/${region.slug}`}
+            className="font-medium text-[var(--color-link)] hover:underline"
+          >
+            {region.name}
+          </Link>
+          <span aria-hidden className="px-1.5">
+            ›
+          </span>
+          <span className="text-[var(--color-ink)]">{country.name}</span>
+        </nav>
+      ) : null}
+
+      <h1 className="mt-2 font-display text-[26px] font-bold leading-tight text-[var(--color-ink)]">
         {country.name}
       </h1>
 
-      {region ? (
-        <Link
-          href={`/region/${region.slug}`}
-          className="mt-1.5 inline-block font-display text-[15px] font-bold text-[var(--color-link)] hover:underline"
-        >
-          {region.name}
-        </Link>
-      ) : null}
-
-      <div
-        className="mt-4 h-40 w-full rounded-xl bg-cover bg-center"
-        style={{
-          backgroundImage: `linear-gradient(180deg, rgba(10,16,32,0.15), rgba(10,16,32,0.55)), url(${region?.hero ?? ""})`,
-        }}
-        role="img"
-        aria-label={`${country.name} in its region`}
-      />
-
-      <p className="mt-4 text-[13px] leading-relaxed text-[var(--color-ink-soft)]">
+      <p className="mt-3 text-[13px] leading-relaxed text-[var(--color-ink-soft)]">
         {description}
       </p>
-
-      <div className="mt-4">
-        <NewsBadge count={newsItems.length} />
-      </div>
 
       <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-6">
         {highlights.map((stat) => (
@@ -88,6 +84,36 @@ export default function CountryCard({
         ))}
       </dl>
 
+      {region ? (
+        <Link
+          href={`/region/${region.slug}`}
+          className="group mt-7 block overflow-hidden rounded-xl border border-[var(--color-line)] transition hover:border-[var(--color-accent)]"
+        >
+          <span
+            className="block h-28 w-full bg-cover bg-center"
+            style={{
+              backgroundImage: `linear-gradient(180deg, rgba(10,16,32,0.15), rgba(10,16,32,0.55)), url(${region.hero})`,
+            }}
+            role="img"
+            aria-label={`${region.name} seen from orbit`}
+          />
+          <span className="block p-4">
+            <span className="text-[10.5px] uppercase tracking-[0.1em] text-[var(--color-ink-muted)]">
+              Region
+            </span>
+            <span className="mt-1 block font-display text-[16px] font-bold text-[var(--color-ink)] group-hover:text-[var(--color-accent)]">
+              {region.name}
+            </span>
+            <span className="mt-1.5 block text-[12px] leading-relaxed text-[var(--color-ink-muted)]">
+              {region.summary.split(". ")[0]}.
+            </span>
+            <span className="mt-3 inline-flex min-h-11 items-center text-[12.5px] font-medium text-[var(--color-link)]">
+              Explore the region →
+            </span>
+          </span>
+        </Link>
+      ) : null}
+
       <div className="mt-7 grid grid-cols-2 gap-4 border-t border-[var(--color-line)] pt-5 text-[12.5px]">
         <div>
           <span className="block text-[var(--color-ink-muted)]">Population</span>
@@ -99,6 +125,17 @@ export default function CountryCard({
           <span className="block text-[var(--color-ink-muted)]">Subregion</span>
           <span className="font-medium text-[var(--color-ink)]">
             {country.unSubregion ?? "—"}
+            {region ? (
+              <>
+                {" · "}
+                <Link
+                  href={`/region/${region.slug}`}
+                  className="font-normal text-[var(--color-link)] hover:underline"
+                >
+                  {region.name}
+                </Link>
+              </>
+            ) : null}
           </span>
         </div>
       </div>

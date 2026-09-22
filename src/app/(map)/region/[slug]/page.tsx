@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ContentRail from "@/components/ContentRail";
-import RegionPanel from "@/components/RegionPanel";
+import RegionPortrait from "@/components/RegionPortrait";
 import MapFocus from "@/components/map/MapFocus";
 import { REGIONS, REGION_BY_SLUG } from "@/data/regions";
 import { countriesOfRegion } from "@/lib/countries";
-import { newsOfRegion } from "@/lib/content";
+import { newsOfRegion, regionDossier } from "@/lib/content";
+import { population, regionStats } from "@/lib/region-stats";
 import {
   absoluteUrl,
   alternates,
@@ -33,17 +34,11 @@ export async function generateMetadata({
     title: region.name,
     description: region.summary.slice(0, 180),
     alternates: alternates(`/region/${region.slug}`),
-    keywords: [
-      region.name,
-      `${region.name} countries`,
-      `${region.name} profile`,
-      "world region",
-    ],
     openGraph: {
       title: `${region.name} — Atlas of Today's World`,
       description: region.summary.slice(0, 180),
-      images: [region.hero],
       url: absoluteUrl(`/region/${region.slug}`),
+      images: region.hero ? [region.hero] : undefined,
     },
     other: geoMeta({
       lat: region.center[1],
@@ -53,6 +48,10 @@ export async function generateMetadata({
   };
 }
 
+/**
+ * Portrét regionu. Krátká verze zanikla – zadání chce jeden úplný portrét bez
+ * mezikroku, takže `/region/[slug]/full` jen přesměrovává (viz next.config.ts).
+ */
 export default async function RegionPage({
   params,
 }: {
@@ -63,7 +62,10 @@ export default async function RegionPage({
   if (!region) notFound();
 
   const countries = countriesOfRegion(region);
-  const newsItems = await newsOfRegion(region.slug);
+  const [newsItems, dossier] = await Promise.all([
+    newsOfRegion(region.slug),
+    regionDossier(region.slug),
+  ]);
 
   return (
     <>
@@ -73,9 +75,17 @@ export default async function RegionPage({
         regionCountries={region.countries}
         regionStroke={region.stroke}
       />
-      <ContentRail>
-        <RegionPanel region={region} countries={countries} newsItems={newsItems} />
+      <ContentRail wide>
+        <RegionPortrait
+          region={region}
+          newsItems={newsItems}
+          dossier={dossier}
+          stats={regionStats(region)}
+          countryCount={countries.length}
+          population={population(countries)}
+        />
       </ContentRail>
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -101,6 +111,19 @@ export default async function RegionPage({
                 url: absoluteUrl(`/news/${item.slug}`),
               })),
             },
+            ...(dossier.faq?.length
+              ? [
+                  {
+                    "@context": "https://schema.org",
+                    "@type": "FAQPage",
+                    mainEntity: dossier.faq.map((item) => ({
+                      "@type": "Question",
+                      name: item.question,
+                      acceptedAnswer: { "@type": "Answer", text: item.answer },
+                    })),
+                  },
+                ]
+              : []),
             breadcrumbJsonLd([
               { name: "Atlas of Today's World", path: "/" },
               { name: region.name, path: `/region/${region.slug}` },

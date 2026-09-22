@@ -4,7 +4,6 @@ summary: "The northern European welfare states still deliver the outcomes they a
 category: "Living Conditions"
 region: "western-central-europe"
 countries: ["NOR", "SWE", "FIN", "DNK", "ISL"]
-special: "demo-region-1"
 author: "Atlas editorial team"
 published: "2026-08-21"
 readingMinutes: 6

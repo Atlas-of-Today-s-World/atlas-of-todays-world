@@ -4,7 +4,7 @@ summary: "One river feeds the rice fields and fisheries of five countries. The d
 category: "Society"
 region: "southeast-asia-oceania"
 countries: ["MMR", "THA", "LAO", "KHM", "VNM"]
-special: "demo-region-8"
+issue: "climate-frontlines"
 author: "Atlas editorial team"
 published: "2026-07-18"
 readingMinutes: 6

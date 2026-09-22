@@ -4,7 +4,7 @@ summary: "Five centuries after the silver mountain at Potosi, the region that su
 category: "Historical Roots"
 region: "latin-america-caribbean"
 countries: ["CHL", "PER", "BOL", "ARG", "COL"]
-special: "demo-region-9"
+issue: "energy-transition"
 author: "Atlas editorial team"
 published: "2026-06-30"
 readingMinutes: 8

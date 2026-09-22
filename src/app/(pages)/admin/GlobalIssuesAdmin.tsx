@@ -12,7 +12,7 @@ export interface AdminCountry {
   lat: number | null;
 }
 
-export interface AdminSpecialRegion {
+export interface AdminGlobalIssue {
   slug: string;
   name: string;
   subtitle: string;
@@ -26,7 +26,7 @@ const FIELD =
   "w-full rounded-lg border border-[var(--color-line)] bg-white px-3 py-2 text-[14px] text-[var(--color-ink)] focus:border-[var(--color-accent)] focus:outline-none";
 const LABEL = "block text-[12px] font-medium text-[var(--color-ink-muted)]";
 
-/** Nabídka barev v pastelové rodině Figmy, ať vlastní celky nevypadají cizí. */
+/** Nabídka barev v pastelové rodině Figmy, ať global issues nevypadají cizí. */
 const PALETTE = [
   { fill: "#A8C8E8", stroke: "#3E7AA8" },
   { fill: "#C9E0A8", stroke: "#5C8C36" },
@@ -49,15 +49,15 @@ const EMPTY = {
 };
 
 /**
- * Skládání vlastních celků ze zemí. Můžou libovolně křížit hranice regionů
+ * Skládání global issues ze zemí. Můžou libovolně křížit hranice regionů
  * Atlasu – právě proto tu jsou.
  */
-export default function SpecialRegionsAdmin({
+export default function GlobalIssuesAdmin({
   regions,
   countries,
   atlasRegions,
 }: {
-  regions: AdminSpecialRegion[];
+  regions: AdminGlobalIssue[];
   countries: AdminCountry[];
   atlasRegions: { slug: string; name: string }[];
 }) {
@@ -112,7 +112,7 @@ export default function SpecialRegionsAdmin({
     });
 
     try {
-      const res = await fetch("/api/admin/special-regions", {
+      const res = await fetch("/api/admin/global-issues", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...draft, points }),
@@ -134,7 +134,7 @@ export default function SpecialRegionsAdmin({
     setBusy(true);
     try {
       const res = await fetch(
-        `/api/admin/special-regions?slug=${encodeURIComponent(slug)}`,
+        `/api/admin/global-issues?slug=${encodeURIComponent(slug)}`,
         { method: "DELETE" },
       );
       const data = await res.json();
@@ -151,11 +151,11 @@ export default function SpecialRegionsAdmin({
     <div className="mt-10 grid gap-10 lg:grid-cols-[1.35fr_1fr]">
       <section>
         <h2 className="font-display text-[20px] font-bold">
-          {editing ? `Úprava celku „${draft.name}"` : "Nový vlastní celek"}
+          {editing ? `Úprava celku „${draft.name}"` : "Nový global issue"}
         </h2>
         <p className="mt-2 text-[13px] leading-relaxed text-[var(--color-ink-soft)]">
-          Vlastní celky se na globusu zapínají přepínačem{" "}
-          <strong className="font-medium">Special regions</strong>. Nemusí
+          Global Issues se na globusu zapínají přepínačem{" "}
+          <strong className="font-medium">Global Issues</strong>. Nemusí
           respektovat hranice devíti regionů Atlasu.
         </p>
 
@@ -299,7 +299,7 @@ export default function SpecialRegionsAdmin({
 
       <section>
         <h2 className="font-display text-[20px] font-bold">
-          Vlastní celky{" "}
+          Global Issues{" "}
           <span className="text-[var(--color-ink-muted)]">({regions.length})</span>
         </h2>
 
@@ -316,7 +316,7 @@ export default function SpecialRegionsAdmin({
               />
               <div className="min-w-0 flex-1">
                 <Link
-                  href={`/special/${region.slug}`}
+                  href={`/global-issue/${region.slug}`}
                   className="block text-[14px] font-medium text-[var(--color-ink)] hover:text-[var(--color-accent)]"
                 >
                   {region.name}
@@ -348,7 +348,7 @@ export default function SpecialRegionsAdmin({
 
         {!regions.length ? (
           <p className="mt-4 text-[13px] text-[var(--color-ink-muted)]">
-            Zatím žádné vlastní celky.
+            Zatím žádné global issues.
           </p>
         ) : null}
       </section>

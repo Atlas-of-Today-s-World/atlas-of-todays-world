@@ -28,7 +28,7 @@ export default function PagesLayout({
               Admin
             </Link>
             <Link
-              href="/support"
+              href="/patrons"
               className="rounded-full bg-[var(--color-accent)] px-4 py-1.5 text-white"
             >
               Support us

@@ -1,17 +1,17 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import {
-  allSpecialRegions,
-  saveSpecialRegions,
-  type SpecialRegion,
-} from "@/lib/special-regions";
+  allGlobalIssues,
+  saveGlobalIssues,
+  type GlobalIssue,
+} from "@/lib/global-issues";
 
 export const dynamic = "force-dynamic";
 
 /**
- * Správa vlastních („special") regionů z administrace.
+ * Správa vlastních („issue") regionů z administrace.
  *
- * MOCK: bez autentizace, zapisuje do src/content/special-regions.json, takže
+ * MOCK: bez autentizace, zapisuje do src/content/global-issues.json, takže
  * běží jen lokálně. Pro ostrý provoz sem patří redakční systém s účty.
  */
 function slugify(value: string): string {
@@ -40,11 +40,11 @@ function centerOf(
 function revalidateAll(slug?: string) {
   revalidatePath("/");
   revalidatePath("/admin");
-  if (slug) revalidatePath(`/special/${slug}`);
+  if (slug) revalidatePath(`/global-issue/${slug}`);
 }
 
 export async function GET() {
-  return NextResponse.json({ regions: await allSpecialRegions() });
+  return NextResponse.json({ regions: await allGlobalIssues() });
 }
 
 export async function POST(request: Request) {
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const existing = await allSpecialRegions();
+  const existing = await allGlobalIssues();
   const slug = slugify(String(body.slug ?? "").trim() || name);
   if (!slug) {
     return NextResponse.json({ error: "Z názvu nejde odvodit URL." }, { status: 400 });
@@ -81,7 +81,7 @@ export async function POST(request: Request) {
     ? (body.points as { lon: number | null; lat: number | null }[])
     : [];
 
-  const region: SpecialRegion = {
+  const region: GlobalIssue = {
     slug,
     name,
     subtitle: String(body.subtitle ?? "").trim() || "Custom grouping",
@@ -101,10 +101,10 @@ export async function POST(request: Request) {
   if (index >= 0) next[index] = { ...existing[index], ...region };
   else next.push(region);
 
-  await saveSpecialRegions(next);
+  await saveGlobalIssues(next);
   revalidateAll(slug);
 
-  return NextResponse.json({ ok: true, slug, url: `/special/${slug}` });
+  return NextResponse.json({ ok: true, slug, url: `/global-issue/${slug}` });
 }
 
 export async function DELETE(request: Request) {
@@ -112,12 +112,12 @@ export async function DELETE(request: Request) {
   const slug = slugify(searchParams.get("slug") ?? "");
   if (!slug) return NextResponse.json({ error: "Chybí slug." }, { status: 400 });
 
-  const existing = await allSpecialRegions();
+  const existing = await allGlobalIssues();
   if (!existing.some((region) => region.slug === slug)) {
     return NextResponse.json({ error: "Celek neexistuje." }, { status: 404 });
   }
 
-  await saveSpecialRegions(existing.filter((region) => region.slug !== slug));
+  await saveGlobalIssues(existing.filter((region) => region.slug !== slug));
   revalidateAll(slug);
 
   return NextResponse.json({ ok: true });

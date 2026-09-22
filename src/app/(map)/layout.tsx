@@ -1,5 +1,4 @@
 import Header from "@/components/Header";
-import type { HotNewsItem } from "@/components/HotNews";
 import AtlasGlobe, { type RegionLookup } from "@/components/map/AtlasGlobe";
 import MapControls from "@/components/map/MapControls";
 import { MapProvider } from "@/components/map/MapContext";
@@ -8,35 +7,7 @@ import { REGIONS } from "@/data/regions";
 import { allNews } from "@/lib/content";
 import { countryByIso3, indexableCountries, regionColorMap } from "@/lib/countries";
 import { INDICATORS, colorMapFor, legendFor } from "@/lib/indicators";
-import { specialColorMap, specialLookup } from "@/lib/special-regions";
-
-/** Osm nejnovějších novinek pro blok Hot News. */
-async function buildHotNews(): Promise<HotNewsItem[]> {
-  const newsItems = await allNews();
-  return newsItems.slice(0, 8).map((item) => {
-    // Novinka o jedné zemi nese jméno země, jinak region; bez obojího je to téma.
-    const onlyCountry =
-      item.countries?.length === 1 ? countryByIso3(item.countries[0]) : null;
-    if (onlyCountry) {
-      return {
-        slug: item.slug,
-        title: item.title,
-        scope: onlyCountry.name,
-        scopeKind: "country" as const,
-        published: item.published ?? null,
-        hero: item.hero,
-      };
-    }
-    return {
-      slug: item.slug,
-      title: item.title,
-      scope: item.regionRef?.name ?? item.category,
-      scopeKind: item.regionRef ? ("region" as const) : ("topic" as const),
-      published: item.published ?? null,
-      hero: item.hero,
-    };
-  });
-}
+import { issueColorMap, issueLookup } from "@/lib/global-issues";
 
 /** Volby pro přepínač vrstev – generují se z importovaných indikátorů. */
 function buildViewOptions(): ViewOption[] {
@@ -97,12 +68,11 @@ export default async function MapLayout({
   };
 
   const viewOptions = buildViewOptions();
-  const [hotNews, special, specialColors] = await Promise.all([
-    buildHotNews(),
-    specialLookup(),
-    specialColorMap(),
+  const [issue, issueColors] = await Promise.all([
+    issueLookup(),
+    issueColorMap(),
   ]);
-  colorSets.special = specialColors;
+  colorSets.issue = issueColors;
 
   return (
     <MapProvider>
@@ -111,13 +81,12 @@ export default async function MapLayout({
           colorSets={colorSets}
           slugs={slugs}
           regions={regionLookup}
-          special={special}
+          issue={issue}
         />
         <Header />
         <MapControls
           options={viewOptions}
-          hotNews={hotNews}
-          hasSpecial={Object.keys(special.bySlug).length > 0}
+          hasIssues={Object.keys(issue.bySlug).length > 0}
         />
         <MapLegend options={viewOptions} />
         {children}

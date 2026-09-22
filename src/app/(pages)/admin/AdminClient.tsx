@@ -9,8 +9,8 @@ export interface AdminNewsItem {
   title: string;
   category: string;
   region: string;
-  special: string | null;
-  specialName: string | null;
+  issue: string | null;
+  issueName: string | null;
   published: string | null;
 }
 
@@ -20,8 +20,8 @@ export interface AdminRegion {
   countries: { iso3: string; name: string }[];
 }
 
-/** Vlastní celek ke zvolení u novinky. */
-export interface AdminSpecial {
+/** Global Issue ke zvolení u novinky. */
+export interface AdminIssue {
   slug: string;
   name: string;
   countries: { iso3: string; name: string }[];
@@ -34,30 +34,30 @@ const LABEL = "block text-[12px] font-medium text-[var(--color-ink-muted)]";
 export default function AdminClient({
   newsItems,
   regions,
-  specials,
+  issues,
   categories,
 }: {
   newsItems: AdminNewsItem[];
   regions: AdminRegion[];
-  specials: AdminSpecial[];
+  issues: AdminIssue[];
   categories: string[];
 }) {
   const router = useRouter();
   const [regionSlug, setRegionSlug] = useState(regions[0]?.slug ?? "");
-  const [specialSlug, setSpecialSlug] = useState("");
+  const [issueSlug, setIssueSlug] = useState("");
   const [countries, setCountries] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
 
   const region = regions.find((item) => item.slug === regionSlug);
-  const special = specials.find((item) => item.slug === specialSlug);
+  const issue = issues.find((item) => item.slug === issueSlug);
 
   // Nabídka zemí = země regionu + země zvoleného celku. Celek sahá napříč
   // regiony, takže bez toho by se jeho země nedaly u novinky zaškrtnout.
   const pickable = [
     ...(region?.countries ?? []),
-    ...(special?.countries ?? []).filter(
+    ...(issue?.countries ?? []).filter(
       (item) => !(region?.countries ?? []).some((c) => c.iso3 === item.iso3),
     ),
   ];
@@ -79,7 +79,7 @@ export default function AdminClient({
           summary: form.get("summary"),
           category: form.get("category"),
           region: regionSlug,
-          special: specialSlug,
+          issue: issueSlug,
           countries,
           hero: form.get("hero"),
           author: form.get("author"),
@@ -92,7 +92,7 @@ export default function AdminClient({
       setDone(data.url);
       (event.target as HTMLFormElement).reset();
       setCountries([]);
-      setSpecialSlug("");
+      setIssueSlug("");
       router.refresh();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Uložení selhalo.");
@@ -190,40 +190,40 @@ export default function AdminClient({
             </div>
 
             <div>
-              <label className={LABEL} htmlFor="news-special">
-                Vlastní celek{" "}
+              <label className={LABEL} htmlFor="news-issue">
+                Global Issue{" "}
                 <span className="font-normal">
                   (nepovinné – novinka se pak ukáže i v profilu celku)
                 </span>
               </label>
               <select
-                id="news-special"
-                name="special"
-                value={specialSlug}
-                onChange={(event) => setSpecialSlug(event.target.value)}
+                id="news-issue"
+                name="issue"
+                value={issueSlug}
+                onChange={(event) => setIssueSlug(event.target.value)}
                 className={`mt-1.5 ${FIELD}`}
               >
                 <option value="">— žádný —</option>
-                {specials.map((item) => (
+                {issues.map((item) => (
                   <option key={item.slug} value={item.slug}>
                     {item.name}
                   </option>
                 ))}
               </select>
-              {special ? (
+              {issue ? (
                 <button
                   type="button"
                   onClick={() =>
                     setCountries((current) => [
                       ...current,
-                      ...special.countries
+                      ...issue.countries
                         .map((item) => item.iso3)
                         .filter((iso3) => !current.includes(iso3)),
                     ])
                   }
                   className="mt-2 rounded-full border border-[var(--color-line)] px-3 py-1 text-[12px] text-[var(--color-ink-soft)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
                 >
-                  + označit všech {special.countries.length} zemí celku
+                  + označit všech {issue.countries.length} zemí celku
                 </button>
               ) : null}
             </div>
@@ -323,7 +323,7 @@ export default function AdminClient({
                   </Link>
                   <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-muted)]">
                     {item.category} · {item.region}
-                    {item.specialName ? ` · ${item.specialName}` : ""}
+                    {item.issueName ? ` · ${item.issueName}` : ""}
                     {item.published ? ` · ${item.published}` : ""}
                   </p>
                 </div>

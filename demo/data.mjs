@@ -22,5 +22,5 @@ writeFileSync(join(dir, "atlas-data.js"), `window.ATLAS_DATA=${json};\n`, "utf8"
 
 console.log(
   `demo/atlas-data.js · ${data.countries.length} zemí · ${data.regions.length} regionů · ` +
-    `${data.specials.length} vlastních celků · ${data.newsItems.length} novinek`,
+    `${data.issues.length} global issues · ${data.newsItems.length} novinek`,
 );

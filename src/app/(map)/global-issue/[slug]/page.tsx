@@ -7,7 +7,7 @@ import MapModeSetter from "@/components/map/MapModeSetter";
 import { NewsBadge, SectionLabel } from "@/components/atlas-ui";
 import { countryByIso3 } from "@/lib/countries";
 import { allNews } from "@/lib/content";
-import { allSpecialRegions, specialRegionBySlug } from "@/lib/special-regions";
+import { allGlobalIssues, globalIssueBySlug } from "@/lib/global-issues";
 import {
   absoluteUrl,
   alternates,
@@ -17,12 +17,12 @@ import {
   jsonLdHtml,
 } from "@/lib/seo";
 
-// Vlastní celky vznikají v administraci, takže routa musí umět i slug,
+// Global Issues vznikají v administraci, takže routa musí umět i slug,
 // který v době buildu neexistoval.
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  const regions = await allSpecialRegions();
+  const regions = await allGlobalIssues();
   return regions.map((region) => ({ slug: region.slug }));
 }
 
@@ -32,17 +32,17 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const region = await specialRegionBySlug(slug);
+  const region = await globalIssueBySlug(slug);
   if (!region) return {};
 
   return {
     title: `${region.name} — ${region.subtitle}`,
     description: region.summary.slice(0, 180),
-    alternates: alternates(`/special/${region.slug}`),
+    alternates: alternates(`/global-issue/${region.slug}`),
     openGraph: {
       title: `${region.name} — Atlas of Today's World`,
       description: region.summary.slice(0, 180),
-      url: absoluteUrl(`/special/${region.slug}`),
+      url: absoluteUrl(`/global-issue/${region.slug}`),
     },
     other: geoMeta({
       lat: region.center[1],
@@ -52,13 +52,13 @@ export async function generateMetadata({
   };
 }
 
-export default async function SpecialRegionPage({
+export default async function GlobalIssuePage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const region = await specialRegionBySlug(slug);
+  const region = await globalIssueBySlug(slug);
   if (!region) notFound();
 
   const countries = region.countries
@@ -66,16 +66,16 @@ export default async function SpecialRegionPage({
     .filter((country): country is NonNullable<typeof country> => country !== null)
     .sort((a, b) => (b.population ?? 0) - (a.population ?? 0));
 
-  // Napřed novinky přiřazené přímo k celku (pole `special`), za nimi ty, které
+  // Napřed novinky přiřazené přímo k celku (pole `issue`), za nimi ty, které
   // se trefily některou ze zemí celku. Bez duplicit.
   const members = new Set(region.countries);
   const news = await allNews();
-  const tagged = news.filter((item) => item.special === region.slug);
+  const tagged = news.filter((item) => item.issue === region.slug);
   const related = [
     ...tagged,
     ...news.filter(
       (item) =>
-        item.special !== region.slug &&
+        item.issue !== region.slug &&
         (item.countries ?? []).some((iso3) => members.has(iso3)),
     ),
   ];
@@ -93,11 +93,11 @@ export default async function SpecialRegionPage({
         regionCountries={region.countries}
         regionStroke={region.stroke}
       />
-      <MapModeSetter mode="special" />
+      <MapModeSetter mode="issue" />
 
       <ContentRail>
         <article className="px-6 pb-10 pt-6">
-          <SectionLabel>Special region</SectionLabel>
+          <SectionLabel>Global Issue</SectionLabel>
 
           <h1 className="mt-4 font-display text-[26px] font-bold leading-tight text-[var(--color-ink)]">
             {region.name}
@@ -178,7 +178,7 @@ export default async function SpecialRegionPage({
           ) : null}
 
           <p className="mt-8 text-[11.5px] text-[var(--color-ink-muted)]">
-            Special regions are assembled by the Atlas team and can cross the
+            Global Issues are assembled by the Atlas team and can cross the
             boundaries of the nine Atlas regions.{" "}
             <Link href="/admin" className="text-[var(--color-link)] hover:underline">
               Edit them in the administration
@@ -198,7 +198,7 @@ export default async function SpecialRegionPage({
               name: region.name,
               alternateName: region.subtitle,
               description: region.summary,
-              url: absoluteUrl(`/special/${region.slug}`),
+              url: absoluteUrl(`/global-issue/${region.slug}`),
               geo: geoCoordinates(region.center[1], region.center[0]),
               containsPlace: countries.map((country) => ({
                 "@type": "Country",
@@ -208,7 +208,7 @@ export default async function SpecialRegionPage({
             },
             breadcrumbJsonLd([
               { name: "Atlas of Today's World", path: "/" },
-              { name: region.name, path: `/special/${region.slug}` },
+              { name: region.name, path: `/global-issue/${region.slug}` },
             ]),
           ]),
         }}

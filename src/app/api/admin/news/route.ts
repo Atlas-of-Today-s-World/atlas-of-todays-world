@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { NEWS_CATEGORIES } from "@/lib/content-types";
 import { allNews, invalidateNews } from "@/lib/content";
 import { REGION_BY_SLUG } from "@/data/regions";
-import { allSpecialRegions } from "@/lib/special-regions";
+import { allGlobalIssues } from "@/lib/global-issues";
 
 export const dynamic = "force-dynamic";
 
@@ -33,16 +33,15 @@ function yamlString(value: string): string {
   return `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
 }
 
-function refreshPaths(slug: string, region: string, special?: string) {
+function refreshPaths(slug: string, region: string, issue?: string) {
   invalidateNews();
   revalidatePath("/news");
   revalidatePath("/admin");
   revalidatePath(`/news/${slug}`);
   if (region) {
     revalidatePath(`/region/${region}`);
-    revalidatePath(`/region/${region}/full`);
   }
-  if (special) revalidatePath(`/special/${special}`);
+  if (issue) revalidatePath(`/global-issue/${issue}`);
 }
 
 export async function GET() {
@@ -53,7 +52,7 @@ export async function GET() {
       title: item.title,
       category: item.category,
       region: item.region,
-      special: item.special ?? null,
+      issue: item.issue ?? null,
       published: item.published ?? null,
     })),
   });
@@ -72,7 +71,7 @@ export async function POST(request: Request) {
   const category = String(body.category ?? "").trim();
   const region = String(body.region ?? "").trim();
   const markdown = String(body.markdown ?? "").trim();
-  const special = String(body.special ?? "").trim();
+  const issue = String(body.issue ?? "").trim();
 
   if (!title) return NextResponse.json({ error: "Doplň název novinky." }, { status: 400 });
   if (!summary) return NextResponse.json({ error: "Doplň perex." }, { status: 400 });
@@ -83,10 +82,10 @@ export async function POST(request: Request) {
   if (!REGION_BY_SLUG[region]) {
     return NextResponse.json({ error: "Neznámý region." }, { status: 400 });
   }
-  // Vlastní celek je nepovinný, ale když přijde, musí existovat – jinak by
+  // Global Issue je nepovinný, ale když přijde, musí existovat – jinak by
   // novinka visela na slugu, který nikam nevede.
-  if (special && !(await allSpecialRegions()).some((item) => item.slug === special)) {
-    return NextResponse.json({ error: "Neznámý vlastní celek." }, { status: 400 });
+  if (issue && !(await allGlobalIssues()).some((item) => item.slug === issue)) {
+    return NextResponse.json({ error: "Neznámý global issue." }, { status: 400 });
   }
 
   const slug = slugify(String(body.slug ?? "").trim() || title);
@@ -110,7 +109,7 @@ export async function POST(request: Request) {
     `category: ${yamlString(category)}`,
     `region: ${yamlString(region)}`,
     countries.length ? `countries: [${countries.map(yamlString).join(", ")}]` : null,
-    special ? `special: ${yamlString(special)}` : null,
+    issue ? `issue: ${yamlString(issue)}` : null,
     hero ? `hero: ${yamlString(hero)}` : null,
     author ? `author: ${yamlString(author)}` : null,
     `published: ${yamlString(published)}`,
@@ -122,7 +121,7 @@ export async function POST(request: Request) {
     .join("\n");
 
   await writeFile(join(NEWS_DIR, `${slug}.md`), `${frontmatter}${markdown}\n`, "utf8");
-  refreshPaths(slug, region, special);
+  refreshPaths(slug, region, issue);
 
   return NextResponse.json({ ok: true, slug, url: `/news/${slug}` });
 }
@@ -137,7 +136,7 @@ export async function DELETE(request: Request) {
   if (!item) return NextResponse.json({ error: "Novinka neexistuje." }, { status: 404 });
 
   await unlink(join(NEWS_DIR, `${slug}.md`));
-  refreshPaths(slug, item.region, item.special);
+  refreshPaths(slug, item.region, item.issue);
 
   return NextResponse.json({ ok: true });
 }
