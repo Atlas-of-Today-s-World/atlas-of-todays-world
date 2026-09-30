@@ -1687,6 +1687,15 @@ export type Database = {
       portrait: { Args: { p_kind: string; p_slug: string }; Returns: Json }
       purge_audit_log: { Args: never; Returns: number }
       record_page_view: { Args: never; Returns: undefined }
+      replace_portrait_items: {
+        Args: {
+          p_collection: string
+          p_items: Json
+          p_kind: string
+          p_slug: string
+        }
+        Returns: undefined
+      }
       search: {
         Args: { p_limit?: number; p_text: string }
         Returns: {

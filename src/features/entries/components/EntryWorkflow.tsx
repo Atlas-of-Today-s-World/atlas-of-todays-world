@@ -1,0 +1,174 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useActionState, useState } from "react";
+import { ActionStatus } from "@/components/admin/ActionStatus";
+import { ConfirmButton } from "@/components/admin/ConfirmButton";
+import { SubmitButton } from "@/components/admin/SubmitButton";
+import { FormField, Textarea } from "@/components/ui/field";
+import type { ActionState } from "@/lib/actions";
+import {
+  approveEntry,
+  deleteEntry,
+  restoreRevision,
+  sendBackEntry,
+  submitEntry,
+  unpublishEntry,
+} from "../actions";
+import type { Revision } from "../editorial";
+import type { EntryStatus } from "../schema";
+
+const dateFormat = new Intl.DateTimeFormat("cs-CZ", { dateStyle: "medium", timeStyle: "short" });
+
+/**
+ * Stav článku a kroky schvalování. Tlačítka se ukazují podle práv, ale o tom,
+ * jestli krok projde, rozhodují DB funkce (submit/approve/send_back/unpublish).
+ */
+export function EntryWorkflow({
+  id,
+  status,
+  canApprove,
+  canDelete,
+  reviewNote,
+}: {
+  id: string;
+  status: EntryStatus;
+  canApprove: boolean;
+  canDelete: boolean;
+  reviewNote: string | null;
+}) {
+  const router = useRouter();
+  const [result, setResult] = useState<ActionState>({ ok: false });
+  const done = (state: ActionState) => {
+    setResult(state);
+    if (state.ok) router.refresh();
+  };
+
+  return (
+    <div className="grid gap-4">
+      {reviewNote && status === "draft" ? (
+        <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-[13.5px]">
+          <p className="font-medium">Vráceno k úpravě:</p>
+          <p className="mt-1 whitespace-pre-line">{reviewNote}</p>
+        </div>
+      ) : null}
+
+      <div className="flex flex-wrap gap-2">
+        {status === "draft" ? (
+          <ConfirmButton
+            label="Odeslat ke schválení"
+            variant="primary"
+            title="Odeslat ke schválení?"
+            body="Článek uvidí schvalovatelé. Do rozhodnutí ho můžete dál upravovat."
+            confirm="Odeslat"
+            action={() => submitEntry(id)}
+            onDone={done}
+          />
+        ) : null}
+        {status === "pending" && canApprove ? (
+          <ConfirmButton
+            label="Schválit a zveřejnit"
+            variant="primary"
+            title="Zveřejnit článek?"
+            body="Článek se hned objeví na webu."
+            confirm="Zveřejnit"
+            action={() => approveEntry(id)}
+            onDone={done}
+          />
+        ) : null}
+        {status === "published" && canApprove ? (
+          <ConfirmButton
+            label="Stáhnout z webu"
+            variant="danger"
+            title="Stáhnout článek z webu?"
+            body="Článek zmizí z webu a vrátí se do konceptů. Adresa přestane fungovat."
+            confirm="Stáhnout"
+            action={() => unpublishEntry(id)}
+            onDone={done}
+          />
+        ) : null}
+        {canDelete && status !== "published" ? (
+          <ConfirmButton
+            label="Smazat"
+            variant="danger"
+            title="Smazat článek natrvalo?"
+            body="Smaže se i historie změn. Tohle nejde vrátit."
+            confirm="Smazat"
+            action={() => deleteEntry(id)}
+            onDone={(state) => {
+              setResult(state);
+              if (state.ok) router.push("/admin/obsah");
+            }}
+          />
+        ) : null}
+      </div>
+
+      <ActionStatus state={result} />
+
+      {status === "pending" && canApprove ? <SendBack id={id} onDone={done} /> : null}
+    </div>
+  );
+}
+
+function SendBack({ id, onDone }: { id: string; onDone: (state: ActionState) => void }) {
+  const [state, action] = useActionState<ActionState, FormData>(
+    async (prev, data) => {
+      const next = await sendBackEntry(prev, data);
+      onDone(next);
+      return next;
+    },
+    { ok: false },
+  );
+  return (
+    <form action={action} className="grid gap-3 rounded-xl border border-[var(--color-line)] p-4">
+      <input type="hidden" name="id" value={id} />
+      <FormField
+        id="note"
+        label="Vrátit autorovi s poznámkou"
+        hint="Autor poznámku uvidí u článku."
+        errors={state.fieldErrors?.note}
+      >
+        <Textarea id="note" name="note" rows={3} maxLength={2000} required />
+      </FormField>
+      <div>
+        <SubmitButton variant="outline" pending="Vracím…">
+          Vrátit k úpravě
+        </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+export function RevisionList({ entryId, revisions }: { entryId: string; revisions: Revision[] }) {
+  const router = useRouter();
+  const [result, setResult] = useState<ActionState>({ ok: false });
+  if (!revisions.length) {
+    return <p className="text-[13px] text-[var(--color-ink-muted)]">Zatím žádné starší verze.</p>;
+  }
+  return (
+    <div className="grid gap-2">
+      <ActionStatus state={result} />
+      <ul className="grid gap-1 text-[13px]">
+        {revisions.map((revision) => (
+          <li key={revision.id} className="flex items-center justify-between gap-3">
+            <span>
+              {dateFormat.format(new Date(revision.saved_at))}
+              <span className="text-[var(--color-ink-muted)]"> · {revision.title}</span>
+            </span>
+            <ConfirmButton
+              label="Obnovit"
+              title="Obnovit tuto verzi?"
+              body="Titulek, perex, obrázek a text se vrátí do této podoby. Současná verze zůstane v historii."
+              confirm="Obnovit"
+              action={() => restoreRevision(entryId, revision.id)}
+              onDone={(state) => {
+                setResult(state);
+                if (state.ok) router.refresh();
+              }}
+            />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}

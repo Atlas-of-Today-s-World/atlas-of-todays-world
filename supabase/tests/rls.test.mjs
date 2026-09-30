@@ -841,3 +841,54 @@ test("rate limit: v okně pustí jen daný počet a klient na něj nedosáhne", 
     refused(q("select hit_rate_limit('test:2', 3, 600)"), /permission denied/),
   );
 });
+
+test("portrét: kolekci nahradí v jedné transakci jen redakce s právem", async () => {
+  const items = JSON.stringify([
+    { date_label: "1990", title: "Start", body: "B" },
+    { date_label: "2000", title: "Next", body: "C" },
+  ]);
+  const call = "select replace_portrait_items('region', 'east-asia', 'timeline', $1::jsonb)";
+
+  // Publisher píše jen své články — obsah portrétu mu nepatří.
+  await as(id.pubA, () => refused(q(call, [items])));
+  // Anonym funkci vůbec nespustí.
+  await as(null, () => refused(q(call, [items])));
+
+  await as(id.editor, () => q(call, [items]));
+  const rows = await q(
+    "select position, title from timeline_events where region_slug = 'east-asia' order by position",
+  );
+  assert.deepEqual(
+    rows.map((r) => r.title),
+    ["Start", "Next"],
+  );
+
+  // Neplatná položka (zdroj bez https) vrátí celé volání — původní obsah zůstane.
+  await as(id.editor, () =>
+    refused(
+      q("select replace_portrait_items('region', 'east-asia', 'resources', $1::jsonb)", [
+        JSON.stringify([
+          { kind: "Videos & Documentaries", title: "x", url: "https://ok.example" },
+          { kind: "Videos & Documentaries", title: "y", url: "http://bad.example" },
+        ]),
+      ]),
+    ),
+  );
+  assert.equal(
+    (await one("select count(*)::int n from resources where region_slug = 'east-asia'")).n,
+    0,
+  );
+
+  // Ruční karty ukazatelů patří sekci regions — data-editor ano, publisher ne.
+  const metrics = JSON.stringify([{ value: "5", label: "Castles", source: "Atlas" }]);
+  await as(id.dataEditor, () =>
+    q("select replace_portrait_items('country', 'JPN', 'metrics', $1::jsonb)", [metrics]),
+  );
+  await as(id.pubA, () =>
+    refused(q("select replace_portrait_items('country', 'JPN', 'metrics', $1::jsonb)", [metrics])),
+  );
+  assert.equal(
+    (await one("select count(*)::int n from portrait_metrics where country_iso3 = 'JPN'")).n,
+    1,
+  );
+});

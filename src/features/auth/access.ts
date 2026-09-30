@@ -66,3 +66,12 @@ export const getAccess = cache(async function getAccess(): Promise<Access | null
     permissions,
   };
 });
+
+/**
+ * Pro stránku sekce administrace: přístup, pokud má uživatel v sekci danou
+ * akci, jinak null (stránka ukáže „Nemáte oprávnění"). Jen UX — data chrání RLS.
+ */
+export async function sectionAccess(section: Section, action: Action = "v") {
+  const access = await getAccess();
+  return access && can(access.permissions, section, action) ? access : null;
+}

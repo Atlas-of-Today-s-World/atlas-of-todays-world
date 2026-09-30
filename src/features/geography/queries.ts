@@ -124,3 +124,14 @@ const GEO: GeoFacts[] = (generated as GeneratedCountry[]).map(
 
 /** Model Atlasu pro jeden request (snapshot je v cache, skládání jen jednou). */
 export const getAtlas = cache(async (): Promise<Atlas> => buildAtlas(await loadSnapshot(), GEO));
+
+/** Volby pro výběry v administraci (regiony, global issues, země podle abecedy). */
+export async function getPickerOptions() {
+  const atlas = await getAtlas();
+  const byName = (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name, "en");
+  return {
+    regions: atlas.regions.map(({ slug, name }) => ({ slug, name })),
+    issues: atlas.issues.map(({ slug, name }) => ({ slug, name })).sort(byName),
+    countries: atlas.countries.map(({ iso3, name }) => ({ iso3, name })).sort(byName),
+  };
+}
