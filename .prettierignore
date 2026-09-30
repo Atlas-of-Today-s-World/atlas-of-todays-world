@@ -13,3 +13,4 @@ supabase/seed.sql
 supabase/.temp
 package-lock.json
 *.md
+src/lib/db/types.gen.ts

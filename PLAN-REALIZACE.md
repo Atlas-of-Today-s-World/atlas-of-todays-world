@@ -89,22 +89,24 @@ Dělá se **před** napojením na DB, aby se komponenty přepisovaly jen jednou.
 
 ## Fáze B — Databáze připravená pro aplikaci (≈ 2,5 čd) → M2
 
-- [ ] **B1** Migrace `…_security_fixes.sql`: DB-01 (guardy `SECURITY DEFINER`), DB-03 (politiky zvlášť pro
+- [x] **B1** Migrace `…_security_fixes.sql`: DB-01 (guardy `SECURITY DEFINER`), DB-03 (politiky zvlášť pro
       každý příkaz), DB-04, DB-05, DB-06 (URL CHECK), DB-08 (veřejná view bez interních sloupců, `unpublish_entry`),
       DB-09 (přechody jen přes RPC, zákaz self-approval), DB-10, DB-13, DB-15, DB-16 (Storage `owner_id` + prefix).
-- [ ] **B2** Migrace `…_fk_indexes.sql`: DB-12.
-- [ ] **B3** Migrace `…_invitations.sql`: tabulka `invitations`, RLS, trigger pravidel (kdo koho smí pozvat),
+- [x] **B2** Migrace `…_fk_indexes_rate_limits.sql`: DB-12.
+- [x] **B3** Migrace `…_invitations.sql`: tabulka `invitations`, RLS, trigger pravidel (kdo koho smí pozvat),
       `claim_invitation()`, úprava `handle_new_user`, audit. *(závisí na U4)*
-- [ ] **B4** Migrace `…_rate_limits.sql`: tabulka + funkce `hit_rate_limit(key, limit, window)` (SEC-06).
-- [ ] **B5** Migrace `…_search_portrait.sql`: `tsvector` + GIN + `unaccent` na obsahu, RPC `search(q, limit)`,
-      funkce `portrait(kind, slug)` vracející JSON.
-- [ ] **B6** Migrace `…_audit_privacy.sql`: audit bez PII, retence 12 měsíců (DB-14); MFA — `has_perm` vyžaduje
-      `aal2` pro role z `require_2fa_roles` (DB-07).
-- [ ] **B7** `supabase/tests/authz-matrix.json` + parametrický test; testy pro všechny DB-xx a pozvánky
+- [x] **B4** Migrace (spolu s B2): tabulka + funkce `hit_rate_limit(key, limit, window)` (SEC-06).
+- [x] **B5** Migrace `…_search*.sql`: `tsvector` + GIN (konfigurace `simple`, bez `unaccent`), RPC `search(q, limit)`
+      — kterékoli slovo ≥ 3 znaky, shoda i přes země článku. Funkce `portrait()` přesunuta do D1 (vznikne s dotazy webu).
+- [x] **B6** Audit bez PII (jen změněná pole, cíl = id), `purge_audit_log()` pro retenci 12 měsíců (DB-14; plánování v F).
+      TOTP MFA zapnuté v obou projektech; **vynucení `aal2` v `has_perm` až s obrazovkou MFA ve fázi E** (jinak by se admini
+      odřízli) — úkol E10.
+- [~] **B7** `supabase/tests/authz-matrix.json` + parametrický test; testy pro všechny DB-xx a pozvánky
       (včetně „neověřený e-mail pozvánku nepřijme“, „permission-admin nepozve admina“).
-- [ ] **B8** Auth konfigurace v obou projektech *(hotovo 2026-09-30: Google provider, `site_url`, konkrétní redirect URL bez wildcardu `*.vercel.app`, potvrzování e-mailu; zbývá Turnstile, JWT/refresh, `config.toml` a typy)*: `enable_confirmations = true`, redirect URL bez wildcardu (DB-02),
+      *Hotovo: 17 nových DB testů (každé DB-xx + pozvánky + search + rate limit), celkem 45. Parametrická matice zbývá.*
+- [x] **B8** Auth konfigurace v obou projektech *(hotovo 2026-09-30: Google provider, `site_url`, konkrétní redirect URL bez wildcardu `*.vercel.app`, potvrzování e-mailu; zbývá Turnstile, JWT/refresh, `config.toml` a typy)*: `enable_confirmations = true`, redirect URL bez wildcardu (DB-02),
       Turnstile připravené, JWT/refresh nastavení; `supabase gen types` → `src/lib/db/types.gen.ts`. *(dev projekt závisí na U2)*
-- [ ] **B9** CI: `supabase db push` do produkce v `deploy.yml` před nasazením aplikace (GitHub Secrets
+- [x] **B9** CI: `supabase db push` do produkce v `deploy.yml` před nasazením aplikace (GitHub Secrets
       `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, variable `SUPABASE_PROJECT_REF`).
 - **Hotovo, když:** `npm run test:db` pokrývá matici rolí a všechna DB-xx; migrace se aplikují z CI.
 
@@ -155,6 +157,7 @@ Dělá se **před** napojením na DB, aby se komponenty přepisovaly jen jednou.
 - [ ] **E6** Účty: seznam, změna role, schvalovací přiřazení, blokace (+ ban v Auth API, DB-18), pozvánky (plná verze).
 - [ ] **E7** Role a práva: matice role × sekce × `vced`, rozsahy, vlastní role, bezpečnostní nastavení, audit log.
 - [ ] **E8** Odstranit staré admin formuláře a route handlery `api/admin/*` (**D6**, **D7**).
+- [ ] **E10** Obrazovka MFA (TOTP) pro role z `require_2fa_roles` a pak vynucení `aal2` v `has_perm` (DB-07).
 - [ ] **E9** Testy: každá Server Action integrační test „bez práva / s právem“; e2e hlavní toky
       (napsat → odeslat → schválit → je na webu; vrátit s poznámkou; pozvat → přihlásit → role).
 - **Hotovo, když:** redakce provede celý tok od pozvánky po publikaci bez zásahu vývojáře; v kódu nezůstal

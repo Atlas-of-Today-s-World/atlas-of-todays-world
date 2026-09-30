@@ -38,12 +38,38 @@ env:
   VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
 
 jobs:
-  deploy:
-    # Produkci nasadit jen po zeleném CI. Náhled PR z forku nemá přístup k tokenu.
+  # Migrace databáze do produkce PŘED nasazením aplikace — proto musí být
+  # zpětně kompatibilní s běžící verzí (ARCHITEKTURA 6.3). Náhledy PR migrace
+  # nespouští; zkoušejí se na dev projektu (atlas-dev).
+  migrate:
     if: >-
       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
+      github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Migrace do produkce
+        run: |
+          supabase link --project-ref "${{ vars.SUPABASE_PROJECT_REF }}" --password "$SUPABASE_DB_PASSWORD"
+          supabase db push --password "$SUPABASE_DB_PASSWORD" --yes
+
+  deploy:
+    needs: migrate
+    # Produkci nasadit jen po zeleném CI a úspěšné migraci. Náhled PR z forku
+    # nemá přístup k tokenu.
+    if: >-
+      always() && (needs.migrate.result == 'success' || needs.migrate.result == 'skipped') && (
+        (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
+        github.event_name == 'workflow_dispatch' ||
+        (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

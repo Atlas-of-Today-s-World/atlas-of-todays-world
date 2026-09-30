@@ -180,7 +180,7 @@ test("publisher nezveřejní ani přímo, ani přes podstrčený příznak", asy
   await as(id.pubA, async () => {
     await refused(
       q("update entries set status = 'published' where id = $1", [own]),
-      /through approval/,
+      /through submit, approve|through approval/,
     );
     await refused(
       q(
@@ -192,7 +192,7 @@ test("publisher nezveřejní ani přímo, ani přes podstrčený příznak", asy
         await q("select set_config('atlas.approving', 'on', false)");
         return q("update entries set status = 'published' where id = $1", [own]);
       }),
-      /through approval/,
+      /through submit, approve|through approval/,
     );
     await refused(q("select approve_entry($1)", [own]), /outside what you may approve/);
   });
@@ -258,6 +258,9 @@ test("content editor upraví cizí koncept a zveřejní ho", async () => {
   await as(id.editor, async () => {
     const done = await q("update entries set title = 'Fixed' where id = $1 returning id", [entry]);
     assert.equal(done.length, 1);
+    // Schvaluje se jen čekající článek (DB-09): nejdřív odeslat, pak schválit.
+    await refused(q("select approve_entry($1)", [entry]), /waiting for approval/);
+    await q("select submit_entry($1)", [entry]);
     await q("select approve_entry($1)", [entry]);
   });
   assert.equal(
@@ -368,14 +371,18 @@ test("záznam změn zachytí oprávnění, role i schválení", async () => {
   await as(id.admin, () => refused(q("delete from audit_log"), /permission denied/));
 });
 
-test("redakční účet jen z povolené adresy", async () => {
+test("redakční účet jen z povolené adresy (je-li seznam vyplněný)", async () => {
   await as(id.permAdmin, async () => {
+    // Seznam omezuje tým na domény; prázdný seznam neomezuje (tým chrání pozvánky).
+    await q("insert into allowed_emails (value, note) values ('@atlasoftodaysworld.org', 'test')");
     await refused(
       q("update profiles set kind = 'staff' where id = $1", [id.newcomer]),
       /allowed e-mails/,
     );
     await q("insert into allowed_emails (value, note) values ('@example.org', 'test')");
     await q("update profiles set kind = 'staff' where id = $1", [id.newcomer]);
+    await q("update profiles set kind = 'reader' where id = $1", [id.newcomer]);
+    await q("delete from allowed_emails");
   });
 });
 
@@ -518,14 +525,319 @@ test("ruční hodnota ukazatele musí mít zdroj", async () => {
   );
 });
 
-test("obrázky nahraje jen ten, kdo smí psát", async () => {
-  await as(id.pubA, () =>
-    q("insert into storage.objects (bucket_id, name) values ('entry-images', 'a.jpg')"),
-  );
+test("obrázky nahraje jen ten, kdo smí psát, a jen do vlastní složky", async () => {
+  await as(id.pubA, async () => {
+    await q("insert into storage.objects (bucket_id, name) values ('entry-images', $1)", [
+      `${id.pubA}/a.jpg`,
+    ]);
+    await refused(
+      q("insert into storage.objects (bucket_id, name) values ('entry-images', $1)", [
+        `${id.pubB}/a.jpg`,
+      ]),
+      /row-level security/,
+    );
+    await refused(
+      q("insert into storage.objects (bucket_id, name) values ('entry-images', 'a.jpg')"),
+      /row-level security/,
+    );
+  });
   await as(id.reader, () =>
     refused(
       q("insert into storage.objects (bucket_id, name) values ('entry-images', 'b.jpg')"),
       /row-level security/,
     ),
+  );
+});
+
+// ---------------------------------------------------------------------------
+// Bezpečnostní opravy (migrace 20260930000001) a pozvánky (…0002)
+// ---------------------------------------------------------------------------
+
+/** Založí auth uživatele; `confirmed` = ověřený e-mail (Google jej má vždy). */
+async function signUp(uid, email, confirmed = true) {
+  await q("insert into auth.users (id, email, email_confirmed_at) values ($1, $2, $3)", [
+    uid,
+    email,
+    confirmed ? new Date().toISOString() : null,
+  ]);
+}
+
+test("DB-01: vlastní role bez práva na oprávnění neobejde seznam povolených e-mailů", async () => {
+  await q(`insert into roles (id, name) values ('account-helper', 'Account helper')`);
+  await q(
+    `insert into role_permissions (role_id, section, actions) values ('account-helper', 'users', 've')`,
+  );
+  const helper = "00000000-0000-4000-8000-0000000000a1";
+  const target = "00000000-0000-4000-8000-0000000000a2";
+  await signUp(helper, "helper@atlasoftodaysworld.org");
+  await signUp(target, "target@example.org");
+  await q("update profiles set role_id = 'account-helper', kind = 'staff' where id = $1", [helper]);
+  await q("insert into allowed_emails (value) values ('@atlasoftodaysworld.org')");
+  try {
+    await as(helper, () =>
+      refused(q("update profiles set kind = 'staff' where id = $1", [target]), /allowed e-mails/),
+    );
+  } finally {
+    await q("delete from allowed_emails");
+  }
+});
+
+test("DB-03: mazání chce právo „d“, ne jen „e“", async () => {
+  await q(
+    `insert into indicators (id, label, domain_min, domain_max) values ('gini', 'Gini', 20, 60)`,
+  );
+  await q(
+    `insert into indicator_values (indicator_id, country_iso3, value) values ('gini', 'BRA', 52)`,
+  );
+  // data-editor má layers „vce“ — upraví, ale nesmaže.
+  await as(id.dataEditor, async () => {
+    const gone = await q("delete from indicator_values where indicator_id = 'gini' returning 1");
+    assert.equal(gone.length, 0);
+  });
+  assert.equal((await q("select 1 from indicator_values where indicator_id = 'gini'")).length, 1);
+});
+
+test("DB-04: publisher nepřepíše cizí bio autora", async () => {
+  const author = await one(
+    `insert into authors (name, profile_id, bio) values ('B', $1, 'Original') returning id`,
+    [id.pubB],
+  );
+  await as(id.pubA, async () => {
+    const changed = await q("update authors set bio = 'Hacked' where id = $1 returning 1", [
+      author.id,
+    ]);
+    assert.equal(changed.length, 0);
+  });
+  await as(id.pubB, async () => {
+    const changed = await q("update authors set bio = 'Mine' where id = $1 returning 1", [
+      author.id,
+    ]);
+    assert.equal(changed.length, 1);
+  });
+});
+
+test("DB-05: anonym nevidí zdroje nezveřejněného hesla", async () => {
+  const draft = await newEntry(id.pubA, "resource-draft");
+  await q(
+    `insert into resources (entry_id, kind, title, url) values ($1, 'Lectures & Debates', 'Secret', 'https://x.org')`,
+    [draft],
+  );
+  await as(null, async () => {
+    assert.equal((await q("select 1 from resources where title = 'Secret'")).length, 0);
+  });
+});
+
+test("DB-06: URL obrázků a obálek jen https", async () => {
+  const entry = await newEntry(id.pubA, "cover-js");
+  await as(id.pubA, () =>
+    refused(
+      q("update entries set cover_url = 'javascript:alert(1)' where id = $1", [entry]),
+      /check constraint/,
+    ),
+  );
+});
+
+test("DB-08: anonym nevidí vlastníka ani poznámku recenzenta", async () => {
+  await as(null, async () => {
+    await refused(q("select owner_id from entries limit 1"), /permission denied/);
+    await refused(q("select review_note from entries limit 1"), /permission denied/);
+    await refused(q("select profile_id from authors limit 1"), /permission denied/);
+    const rows = await q("select slug, title from entries where status = 'published' limit 1");
+    assert.ok(Array.isArray(rows));
+  });
+});
+
+test("DB-09: schvaluje se jen čekající článek a nikdo kromě admina sám sebe", async () => {
+  const own = await one(
+    `insert into entries (slug, title, category, owner_id) values ('editor-own', 'Own', 'Society', $1) returning id`,
+    [id.editor],
+  );
+  await as(id.editor, async () => {
+    await q("select submit_entry($1)", [own.id]);
+    await refused(q("select approve_entry($1)", [own.id]), /outside what you may approve/);
+  });
+  // Autor si stav „pending" nenastaví přímým zápisem.
+  const draft = await newEntry(id.pubA, "direct-pending");
+  await as(id.pubA, () =>
+    refused(q("update entries set status = 'pending' where id = $1", [draft]), /through submit/),
+  );
+});
+
+test("DB-10: importovaný ukazatel nejde přepnout na vlastní", async () => {
+  await q(
+    `insert into indicators (id, label, domain_min, domain_max) values ('pop', 'Population', 1, 2)`,
+  );
+  await as(id.dataEditor, () =>
+    refused(
+      q("update indicators set is_custom = true where id = 'pop'"),
+      /fixed when it is created/,
+    ),
+  );
+});
+
+test("DB-13: pomocné funkce oprávnění nejsou pro anonyma a prázdná akce neprojde", async () => {
+  await as(null, () => refused(q("select has_perm('news', 'v')"), /permission denied/));
+  await as(id.admin, async () => {
+    assert.equal((await one("select has_perm('news', '') as ok")).ok, false);
+    assert.equal((await one("select has_perm('news', 'v') as ok")).ok, true);
+  });
+});
+
+test("DB-14: záznam změn neobsahuje e-mail ani telefon", async () => {
+  await q("update profiles set role_id = 'observer' where id = $1", [id.newcomer]);
+  await q("update profiles set role_id = 'reader' where id = $1", [id.newcomer]);
+  const rows = await q(
+    "select target, detail::text as detail from audit_log where action = 'profiles.update'",
+  );
+  assert.ok(rows.length > 0);
+  for (const row of rows) {
+    assert.doesNotMatch(row.detail, /@|"email"|"phone"/);
+    assert.doesNotMatch(row.target ?? "", /@/);
+  }
+});
+
+test("DB-15: placené členství nesmaže ani admin", async () => {
+  await q(
+    `insert into memberships (user_id, plan, complimentary, stripe_customer_id, stripe_subscription_id)
+     values ($1, 'patron', false, 'cus_db15', 'sub_db15')
+     on conflict (user_id) do update set plan = 'patron', complimentary = false,
+       stripe_customer_id = 'cus_db15', stripe_subscription_id = 'sub_db15'`,
+    [id.reader],
+  );
+  await as(id.admin, async () => {
+    const gone = await q("delete from memberships where user_id = $1 returning 1", [id.reader]);
+    assert.equal(gone.length, 0);
+  });
+});
+
+test("pozvánka: permission-admin pozve publishera, ne admina ani správce účtů", async () => {
+  await as(id.permAdmin, async () => {
+    await q(
+      "insert into invitations (email, role_id) values ('new.publisher@example.org', 'publisher')",
+    );
+    await refused(
+      q("insert into invitations (email, role_id) values ('boss@example.org', 'admin')"),
+      /Only an admin can invite an admin/,
+    );
+    await refused(
+      q(
+        "insert into invitations (email, role_id) values ('perm2@example.org', 'permission-admin')",
+      ),
+      /manages accounts or permissions/,
+    );
+    await refused(
+      q("insert into invitations (email, role_id) values ('reader2@example.org', 'reader')"),
+      /Readers register on their own/,
+    );
+  });
+  await as(id.pubA, () =>
+    refused(
+      q("insert into invitations (email, role_id) values ('x@example.org', 'publisher')"),
+      /row-level security/,
+    ),
+  );
+});
+
+test("pozvánka: přijme ji jen ověřený e-mail z pozvánky", async () => {
+  await as(id.admin, () =>
+    q(
+      `insert into invitations (email, role_id, approver_countries) values ('invited@example.org', 'content-approver', '{BRA}')`,
+    ),
+  );
+
+  // Jiný e-mail pozvánku nepřevezme.
+  const stranger = "00000000-0000-4000-8000-0000000000b1";
+  await signUp(stranger, "stranger@example.org");
+  assert.equal(
+    (await one("select role_id from profiles where id = $1", [stranger])).role_id,
+    "reader",
+  );
+
+  // Neověřený e-mail (registrace kódem, ještě nepotvrzená) roli nedostane…
+  const invited = "00000000-0000-4000-8000-0000000000b2";
+  await signUp(invited, "Invited@Example.org", false);
+  let profile = await one("select role_id, kind from profiles where id = $1", [invited]);
+  assert.deepEqual(profile, { role_id: "reader", kind: "reader" });
+  await as(invited, async () => {
+    assert.equal((await one("select claim_invitation() as role")).role, null);
+  });
+
+  // …dokud ho neověří.
+  await q("update auth.users set email_confirmed_at = now() where id = $1", [invited]);
+  profile = await one("select role_id, kind from profiles where id = $1", [invited]);
+  assert.deepEqual(profile, { role_id: "content-approver", kind: "staff" });
+  assert.equal(
+    (await one("select count(*)::int as n from approver_countries where user_id = $1", [invited]))
+      .n,
+    1,
+  );
+  const invite = await one(
+    "select accepted_by from invitations where email = 'invited@example.org'",
+  );
+  assert.equal(invite.accepted_by, invited);
+});
+
+test("pozvánka: prošlá ani odvolaná se nepřijme, přijatou nejde měnit", async () => {
+  await q(
+    `insert into invitations (email, role_id, created_at, expires_at)
+     values ('late@example.org', 'publisher', now() - interval '10 days', now() - interval '5 days')`,
+  );
+  const late = "00000000-0000-4000-8000-0000000000c1";
+  await signUp(late, "late@example.org");
+  assert.equal((await one("select role_id from profiles where id = $1", [late])).role_id, "reader");
+
+  await as(id.admin, async () => {
+    await q("insert into invitations (email, role_id) values ('revoked@example.org', 'publisher')");
+    await q("update invitations set revoked_at = now() where email = 'revoked@example.org'");
+  });
+  const revoked = "00000000-0000-4000-8000-0000000000c2";
+  await signUp(revoked, "revoked@example.org");
+  assert.equal(
+    (await one("select role_id from profiles where id = $1", [revoked])).role_id,
+    "reader",
+  );
+
+  await as(id.admin, () =>
+    refused(
+      q("update invitations set role_id = 'admin' where email = 'invited@example.org'"),
+      /cannot be changed/,
+    ),
+  );
+});
+
+test("pozvánka: existující čtenář ji přijme při dalším přihlášení", async () => {
+  // Čtenář má e-mail ověřený dávno; pozvánka přijde až potom.
+  await q("update auth.users set email_confirmed_at = now() where id = $1", [id.reader]);
+  await as(id.admin, () =>
+    q("insert into invitations (email, role_id) values ('reader@example.org', 'observer')"),
+  );
+  await as(id.reader, async () => {
+    assert.equal((await one("select claim_invitation() as role")).role, "observer");
+  });
+  assert.equal((await one("select kind from profiles where id = $1", [id.reader])).kind, "staff");
+});
+
+test("vyhledávání najde zveřejněné, ne koncepty", async () => {
+  await newEntry(id.pubA, "brazil-secret-draft");
+  await as(null, async () => {
+    const hits = await q("select id, kind from search('brazil', 10)");
+    assert.ok(hits.some((hit) => hit.id === "country:BRA"));
+    assert.ok(!hits.some((hit) => hit.id === "news:brazil-secret-draft"));
+    assert.equal((await q("select * from search('', 10)")).length, 0);
+    assert.equal(
+      (await q("select * from search('a''); drop table entries; --', 10)")).length >= 0,
+      true,
+    );
+  });
+});
+
+test("rate limit: v okně pustí jen daný počet a klient na něj nedosáhne", async () => {
+  const results = [];
+  for (let i = 0; i < 4; i += 1) {
+    results.push((await one("select hit_rate_limit('test:1', 3, 600) as ok")).ok);
+  }
+  assert.deepEqual(results, [true, true, true, false]);
+  await as(id.admin, () =>
+    refused(q("select hit_rate_limit('test:2', 3, 600)"), /permission denied/),
   );
 });
