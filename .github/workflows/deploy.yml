@@ -1,12 +1,35 @@
-# Nasazení na Vercel přes token (Hobby účet nenasazuje commity cizích autorů
-# z privátního repa sám, proto build a deploy dělá tahle pipeline).
+# Nasazení na Vercel přes token (Hobby účet nenasazuje z Git integrace commity
+# cizích autorů, proto nasazuje tahle pipeline).
 # Push do main = produkce, pull request = náhledová verze.
+#
+# Build běží na Vercelu, ne tady: Hobby dovolí nahrát max. 5 000 souborů denně
+# a hotový build (~270 stránek) by limit vyčerpal po pár nasazeních. Nahrává se
+# jen zdrojový kód a nezměněné soubory Vercel podle hashe znovu nechce.
+# Co se nenahrává, určuje .vercelignore.
 name: Deploy to Vercel
 
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "*.md"
+      - ".claude/**"
+      - ".github/*.md"
+      - ".github/CODEOWNERS"
+      - ".github/dependabot.yml"
+      - "demo/**"
+      - "tests/**"
+      - "supabase/tests/**"
   pull_request:
+    paths-ignore:
+      - "*.md"
+      - ".claude/**"
+      - ".github/*.md"
+      - ".github/CODEOWNERS"
+      - ".github/dependabot.yml"
+      - "demo/**"
+      - "tests/**"
+      - "supabase/tests/**"
   workflow_dispatch:
 
 concurrency:
@@ -25,16 +48,9 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: npm
+          node-version-file: .nvmrc
 
       - run: npm install --global vercel@latest
 
-      - name: Pull Vercel settings
-        run: vercel pull --yes --environment=${{ github.event_name != 'pull_request' && 'production' || 'preview' }} --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Build
-        run: vercel build ${{ github.event_name != 'pull_request' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
-
       - name: Deploy
-        run: vercel deploy --prebuilt ${{ github.event_name != 'pull_request' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel deploy ${{ github.event_name != 'pull_request' && '--prod' || '' }} --yes --token=${{ secrets.VERCEL_TOKEN }}
