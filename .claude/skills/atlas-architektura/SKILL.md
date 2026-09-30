@@ -38,6 +38,42 @@ v `.gitignore` a repo je **veřejné**: nikdy necommituj `docs/`, tajné údaje 
 9. **Rate limit** ve sdíleném úložišti (Postgres `rate_limits`), nikdy v paměti procesu.
 10. **Žádné zápisy do filesystému** za běhu (Vercel je read-only).
 
+## Komponenty a deduplikace (ARCHITEKTURA kap. 15)
+
+Každý vizuální vzor, konstanta a datová definice existuje **právě jednou**. Postup u každé UI změny:
+
+1. **Nejdřív hledej**, v tomto pořadí: tokeny (`globals.css` `@theme`, `config/layout.ts`) → primitiva
+   `components/ui/` (shadcn) → vzory `components/atlas/` (`Rail`, `Section`, `MetricCard`, `EmptySection`,
+   `SafeHtml`…) → doménové bloky (`components/portrait/`, `features/*/components/`). Hledej podle názvu i tříd.
+2. **Podobné existuje → přidej variantu** (`cva`: `variant`/`size`/`tone`), nekopíruj. Nová komponenta jen
+   když nic podobného není — a rovnou na správnou úroveň, sdílenou.
+3. **Žádná magická čísla**: šířky panelu, breakpointy, z-indexy, 44 px cíle jen z tokenů / `config/layout.ts`.
+4. **Jedna datová definice**: menu z `config/navigation.ts`; kategorie, sekce, typy z DB typů nebo jednoho `const`.
+5. **Stejná data = stejná komponenta**: region i global issue → `Portrait`; všechny karusely → `Rail`;
+   formuláře → `FormField` + Zod + `useActionState`; tabulky → `DataTable`; ikony → `lucide-react`;
+   volání serveru z klienta → Server Action nebo `apiFetch()`, nikdy ruční `fetch` v komponentě.
+6. **Při úpravě souboru s duplicitou z tabulky D1–D8** (ARCHITEKTURA 15.3) ji v témže PR odstraň nebo
+   zapiš, proč ne. Nezaváděj nové výskyty.
+7. CI hlídá: `jscpd` (≤ 1 %, blok < 30 ř.), `knip` (0 nepoužitých exportů), ESLint zákazy
+   (`dangerouslySetInnerHTML` mimo `SafeHtml`, `fetch(` v `components/`, `@supabase/supabase-js` mimo `lib/supabase`).
+   Každý sdílený díl má story ve Storybooku.
+
+## Co má mít správná webová aplikace (ARCHITEKTURA kap. 16)
+
+Při každé větší změně zkontroluj, jestli se jí netýká některý chybějící standard, a navrhni ho:
+error/not-found/loading stránky · režim údržby · privacy/terms · GDPR export a smazání účtu ·
+e-mailové šablony Auth · přístupnost (skip-link, focus trap, axe) · OG obrázky a hreflang ·
+`draftMode` náhled · plánované publikování · autosave editoru · správa přesměrování při změně slugu ·
+kontrola mrtvých odkazů · `/api/health` · Sentry · cookie-less analytika · uptime monitor · feature flagy v DB ·
+runbook incidentů · test obnovy záloh · `SECURITY.md` + `security.txt` · ochrana `main` + CodeQL ·
+rotace klíčů · revize přístupů · `typedRoutes` · pre-commit (lint-staged) · Conventional Commits + CHANGELOG ·
+PR šablona + CODEOWNERS · Renovate/Dependabot · bundle analyzer.
+
+## Plán realizace
+
+Pořadí a stav úkolů: `PLAN-REALIZACE.md` v kořeni repa. Pracuj po úkolech (jeden úkol = jedna větev = jeden PR),
+po dokončení zaškrtni úkol a doplň odkaz na PR.
+
 ## Databáze — standard
 
 - Nová migrace: `supabase migration new <popis>`; **aplikovanou migraci nikdy neupravuj**.

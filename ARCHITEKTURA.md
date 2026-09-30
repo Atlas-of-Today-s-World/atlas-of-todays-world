@@ -24,6 +24,8 @@
 12. [Plán realizace](#12-plán-realizace)
 13. [Postupové standardy (checklisty)](#13-postupové-standardy-checklisty)
 14. [Otevřené otázky](#14-otevřené-otázky)
+15. [Jednotnost komponent a deduplikace](#15-jednotnost-komponent-a-deduplikace)
+16. [Další standardy správné webové aplikace](#16-další-standardy-správné-webové-aplikace)
 
 ---
 
@@ -636,6 +638,7 @@ Nové rozhodnutí = nový řádek (další číslo), nikdy přepsání starého;
 ## 12. Plán realizace
 
 Každá fáze končí zeleným CI a nasazením. Čísla `SEC-xx` / `DB-xx` odkazují na neveřejný seznam nálezů.
+**Podrobný rozpis úkolů, milníky a stav: [`PLAN-REALIZACE.md`](PLAN-REALIZACE.md).**
 
 ### Fáze A — Základ (≈ 2 dny)
 
@@ -753,3 +756,130 @@ Každá fáze končí zeleným CI a nasazením. Čísla `SEC-xx` / `DB-xx` odkaz
 4. **Výchozí doba platnosti pozvánky** — navrženo 14 dní; a má `allowed_emails` omezit tým na doménu `@atlasoftodaysworld.org`?
 5. **Jazyky** (P15) a **audio** (R4) — potvrzení rozsahu před návrhem tabulky `translations` a bucketu `audio`.
 6. **Platby** — Stripe Payment Links (brief) vs. hosted Checkout + webhook (plán provozu).
+
+---
+
+## 15. Jednotnost komponent a deduplikace
+
+Cíl: **každý vizuální vzor, konstanta a datová definice existuje v kódu právě jednou.** Nová obrazovka se
+skládá z hotových dílů; když díl chybí, vznikne jako sdílený, ne jako kopie.
+
+### 15.1 Hierarchie sdílených dílů (odkud brát, v tomto pořadí)
+
+| Úroveň | Kde | Co tam patří |
+|---|---|---|
+| 1. Design tokeny | `src/app/globals.css` (`@theme` v Tailwind 4) + `src/config/layout.ts` | barvy, radiusy, stíny, typografie, **rozměry layoutu** (`--rail-width`, `--rail-width-wide`, `--header-h`, `--touch-min: 44px`) |
+| 2. Primitiva | `src/components/ui/` (shadcn/ui) | `Button`, `IconButton`, `Input`, `Select`, `Dialog`, `Sheet`, `Tabs`, `Tooltip`, `Badge`, `Card`, `Skeleton`, `Form*` |
+| 3. Vzory Atlasu | `src/components/atlas/` | `Rail` (jediný karusel), `Section`, `SectionLabel`, `MetricCard`, `EmptySection`, `PatronsCallout`, `SafeHtml`, `ExternalLink`, `Breadcrumbs` |
+| 4. Doménové bloky | `src/components/portrait/`, `features/*/components/` | `Portrait` (region **i** global issue), `CountryCard`, `EntryHeader`… |
+| 5. Stránky | `src/app/**` | jen skládání bloků + data; žádné vlastní styly nad rámec rozvržení |
+
+Pravidla:
+
+- **Než vytvoříš komponentu, hledej** v úrovních 1–4 (podle názvu i podle tříd). Existuje-li podobná,
+  rozšiř ji o variantu, nevytvářej novou.
+- **Varianty přes `cva`** (class-variance-authority, standard shadcn) — `variant`, `size`, `tone`; ne
+  kopírováním dlouhých `className`. Opakovaný řetězec delší než ~6 utilit = signál pro variantu.
+- **Žádná magická čísla v komponentách**: rozměry panelů, breakpointy a z-indexy jen z tokenů. JS, který
+  potřebuje rozměr (např. padding globusu), ho čte z `config/layout.ts`, ze kterého vznikají i CSS proměnné.
+- **Jedna datová definice**: navigace (`src/config/navigation.ts`) pro všechna menu (desktop, mobil, stránky
+  bez globusu, patička); kategorie, sekce oprávnění, typy zdrojů — z DB typů nebo jednoho `const`, nikdy
+  opsané do komponenty.
+- **Stejná data = stejná komponenta**: region a global issue mají stejné sekce → jedna `Portrait` s propsem
+  `subject: { kind: "region" | "issue", … }`.
+- **Formuláře administrace** z jednoho vzoru: `FormField` (label + control + chyba ze Zod) + `useActionState`;
+  tabulky z jednoho `DataTable` (TanStack) s konfigurací sloupců.
+- **Klientské volání serveru** jen přes Server Actions nebo jeden `apiFetch()` helper (timeout, chyby) —
+  ne ručně psaný `fetch` v každé komponentě.
+- **Ikony** z jedné sady (`lucide-react`), ne vložené SVG v každém souboru.
+- **Texty** z `messages/{locale}.json`; opakovaný text (CTA, chybové hlášky) má jeden klíč.
+
+### 15.2 Nástroje, které duplicitu hlídají (CI)
+
+| Nástroj | Co hlídá | Práh |
+|---|---|---|
+| `jscpd` | copy-paste bloky v `src/` | selže nad 1 % duplicit nebo u bloku ≥ 30 řádků |
+| `knip` | nepoužité soubory, exporty, závislosti | 0 nálezů (výjimky v `knip.json` s komentářem) |
+| ESLint `no-restricted-imports` | import interních souborů cizí domény; `@supabase/supabase-js` mimo `lib/supabase` | chyba |
+| ESLint `no-restricted-syntax` | `dangerouslySetInnerHTML` mimo `SafeHtml`; `fetch(` v `components/` | chyba |
+| `prettier-plugin-tailwindcss` | jednotné řazení tříd (snazší hledání duplicit) | formát |
+| Storybook (nebo Ladle) | katalog dílů úrovně 2–4 → je vidět, co existuje | každý sdílený díl má story |
+
+### 15.3 Známé duplicity k odstranění (stav 2026-09-30)
+
+| # | Duplicita | Cíl |
+|---|---|---|
+| D1 | Šířka panelu natvrdo na 4 místech (`ContentRail`, `Header`, `MapControls`, `AtlasGlobe`: `27rem`/`432`, `46rem`/`52vw`) | tokeny `--rail-width(-wide)` + `config/layout.ts` |
+| D2 | 4 karusely v `PortraitSections` (`Timeline`, `ThematicEntries`, `VisualCarousel`, `ResourceLibrary`) + `NewsTabs` | jeden `Rail` (šipky, klávesnice, snap) |
+| D3 | Stránka global issue (218 ř.) skládá portrét znovu místo `RegionPortrait` | jedna `Portrait` |
+| D4 | Menu definované 2× (`Header.tsx` pole `NAV`, `(pages)/layout.tsx` natvrdo) | `config/navigation.ts` |
+| D5 | ≥ 7 ručních variant primárního tlačítka, přestože existuje `PrimaryButton` | `ui/Button` s variantami |
+| D6 | `fetch` ručně v 7 klientských komponentách (admin formuláře, newsletter, search, login) | Server Actions / `apiFetch` |
+| D7 | Tři admin formuláře (530, 664, 357 ř.) s vlastní validací a stavem | `FormField` + Zod + `useActionState`, `DataTable` |
+| D8 | Obsah renderuje aplikace i `demo/` zvlášť | demo jen jako prezentace nad exportem, nebo zrušit |
+
+---
+
+## 16. Další standardy správné webové aplikace
+
+Doplňky, které má mít produkční webová aplikace. Stav: ✅ máme · 🟡 částečně · ⬜ chybí.
+
+### 16.1 Kvalita kódu a vývoj
+
+| Stav | Standard |
+|---|---|
+| ✅ | TypeScript `strict` |
+| ⬜ | `noUncheckedIndexedAccess`, Next `typedRoutes` (typově kontrolované odkazy) |
+| ⬜ | ESLint + Prettier + `lint-staged`/`husky` pre-commit |
+| ⬜ | `.nvmrc` / `engines` — jedna verze Node (22 LTS) lokálně i v CI |
+| ⬜ | Conventional Commits + automatický CHANGELOG (release-please) |
+| ⬜ | PR šablona (co / proč / jak testováno / Security impact) a CODEOWNERS |
+| ⬜ | Dependabot nebo Renovate (seskupené aktualizace, týdně) |
+| ⬜ | Bundle analyzer v CI (hlídá rozpočet 200 kB JS) |
+
+### 16.2 Uživatelské minimum
+
+| Stav | Standard |
+|---|---|
+| 🟡 | Vlastní `not-found.tsx`, `error.tsx`, `global-error.tsx` s cestou zpět na mapu |
+| 🟡 | `loading.tsx` / skeletony na každé datové stránce (zatím jen část rout) |
+| ⬜ | Režim údržby (feature flag → statická stránka) |
+| ⬜ | Právní stránky: Privacy policy, Terms; cookie-less analytika = bez cookie lišty |
+| ⬜ | GDPR: export a smazání vlastního účtu (čtenář v profilu), retence dat |
+| ⬜ | E-mailové šablony Auth (pozvánka, přihlášení) ve vizuálu Atlasu, EN/CS |
+| ⬜ | Přístupnost: skip-link, focus trap v dialozích, axe v CI, prohlášení o přístupnosti |
+| 🟡 | SEO: OG obrázky přes `next/og`, hreflang, sitemap z DB s `lastmod` |
+| ⬜ | Tisková verze hesel (`@media print`) |
+
+### 16.3 Redakce a obsah
+
+| Stav | Standard |
+|---|---|
+| ⬜ | Náhled nepublikovaného obsahu (`draftMode`) a sdílitelný náhled s expirací |
+| ⬜ | Plánované publikování (`publish_at` + cron) |
+| ⬜ | Automatické ukládání konceptu v editoru + varování při odchodu z neuložené stránky |
+| ⬜ | Správa přesměrování (tabulka `redirects` → middleware) při změně slugu |
+| ⬜ | Kontrola odkazů (noční job hlásí mrtvé externí odkazy ve zdrojích) |
+| ⬜ | Povinné alt texty a kredity u každého obrázku |
+
+### 16.4 Provoz a spolehlivost
+
+| Stav | Standard |
+|---|---|
+| ⬜ | Health endpoint `/api/health` (DB dostupná, verze buildu) |
+| ⬜ | Error tracking (Sentry Free) se source mapami, bez osobních údajů |
+| ⬜ | Cookie-less analytika (Vercel Web Analytics nebo Plausible) |
+| ⬜ | Uptime monitor (UptimeRobot Free) na web a health endpoint |
+| ⬜ | Feature flagy v DB (`feature_flags`) — zapínání funkcí bez nasazení (např. e-mailová registrace po SMTP) |
+| ⬜ | Runbook incidentů (únik klíče, výpadek Supabase, zneužití účtu) v `docs/` |
+| ⬜ | Test obnovy ze zálohy 1× za čtvrtletí |
+
+### 16.5 Bezpečnost nad rámec kapitoly 8
+
+| Stav | Standard |
+|---|---|
+| ⬜ | `SECURITY.md` + `/.well-known/security.txt` |
+| ⬜ | GitHub: ochrana `main`, povinné review, secret scanning + push protection, CodeQL |
+| ⬜ | Žádné skripty z cizích CDN (self-hosting), případně Subresource Integrity |
+| ⬜ | Rotace klíčů (servisní klíč, Vercel token) 1× ročně a při odchodu člena týmu |
+| ⬜ | Čtvrtletní revize přístupů (kdo má jakou roli) v sekci Účty |
