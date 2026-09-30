@@ -11,6 +11,7 @@ import { cn } from "@/lib/cn";
 import { savePortraitSection } from "../actions";
 import type { Collection, PortraitKind } from "../schema";
 import { COLLECTION_UI } from "./fields";
+import { ActionForm } from "@/components/admin/ActionForm";
 
 type Item = Record<string, string>;
 
@@ -57,7 +58,7 @@ export function CollectionEditor({
       </h2>
       <p className="mt-1 text-[13px] text-[var(--color-ink-muted)]">{ui.lead}</p>
 
-      <form action={action} className="mt-5 grid gap-4">
+      <ActionForm action={action} className="mt-5 grid gap-4">
         <input type="hidden" name="kind" value={kind} />
         <input type="hidden" name="slug" value={slug} />
         <input type="hidden" name="collection" value={collection} />
@@ -159,7 +160,7 @@ export function CollectionEditor({
           </Button>
           <SubmitButton size="sm">Uložit sekci</SubmitButton>
         </div>
-      </form>
+      </ActionForm>
     </section>
   );
 }

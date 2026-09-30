@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { deleteAccount, type ActionState } from "@/features/auth/actions";
 import { Button } from "@/components/ui/button";
+import { ActionForm } from "@/components/admin/ActionForm";
 
 export default function DeleteAccount({ email }: { email: string }) {
   const [state, action, pending] = useActionState<ActionState, FormData>(deleteAccount, {
@@ -14,7 +15,7 @@ export default function DeleteAccount({ email }: { email: string }) {
       <summary className="cursor-pointer text-[13px] font-medium text-red-700">
         Delete my account
       </summary>
-      <form action={action} className="mt-4 grid gap-3">
+      <ActionForm action={action} className="mt-4 grid gap-3">
         <p className="text-[13px] leading-relaxed text-[var(--color-ink-soft)]">
           This removes your account and personal data for good. Type <strong>{email}</strong> to
           confirm.
@@ -38,7 +39,7 @@ export default function DeleteAccount({ email }: { email: string }) {
         <Button type="submit" variant="danger" disabled={pending}>
           {pending ? "Deleting…" : "Delete my account"}
         </Button>
-      </form>
+      </ActionForm>
     </details>
   );
 }

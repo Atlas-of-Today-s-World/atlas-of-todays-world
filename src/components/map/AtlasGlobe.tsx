@@ -10,7 +10,7 @@ import {
   type MapSourceDataEvent,
 } from "maplibre-gl";
 import { Minus, Plus } from "lucide-react";
-import { buildStyle, LAYERS, type RegionLabel } from "./mapStyle";
+import { buildStyle, LAYERS, type RegionLabel, type StyleOptions } from "./mapStyle";
 import { EUROPE_CENTER, globeFillZoom } from "@/lib/home-location";
 import { useMapState } from "./MapContext";
 import { DESKTOP_MIN_PX, railKind, railWidthPx } from "@/config/layout";
@@ -36,6 +36,8 @@ interface Props {
   issue: RegionLookup;
   /** Popisky regionů nad globusem. */
   regionLabels: RegionLabel[];
+  /** Vzhled a vlastní plochy z administrace. */
+  styleOptions: StyleOptions;
 }
 
 const NEUTRAL = "#7d8aa8";
@@ -95,7 +97,14 @@ function matchExpression(colors: Record<string, string>): ExpressionSpecificatio
   return ["match", ["get", "iso3"], ...stops, NEUTRAL] as unknown as ExpressionSpecification;
 }
 
-export default function AtlasGlobe({ colorSets, slugs, regions, issue, regionLabels }: Props) {
+export default function AtlasGlobe({
+  colorSets,
+  slugs,
+  regions,
+  issue,
+  regionLabels,
+  styleOptions,
+}: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const hoveredRef = useRef<string | null>(null);
@@ -131,7 +140,7 @@ export default function AtlasGlobe({ colorSets, slugs, regions, issue, regionLab
 
     const map = new MapLibreMap({
       container: containerRef.current,
-      style: buildStyle(regionLabels),
+      style: buildStyle(regionLabels, styleOptions),
       // První snímek rovnou ve výchozí vzdálenosti, ať se mapa nezobrazí
       // nejdřív jako malá kulička a teprve pak nepřiletí.
       center: EUROPE_CENTER,

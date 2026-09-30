@@ -17,6 +17,7 @@ import {
 } from "../actions";
 import type { Revision } from "../editorial";
 import type { EntryStatus } from "../schema";
+import { ActionForm } from "@/components/admin/ActionForm";
 
 const dateFormat = new Intl.DateTimeFormat("cs-CZ", { dateStyle: "medium", timeStyle: "short" });
 
@@ -120,7 +121,10 @@ function SendBack({ id, onDone }: { id: string; onDone: (state: ActionState) => 
     { ok: false },
   );
   return (
-    <form action={action} className="grid gap-3 rounded-xl border border-[var(--color-line)] p-4">
+    <ActionForm
+      action={action}
+      className="grid gap-3 rounded-xl border border-[var(--color-line)] p-4"
+    >
       <input type="hidden" name="id" value={id} />
       <FormField
         id="note"
@@ -135,7 +139,7 @@ function SendBack({ id, onDone }: { id: string; onDone: (state: ActionState) => 
           Vrátit k úpravě
         </SubmitButton>
       </div>
-    </form>
+    </ActionForm>
   );
 }
 

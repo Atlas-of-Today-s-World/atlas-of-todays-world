@@ -10,6 +10,7 @@ import { RichTextEditor } from "@/features/entries/components/RichTextEditor";
 import type { ActionState } from "@/lib/actions";
 import { slugify } from "@/lib/validation/common";
 import { saveCountry, saveIssue, saveRegion } from "../actions";
+import { ActionForm } from "@/components/admin/ActionForm";
 
 type Errors = Record<string, string[] | undefined>;
 
@@ -119,7 +120,7 @@ export function RegionForm({
   const [state, action] = useSave(saveRegion);
   const errors = state.fieldErrors ?? {};
   return (
-    <form action={action} className="grid max-w-3xl gap-5">
+    <ActionForm action={action} className="grid max-w-3xl gap-5">
       <input type="hidden" name="slug" value={region.slug} />
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField id="name" label="Název" required errors={errors.name}>
@@ -135,7 +136,7 @@ export function RegionForm({
       <div>
         <SubmitButton>Uložit region</SubmitButton>
       </div>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -187,7 +188,7 @@ export function IssueForm({
   };
 
   return (
-    <form action={action} className="grid max-w-3xl gap-5">
+    <ActionForm action={action} className="grid max-w-3xl gap-5">
       {issue ? <input type="hidden" name="original_slug" value={issue.slug} /> : null}
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField id="name" label="Název" required errors={errors.name}>
@@ -279,7 +280,7 @@ export function IssueForm({
       <div>
         <SubmitButton>{issue ? "Uložit" : "Založit global issue"}</SubmitButton>
       </div>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -303,7 +304,7 @@ export function CountryForm({
   const [state, action] = useSave(saveCountry);
   const errors = state.fieldErrors ?? {};
   return (
-    <form action={action} className="grid max-w-3xl gap-5">
+    <ActionForm action={action} className="grid max-w-3xl gap-5">
       <input type="hidden" name="iso3" value={country.iso3} />
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField
@@ -367,6 +368,6 @@ export function CountryForm({
       <div>
         <SubmitButton>Uložit profil</SubmitButton>
       </div>
-    </form>
+    </ActionForm>
   );
 }

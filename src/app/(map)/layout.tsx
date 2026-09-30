@@ -6,10 +6,11 @@ import { MapLegend, type ViewOption } from "@/components/map/ViewSwitcher";
 import { regionColorMap } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
 import type { GlobalIssue, Indicator, Region } from "@/features/geography/types";
+import { saturate, saturateMap } from "@/lib/color";
 import { colorMapFor, legendFor } from "@/lib/indicators";
 
 /** Volby pro přepínač vrstev – generují se z importovaných indikátorů. */
-function buildViewOptions(indicators: Indicator[]): ViewOption[] {
+function buildViewOptions(indicators: Indicator[], saturation: number): ViewOption[] {
   return [
     {
       id: "encyclopedia",
@@ -25,7 +26,10 @@ function buildViewOptions(indicators: Indicator[]): ViewOption[] {
         label: indicator.label,
         shortLabel: `${indicator.shortLabel} view`,
         caption: legend.caption,
-        swatches: legend.swatches,
+        swatches: legend.swatches.map((swatch) => ({
+          ...swatch,
+          color: saturate(swatch.color, saturation),
+        })),
       };
     }),
   ];
@@ -65,10 +69,14 @@ export default async function MapLayout({ children }: { children: React.ReactNod
     issue: firstByCountry(atlas.issues, (issue) => issue.fill),
   };
   for (const indicator of atlas.indicators) colorSets[indicator.id] = colorMapFor(indicator);
+  // Sytost barev ze vzhledu webu (administrace → Vzhled mapy).
+  for (const key of Object.keys(colorSets)) {
+    colorSets[key] = saturateMap(colorSets[key], atlas.theme.saturation);
+  }
 
   const regionLookup = lookup(atlas.regions);
   const issue = lookup(atlas.issues);
-  const viewOptions = buildViewOptions(atlas.indicators);
+  const viewOptions = buildViewOptions(atlas.indicators, atlas.theme.saturation);
   const regionLabels = atlas.regions.map(({ slug, name, center }) => ({ slug, name, center }));
 
   return (
@@ -80,6 +88,16 @@ export default async function MapLayout({ children }: { children: React.ReactNod
           regions={regionLookup}
           issue={issue}
           regionLabels={regionLabels}
+          styleOptions={{
+            border: atlas.theme.border,
+            areas: atlas.areas.map(({ slug, label, name, fill, stroke, geometry }) => ({
+              slug,
+              label: label || name,
+              fill,
+              stroke,
+              geometry,
+            })),
+          }}
         />
         <Header />
         <MapControls options={viewOptions} hasIssues={Object.keys(issue.bySlug).length > 0} />

@@ -109,6 +109,8 @@ const snapshot: AtlasSnapshot = {
     },
   ],
   issueCountries: [{ special_slug: "central", country_iso3: "CZE" }],
+  theme: { saturation: 0.8, border: 1.5 },
+  areas: [],
 };
 
 const atlas = buildAtlas(snapshot, [
@@ -145,5 +147,6 @@ describe("buildAtlas", () => {
     expect(atlas.issueBySlug.get("central")?.countries).toEqual(["CZE"]);
     expect(countriesOf(atlas, ["CZE", "XXX", "DEU"]).map((c) => c.iso3)).toEqual(["DEU", "CZE"]);
     expect(regionColorMap(atlas.regions)).toMatchObject({ CZE: "#aabbcc", DEU: "#aabbcc" });
+    expect(atlas.theme).toEqual({ saturation: 0.8, border: 1.5 });
   });
 });

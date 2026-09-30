@@ -118,12 +118,33 @@ export interface GlobalIssue {
   countries: string[];
 }
 
+/** Vlastní plocha na mapě (GeoJSON Polygon z administrace). */
+export interface MapArea {
+  slug: string;
+  name: string;
+  label: string;
+  note: string;
+  fill: string;
+  stroke: string;
+  geometry: { type: "Polygon"; coordinates: number[][][] };
+}
+
+/** Vzhled mapy ze site_theme. */
+interface MapTheme {
+  /** Násobek sytosti barev vrstev (1 = beze změny). */
+  saturation: number;
+  /** Násobek tloušťky hranic (1 = beze změny). */
+  border: number;
+}
+
 export interface Atlas {
   regions: Region[];
   /** Země s profilem (zařazené do regionu), od nejlidnatější. */
   countries: Country[];
   indicators: Indicator[];
   issues: GlobalIssue[];
+  areas: MapArea[];
+  theme: MapTheme;
   regionBySlug: Map<string, Region>;
   countryBySlug: Map<string, Country>;
   countryByIso3: Map<string, Country>;

@@ -5,6 +5,7 @@ import type {
   CountryStat,
   GlobalIssue,
   Indicator,
+  MapArea,
   Region,
   TerritoryNote,
 } from "./types";
@@ -86,6 +87,16 @@ export interface AtlasSnapshot {
     hero_url: string | null;
   }[];
   issueCountries: { special_slug: string; country_iso3: string }[];
+  theme: { saturation: number; border: number } | null;
+  areas: {
+    slug: string;
+    name: string;
+    label: string;
+    note: string;
+    fill: string;
+    stroke: string;
+    geometry: unknown;
+  }[];
 }
 
 /** Geografická fakta z Natural Earth, která se v administraci neupravují (src/data). */
@@ -269,6 +280,14 @@ export function buildAtlas(snapshot: AtlasSnapshot, geo: GeoFacts[]): Atlas {
     countries,
     indicators,
     issues,
+    areas: snapshot.areas.map((area) => ({
+      ...area,
+      geometry: area.geometry as MapArea["geometry"],
+    })),
+    theme: {
+      saturation: Number(snapshot.theme?.saturation ?? 1),
+      border: Number(snapshot.theme?.border ?? 1),
+    },
     regionBySlug,
     countryBySlug: new Map(countries.map((country) => [country.slug, country])),
     countryByIso3: new Map(countries.map((country) => [country.iso3, country])),

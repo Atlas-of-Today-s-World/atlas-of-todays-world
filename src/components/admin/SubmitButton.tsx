@@ -2,8 +2,9 @@
 
 import { useFormStatus } from "react-dom";
 import { Button, type ButtonVariants } from "@/components/ui/button";
+import { useActionPending } from "./ActionForm";
 
-/** Odesílací tlačítko se stavem „ukládám" (čte stav nadřazeného <form>). */
+/** Odesílací tlačítko se stavem „ukládám" (čte stav nadřazeného <ActionForm> či <form>). */
 export function SubmitButton({
   children,
   pending: pendingLabel = "Ukládám…",
@@ -16,7 +17,9 @@ export function SubmitButton({
   name?: string;
   value?: string;
 }) {
-  const { pending } = useFormStatus();
+  const inActionForm = useActionPending();
+  const { pending: inNativeForm } = useFormStatus();
+  const pending = inActionForm || inNativeForm;
   return (
     <Button type="submit" disabled={pending} name={name} value={value} {...variants}>
       {pending ? pendingLabel : children}

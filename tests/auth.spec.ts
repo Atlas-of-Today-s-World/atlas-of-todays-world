@@ -1,71 +1,17 @@
-import { randomUUID } from "node:crypto";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import {
+  cleanUp,
+  createUser,
+  invite,
+  requireDevAccounts,
+  service as admin,
+  signIn,
+  testEmail,
+} from "./support/accounts";
 
-/**
- * Přihlášení a pozvánky se skutečnými účty (PLAN C8) — jen proti atlas-dev.
- *
- * Google se v testu obchází: Auth Admin API vygeneruje magic link a prohlížeč
- * projde naší routou /auth/confirm, která stejně jako návrat z Google ověří
- * session a zavolá claim_invitation(). Bez servisního klíče dev projektu
- * (fork, Dependabot) se sada přeskočí.
- */
-try {
-  process.loadEnvFile(".env.local");
-} catch {
-  // v CI jdou hodnoty z prostředí
-}
-
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const PROD_REF = "ewbzkxialhtwuqlenjof";
-
-test.skip(!url || !serviceKey, "chybí Supabase dev projekt (URL + servisní klíč)");
-test.skip(Boolean(url?.includes(PROD_REF)), "e2e účty se nikdy nezakládají v produkci");
-// Toky nezávisí na velikosti okna; stačí jeden projekt.
-test.skip(({ isMobile }) => isMobile, "jen desktop");
-
-const admin = (
-  url && serviceKey
-    ? createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } })
-    : null
-) as SupabaseClient;
-
-const created: string[] = [];
-
-function testEmail(label: string) {
-  return `e2e-${label}-${randomUUID().slice(0, 8)}@example.com`;
-}
-
-/** Ověřený účet, jako by se právě přihlásil přes Google. */
-async function createUser(email: string) {
-  const { data, error } = await admin.auth.admin.createUser({ email, email_confirm: true });
-  if (error) throw error;
-  created.push(data.user.id);
-  return data.user;
-}
-
-async function invite(email: string, roleId: string) {
-  const { error } = await admin.from("invitations").insert({ email, role_id: roleId });
-  if (error) throw error;
-}
-
-/** Přihlášení přes jednorázový odkaz → /auth/confirm (stejná cesta jako e-mail). */
-async function signIn(page: Page, email: string, next = "/ucet") {
-  const { data, error } = await admin.auth.admin.generateLink({ type: "magiclink", email });
-  if (error) throw error;
-  const params = new URLSearchParams({
-    token_hash: data.properties.hashed_token,
-    type: "magiclink",
-    next,
-  });
-  await page.goto(`/auth/confirm?${params}`);
-}
-
-test.afterAll(async () => {
-  for (const id of created) await admin.auth.admin.deleteUser(id);
-  await admin.from("invitations").delete().like("email", "e2e-%@example.com");
-});
+/** Přihlášení a pozvánky se skutečnými účty (PLAN C8) — jen proti atlas-dev. */
+requireDevAccounts();
+test.afterAll(cleanUp);
 
 test.describe("účty a pozvánky", () => {
   test("čtenář se přihlásí, ale do administrace nesmí", async ({ page }) => {
@@ -91,11 +37,15 @@ test.describe("účty a pozvánky", () => {
     // Přijatá pozvánka posílá rovnou do administrace.
     await expect(page).toHaveURL(/\/admin$/);
     const nav = page.getByRole("navigation", { name: "Administrace" });
-    await expect(nav.getByText("Publisher")).toBeVisible();
-    await expect(nav.getByRole("link", { name: "Tým a pozvánky" })).toHaveCount(0);
+    await expect(page.getByText(`${email} · Publisher`)).toBeVisible();
+    // Menu jen ze sekcí, na které role má právo „v".
+    await expect(nav.getByRole("link", { name: "Novinky a hesla" })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "Účty a pozvánky" })).toHaveCount(0);
+    await expect(nav.getByRole("link", { name: "Role a práva" })).toHaveCount(0);
 
-    await page.goto("/admin/pozvanky");
-    await expect(page.getByText("Na správu týmu nemáte oprávnění.")).toBeVisible();
+    // Sekce je chráněná i mimo menu.
+    await page.goto("/admin/ucty/pozvanky");
+    await expect(page.getByTestId("section-forbidden")).toBeVisible();
 
     const { data: invitation } = await admin
       .from("invitations")

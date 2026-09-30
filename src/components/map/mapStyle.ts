@@ -1,6 +1,21 @@
 import type { GeoJSONSourceSpecification, StyleSpecification } from "maplibre-gl";
 import { publicEnv } from "@/lib/env";
 
+/** Plocha z administrace (map_areas) — GeoJSON Polygon s barvami. */
+interface AreaShape {
+  slug: string;
+  label: string;
+  fill: string;
+  stroke: string;
+  geometry: { type: "Polygon"; coordinates: number[][][] };
+}
+
+export interface StyleOptions {
+  /** Násobek tloušťky hranic ze vzhledu webu. */
+  border: number;
+  areas: AreaShape[];
+}
+
 export interface RegionLabel {
   slug: string;
   name: string;
@@ -65,8 +80,20 @@ export const LAYERS = {
  * `setPaintProperty`, aby přepnutí vrstvy (Encyclopedia / HDI / ...) nemuselo
  * přenačítat celý styl a ztratit pozici kamery.
  */
-export function buildStyle(regions: RegionLabel[]): StyleSpecification {
+export function buildStyle(regions: RegionLabel[], options: StyleOptions): StyleSpecification {
   const satellite = satelliteSource();
+  const b = options.border;
+  const areas: GeoJSONSourceSpecification = {
+    type: "geojson",
+    data: {
+      type: "FeatureCollection",
+      features: options.areas.map((area) => ({
+        type: "Feature" as const,
+        properties: { slug: area.slug, label: area.label, fill: area.fill, stroke: area.stroke },
+        geometry: area.geometry,
+      })),
+    },
+  };
 
   return {
     version: 8,
@@ -85,6 +112,7 @@ export function buildStyle(regions: RegionLabel[]): StyleSpecification {
         data: "/data/country-labels.geo.json",
       },
       "region-labels": regionLabelSource(regions),
+      areas,
     },
     sky: {
       "sky-color": "#0b1a3a",
@@ -135,7 +163,7 @@ export function buildStyle(regions: RegionLabel[]): StyleSpecification {
         source: "countries",
         paint: {
           "line-color": "rgba(255,255,255,0.45)",
-          "line-width": ["interpolate", ["linear"], ["zoom"], 1, 0.3, 5, 1.1],
+          "line-width": ["interpolate", ["linear"], ["zoom"], 1, 0.3 * b, 5, 1.1 * b],
         },
       },
       {
@@ -149,8 +177,41 @@ export function buildStyle(regions: RegionLabel[]): StyleSpecification {
         filter: ["has", "status"],
         paint: {
           "line-color": "rgba(255,255,255,0.85)",
-          "line-width": ["interpolate", ["linear"], ["zoom"], 1, 0.8, 5, 2],
+          "line-width": ["interpolate", ["linear"], ["zoom"], 1, 0.8 * b, 5, 2 * b],
           "line-dasharray": [2.5, 1.8],
+        },
+      },
+      // Vlastní plochy redakce (administrace → Mapové oblasti).
+      {
+        id: "areas-fill",
+        type: "fill",
+        source: "areas",
+        paint: { "fill-color": ["get", "fill"], "fill-opacity": 0.35 },
+      },
+      {
+        id: "areas-outline",
+        type: "line",
+        source: "areas",
+        paint: {
+          "line-color": ["get", "stroke"],
+          "line-width": ["interpolate", ["linear"], ["zoom"], 1, 1 * b, 5, 2.2 * b],
+          "line-dasharray": [3, 1.5],
+        },
+      },
+      {
+        id: "areas-label",
+        type: "symbol",
+        source: "areas",
+        minzoom: 2.5,
+        layout: {
+          "text-field": ["get", "label"],
+          "text-font": ["Open Sans Regular"],
+          "text-size": 12,
+        },
+        paint: {
+          "text-color": "rgba(255,255,255,0.95)",
+          "text-halo-color": "rgba(6,10,20,0.85)",
+          "text-halo-width": 1.3,
         },
       },
       {

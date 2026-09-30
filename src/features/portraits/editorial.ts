@@ -31,7 +31,7 @@ const TABLE = {
   metrics: "portrait_metrics",
 } as const;
 
-export type PortraitItems = Record<Collection, Record<string, string>[]>;
+type PortraitItems = Record<Collection, Record<string, string>[]>;
 
 export async function portraitItems(owner: Owner, collections: Collection[]) {
   const supabase = await createServerClient();

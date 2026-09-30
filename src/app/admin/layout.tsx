@@ -5,6 +5,8 @@ import { AdminNav } from "@/components/admin/AdminNav";
 import { Button } from "@/components/ui/button";
 import { ADMIN_NAV } from "@/config/admin-nav";
 import { can, getAccess, isStaff } from "@/features/auth/access";
+import { MfaGate } from "@/features/auth/components/MfaGate";
+import { mfaGate } from "@/features/auth/mfa";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +23,16 @@ export const metadata: Metadata = {
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const access = await getAccess();
   if (!access) redirect("/login?next=/admin");
+
+  // Role s povinným 2FA nemá bez druhého faktoru v DB žádná práva (E10).
+  const mfa = await mfaGate();
+  if (mfa) {
+    return (
+      <Shell>
+        <MfaGate hasFactor={mfa.hasFactor} />
+      </Shell>
+    );
+  }
 
   if (!isStaff(access.permissions)) {
     return (

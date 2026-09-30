@@ -1658,6 +1658,8 @@ export type Database = {
       is_active: { Args: never; Returns: boolean }
       is_admin: { Args: never; Returns: boolean }
       is_polygon: { Args: { g: Json }; Returns: boolean }
+      mfa_ok: { Args: never; Returns: boolean }
+      mfa_status: { Args: never; Returns: Json }
       my_permissions: {
         Args: never
         Returns: {

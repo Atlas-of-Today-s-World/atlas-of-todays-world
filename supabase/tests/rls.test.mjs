@@ -34,14 +34,19 @@ const id = {
   newcomer: "00000000-0000-4000-8000-00000000000b",
 };
 
-/** Spustí `fn` jako přihlášený uživatel (null = anonymní čtenář). */
-async function as(user, fn) {
-  await db.exec(`reset role; select set_config('request.jwt.claim.sub', '${user ?? ""}', false);`);
+/**
+ * Spustí `fn` jako přihlášený uživatel (null = anonymní čtenář). Výchozí
+ * session má druhý faktor (aal2); `{ aal: "aal1" }` simuluje přihlášení bez TOTP.
+ */
+async function as(user, fn, { aal = "aal2" } = {}) {
+  await db.exec(`reset role; select set_config('request.jwt.claim.sub', '${user ?? ""}', false);
+    select set_config('request.jwt.claims', '{"aal":"${aal}"}', false);`);
   await db.exec(user ? "set role authenticated" : "set role anon");
   try {
     return await fn();
   } finally {
-    await db.exec("reset role; select set_config('request.jwt.claim.sub', '', false);");
+    await db.exec(`reset role; select set_config('request.jwt.claim.sub', '', false);
+      select set_config('request.jwt.claims', '', false);`);
   }
 }
 
@@ -891,4 +896,77 @@ test("portrét: kolekci nahradí v jedné transakci jen redakce s právem", asyn
     (await one("select count(*)::int n from portrait_metrics where country_iso3 = 'JPN'")).n,
     1,
   );
+});
+
+test("změna role: správce oprávnění nepovýší nikoho na správu účtů, admin ano", async () => {
+  await as(id.permAdmin, () =>
+    refused(
+      q("update profiles set role_id = 'permission-admin' where id = $1", [id.pubB]),
+      /Only an admin can give a role that manages/,
+    ),
+  );
+  // Obyčejnou redakční roli správce oprávnění dát smí.
+  await as(id.permAdmin, () =>
+    q("update profiles set role_id = 'content-editor' where id = $1", [id.pubB]),
+  );
+  await as(id.admin, () =>
+    q("update profiles set role_id = 'permission-admin' where id = $1", [id.pubB]),
+  );
+  assert.equal(
+    (await one("select role_id from profiles where id = $1", [id.pubB])).role_id,
+    "permission-admin",
+  );
+  // Vrátit, ať další testy počítají s původní rolí.
+  await q("update profiles set role_id = 'publisher' where id = $1", [id.pubB]);
+});
+
+test("matice práv: správu účtů a oprávnění přidá roli jen admin", async () => {
+  await as(id.permAdmin, () =>
+    refused(
+      q(
+        "insert into role_permissions (role_id, section, actions) values ('publisher', 'users', 'v')",
+      ),
+      /Only an admin can let a role manage/,
+    ),
+  );
+  // Obsahové sekce správce oprávnění nastavit smí.
+  await as(id.permAdmin, () =>
+    q(
+      "update role_permissions set actions = 'v' where role_id = 'publisher' and section = 'layers'",
+    ),
+  );
+  await as(id.admin, () =>
+    q("insert into role_permissions (role_id, section, actions) values ('observer', 'users', 'v')"),
+  );
+  await q("delete from role_permissions where role_id = 'observer' and section = 'users'");
+});
+
+test("2FA: admin bez druhého faktoru nesmí nic, publisher ho nepotřebuje", async () => {
+  // Bez TOTP (aal1) je admin pro DB jako bez role.
+  const aal1 = await as(
+    id.admin,
+    () =>
+      one(
+        "select is_admin() a, has_perm('users', 'v') u, (select count(*)::int from my_permissions()) n",
+      ),
+    { aal: "aal1" },
+  );
+  assert.deepEqual(aal1, { a: false, u: false, n: 0 });
+  // Zápis pod RLS bez práva nic nezmění (0 řádků).
+  const changed = await as(
+    id.admin,
+    () => q("update security_settings set session_hours = 5 where id = 1 returning id"),
+    { aal: "aal1" },
+  );
+  assert.equal(changed.length, 0);
+  const status = await as(id.admin, () => one("select mfa_status() s"), { aal: "aal1" });
+  assert.deepEqual(status.s, { required: true, aal: "aal1" });
+
+  // S TOTP (aal2) plná práva.
+  const aal2 = await as(id.admin, () => one("select is_admin() a, has_perm('users', 'v') u"));
+  assert.deepEqual(aal2, { a: true, u: true });
+
+  // Role mimo require_2fa_roles druhý faktor nepotřebuje.
+  const pub = await as(id.pubA, () => one("select has_perm('news', 'c') c"), { aal: "aal1" });
+  assert.equal(pub.c, true);
 });

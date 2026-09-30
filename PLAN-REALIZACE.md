@@ -149,21 +149,26 @@ Dělá se **před** napojením na DB, aby se komponenty přepisovaly jen jednou.
 
 ## Fáze E — Administrace ukládá do databáze (≈ 10 čd) → M4
 
-- [ ] **E1** Admin shell: `app/admin/layout.tsx`, postranní menu z oprávnění, `DataTable` (TanStack),
-      `FormField` + `useActionState`, `mapDbError`, potvrzovací dialog, toasty (**D7**).
-- [ ] **E2** Hesla/novinky: seznam s filtry stavu, editor TipTap (allowlist rozšíření), upload obrázků do Storage
-      (`{user_id}/{uuid}`), země, kategorie, autor; Server Actions `saveEntry`, `submitEntry`; revize s obnovou.
-- [ ] **E3** Schvalování: fronta dle `can_approve_entry`, diff proti publikované verzi, schválit / vrátit
+- [x] **E1** Admin shell: `app/admin/layout.tsx`, postranní menu z oprávnění, `DataTable` (serverová, bez TanStack —
+      filtry přes URL), `FormField` + `ActionForm` (useActionState bez resetu polí), `mapDbError`, `ConfirmButton` (`<dialog>`) (**D7**).
+- [x] **E2** Hesla/novinky: seznam s filtry stavu, editor TipTap (allowlist rozšíření), upload obrázků do Storage
+      (`{user_id}/{uuid}`), země, kategorie, autor; Server Actions `saveEntry`, `submitEntry`; revize s obnovou. *(Autosave → G2.)*
+- [x] **E3** Schvalování: fronta dle `can_approve_entry`, diff proti publikované verzi, schválit / vrátit
       s poznámkou / stáhnout.
-- [ ] **E4** Portréty regionů a global issues: intro, metriky se zdrojem, timeline, FAQ, zdroje, vizuály
-      (řazení drag & drop), výběr zemí na mapě pro issue.
-- [ ] **E5** Data: ukazatele, ruční hodnoty s povinným zdrojem, palety, vzhled webu, mapové oblasti (GeoJSON).
-- [ ] **E6** Účty: seznam, změna role, schvalovací přiřazení, blokace (+ ban v Auth API, DB-18), pozvánky (plná verze).
-- [ ] **E7** Role a práva: matice role × sekce × `vced`, rozsahy, vlastní role, bezpečnostní nastavení, audit log.
+- [x] **E4** Portréty regionů, zemí a global issues: intro, metriky se zdrojem, timeline, FAQ, zdroje, vizuály
+      (řazení tlačítky nahoru/dolů — přístupné z klávesnice), země issue výběrem ze seznamu; sekce ukládá DB funkce
+      `replace_portrait_items` v jedné transakci. *(Výběr zemí kliknutím na mapě — později.)*
+- [x] **E5** Data: ukazatele (vlastní i importované), ruční hodnoty s povinným zdrojem, palety a číselníky, vzhled webu
+      (sytost, hranice — promítá se do globusu), mapové oblasti (GeoJSON, nová vrstva na globusu).
+- [x] **E6** Účty: seznam, změna role, schvalovací přiřazení, blokace (+ ban v Auth API, DB-18), pozvánky (plná verze
+      vč. přiřazení schvalovatele). Oprava: ne-admin nedá roli se správou účtů/oprávnění ani ji nepřidá do matice (migrace 10 + testy).
+- [x] **E7** Role a práva: matice role × sekce × `vced`, rozsahy, vlastní role, bezpečnostní nastavení, audit log.
+      Sekce Členové: přehled + členství zdarma (jen admin).
 - [x] **E8** Odstranit staré admin formuláře a route handlery `api/admin/*` (**D6**, **D7**). *(Hotovo ve fázi D.)*
-- [ ] **E10** Obrazovka MFA (TOTP) pro role z `require_2fa_roles` a pak vynucení `aal2` v `has_perm` (DB-07).
-- [ ] **E9** Testy: každá Server Action integrační test „bez práva / s právem“; e2e hlavní toky
-      (napsat → odeslat → schválit → je na webu; vrátit s poznámkou; pozvat → přihlásit → role).
+- [x] **E10** Obrazovka MFA (TOTP) pro role z `require_2fa_roles` a vynucení `aal2` v `is_active/is_admin/has_perm/my_permissions`
+      (DB-07, migrace 11 + test). ⚠ Po nasazení si admini a správci oprávnění při prvním vstupu nastaví TOTP.
+- [~] **E9** Testy: e2e hlavní toky (napsat → odeslat → vrátit s poznámkou → znovu odeslat → schválit → je na webu;
+      pozvat → přihlásit → role) + DB testy oprávnění (51). *Zbývá: integrační test každé Server Action zvlášť.*
 - **Hotovo, když:** redakce provede celý tok od pozvánky po publikaci bez zásahu vývojáře; v kódu nezůstal
   žádný zápis do filesystému.
 

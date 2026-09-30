@@ -11,7 +11,7 @@ import { cn } from "@/lib/cn";
  * Formulářová primitiva administrace (ARCHITEKTURA 15.1, D7): jeden vzhled
  * ovládacích prvků a jeden `FormField` (popisek + prvek + nápověda + chyba ze Zod).
  */
-export const control = cva(
+const control = cva(
   "w-full rounded-lg border border-[var(--color-line)] bg-white px-3 text-[14px] text-[var(--color-ink)] transition placeholder:text-[var(--color-ink-muted)] focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent-soft)] focus:outline-none disabled:opacity-60 aria-[invalid=true]:border-red-500",
   {
     variants: {

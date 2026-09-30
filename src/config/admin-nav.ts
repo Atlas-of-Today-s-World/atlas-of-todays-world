@@ -12,7 +12,7 @@ import {
   UserRound,
   Users,
 } from "lucide-react";
-import type { Section } from "@/features/auth/access";
+import type { Section } from "@/features/auth/sections";
 
 export interface AdminNavItem {
   href: string;

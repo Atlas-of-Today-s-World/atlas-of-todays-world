@@ -12,6 +12,7 @@ import { saveEntry } from "../actions";
 import type { EditableEntry } from "../editorial";
 import { ImageField } from "./ImageField";
 import { RichTextEditor } from "./RichTextEditor";
+import { ActionForm } from "@/components/admin/ActionForm";
 
 interface Option {
   slug: string;
@@ -38,7 +39,7 @@ export function EntryForm({
   const field = (id: string, hint?: string) => describedBy(id, { hint, errors: errors[id] });
 
   return (
-    <form action={action} className="grid max-w-3xl gap-5">
+    <ActionForm action={action} className="grid max-w-3xl gap-5">
       {entry ? <input type="hidden" name="id" value={entry.id} /> : null}
 
       <FormField id="title" label="Titulek" required errors={errors.title}>
@@ -213,6 +214,6 @@ export function EntryForm({
       <div className="flex flex-wrap gap-2">
         <SubmitButton>{entry ? "Uložit změny" : "Vytvořit koncept"}</SubmitButton>
       </div>
-    </form>
+    </ActionForm>
   );
 }

@@ -1,21 +1,10 @@
 import "server-only";
 import { cache } from "react";
 import { createServerClient } from "@/lib/supabase/server";
+import { SECTIONS, type Action, type Section } from "./sections";
 
-const SECTIONS = [
-  "news",
-  "approvals",
-  "areas",
-  "regions",
-  "layers",
-  "appearance",
-  "specials",
-  "users",
-  "members",
-  "permissions",
-] as const;
-export type Section = (typeof SECTIONS)[number];
-export type Action = "v" | "c" | "e" | "d";
+export type { Action, Section };
+
 export type Permissions = Record<Section, string>;
 
 export interface Access {
