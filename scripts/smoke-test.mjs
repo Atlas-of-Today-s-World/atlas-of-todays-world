@@ -216,6 +216,40 @@ async function main() {
     assert(guarded || openDev, `nečekaný status ${status}`);
   });
 
+  // Produkční build = CI nebo nasazený web (ne lokální `next dev`).
+  const production = Boolean(process.env.CI) || !BASE.startsWith("http://localhost");
+
+  await check("CSP bez unsafe-eval a s HSTS (produkční build)", async () => {
+    const { headers } = await get("/");
+    const csp = headers.get("content-security-policy") ?? "";
+    if (production) {
+      assert(!csp.includes("unsafe-eval"), "CSP v produkci povoluje unsafe-eval");
+      assert(headers.get("strict-transport-security"), "chybí HSTS");
+    }
+    assert(csp.includes("frame-ancestors 'none'"), "CSP nezakazuje vložení do rámu");
+  });
+
+  await check("obrazový optimizer není otevřený proxy", async () => {
+    const { status } = await get("/_next/image?url=https%3A%2F%2Fexample.org%2Fa.png&w=64&q=75");
+    assert(status >= 400, `/_next/image vrátil ${status} pro cizí host`);
+  });
+
+  await check("export pro demo není v produkci veřejný", async () => {
+    const { status } = await get("/api/export-demo");
+    assert(status === 404 || !production, `/api/export-demo vrátil ${status}`);
+  });
+
+  await check("vyhledávání má horní mez výsledků", async () => {
+    const { body } = await get("/api/search?q=a&limit=100000");
+    const { results } = JSON.parse(body);
+    assert(Array.isArray(results) && results.length <= 40, "limit výsledků nefunguje");
+  });
+
+  await check("security.txt je dostupný", async () => {
+    const { status } = await get("/.well-known/security.txt");
+    assert(status === 200, `security.txt vrátil ${status}`);
+  });
+
   process.stdout.write(`\n${passed} v pořádku, ${failures.length} chyb\n`);
   if (failures.length) process.exit(1);
 }

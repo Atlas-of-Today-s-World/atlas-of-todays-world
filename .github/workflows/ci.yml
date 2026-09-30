@@ -35,7 +35,7 @@ jobs:
       - name: Nepoužitý kód (knip)
         run: npm run check:unused
       - name: Zranitelné závislosti
-        run: npm audit --omit=dev --audit-level=high
+        run: npm run check:audit
 
   build:
     name: Build, smoke a e2e

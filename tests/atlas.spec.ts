@@ -17,6 +17,22 @@ async function hasTouchTarget(page: Page, selector: string) {
   expect(box!.height, `${selector} je příliš nízký`).toBeGreaterThanOrEqual(43);
 }
 
+test.describe("globus", () => {
+  test("načte hranice zemí bez chyb", async ({ page }) => {
+    const errors: string[] = [];
+    page.on("console", (message) => {
+      if (message.type() === "error" && message.text().includes("atlas-globe")) {
+        errors.push(message.text());
+      }
+    });
+    await page.goto("/");
+    // Atribut nastavuje AtlasGlobe, až je zdroj "countries" načtený (vyžaduje
+    // funkční web worker MapLibre).
+    await expect(page.locator('[data-countries="loaded"]')).toBeAttached({ timeout: 30_000 });
+    expect(errors, "globus hlásí chyby").toEqual([]);
+  });
+});
+
 test.describe("panel s obsahem", () => {
   test("z profilu země se dá přejít do regionu a zpět na mapu", async ({ page }) => {
     await page.goto("/country/ukraine");

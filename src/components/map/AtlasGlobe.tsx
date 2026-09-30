@@ -148,6 +148,14 @@ export default function AtlasGlobe({ colorSets, slugs, regions, issue }: Props) 
       setReady(true);
     });
 
+    // Stav pro e2e testy a diagnostiku: hranice zemí jsou načtené a vykreslené.
+    const markCountriesLoaded = () => {
+      if (!map.isSourceLoaded("countries")) return;
+      containerRef.current?.setAttribute("data-countries", "loaded");
+      map.off("idle", markCountriesLoaded);
+    };
+    map.on("idle", markCountriesLoaded);
+
     /** Co je pod kurzorem: ISO3 země, její název a cílová URL podle režimu. */
     const targetAt = (point: MapMouseEvent["point"]) => {
       const feature = map.queryRenderedFeatures(point, {

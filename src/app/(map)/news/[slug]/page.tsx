@@ -10,6 +10,7 @@ import { globalIssueBySlug } from "@/lib/global-issues";
 import { absoluteUrl, alternates, breadcrumbJsonLd, geoCoordinates, geoMeta } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
+import { cssBackgroundImage } from "@/lib/security/urls";
 
 // true, aby se novinka přidaná v adminu objevila hned, bez nového buildu.
 export const dynamicParams = true;
@@ -76,10 +77,10 @@ export default async function NewsPage({ params }: { params: Promise<{ slug: str
 
       <ContentRail wide>
         <article>
-          {item.hero ? (
+          {cssBackgroundImage(item.hero) ? (
             <div
               className="h-52 w-full bg-cover bg-center"
-              style={{ backgroundImage: `url(${item.hero})` }}
+              style={{ backgroundImage: cssBackgroundImage(item.hero) }}
               role="img"
               aria-label={item.title}
             />

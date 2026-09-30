@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { safeRedirect } from "@/lib/security/redirect";
 
 /**
  * Formulář k přihlášení sdíleným heslem. Heslo se posílá na server, který ho
@@ -27,7 +28,7 @@ export default function LoginForm({ next, error }: { next: string; error?: strin
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error ?? "Přihlášení selhalo.");
       }
-      window.location.href = next;
+      window.location.href = safeRedirect(next, "/admin");
     } catch (cause) {
       setMessage(cause instanceof Error ? cause.message : "Přihlášení selhalo.");
       setBusy(false);

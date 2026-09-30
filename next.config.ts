@@ -25,9 +25,9 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  images: {
-    remotePatterns: [{ protocol: "https", hostname: "**" }],
-  },
+  // next/image se nepoužívá; optimizer vypnutý, aby /_next/image nebyl
+  // otevřený proxy pro libovolný host.
+  images: { unoptimized: true },
 };
 
 export default nextConfig;

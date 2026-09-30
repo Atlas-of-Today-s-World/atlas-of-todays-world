@@ -1,4 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { publicEnv } from "@/lib/env";
+import { buildCsp, securityHeaderEntries } from "@/lib/security/csp";
 
 /**
  * Zámek administrace a bezpečnostní hlavičky.
@@ -27,35 +29,12 @@ function constantTimeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
-const CSP = [
-  "default-src 'self'",
-  // Next v produkci inlinuje část skriptů; blob: potřebuje MapLibre pro workery.
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:",
-  "worker-src 'self' blob:",
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "font-src 'self' https://fonts.gstatic.com data:",
-  // Dlaždice mapy, obrázky hesel a náhledy zdrojů.
-  "img-src 'self' data: blob: https:",
-  // MapLibre si tahá písma pro popisky a dlaždice podkladu; bez nich se
-  // popisky kreslí náhradním písmem a v konzoli prší chyby.
-  "connect-src 'self' https://server.arcgisonline.com https://*.arcgisonline.com https://fonts.openmaptiles.org",
-  // Vložené infografiky (Flourish, World Bank, YouTube) – nic jiného.
-  "frame-src https://flo.uri.sh https://public.flourish.studio https://*.worldbank.org https://www.youtube-nocookie.com https://www.youtube.com",
-  "frame-ancestors 'none'",
-  "object-src 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-].join("; ");
+const dev = process.env.NODE_ENV !== "production";
+const CSP = buildCsp({ dev, supabaseUrl: publicEnv.NEXT_PUBLIC_SUPABASE_URL });
+const HEADERS = securityHeaderEntries(CSP, { dev });
 
 function securityHeaders(response: NextResponse): NextResponse {
-  response.headers.set("Content-Security-Policy", CSP);
-  response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  response.headers.set("X-Frame-Options", "DENY");
-  response.headers.set(
-    "Permissions-Policy",
-    "geolocation=(), microphone=(), camera=(), payment=()",
-  );
+  for (const [name, value] of HEADERS) response.headers.set(name, value);
   return response;
 }
 

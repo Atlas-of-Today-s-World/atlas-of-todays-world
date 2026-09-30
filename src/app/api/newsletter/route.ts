@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { serverEnv } from "@/lib/env.server";
 
 /**
  * Přihlášení k odběru přes Mailchimp.
@@ -56,8 +57,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Please tick the consent box." }, { status: 400 });
   }
 
-  const key = process.env.MAILCHIMP_API_KEY;
-  const list = process.env.MAILCHIMP_LIST_ID;
+  const key = serverEnv.MAILCHIMP_API_KEY;
+  const list = serverEnv.MAILCHIMP_LIST_ID;
   if (!key || !list) {
     // Prototyp bez nastaveného Mailchimpu: řekneme to rovnou místo tiché chyby.
     return NextResponse.json({ error: "The newsletter is not connected yet." }, { status: 503 });
@@ -65,7 +66,7 @@ export async function POST(request: Request) {
 
   const datacenter = key.split("-")[1];
   const response = await fetch(
-    `https://${datacenter}.api.mailchimp.com/3.0/lists/${list}/members`,
+    `https://${datacenter}.api.mailchimp.com/3.0/lists/${encodeURIComponent(list)}/members`,
     {
       method: "POST",
       headers: {
@@ -78,9 +79,13 @@ export async function POST(request: Request) {
 
   if (!response.ok) {
     const detail = (await response.json().catch(() => ({}))) as { title?: string };
-    // Už přihlášená adresa není chyba návštěvníka.
+    // Už přihlášená adresa dostane stejnou odpověď jako nová — jinak by šlo
+    // zjišťovat, kdo odebírá.
     if (detail.title === "Member Exists") {
-      return NextResponse.json({ ok: true, message: "You are already on the list." });
+      return NextResponse.json({
+        ok: true,
+        message: "Almost there — confirm the email we just sent.",
+      });
     }
     return NextResponse.json({ error: "Sign-up failed. Try again later." }, { status: 502 });
   }

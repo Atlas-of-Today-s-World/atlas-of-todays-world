@@ -3,6 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { NEWS_CATEGORIES, type NewsCategory } from "@/lib/content-types";
+import { cssBackgroundImage } from "@/lib/security/urls";
+
+const FALLBACK_HERO = "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&q=60";
 
 export interface NewsCard {
   slug: string;
@@ -55,7 +58,8 @@ export default function NewsTabs({ newsItems }: { newsItems: NewsCard[] }) {
               <div
                 className="h-28 w-full bg-cover bg-center"
                 style={{
-                  backgroundImage: `url(${item.hero ?? "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&q=60"})`,
+                  backgroundImage:
+                    cssBackgroundImage(item.hero) ?? cssBackgroundImage(FALLBACK_HERO),
                 }}
               />
               <div className="p-3">

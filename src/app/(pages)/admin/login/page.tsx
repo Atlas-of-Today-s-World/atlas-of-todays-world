@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import LoginForm from "./LoginForm";
+import { safeRedirect } from "@/lib/security/redirect";
 
 export const metadata: Metadata = {
   title: "Administrace — přihlášení",
@@ -28,7 +29,7 @@ export default async function AdminLoginPage({
         tohle je jediná zábrana — heslo tedy nikam nelepte.
       </p>
 
-      <LoginForm next={next ?? "/admin"} error={error} />
+      <LoginForm next={safeRedirect(next, "/admin")} error={error} />
     </main>
   );
 }

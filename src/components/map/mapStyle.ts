@@ -1,5 +1,6 @@
 import type { GeoJSONSourceSpecification, StyleSpecification } from "maplibre-gl";
 import { REGIONS } from "@/data/regions";
+import { publicEnv } from "@/lib/env";
 
 /** Popisky regionů – jeden bod na region, pozice je ručně zvolený střed. */
 function regionLabelSource(): GeoJSONSourceSpecification {
@@ -21,10 +22,12 @@ function regionLabelSource(): GeoJSONSourceSpecification {
  * na Esri World Imagery (zdarma, vyžaduje uvedení zdroje).
  */
 function satelliteSource() {
-  const key = process.env.NEXT_PUBLIC_MAPTILER_KEY;
+  const key = publicEnv.NEXT_PUBLIC_MAPTILER_KEY;
   if (key) {
     return {
-      tiles: [`https://api.maptiler.com/tiles/satellite-v2/{z}/{x}/{y}.jpg?key=${key}`],
+      tiles: [
+        `https://api.maptiler.com/tiles/satellite-v2/{z}/{x}/{y}.jpg?key=${encodeURIComponent(key)}`,
+      ],
       attribution:
         '<a href="https://www.maptiler.com/copyright/">MapTiler</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       maxzoom: 20,

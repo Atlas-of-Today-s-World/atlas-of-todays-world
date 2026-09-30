@@ -1,2 +1,4 @@
 /** Kanonická adresa webu – používá ji sitemap, robots i og:url. */
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://atlasoftodaysworld.com";
+import { publicEnv } from "@/lib/env";
+
+export const SITE_URL = publicEnv.NEXT_PUBLIC_SITE_URL;
