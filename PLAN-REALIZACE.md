@@ -133,16 +133,18 @@ Dělá se **před** napojením na DB, aby se komponenty přepisovaly jen jednou.
 
 ## Fáze D — Veřejný web čte z databáze (≈ 4 čd) → M3
 
-- [ ] **D1** `lib/cache/tags.ts`; `features/{geography,indicators,portraits,entries,issues}/queries.ts`
+- [x] **D1** `lib/cache/tags.ts`; `features/{geography,indicators,portraits,entries,issues}/queries.ts`
       (anon klient, `unstable_cache` s tagy).
-- [ ] **D2** Layout `(map)`: barvy vrstev a issues z DB; barevné mapy líně jen pro aktivní vrstvu (výkon).
-- [ ] **D3** Stránky země, regionu, global issue, novinky/hesla, view, about, news index z DB;
+- [x] **D2** Layout `(map)`: barvy vrstev a issues z DB. *(Líné barevné mapy jen pro aktivní vrstvu zatím ne — payload je malý, viz ADR-014.)*
+- [x] **D3** Stránky země, regionu, global issue, novinky/hesla, view, about, news index z DB;
       `generateStaticParams` z DB; `dynamicParams = true` pro redakční obsah.
-- [ ] **D4** Fulltext přes RPC `search()` (`/api/search`, `/search`, `EncyclopediaPanel`); odebrat MiniSearch.
-- [ ] **D5** Sitemap z DB (vč. global issues, `lastmod`, bez přesměrovaných URL), OG obrázky (`next/og`).
-- [ ] **D6** Ověřit, že seed obsahuje vše, a **smazat `src/content/**`, `global-issues.json`, `lib/content.ts`
-      fs čtení, `api/export-demo`** (SEC-10).
-- [ ] **D7** Lighthouse CI s rozpočty (LCP < 2,5 s, JS < 200 kB, skóre ≥ 85).
+- [x] **D4** Fulltext přes RPC `search()` (`/api/search`, `/search`, `EncyclopediaPanel`); odebrat MiniSearch.
+- [x] **D5** Sitemap z DB (vč. global issues, `lastmod`, bez přesměrovaných URL). *(OG obrázky `next/og` přesunuty do F.)*
+- [x] **D6** Seed ověřen DB testy a **smazáno `src/content/**`, `global-issues.json`, `lib/content.ts`, `api/export-demo`**
+      (SEC-10), `scripts/db/build-seed.mjs` (seed.sql je teď snímek). Se čtením ze souborů zmizela i stará admin API (část E8).
+      ⚠ **Před nasazením:** v produkční DB musí být nahraný `supabase/seed.sql` (jinak bude web prázdný) — ověří vlastník.
+- [~] **D7** Lighthouse CI s rozpočty (`lighthouserc.json`, krok v `ci.yml`). LCP lokálně 0,1–0,5 s; JS ~420 kB kvůli MapLibre →
+      návrh ADR-014 (rozpočet 500 kB) čeká na schválení vlastníka.
 - **Hotovo, když:** `src/content` neexistuje, smoke + e2e zelené, rozpočty splněné.
 
 ## Fáze E — Administrace ukládá do databáze (≈ 10 čd) → M4
@@ -158,7 +160,7 @@ Dělá se **před** napojením na DB, aby se komponenty přepisovaly jen jednou.
 - [ ] **E5** Data: ukazatele, ruční hodnoty s povinným zdrojem, palety, vzhled webu, mapové oblasti (GeoJSON).
 - [ ] **E6** Účty: seznam, změna role, schvalovací přiřazení, blokace (+ ban v Auth API, DB-18), pozvánky (plná verze).
 - [ ] **E7** Role a práva: matice role × sekce × `vced`, rozsahy, vlastní role, bezpečnostní nastavení, audit log.
-- [ ] **E8** Odstranit staré admin formuláře a route handlery `api/admin/*` (**D6**, **D7**).
+- [x] **E8** Odstranit staré admin formuláře a route handlery `api/admin/*` (**D6**, **D7**). *(Hotovo ve fázi D.)*
 - [ ] **E10** Obrazovka MFA (TOTP) pro role z `require_2fa_roles` a pak vynucení `aal2` v `has_perm` (DB-07).
 - [ ] **E9** Testy: každá Server Action integrační test „bez práva / s právem“; e2e hlavní toky
       (napsat → odeslat → schválit → je na webu; vrátit s poznámkou; pozvat → přihlásit → role).

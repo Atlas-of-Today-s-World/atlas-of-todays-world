@@ -1,66 +1,41 @@
 import type { MetadataRoute } from "next";
-import { REGIONS } from "@/data/regions";
-import { indexableCountries } from "@/lib/countries";
-import { INDICATORS } from "@/lib/indicators";
-import { allNews } from "@/lib/content";
+import { getEntries } from "@/features/entries/queries";
+import { getAtlas } from "@/features/geography/queries";
 import { SITE_URL } from "@/lib/site";
 
 /**
- * Kompletní mapa webu – každý region, země, datová vrstva i novinka má URL.
- * `changeFrequency` říká robotům, jak často se sem vracet: datové vrstvy se
- * mění jednou ročně, novinky průběžně.
+ * Kompletní mapa webu z databáze – každý region, země, global issue, datová
+ * vrstva i novinka má URL. Přesměrované adresy (/support) sem nepatří.
+ * `changeFrequency` říká robotům, jak často se sem vracet.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
-  const newsItems = await allNews();
+  const [atlas, entries] = await Promise.all([getAtlas(), getEntries()]);
+  const page = (
+    path: string,
+    changeFrequency: NonNullable<MetadataRoute.Sitemap[number]["changeFrequency"]>,
+    priority: number,
+    extra: Partial<MetadataRoute.Sitemap[number]> = {},
+  ) => ({ url: `${SITE_URL}${path}`, lastModified: now, changeFrequency, priority, ...extra });
 
   return [
-    { url: SITE_URL, lastModified: now, changeFrequency: "daily", priority: 1 },
-    {
-      url: `${SITE_URL}/news`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
-    {
-      url: `${SITE_URL}/about`,
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.4,
-    },
-    {
-      url: `${SITE_URL}/support`,
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.4,
-    },
-    ...REGIONS.flatMap((region) => [
-      {
-        url: `${SITE_URL}/region/${region.slug}`,
-        lastModified: now,
-        changeFrequency: "weekly" as const,
-        priority: 0.9,
-        images: [region.hero],
-      },
-    ]),
-    ...indexableCountries().map((country) => ({
-      url: `${SITE_URL}/country/${country.slug}`,
-      lastModified: now,
-      changeFrequency: "monthly" as const,
-      priority: 0.8,
-    })),
-    ...INDICATORS.map((indicator) => ({
-      url: `${SITE_URL}/view/${indicator.id}`,
-      lastModified: now,
-      changeFrequency: "yearly" as const,
-      priority: 0.7,
-    })),
-    ...newsItems.map((item) => ({
-      url: `${SITE_URL}/news/${item.slug}`,
-      lastModified: item.updated ? new Date(item.updated) : now,
-      changeFrequency: "monthly" as const,
-      priority: 0.9,
-      images: item.hero ? [item.hero] : undefined,
-    })),
+    page("", "daily", 1),
+    page("/news", "weekly", 0.7),
+    page("/about", "yearly", 0.4),
+    page("/patrons", "yearly", 0.4),
+    ...atlas.regions.map((region) =>
+      page(`/region/${region.slug}`, "weekly", 0.9, {
+        images: region.hero ? [region.hero] : undefined,
+      }),
+    ),
+    ...atlas.issues.map((issue) => page(`/global-issue/${issue.slug}`, "weekly", 0.8)),
+    ...atlas.countries.map((country) => page(`/country/${country.slug}`, "monthly", 0.8)),
+    ...atlas.indicators.map((indicator) => page(`/view/${indicator.id}`, "yearly", 0.7)),
+    ...entries.map((item) =>
+      page(`/news/${item.slug}`, "monthly", 0.9, {
+        lastModified: new Date(item.updated ?? item.published ?? now),
+        images: item.hero ? [item.hero] : undefined,
+      }),
+    ),
   ];
 }

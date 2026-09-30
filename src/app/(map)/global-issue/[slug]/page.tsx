@@ -5,9 +5,10 @@ import MapFocus from "@/components/map/MapFocus";
 import MapModeSetter from "@/components/map/MapModeSetter";
 import Portrait, { newsCards } from "@/components/portrait/Portrait";
 import { groupStats, population } from "@/lib/region-stats";
-import { countryByIso3 } from "@/lib/countries";
-import { allNews } from "@/lib/content";
-import { allGlobalIssues, globalIssueBySlug } from "@/lib/global-issues";
+import { entriesOfIssue, getEntries } from "@/features/entries/queries";
+import { countriesOf } from "@/features/geography/model";
+import { getAtlas } from "@/features/geography/queries";
+import { getPortrait } from "@/features/portraits/queries";
 import { absoluteUrl, alternates, breadcrumbJsonLd, geoCoordinates, geoMeta } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
 
@@ -16,8 +17,8 @@ import { JsonLd } from "@/components/JsonLd";
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  const regions = await allGlobalIssues();
-  return regions.map((region) => ({ slug: region.slug }));
+  const { issues } = await getAtlas();
+  return issues.map((issue) => ({ slug: issue.slug }));
 }
 
 export async function generateMetadata({
@@ -26,7 +27,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const region = await globalIssueBySlug(slug);
+  const region = (await getAtlas()).issueBySlug.get(slug);
   if (!region) return {};
 
   return {
@@ -48,26 +49,13 @@ export async function generateMetadata({
 
 export default async function GlobalIssuePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const region = await globalIssueBySlug(slug);
+  const atlas = await getAtlas();
+  const region = atlas.issueBySlug.get(slug);
   if (!region) notFound();
 
-  const countries = region.countries
-    .map((iso3) => countryByIso3(iso3))
-    .filter((country): country is NonNullable<typeof country> => country !== null)
-    .sort((a, b) => (b.population ?? 0) - (a.population ?? 0));
-
-  // Napřed novinky přiřazené přímo k celku (pole `issue`), za nimi ty, které
-  // se trefily některou ze zemí celku. Bez duplicit.
-  const members = new Set(region.countries);
-  const news = await allNews();
-  const tagged = news.filter((item) => item.issue === region.slug);
-  const related = [
-    ...tagged,
-    ...news.filter(
-      (item) =>
-        item.issue !== region.slug && (item.countries ?? []).some((iso3) => members.has(iso3)),
-    ),
-  ];
+  const countries = countriesOf(atlas, region.countries);
+  const [entries, dossier] = await Promise.all([getEntries(), getPortrait("issue", region.slug)]);
+  const related = entriesOfIssue(entries, region.slug, region.countries);
 
   return (
     <>
@@ -87,12 +75,13 @@ export default async function GlobalIssuePage({ params }: { params: Promise<{ sl
             subtitle: region.subtitle,
             summary: region.summary,
             accent: region.fill,
+            hero: region.hero,
             countries: countries.map(({ slug, name }) => ({ slug, name })),
             population: population(countries),
           }}
           news={newsCards(related)}
-          dossier={{}}
-          stats={groupStats(countries)}
+          dossier={dossier}
+          stats={groupStats(countries, atlas.indicatorById)}
         />
       </ContentRail>
 

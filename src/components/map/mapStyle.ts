@@ -1,14 +1,19 @@
 import type { GeoJSONSourceSpecification, StyleSpecification } from "maplibre-gl";
-import { REGIONS } from "@/data/regions";
 import { publicEnv } from "@/lib/env";
 
+export interface RegionLabel {
+  slug: string;
+  name: string;
+  center: [number, number];
+}
+
 /** Popisky regionů – jeden bod na region, pozice je ručně zvolený střed. */
-function regionLabelSource(): GeoJSONSourceSpecification {
+function regionLabelSource(regions: RegionLabel[]): GeoJSONSourceSpecification {
   return {
     type: "geojson",
     data: {
       type: "FeatureCollection",
-      features: REGIONS.map((region) => ({
+      features: regions.map((region) => ({
         type: "Feature" as const,
         properties: { name: region.name, slug: region.slug },
         geometry: { type: "Point" as const, coordinates: region.center },
@@ -60,7 +65,7 @@ export const LAYERS = {
  * `setPaintProperty`, aby přepnutí vrstvy (Encyclopedia / HDI / ...) nemuselo
  * přenačítat celý styl a ztratit pozici kamery.
  */
-export function buildStyle(): StyleSpecification {
+export function buildStyle(regions: RegionLabel[]): StyleSpecification {
   const satellite = satelliteSource();
 
   return {
@@ -79,7 +84,7 @@ export function buildStyle(): StyleSpecification {
         type: "geojson",
         data: "/data/country-labels.geo.json",
       },
-      "region-labels": regionLabelSource(),
+      "region-labels": regionLabelSource(regions),
     },
     sky: {
       "sky-color": "#0b1a3a",

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { NewsBadge, SectionLabel } from "@/components/atlas/ui";
 import type { RegionDossier } from "@/lib/content-types";
 import type { RegionStat } from "@/lib/region-stats";
-import { formatPopulation } from "@/lib/region-stats";
+import { formatPopulation } from "@/lib/format";
 import { cssBackgroundImage } from "@/lib/security/urls";
 import NewsTabs, { type NewsCard } from "./NewsTabs";
 import {

@@ -4,9 +4,9 @@ import { notFound } from "next/navigation";
 import ContentRail from "@/components/ContentRail";
 import MapFocus from "@/components/map/MapFocus";
 import { SectionLabel } from "@/components/atlas/ui";
-import { allNews, newsBySlug } from "@/lib/content";
-import { countryByIso3 } from "@/lib/countries";
-import { globalIssueBySlug } from "@/lib/global-issues";
+import { getEntries, getEntry } from "@/features/entries/queries";
+import { countriesOf } from "@/features/geography/model";
+import { getAtlas } from "@/features/geography/queries";
 import { absoluteUrl, alternates, breadcrumbJsonLd, geoCoordinates, geoMeta } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
@@ -16,8 +16,8 @@ import { cssBackgroundImage } from "@/lib/security/urls";
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  const newsItems = await allNews();
-  return newsItems.map((item) => ({ slug: item.slug }));
+  const entries = await getEntries();
+  return entries.map((item) => ({ slug: item.slug }));
 }
 
 export async function generateMetadata({
@@ -26,8 +26,9 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const item = await newsBySlug(slug);
+  const [item, atlas] = await Promise.all([getEntry(slug), getAtlas()]);
   if (!item) return {};
+  const region = item.region ? atlas.regionBySlug.get(item.region) : undefined;
   return {
     title: item.title,
     description: item.summary,
@@ -43,27 +44,21 @@ export async function generateMetadata({
       authors: item.author ? [item.author] : undefined,
       section: item.category,
     },
-    keywords: [item.title, item.category, item.regionRef?.name ?? ""].filter(Boolean),
-    other: item.regionRef
-      ? geoMeta({
-          lat: item.regionRef.center[1],
-          lon: item.regionRef.center[0],
-          placename: item.regionRef.name,
-        })
+    keywords: [item.title, item.category, region?.name ?? ""].filter(Boolean),
+    other: region
+      ? geoMeta({ lat: region.center[1], lon: region.center[0], placename: region.name })
       : undefined,
   };
 }
 
 export default async function NewsPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const item = await newsBySlug(slug);
+  const [item, atlas] = await Promise.all([getEntry(slug), getAtlas()]);
   if (!item) notFound();
 
-  const region = item.regionRef;
-  const issue = item.issue ? await globalIssueBySlug(item.issue) : null;
-  const countriesCovered = (item.countries ?? [])
-    .map((iso3) => countryByIso3(iso3))
-    .filter((country): country is NonNullable<typeof country> => country !== null);
+  const region = item.region ? atlas.regionBySlug.get(item.region) : undefined;
+  const issue = item.issue ? atlas.issueBySlug.get(item.issue) : undefined;
+  const countriesCovered = countriesOf(atlas, item.countries);
 
   return (
     <>
@@ -72,7 +67,7 @@ export default async function NewsPage({ params }: { params: Promise<{ slug: str
         zoom={region?.zoom ?? null}
         regionCountries={region?.countries ?? []}
         regionStroke={region?.stroke ?? null}
-        activeIso3={item.countries?.[0] ?? null}
+        activeIso3={item.countries[0] ?? null}
       />
 
       <ContentRail wide>
@@ -146,7 +141,10 @@ export default async function NewsPage({ params }: { params: Promise<{ slug: str
             articleSection: item.category,
             datePublished: item.published,
             dateModified: item.updated ?? item.published,
-            wordCount: item.plain.split(/\s+/).length,
+            wordCount: item.html
+              .replace(/<[^>]+>/g, " ")
+              .split(/\s+/)
+              .filter(Boolean).length,
             inLanguage: "en",
             isAccessibleForFree: true,
             author: item.author

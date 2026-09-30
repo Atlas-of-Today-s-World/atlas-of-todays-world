@@ -10,7 +10,7 @@ import {
   type MapSourceDataEvent,
 } from "maplibre-gl";
 import { Minus, Plus } from "lucide-react";
-import { buildStyle, LAYERS } from "./mapStyle";
+import { buildStyle, LAYERS, type RegionLabel } from "./mapStyle";
 import { EUROPE_CENTER, globeFillZoom } from "@/lib/home-location";
 import { useMapState } from "./MapContext";
 import { DESKTOP_MIN_PX, railKind, railWidthPx } from "@/config/layout";
@@ -34,6 +34,8 @@ interface Props {
   regions: RegionLookup;
   /** Global Issues redakce; prázdné, když žádné nejsou. */
   issue: RegionLookup;
+  /** Popisky regionů nad globusem. */
+  regionLabels: RegionLabel[];
 }
 
 const NEUTRAL = "#7d8aa8";
@@ -93,7 +95,7 @@ function matchExpression(colors: Record<string, string>): ExpressionSpecificatio
   return ["match", ["get", "iso3"], ...stops, NEUTRAL] as unknown as ExpressionSpecification;
 }
 
-export default function AtlasGlobe({ colorSets, slugs, regions, issue }: Props) {
+export default function AtlasGlobe({ colorSets, slugs, regions, issue, regionLabels }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const hoveredRef = useRef<string | null>(null);
@@ -129,7 +131,7 @@ export default function AtlasGlobe({ colorSets, slugs, regions, issue }: Props) 
 
     const map = new MapLibreMap({
       container: containerRef.current,
-      style: buildStyle(),
+      style: buildStyle(regionLabels),
       // První snímek rovnou ve výchozí vzdálenosti, ať se mapa nezobrazí
       // nejdřív jako malá kulička a teprve pak nepřiletí.
       center: EUROPE_CENTER,

@@ -37,22 +37,6 @@ export interface FaqItem {
   answer: string;
 }
 
-export interface NewsFrontmatter {
-  title: string;
-  summary: string;
-  category: NewsCategory;
-  region: string;
-  countries?: string[];
-  /** Slug global issue ze global-issues.json. Novinka může viset i na něm. */
-  issue?: string;
-  hero?: string;
-  heroCredit?: string;
-  author?: string;
-  published?: string;
-  updated?: string;
-  readingMinutes?: number;
-}
-
 /**
  * Ručně zadaný ukazatel u země nebo regionu.
  *
@@ -90,25 +74,4 @@ export interface RegionDossier {
   visuals?: { title: string; image: string; caption: string }[];
   resources?: ResourceItem[];
   faq?: FaqItem[];
-}
-
-/**
- * Redakční profil země (frontmatter v src/content/countries/<slug>.md).
- *
- * Text pod frontmatterem zůstává Markdown; tohle je to, co se dá nastavit
- * v administraci u každé země zvlášť.
- */
-export interface CountryFrontmatter {
-  /** Jedna až dvě věty pod název země. Když chybí, složí se z importovaných dat. */
-  summary?: string;
-  /** Podtitulek jako na stávajícím webu („Showing the whole environment…"). */
-  tagline?: string;
-  /** Ručně zadané ukazatele nad rámec OWID. */
-  metrics?: MetricCard[];
-  /**
-   * Které automatické ukazatele u země ukázat a v jakém pořadí (id z
-   * `scripts/indicators.config.mjs`). Prázdné = prvních šest, jako dosud.
-   */
-  featured?: string[];
-  updated?: string;
 }

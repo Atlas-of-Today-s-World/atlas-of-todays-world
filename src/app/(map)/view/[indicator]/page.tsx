@@ -5,15 +5,16 @@ import ContentRail from "@/components/ContentRail";
 import MapFocus from "@/components/map/MapFocus";
 import MapViewSetter from "@/components/map/MapViewSetter";
 import { SectionLabel } from "@/components/atlas/ui";
-import { INDICATORS, formatValue, getIndicator } from "@/lib/indicators";
-import { countryByIso3 } from "@/lib/countries";
+import { getAtlas } from "@/features/geography/queries";
+import { formatValue } from "@/lib/indicators";
 import { absoluteUrl, alternates, breadcrumbJsonLd } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
 
 export const dynamicParams = false;
 
-export function generateStaticParams() {
-  return INDICATORS.map((indicator) => ({ indicator: indicator.id }));
+export async function generateStaticParams() {
+  const { indicators } = await getAtlas();
+  return indicators.map((indicator) => ({ indicator: indicator.id }));
 }
 
 export async function generateMetadata({
@@ -22,7 +23,7 @@ export async function generateMetadata({
   params: Promise<{ indicator: string }>;
 }): Promise<Metadata> {
   const { indicator: id } = await params;
-  const indicator = getIndicator(id);
+  const indicator = (await getAtlas()).indicatorById.get(id);
   if (!indicator) return {};
   const description = `${indicator.label} for ${indicator.countryCount} countries, mapped on an interactive 3D globe. Latest data: ${indicator.latestYear}. Source: ${indicator.source}.`;
   return {
@@ -39,12 +40,15 @@ export default async function IndicatorViewPage({
   params: Promise<{ indicator: string }>;
 }) {
   const { indicator: id } = await params;
-  const indicator = getIndicator(id);
+  const atlas = await getAtlas();
+  const indicator = atlas.indicatorById.get(id);
   if (!indicator) notFound();
 
   const ranked = Object.entries(indicator.values)
-    .map(([iso3, item]) => ({ country: countryByIso3(iso3), ...item }))
-    .filter((row) => row.country !== null)
+    .flatMap(([iso3, item]) => {
+      const country = atlas.countryByIso3.get(iso3);
+      return country ? [{ country, ...item }] : [];
+    })
     .sort((a, b) => (indicator.higherIsBetter ? b.value - a.value : a.value - b.value));
 
   return (
@@ -72,15 +76,15 @@ export default async function IndicatorViewPage({
 
           <ol className="mt-6 divide-y divide-[var(--color-line)]">
             {ranked.map((row, index) => (
-              <li key={row.country!.iso3} className="flex items-center gap-3 py-2">
+              <li key={row.country.iso3} className="flex items-center gap-3 py-2">
                 <span className="w-7 shrink-0 text-[11.5px] text-[var(--color-ink-muted)] tabular-nums">
                   {indicator.type === "categorical" ? "·" : index + 1}
                 </span>
                 <Link
-                  href={`/country/${row.country!.slug}`}
+                  href={`/country/${row.country.slug}`}
                   className="flex-1 text-[13.5px] text-[var(--color-ink)] hover:text-[var(--color-accent)]"
                 >
-                  {row.country!.name}
+                  {row.country.name}
                 </Link>
                 <span className="text-[13px] font-medium text-[var(--color-ink)] tabular-nums">
                   {formatValue(indicator, row.value)}
@@ -91,17 +95,19 @@ export default async function IndicatorViewPage({
 
           <p className="mt-6 text-[11px] leading-relaxed text-[var(--color-ink-muted)]">
             Other layers:{" "}
-            {INDICATORS.filter((item) => item.id !== indicator.id).map((item, i) => (
-              <span key={item.id}>
-                {i > 0 ? ", " : ""}
-                <Link
-                  href={`/view/${item.id}`}
-                  className="text-[var(--color-link)] hover:underline"
-                >
-                  {item.shortLabel}
-                </Link>
-              </span>
-            ))}
+            {atlas.indicators
+              .filter((item) => item.id !== indicator.id)
+              .map((item, i) => (
+                <span key={item.id}>
+                  {i > 0 ? ", " : ""}
+                  <Link
+                    href={`/view/${item.id}`}
+                    className="text-[var(--color-link)] hover:underline"
+                  >
+                    {item.shortLabel}
+                  </Link>
+                </span>
+              ))}
           </p>
         </div>
       </ContentRail>

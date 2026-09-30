@@ -65,6 +65,8 @@ jobs:
           BASE_URL: http://localhost:3000
           # Jen pro testovací účty v atlas-dev (tests/auth.spec.ts); bez něj se sada přeskočí.
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY_DEV }}
+      - name: Lighthouse (rozpočty výkonu a přístupnosti, lighthouserc.json)
+        run: npx --yes @lhci/cli@0.14 autorun
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

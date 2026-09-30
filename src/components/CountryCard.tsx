@@ -1,7 +1,7 @@
 import Link from "next/link";
-import type { Country } from "@/lib/countries";
-import { formatPopulation } from "@/lib/countries";
-import type { CountryProfile, NewsItem } from "@/lib/content";
+import type { EntrySummary } from "@/features/entries/queries";
+import type { Country, CountryProfile } from "@/features/geography/types";
+import { formatPopulation } from "@/lib/format";
 import { MetricCards, StatIcon } from "./atlas/ui";
 
 /**
@@ -25,7 +25,7 @@ export default function CountryCard({
   profile,
 }: {
   country: Country;
-  newsItems: NewsItem[];
+  newsItems: EntrySummary[];
   description: string;
   profile?: CountryProfile | null;
 }) {

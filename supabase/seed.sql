@@ -1,22 +1,25 @@
--- Vygenerováno skriptem scripts/db/build-seed.mjs — neupravovat ručně.
+-- Snímek výchozích dat Atlasu (původně ze scripts/db/build-seed.mjs a src/content, odstraněných ve fázi D).
+-- Nový obsah vzniká v administraci; tento soubor jen naplní prázdnou databázi.
 -- Zdroj: src/data/*.generated.json, src/data/regions.ts, src/content/**
 -- 9 regionů · 240 zemí · 9 ukazatelů · 1753 hodnot · 6 celků · 8 novinek
 
 begin;
 
-insert into public.regions (slug, name, tagline, fill, stroke, center_lon, center_lat, zoom, summary, position) values
-  ('eastern-europe-central-asia', 'Eastern Europe & Central Asia', 'A Comprehensive Portrait with global perspective', '#e08585', '#b03a2e', 62, 52, 2.1, 'Eastern Europe is a region shaped by resilience, where imperial facades, communist blocks, and modern glass towers coexist, reflecting a past that still influences daily life. Society balances tradition with rapid change, navigating political skepticism, economic transition, and European integration. Living conditions vary between vibrant capitals and modest provincial towns, where hard work, education, and family networks remain central. Pragmatic, resourceful, and quietly ambitious, the region moves between memory and progress with persistent strength.', 0),
-  ('western-central-europe', 'Western & Central Europe', 'A Comprehensive Portrait with global perspective', '#a9b5e8', '#4a5aa8', 10, 50, 2.6, 'A dense cluster of small states bound by a single market, open borders and a shared postwar promise of prosperity. Western and Central Europe combines some of the world''s highest living standards with ageing populations, contested migration politics and an energy transition that reshapes its industry. Its societies are secular, highly urbanised and deeply networked — and increasingly aware that the security order they took for granted is no longer given.', 1),
-  ('middle-east-north-africa', 'Middle East & North Africa', 'A Comprehensive Portrait with global perspective', '#f2e3ae', '#b99334', 35, 27, 2.4, 'From the Atlantic coast of Morocco to the Iranian plateau, MENA is young, urban and unevenly rich. Hydrocarbon wealth has built city-states of extraordinary affluence next to countries hollowed out by war and sanctions. Water scarcity, a population bulge entering the labour market and the slow unwinding of the post-2011 settlements define the decade ahead.', 2),
-  ('sub-saharan-africa', 'Sub-Saharan Africa', 'A Comprehensive Portrait with global perspective', '#9ed6c0', '#2e8b6e', 20, 0, 2.1, 'The world''s youngest region and the one that will supply most of the next generation of workers. Sub-Saharan Africa spans forty-nine countries with little in common beyond that label: stable middle-income democracies, fast-urbanising giants, and a Sahel belt where state authority is retreating. Mobile-first economies, a continental free-trade area and a scramble over critical minerals are rewriting how the region connects to the world.', 3),
-  ('south-asia', 'South Asia', 'A Comprehensive Portrait with global perspective', '#e8c39e', '#b5742e', 78, 22, 2.8, 'A quarter of humanity on three percent of the world''s land. South Asia holds the fastest-growing large economy, two nuclear-armed rivals and the populations most exposed to heat and flooding. Rapid growth in services sits beside persistent malnutrition; democratic forms sit beside tightening control of media and courts.', 4),
-  ('east-asia', 'East Asia', 'A Comprehensive Portrait with global perspective', '#c7a9e8', '#7048a8', 115, 36, 2.6, 'The workshop of the global economy and the arena where the century''s central rivalry plays out. East Asia has the world''s densest manufacturing networks, its most advanced chip industry and its steepest demographic decline. Taiwan, the Korean peninsula and the East China Sea keep military risk permanently on the agenda.', 5),
-  ('southeast-asia-oceania', 'Southeast Asia & Oceania', 'A Comprehensive Portrait with global perspective', '#9ed0e8', '#2e7fa8', 125, -8, 2.2, 'An archipelagic world of trade routes, hedging diplomacy and climate exposure. Southeast Asia is growing fast and industrialising as supply chains diversify out of China, while the Pacific island states negotiate their sovereignty between great powers and rising seas. Australia and New Zealand anchor the region''s wealthy, resource-heavy south.', 6),
-  ('north-america', 'North America', 'A Comprehensive Portrait with global perspective', '#b9d8a6', '#4f8c3a', -100, 48, 2.2, 'Two wealthy federations and the world''s largest military and financial power. North America sets much of the technological and cultural agenda others react to, while its own politics turn on polarisation, migration at the southern border and the cost of housing and healthcare.', 7),
-  ('latin-america-caribbean', 'Latin America & the Caribbean', 'A Comprehensive Portrait with global perspective', '#f0b9d2', '#b84a80', -62, -15, 2.1, 'The most urbanised region of the global south and among the most unequal. Latin America swings between electoral cycles with unusual speed, carries some of the world''s highest homicide rates, and holds resources — lithium, copper, soy, the Amazon — that the energy transition has made strategic.', 8)
+insert into public.regions (slug, name, tagline, fill, stroke, center_lon, center_lat, zoom, summary, position, hero_url, hero_credit) values
+  ('eastern-europe-central-asia', 'Eastern Europe & Central Asia', 'A Comprehensive Portrait with global perspective', '#e08585', '#b03a2e', 62, 52, 2.1, 'Eastern Europe is a region shaped by resilience, where imperial facades, communist blocks, and modern glass towers coexist, reflecting a past that still influences daily life. Society balances tradition with rapid change, navigating political skepticism, economic transition, and European integration. Living conditions vary between vibrant capitals and modest provincial towns, where hard work, education, and family networks remain central. Pragmatic, resourceful, and quietly ambitious, the region moves between memory and progress with persistent strength.', 0, 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1600&q=70', 'NASA / Unsplash'),
+  ('western-central-europe', 'Western & Central Europe', 'A Comprehensive Portrait with global perspective', '#a9b5e8', '#4a5aa8', 10, 50, 2.6, 'A dense cluster of small states bound by a single market, open borders and a shared postwar promise of prosperity. Western and Central Europe combines some of the world''s highest living standards with ageing populations, contested migration politics and an energy transition that reshapes its industry. Its societies are secular, highly urbanised and deeply networked — and increasingly aware that the security order they took for granted is no longer given.', 1, 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=1600&q=70', 'Unsplash'),
+  ('middle-east-north-africa', 'Middle East & North Africa', 'A Comprehensive Portrait with global perspective', '#f2e3ae', '#b99334', 35, 27, 2.4, 'From the Atlantic coast of Morocco to the Iranian plateau, MENA is young, urban and unevenly rich. Hydrocarbon wealth has built city-states of extraordinary affluence next to countries hollowed out by war and sanctions. Water scarcity, a population bulge entering the labour market and the slow unwinding of the post-2011 settlements define the decade ahead.', 2, 'https://images.unsplash.com/photo-1504198266287-1659872e6590?w=1600&q=70', 'Unsplash'),
+  ('sub-saharan-africa', 'Sub-Saharan Africa', 'A Comprehensive Portrait with global perspective', '#9ed6c0', '#2e8b6e', 20, 0, 2.1, 'The world''s youngest region and the one that will supply most of the next generation of workers. Sub-Saharan Africa spans forty-nine countries with little in common beyond that label: stable middle-income democracies, fast-urbanising giants, and a Sahel belt where state authority is retreating. Mobile-first economies, a continental free-trade area and a scramble over critical minerals are rewriting how the region connects to the world.', 3, 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?w=1600&q=70', 'Unsplash'),
+  ('south-asia', 'South Asia', 'A Comprehensive Portrait with global perspective', '#e8c39e', '#b5742e', 78, 22, 2.8, 'A quarter of humanity on three percent of the world''s land. South Asia holds the fastest-growing large economy, two nuclear-armed rivals and the populations most exposed to heat and flooding. Rapid growth in services sits beside persistent malnutrition; democratic forms sit beside tightening control of media and courts.', 4, 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=1600&q=70', 'Unsplash'),
+  ('east-asia', 'East Asia', 'A Comprehensive Portrait with global perspective', '#c7a9e8', '#7048a8', 115, 36, 2.6, 'The workshop of the global economy and the arena where the century''s central rivalry plays out. East Asia has the world''s densest manufacturing networks, its most advanced chip industry and its steepest demographic decline. Taiwan, the Korean peninsula and the East China Sea keep military risk permanently on the agenda.', 5, 'https://images.unsplash.com/photo-1480796927426-f609979314bd?w=1600&q=70', 'Unsplash'),
+  ('southeast-asia-oceania', 'Southeast Asia & Oceania', 'A Comprehensive Portrait with global perspective', '#9ed0e8', '#2e7fa8', 125, -8, 2.2, 'An archipelagic world of trade routes, hedging diplomacy and climate exposure. Southeast Asia is growing fast and industrialising as supply chains diversify out of China, while the Pacific island states negotiate their sovereignty between great powers and rising seas. Australia and New Zealand anchor the region''s wealthy, resource-heavy south.', 6, 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=1600&q=70', 'Unsplash'),
+  ('north-america', 'North America', 'A Comprehensive Portrait with global perspective', '#b9d8a6', '#4f8c3a', -100, 48, 2.2, 'Two wealthy federations and the world''s largest military and financial power. North America sets much of the technological and cultural agenda others react to, while its own politics turn on polarisation, migration at the southern border and the cost of housing and healthcare.', 7, 'https://images.unsplash.com/photo-1485738422979-f5c462d49f74?w=1600&q=70', 'Unsplash'),
+  ('latin-america-caribbean', 'Latin America & the Caribbean', 'A Comprehensive Portrait with global perspective', '#f0b9d2', '#b84a80', -62, -15, 2.1, 'The most urbanised region of the global south and among the most unequal. Latin America swings between electoral cycles with unusual speed, carries some of the world''s highest homicide rates, and holds resources — lithium, copper, soy, the Amazon — that the energy transition has made strategic.', 8, 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=1600&q=70', 'Unsplash')
 on conflict (slug) do update set name = excluded.name, tagline = excluded.tagline, fill = excluded.fill,
   stroke = excluded.stroke, center_lon = excluded.center_lon, center_lat = excluded.center_lat,
-  zoom = excluded.zoom, summary = excluded.summary, position = excluded.position;
+  zoom = excluded.zoom, summary = excluded.summary, position = excluded.position,
+  hero_url = coalesce(regions.hero_url, excluded.hero_url),
+  hero_credit = case when regions.hero_credit = '' then excluded.hero_credit else regions.hero_credit end;
 
 insert into public.countries (iso3, slug, name, name_formal, region_slug, un_subregion, population, lon, lat, bbox, territory_note) values
   ('AFG', 'afghanistan', 'Afghanistan', 'Islamic State of Afghanistan', 'south-asia', 'Southern Asia', 38041754, 66.496586, 34.164262, array[60.486, 29.392, 74.891, 38.456]::numeric[], null),
@@ -2183,19 +2186,34 @@ Since 2011, the region has been significantly shaped by waves of political mobil
   portrait_status = 'populated'
 where slug = 'middle-east-north-africa';
 
-insert into public.portrait_metrics (id, region_slug, position, value, label, description, source, source_url) values
-  (md5('metric:middle-east-north-africa:0')::uuid, 'middle-east-north-africa', 0, '10+', 'Ethnic Groups', 'The region is comprised of more than 10 different groups, with Arabs being the majority. Others who call it home are Berbers, Kurds, Jews, Persians, Turks, and an array of other ethnic and religious minorities.', 'Council on Foreign Relations', null),
-  (md5('metric:middle-east-north-africa:1')::uuid, 'middle-east-north-africa', 1, '10 %', 'Level of Freedom', 'More than 90 % of the people in the Middle East live in countries rated ''Not Free'' according to a 2024 Freedom House report.', 'Freedom House', null),
-  (md5('metric:middle-east-north-africa:2')::uuid, 'middle-east-north-africa', 2, '4/10', 'World''s Least Peaceful Countries', 'The region remains the least peaceful globally, home to four of the ten countries in the world experiencing the most unrest.', 'Global Finance', null),
-  (md5('metric:middle-east-north-africa:3')::uuid, 'middle-east-north-africa', 3, '24.4 %', 'Youth Unemployment', 'Amount of unemployment in the region for the over 60 % of the population who are under 30.', 'IOM', null),
-  (md5('metric:middle-east-north-africa:4')::uuid, 'middle-east-north-africa', 4, '17.8M', 'Number of Displaced', 'The total number of forcibly displaced or stateless people in the region by mid-2025.', 'UNHCR', null),
-  (md5('metric:middle-east-north-africa:5')::uuid, 'middle-east-north-africa', 5, '34M', 'Child Food Poverty', 'Approximately 34 million people under five years of age, or three in every five children in the region, experience food poverty.', 'UNICEF', null)
+insert into public.portrait_metrics (id, region_slug, position, value, label, description, source, source_url, period) values
+  (md5('metric:middle-east-north-africa:0')::uuid, 'middle-east-north-africa', 0, '10+', 'Ethnic Groups', 'The region is comprised of more than 10 different groups, with Arabs being the majority. Others who call it home are Berbers, Kurds, Jews, Persians, Turks, and an array of other ethnic and religious minorities.', 'Council on Foreign Relations', null, null),
+  (md5('metric:middle-east-north-africa:1')::uuid, 'middle-east-north-africa', 1, '10 %', 'Level of Freedom', 'More than 90 % of the people in the Middle East live in countries rated ''Not Free'' according to a 2024 Freedom House report.', 'Freedom House', null, '2024'),
+  (md5('metric:middle-east-north-africa:2')::uuid, 'middle-east-north-africa', 2, '4/10', 'World''s Least Peaceful Countries', 'The region remains the least peaceful globally, home to four of the ten countries in the world experiencing the most unrest.', 'Global Finance', null, null),
+  (md5('metric:middle-east-north-africa:3')::uuid, 'middle-east-north-africa', 3, '24.4 %', 'Youth Unemployment', 'Amount of unemployment in the region for the over 60 % of the population who are under 30.', 'IOM', null, null),
+  (md5('metric:middle-east-north-africa:4')::uuid, 'middle-east-north-africa', 4, '17.8M', 'Number of Displaced', 'The total number of forcibly displaced or stateless people in the region by mid-2025.', 'UNHCR', null, 'mid-2025'),
+  (md5('metric:middle-east-north-africa:5')::uuid, 'middle-east-north-africa', 5, '34M', 'Child Food Poverty', 'Approximately 34 million people under five years of age, or three in every five children in the region, experience food poverty.', 'UNICEF', null, null)
 on conflict (id) do nothing;
+
+update public.countries set
+  tagline = case when tagline = '' then '' else tagline end,
+  profile_html = case when profile_html = '' then '<p>Ukraine has spent its independence negotiating between two gravitational fields —
+the European Union to the west and Russia to the east — and since 2022 that
+negotiation has been conducted under full-scale invasion. The country''s
+institutions have proved considerably more resilient than most pre-war
+assessments assumed, while its demography and industrial base have taken damage
+that will shape the next generation.</p>
+<p>Its politics remain genuinely competitive: every presidential election since 1991
+has been won by a challenger or produced a change of governing coalition, an
+unusual record in the post-Soviet space.</p>
+' else profile_html end,
+  featured_indicators = case when featured_indicators = '{}' then '{}'::text[] else featured_indicators end
+where iso3 = 'UKR';
 
 update public.countries set blurb = coalesce(blurb, 'Second-largest country in Europe after Russia, which borders it to the east and northeast. Ukraine also borders Belarus to the north; Poland and Slovakia to the west; Hungary, Romania and Moldova to the southwest; and the Black Sea and the Sea of Azov to the south and southeast.') where iso3 = 'UKR';
 
-insert into public.portrait_metrics (id, country_iso3, position, value, label, description, source, source_url) values
-  (md5('metric:UKR:0')::uuid, 'UKR', 0, '6.9M', 'Refugees from Ukraine', 'People from Ukraine recorded as refugees across Europe and beyond.', 'UNHCR', 'https://data.unhcr.org/en/situations/ukraine')
+insert into public.portrait_metrics (id, country_iso3, position, value, label, description, source, source_url, period) values
+  (md5('metric:UKR:0')::uuid, 'UKR', 0, '6.9M', 'Refugees from Ukraine', 'People from Ukraine recorded as refugees across Europe and beyond.', 'UNHCR', 'https://data.unhcr.org/en/situations/ukraine', '2025')
 on conflict (id) do nothing;
 
 insert into public.entries (id, slug, kind, title, summary, category, region_slug, special_slug, body_html, author_name, status, published_on, reading_minutes) values
@@ -2530,5 +2548,18 @@ insert into public.entry_countries (entry_id, country_iso3) values
   (md5('entry:sahel-coup-belt')::uuid, 'SDN'),
   (md5('entry:ukraine-war-daily-life')::uuid, 'UKR')
 on conflict do nothing;
+
+update public.entries set cover_url = coalesce(cover_url, 'https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?w=1600&q=70'), cover_credit = coalesce(cover_credit, null) where slug = 'eu-enlargement-east';
+
+update public.entries set cover_url = coalesce(cover_url, 'https://images.unsplash.com/photo-1513326738677-b964603b136d?w=1600&q=70'), cover_credit = coalesce(cover_credit, 'Unsplash') where slug = 'putins-regime';
+
+update public.entries set cover_url = coalesce(cover_url, 'https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=1600&q=70'), cover_credit = coalesce(cover_credit, null) where slug = 'ukraine-war-daily-life';
+
+-- Pořadí ukazatelů (migrace 20260930000008); na čisté DB běží seed až po migracích.
+update public.indicators i set position = o.position
+from (values ('hdi', 0), ('life-expectancy', 1), ('gdp-per-capita', 2), ('political-regime', 3),
+             ('democracy-index', 4), ('corruption', 5), ('extreme-poverty', 6),
+             ('co2-per-capita', 7), ('internet-users', 8)) as o(id, position)
+where i.id = o.id and i.position = 100;
 
 commit;

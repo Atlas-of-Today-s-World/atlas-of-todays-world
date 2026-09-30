@@ -1,38 +1,9 @@
-import raw from "@/data/indicators.generated.json";
+import type { Indicator } from "@/features/geography/types";
 
-interface IndicatorCategory {
-  value: number;
-  label: string;
-  color: string;
-}
-
-export interface Indicator {
-  id: string;
-  label: string;
-  shortLabel: string;
-  owidSlug: string;
-  unit: string;
-  decimals: number;
-  source: string;
-  sourceUrl: string;
-  type: "sequential" | "categorical";
-  scale?: "log";
-  domain?: [number, number];
-  ramp?: string[];
-  categories?: IndicatorCategory[];
-  higherIsBetter: boolean;
-  latestYear: number | null;
-  countryCount: number;
-  values: Record<string, { value: number; year: number }>;
-}
-
-const INDICATOR_MAP = raw as unknown as Record<string, Indicator>;
-
-export const INDICATORS: Indicator[] = Object.values(INDICATOR_MAP);
-
-export function getIndicator(id: string): Indicator | null {
-  return INDICATOR_MAP[id] ?? null;
-}
+/**
+ * Barvy, legenda a formát hodnot datových vrstev. Čisté funkce nad
+ * `Indicator` z databáze (features/geography/model.ts).
+ */
 
 /**
  * Barva země pro danou vrstvu. Sekvenční škály interpolují mezi zastávkami
@@ -99,9 +70,7 @@ export function formatValue(indicator: Indicator, value: number): string {
  * Hodnoty pro obarvení globusu: {ISO3: "#rrggbb"}. Posílá se do klienta jako
  * jeden malý objekt místo celého datasetu.
  */
-export function colorMapFor(indicatorId: string): Record<string, string> {
-  const indicator = getIndicator(indicatorId);
-  if (!indicator) return {};
+export function colorMapFor(indicator: Indicator): Record<string, string> {
   const out: Record<string, string> = {};
   for (const [iso3, item] of Object.entries(indicator.values)) {
     out[iso3] = colorForValue(indicator, item.value);

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { allNews, NEWS_CATEGORIES } from "@/lib/content";
-import { allGlobalIssues } from "@/lib/global-issues";
-import { REGIONS } from "@/data/regions";
+import { getEntries } from "@/features/entries/queries";
+import { getAtlas } from "@/features/geography/queries";
+import { NEWS_CATEGORIES } from "@/lib/content-types";
 
 export const metadata: Metadata = {
   title: "All news",
@@ -11,8 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function NewsIndexPage() {
-  const [newsItems, issues] = await Promise.all([allNews(), allGlobalIssues()]);
-  const issueName = new Map(issues.map((item) => [item.slug, item.name]));
+  const [newsItems, atlas] = await Promise.all([getEntries(), getAtlas()]);
 
   return (
     <main>
@@ -36,12 +35,12 @@ export default async function NewsIndexPage() {
                     className="group block h-full rounded-xl border border-[var(--color-line)] p-4 transition hover:border-[var(--color-accent)]"
                   >
                     <span className="text-[11px] tracking-wide text-[var(--color-ink-muted)] uppercase">
-                      {item.regionRef?.name}
+                      {item.region ? atlas.regionBySlug.get(item.region)?.name : null}
                       {item.issue ? (
                         <>
                           {" · "}
                           <span className="text-[var(--color-link)]">
-                            {issueName.get(item.issue) ?? item.issue}
+                            {atlas.issueBySlug.get(item.issue)?.name ?? item.issue}
                           </span>
                         </>
                       ) : null}
@@ -63,7 +62,7 @@ export default async function NewsIndexPage() {
       <section className="mt-12 border-t border-[var(--color-line)] pt-8">
         <h2 className="font-display text-[18px] font-bold">Browse by region</h2>
         <div className="mt-4 flex flex-wrap gap-2">
-          {REGIONS.map((region) => (
+          {atlas.regions.map((region) => (
             <Link
               key={region.slug}
               href={`/region/${region.slug}`}

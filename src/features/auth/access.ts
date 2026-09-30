@@ -1,5 +1,4 @@
 import "server-only";
-import { NextResponse } from "next/server";
 import { cache } from "react";
 import { createServerClient } from "@/lib/supabase/server";
 
@@ -67,23 +66,3 @@ export const getAccess = cache(async function getAccess(): Promise<Access | null
     permissions,
   };
 });
-
-/**
- * Pro Route Handlery: ověří přihlášení a oprávnění sám, nespoléhá na middleware
- * (ARCHITEKTURA 4.3). Vrací buď přístup, nebo hotovou odpověď 401/403.
- */
-export async function requirePermission(
-  section: Section,
-  action: Action,
-): Promise<{ access: Access } | { response: NextResponse }> {
-  const access = await getAccess();
-  if (!access) {
-    return { response: NextResponse.json({ error: "Sign in first." }, { status: 401 }) };
-  }
-  if (!can(access.permissions, section, action)) {
-    return {
-      response: NextResponse.json({ error: "Your role does not allow this." }, { status: 403 }),
-    };
-  }
-  return { access };
-}

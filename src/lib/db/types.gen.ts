@@ -1,4 +1,3 @@
-// Vygenerováno: npm run db:types (supabase gen types). Neupravovat ručně.
 export type Json =
   | string
   | number
@@ -211,14 +210,17 @@ export type Database = {
         Row: {
           bbox: number[] | null
           blurb: string | null
+          featured_indicators: string[]
           iso3: string
           lat: number | null
           lon: number | null
           name: string
           name_formal: string | null
           population: number | null
+          profile_html: string
           region_slug: string | null
           slug: string
+          tagline: string
           territory_note: string | null
           un_subregion: string | null
           updated_at: string
@@ -226,14 +228,17 @@ export type Database = {
         Insert: {
           bbox?: number[] | null
           blurb?: string | null
+          featured_indicators?: string[]
           iso3: string
           lat?: number | null
           lon?: number | null
           name: string
           name_formal?: string | null
           population?: number | null
+          profile_html?: string
           region_slug?: string | null
           slug: string
+          tagline?: string
           territory_note?: string | null
           un_subregion?: string | null
           updated_at?: string
@@ -241,14 +246,17 @@ export type Database = {
         Update: {
           bbox?: number[] | null
           blurb?: string | null
+          featured_indicators?: string[]
           iso3?: string
           lat?: number | null
           lon?: number | null
           name?: string
           name_formal?: string | null
           population?: number | null
+          profile_html?: string
           region_slug?: string | null
           slug?: string
+          tagline?: string
           territory_note?: string | null
           un_subregion?: string | null
           updated_at?: string
@@ -713,6 +721,7 @@ export type Database = {
           is_custom: boolean
           label: string
           latest_year: number | null
+          position: number
           ramp: string[]
           scale: string
           short_label: string
@@ -733,6 +742,7 @@ export type Database = {
           is_custom?: boolean
           label: string
           latest_year?: number | null
+          position?: number
           ramp?: string[]
           scale?: string
           short_label?: string
@@ -753,6 +763,7 @@ export type Database = {
           is_custom?: boolean
           label?: string
           latest_year?: number | null
+          position?: number
           ramp?: string[]
           scale?: string
           short_label?: string
@@ -1035,6 +1046,7 @@ export type Database = {
           description: string
           id: string
           label: string
+          period: string | null
           position: number
           region_slug: string | null
           source: string
@@ -1048,6 +1060,7 @@ export type Database = {
           description?: string
           id?: string
           label: string
+          period?: string | null
           position?: number
           region_slug?: string | null
           source: string
@@ -1061,6 +1074,7 @@ export type Database = {
           description?: string
           id?: string
           label?: string
+          period?: string | null
           position?: number
           region_slug?: string | null
           source?: string
@@ -1169,6 +1183,8 @@ export type Database = {
           center_lat: number
           center_lon: number
           fill: string
+          hero_credit: string
+          hero_url: string | null
           intro: string
           name: string
           portrait_status: string
@@ -1186,6 +1202,8 @@ export type Database = {
           center_lat: number
           center_lon: number
           fill: string
+          hero_credit?: string
+          hero_url?: string | null
           intro?: string
           name: string
           portrait_status?: string
@@ -1203,6 +1221,8 @@ export type Database = {
           center_lat?: number
           center_lon?: number
           fill?: string
+          hero_credit?: string
+          hero_url?: string | null
           intro?: string
           name?: string
           portrait_status?: string
@@ -1428,6 +1448,8 @@ export type Database = {
           center_lon: number
           created_by: string | null
           fill: string
+          hero_credit: string
+          hero_url: string | null
           intro: string
           name: string
           slug: string
@@ -1444,6 +1466,8 @@ export type Database = {
           center_lon: number
           created_by?: string | null
           fill: string
+          hero_credit?: string
+          hero_url?: string | null
           intro?: string
           name: string
           slug: string
@@ -1460,6 +1484,8 @@ export type Database = {
           center_lon?: number
           created_by?: string | null
           fill?: string
+          hero_credit?: string
+          hero_url?: string | null
           intro?: string
           name?: string
           slug?: string
@@ -1658,6 +1684,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      portrait: { Args: { p_kind: string; p_slug: string }; Returns: Json }
       purge_audit_log: { Args: never; Returns: number }
       record_page_view: { Args: never; Returns: undefined }
       search: {

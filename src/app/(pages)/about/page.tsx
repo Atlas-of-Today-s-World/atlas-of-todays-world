@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { INDICATORS } from "@/lib/indicators";
+import { getAtlas } from "@/features/geography/queries";
 
 export const metadata: Metadata = {
   title: "About the Atlas",
@@ -8,7 +8,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/about" },
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const { indicators } = await getAtlas();
   return (
     <main className="prose-atlas max-w-2xl">
       <h1 className="font-display text-[34px] font-bold text-[var(--color-ink)]">
@@ -28,7 +29,7 @@ export default function AboutPage() {
         rather than manual editing:
       </p>
       <ul>
-        {INDICATORS.map((indicator) => (
+        {indicators.map((indicator) => (
           <li key={indicator.id}>
             <strong>{indicator.label}</strong> &mdash; {indicator.source} ({indicator.latestYear})
           </li>
@@ -37,8 +38,9 @@ export default function AboutPage() {
 
       <h2>Editorial content</h2>
       <p>
-        Region portraits, country profiles and news are written by the Atlas team and stored as
-        plain Markdown, so writers never have to touch the codebase.
+        Region portraits, country profiles and news are written by the Atlas team in the
+        Atlas&rsquo;s own editorial system, where every change goes through review before it is
+        published.
       </p>
     </main>
   );

@@ -63,21 +63,15 @@ jde od severského a baltského pásu přes Sahel po severní Atlantik.
 
 **Administrace (`/admin`)**
 
-Čtyři záložky, každá s vlastním formulářem:
-
-| Záložka | Co se tam nastavuje | Kam se to uloží |
-| --- | --- | --- |
-| Novinky | formulář nové novinky (otvírá se tlačítkem, ať nepřekáží seznamu) a seznam publikovaných s filtry podle regionu, země, Global Issue, kategorie a názvu | `src/content/news/<slug>.md` |
-| Země | shrnutí, podtitulek, výběr automatických ukazatelů, ruční ukazatele s citací a delší text | `src/content/countries/<slug>.md` |
-| Regiony | úvodní odstavec portrétu a ukazatele s citací; časová osa, zdroje a FAQ zůstávají beze změny | `src/content/regions/<slug>.json` |
-| Global Issues | pojmenované množiny zemí napříč regiony | `src/content/global-issues.json` |
+Přístup jen pro přihlášený tým (pozvánky, role a oprávnění z databáze). Obsah se
+ukládá do Supabase přes Server Actions; o tom, kdo co smí, rozhoduje RLS.
 
 **Dva druhy ukazatelů.** Automatické počítá `npm run data:indicators` z Our
 World in Data pro všech 228 zemí (HDI, politický režim, korupce, chudoba…) —
 v administraci se u nich jen vybírá, které se u země ukážou. Ruční píše redakce
 tam, kde OWID data nemá: etnické skupiny, míra svobody, vysídlení, dětská
 chudoba. **Ruční ukazatel bez uvedeného zdroje se nepublikuje** — filtr je
-v `src/lib/content.ts`, ne až ve vykreslování, takže se neúplná karta nedostane
+v databázi (`portrait_metrics.source` je povinný), ne až ve vykreslování, takže se neúplná karta nedostane
 ani do strukturovaných dat.
 
 Když má region vlastní ukazatele, mají v portrétu přednost před dopočtem
@@ -146,14 +140,9 @@ Postaví produkční build do `.next-build` a vývojový server běží dál.
 
 ## Kam psát obsah
 
-Redakce nesahá do kódu:
-
-| Co | Kde |
-|---|---|
-| Encyklopedické heslo | `src/content/news/<slug>.md` (Markdown + frontmatter) |
-| Doplňky portrétu regionu (timeline, mapy, zdroje, FAQ) | `src/content/regions/<slug>.json` |
-| Text profilu země | `src/content/countries/<slug>.md` |
-| Definice regionů a jejich barvy | `src/data/regions.ts` |
+Veškerý obsah (novinky, portréty regionů a global issues, profily zemí, hodnoty
+ukazatelů) je v databázi Supabase a upravuje se v administraci `/admin`.
+Redakce nesahá do kódu. Prázdnou databázi naplní `supabase/seed.sql`.
 
 Země bez redakčního textu mají profil složený z importovaných dat, takže žádná
 ze 190+ zemí nezeje prázdnotou.
@@ -164,12 +153,13 @@ ze 190+ zemí nezeje prázdnotou.
 
 ```
 scripts/          hromadné importy dat (geodata, indikátory)
-src/data/         regiony (ruční) + vygenerované číselníky
-src/lib/          datová vrstva, fulltext, indikátory
+src/data/         geografická fakta z Natural Earth (vygenerované)
+src/features/      doménové moduly: dotazy (queries.ts), Server Actions, schémata
+src/lib/          klienti Supabase, bezpečnost, formátování
 src/components/   UI; map/ = globus a jeho ovládání
 src/app/(map)/    routy s globusem – /, /region, /country, /entry, /view
 src/app/(pages)/  routy bez globusu – /about, /entries, /support
-src/content/      redakční obsah
+supabase/         migrace, seed a DB testy
 public/data/      hranice zemí pro mapu
 ```
 

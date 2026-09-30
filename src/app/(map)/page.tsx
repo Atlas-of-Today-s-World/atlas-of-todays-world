@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import HomeFocus from "@/components/map/HomeFocus";
-import { REGIONS } from "@/data/regions";
-import { indexableCountries } from "@/lib/countries";
-import { INDICATORS } from "@/lib/indicators";
+import { getAtlas } from "@/features/geography/queries";
 import { absoluteUrl, alternates } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
 
@@ -26,8 +24,8 @@ export const metadata: Metadata = {
   ],
 };
 
-export default function HomePage() {
-  const countries = indexableCountries();
+export default async function HomePage() {
+  const { countries, regions, indicators } = await getAtlas();
 
   // ISO2 -> [lon, lat]: podle toho HomeFocus otočí globus nad zemi návštěvníka.
   const homeCenters: Record<string, [number, number]> = {};
@@ -72,8 +70,8 @@ export default function HomePage() {
       "@context": "https://schema.org",
       "@type": "ItemList",
       name: "World regions of the Atlas",
-      numberOfItems: REGIONS.length,
-      itemListElement: REGIONS.map((region, index) => ({
+      numberOfItems: regions.length,
+      itemListElement: regions.map((region, index) => ({
         "@type": "ListItem",
         position: index + 1,
         name: region.name,
@@ -84,11 +82,11 @@ export default function HomePage() {
       "@context": "https://schema.org",
       "@type": "Dataset",
       name: "Country indicators of Atlas of Today's World",
-      description: `Latest available values of ${INDICATORS.length} development, governance and environment indicators for the countries of the world.`,
+      description: `Latest available values of ${indicators.length} development, governance and environment indicators for the countries of the world.`,
       url: absoluteUrl("/"),
       isAccessibleForFree: true,
       spatialCoverage: { "@type": "Place", name: "World" },
-      variableMeasured: INDICATORS.map((indicator) => ({
+      variableMeasured: indicators.map((indicator) => ({
         "@type": "PropertyValue",
         name: indicator.label,
         url: absoluteUrl(`/view/${indicator.id}`),
@@ -110,7 +108,7 @@ export default function HomePage() {
         </p>
         <h2>World regions</h2>
         <ul>
-          {REGIONS.map((region) => (
+          {regions.map((region) => (
             <li key={region.slug}>
               <a href={`/region/${region.slug}`}>{region.name}</a>
             </li>

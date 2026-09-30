@@ -80,9 +80,6 @@ test.describe("účty a pozvánky", () => {
 
     await page.goto("/admin");
     await expect(page.getByTestId("admin-forbidden")).toBeVisible();
-
-    const api = await page.request.get("/api/admin/news");
-    expect(api.status()).toBe(403);
   });
 
   test("pozvaný publisher dostane roli a vidí jen své sekce", async ({ page }) => {
@@ -99,10 +96,6 @@ test.describe("účty a pozvánky", () => {
 
     await page.goto("/admin/pozvanky");
     await expect(page.getByText("Na správu týmu nemáte oprávnění.")).toBeVisible();
-
-    expect((await page.request.get("/api/admin/news")).status()).toBe(200);
-    const foreign = await page.request.post("/api/admin/global-issues", { data: { name: "x" } });
-    expect(foreign.status()).toBe(403);
 
     const { data: invitation } = await admin
       .from("invitations")
