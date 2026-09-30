@@ -342,16 +342,26 @@ test.describe("sekce portrétu regionu", () => {
     return faq;
   }
 
-  test("publisher portrét vidí, ale sekci neuloží", async ({ page }) => {
+  // Texty portrétu smí jen redakce s právem na všechny články (RLS); ostatní
+  // je vidí jen pro čtení, s vysvětlením — žádný editor, který by pak selhal.
+  test("publisher portrét vidí jen pro čtení", async ({ page }) => {
     await signInAs(page, "publisher", `/admin/regiony/${region}`);
-    const faq = await addFaq(page, `E2E otázka publisher ${run}?`);
-    await expect(faq.getByRole("alert")).toBeVisible();
-    const { data } = await service
-      .from("faq_items")
-      .select("question")
-      .eq("region_slug", region)
-      .like("question", "E2E otázka%");
-    expect(data).toEqual([]);
+    const faq = page.getByRole("region", { name: "Časté otázky" });
+    await expect(faq.getByRole("button", { name: "Uložit sekci" })).toBeDisabled();
+    await expect(faq.getByRole("button", { name: "Přidat otázka" })).toBeDisabled();
+    await expect(
+      page.getByText("Texty portrétu (osa, FAQ, zdroje, vizuály) upravuje redakce").first(),
+    ).toBeVisible();
+    await expect(page.getByRole("button", { name: "Uložit region" })).toBeDisabled();
+  });
+
+  test("data-editor upraví hlavičku a karty, texty jen čte", async ({ page }) => {
+    await signInAs(page, "data-editor", `/admin/regiony/${region}`);
+    await expect(page.getByRole("button", { name: "Uložit region" })).toBeEnabled();
+    const metrics = page.getByRole("region", { name: "Klíčové ukazatele" });
+    await expect(metrics.getByRole("button", { name: "Uložit sekci" })).toBeEnabled();
+    const faq = page.getByRole("region", { name: "Časté otázky" });
+    await expect(faq.getByRole("button", { name: "Uložit sekci" })).toBeDisabled();
   });
 
   test("content-editor sekci uloží", async ({ page }) => {

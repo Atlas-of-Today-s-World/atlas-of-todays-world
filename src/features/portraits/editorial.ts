@@ -1,4 +1,5 @@
 import "server-only";
+import { can, type Permissions } from "@/features/auth/access";
 import { createServerClient } from "@/lib/supabase/server";
 import type { Collection } from "./schema";
 
@@ -95,4 +96,25 @@ export async function countryForEdit(slug: string) {
     .maybeSingle();
   if (error) throw new Error(`[countries] ${error.message}`);
   return data;
+}
+
+/**
+ * Co smí přihlášený v portrétu uložit — stejná pravidla jako RLS:
+ * hlavička = sekce regions/specials „e", texty sekcí (osa, FAQ, zdroje,
+ * vizuály) = redakce článků s rozsahem na všechny články, ruční karty =
+ * regions „e". Stránka podle toho ukáže editor, nebo jen náhled.
+ */
+export async function portraitRights(
+  permissions: Permissions,
+  kind: "region" | "issue" | "country",
+) {
+  const supabase = await createServerClient();
+  const { data: allNews } = await supabase.rpc("can_edit_entry", {
+    p_owner: null as unknown as string,
+  });
+  return {
+    head: can(permissions, kind === "issue" ? "specials" : "regions", "e"),
+    text: can(permissions, "news", "e") && allNews === true,
+    metrics: can(permissions, "regions", "e"),
+  };
 }
