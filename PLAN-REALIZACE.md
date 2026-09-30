@@ -28,7 +28,7 @@
 
 | # | Úkol pro vlastníka | Blokuje | Stav |
 |---|---|---|---|
-| U1 | Založit Google Cloud projekt + OAuth klienta (Web), předat Client ID a Secret (vloží se do Supabase → Auth → Providers → Google) | C2 | ⬜ |
+| U1 | Google Cloud projekt + OAuth klient (Web); Google provider zapnutý v prod i dev Supabase | C2 | ✅ 2026-09-30 |
 | U2 | Druhý Supabase projekt `atlas-dev` (Free, Frankfurt) | B8, E (e2e zápisy) | ✅ založen 2026-09-30 |
 | U3 | E-maily adminů (pro `db:make-admin`) | C5 | ✅ 2 admini (v neveřejném `docs/tym.md`) |
 | U4 | Platnost pozvánky, doménové omezení týmu | B3 | ✅ 5 dní, bez omezení domény |
@@ -97,7 +97,7 @@ Dělá se **před** napojením na DB, aby se komponenty přepisovaly jen jednou.
       `aal2` pro role z `require_2fa_roles` (DB-07).
 - [ ] **B7** `supabase/tests/authz-matrix.json` + parametrický test; testy pro všechny DB-xx a pozvánky
       (včetně „neověřený e-mail pozvánku nepřijme“, „permission-admin nepozve admina“).
-- [ ] **B8** Auth konfigurace v obou projektech: `enable_confirmations = true`, redirect URL bez wildcardu (DB-02),
+- [ ] **B8** Auth konfigurace v obou projektech *(hotovo 2026-09-30: Google provider, `site_url`, konkrétní redirect URL bez wildcardu `*.vercel.app`, potvrzování e-mailu; zbývá Turnstile, JWT/refresh, `config.toml` a typy)*: `enable_confirmations = true`, redirect URL bez wildcardu (DB-02),
       Turnstile připravené, JWT/refresh nastavení; `supabase gen types` → `src/lib/db/types.gen.ts`. *(dev projekt závisí na U2)*
 - [ ] **B9** CI: `supabase db push` do produkce v `deploy.yml` před nasazením aplikace (GitHub Secrets
       `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, variable `SUPABASE_PROJECT_REF`).
