@@ -19,3 +19,6 @@ demo/blue-marble.jpg
 test-results/
 playwright-report/
 .env.local
+
+# Interní dokumenty – jen lokálně, repo je veřejné
+docs/
