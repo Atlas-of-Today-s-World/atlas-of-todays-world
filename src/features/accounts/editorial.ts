@@ -24,8 +24,12 @@ export async function listAccounts(kind: "staff" | "reader", q?: string): Promis
     .is("deleted_at", null)
     .order("email")
     .limit(500);
-  const needle = q?.trim().replace(/[%_,()]/g, "");
-  if (needle) query = query.or(`email.ilike.%${needle}%,name.ilike.%${needle}%`);
+  // Hodnota ve filtru .or() v uvozovkách, bez znaků, které by filtr rozbily nebo změnily.
+  const needle = q
+    ?.trim()
+    .replace(/[%_,()"\\]/g, "")
+    .slice(0, 100);
+  if (needle) query = query.or(`email.ilike."%${needle}%",name.ilike."%${needle}%"`);
   const { data, error } = await query;
   if (error) throw new Error(`[accounts] ${error.message}`);
   return data as AccountRow[];
