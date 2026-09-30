@@ -7,6 +7,7 @@ import {
   type ErrorEvent,
   type ExpressionSpecification,
   type MapMouseEvent,
+  type MapSourceDataEvent,
 } from "maplibre-gl";
 import { buildStyle, LAYERS } from "./mapStyle";
 import { EUROPE_CENTER, globeFillZoom } from "@/lib/home-location";
@@ -149,12 +150,13 @@ export default function AtlasGlobe({ colorSets, slugs, regions, issue }: Props) 
     });
 
     // Stav pro e2e testy a diagnostiku: hranice zemí jsou načtené a vykreslené.
-    const markCountriesLoaded = () => {
-      if (!map.isSourceLoaded("countries")) return;
+    // "idle" nestačí — při animaci kamery nemusí přijít; sourcedata přijde vždy.
+    const markCountriesLoaded = (event: MapSourceDataEvent) => {
+      if (event.sourceId !== "countries" || !map.isSourceLoaded("countries")) return;
       containerRef.current?.setAttribute("data-countries", "loaded");
-      map.off("idle", markCountriesLoaded);
+      map.off("sourcedata", markCountriesLoaded);
     };
-    map.on("idle", markCountriesLoaded);
+    map.on("sourcedata", markCountriesLoaded);
 
     /** Co je pod kurzorem: ISO3 země, její název a cílová URL podle režimu. */
     const targetAt = (point: MapMouseEvent["point"]) => {
