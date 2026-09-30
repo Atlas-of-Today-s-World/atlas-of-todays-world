@@ -22,6 +22,8 @@ const read = (name) => readFileSync(join(dir, name), "utf8");
 const html = read("index.html");
 const geo = read("atlas-geo.js");
 const data = read("atlas-data.js");
+const metrics = read("atlas-metrics.js");
+const filled = read("atlas-filled.js");
 const texture = read("atlas-texture.js");
 
 /** Vlepí geometrii a obsah místo odkazů na vedlejší skripty. */
@@ -29,6 +31,8 @@ function inline(source) {
   const out = source
     .replace('<script src="atlas-geo.js"></script>', `<script>${geo}</script>`)
     .replace('<script src="atlas-data.js"></script>', `<script>${data}</script>`)
+    .replace('<script src="atlas-metrics.js"></script>', `<script>${metrics}</script>`)
+    .replace('<script src="atlas-filled.js"></script>', `<script>${filled}</script>`)
     .replace('<script src="atlas-texture.js"></script>', `<script>${texture}</script>`);
   if (out.includes('src="atlas-')) {
     throw new Error("ve stránce zůstal odkaz na vedlejší skript – CSP artefaktu ho nenačte");

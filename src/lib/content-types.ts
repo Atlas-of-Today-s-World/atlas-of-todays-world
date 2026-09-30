@@ -53,12 +53,62 @@ export interface NewsFrontmatter {
   readingMinutes?: number;
 }
 
+/**
+ * Ručně zadaný ukazatel u země nebo regionu.
+ *
+ * Automatické ukazatele z Our World in Data pokrývají devět veličin pro celý
+ * svět (HDI, režim, korupce…). Zadání ale chce i čísla, která v OWID nejsou –
+ * etnické skupiny, vysídlení, dětská chudoba, míra svobody. Ty píše redakce
+ * ručně a podle zadání **se bez citace nepublikují**, takže `source` je povinný.
+ *
+ * Tvar odpovídá kartám na stávajícím webu: velká hodnota, název, věta
+ * vysvětlení a pod tím zdroj s rokem.
+ */
+export interface MetricCard {
+  /** Velké číslo na kartě, jako text – „10+", „24.4 %", „4/10", „17.8M". */
+  value: string;
+  /** Název ukazatele – „Youth Unemployment". */
+  label: string;
+  /** Věta, která říká, co to číslo znamená a koho se týká. */
+  description?: string;
+  /** Kdo to spočítal – „UNHCR", „Freedom House". Bez toho se karta nepublikuje. */
+  source: string;
+  sourceUrl?: string;
+  /** Rok nebo období dat – „2024", „mid-2025". */
+  year?: string;
+}
+
 /** Redakční doplňky portrétu regionu (src/content/regions/<slug>.json). */
 export interface RegionDossier {
+  /** Úvodní odstavec o socio-politické situaci regionu (P6, sekce první). */
+  intro?: string;
+  /** Ručně zadané ukazatele. Když jsou, mají přednost před dopočtem z OWID. */
+  metrics?: MetricCard[];
   timelineTitle?: string;
   timelineSubtitle?: string;
   timeline?: TimelineItem[];
   visuals?: { title: string; image: string; caption: string }[];
   resources?: ResourceItem[];
   faq?: FaqItem[];
+}
+
+/**
+ * Redakční profil země (frontmatter v src/content/countries/<slug>.md).
+ *
+ * Text pod frontmatterem zůstává Markdown; tohle je to, co se dá nastavit
+ * v administraci u každé země zvlášť.
+ */
+export interface CountryFrontmatter {
+  /** Jedna až dvě věty pod název země. Když chybí, složí se z importovaných dat. */
+  summary?: string;
+  /** Podtitulek jako na stávajícím webu („Showing the whole environment…"). */
+  tagline?: string;
+  /** Ručně zadané ukazatele nad rámec OWID. */
+  metrics?: MetricCard[];
+  /**
+   * Které automatické ukazatele u země ukázat a v jakém pořadí (id z
+   * `scripts/indicators.config.mjs`). Prázdné = prvních šest, jako dosud.
+   */
+  featured?: string[];
+  updated?: string;
 }

@@ -76,8 +76,9 @@ export default function RegionPortrait({
         <h1 className="font-display text-[30px] font-bold leading-tight text-[var(--color-ink)]">
           {region.name}
         </h1>
-        <p className="mt-3 text-[13.5px] leading-relaxed text-[var(--color-ink-soft)]">
-          {region.summary}
+        {/* Úvodní odstavec píše redakce; bez něj zůstává shrnutí z dat Atlasu. */}
+        <p className="mt-3 whitespace-pre-line text-[13.5px] leading-relaxed text-[var(--color-ink-soft)]">
+          {dossier.intro?.trim() || region.summary}
         </p>
         <dl className="mt-5 grid grid-cols-2 gap-4 border-t border-[var(--color-line)] pt-4 text-[12.5px]">
           <div>
@@ -93,7 +94,7 @@ export default function RegionPortrait({
         </dl>
       </header>
 
-      <IndicatorCards stats={stats} />
+      <IndicatorCards stats={stats} metrics={dossier.metrics} />
 
       {dossier.timeline?.length ? (
         <Timeline

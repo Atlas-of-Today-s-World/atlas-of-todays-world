@@ -6,6 +6,8 @@ import sanitizeHtml from "sanitize-html";
 import { REGION_BY_SLUG, type Region } from "@/data/regions";
 import {
   NEWS_CATEGORIES,
+  type CountryFrontmatter,
+  type MetricCard,
   type NewsCategory,
   type NewsFrontmatter,
   type RegionDossier,
@@ -117,10 +119,17 @@ export async function regionDossier(slug: string): Promise<RegionDossier> {
       join(CONTENT_DIR, "regions", `${slug}.json`),
       "utf8",
     );
-    return JSON.parse(source) as RegionDossier;
+    return withValidMetrics(JSON.parse(source) as RegionDossier);
   } catch {
     return {};
   }
+}
+
+export interface CountryProfile extends CountryFrontmatter {
+  /** Vyčištěné HTML z těla souboru. */
+  html: string;
+  /** Zdrojový Markdown – potřebuje ho administrace, aby šel text upravit. */
+  markdown: string;
 }
 
 /**
@@ -130,20 +139,50 @@ export async function regionDossier(slug: string): Promise<RegionDossier> {
  */
 export async function countryProfile(
   slug: string,
-): Promise<{ summary: string; html: string } | null> {
+): Promise<CountryProfile | null> {
   try {
     const source = await readFile(
       join(CONTENT_DIR, "countries", `${slug}.md`),
       "utf8",
     );
     const { data, content } = matter(source);
+    const frontmatter = withValidMetrics(data as CountryFrontmatter);
     return {
-      summary: (data as { summary?: string }).summary ?? "",
+      ...frontmatter,
+      summary: frontmatter.summary ?? "",
       html: toSafeHtml(content),
+      markdown: content.trim(),
     };
   } catch {
     return null;
   }
+}
+
+/** Slugy zemí, ke kterým už redakce něco napsala – pro přehled v administraci. */
+export async function countryProfileSlugs(): Promise<string[]> {
+  try {
+    const files = await readdir(join(CONTENT_DIR, "countries"));
+    return files
+      .filter((name) => name.endsWith(".md"))
+      .map((name) => name.replace(/\.md$/, ""));
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Ukazatel bez citace se nepublikuje (zadání, P1). Filtrujeme při čtení, ne až
+ * při vykreslování, ať se neúplná karta nedostane ani do JSON-LD a do ukázky.
+ */
+function withValidMetrics<T extends { metrics?: MetricCard[] }>(value: T): T {
+  if (!Array.isArray(value.metrics)) return value;
+  return {
+    ...value,
+    metrics: value.metrics.filter(
+      (metric) =>
+        metric && metric.value?.trim() && metric.label?.trim() && metric.source?.trim(),
+    ),
+  };
 }
 
 export { NEWS_CATEGORIES };

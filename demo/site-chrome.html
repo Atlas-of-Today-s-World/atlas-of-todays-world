@@ -98,6 +98,16 @@ body.site #rail { border-radius: 0; }
 body.site #hotBtn { display: flex !important; }
 body.site #hotList.on { display: block !important; }
 .site-foot a { text-decoration: none; color: rgba(255,255,255,.5); }
+
+/* Telefon: menu obálky se posouvá do boku, místo aby utíkalo z obrazovky. */
+@media (max-width: 760px) {
+  .site-wrap { padding: 0 16px; }
+  .site-nav { flex-wrap: wrap; }
+  .site-nav nav { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .site-nav a.link { flex: 0 0 auto; }
+  .site-hero { padding-top: 40px; }
+  body.site #stage { height: min(88svh, 820px); }
+}
 </style>
 
 <div class="site-wrap">

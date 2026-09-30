@@ -14,8 +14,8 @@ npm run data:all      # stáhne hranice zemí + datové vrstvy (jednorázově)
 npm run dev           # http://localhost:3000
 ```
 
-Bez `.env.local` běží všechno kromě chatbota (satelitní podklad jede na
-bezplatných dlaždicích Esri). Volitelná konfigurace:
+Bez `.env.local` běží všechno (satelitní podklad jede na bezplatných
+dlaždicích Esri). Volitelná konfigurace:
 
 ```bash
 cp .env.example .env.local
@@ -24,8 +24,6 @@ cp .env.example .env.local
 | Proměnná | K čemu |
 |---|---|
 | `NEXT_PUBLIC_MAPTILER_KEY` | Satelitní dlaždice MapTileru místo Esri. Pro produkci doporučeno (Esri nemá SLA pro komerční provoz). |
-| `ANTHROPIC_API_KEY` | Zapne chatbota v panelu Global Encyclopedia. |
-| `ANTHROPIC_MODEL` | Výchozí `claude-sonnet-5`. |
 | `NEXT_PUBLIC_SITE_URL` | Kanonická adresa pro sitemapu, robots.txt a og:url. |
 
 ---
@@ -49,19 +47,41 @@ HDI, naděje dožití, HDP na obyvatele, politický režim, index volební demok
 vnímání korupce, extrémní chudoba, emise CO₂ na obyvatele, podíl uživatelů internetu.
 Každý má vlastní legendu, zdroj a samostatnou URL (`/view/hdi`).
 
-**3. Fulltext a chatbot (plná verze)**
+**3. Fulltext (plná verze)**
 
 - `/api/search` – fulltext (MiniSearch) nad regiony, zeměmi i hesly.
   Dotaz „political situation in Russia" vrátí profil Ruska i heslo o Putinově režimu.
-- `/api/chat` – chatbot nad stejným indexem: odpovídá **jen** z obsahu Atlasu
-  a ke každé odpovědi připojí odkazy na hesla, ze kterých čerpal.
+- Chatbot nad stejným indexem byl zatím odebrán; vrátit se dá z gitu
+  (`src/app/api/chat/route.ts` a režim „Ask" v `EncyclopediaPanel.tsx`).
 
-**Přepínač Countries / Regions / Special regions**
+**Přepínač Countries / Regions / Global Issues**
 
 Na globusu se dá vybírat po státech, po devíti regionech Atlasu, nebo po
 vlastních celcích, které si redakce skládá v administraci. Vlastní celky můžou
 hranice regionů Atlasu libovolně křížit – deset ukázkových (Demo region 1–10)
 jde od severského a baltského pásu přes Sahel po severní Atlantik.
+
+**Administrace (`/admin`)**
+
+Čtyři záložky, každá s vlastním formulářem:
+
+| Záložka | Co se tam nastavuje | Kam se to uloží |
+| --- | --- | --- |
+| Novinky | formulář nové novinky (otvírá se tlačítkem, ať nepřekáží seznamu) a seznam publikovaných s filtry podle regionu, země, Global Issue, kategorie a názvu | `src/content/news/<slug>.md` |
+| Země | shrnutí, podtitulek, výběr automatických ukazatelů, ruční ukazatele s citací a delší text | `src/content/countries/<slug>.md` |
+| Regiony | úvodní odstavec portrétu a ukazatele s citací; časová osa, zdroje a FAQ zůstávají beze změny | `src/content/regions/<slug>.json` |
+| Global Issues | pojmenované množiny zemí napříč regiony | `src/content/global-issues.json` |
+
+**Dva druhy ukazatelů.** Automatické počítá `npm run data:indicators` z Our
+World in Data pro všech 228 zemí (HDI, politický režim, korupce, chudoba…) —
+v administraci se u nich jen vybírá, které se u země ukážou. Ruční píše redakce
+tam, kde OWID data nemá: etnické skupiny, míra svobody, vysídlení, dětská
+chudoba. **Ruční ukazatel bez uvedeného zdroje se nepublikuje** — filtr je
+v `src/lib/content.ts`, ne až ve vykreslování, takže se neúplná karta nedostane
+ani do strukturovaných dat.
+
+Když má region vlastní ukazatele, mají v portrétu přednost před dopočtem
+z OWID; bez nich se kreslí dopočet, aby stránka nebyla prázdná skořápka.
 
 **Výchozí pohled**
 

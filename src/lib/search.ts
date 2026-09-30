@@ -114,8 +114,3 @@ export async function search(query: string, limit = 12): Promise<SearchHit[]> {
       score: result.score,
     }));
 }
-
-/** Kontext pro chatbota: pár nejrelevantnějších dokumentů jako čistý text. */
-export async function retrieveContext(query: string, limit = 6): Promise<SearchHit[]> {
-  return search(query, limit);
-}

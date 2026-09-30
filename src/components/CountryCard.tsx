@@ -1,8 +1,8 @@
 import Link from "next/link";
 import type { Country } from "@/lib/countries";
 import { formatPopulation } from "@/lib/countries";
-import type { NewsItem } from "@/lib/content";
-import { StatIcon } from "./atlas-ui";
+import type { CountryProfile, NewsItem } from "@/lib/content";
+import { MetricCards, StatIcon } from "./atlas-ui";
 
 /**
  * Karta země po kliknutí na globus (Figma: "Country View").
@@ -22,13 +22,29 @@ export default function CountryCard({
   country,
   newsItems,
   description,
+  profile,
 }: {
   country: Country;
   newsItems: NewsItem[];
   description: string;
+  profile?: CountryProfile | null;
 }) {
   const region = country.region;
-  const highlights = country.stats.slice(0, 6);
+
+  /**
+   * Redakce si v administraci může vybrat, které automatické ukazatele u země
+   * stojí za ukázání a v jakém pořadí; bez volby zůstává dosavadních prvních
+   * šest. Neznámá id (zrušený ukazatel) se tiše přeskočí.
+   */
+  const featured = profile?.featured ?? [];
+  const highlights = featured.length
+    ? featured
+        .map((id) => country.stats.find((stat) => stat.id === id))
+        .filter((stat): stat is (typeof country.stats)[number] => Boolean(stat))
+        .slice(0, 6)
+    : country.stats.slice(0, 6);
+
+  const metrics = profile?.metrics ?? [];
 
   return (
     <article className="px-6 pb-10 pt-6">
@@ -50,6 +66,12 @@ export default function CountryCard({
       <h1 className="mt-2 font-display text-[26px] font-bold leading-tight text-[var(--color-ink)]">
         {country.name}
       </h1>
+
+      {profile?.tagline ? (
+        <p className="mt-1.5 text-[12.5px] font-medium leading-snug text-[var(--color-link)]">
+          {profile.tagline}
+        </p>
+      ) : null}
 
       <p className="mt-3 text-[13px] leading-relaxed text-[var(--color-ink-soft)]">
         {description}
@@ -83,6 +105,15 @@ export default function CountryCard({
           </div>
         ))}
       </dl>
+
+      {metrics.length ? (
+        <section className="mt-7 border-t border-[var(--color-line)] pt-5">
+          <h2 className="text-[11px] font-medium uppercase tracking-[0.1em] text-[var(--color-ink-muted)]">
+            Where the country stands
+          </h2>
+          <MetricCards metrics={metrics} className="mt-4" />
+        </section>
+      ) : null}
 
       {region ? (
         <Link

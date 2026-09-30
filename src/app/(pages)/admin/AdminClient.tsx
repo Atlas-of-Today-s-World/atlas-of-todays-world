@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 
 export interface AdminNewsItem {
@@ -9,8 +9,10 @@ export interface AdminNewsItem {
   title: string;
   category: string;
   region: string;
+  regionName: string;
   issue: string | null;
   issueName: string | null;
+  countries: string[];
   published: string | null;
 }
 
@@ -36,19 +38,31 @@ export default function AdminClient({
   regions,
   issues,
   categories,
+  countryNames,
 }: {
   newsItems: AdminNewsItem[];
   regions: AdminRegion[];
   issues: AdminIssue[];
   categories: string[];
+  countryNames: Record<string, string>;
 }) {
   const router = useRouter();
+
+  // --- formulář nové novinky ---
+  const [formOpen, setFormOpen] = useState(false);
   const [regionSlug, setRegionSlug] = useState(regions[0]?.slug ?? "");
   const [issueSlug, setIssueSlug] = useState("");
   const [countries, setCountries] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
+
+  // --- filtry seznamu ---
+  const [filterRegion, setFilterRegion] = useState("");
+  const [filterCountry, setFilterCountry] = useState("");
+  const [filterIssue, setFilterIssue] = useState("");
+  const [filterCategory, setFilterCategory] = useState("");
+  const [query, setQuery] = useState("");
 
   const region = regions.find((item) => item.slug === regionSlug);
   const issue = issues.find((item) => item.slug === issueSlug);
@@ -61,6 +75,48 @@ export default function AdminClient({
       (item) => !(region?.countries ?? []).some((c) => c.iso3 === item.iso3),
     ),
   ];
+
+  /**
+   * Do filtru zemí dáváme jen ty, ke kterým nějaká novinka existuje – seznam
+   * všech 228 zemí by se v rozbalovačce nedal projít a většina by byla prázdná.
+   * Když je zvolený region, zúží se na jeho země.
+   */
+  const countryOptions = useMemo(() => {
+    const used = new Map<string, string>();
+    for (const item of newsItems) {
+      if (filterRegion && item.region !== filterRegion) continue;
+      for (const iso3 of item.countries) {
+        used.set(iso3, countryNames[iso3] ?? iso3);
+      }
+    }
+    return [...used.entries()]
+      .map(([iso3, name]) => ({ iso3, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [newsItems, filterRegion, countryNames]);
+
+  const filtered = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    return newsItems.filter((item) => {
+      if (filterRegion && item.region !== filterRegion) return false;
+      if (filterCountry && !item.countries.includes(filterCountry)) return false;
+      if (filterIssue && item.issue !== filterIssue) return false;
+      if (filterCategory && item.category !== filterCategory) return false;
+      if (needle && !item.title.toLowerCase().includes(needle)) return false;
+      return true;
+    });
+  }, [newsItems, filterRegion, filterCountry, filterIssue, filterCategory, query]);
+
+  const filtering =
+    Boolean(filterRegion || filterCountry || filterIssue || filterCategory) ||
+    query.trim().length > 0;
+
+  function clearFilters() {
+    setFilterRegion("");
+    setFilterCountry("");
+    setFilterIssue("");
+    setFilterCategory("");
+    setQuery("");
+  }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -129,16 +185,30 @@ export default function AdminClient({
 
   return (
     <>
-      <div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-[12.5px] leading-relaxed text-amber-900">
-        <strong className="font-semibold">Mock administrace.</strong> Žádné
-        přihlášení, zapisuje přímo do <code>src/content/news/</code> na disku.
-        Funguje jen při lokálním běhu; před ostrým nasazením tohle nahradí
-        redakční systém s účty.
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="font-display text-[22px] font-bold">Novinky</h2>
+          <p className="mt-1 text-[13px] text-[var(--color-ink-soft)]">
+            Krátký útvar: novinka se uloží jako Markdown a objeví se v profilu
+            regionu i každé označené země.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setFormOpen((value) => !value)}
+          aria-expanded={formOpen}
+          className="min-h-11 rounded-full bg-[var(--color-accent)] px-5 text-[14px] font-medium text-white transition hover:bg-[var(--color-accent-strong)]"
+        >
+          {formOpen ? "Zavřít formulář" : "+ Nová novinka"}
+        </button>
       </div>
 
-      <div className="mt-10 grid gap-10 lg:grid-cols-[1.35fr_1fr]">
-        <section>
-          <h2 className="font-display text-[20px] font-bold">Nová novinka</h2>
+      {formOpen ? (
+        <section
+          aria-label="Nová novinka"
+          className="mt-6 rounded-xl border border-[var(--color-line)] p-6"
+        >
+          <h3 className="font-display text-[18px] font-bold">Nová novinka</h3>
 
           <form onSubmit={submit} className="mt-5 grid gap-4">
             <div className="grid gap-4 sm:grid-cols-2">
@@ -305,47 +375,156 @@ export default function AdminClient({
             </div>
           </form>
         </section>
+      ) : null}
 
-        <section>
-          <h2 className="font-display text-[20px] font-bold">
-            Publikované novinky <span className="text-[var(--color-ink-muted)]">({newsItems.length})</span>
-          </h2>
+      {/* Filtry a seznam */}
+      <section aria-label="Publikované novinky" className="mt-10">
+        <div className="grid gap-3 rounded-xl border border-[var(--color-line)] bg-[var(--color-line)]/10 p-4 sm:grid-cols-2 lg:grid-cols-5">
+          <div>
+            <label className={LABEL} htmlFor="filter-region">Region</label>
+            <select
+              id="filter-region"
+              value={filterRegion}
+              onChange={(event) => {
+                setFilterRegion(event.target.value);
+                setFilterCountry("");
+              }}
+              className={`mt-1.5 ${FIELD}`}
+            >
+              <option value="">Všechny</option>
+              {regions.map((item) => (
+                <option key={item.slug} value={item.slug}>{item.name}</option>
+              ))}
+            </select>
+          </div>
 
-          <ul className="mt-5 divide-y divide-[var(--color-line)]">
-            {newsItems.map((item) => (
-              <li key={item.slug} className="flex items-start gap-3 py-3">
-                <div className="min-w-0 flex-1">
-                  <Link
-                    href={`/news/${item.slug}`}
-                    className="block text-[14px] font-medium text-[var(--color-ink)] hover:text-[var(--color-accent)]"
-                  >
-                    {item.title}
-                  </Link>
-                  <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-muted)]">
-                    {item.category} · {item.region}
-                    {item.issueName ? ` · ${item.issueName}` : ""}
-                    {item.published ? ` · ${item.published}` : ""}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => remove(item.slug)}
-                  disabled={busy}
-                  className="shrink-0 rounded-full border border-[var(--color-line)] px-3 py-1 text-[12px] text-[var(--color-ink-muted)] transition hover:border-red-300 hover:text-red-600 disabled:opacity-50"
-                >
-                  Smazat
-                </button>
-              </li>
-            ))}
-          </ul>
+          <div>
+            <label className={LABEL} htmlFor="filter-country">Země</label>
+            <select
+              id="filter-country"
+              value={filterCountry}
+              onChange={(event) => setFilterCountry(event.target.value)}
+              className={`mt-1.5 ${FIELD}`}
+            >
+              <option value="">Všechny</option>
+              {countryOptions.map((country) => (
+                <option key={country.iso3} value={country.iso3}>
+                  {country.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-          {!newsItems.length ? (
-            <p className="mt-4 text-[13px] text-[var(--color-ink-muted)]">
-              Zatím žádné novinky.
-            </p>
+          <div>
+            <label className={LABEL} htmlFor="filter-issue">Global Issue</label>
+            <select
+              id="filter-issue"
+              value={filterIssue}
+              onChange={(event) => setFilterIssue(event.target.value)}
+              className={`mt-1.5 ${FIELD}`}
+            >
+              <option value="">Všechny</option>
+              {issues.map((item) => (
+                <option key={item.slug} value={item.slug}>{item.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className={LABEL} htmlFor="filter-category">Kategorie</label>
+            <select
+              id="filter-category"
+              value={filterCategory}
+              onChange={(event) => setFilterCategory(event.target.value)}
+              className={`mt-1.5 ${FIELD}`}
+            >
+              <option value="">Všechny</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>{category}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className={LABEL} htmlFor="filter-query">Název obsahuje</label>
+            <input
+              id="filter-query"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              className={`mt-1.5 ${FIELD}`}
+              placeholder="Putin"
+            />
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-[13px] text-[var(--color-ink-muted)]">
+            {filtered.length === newsItems.length
+              ? `${newsItems.length} novinek`
+              : `${filtered.length} z ${newsItems.length} novinek`}
+          </p>
+          {filtering ? (
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="rounded-full border border-[var(--color-line)] px-3 py-1.5 text-[12.5px] text-[var(--color-ink-muted)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+            >
+              Vyčistit filtry
+            </button>
           ) : null}
-        </section>
-      </div>
+        </div>
+
+        <ul className="mt-2 divide-y divide-[var(--color-line)]">
+          {filtered.map((item) => (
+            <li key={item.slug} className="flex items-start gap-3 py-3">
+              <div className="min-w-0 flex-1">
+                <Link
+                  href={`/news/${item.slug}`}
+                  className="block text-[14px] font-medium text-[var(--color-ink)] hover:text-[var(--color-accent)]"
+                >
+                  {item.title}
+                </Link>
+                <p className="mt-0.5 text-[11.5px] text-[var(--color-ink-muted)]">
+                  {item.category} · {item.regionName}
+                  {item.issueName ? ` · ${item.issueName}` : ""}
+                  {item.published ? ` · ${item.published}` : ""}
+                </p>
+                {item.countries.length ? (
+                  <p className="mt-1 flex flex-wrap gap-1">
+                    {item.countries.map((iso3) => (
+                      <button
+                        type="button"
+                        key={iso3}
+                        onClick={() => setFilterCountry(iso3)}
+                        title={`Filtrovat na ${countryNames[iso3] ?? iso3}`}
+                        className="rounded-full border border-[var(--color-line)] px-2 py-0.5 text-[10.5px] text-[var(--color-ink-muted)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+                      >
+                        {countryNames[iso3] ?? iso3}
+                      </button>
+                    ))}
+                  </p>
+                ) : null}
+              </div>
+              <button
+                type="button"
+                onClick={() => remove(item.slug)}
+                disabled={busy}
+                className="shrink-0 rounded-full border border-[var(--color-line)] px-3 py-1 text-[12px] text-[var(--color-ink-muted)] transition hover:border-red-300 hover:text-red-600 disabled:opacity-50"
+              >
+                Smazat
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        {!filtered.length ? (
+          <p className="mt-4 text-[13px] text-[var(--color-ink-muted)]">
+            {newsItems.length
+              ? "Filtrům neodpovídá žádná novinka."
+              : "Zatím žádné novinky."}
+          </p>
+        ) : null}
+      </section>
     </>
   );
 }

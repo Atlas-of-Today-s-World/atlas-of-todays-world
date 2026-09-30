@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import type { MetricCard } from "@/lib/content-types";
 
 export function TaglinePill({ children }: { children: ReactNode }) {
   return (
@@ -61,6 +62,58 @@ export function GhostButton({
 }
 
 /** Ikony k datovým ukazatelům na kartě země (Figma: outline, 1.6px). */
+/**
+ * Ručně zadaný ukazatel na kartě – stejný tvar u země i u regionu.
+ *
+ * Automatické ukazatele z OWID mají ikonu a hodnocení pořadí; tyhle mají místo
+ * toho větu vysvětlení, protože měří věci, které nejdou seřadit (etnické
+ * skupiny, míra svobody). Zdroj je povinný, takže se vypisuje vždy.
+ */
+export function MetricCards({
+  metrics,
+  className = "",
+}: {
+  metrics: MetricCard[];
+  className?: string;
+}) {
+  if (!metrics.length) return null;
+  return (
+    <dl className={`grid grid-cols-2 gap-x-5 gap-y-6 ${className}`}>
+      {metrics.map((metric) => (
+        <div key={`${metric.label}-${metric.value}`}>
+          <span className="block font-display text-[21px] font-semibold leading-none text-[var(--color-ink)]">
+            {metric.value}
+          </span>
+          <dt className="mt-2 text-[12.5px] font-medium leading-snug text-[var(--color-ink)]">
+            {metric.label}
+          </dt>
+          <dd className="mt-1 text-[11px] leading-relaxed text-[var(--color-ink-muted)]">
+            {metric.description ? (
+              <span className="block">{metric.description}</span>
+            ) : null}
+            <span className="mt-0.5 block">
+              Source:{" "}
+              {metric.sourceUrl ? (
+                <a
+                  href={metric.sourceUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[var(--color-link)] hover:underline"
+                >
+                  {metric.source}
+                </a>
+              ) : (
+                metric.source
+              )}
+              {metric.year ? `, ${metric.year}` : ""}
+            </span>
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 export function StatIcon({ id }: { id: string }) {
   const common = {
     width: 22,

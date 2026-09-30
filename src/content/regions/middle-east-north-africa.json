@@ -1,0 +1,43 @@
+{
+  "intro": "The Middle East and North Africa (MENA) region predominantly comprises Arab-speaking and Muslim-majority countries that share broad historical, political, and demographic characteristics, while also reflecting considerable internal diversity. The region encompasses a range of political systems, including monarchies, republics, and hybrid or formally democratic structures. Despite these institutional differences, many states have experienced comparable trajectories of state formation, governance centralization, and socio-economic development.\n\nSince 2011, the region has been significantly shaped by waves of political mobilization and upheaval, often referred to as the Arab uprisings, which challenged established political orders and prompted varying degrees of reform, conflict, or regime consolidation. Although the majority of countries in the region are Muslim-majority, MENA is characterized by substantial ethnic, linguistic, and sectarian diversity. These plural social compositions continue to influence political dynamics, state–society relations, and processes of reform and transformation across the region.",
+  "metrics": [
+    {
+      "value": "10+",
+      "label": "Ethnic Groups",
+      "description": "The region is comprised of more than 10 different groups, with Arabs being the majority. Others who call it home are Berbers, Kurds, Jews, Persians, Turks, and an array of other ethnic and religious minorities.",
+      "source": "Council on Foreign Relations"
+    },
+    {
+      "value": "10 %",
+      "label": "Level of Freedom",
+      "description": "More than 90 % of the people in the Middle East live in countries rated 'Not Free' according to a 2024 Freedom House report.",
+      "source": "Freedom House",
+      "year": "2024"
+    },
+    {
+      "value": "4/10",
+      "label": "World's Least Peaceful Countries",
+      "description": "The region remains the least peaceful globally, home to four of the ten countries in the world experiencing the most unrest.",
+      "source": "Global Finance"
+    },
+    {
+      "value": "24.4 %",
+      "label": "Youth Unemployment",
+      "description": "Amount of unemployment in the region for the over 60 % of the population who are under 30.",
+      "source": "IOM"
+    },
+    {
+      "value": "17.8M",
+      "label": "Number of Displaced",
+      "description": "The total number of forcibly displaced or stateless people in the region by mid-2025.",
+      "source": "UNHCR",
+      "year": "mid-2025"
+    },
+    {
+      "value": "34M",
+      "label": "Child Food Poverty",
+      "description": "Approximately 34 million people under five years of age, or three in every five children in the region, experience food poverty.",
+      "source": "UNICEF"
+    }
+  ]
+}

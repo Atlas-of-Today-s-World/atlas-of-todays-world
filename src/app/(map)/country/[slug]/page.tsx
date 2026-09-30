@@ -122,7 +122,12 @@ export default async function CountryPage({
       />
 
       <ContentRail>
-        <CountryCard country={country} newsItems={newsItems} description={description} />
+        <CountryCard
+          country={country}
+          newsItems={newsItems}
+          description={description}
+          profile={profile}
+        />
         {profile?.html ? (
           <div
             className="prose-atlas px-6 pb-10"

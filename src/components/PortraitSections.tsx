@@ -1,7 +1,12 @@
 import Link from "next/link";
-import { StatIcon } from "./atlas-ui";
+import { MetricCards, StatIcon } from "./atlas-ui";
 import type { RegionStat } from "@/lib/region-stats";
-import type { FaqItem, ResourceItem, TimelineItem } from "@/lib/content-types";
+import type {
+  FaqItem,
+  MetricCard,
+  ResourceItem,
+  TimelineItem,
+} from "@/lib/content-types";
 
 /**
  * Stavební díly portrétu. Používá je portrét regionu i portrét global issue –
@@ -89,8 +94,33 @@ export function EmptySection({
   );
 }
 
-/** Šest klíčových ukazatelů s citací zdroje. */
-export function IndicatorCards({ stats }: { stats: RegionStat[] }) {
+/**
+ * Šest klíčových ukazatelů s citací zdroje.
+ *
+ * Když redakce zadala vlastní ukazatele (administrace → Regiony), mají
+ * přednost: měří věci, které v Our World in Data nejsou — etnické skupiny,
+ * vysídlení, dětskou chudobu. Bez nich se kreslí dopočet z importovaných dat,
+ * aby portrét nebyl prázdný ani u regionu, ke kterému nikdo nic nenapsal.
+ */
+export function IndicatorCards({
+  stats,
+  metrics = [],
+}: {
+  stats: RegionStat[];
+  metrics?: MetricCard[];
+}) {
+  if (metrics.length) {
+    return (
+      <section className="border-t border-[var(--color-line)] px-6 py-8 sm:px-10">
+        <SectionHead
+          title="Key indicators"
+          lead="Picked by the Atlas team for this region, each with the source it comes from."
+        />
+        <MetricCards metrics={metrics} className="mt-5" />
+      </section>
+    );
+  }
+
   if (!stats.length) return null;
   return (
     <section className="border-t border-[var(--color-line)] px-6 py-8 sm:px-10">

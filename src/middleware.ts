@@ -29,7 +29,7 @@ const CSP = [
   "img-src 'self' data: blob: https:",
   // MapLibre si tahá písma pro popisky a dlaždice podkladu; bez nich se
   // popisky kreslí náhradním písmem a v konzoli prší chyby.
-  "connect-src 'self' https://server.arcgisonline.com https://*.arcgisonline.com https://fonts.openmaptiles.org https://api.anthropic.com",
+  "connect-src 'self' https://server.arcgisonline.com https://*.arcgisonline.com https://fonts.openmaptiles.org",
   // Vložené infografiky (Flourish, World Bank, YouTube) – nic jiného.
   "frame-src https://flo.uri.sh https://public.flourish.studio https://*.worldbank.org https://www.youtube-nocookie.com https://www.youtube.com",
   "frame-ancestors 'none'",
