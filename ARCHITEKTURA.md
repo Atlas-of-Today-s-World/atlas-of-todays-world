@@ -438,7 +438,7 @@ Dva druhy účtů (`profiles.kind`), dvě různé cesty vzniku:
 | `role_id → roles` | role, kterou po přijetí dostane |
 | `approval_global bool`, `approver_countries text[]`, `approver_authors uuid[]` | volitelně rovnou nastavení schvalování |
 | `note text` | interní poznámka (max 300) |
-| `invited_by → profiles`, `created_at`, `expires_at` (výchozí +14 dní) | kdo a kdy |
+| `invited_by → profiles`, `created_at`, `expires_at` (výchozí **+5 dní**) | kdo a kdy |
 | `accepted_at`, `accepted_by → profiles`, `revoked_at` | stav |
 
 - Unikátní **aktivní** pozvánka na e-mail (partial unique index `where accepted_at is null and revoked_at is null`).
@@ -458,7 +458,7 @@ Dva druhy účtů (`profiles.kind`), dvě různé cesty vzniku:
     je vázané na **ověřený e-mail**, ne na znalost odkazu. Odešle ho vlastním e-mailem/chatem.
   - **po zřízení SMTP:** Server Action po zápisu pozvánky (pod session admina → RLS ověří `users:c`)
     zavolá `auth.admin.inviteUserByEmail()` se servisním klíčem; pozvaný si nastaví přihlášení z e-mailu.
-- `allowed_emails` zůstává jako volitelné **doménové omezení** pro tým (např. jen `@atlasoftodaysworld.org`);
+- `allowed_emails` zůstává jako volitelné **doménové omezení** pro tým — **rozhodnuto: nepoužívat** (tým může mít libovolné e-maily);
   s `invite_only = true` nejde pozvat e-mail mimo seznam.
 - Admin pozvánky vidí v sekci **Účty → Pozvánky**: stav, expirace, odvolat, poslat znovu.
 
@@ -751,9 +751,9 @@ Každá fáze končí zeleným CI a nasazením. Čísla `SEC-xx` / `DB-xx` odkaz
 
 1. **Doména pro e-maily (SMTP)**: kdo spravuje DNS `atlasoftodaysworld.org`? Bez ověřené domény nelze posílat
    přihlašovací e-maily neomezenému okruhu lidí → do té doby použít přihlášení přes Google.
-2. **Druhý Supabase projekt (dev)** — založí vlastník organizace (1 minuta, Free).
+2. ~~Druhý Supabase projekt (dev)~~ — **založen 2026-09-30** (`atlas-dev`, Frankfurt).
 3. **Google Cloud projekt** pro OAuth klienta — kdo ho založí a pod jakým účtem (doporučeno účet organizace Atlas).
-4. **Výchozí doba platnosti pozvánky** — navrženo 14 dní; a má `allowed_emails` omezit tým na doménu `@atlasoftodaysworld.org`?
+4. ~~Platnost pozvánky a doménové omezení~~ — **rozhodnuto 2026-09-30:** 5 dní, bez omezení domény.
 5. **Jazyky** (P15) a **audio** (R4) — potvrzení rozsahu před návrhem tabulky `translations` a bucketu `audio`.
 6. **Platby** — Stripe Payment Links (brief) vs. hosted Checkout + webhook (plán provozu).
 

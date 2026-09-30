@@ -29,9 +29,9 @@
 | # | Úkol pro vlastníka | Blokuje | Stav |
 |---|---|---|---|
 | U1 | Založit Google Cloud projekt + OAuth klienta (Web), předat Client ID a Secret (vloží se do Supabase → Auth → Providers → Google) | C2 | ⬜ |
-| U2 | Založit druhý Supabase projekt `atlas-dev` (Free, Frankfurt) | B8, E (e2e zápisy) | ⬜ |
-| U3 | E-mail prvního admina (pro `db:make-admin`) | C5 | ⬜ |
-| U4 | Rozhodnout otevřené otázky ARCHITEKTURA 14 (platnost pozvánky, doménové omezení týmu) | B3 | ⬜ |
+| U2 | Druhý Supabase projekt `atlas-dev` (Free, Frankfurt) | B8, E (e2e zápisy) | ✅ založen 2026-09-30 |
+| U3 | E-maily adminů (pro `db:make-admin`) | C5 | ✅ 2 admini (v neveřejném `docs/tym.md`) |
+| U4 | Platnost pozvánky, doménové omezení týmu | B3 | ✅ 5 dní, bez omezení domény |
 | U5 | Přístup k DNS `atlasoftodaysworld.org` pro SMTP (Resend) | G1 | ⬜ |
 
 ---

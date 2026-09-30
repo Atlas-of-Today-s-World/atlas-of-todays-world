@@ -115,5 +115,5 @@ Oprava chyby začíná testem, který ji reprodukuje. Server Action = unit test 
 
 - Nasazení: push do `main` → `.github/workflows/deploy.yml` → Vercel. Nikdy nenasazuj ručně do produkce,
   nikdy force-push na `main` bez výslovného souhlasu vlastníka.
-- Supabase projekt `ewbzkxialhtwuqlenjof` (prod). Tajné údaje lokálně jen v `.env.deploy.local` (gitignored);
+- Supabase projekty: `ewbzkxialhtwuqlenjof` (prod), `bognwszwhxxyjafqzfuh` (`atlas-dev` — preview, e2e, zkoušení migrací; **testy a pokusy vždy sem, nikdy do prod**). Tajné údaje lokálně jen v `.env.deploy.local` (gitignored);
   nevypisuj jejich hodnoty do výstupu.
