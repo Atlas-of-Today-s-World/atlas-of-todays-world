@@ -1,0 +1,6 @@
+# Citlivé části — změny vždy s popisem „Security impact“ v PR (ARCHITEKTURA 8.4).
+/supabase/                @vojtechgottvald
+/src/middleware.ts        @vojtechgottvald
+/src/lib/security/        @vojtechgottvald
+/src/lib/supabase/        @vojtechgottvald
+/.github/                 @vojtechgottvald
