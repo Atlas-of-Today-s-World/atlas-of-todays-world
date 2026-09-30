@@ -12,6 +12,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { MetricCard } from "@/lib/content-types";
+import { safeUrl } from "@/lib/security/urls";
 
 export function SectionLabel({ children }: { children: ReactNode }) {
   return (
@@ -27,6 +28,67 @@ export function NewsBadge({ count }: { count: number }) {
       <span className="h-2 w-2 rounded-full bg-[var(--color-live)]" />
       {count} {count === 1 ? "news item" : "news items"} published
     </span>
+  );
+}
+
+/** Mřížka karet ukazatelů (jeden <dl> pro kartu země i portrét). */
+export function StatGrid({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return <dl className={`grid grid-cols-2 gap-x-5 gap-y-6 ${className}`}>{children}</dl>;
+}
+
+/**
+ * Jedna karta ukazatele. Vizuálně je nahoře hodnota, v DOM ale nejdřív název
+ * (dt) — platný <dl>, takže čtečka přečte „název: hodnota" (WCAG 1.3.1).
+ */
+export function StatItem({
+  label,
+  value,
+  icon,
+  children,
+}: {
+  label: ReactNode;
+  value: ReactNode;
+  icon?: ReactNode;
+  children?: ReactNode;
+}) {
+  return (
+    <div className="flex flex-col">
+      <dt className="order-2 mt-2 text-[12.5px] leading-snug font-medium text-[var(--color-ink)]">
+        {label}
+      </dt>
+      <dd className="order-1 flex items-center gap-2.5 text-[var(--color-ink)]">
+        {icon}
+        <span className="font-display text-[21px] leading-none font-semibold">{value}</span>
+      </dd>
+      {children ? (
+        <dd className="order-3 mt-1 text-[11px] leading-relaxed text-[var(--color-ink-muted)]">
+          {children}
+        </dd>
+      ) : null}
+    </div>
+  );
+}
+
+/** Odkaz na zdroj čísla (jen https; bez adresy jen název). */
+export function SourceLink({ href, children }: { href?: string | null; children: ReactNode }) {
+  const url = safeUrl(href);
+  return url ? (
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      className="text-[var(--color-link)] hover:underline"
+    >
+      {children}
+    </a>
+  ) : (
+    <>{children}</>
   );
 }
 
@@ -46,37 +108,17 @@ export function MetricCards({
 }) {
   if (!metrics.length) return null;
   return (
-    <dl className={`grid grid-cols-2 gap-x-5 gap-y-6 ${className}`}>
+    <StatGrid className={className}>
       {metrics.map((metric) => (
-        <div key={`${metric.label}-${metric.value}`}>
-          <span className="font-display block text-[21px] leading-none font-semibold text-[var(--color-ink)]">
-            {metric.value}
+        <StatItem key={`${metric.label}-${metric.value}`} label={metric.label} value={metric.value}>
+          {metric.description ? <span className="block">{metric.description}</span> : null}
+          <span className="mt-0.5 block">
+            Source: <SourceLink href={metric.sourceUrl}>{metric.source}</SourceLink>
+            {metric.year ? `, ${metric.year}` : ""}
           </span>
-          <dt className="mt-2 text-[12.5px] leading-snug font-medium text-[var(--color-ink)]">
-            {metric.label}
-          </dt>
-          <dd className="mt-1 text-[11px] leading-relaxed text-[var(--color-ink-muted)]">
-            {metric.description ? <span className="block">{metric.description}</span> : null}
-            <span className="mt-0.5 block">
-              Source:{" "}
-              {metric.sourceUrl ? (
-                <a
-                  href={metric.sourceUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[var(--color-link)] hover:underline"
-                >
-                  {metric.source}
-                </a>
-              ) : (
-                metric.source
-              )}
-              {metric.year ? `, ${metric.year}` : ""}
-            </span>
-          </dd>
-        </div>
+        </StatItem>
       ))}
-    </dl>
+    </StatGrid>
   );
 }
 

@@ -20,6 +20,13 @@ export const MAIN_NAV: readonly NavItem[] = [
 
 export const ACCOUNT_NAV: NavItem = { href: "/login", label: "Sign in" };
 
+/** Patička: právní a informační stránky. */
+export const LEGAL_NAV: readonly NavItem[] = [
+  { href: "/privacy", label: "Privacy" },
+  { href: "/terms", label: "Terms" },
+  { href: "/accessibility", label: "Accessibility" },
+];
+
 export const SOCIALS = [
   {
     href: "https://www.instagram.com/atlasoftodaysworld_official/",

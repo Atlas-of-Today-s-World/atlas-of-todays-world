@@ -81,7 +81,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <aside className="border-b border-[var(--color-line)] p-3 md:min-h-[calc(100dvh-4rem)] md:border-r md:border-b-0">
           <AdminNav allowed={allowed} />
         </aside>
-        <main id="main" className="min-w-0 px-4 py-8 md:px-10">
+        <main id="content" tabIndex={-1} className="min-w-0 px-4 py-8 outline-none md:px-10">
           {children}
         </main>
       </div>

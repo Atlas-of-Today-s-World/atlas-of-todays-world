@@ -9,7 +9,7 @@ import { FormField, Input, Select, Textarea } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
 import { slugify } from "@/lib/validation/common";
 import { deleteArea, saveArea, saveTheme } from "../actions";
-import { ActionForm } from "@/components/admin/ActionForm";
+import { ActionForm } from "@/components/ui/action-form";
 
 /** Posuvník s číselnou hodnotou vedle (sytost, hranice). */
 function Range({

@@ -99,7 +99,7 @@ export default async function HomePage() {
       <HomeFocus centers={homeCenters} />
 
       {/* Text pro vyhledávače a čtečky – vizuálně skrytý, mapa je v layoutu. */}
-      <div className="sr-only">
+      <div id="content" tabIndex={-1} className="sr-only">
         <h1>Atlas of Today&rsquo;s World</h1>
         <p>
           An interactive encyclopedia of the present. Explore the world on a 3D satellite globe,

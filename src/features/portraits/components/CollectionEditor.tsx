@@ -11,7 +11,7 @@ import { cn } from "@/lib/cn";
 import { savePortraitSection } from "../actions";
 import type { Collection, PortraitKind } from "../schema";
 import { COLLECTION_UI } from "./fields";
-import { ActionForm } from "@/components/admin/ActionForm";
+import { ActionForm } from "@/components/ui/action-form";
 
 type Item = Record<string, string>;
 

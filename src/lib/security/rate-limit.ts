@@ -11,11 +11,11 @@ import { createServiceClient } from "@/lib/supabase/service";
  */
 export async function allowRequest(
   scope: string,
-  request: Request,
+  headers: Headers,
   { limit, windowSeconds }: { limit: number; windowSeconds: number },
 ): Promise<boolean> {
   if (!serverEnv.SUPABASE_SERVICE_ROLE_KEY) return true;
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const ip = headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
   const key = `${scope}:${createHash("sha256").update(ip).digest("hex").slice(0, 32)}`;
   const { data, error } = await createServiceClient().rpc("hit_rate_limit", {
     p_key: key,

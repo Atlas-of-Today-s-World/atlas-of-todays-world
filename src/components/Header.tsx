@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Menu, UserRound, X } from "lucide-react";
 import { RAIL_OFFSET, railKind } from "@/config/layout";
-import { ACCOUNT_NAV, MAIN_NAV, SOCIALS } from "@/config/navigation";
+import { ACCOUNT_NAV, LEGAL_NAV, MAIN_NAV, SOCIALS } from "@/config/navigation";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 import NewsletterForm from "./NewsletterForm";
 
@@ -17,7 +17,7 @@ import NewsletterForm from "./NewsletterForm";
  * a logo tam má zabírat co nejmíň. Když je vpravo otevřený bílý panel, navigace
  * se odsune doleva – jinak by bílý text zmizel na bílém pozadí.
  */
-export default function Header() {
+export default function Header({ newsletter = true }: { newsletter?: boolean }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const menu = useRef<HTMLDivElement>(null);
@@ -159,7 +159,15 @@ export default function Header() {
           </nav>
 
           <div className="mt-auto space-y-6 pb-2">
-            <NewsletterForm />
+            {newsletter ? <NewsletterForm /> : null}
+
+            <nav aria-label="Legal" className="flex gap-4 text-[12.5px] text-white/60">
+              {LEGAL_NAV.map((item) => (
+                <Link key={item.href} href={item.href} className="flex min-h-11 items-center">
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
 
             <div className="flex items-center gap-3">
               {SOCIALS.map((social) => (

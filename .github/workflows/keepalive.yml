@@ -1,0 +1,24 @@
+# Supabase Free uspí projekt po týdnu bez provozu. Denní dotaz na /api/health
+# ho drží vzhůru a zároveň je to nejlevnější uptime kontrola (selhání = e-mail
+# z GitHub Actions). Plnohodnotný monitor (UptimeRobot) nastavuje vlastník.
+name: Keep-alive
+
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: /api/health
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: |
+          test -n "$SITE_URL" || { echo "Chybí proměnná repozitáře SITE_URL"; exit 1; }
+          curl --fail --silent --show-error --retry 3 --retry-delay 20 "$SITE_URL/api/health"

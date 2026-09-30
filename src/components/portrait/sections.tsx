@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { cva } from "class-variance-authority";
-import { MetricCards, StatIcon } from "@/components/atlas/ui";
+import { MetricCards, SourceLink, StatGrid, StatIcon, StatItem } from "@/components/atlas/ui";
 import { Rail } from "@/components/atlas/Rail";
 import { buttonVariants } from "@/components/ui/button";
 import type { RegionStat } from "@/lib/region-stats";
@@ -146,31 +146,20 @@ export function IndicatorCards({
       title="Key indicators"
       lead="Population-weighted across the countries in this group. Categorical layers show the most common value."
     >
-      <dl className="mt-5 grid grid-cols-2 gap-x-5 gap-y-6">
+      <StatGrid className="mt-5">
         {stats.map((stat) => (
-          <div key={stat.id}>
-            <div className="flex items-center gap-2.5 text-[var(--color-ink)]">
-              <StatIcon id={stat.id} />
-              <span className="font-display text-[19px] leading-none font-semibold">
-                {stat.value}
-              </span>
-            </div>
-            <dt className="mt-2 text-[12.5px] font-medium text-[var(--color-ink)]">{stat.label}</dt>
-            <dd className="mt-1 text-[11px] leading-relaxed text-[var(--color-ink-muted)]">
-              {stat.coverage.have} of {stat.coverage.total} countries · {stat.year}
-              <br />
-              <a
-                href={stat.sourceUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="text-[var(--color-link)] hover:underline"
-              >
-                {stat.source}
-              </a>
-            </dd>
-          </div>
+          <StatItem
+            key={stat.id}
+            label={stat.label}
+            value={stat.value}
+            icon={<StatIcon id={stat.id} />}
+          >
+            {stat.coverage.have} of {stat.coverage.total} countries · {stat.year}
+            <br />
+            <SourceLink href={stat.sourceUrl}>{stat.source}</SourceLink>
+          </StatItem>
         ))}
-      </dl>
+      </StatGrid>
     </PortraitSection>
   );
 }

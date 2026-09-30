@@ -10,14 +10,21 @@ import {
   RoleForm,
   SecurityForm,
 } from "@/features/roles/components/RoleForms";
+import { FlagToggle } from "@/features/flags/components/FlagToggle";
 import { rolesOverview } from "@/features/roles/editorial";
+import { createServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Role a práva" };
 
 export default async function RolesPage() {
   const access = await sectionAccess("permissions");
   if (!access) return <NoAccess />;
-  const { roles, permissions, security } = await rolesOverview();
+  const [{ roles, permissions, security }, { data: flags }] = await Promise.all([
+    rolesOverview(),
+    createServerClient().then((db) =>
+      db.from("feature_flags").select("key, enabled, note").order("key"),
+    ),
+  ]);
   const canEdit = can(access.permissions, "permissions", "e");
   const canCreate = can(access.permissions, "permissions", "c");
   const canDelete = can(access.permissions, "permissions", "d");
@@ -78,6 +85,31 @@ export default async function RolesPage() {
           <RoleForm role={null} />
         </section>
       ) : null}
+
+      <section className="mt-12">
+        <h2 className="font-display mb-4 text-[18px] font-bold">Provoz a přepínače</h2>
+        <ul className="grid max-w-2xl gap-3">
+          {(flags ?? []).map((flag) => (
+            <li
+              key={flag.key}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--color-line)] p-4"
+            >
+              <span>
+                <code className="text-[13px] font-medium">{flag.key}</code>{" "}
+                <span className={flag.enabled ? "text-green-800" : "text-[var(--color-ink-muted)]"}>
+                  {flag.enabled ? "zapnuto" : "vypnuto"}
+                </span>
+                <span className="mt-1 block text-[12.5px] text-[var(--color-ink-muted)]">
+                  {flag.note}
+                </span>
+              </span>
+              {canEdit ? (
+                <FlagToggle flagKey={flag.key} enabled={flag.enabled} label={flag.key} />
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      </section>
 
       {security ? (
         <section className="mt-12">

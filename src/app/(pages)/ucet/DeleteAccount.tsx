@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { deleteAccount, type ActionState } from "@/features/auth/actions";
 import { Button } from "@/components/ui/button";
-import { ActionForm } from "@/components/admin/ActionForm";
+import { ActionForm } from "@/components/ui/action-form";
 
 export default function DeleteAccount({ email }: { email: string }) {
   const [state, action, pending] = useActionState<ActionState, FormData>(deleteAccount, {

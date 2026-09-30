@@ -7,7 +7,7 @@ import { SubmitButton } from "@/components/admin/SubmitButton";
 import { Checkbox, FormField, Input, Select } from "@/components/ui/field";
 import { createInvitation } from "@/features/invitations/actions";
 import type { ActionState } from "@/lib/actions";
-import { ActionForm } from "@/components/admin/ActionForm";
+import { ActionForm } from "@/components/ui/action-form";
 
 interface RoleOption {
   id: string;

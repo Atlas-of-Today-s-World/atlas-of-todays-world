@@ -17,7 +17,7 @@ import {
 } from "../actions";
 import type { Revision } from "../editorial";
 import type { EntryStatus } from "../schema";
-import { ActionForm } from "@/components/admin/ActionForm";
+import { ActionForm } from "@/components/ui/action-form";
 
 const dateFormat = new Intl.DateTimeFormat("cs-CZ", { dateStyle: "medium", timeStyle: "short" });
 

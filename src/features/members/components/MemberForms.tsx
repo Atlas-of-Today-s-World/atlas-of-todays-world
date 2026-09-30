@@ -8,7 +8,7 @@ import { SubmitButton } from "@/components/admin/SubmitButton";
 import { FormField, Select } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
 import { grantMembership, revokeMembership } from "../actions";
-import { ActionForm } from "@/components/admin/ActionForm";
+import { ActionForm } from "@/components/ui/action-form";
 
 export const PLAN_LABEL: Record<string, string> = {
   none: "—",

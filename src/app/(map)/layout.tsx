@@ -3,6 +3,9 @@ import AtlasGlobe, { type RegionLookup } from "@/components/map/AtlasGlobe";
 import MapControls from "@/components/map/MapControls";
 import { MapProvider } from "@/components/map/MapContext";
 import { MapLegend, type ViewOption } from "@/components/map/ViewSwitcher";
+import ContentRail from "@/components/ContentRail";
+import { ErrorState } from "@/components/atlas/ErrorState";
+import { getFlags } from "@/features/flags/queries";
 import { regionColorMap } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
 import type { GlobalIssue, Indicator, Region } from "@/features/geography/types";
@@ -61,7 +64,7 @@ function lookup(groups: (Region | GlobalIssue)[]): RegionLookup {
 }
 
 export default async function MapLayout({ children }: { children: React.ReactNode }) {
-  const atlas = await getAtlas();
+  const [atlas, flags] = await Promise.all([getAtlas(), getFlags()]);
   const slugs = Object.fromEntries(atlas.countries.map((country) => [country.iso3, country.slug]));
 
   const colorSets: Record<string, Record<string, string>> = {
@@ -99,10 +102,20 @@ export default async function MapLayout({ children }: { children: React.ReactNod
             })),
           }}
         />
-        <Header />
+        <Header newsletter={flags.newsletter} />
         <MapControls options={viewOptions} hasIssues={Object.keys(issue.bySlug).length > 0} />
         <MapLegend options={viewOptions} />
-        {children}
+        {flags.maintenance ? (
+          <ContentRail>
+            <ErrorState
+              code="Maintenance"
+              title="The Atlas is being updated"
+              lead="We are working on the site right now. Please come back in a little while."
+            />
+          </ContentRail>
+        ) : (
+          children
+        )}
       </main>
     </MapProvider>
   );

@@ -10,7 +10,7 @@ import { SECTIONS } from "@/features/auth/sections";
 import type { ActionState } from "@/lib/actions";
 import { deleteRole, saveMatrix, saveRole, saveSecurity } from "../actions";
 import { ACTION_LABEL, SECTION_LABEL } from "../schema";
-import { ActionForm } from "@/components/admin/ActionForm";
+import { ActionForm } from "@/components/ui/action-form";
 
 const ACTIONS = ["v", "c", "e", "d"] as const;
 

@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox, FormField, Input, Select, Textarea } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
 import { deleteValue, saveCategories, saveIndicator, setValue } from "../actions";
-import { ActionForm } from "@/components/admin/ActionForm";
+import { ActionForm } from "@/components/ui/action-form";
 
 export interface IndicatorValues {
   id: string;

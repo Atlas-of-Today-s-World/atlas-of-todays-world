@@ -12,7 +12,7 @@ import { saveEntry } from "../actions";
 import type { EditableEntry } from "../editorial";
 import { ImageField } from "./ImageField";
 import { RichTextEditor } from "./RichTextEditor";
-import { ActionForm } from "@/components/admin/ActionForm";
+import { ActionForm } from "@/components/ui/action-form";
 
 interface Option {
   slug: string;

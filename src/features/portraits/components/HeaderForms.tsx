@@ -10,7 +10,7 @@ import { RichTextEditor } from "@/features/entries/components/RichTextEditor";
 import type { ActionState } from "@/lib/actions";
 import { slugify } from "@/lib/validation/common";
 import { saveCountry, saveIssue, saveRegion } from "../actions";
-import { ActionForm } from "@/components/admin/ActionForm";
+import { ActionForm } from "@/components/ui/action-form";
 
 type Errors = Record<string, string[] | undefined>;
 

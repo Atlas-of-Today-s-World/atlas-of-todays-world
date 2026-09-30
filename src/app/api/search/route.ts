@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 /** Fulltext nad celým Atlasem: regiony, země, global issues i novinky. */
 export async function GET(request: Request) {
-  if (!(await allowRequest("search", request, { limit: 60, windowSeconds: 60 }))) {
+  if (!(await allowRequest("search", request.headers, { limit: 60, windowSeconds: 60 }))) {
     return NextResponse.json(
       { error: "Too many searches. Try again in a minute." },
       { status: 429 },

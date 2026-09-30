@@ -8,6 +8,8 @@ export const tags = {
   entries: "entries",
   entry: (slug: string) => `entry:${slug}`,
   portrait: (kind: "region" | "issue", slug: string) => `portrait:${kind}:${slug}`,
+  /** Přepínače funkcí a režim údržby. */
+  flags: "flags",
 } as const;
 
 /** Záchranná síť: i bez invalidace se veřejná data obnoví nejpozději za hodinu. */

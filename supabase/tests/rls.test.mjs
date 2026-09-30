@@ -970,3 +970,22 @@ test("2FA: admin bez druhého faktoru nesmí nic, publisher ho nepotřebuje", as
   const pub = await as(id.pubA, () => one("select has_perm('news', 'c') c"), { aal: "aal1" });
   assert.equal(pub.c, true);
 });
+
+test("přepínače: čte je každý, mění jen správa oprávnění", async () => {
+  const flags = await as(null, () => q("select key, enabled from feature_flags order by key"));
+  assert.deepEqual(
+    flags.map((f) => f.key),
+    ["maintenance", "newsletter"],
+  );
+  await as(null, () =>
+    refused(q("update feature_flags set enabled = true where key = 'maintenance'")),
+  );
+  const byPublisher = await as(id.pubA, () =>
+    q("update feature_flags set enabled = true where key = 'maintenance' returning key"),
+  );
+  assert.equal(byPublisher.length, 0);
+  await as(id.admin, () => q("update feature_flags set enabled = true where key = 'maintenance'"));
+  const flag = await one("select enabled, updated_by from feature_flags where key = 'maintenance'");
+  assert.deepEqual(flag, { enabled: true, updated_by: id.admin });
+  await q("update feature_flags set enabled = false where key = 'maintenance'");
+});

@@ -253,6 +253,20 @@ async function main() {
     assert(status === 200, `security.txt vrátil ${status}`);
   });
 
+  await check("/api/health: databáze odpovídá a nic se necachuje", async () => {
+    const { status, body, headers } = await get("/api/health");
+    assert(status === 200, `/api/health vrátil ${status}`);
+    const health = JSON.parse(body);
+    assert(health.status === "ok" && health.db === "ok", `stav ${body}`);
+    assert(/no-store/.test(headers.get("cache-control") ?? ""), "health se nesmí cachovat");
+  });
+
+  await check("neexistující stránka vrátí 404 s návratem na globus", async () => {
+    const { status, body } = await get("/country/atlantis");
+    assert(status === 404, `status ${status}`);
+    assert(/Back to the globe/.test(body), "chybí cesta zpět");
+  });
+
   process.stdout.write(`\n${passed} v pořádku, ${failures.length} chyb\n`);
   if (failures.length) process.exit(1);
 }

@@ -2,7 +2,7 @@
 
 import { useFormStatus } from "react-dom";
 import { Button, type ButtonVariants } from "@/components/ui/button";
-import { useActionPending } from "./ActionForm";
+import { useActionPending } from "@/components/ui/action-form";
 
 /** Odesílací tlačítko se stavem „ukládám" (čte stav nadřazeného <ActionForm> či <form>). */
 export function SubmitButton({

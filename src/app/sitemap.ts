@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getEntries } from "@/features/entries/queries";
 import { getAtlas } from "@/features/geography/queries";
+import { LEGAL_NAV } from "@/config/navigation";
 import { SITE_URL } from "@/lib/site";
 
 /**
@@ -23,6 +24,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     page("/news", "weekly", 0.7),
     page("/about", "yearly", 0.4),
     page("/patrons", "yearly", 0.4),
+    ...LEGAL_NAV.map((item) => page(item.href, "yearly", 0.2)),
     ...atlas.regions.map((region) =>
       page(`/region/${region.slug}`, "weekly", 0.9, {
         images: region.hero ? [region.hero] : undefined,
