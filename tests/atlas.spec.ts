@@ -125,6 +125,8 @@ test.describe("administrace", () => {
     // otevřená; test pak jen ověří, že stránka vůbec existuje.
     const response = await page.goto("/admin");
     expect(response?.status()).toBeLessThan(500);
+    // Produkční build bez ADMIN_TOKEN administraci úplně skryje.
+    if (response?.status() === 404) return;
 
     const locked = page.url().includes("/admin/login");
     if (locked) {

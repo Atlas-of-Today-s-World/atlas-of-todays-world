@@ -2,7 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import maplibregl, { type Map as MapLibreMap, type MapMouseEvent } from "maplibre-gl";
+import {
+  Map as MapLibreMap,
+  type ErrorEvent,
+  type ExpressionSpecification,
+  type MapMouseEvent,
+} from "maplibre-gl";
 import { buildStyle, LAYERS } from "./mapStyle";
 import { EUROPE_CENTER, globeFillZoom } from "@/lib/home-location";
 import { useMapState } from "./MapContext";
@@ -77,11 +82,12 @@ const setHoverState = (map: MapLibreMap, ref: { current: string[] }, next: strin
   applyFeatureState(map, ref, next, "hover");
 
 /** Z mapy ISO3->barva udělá MapLibre `match` výraz. */
-function matchExpression(colors: Record<string, string>): unknown[] {
-  const stops: unknown[] = [];
+function matchExpression(colors: Record<string, string>): ExpressionSpecification {
+  const stops: string[] = [];
   for (const [iso3, color] of Object.entries(colors)) stops.push(iso3, color);
-  if (!stops.length) return ["literal", NEUTRAL] as unknown[];
-  return ["match", ["get", "iso3"], ...stops, NEUTRAL];
+  if (!stops.length) return ["literal", NEUTRAL];
+  // Typy MapLibre neumí vyjádřit proměnný počet dvojic klíč–barva v "match".
+  return ["match", ["get", "iso3"], ...stops, NEUTRAL] as unknown as ExpressionSpecification;
 }
 
 export default function AtlasGlobe({ colorSets, slugs, regions, issue }: Props) {
@@ -118,7 +124,7 @@ export default function AtlasGlobe({ colorSets, slugs, regions, issue }: Props) 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
-    const map = new maplibregl.Map({
+    const map = new MapLibreMap({
       container: containerRef.current,
       style: buildStyle(),
       // První snímek rovnou ve výchozí vzdálenosti, ať se mapa nezobrazí
@@ -132,10 +138,8 @@ export default function AtlasGlobe({ colorSets, slugs, regions, issue }: Props) 
       maxPitch: 0,
     });
     mapRef.current = map;
-    // Ladicí úchyt: v konzoli prohlížeče je mapa dostupná jako window.atlasMap.
-    (window as unknown as { atlasMap?: MapLibreMap }).atlasMap = map;
 
-    map.on("error", (event) => {
+    map.on("error", (event: ErrorEvent) => {
       console.error("[atlas-globe]", event.error?.message ?? event);
     });
 
