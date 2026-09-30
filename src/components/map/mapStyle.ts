@@ -34,8 +34,7 @@ function satelliteSource() {
     tiles: [
       "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
     ],
-    attribution:
-      'Imagery © <a href="https://www.esri.com/">Esri</a>, Maxar, Earthstar Geographics',
+    attribution: 'Imagery © <a href="https://www.esri.com/">Esri</a>, Maxar, Earthstar Geographics',
     maxzoom: 18,
   };
 }
@@ -86,17 +85,7 @@ export function buildStyle(): StyleSpecification {
       "horizon-fog-blend": 0.6,
       "fog-color": "#0a1020",
       "fog-ground-blend": 0.05,
-      "atmosphere-blend": [
-        "interpolate",
-        ["linear"],
-        ["zoom"],
-        0,
-        1,
-        4,
-        0.6,
-        6,
-        0,
-      ],
+      "atmosphere-blend": ["interpolate", ["linear"], ["zoom"], 0, 1, 4, 0.6, 6, 0],
     },
     // Rovnoměrné nasvícení: den/noc terminátor by polovinu globusu utopil ve tmě.
     light: { anchor: "viewport", position: [1.15, 210, 30], intensity: 0.05 },
@@ -128,12 +117,7 @@ export function buildStyle(): StyleSpecification {
         source: "countries",
         paint: {
           "fill-color": "#ffffff",
-          "fill-opacity": [
-            "case",
-            ["boolean", ["feature-state", "hover"], false],
-            0.2,
-            0,
-          ],
+          "fill-opacity": ["case", ["boolean", ["feature-state", "hover"], false], 0.2, 0],
           "fill-opacity-transition": { duration: 120, delay: 0 },
         },
       },
@@ -168,12 +152,7 @@ export function buildStyle(): StyleSpecification {
         paint: {
           "line-color": "#b03a2e",
           "line-width": ["interpolate", ["linear"], ["zoom"], 1, 1, 5, 2.4],
-          "line-opacity": [
-            "case",
-            ["boolean", ["feature-state", "inRegion"], false],
-            1,
-            0,
-          ],
+          "line-opacity": ["case", ["boolean", ["feature-state", "inRegion"], false], 1, 0],
           "line-opacity-transition": { duration: 180, delay: 0 },
         },
       },
@@ -185,12 +164,7 @@ export function buildStyle(): StyleSpecification {
           "line-color": "#ffffff",
           "line-width": ["interpolate", ["linear"], ["zoom"], 1, 1.4, 5, 3],
           "line-blur": 0.3,
-          "line-opacity": [
-            "case",
-            ["boolean", ["feature-state", "active"], false],
-            1,
-            0,
-          ],
+          "line-opacity": ["case", ["boolean", ["feature-state", "active"], false], 1, 0],
           "line-opacity-transition": { duration: 180, delay: 0 },
         },
       },
@@ -239,4 +213,3 @@ export function buildStyle(): StyleSpecification {
     ],
   } as StyleSpecification;
 }
-

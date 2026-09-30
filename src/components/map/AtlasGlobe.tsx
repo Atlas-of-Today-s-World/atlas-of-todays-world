@@ -7,7 +7,7 @@ import { buildStyle, LAYERS } from "./mapStyle";
 import { EUROPE_CENTER, globeFillZoom } from "@/lib/home-location";
 import { useMapState } from "./MapContext";
 
-export interface GlobeColorSets {
+interface GlobeColorSets {
   /** ISO3 -> barva pro každou vrstvu, předpočítané na serveru. */
   [view: string]: Record<string, string>;
 }
@@ -73,11 +73,8 @@ function applyFeatureState(
   ref.current = next;
 }
 
-const setHoverState = (
-  map: MapLibreMap,
-  ref: { current: string[] },
-  next: string[],
-) => applyFeatureState(map, ref, next, "hover");
+const setHoverState = (map: MapLibreMap, ref: { current: string[] }, next: string[]) =>
+  applyFeatureState(map, ref, next, "hover");
 
 /** Z mapy ISO3->barva udělá MapLibre `match` výraz. */
 function matchExpression(colors: Record<string, string>): unknown[] {
@@ -271,16 +268,8 @@ export default function AtlasGlobe({ colorSets, slugs, regions, issue }: Props) 
 
     // V režimu regionů ustoupí vnitřní hranice a názvy států do pozadí,
     // aby barevné celky četly jako regiony.
-    map.setPaintProperty(
-      LAYERS.border,
-      "line-opacity",
-      isGrouped ? 0.25 : 1,
-    );
-    map.setLayoutProperty(
-      LAYERS.label,
-      "visibility",
-      isGrouped ? "none" : "visible",
-    );
+    map.setPaintProperty(LAYERS.border, "line-opacity", isGrouped ? 0.25 : 1);
+    map.setLayoutProperty(LAYERS.label, "visibility", isGrouped ? "none" : "visible");
     map.setLayoutProperty(
       LAYERS.regionLabel,
       "visibility",
@@ -306,13 +295,7 @@ export default function AtlasGlobe({ colorSets, slugs, regions, issue }: Props) 
     if (focus.regionStroke) {
       map.setPaintProperty(LAYERS.regionOutline, "line-color", focus.regionStroke);
     }
-  }, [
-    focus.activeIso3,
-    focus.regionCountries,
-    focus.regionStroke,
-    pendingIso3,
-    ready,
-  ]);
+  }, [focus.activeIso3, focus.regionCountries, focus.regionStroke, pendingIso3, ready]);
 
   // Jakmile dorazí obsah, převezme zvýraznění stránka a dočasné zmizí.
   useEffect(() => {
@@ -356,7 +339,7 @@ export default function AtlasGlobe({ colorSets, slugs, regions, issue }: Props) 
     <div className="absolute inset-0">
       <div ref={containerRef} className="h-full w-full" />
 
-      <div className="pointer-events-none absolute left-5 top-24 flex flex-col gap-1.5">
+      <div className="pointer-events-none absolute top-24 left-5 flex flex-col gap-1.5">
         <button
           type="button"
           aria-label="Zoom in"

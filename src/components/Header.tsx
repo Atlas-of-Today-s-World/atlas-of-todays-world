@@ -20,8 +20,16 @@ const NAV = [
 ];
 
 const SOCIALS = [
-  { href: "https://www.instagram.com/atlasoftodaysworld_official/", label: "Instagram", icon: "IG" },
-  { href: "https://www.linkedin.com/company/atlas-of-todays-world/", label: "LinkedIn", icon: "in" },
+  {
+    href: "https://www.instagram.com/atlasoftodaysworld_official/",
+    label: "Instagram",
+    icon: "IG",
+  },
+  {
+    href: "https://www.linkedin.com/company/atlas-of-todays-world/",
+    label: "LinkedIn",
+    icon: "in",
+  },
   { href: "https://www.facebook.com/atlasoftodaysworld/", label: "Facebook", icon: "f" },
   { href: "https://bsky.app/profile/atlas-otw.bsky.social", label: "Bluesky", icon: "bs" },
 ];
@@ -64,7 +72,7 @@ export default function Header() {
     <header className="pointer-events-none absolute inset-x-0 top-0 z-40 px-4 py-3 sm:px-7 sm:py-4">
       <Link
         href="/"
-        className="pointer-events-auto inline-block rounded-[6px] border border-white/70 bg-white px-2.5 py-1 font-display text-[10px] font-extrabold uppercase tracking-[0.12em] text-[#0d1324] shadow-lg shadow-black/30 sm:px-3.5 sm:py-2 sm:text-[13px]"
+        className="font-display pointer-events-auto inline-block rounded-[6px] border border-white/70 bg-white px-2.5 py-1 text-[10px] font-extrabold tracking-[0.12em] text-[#0d1324] uppercase shadow-lg shadow-black/30 sm:px-3.5 sm:py-2 sm:text-[13px]"
         aria-label="Atlas of Today's World — home"
       >
         {/* Na mobilu jen značka: plný název zabíral polovinu šířky obrazovky. */}
@@ -142,7 +150,7 @@ export default function Header() {
         onClick={() => setMenuOpen(true)}
         aria-label="Open menu"
         aria-expanded={menuOpen}
-        className={`glass glass-hover pointer-events-auto absolute right-4 top-3 grid h-11 w-11 place-items-center rounded-full text-white ${
+        className={`glass glass-hover pointer-events-auto absolute top-3 right-4 grid h-11 w-11 place-items-center rounded-full text-white ${
           wideRail ? "xl:hidden" : "md:hidden"
         }`}
       >
@@ -164,7 +172,7 @@ export default function Header() {
           className="pointer-events-auto fixed inset-0 z-50 flex flex-col bg-[#0b101f]/97 px-6 py-5 text-white backdrop-blur"
         >
           <div className="flex items-center justify-between">
-            <span className="font-display text-[11px] font-extrabold uppercase tracking-[0.14em]">
+            <span className="font-display text-[11px] font-extrabold tracking-[0.14em] uppercase">
               Atlas of Today&rsquo;s World
             </span>
             <button
@@ -189,12 +197,12 @@ export default function Header() {
               <Link
                 key={item.label}
                 href={item.href}
-                className="flex min-h-14 items-center font-display font-bold"
+                className="font-display flex min-h-14 items-center font-bold"
               >
                 {item.label}
               </Link>
             ))}
-            <Link href="/news" className="flex min-h-14 items-center font-display font-bold">
+            <Link href="/news" className="font-display flex min-h-14 items-center font-bold">
               News
             </Link>
           </nav>

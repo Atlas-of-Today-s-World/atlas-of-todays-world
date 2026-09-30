@@ -8,14 +8,8 @@ import { NewsBadge, SectionLabel } from "@/components/atlas-ui";
 import { countryByIso3 } from "@/lib/countries";
 import { allNews } from "@/lib/content";
 import { allGlobalIssues, globalIssueBySlug } from "@/lib/global-issues";
-import {
-  absoluteUrl,
-  alternates,
-  breadcrumbJsonLd,
-  geoCoordinates,
-  geoMeta,
-  jsonLdHtml,
-} from "@/lib/seo";
+import { absoluteUrl, alternates, breadcrumbJsonLd, geoCoordinates, geoMeta } from "@/lib/seo";
+import { JsonLd } from "@/components/JsonLd";
 
 // Global Issues vznikají v administraci, takže routa musí umět i slug,
 // který v době buildu neexistoval.
@@ -52,11 +46,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function GlobalIssuePage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function GlobalIssuePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const region = await globalIssueBySlug(slug);
   if (!region) notFound();
@@ -75,15 +65,11 @@ export default async function GlobalIssuePage({
     ...tagged,
     ...news.filter(
       (item) =>
-        item.issue !== region.slug &&
-        (item.countries ?? []).some((iso3) => members.has(iso3)),
+        item.issue !== region.slug && (item.countries ?? []).some((iso3) => members.has(iso3)),
     ),
   ];
 
-  const population = countries.reduce(
-    (sum, country) => sum + (country.population ?? 0),
-    0,
-  );
+  const population = countries.reduce((sum, country) => sum + (country.population ?? 0), 0);
 
   return (
     <>
@@ -96,13 +82,13 @@ export default async function GlobalIssuePage({
       <MapModeSetter mode="issue" />
 
       <ContentRail>
-        <article className="px-6 pb-10 pt-6">
+        <article className="px-6 pt-6 pb-10">
           <SectionLabel>Global Issue</SectionLabel>
 
-          <h1 className="mt-4 font-display text-[26px] font-bold leading-tight text-[var(--color-ink)]">
+          <h1 className="font-display mt-4 text-[26px] leading-tight font-bold text-[var(--color-ink)]">
             {region.name}
           </h1>
-          <p className="mt-1 font-display text-[15px] font-bold text-[var(--color-link)]">
+          <p className="font-display mt-1 text-[15px] font-bold text-[var(--color-link)]">
             {region.subtitle}
           </p>
 
@@ -123,9 +109,7 @@ export default async function GlobalIssuePage({
           <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-[var(--color-line)] pt-5 text-[12.5px]">
             <div>
               <dt className="text-[var(--color-ink-muted)]">Countries</dt>
-              <dd className="font-medium text-[var(--color-ink)]">
-                {countries.length}
-              </dd>
+              <dd className="font-medium text-[var(--color-ink)]">{countries.length}</dd>
             </div>
             <div>
               <dt className="text-[var(--color-ink-muted)]">Combined population</dt>
@@ -137,7 +121,7 @@ export default async function GlobalIssuePage({
             </div>
           </dl>
 
-          <h2 className="mt-7 font-display text-[15px] font-bold text-[var(--color-ink)]">
+          <h2 className="font-display mt-7 text-[15px] font-bold text-[var(--color-ink)]">
             Countries in this group
           </h2>
           <div className="mt-3 flex flex-wrap gap-1.5">
@@ -154,7 +138,7 @@ export default async function GlobalIssuePage({
 
           {related.length ? (
             <>
-              <h2 className="mt-7 font-display text-[15px] font-bold text-[var(--color-ink)]">
+              <h2 className="font-display mt-7 text-[15px] font-bold text-[var(--color-ink)]">
                 News from this group
               </h2>
               <ul className="mt-3 grid gap-2">
@@ -164,7 +148,7 @@ export default async function GlobalIssuePage({
                       href={`/news/${item.slug}`}
                       className="group block rounded-xl border border-[var(--color-line)] p-3 transition hover:border-[var(--color-accent)]"
                     >
-                      <span className="text-[10.5px] uppercase tracking-wide text-[var(--color-ink-muted)]">
+                      <span className="text-[10.5px] tracking-wide text-[var(--color-ink-muted)] uppercase">
                         {item.category}
                       </span>
                       <span className="mt-0.5 block text-[13.5px] font-medium text-[var(--color-ink)] group-hover:text-[var(--color-accent)]">
@@ -178,8 +162,8 @@ export default async function GlobalIssuePage({
           ) : null}
 
           <p className="mt-8 text-[11.5px] text-[var(--color-ink-muted)]">
-            Global Issues are assembled by the Atlas team and can cross the
-            boundaries of the nine Atlas regions.{" "}
+            Global Issues are assembled by the Atlas team and can cross the boundaries of the nine
+            Atlas regions.{" "}
             <Link href="/admin" className="text-[var(--color-link)] hover:underline">
               Edit them in the administration
             </Link>
@@ -188,30 +172,27 @@ export default async function GlobalIssuePage({
         </article>
       </ContentRail>
 
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: jsonLdHtml([
-            {
-              "@context": "https://schema.org",
-              "@type": "Place",
-              name: region.name,
-              alternateName: region.subtitle,
-              description: region.summary,
-              url: absoluteUrl(`/global-issue/${region.slug}`),
-              geo: geoCoordinates(region.center[1], region.center[0]),
-              containsPlace: countries.map((country) => ({
-                "@type": "Country",
-                name: country.name,
-                url: absoluteUrl(`/country/${country.slug}`),
-              })),
-            },
-            breadcrumbJsonLd([
-              { name: "Atlas of Today's World", path: "/" },
-              { name: region.name, path: `/global-issue/${region.slug}` },
-            ]),
+      <JsonLd
+        data={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Place",
+            name: region.name,
+            alternateName: region.subtitle,
+            description: region.summary,
+            url: absoluteUrl(`/global-issue/${region.slug}`),
+            geo: geoCoordinates(region.center[1], region.center[0]),
+            containsPlace: countries.map((country) => ({
+              "@type": "Country",
+              name: country.name,
+              url: absoluteUrl(`/country/${country.slug}`),
+            })),
+          },
+          breadcrumbJsonLd([
+            { name: "Atlas of Today's World", path: "/" },
+            { name: region.name, path: `/global-issue/${region.slug}` },
           ]),
-        }}
+        ]}
       />
     </>
   );

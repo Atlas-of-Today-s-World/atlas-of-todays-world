@@ -46,7 +46,7 @@ export default function EncyclopediaPanel() {
 
   return (
     <section className="glass pointer-events-auto w-[min(92vw,22rem)] rounded-[var(--radius-panel)] p-4 shadow-2xl shadow-black/40">
-      <h2 className="flex items-center gap-2 font-display text-[15px] font-semibold text-white">
+      <h2 className="font-display flex items-center gap-2 text-[15px] font-semibold text-white">
         <BookIcon />
         Global Encyclopedia
       </h2>
@@ -77,16 +77,12 @@ export default function EncyclopediaPanel() {
                     className="block rounded-xl px-3 py-2 transition hover:bg-white/10"
                   >
                     <span className="flex items-center gap-2">
-                      <span className="rounded-full bg-white/12 px-1.5 py-0.5 text-[9.5px] uppercase tracking-wide text-white/70">
+                      <span className="rounded-full bg-white/12 px-1.5 py-0.5 text-[9.5px] tracking-wide text-white/70 uppercase">
                         {KIND_LABEL[hit.kind] ?? hit.kind}
                       </span>
-                      <span className="text-[13.5px] font-medium text-white">
-                        {hit.title}
-                      </span>
+                      <span className="text-[13.5px] font-medium text-white">{hit.title}</span>
                     </span>
-                    <span className="mt-0.5 block text-[11.5px] text-white/55">
-                      {hit.subtitle}
-                    </span>
+                    <span className="mt-0.5 block text-[11.5px] text-white/55">{hit.subtitle}</span>
                   </Link>
                 </li>
               ))}
@@ -95,8 +91,8 @@ export default function EncyclopediaPanel() {
         </div>
       ) : (
         <p className="mt-2.5 px-1 text-[11.5px] leading-relaxed text-white/50">
-          Try &ldquo;political situation in Russia&rdquo;, &ldquo;Ukraine&rdquo; or
-          &ldquo;Eastern Europe&rdquo;.
+          Try &ldquo;political situation in Russia&rdquo;, &ldquo;Ukraine&rdquo; or &ldquo;Eastern
+          Europe&rdquo;.
         </p>
       )}
     </section>
@@ -120,12 +116,7 @@ function SearchIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
       <circle cx="11" cy="11" r="6.5" stroke="rgba(255,255,255,0.6)" strokeWidth="1.7" />
-      <path
-        d="m16 16 4 4"
-        stroke="rgba(255,255,255,0.6)"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-      />
+      <path d="m16 16 4 4" stroke="rgba(255,255,255,0.6)" strokeWidth="1.7" strokeLinecap="round" />
     </svg>
   );
 }

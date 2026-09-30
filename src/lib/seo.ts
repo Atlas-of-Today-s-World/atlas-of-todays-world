@@ -66,16 +66,6 @@ export function geoCoordinates(lat: number | null, lon: number | null) {
   };
 }
 
-/** Obdélníkový výřez země – roboti z něj poznají rozsah území. */
-export function geoShape(bbox: [number, number, number, number] | null) {
-  if (!bbox) return undefined;
-  const [minLon, minLat, maxLon, maxLat] = bbox;
-  return {
-    "@type": "GeoShape" as const,
-    box: `${minLat} ${minLon} ${maxLat} ${maxLon}`,
-  };
-}
-
 /**
  * Vykreslí JSON-LD. Escapuje `<`, aby obsah nemohl uzavřít <script> –
  * texty novinek píše redakce, ale i ta se občas splete.

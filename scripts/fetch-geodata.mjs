@@ -37,10 +37,7 @@ const PRECISION = 3;
 
 function roundCoords(coords) {
   if (typeof coords[0] === "number") {
-    return [
-      Number(coords[0].toFixed(PRECISION)),
-      Number(coords[1].toFixed(PRECISION)),
-    ];
+    return [Number(coords[0].toFixed(PRECISION)), Number(coords[1].toFixed(PRECISION))];
   }
   return coords.map(roundCoords);
 }
@@ -63,8 +60,7 @@ function slugify(value) {
 /** Rozloží MultiPolygon na jednotlivé polygony (vnější prstence). */
 function outerRings(geometry) {
   if (geometry.type === "Polygon") return [geometry.coordinates[0]];
-  if (geometry.type === "MultiPolygon")
-    return geometry.coordinates.map((polygon) => polygon[0]);
+  if (geometry.type === "MultiPolygon") return geometry.coordinates.map((polygon) => polygon[0]);
   return [];
 }
 
@@ -175,9 +171,7 @@ function applyUnPolicy(countries, disputed, rules) {
       from.geometry = fromMulti(
         dropSlivers(polygonClipping.difference(toMulti(from.geometry), toMulti(area))),
       );
-      to.geometry = fromMulti(
-        polygonClipping.union(toMulti(to.geometry), toMulti(area)),
-      );
+      to.geometry = fromMulti(polygonClipping.union(toMulti(to.geometry), toMulti(area)));
       noteByIso.set(rule.to, rule);
       // Když je cílem samotné území (Západní Sahara), nese si i svůj status
       // a jméno; u Krymu nebo Golan si je bere stát, který území přebírá.
@@ -226,9 +220,7 @@ function applyUnPolicy(countries, disputed, rules) {
       const host = byIso.get(rule.from);
       if (host) {
         host.geometry = fromMulti(
-          dropSlivers(
-            polygonClipping.difference(toMulti(host.geometry), toMulti(target.geometry)),
-          ),
+          dropSlivers(polygonClipping.difference(toMulti(host.geometry), toMulti(target.geometry))),
         );
         log.push(`  ${rule.source}: vyříznuto z ${rule.from}`);
       } else {
@@ -263,9 +255,7 @@ async function main() {
   if (!disputedRes.ok) throw new Error(`Sporné plochy vrátily ${disputedRes.status}`);
   const disputedRaw = await disputedRes.json();
 
-  const rules = JSON.parse(
-    await readFile(resolve(ROOT, "src/data/territories.json"), "utf8"),
-  );
+  const rules = JSON.parse(await readFile(resolve(ROOT, "src/data/territories.json"), "utf8"));
 
   process.stdout.write("Používám předpis OSN:\n");
   const policy = applyUnPolicy(raw.features, disputedRaw.features, rules);
@@ -288,9 +278,7 @@ async function main() {
     const labelLat = p.LABEL_Y ?? (bbox ? (bbox[1] + bbox[3]) / 2 : null);
     const status = policy.statusByIso.get(iso3) ?? null;
     const rule = policy.noteByIso.get(iso3);
-    const territoryNote = rule
-      ? { status: rule.status, note: rule.note, basis: rule.basis }
-      : null;
+    const territoryNote = rule ? { status: rule.status, note: rule.note, basis: rule.basis } : null;
 
     features.push({
       type: "Feature",

@@ -1,0 +1,15 @@
+.next
+.next-build
+.next-dev
+node_modules
+demo
+docs
+coverage
+test-results
+playwright-report
+public/data
+src/data/*.generated.json
+supabase/seed.sql
+supabase/.temp
+package-lock.json
+*.md

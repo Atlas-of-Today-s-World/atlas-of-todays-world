@@ -19,9 +19,7 @@ export default function NewsTabs({ newsItems }: { newsItems: NewsCard[] }) {
   );
   const [active, setActive] = useState<NewsCategory | null>(available[0] ?? null);
 
-  const visible = active
-    ? newsItems.filter((item) => item.category === active)
-    : newsItems;
+  const visible = active ? newsItems.filter((item) => item.category === active) : newsItems;
 
   return (
     <section className="bg-[var(--color-band)] px-6 py-9 text-white sm:px-8">
@@ -61,7 +59,7 @@ export default function NewsTabs({ newsItems }: { newsItems: NewsCard[] }) {
                 }}
               />
               <div className="p-3">
-                <h3 className="font-display text-[13.5px] font-bold leading-snug group-hover:text-[var(--color-accent)]">
+                <h3 className="font-display text-[13.5px] leading-snug font-bold group-hover:text-[var(--color-accent)]">
                   {item.title}
                 </h3>
                 <p className="mt-1 line-clamp-3 text-[11.5px] leading-snug text-[var(--color-ink-muted)]">

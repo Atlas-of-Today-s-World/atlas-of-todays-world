@@ -69,9 +69,7 @@ export default function AdminTabs({ tabs }: { tabs: AdminTab[] }) {
             >
               {tab.label}
               {typeof tab.count === "number" ? (
-                <span className="ml-1.5 text-[var(--color-ink-muted)]">
-                  {tab.count}
-                </span>
+                <span className="ml-1.5 text-[var(--color-ink-muted)]">{tab.count}</span>
               ) : null}
             </button>
           );

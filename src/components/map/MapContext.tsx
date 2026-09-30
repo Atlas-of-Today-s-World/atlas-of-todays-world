@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 
 export interface MapFocusState {
   /** [lon, lat] kam otočit globus. null = nechat, kde je. */
@@ -102,5 +95,3 @@ export function useMapState(): MapContextValue {
   if (!context) throw new Error("useMapState musí být uvnitř <MapProvider>");
   return context;
 }
-
-export { EMPTY_FOCUS };

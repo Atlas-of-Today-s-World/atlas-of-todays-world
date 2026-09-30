@@ -1,47 +1,20 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import matter from "gray-matter";
-import { marked } from "marked";
-import sanitizeHtml from "sanitize-html";
+import { markdownToSafeHtml } from "@/lib/security/sanitize";
 import { REGION_BY_SLUG, type Region } from "@/data/regions";
 import {
   NEWS_CATEGORIES,
   type CountryFrontmatter,
   type MetricCard,
-  type NewsCategory,
   type NewsFrontmatter,
   type RegionDossier,
 } from "@/lib/content-types";
 
 export * from "@/lib/content-types";
 
-/**
- * Markdown smí do stránky, ale ne jako libovolné HTML.
- *
- * Text píše redakce přes administraci, takže do něj může spadnout `<script>`
- * nebo `onclick` – buď omylem, nebo když se někdo do administrace dostane.
- * Povolujeme proto jen značky, které encyklopedické heslo potřebuje, a u odkazů
- * jen http(s) a kotvy.
- */
-function toSafeHtml(markdown: string): string {
-  return sanitizeHtml(marked.parse(markdown, { async: false }) as string, {
-    allowedTags: [
-      "h2", "h3", "h4", "p", "blockquote", "ul", "ol", "li", "strong", "em",
-      "a", "code", "pre", "hr", "br", "table", "thead", "tbody", "tr", "th",
-      "td", "figure", "figcaption", "img", "sup", "sub",
-    ],
-    allowedAttributes: {
-      a: ["href", "title"],
-      img: ["src", "alt", "title", "loading"],
-    },
-    allowedSchemes: ["http", "https", "mailto"],
-    transformTags: {
-      // Odkazy ven nesmí dostat přístup k našemu oknu.
-      a: sanitizeHtml.simpleTransform("a", { rel: "noreferrer noopener" }),
-      img: sanitizeHtml.simpleTransform("img", { loading: "lazy" }),
-    },
-  });
-}
+// Markdown z redakce prochází jedinou allowlistou (ARCHITEKTURA 8.3).
+const toSafeHtml = markdownToSafeHtml;
 
 const CONTENT_DIR = join(process.cwd(), "src", "content");
 const NEWS_DIR = join(CONTENT_DIR, "news");
@@ -79,15 +52,16 @@ export async function allNews(): Promise<NewsItem[]> {
         ...frontmatter,
         slug: file.replace(/\.md$/, ""),
         html: toSafeHtml(content),
-        plain: content.replace(/[#*_>`[\]()]/g, " ").replace(/\s+/g, " ").trim(),
+        plain: content
+          .replace(/[#*_>`[\]()]/g, " ")
+          .replace(/\s+/g, " ")
+          .trim(),
         regionRef: REGION_BY_SLUG[frontmatter.region] ?? null,
       } satisfies NewsItem;
     }),
   );
 
-  newsCache = newsItems.sort((a, b) =>
-    (b.published ?? "").localeCompare(a.published ?? ""),
-  );
+  newsCache = newsItems.sort((a, b) => (b.published ?? "").localeCompare(a.published ?? ""));
   return newsCache;
 }
 
@@ -106,19 +80,10 @@ export async function newsOfCountry(iso3: string): Promise<NewsItem[]> {
   return newsItems.filter((item) => item.countries?.includes(iso3));
 }
 
-/** Novinky přiřazené přímo k vlastnímu celku (pole `issue` ve frontmatteru). */
-export async function newsOfGlobalIssue(issueSlug: string): Promise<NewsItem[]> {
-  const newsItems = await allNews();
-  return newsItems.filter((item) => item.issue === issueSlug);
-}
-
 /** Redakční doplňky portrétu regionu; když soubor chybí, sekce se nevykreslí. */
 export async function regionDossier(slug: string): Promise<RegionDossier> {
   try {
-    const source = await readFile(
-      join(CONTENT_DIR, "regions", `${slug}.json`),
-      "utf8",
-    );
+    const source = await readFile(join(CONTENT_DIR, "regions", `${slug}.json`), "utf8");
     return withValidMetrics(JSON.parse(source) as RegionDossier);
   } catch {
     return {};
@@ -137,14 +102,9 @@ export interface CountryProfile extends CountryFrontmatter {
  * Když chybí, karta země použije větu složenou z importovaných dat – díky tomu
  * má profil i těch ~190 zemí, ke kterým redakce zatím nic nenapsala.
  */
-export async function countryProfile(
-  slug: string,
-): Promise<CountryProfile | null> {
+export async function countryProfile(slug: string): Promise<CountryProfile | null> {
   try {
-    const source = await readFile(
-      join(CONTENT_DIR, "countries", `${slug}.md`),
-      "utf8",
-    );
+    const source = await readFile(join(CONTENT_DIR, "countries", `${slug}.md`), "utf8");
     const { data, content } = matter(source);
     const frontmatter = withValidMetrics(data as CountryFrontmatter);
     return {
@@ -162,9 +122,7 @@ export async function countryProfile(
 export async function countryProfileSlugs(): Promise<string[]> {
   try {
     const files = await readdir(join(CONTENT_DIR, "countries"));
-    return files
-      .filter((name) => name.endsWith(".md"))
-      .map((name) => name.replace(/\.md$/, ""));
+    return files.filter((name) => name.endsWith(".md")).map((name) => name.replace(/\.md$/, ""));
   } catch {
     return [];
   }
@@ -179,11 +137,9 @@ function withValidMetrics<T extends { metrics?: MetricCard[] }>(value: T): T {
   return {
     ...value,
     metrics: value.metrics.filter(
-      (metric) =>
-        metric && metric.value?.trim() && metric.label?.trim() && metric.source?.trim(),
+      (metric) => metric && metric.value?.trim() && metric.label?.trim() && metric.source?.trim(),
     ),
   };
 }
 
 export { NEWS_CATEGORIES };
-export type { NewsCategory };

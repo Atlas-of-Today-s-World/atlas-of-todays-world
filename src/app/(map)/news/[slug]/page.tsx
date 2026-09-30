@@ -7,14 +7,9 @@ import { SectionLabel } from "@/components/atlas-ui";
 import { allNews, newsBySlug } from "@/lib/content";
 import { countryByIso3 } from "@/lib/countries";
 import { globalIssueBySlug } from "@/lib/global-issues";
-import {
-  absoluteUrl,
-  alternates,
-  breadcrumbJsonLd,
-  geoCoordinates,
-  geoMeta,
-  jsonLdHtml,
-} from "@/lib/seo";
+import { absoluteUrl, alternates, breadcrumbJsonLd, geoCoordinates, geoMeta } from "@/lib/seo";
+import { JsonLd } from "@/components/JsonLd";
+import { SafeHtml } from "@/components/atlas/SafeHtml";
 
 // true, aby se novinka přidaná v adminu objevila hned, bez nového buildu.
 export const dynamicParams = true;
@@ -47,9 +42,7 @@ export async function generateMetadata({
       authors: item.author ? [item.author] : undefined,
       section: item.category,
     },
-    keywords: [item.title, item.category, item.regionRef?.name ?? ""].filter(
-      Boolean,
-    ),
+    keywords: [item.title, item.category, item.regionRef?.name ?? ""].filter(Boolean),
     other: item.regionRef
       ? geoMeta({
           lat: item.regionRef.center[1],
@@ -60,11 +53,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function NewsPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function NewsPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const item = await newsBySlug(slug);
   if (!item) notFound();
@@ -96,10 +85,10 @@ export default async function NewsPage({
             />
           ) : null}
 
-          <div className="px-6 pb-12 pt-7 sm:px-10">
+          <div className="px-6 pt-7 pb-12 sm:px-10">
             <SectionLabel>{item.category}</SectionLabel>
 
-            <h1 className="mt-4 font-display text-[30px] font-bold leading-tight text-[var(--color-ink)]">
+            <h1 className="font-display mt-4 text-[30px] leading-tight font-bold text-[var(--color-ink)]">
               {item.title}
             </h1>
 
@@ -137,65 +126,60 @@ export default async function NewsPage({
               {item.readingMinutes ? <span>{item.readingMinutes} min read</span> : null}
             </p>
 
-            <div
+            <SafeHtml
               className="prose-atlas mt-7 border-t border-[var(--color-line)] pt-6"
-              dangerouslySetInnerHTML={{ __html: item.html }}
+              html={item.html}
             />
           </div>
         </article>
       </ContentRail>
 
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: jsonLdHtml([
-            {
-              "@context": "https://schema.org",
-              "@type": "Article",
-              headline: item.title,
-              description: item.summary,
-              image: item.hero ? [item.hero] : undefined,
-              articleSection: item.category,
-              datePublished: item.published,
-              dateModified: item.updated ?? item.published,
-              wordCount: item.plain.split(/\s+/).length,
-              inLanguage: "en",
-              isAccessibleForFree: true,
-              author: item.author
-                ? { "@type": "Person", name: item.author }
-                : { "@type": "Organization", name: "Atlas of Today's World" },
-              publisher: {
-                "@type": "Organization",
-                name: "Atlas of Today's World",
-                url: absoluteUrl("/"),
-              },
-              mainEntityOfPage: absoluteUrl(`/news/${item.slug}`),
-              // Kterých míst se novinka týká – tohle roboti čtou pro geo kontext.
-              contentLocation: region
-                ? {
-                    "@type": "Place",
-                    name: region.name,
-                    url: absoluteUrl(`/region/${region.slug}`),
-                    geo: geoCoordinates(region.center[1], region.center[0]),
-                  }
-                : undefined,
-              about: countriesCovered.map((country) => ({
-                "@type": "Country",
-                name: country.name,
-                url: absoluteUrl(`/country/${country.slug}`),
-              })),
+      <JsonLd
+        data={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: item.title,
+            description: item.summary,
+            image: item.hero ? [item.hero] : undefined,
+            articleSection: item.category,
+            datePublished: item.published,
+            dateModified: item.updated ?? item.published,
+            wordCount: item.plain.split(/\s+/).length,
+            inLanguage: "en",
+            isAccessibleForFree: true,
+            author: item.author
+              ? { "@type": "Person", name: item.author }
+              : { "@type": "Organization", name: "Atlas of Today's World" },
+            publisher: {
+              "@type": "Organization",
+              name: "Atlas of Today's World",
+              url: absoluteUrl("/"),
             },
-            breadcrumbJsonLd([
-              { name: "Atlas of Today's World", path: "/" },
-              { name: "News", path: "/news" },
-              ...(region ? [{ name: region.name, path: `/region/${region.slug}` }] : []),
-              ...(issue
-                ? [{ name: issue.name, path: `/global-issue/${issue.slug}` }]
-                : []),
-              { name: item.title, path: `/news/${item.slug}` },
-            ]),
+            mainEntityOfPage: absoluteUrl(`/news/${item.slug}`),
+            // Kterých míst se novinka týká – tohle roboti čtou pro geo kontext.
+            contentLocation: region
+              ? {
+                  "@type": "Place",
+                  name: region.name,
+                  url: absoluteUrl(`/region/${region.slug}`),
+                  geo: geoCoordinates(region.center[1], region.center[0]),
+                }
+              : undefined,
+            about: countriesCovered.map((country) => ({
+              "@type": "Country",
+              name: country.name,
+              url: absoluteUrl(`/country/${country.slug}`),
+            })),
+          },
+          breadcrumbJsonLd([
+            { name: "Atlas of Today's World", path: "/" },
+            { name: "News", path: "/news" },
+            ...(region ? [{ name: region.name, path: `/region/${region.slug}` }] : []),
+            ...(issue ? [{ name: issue.name, path: `/global-issue/${issue.slug}` }] : []),
+            { name: item.title, path: `/news/${item.slug}` },
           ]),
-        }}
+        ]}
       />
     </>
   );

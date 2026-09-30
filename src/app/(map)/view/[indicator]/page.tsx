@@ -7,7 +7,8 @@ import MapViewSetter from "@/components/map/MapViewSetter";
 import { SectionLabel } from "@/components/atlas-ui";
 import { INDICATORS, formatValue, getIndicator } from "@/lib/indicators";
 import { countryByIso3 } from "@/lib/countries";
-import { absoluteUrl, alternates, breadcrumbJsonLd, jsonLdHtml } from "@/lib/seo";
+import { absoluteUrl, alternates, breadcrumbJsonLd } from "@/lib/seo";
+import { JsonLd } from "@/components/JsonLd";
 
 export const dynamicParams = false;
 
@@ -44,9 +45,7 @@ export default async function IndicatorViewPage({
   const ranked = Object.entries(indicator.values)
     .map(([iso3, item]) => ({ country: countryByIso3(iso3), ...item }))
     .filter((row) => row.country !== null)
-    .sort((a, b) =>
-      indicator.higherIsBetter ? b.value - a.value : a.value - b.value,
-    );
+    .sort((a, b) => (indicator.higherIsBetter ? b.value - a.value : a.value - b.value));
 
   return (
     <>
@@ -54,14 +53,13 @@ export default async function IndicatorViewPage({
       <MapViewSetter view={indicator.id} />
 
       <ContentRail>
-        <div className="px-6 pb-10 pt-6">
+        <div className="px-6 pt-6 pb-10">
           <SectionLabel>Data layer</SectionLabel>
-          <h1 className="mt-4 font-display text-[26px] font-bold leading-tight text-[var(--color-ink)]">
+          <h1 className="font-display mt-4 text-[26px] leading-tight font-bold text-[var(--color-ink)]">
             {indicator.label}
           </h1>
           <p className="mt-2 text-[12.5px] leading-relaxed text-[var(--color-ink-muted)]">
-            {indicator.countryCount} countries · latest data {indicator.latestYear} ·
-            source{" "}
+            {indicator.countryCount} countries · latest data {indicator.latestYear} · source{" "}
             <a
               href={indicator.sourceUrl}
               target="_blank"
@@ -75,7 +73,7 @@ export default async function IndicatorViewPage({
           <ol className="mt-6 divide-y divide-[var(--color-line)]">
             {ranked.map((row, index) => (
               <li key={row.country!.iso3} className="flex items-center gap-3 py-2">
-                <span className="w-7 shrink-0 text-[11.5px] tabular-nums text-[var(--color-ink-muted)]">
+                <span className="w-7 shrink-0 text-[11.5px] text-[var(--color-ink-muted)] tabular-nums">
                   {indicator.type === "categorical" ? "·" : index + 1}
                 </span>
                 <Link
@@ -84,7 +82,7 @@ export default async function IndicatorViewPage({
                 >
                   {row.country!.name}
                 </Link>
-                <span className="text-[13px] font-medium tabular-nums text-[var(--color-ink)]">
+                <span className="text-[13px] font-medium text-[var(--color-ink)] tabular-nums">
                   {formatValue(indicator, row.value)}
                 </span>
               </li>
@@ -96,7 +94,10 @@ export default async function IndicatorViewPage({
             {INDICATORS.filter((item) => item.id !== indicator.id).map((item, i) => (
               <span key={item.id}>
                 {i > 0 ? ", " : ""}
-                <Link href={`/view/${item.id}`} className="text-[var(--color-link)] hover:underline">
+                <Link
+                  href={`/view/${item.id}`}
+                  className="text-[var(--color-link)] hover:underline"
+                >
                   {item.shortLabel}
                 </Link>
               </span>
@@ -105,35 +106,32 @@ export default async function IndicatorViewPage({
         </div>
       </ContentRail>
 
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: jsonLdHtml([
-            {
-              "@context": "https://schema.org",
-              "@type": "Dataset",
-              name: `${indicator.label} by country`,
-              description: `${indicator.label}, latest available value per country (${indicator.latestYear}). Covers ${indicator.countryCount} countries.`,
-              url: absoluteUrl(`/view/${indicator.id}`),
-              creator: { "@type": "Organization", name: indicator.source },
-              isBasedOn: indicator.sourceUrl,
-              temporalCoverage: String(indicator.latestYear ?? ""),
-              // Dataset pokrývá celou planetu – ať je to pro roboty explicitní.
-              spatialCoverage: { "@type": "Place", name: "World" },
-              variableMeasured: {
-                "@type": "PropertyValue",
-                name: indicator.label,
-                unitText: indicator.unit.trim() || undefined,
-              },
-              license: "https://creativecommons.org/licenses/by/4.0/",
-              isAccessibleForFree: true,
+      <JsonLd
+        data={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Dataset",
+            name: `${indicator.label} by country`,
+            description: `${indicator.label}, latest available value per country (${indicator.latestYear}). Covers ${indicator.countryCount} countries.`,
+            url: absoluteUrl(`/view/${indicator.id}`),
+            creator: { "@type": "Organization", name: indicator.source },
+            isBasedOn: indicator.sourceUrl,
+            temporalCoverage: String(indicator.latestYear ?? ""),
+            // Dataset pokrývá celou planetu – ať je to pro roboty explicitní.
+            spatialCoverage: { "@type": "Place", name: "World" },
+            variableMeasured: {
+              "@type": "PropertyValue",
+              name: indicator.label,
+              unitText: indicator.unit.trim() || undefined,
             },
-            breadcrumbJsonLd([
-              { name: "Atlas of Today's World", path: "/" },
-              { name: indicator.label, path: `/view/${indicator.id}` },
-            ]),
+            license: "https://creativecommons.org/licenses/by/4.0/",
+            isAccessibleForFree: true,
+          },
+          breadcrumbJsonLd([
+            { name: "Atlas of Today's World", path: "/" },
+            { name: indicator.label, path: `/view/${indicator.id}` },
           ]),
-        }}
+        ]}
       />
     </>
   );

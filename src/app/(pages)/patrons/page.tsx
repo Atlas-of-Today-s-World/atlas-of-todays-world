@@ -29,23 +29,17 @@ export default function SupportPage() {
         Together We Can Build a New Encyclopedia
       </h1>
       <p className="mt-4 text-[14px] leading-relaxed text-[var(--color-ink-soft)]">
-        By joining our membership community, you support Atlas development and
-        gradually secure its independent funding. And you can directly
-        participate in the development.
+        By joining our membership community, you support Atlas development and gradually secure its
+        independent funding. And you can directly participate in the development.
       </p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         {CARDS.map((card, index) => (
-          <div
-            key={card.title}
-            className="rounded-xl border border-[var(--color-line)] p-5"
-          >
+          <div key={card.title} className="rounded-xl border border-[var(--color-line)] p-5">
             <span className="flex h-7 w-7 items-center justify-center rounded-full border border-[var(--color-line)] text-[12px] text-[var(--color-ink-muted)]">
               {index + 1}
             </span>
-            <h2 className="mt-3 font-display text-[15px] font-bold">
-              {card.title}
-            </h2>
+            <h2 className="font-display mt-3 text-[15px] font-bold">{card.title}</h2>
             <p className="mt-2 text-[12.5px] leading-relaxed text-[var(--color-ink-muted)]">
               {card.text}
             </p>

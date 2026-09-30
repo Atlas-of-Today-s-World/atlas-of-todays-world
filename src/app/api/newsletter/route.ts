@@ -29,13 +29,9 @@ function tooMany(ip: string): boolean {
 }
 
 export async function POST(request: Request) {
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   if (tooMany(ip)) {
-    return NextResponse.json(
-      { error: "Too many attempts. Try again later." },
-      { status: 429 },
-    );
+    return NextResponse.json({ error: "Too many attempts. Try again later." }, { status: 429 });
   }
 
   let body: Record<string, unknown>;
@@ -50,25 +46,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, message: "Thanks." });
   }
 
-  const email = String(body.email ?? "").trim().toLowerCase();
+  const email = String(body.email ?? "")
+    .trim()
+    .toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
     return NextResponse.json({ error: "That address looks wrong." }, { status: 400 });
   }
   if (body.consent !== true) {
-    return NextResponse.json(
-      { error: "Please tick the consent box." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Please tick the consent box." }, { status: 400 });
   }
 
   const key = process.env.MAILCHIMP_API_KEY;
   const list = process.env.MAILCHIMP_LIST_ID;
   if (!key || !list) {
     // Prototyp bez nastaveného Mailchimpu: řekneme to rovnou místo tiché chyby.
-    return NextResponse.json(
-      { error: "The newsletter is not connected yet." },
-      { status: 503 },
-    );
+    return NextResponse.json({ error: "The newsletter is not connected yet." }, { status: 503 });
   }
 
   const datacenter = key.split("-")[1];
@@ -90,10 +82,7 @@ export async function POST(request: Request) {
     if (detail.title === "Member Exists") {
       return NextResponse.json({ ok: true, message: "You are already on the list." });
     }
-    return NextResponse.json(
-      { error: "Sign-up failed. Try again later." },
-      { status: 502 },
-    );
+    return NextResponse.json({ error: "Sign-up failed. Try again later." }, { status: 502 });
   }
 
   return NextResponse.json({

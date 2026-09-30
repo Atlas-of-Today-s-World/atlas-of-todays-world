@@ -47,7 +47,7 @@ export default function CountryCard({
   const metrics = profile?.metrics ?? [];
 
   return (
-    <article className="px-6 pb-10 pt-6">
+    <article className="px-6 pt-6 pb-10">
       {region ? (
         <nav aria-label="Breadcrumb" className="text-[12px] text-[var(--color-ink-muted)]">
           <Link
@@ -63,30 +63,28 @@ export default function CountryCard({
         </nav>
       ) : null}
 
-      <h1 className="mt-2 font-display text-[26px] font-bold leading-tight text-[var(--color-ink)]">
+      <h1 className="font-display mt-2 text-[26px] leading-tight font-bold text-[var(--color-ink)]">
         {country.name}
       </h1>
 
       {profile?.tagline ? (
-        <p className="mt-1.5 text-[12.5px] font-medium leading-snug text-[var(--color-link)]">
+        <p className="mt-1.5 text-[12.5px] leading-snug font-medium text-[var(--color-link)]">
           {profile.tagline}
         </p>
       ) : null}
 
-      <p className="mt-3 text-[13px] leading-relaxed text-[var(--color-ink-soft)]">
-        {description}
-      </p>
+      <p className="mt-3 text-[13px] leading-relaxed text-[var(--color-ink-soft)]">{description}</p>
 
       <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-6">
         {highlights.map((stat) => (
           <div key={stat.id}>
             <div className="flex items-center gap-2 text-[var(--color-ink)]">
               <StatIcon id={stat.id} />
-              <span className="font-display text-[22px] font-semibold leading-none">
+              <span className="font-display text-[22px] leading-none font-semibold">
                 {stat.value}
               </span>
             </div>
-            <dt className="mt-1.5 text-[13px] font-medium leading-snug text-[var(--color-ink)]">
+            <dt className="mt-1.5 text-[13px] leading-snug font-medium text-[var(--color-ink)]">
               {stat.label}
             </dt>
             <dd className="mt-1 text-[11px] leading-snug text-[var(--color-ink-muted)]">
@@ -108,7 +106,7 @@ export default function CountryCard({
 
       {metrics.length ? (
         <section className="mt-7 border-t border-[var(--color-line)] pt-5">
-          <h2 className="text-[11px] font-medium uppercase tracking-[0.1em] text-[var(--color-ink-muted)]">
+          <h2 className="text-[11px] font-medium tracking-[0.1em] text-[var(--color-ink-muted)] uppercase">
             Where the country stands
           </h2>
           <MetricCards metrics={metrics} className="mt-4" />
@@ -129,10 +127,10 @@ export default function CountryCard({
             aria-label={`${region.name} seen from orbit`}
           />
           <span className="block p-4">
-            <span className="text-[10.5px] uppercase tracking-[0.1em] text-[var(--color-ink-muted)]">
+            <span className="text-[10.5px] tracking-[0.1em] text-[var(--color-ink-muted)] uppercase">
               Region
             </span>
-            <span className="mt-1 block font-display text-[16px] font-bold text-[var(--color-ink)] group-hover:text-[var(--color-accent)]">
+            <span className="font-display mt-1 block text-[16px] font-bold text-[var(--color-ink)] group-hover:text-[var(--color-accent)]">
               {region.name}
             </span>
             <span className="mt-1.5 block text-[12px] leading-relaxed text-[var(--color-ink-muted)]">
@@ -180,9 +178,7 @@ export default function CountryCard({
             {TERRITORY_STATUS_LABEL[country.territoryNote.status]}
           </span>{" "}
           {country.territoryNote.note}{" "}
-          <span className="text-[var(--color-ink-muted)]">
-            ({country.territoryNote.basis})
-          </span>
+          <span className="text-[var(--color-ink-muted)]">({country.territoryNote.basis})</span>
         </p>
       ) : null}
 
@@ -198,7 +194,7 @@ export default function CountryCard({
                   href={`/news/${item.slug}`}
                   className="group block rounded-xl border border-[var(--color-line)] p-3 transition hover:border-[var(--color-accent)]"
                 >
-                  <span className="text-[10.5px] uppercase tracking-wide text-[var(--color-ink-muted)]">
+                  <span className="text-[10.5px] tracking-wide text-[var(--color-ink-muted)] uppercase">
                     {item.category}
                   </span>
                   <span className="mt-0.5 block text-[13.5px] font-medium text-[var(--color-ink)] group-hover:text-[var(--color-accent)]">

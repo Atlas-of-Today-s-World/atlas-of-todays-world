@@ -26,7 +26,7 @@ const FILE = join(process.cwd(), "src", "content", "global-issues.json");
 
 let cache: GlobalIssue[] | null = null;
 
-export function invalidateGlobalIssues() {
+function invalidateGlobalIssues() {
   cache = null;
 }
 
@@ -41,9 +41,7 @@ export async function allGlobalIssues(): Promise<GlobalIssue[]> {
   return cache;
 }
 
-export async function globalIssueBySlug(
-  slug: string,
-): Promise<GlobalIssue | null> {
+export async function globalIssueBySlug(slug: string): Promise<GlobalIssue | null> {
   const all = await allGlobalIssues();
   return all.find((region) => region.slug === slug) ?? null;
 }

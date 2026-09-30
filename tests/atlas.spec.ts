@@ -65,15 +65,11 @@ test.describe("portrét regionu", () => {
     await expect(page.getByText(/news items? published/)).toHaveCount(0);
   });
 
-  test("nenapsané sekce jsou šedivé, nekliknutelné a zvou k podpoře", async ({
-    page,
-  }) => {
+  test("nenapsané sekce jsou šedivé, nekliknutelné a zvou k podpoře", async ({ page }) => {
     await page.goto("/region/east-asia");
 
     await expect(page.getByText("Not written yet").first()).toBeVisible();
-    await expect(
-      page.getByRole("link", { name: /Help Us Complete It/ }).first(),
-    ).toBeVisible();
+    await expect(page.getByRole("link", { name: /Help Us Complete It/ }).first()).toBeVisible();
 
     // Plánovaná hesla nesmí vést nikam.
     const planned = page.locator('[aria-disabled="true"]').first();
@@ -88,9 +84,7 @@ test.describe("global issues", () => {
     await expect(page.getByRole("radio", { name: "Global Issues" })).toBeVisible();
 
     await page.goto("/global-issue/russia-ukraine-war");
-    await expect(
-      page.getByRole("heading", { name: "Russia–Ukraine War" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Russia–Ukraine War" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Ukraine" }).first()).toBeVisible();
   });
 });

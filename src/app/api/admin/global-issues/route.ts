@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import {
-  allGlobalIssues,
-  saveGlobalIssues,
-  type GlobalIssue,
-} from "@/lib/global-issues";
+import { allGlobalIssues, saveGlobalIssues, type GlobalIssue } from "@/lib/global-issues";
 
 export const dynamic = "force-dynamic";
 
@@ -25,9 +21,7 @@ function slugify(value: string): string {
 }
 
 /** Střed celku = průměr souřadnic členských zemí. */
-function centerOf(
-  countries: { lon: number | null; lat: number | null }[],
-): [number, number] {
+function centerOf(countries: { lon: number | null; lat: number | null }[]): [number, number] {
   const points = countries.filter(
     (c): c is { lon: number; lat: number } => c.lon !== null && c.lat !== null,
   );
@@ -64,10 +58,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Doplň název celku." }, { status: 400 });
   }
   if (countries.length < 2) {
-    return NextResponse.json(
-      { error: "Vyber aspoň dvě země." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Vyber aspoň dvě země." }, { status: 400 });
   }
 
   const existing = await allGlobalIssues();
@@ -87,9 +78,7 @@ export async function POST(request: Request) {
     subtitle: String(body.subtitle ?? "").trim() || "Custom grouping",
     summary: String(body.summary ?? "").trim(),
     fill: /^#[0-9a-f]{6}$/i.test(String(body.fill)) ? String(body.fill) : "#A8C8E8",
-    stroke: /^#[0-9a-f]{6}$/i.test(String(body.stroke))
-      ? String(body.stroke)
-      : "#3E7AA8",
+    stroke: /^#[0-9a-f]{6}$/i.test(String(body.stroke)) ? String(body.stroke) : "#3E7AA8",
     center: centerOf(points),
     zoom: 2.6,
     countries,

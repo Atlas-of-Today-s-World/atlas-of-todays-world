@@ -13,13 +13,15 @@ import { defineConfig, devices } from "@playwright/test";
  */
 export default defineConfig({
   testDir: "./tests",
+  // tests/unit patří Vitestu.
+  testMatch: "**/*.spec.ts",
   timeout: 45_000,
   expect: { timeout: 10_000 },
   // Každý test si otevírá globus na WebGL; víc běhů najednou slabší stroj
   // nezvládá a testy pak padají na čekání, ne na chybu.
   fullyParallel: false,
   workers: process.env.CI ? 2 : 1,
-  reporter: [["list"]],
+  reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : [["list"]],
   use: {
     baseURL: process.env.BASE_URL ?? "http://localhost:3000",
     trace: "retain-on-failure",

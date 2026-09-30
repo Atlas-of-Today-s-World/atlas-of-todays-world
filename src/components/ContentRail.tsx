@@ -47,7 +47,7 @@ export default function ContentRail({
       ref={panel}
       tabIndex={-1}
       aria-label="Content panel"
-      className={`pointer-events-auto absolute inset-x-0 bottom-0 z-20 outline-none max-h-[72dvh] overflow-hidden rounded-t-3xl bg-white text-[var(--color-ink)] shadow-[0_-8px_40px_rgba(0,0,0,0.45)] transition-transform duration-300 md:inset-x-auto md:inset-y-0 md:left-auto md:right-0 md:max-h-none md:rounded-none md:shadow-[0_0_60px_rgba(0,0,0,0.45)] ${
+      className={`pointer-events-auto absolute inset-x-0 bottom-0 z-20 max-h-[72dvh] overflow-hidden rounded-t-3xl bg-white text-[var(--color-ink)] shadow-[0_-8px_40px_rgba(0,0,0,0.45)] transition-transform duration-300 outline-none md:inset-x-auto md:inset-y-0 md:right-0 md:left-auto md:max-h-none md:rounded-none md:shadow-[0_0_60px_rgba(0,0,0,0.45)] ${
         wide ? "md:w-[min(52vw,46rem)]" : "md:w-[min(38vw,27rem)]"
       } ${collapsed ? "md:translate-x-full" : "md:translate-x-0"}`}
     >
@@ -61,7 +61,7 @@ export default function ContentRail({
         type="button"
         aria-label={collapsed ? "Show panel" : "Hide panel"}
         onClick={() => setCollapsed((value) => !value)}
-        className="absolute -left-7 top-1/2 hidden h-14 w-7 -translate-y-1/2 items-center justify-center rounded-l-lg bg-[#1b2233] text-white/80 transition hover:bg-[#283148] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] md:flex"
+        className="absolute top-1/2 -left-7 hidden h-14 w-7 -translate-y-1/2 items-center justify-center rounded-l-lg bg-[#1b2233] text-white/80 transition hover:bg-[#283148] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] md:flex"
       >
         <span aria-hidden>{collapsed ? "‹" : "›"}</span>
       </button>
@@ -70,7 +70,7 @@ export default function ContentRail({
         type="button"
         aria-label="Close"
         onClick={() => router.push(closeHref)}
-        className="absolute right-3 top-2 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/85 text-[var(--color-ink-soft)] backdrop-blur transition hover:bg-[var(--color-line)] hover:text-[var(--color-ink)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] active:scale-95 md:top-3"
+        className="absolute top-2 right-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/85 text-[var(--color-ink-soft)] backdrop-blur transition hover:bg-[var(--color-line)] hover:text-[var(--color-ink)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] active:scale-95 md:top-3"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
           <path

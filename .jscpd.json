@@ -1,0 +1,11 @@
+{
+  "path": ["src"],
+  "ignore": ["**/*.generated.json", "**/*.test.ts", "src/content/**", "src/data/**"],
+  "format": ["typescript", "tsx", "css"],
+  "minLines": 10,
+  "minTokens": 70,
+  "threshold": 1,
+  "reporters": ["consoleFull"],
+  "absolute": false,
+  "gitignore": true
+}

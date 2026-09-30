@@ -7,13 +7,7 @@ import { useState } from "react";
  * porovná s `ADMIN_TOKEN` a nastaví httpOnly cookie – v prohlížeči se nikde
  * neukládá a JavaScript se k cookie nedostane.
  */
-export default function LoginForm({
-  next,
-  error,
-}: {
-  next: string;
-  error?: string;
-}) {
+export default function LoginForm({ next, error }: { next: string; error?: string }) {
   const [message, setMessage] = useState(error ?? "");
   const [busy, setBusy] = useState(false);
 

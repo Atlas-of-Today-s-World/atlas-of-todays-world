@@ -3,7 +3,8 @@ import HomeFocus from "@/components/map/HomeFocus";
 import { REGIONS } from "@/data/regions";
 import { indexableCountries } from "@/lib/countries";
 import { INDICATORS } from "@/lib/indicators";
-import { absoluteUrl, alternates, jsonLdHtml } from "@/lib/seo";
+import { absoluteUrl, alternates } from "@/lib/seo";
+import { JsonLd } from "@/components/JsonLd";
 
 export const metadata: Metadata = {
   // `absolute` obejde šablonu "%s — Atlas of Today's World" z root layoutu,
@@ -103,10 +104,9 @@ export default function HomePage() {
       <div className="sr-only">
         <h1>Atlas of Today&rsquo;s World</h1>
         <p>
-          An interactive encyclopedia of the present. Explore the world on a 3D
-          satellite globe, switch between data layers such as the Human
-          Development Index, political regime or corruption perceptions, and open
-          the profile of any region or country.
+          An interactive encyclopedia of the present. Explore the world on a 3D satellite globe,
+          switch between data layers such as the Human Development Index, political regime or
+          corruption perceptions, and open the profile of any region or country.
         </p>
         <h2>World regions</h2>
         <ul>
@@ -126,10 +126,7 @@ export default function HomePage() {
         </ul>
       </div>
 
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLdHtml(jsonLd) }}
-      />
+      <JsonLd data={jsonLd} />
     </>
   );
 }

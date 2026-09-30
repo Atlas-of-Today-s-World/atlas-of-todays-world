@@ -48,10 +48,7 @@ export async function POST(request: Request) {
 
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   if (tooMany(ip)) {
-    return NextResponse.json(
-      { error: "Příliš mnoho pokusů. Zkus to za chvíli." },
-      { status: 429 },
-    );
+    return NextResponse.json({ error: "Příliš mnoho pokusů. Zkus to za chvíli." }, { status: 429 });
   }
 
   let body: { token?: unknown };

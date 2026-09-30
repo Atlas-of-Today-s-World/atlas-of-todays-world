@@ -31,9 +31,7 @@ function assert(condition, message) {
 
 async function get(path, options = {}) {
   const response = await fetch(BASE + path, { redirect: "manual", ...options });
-  const body = response.headers
-    .get("content-type")
-    ?.includes("application/json")
+  const body = response.headers.get("content-type")?.includes("application/json")
     ? JSON.stringify(await response.json())
     : await response.text();
   return { status: response.status, headers: response.headers, body };
@@ -59,9 +57,7 @@ function visible(html) {
 /** Vytáhne ze stránky všechny bloky strukturovaných dat. */
 function jsonLd(html) {
   const blocks = [
-    ...html.matchAll(
-      /<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g,
-    ),
+    ...html.matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g),
   ];
   return blocks.flatMap((block) => {
     const parsed = JSON.parse(block[1].replace(/\\u003c/g, "<"));
@@ -86,14 +82,8 @@ async function main() {
     assert(status === 200, `status ${status}`);
     const text = visible(body);
     assert(text.includes("Key indicators"), "chybí sekce Key indicators");
-    assert(
-      !text.includes("A Comprehensive Portrait"),
-      "zůstal štítek portrétu, který měl zmizet",
-    );
-    assert(
-      !/\d+ news items? published/.test(text),
-      "zůstalo počítadlo novinek, které mělo zmizet",
-    );
+    assert(!text.includes("A Comprehensive Portrait"), "zůstal štítek portrétu, který měl zmizet");
+    assert(!/\d+ news items? published/.test(text), "zůstalo počítadlo novinek, které mělo zmizet");
   });
 
   await check("nenapsané sekce mají výzvu k podpoře", async () => {
@@ -124,15 +114,9 @@ async function main() {
   process.stdout.write("\nPanel země\n");
   await check("drobečková navigace do regionu", async () => {
     const text = visible((await get("/country/ukraine")).body);
-    assert(
-      text.includes("Eastern Europe & Central Asia"),
-      "chybí region v drobečkové navigaci",
-    );
+    assert(text.includes("Eastern Europe & Central Asia"), "chybí region v drobečkové navigaci");
     assert(text.includes("Explore the region"), "chybí karta regionu");
-    assert(
-      !/\d+ news items? published/.test(text),
-      "zůstalo počítadlo novinek",
-    );
+    assert(!/\d+ news items? published/.test(text), "zůstalo počítadlo novinek");
   });
 
   await check("Kosovo má profil i data", async () => {
@@ -147,10 +131,7 @@ async function main() {
   await check("Západní Sahara je samostatná", async () => {
     const { status, body } = await get("/country/western-sahara");
     assert(status === 200, `status ${status}`);
-    assert(
-      visible(body).includes("Non-Self-Governing"),
-      "chybí poznámka o nesamosprávném území",
-    );
+    assert(visible(body).includes("Non-Self-Governing"), "chybí poznámka o nesamosprávném území");
   });
 
   process.stdout.write("\nGlobal Issues\n");
@@ -221,10 +202,7 @@ async function main() {
     const { status } = await get("/admin");
     const locked = status === 307 || status === 404;
     const open = status === 200 && !process.env.ADMIN_TOKEN;
-    assert(
-      locked || open,
-      `s nastaveným ADMIN_TOKEN čekám přesměrování, dostal jsem ${status}`,
-    );
+    assert(locked || open, `s nastaveným ADMIN_TOKEN čekám přesměrování, dostal jsem ${status}`);
   });
 
   await check("zápis do obsahu chce přihlášení", async () => {
@@ -238,9 +216,7 @@ async function main() {
     assert(guarded || openDev, `nečekaný status ${status}`);
   });
 
-  process.stdout.write(
-    `\n${passed} v pořádku, ${failures.length} chyb\n`,
-  );
+  process.stdout.write(`\n${passed} v pořádku, ${failures.length} chyb\n`);
   if (failures.length) process.exit(1);
 }
 

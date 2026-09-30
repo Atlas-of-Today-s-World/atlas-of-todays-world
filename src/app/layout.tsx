@@ -14,8 +14,7 @@ const manrope = Manrope({
   display: "swap",
 });
 
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://atlasoftodaysworld.com";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://atlasoftodaysworld.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -56,9 +55,7 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${inter.variable} ${manrope.variable}`}>
       <body

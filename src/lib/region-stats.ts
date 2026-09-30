@@ -53,7 +53,7 @@ function mostCommon(values: number[]): number {
 }
 
 /** Ukazatele spočítané nad libovolnou skupinou zemí. */
-export function statsForCountries(countries: Country[]): RegionStat[] {
+function statsForCountries(countries: Country[]): RegionStat[] {
   const out: RegionStat[] = [];
 
   for (const id of CARD_INDICATORS) {
@@ -75,9 +75,7 @@ export function statsForCountries(countries: Country[]): RegionStat[] {
     const raw =
       indicator.type === "categorical"
         ? mostCommon(rows.map((row) => row.stat.raw))
-        : weightedMean(
-            rows.map((row) => ({ value: row.stat.raw, weight: row.weight })),
-          );
+        : weightedMean(rows.map((row) => ({ value: row.stat.raw, weight: row.weight })));
 
     out.push({
       id,

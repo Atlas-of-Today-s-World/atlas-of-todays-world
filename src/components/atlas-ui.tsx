@@ -1,18 +1,9 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 import type { MetricCard } from "@/lib/content-types";
 
-export function TaglinePill({ children }: { children: ReactNode }) {
-  return (
-    <span className="inline-block rounded-full border border-[var(--color-line)] px-3.5 py-1.5 text-[11.5px] text-[var(--color-ink-muted)]">
-      {children}
-    </span>
-  );
-}
-
 export function SectionLabel({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-block rounded-full bg-[#1b2233] px-3 py-1 text-[10.5px] font-medium uppercase tracking-[0.12em] text-white/85">
+    <span className="inline-block rounded-full bg-[#1b2233] px-3 py-1 text-[10.5px] font-medium tracking-[0.12em] text-white/85 uppercase">
       {children}
     </span>
   );
@@ -27,41 +18,6 @@ export function NewsBadge({ count }: { count: number }) {
   );
 }
 
-export function PrimaryButton({
-  href,
-  children,
-}: {
-  href: string;
-  children: ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className="inline-flex items-center justify-center rounded-full bg-[var(--color-accent)] px-6 py-2.5 text-[13px] font-medium text-white transition hover:bg-[var(--color-accent-strong)]"
-    >
-      {children}
-    </Link>
-  );
-}
-
-export function GhostButton({
-  href,
-  children,
-}: {
-  href: string;
-  children: ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className="inline-flex items-center justify-center rounded-full border border-[var(--color-line)] px-5 py-2.5 text-[13px] font-medium text-[var(--color-ink)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
-    >
-      {children}
-    </Link>
-  );
-}
-
-/** Ikony k datovým ukazatelům na kartě země (Figma: outline, 1.6px). */
 /**
  * Ručně zadaný ukazatel na kartě – stejný tvar u země i u regionu.
  *
@@ -81,16 +37,14 @@ export function MetricCards({
     <dl className={`grid grid-cols-2 gap-x-5 gap-y-6 ${className}`}>
       {metrics.map((metric) => (
         <div key={`${metric.label}-${metric.value}`}>
-          <span className="block font-display text-[21px] font-semibold leading-none text-[var(--color-ink)]">
+          <span className="font-display block text-[21px] leading-none font-semibold text-[var(--color-ink)]">
             {metric.value}
           </span>
-          <dt className="mt-2 text-[12.5px] font-medium leading-snug text-[var(--color-ink)]">
+          <dt className="mt-2 text-[12.5px] leading-snug font-medium text-[var(--color-ink)]">
             {metric.label}
           </dt>
           <dd className="mt-1 text-[11px] leading-relaxed text-[var(--color-ink-muted)]">
-            {metric.description ? (
-              <span className="block">{metric.description}</span>
-            ) : null}
+            {metric.description ? <span className="block">{metric.description}</span> : null}
             <span className="mt-0.5 block">
               Source:{" "}
               {metric.sourceUrl ? (

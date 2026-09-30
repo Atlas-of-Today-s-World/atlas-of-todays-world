@@ -101,8 +101,7 @@ function tidyRing(source, tolerance) {
     round(point[1]),
   ]);
   const compact = simplified.filter(
-    (point, i) =>
-      i === 0 || point[0] !== simplified[i - 1][0] || point[1] !== simplified[i - 1][1],
+    (point, i) => i === 0 || point[0] !== simplified[i - 1][0] || point[1] !== simplified[i - 1][1],
   );
   if (compact.length < 4) return null;
 
@@ -140,9 +139,7 @@ function processPolygon(polygon) {
 }
 
 function countPoints(coords) {
-  return typeof coords[0] === "number"
-    ? 1
-    : coords.reduce((sum, c) => sum + countPoints(c), 0);
+  return typeof coords[0] === "number" ? 1 : coords.reduce((sum, c) => sum + countPoints(c), 0);
 }
 
 async function main() {

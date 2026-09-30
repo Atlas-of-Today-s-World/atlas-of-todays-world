@@ -13,10 +13,7 @@ import { INDICATORS } from "@/lib/indicators";
 import AdminClient from "./AdminClient";
 import AdminTabs from "./AdminTabs";
 import GlobalIssuesAdmin from "./GlobalIssuesAdmin";
-import ProfilesAdmin, {
-  type AdminCountryProfile,
-  type AdminRegionProfile,
-} from "./ProfilesAdmin";
+import ProfilesAdmin, { type AdminCountryProfile, type AdminRegionProfile } from "./ProfilesAdmin";
 
 export const dynamic = "force-dynamic";
 
@@ -27,13 +24,12 @@ export const metadata: Metadata = {
 };
 
 /** Sekce portrétu regionu, které formulář nastavení needituje. */
-const KEPT_SECTIONS: { key: "timeline" | "visuals" | "resources" | "faq"; label: string }[] =
-  [
-    { key: "timeline", label: "časová osa" },
-    { key: "visuals", label: "karusel map" },
-    { key: "resources", label: "databáze zdrojů" },
-    { key: "faq", label: "FAQ" },
-  ];
+const KEPT_SECTIONS: { key: "timeline" | "visuals" | "resources" | "faq"; label: string }[] = [
+  { key: "timeline", label: "časová osa" },
+  { key: "visuals", label: "karusel map" },
+  { key: "resources", label: "databáze zdrojů" },
+  { key: "faq", label: "FAQ" },
+];
 
 export default async function AdminPage() {
   const countries = indexableCountries();
@@ -72,9 +68,7 @@ export default async function AdminPage() {
       regionProfiles[region.slug] = {
         intro: dossier.intro ?? "",
         metrics: dossier.metrics ?? [],
-        keeps: KEPT_SECTIONS.filter(({ key }) => dossier[key]?.length).map(
-          ({ label }) => label,
-        ),
+        keeps: KEPT_SECTIONS.filter(({ key }) => dossier[key]?.length).map(({ label }) => label),
       };
     }),
   );
@@ -88,8 +82,8 @@ export default async function AdminPage() {
     <main>
       <h1 className="font-display text-[34px] font-bold">Administrace</h1>
       <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-[var(--color-ink-soft)]">
-        Novinky, nastavení jednotlivých zemí a regionů a Global Issues. Změny se
-        projeví hned v mapě i ve vyhledávání.
+        Novinky, nastavení jednotlivých zemí a regionů a Global Issues. Změny se projeví hned v mapě
+        i ve vyhledávání.
       </p>
 
       <AdminTabs
@@ -123,12 +117,9 @@ export default async function AdminPage() {
                   category: item.category,
                   region: item.region,
                   regionName:
-                    REGIONS.find((region) => region.slug === item.region)?.name ??
-                    item.region,
+                    REGIONS.find((region) => region.slug === item.region)?.name ?? item.region,
                   issue: item.issue ?? null,
-                  issueName: item.issue
-                    ? (issueName.get(item.issue) ?? item.issue)
-                    : null,
+                  issueName: item.issue ? (issueName.get(item.issue) ?? item.issue) : null,
                   countries: item.countries ?? [],
                   published: item.published ?? null,
                 }))}

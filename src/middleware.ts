@@ -18,6 +18,15 @@ import { NextResponse, type NextRequest } from "next/server";
  */
 const ADMIN_COOKIE = "atlas_admin";
 
+/** Porovnání bez úniku délky shody přes čas (Edge runtime nemá timingSafeEqual). */
+function constantTimeEqual(a: string, b: string): boolean {
+  let diff = a.length ^ b.length;
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    diff |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
+  }
+  return diff === 0;
+}
+
 const CSP = [
   "default-src 'self'",
   // Next v produkci inlinuje část skriptů; blob: potřebuje MapLibre pro workery.
@@ -57,9 +66,7 @@ export function middleware(request: NextRequest) {
   const isGate = pathname === "/admin/login" || pathname === "/api/admin/session";
   const isAdmin =
     !isGate &&
-    (pathname === "/admin" ||
-      pathname.startsWith("/admin/") ||
-      pathname.startsWith("/api/admin/"));
+    (pathname === "/admin" || pathname.startsWith("/admin/") || pathname.startsWith("/api/admin/"));
 
   if (!isAdmin) return securityHeaders(NextResponse.next());
 
@@ -76,7 +83,7 @@ export function middleware(request: NextRequest) {
   }
 
   const cookie = request.cookies.get(ADMIN_COOKIE)?.value;
-  if (cookie === token) return securityHeaders(NextResponse.next());
+  if (cookie && constantTimeEqual(cookie, token)) return securityHeaders(NextResponse.next());
 
   if (pathname.startsWith("/api/admin/")) {
     return securityHeaders(

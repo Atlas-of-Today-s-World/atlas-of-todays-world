@@ -38,7 +38,9 @@ const LIMITS = {
 } as const;
 
 function text(value: unknown, max: number): string {
-  return String(value ?? "").trim().slice(0, max);
+  return String(value ?? "")
+    .trim()
+    .slice(0, max);
 }
 
 /** Odkaz na zdroj smí být jen http(s) – jinak by se dal podstrčit `javascript:`. */
@@ -118,7 +120,10 @@ export async function POST(request: Request) {
     }
 
     const featured = Array.isArray(body.featured)
-      ? body.featured.map(String).filter((id) => /^[a-z0-9-]{1,40}$/.test(id)).slice(0, 9)
+      ? body.featured
+          .map(String)
+          .filter((id) => /^[a-z0-9-]{1,40}$/.test(id))
+          .slice(0, 9)
       : [];
 
     const frontmatter: Record<string, unknown> = {
