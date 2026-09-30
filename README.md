@@ -14,15 +14,26 @@ npm run data:all      # stáhne hranice zemí + datové vrstvy (jednorázově)
 npm run dev           # http://localhost:3000
 ```
 
-Bez `.env.local` běží všechno (satelitní podklad jede na bezplatných
-dlaždicích Esri). Volitelná konfigurace:
+Aplikace čte obsah ze Supabase, takže potřebuje `.env.local` s údaji
+**dev** projektu (`atlas-dev`, nikdy produkce):
 
 ```bash
-cp .env.example .env.local
+cp .env.example .env.local   # doplnit NEXT_PUBLIC_SUPABASE_URL a _ANON_KEY
 ```
 
 | Proměnná | K čemu |
 |---|---|
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Veřejné čtení obsahu a přihlášení (povinné). |
+| `SUPABASE_SERVICE_ROLE_KEY` | Jen server: smazání účtu, ban v Auth, rate limit, e2e účty. |
+| `NEXT_PUBLIC_MAPTILER_KEY` | Satelitní dlaždice MapTileru místo Esri. Pro produkci doporučeno (Esri nemá SLA pro komerční provoz). |
+| `NEXT_PUBLIC_SITE_URL` | Kanonická adresa pro sitemapu, robots.txt a og:url. |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | Kontakt v zásadách ochrany soukromí a prohlášení o přístupnosti. |
+| `MAILCHIMP_API_KEY`, `MAILCHIMP_LIST_ID` | Odběr novinek. |
+
+Prázdnou databázi naplní migrace (`supabase db push`) a `supabase/seed.sql`.
+První admin: `npm run db:make-admin -- --project dev email@…` (po prvním přihlášení).
+
+---|---|
 | `NEXT_PUBLIC_MAPTILER_KEY` | Satelitní dlaždice MapTileru místo Esri. Pro produkci doporučeno (Esri nemá SLA pro komerční provoz). |
 | `NEXT_PUBLIC_SITE_URL` | Kanonická adresa pro sitemapu, robots.txt a og:url. |
 
@@ -63,8 +74,21 @@ jde od severského a baltského pásu přes Sahel po severní Atlantik.
 
 **Administrace (`/admin`)**
 
-Přístup jen pro přihlášený tým (pozvánky, role a oprávnění z databáze). Obsah se
-ukládá do Supabase přes Server Actions; o tom, kdo co smí, rozhoduje RLS.
+Přístup jen pro přihlášený tým; do týmu se vstupuje pozvánkou. Menu i obrazovky
+se řídí rolí, o tom, kdo co smí, ale rozhoduje databáze (RLS). Admin a správce
+oprávnění potřebují dvoufázové ověření (TOTP).
+
+| Sekce | Co se tam dělá |
+| --- | --- |
+| Novinky a hesla | koncepty, editor (TipTap), obrázky, země, historie verzí; odeslání ke schválení |
+| Schvalování | fronta podle přidělení (země, autoři), rozdíl proti zveřejněné verzi, schválit / vrátit s poznámkou |
+| Regiony a země | portréty regionů (úvod, časová osa, ukazatele se zdrojem, zdroje, FAQ, vizuály) a profily zemí |
+| Global Issues | celky zemí napříč regiony s vlastním portrétem |
+| Datové vrstvy | ukazatele, palety, číselníky, ruční hodnoty (vždy se zdrojem) |
+| Mapové oblasti, Vzhled mapy | vlastní plochy (GeoJSON) a sytost barev / síla hranic globusu |
+| Účty a pozvánky | role, blokace, přiřazení schvalovatelů, pozvánky |
+| Role a práva | matice oprávnění, vlastní role, bezpečnost, přepínače (režim údržby), záznam změn |
+| Členové | Atlas Patrons, členství zdarma |
 
 **Dva druhy ukazatelů.** Automatické počítá `npm run data:indicators` z Our
 World in Data pro všech 228 zemí (HDI, politický režim, korupce, chudoba…) —
@@ -171,14 +195,14 @@ routami nepřenačítá. Stránky mu jen řeknou, kam se má dívat, komponentou
 
 ## Co ještě chybí
 
-- **Vektorové dlaždice.** `public/data/countries.geo.json` má 1,7 MB. Pro
-  produkci doporučuji převést hranice na vektorové dlaždice (tippecanoe → PMTiles);
-  ušetří to první načtení a umožní detailnější hranice při zoomu.
-- **Jazykové mutace** (bod 5 zadání) – routy jsou připravené na prefix `/[locale]`,
-  ale překlady zatím nejsou.
-- **Platební brána** na `/support`.
-- **AI audioverze hesel** (bod 4 zadání).
-- **UX testování** (bod 7 zadání).
+Stav a pořadí úkolů je v [PLAN-REALIZACE.md](PLAN-REALIZACE.md) (fáze G a úkoly
+vlastníka U5–U9). Mimo jiné:
+
+- **Vektorové dlaždice.** `public/data/countries.geo.json` má 1,7 MB; převod na
+  PMTiles ušetří první načtení.
+- **Jazykové mutace**, **platby** (Stripe), **e-mailové přihlášení** (vlastní SMTP),
+  **náhledy konceptů a plánované publikování**.
+- **Sentry** a **UptimeRobot** (potřebují účty vlastníka).
 
 ---
 
