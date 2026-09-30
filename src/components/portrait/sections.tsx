@@ -1,7 +1,12 @@
 import Link from "next/link";
-import { MetricCards, StatIcon } from "./atlas-ui";
+import type { ReactNode } from "react";
+import { cva } from "class-variance-authority";
+import { MetricCards, StatIcon } from "@/components/atlas/ui";
+import { Rail } from "@/components/atlas/Rail";
+import { buttonVariants } from "@/components/ui/button";
 import type { RegionStat } from "@/lib/region-stats";
 import type { FaqItem, MetricCard, ResourceItem, TimelineItem } from "@/lib/content-types";
+import { cssBackgroundImage, safeUrl } from "@/lib/security/urls";
 
 /**
  * Stavební díly portrétu. Používá je portrét regionu i portrét global issue –
@@ -18,31 +23,65 @@ export const ENTRY_CATEGORIES = [
   "Historical Roots",
 ] as const;
 
-/** Nadpis sekce; `muted` se používá u šedivých (zatím nenapsaných) částí. */
-function SectionHead({
+const PATRONS_CTA = "Help Us Complete It By Joining Atlas Patrons";
+
+const section = cva("border-t px-6 py-8 sm:px-10", {
+  variants: {
+    tone: {
+      light: "border-[var(--color-line)]",
+      dark: "border-[var(--color-line)] bg-[var(--color-band)] text-white",
+    },
+  },
+  defaultVariants: { tone: "light" },
+});
+
+/** Obal každé sekce portrétu: oddělovač, odsazení, nadpis a perex. */
+export function PortraitSection({
   title,
   lead,
   muted = false,
+  tone = "light",
+  className,
+  children,
 }: {
   title: string;
   lead?: string;
+  /** Šedivý nadpis u zatím nenapsaných částí. */
   muted?: boolean;
+  tone?: "light" | "dark";
+  className?: string;
+  children?: ReactNode;
 }) {
+  const dark = tone === "dark";
   return (
-    <div>
+    <section className={section({ tone, className })}>
       <h2
         className={`font-display text-[20px] font-bold ${
-          muted ? "text-[var(--color-ink-muted)]" : "text-[var(--color-ink)]"
+          dark ? "" : muted ? "text-[var(--color-ink-muted)]" : "text-[var(--color-ink)]"
         }`}
       >
         {title}
       </h2>
       {lead ? (
-        <p className="mt-2 max-w-2xl text-[12.5px] leading-relaxed text-[var(--color-ink-muted)]">
+        <p
+          className={`mt-2 max-w-2xl text-[12.5px] leading-relaxed ${
+            dark ? "text-white/65" : "text-[var(--color-ink-muted)]"
+          }`}
+        >
           {lead}
         </p>
       ) : null}
-    </div>
+      {children}
+    </section>
+  );
+}
+
+function PatronsLink({ arrow = true }: { arrow?: boolean }) {
+  return (
+    <Link href="/patrons" className="font-medium text-[var(--color-link)] hover:underline">
+      {PATRONS_CTA}
+      {arrow ? " →" : ""}
+    </Link>
   );
 }
 
@@ -54,45 +93,34 @@ export function EmptySection({
   title,
   lead,
   rows = 3,
-  children,
 }: {
   title: string;
   lead: string;
   rows?: number;
-  children?: React.ReactNode;
 }) {
   return (
-    <section className="border-t border-[var(--color-line)] px-6 py-8 sm:px-10">
-      <SectionHead title={title} lead={lead} muted />
+    <PortraitSection title={title} lead={lead} muted>
       <div aria-hidden className="pointer-events-none mt-5 space-y-2 opacity-55 select-none">
-        {children ?? (
-          <>
-            {Array.from({ length: rows }).map((_, index) => (
-              <div
-                key={index}
-                className="h-16 rounded-xl border border-dashed border-[var(--color-line)] bg-[var(--color-line)]/25"
-              />
-            ))}
-          </>
-        )}
+        {Array.from({ length: rows }).map((_, index) => (
+          <div
+            key={index}
+            className="h-16 rounded-xl border border-dashed border-[var(--color-line)] bg-[var(--color-line)]/25"
+          />
+        ))}
       </div>
       <p className="mt-4 text-[12px] text-[var(--color-ink-muted)]">
-        Not written yet.{" "}
-        <Link href="/patrons" className="font-medium text-[var(--color-link)] hover:underline">
-          Help Us Complete It By Joining Atlas Patrons →
-        </Link>
+        Not written yet. <PatronsLink />
       </p>
-    </section>
+    </PortraitSection>
   );
 }
 
 /**
  * Šest klíčových ukazatelů s citací zdroje.
  *
- * Když redakce zadala vlastní ukazatele (administrace → Regiony), mají
- * přednost: měří věci, které v Our World in Data nejsou — etnické skupiny,
- * vysídlení, dětskou chudobu. Bez nich se kreslí dopočet z importovaných dat,
- * aby portrét nebyl prázdný ani u regionu, ke kterému nikdo nic nenapsal.
+ * Když redakce zadala vlastní ukazatele, mají přednost: měří věci, které
+ * v Our World in Data nejsou — etnické skupiny, vysídlení, dětskou chudobu.
+ * Bez nich se kreslí dopočet z importovaných dat, aby portrét nebyl prázdný.
  */
 export function IndicatorCards({
   stats,
@@ -103,23 +131,21 @@ export function IndicatorCards({
 }) {
   if (metrics.length) {
     return (
-      <section className="border-t border-[var(--color-line)] px-6 py-8 sm:px-10">
-        <SectionHead
-          title="Key indicators"
-          lead="Picked by the Atlas team for this region, each with the source it comes from."
-        />
+      <PortraitSection
+        title="Key indicators"
+        lead="Picked by the Atlas team, each with the source it comes from."
+      >
         <MetricCards metrics={metrics} className="mt-5" />
-      </section>
+      </PortraitSection>
     );
   }
 
   if (!stats.length) return null;
   return (
-    <section className="border-t border-[var(--color-line)] px-6 py-8 sm:px-10">
-      <SectionHead
-        title="Key indicators"
-        lead="Population-weighted across the countries in this group. Categorical layers show the most common value."
-      />
+    <PortraitSection
+      title="Key indicators"
+      lead="Population-weighted across the countries in this group. Categorical layers show the most common value."
+    >
       <dl className="mt-5 grid grid-cols-2 gap-x-5 gap-y-6">
         {stats.map((stat) => (
           <div key={stat.id}>
@@ -145,7 +171,7 @@ export function IndicatorCards({
           </div>
         ))}
       </dl>
-    </section>
+    </PortraitSection>
   );
 }
 
@@ -160,14 +186,13 @@ export function Timeline({
   subtitle?: string;
 }) {
   return (
-    <section className="border-t border-[var(--color-line)] px-6 py-8 sm:px-10">
-      <SectionHead
-        title={title ?? "How the present came about"}
-        lead={subtitle ?? "The events that shaped the region's current situation."}
-      />
-      <div className="panel-scroll -mx-1 mt-6 flex snap-x gap-6 overflow-x-auto px-1 pb-3">
+    <PortraitSection
+      title={title || "How the present came about"}
+      lead={subtitle || "The events that shaped the current situation."}
+    >
+      <Rail label="Timeline" gap="lg" className="mt-6">
         {items.map((item) => (
-          <div key={item.title} className="w-60 shrink-0 snap-start">
+          <div key={`${item.date}-${item.title}`} className="w-60 shrink-0 snap-start">
             <h3 className="font-display text-[14px] leading-snug font-bold text-[var(--color-ink)]">
               {item.title}
             </h3>
@@ -181,8 +206,8 @@ export function Timeline({
             </p>
           </div>
         ))}
-      </div>
-    </section>
+      </Rail>
+    </PortraitSection>
   );
 }
 
@@ -194,15 +219,14 @@ export interface PlannedEntry {
 
 /**
  * Čtyři tematické kategorie hesel. Nenapsaná hesla jsou šedivá a nekliknutelná;
- * podle zadání to platí i pro region, který už nějaká hesla má.
+ * podle zadání to platí i pro portrét, který už nějaká hesla má.
  */
 export function ThematicEntries({ entries }: { entries: PlannedEntry[] }) {
   return (
-    <section className="border-t border-[var(--color-line)] px-6 py-8 sm:px-10">
-      <SectionHead
-        title="Encyclopedic entries"
-        lead="Long-form entries in four themes. Grey titles are planned but not written yet."
-      />
+    <PortraitSection
+      title="Encyclopedic entries"
+      lead="Long-form entries in four themes. Grey titles are planned but not written yet."
+    >
       <div className="mt-5 space-y-5">
         {ENTRY_CATEGORIES.map((category) => {
           const group = entries.filter((entry) => entry.category === category);
@@ -211,9 +235,9 @@ export function ThematicEntries({ entries }: { entries: PlannedEntry[] }) {
               <h3 className="text-[11px] font-medium tracking-[0.1em] text-[var(--color-ink-muted)] uppercase">
                 {category}
               </h3>
-              <div className="panel-scroll -mx-1 mt-2.5 flex snap-x gap-2.5 overflow-x-auto px-1 pb-2">
-                {group.length ? (
-                  group.map((entry) =>
+              {group.length ? (
+                <Rail label={category} gap="sm" className="mt-2.5">
+                  {group.map((entry) =>
                     entry.slug ? (
                       <Link
                         key={entry.title}
@@ -232,23 +256,21 @@ export function ThematicEntries({ entries }: { entries: PlannedEntry[] }) {
                         {entry.title}
                       </span>
                     ),
-                  )
-                ) : (
-                  <span className="text-[12px] text-[var(--color-ink-muted)]">
-                    Nothing planned here yet.
-                  </span>
-                )}
-              </div>
+                  )}
+                </Rail>
+              ) : (
+                <p className="mt-2.5 text-[12px] text-[var(--color-ink-muted)]">
+                  Nothing planned here yet.
+                </p>
+              )}
             </div>
           );
         })}
       </div>
       <p className="mt-3 text-[12px] text-[var(--color-ink-muted)]">
-        <Link href="/patrons" className="font-medium text-[var(--color-link)] hover:underline">
-          Help Us Complete It By Joining Atlas Patrons →
-        </Link>
+        <PatronsLink />
       </p>
-    </section>
+    </PortraitSection>
   );
 }
 
@@ -258,15 +280,18 @@ export function VisualCarousel({
 }: {
   visuals: { title: string; image: string; caption: string }[];
 }) {
+  const safe = visuals.flatMap((visual) => {
+    const image = safeUrl(visual.image);
+    return image ? [{ ...visual, image }] : [];
+  });
   return (
-    <section className="border-t border-[var(--color-line)] px-6 py-8 sm:px-10">
-      <SectionHead
-        title="Maps & charts"
-        lead="Selected visualisations from organisations that track this region."
-      />
-      <div className="panel-scroll -mx-1 mt-5 flex snap-x gap-3 overflow-x-auto px-1 pb-2">
-        {visuals.map((visual) => (
-          <figure key={visual.title} className="w-[22rem] shrink-0 snap-start">
+    <PortraitSection
+      title="Maps & charts"
+      lead="Selected visualisations from organisations that track this part of the world."
+    >
+      <Rail label="Maps and charts">
+        {safe.map((visual) => (
+          <figure key={visual.title} className="w-[22rem] max-w-[80vw] shrink-0 snap-start">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={visual.image}
@@ -279,64 +304,70 @@ export function VisualCarousel({
             </figcaption>
           </figure>
         ))}
-      </div>
-    </section>
+      </Rail>
+    </PortraitSection>
   );
 }
 
 /** Databáze zdrojů třetích stran. */
 export function ResourceLibrary({ resources }: { resources: ResourceItem[] }) {
-  const categories = [...new Set(resources.map((item) => item.kind ?? "Further reading"))];
+  const safe = resources.flatMap((item) => {
+    const url = safeUrl(item.url);
+    return url ? [{ ...item, url }] : [];
+  });
+  const categories = [...new Set(safe.map((item) => item.kind ?? "Further reading"))];
   return (
-    <section className="border-t border-[var(--color-line)] bg-[var(--color-band)] px-6 py-8 text-white sm:px-10">
-      <h2 className="font-display text-[20px] font-bold">Learn more elsewhere</h2>
-      <p className="mt-2 max-w-2xl text-[12.5px] leading-relaxed text-white/65">
-        Documentaries, lectures, reports and databases picked by the Atlas team for this group.
-      </p>
+    <PortraitSection
+      title="Learn more elsewhere"
+      lead="Documentaries, lectures, reports and databases picked by the Atlas team."
+      tone="dark"
+    >
       {categories.map((category) => (
         <div key={category} className="mt-5">
           <h3 className="text-[11px] font-medium tracking-[0.1em] text-white/55 uppercase">
             {category}
           </h3>
-          <div className="panel-scroll -mx-1 mt-2.5 flex snap-x gap-3 overflow-x-auto px-1 pb-2">
-            {resources
+          <Rail label={category} tone="dark" className="mt-2.5">
+            {safe
               .filter((item) => (item.kind ?? "Further reading") === category)
-              .map((resource) => (
-                <a
-                  key={resource.url}
-                  href={resource.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-52 shrink-0 snap-start overflow-hidden rounded-xl bg-white text-[var(--color-ink)] transition hover:ring-2 hover:ring-[var(--color-accent)]"
-                >
-                  {resource.image ? (
-                    <span
-                      className="block h-24 w-full bg-cover bg-center"
-                      style={{ backgroundImage: `url(${resource.image})` }}
-                    />
-                  ) : null}
-                  <span className="block p-3">
-                    <span className="font-display block text-[13px] leading-snug font-bold">
-                      {resource.title}
+              .map((resource) => {
+                const image = cssBackgroundImage(resource.image);
+                return (
+                  <a
+                    key={resource.url}
+                    href={resource.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-52 shrink-0 snap-start overflow-hidden rounded-xl bg-white text-[var(--color-ink)] transition hover:ring-2 hover:ring-[var(--color-accent)]"
+                  >
+                    {image ? (
+                      <span
+                        className="block h-24 w-full bg-cover bg-center"
+                        style={{ backgroundImage: image }}
+                      />
+                    ) : null}
+                    <span className="block p-3">
+                      <span className="font-display block text-[13px] leading-snug font-bold">
+                        {resource.title}
+                      </span>
+                      <span className="mt-1 block text-[11px] text-[var(--color-ink-muted)]">
+                        {resource.source}
+                      </span>
                     </span>
-                    <span className="mt-1 block text-[11px] text-[var(--color-ink-muted)]">
-                      {resource.source}
-                    </span>
-                  </span>
-                </a>
-              ))}
-          </div>
+                  </a>
+                );
+              })}
+          </Rail>
         </div>
       ))}
-    </section>
+    </PortraitSection>
   );
 }
 
 /** Rozbalovací FAQ. */
 export function FaqList({ items }: { items: FaqItem[] }) {
   return (
-    <section className="border-t border-[var(--color-line)] px-6 py-8 sm:px-10">
-      <SectionHead title="Common questions" />
+    <PortraitSection title="Common questions">
       <div className="mt-4 space-y-2">
         {items.map((item) => (
           <details
@@ -358,7 +389,7 @@ export function FaqList({ items }: { items: FaqItem[] }) {
           </details>
         ))}
       </div>
-    </section>
+    </PortraitSection>
   );
 }
 
@@ -375,11 +406,8 @@ export function PatronsCallout({ complete }: { complete: boolean }) {
           : "The sections above are waiting for authors. Atlas Patrons pay for the research and the writing that fills them in."}
       </p>
       <div className="mt-6">
-        <Link
-          href="/patrons"
-          className="inline-flex min-h-11 items-center justify-center rounded-full bg-[var(--color-accent)] px-7 text-[13px] font-medium text-white transition hover:bg-[var(--color-accent-strong)]"
-        >
-          Help Us Complete It By Joining Atlas Patrons
+        <Link href="/patrons" className={buttonVariants({ className: "text-[13px]" })}>
+          {PATRONS_CTA}
         </Link>
       </div>
     </section>

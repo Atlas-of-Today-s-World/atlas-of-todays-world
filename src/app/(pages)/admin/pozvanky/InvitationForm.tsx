@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { createInvitation, type InvitationState } from "@/features/invitations/actions";
+import { Button } from "@/components/ui/button";
 
 export default function InvitationForm({ roles }: { roles: { id: string; name: string }[] }) {
   const [state, action, pending] = useActionState<InvitationState, FormData>(createInvitation, {
@@ -79,13 +80,9 @@ export default function InvitationForm({ roles }: { roles: { id: string; name: s
       ) : null}
 
       <div>
-        <button
-          type="submit"
-          disabled={pending}
-          className="min-h-11 rounded-full bg-[var(--color-accent)] px-6 text-[14px] font-medium text-white disabled:opacity-60"
-        >
+        <Button type="submit" disabled={pending}>
           {pending ? "Ukládám…" : "Vytvořit pozvánku"}
-        </button>
+        </Button>
       </div>
     </form>
   );

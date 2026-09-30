@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getAccess, isStaff } from "@/features/auth/access";
 import DeleteAccount from "./DeleteAccount";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 export const dynamic = "force-dynamic";
 
@@ -28,20 +29,14 @@ export default async function AccountPage() {
 
       <div className="mt-8 flex flex-wrap gap-3">
         {staff ? (
-          <Link
-            href="/admin"
-            className="inline-flex min-h-11 items-center rounded-full bg-[var(--color-accent)] px-6 text-[14px] font-medium text-white"
-          >
+          <Link href="/admin" className={buttonVariants()}>
             Open the administration
           </Link>
         ) : null}
         <form action="/auth/signout" method="post">
-          <button
-            type="submit"
-            className="inline-flex min-h-11 items-center rounded-full border border-[var(--color-line)] px-6 text-[14px] font-medium"
-          >
+          <Button type="submit" variant="outline">
             Sign out
-          </button>
+          </Button>
         </form>
       </div>
 

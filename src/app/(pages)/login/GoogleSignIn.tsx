@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createBrowserClient } from "@/lib/supabase/browser";
 import { safeRedirect } from "@/lib/security/redirect";
+import { Button } from "@/components/ui/button";
 
 /** Přesměruje na Google (PKCE); návrat zpracuje /auth/callback. */
 export default function GoogleSignIn({ next }: { next: string }) {
@@ -26,15 +27,10 @@ export default function GoogleSignIn({ next }: { next: string }) {
 
   return (
     <div>
-      <button
-        type="button"
-        onClick={signIn}
-        disabled={busy}
-        className="flex min-h-11 w-full items-center justify-center gap-3 rounded-full border border-[var(--color-line)] bg-white px-5 text-[14px] font-medium text-[var(--color-ink)] transition hover:border-[var(--color-accent)] disabled:opacity-60"
-      >
+      <Button variant="outline" block onClick={signIn} disabled={busy} className="gap-3">
         <GoogleMark />
         {busy ? "Redirecting to Google…" : "Continue with Google"}
-      </button>
+      </Button>
       {error ? (
         <p role="alert" className="mt-3 text-[13px] text-red-700">
           {error}

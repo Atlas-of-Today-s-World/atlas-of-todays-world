@@ -73,17 +73,18 @@
 
 Dělá se **před** napojením na DB, aby se komponenty přepisovaly jen jednou.
 
-- [ ] **A2.1** Design tokeny: `config/layout.ts` + `@theme` proměnné `--rail-width`, `--rail-width-wide`,
+- [x] **A2.1** Design tokeny: `config/layout.ts` + `@theme` proměnné `--rail-width`, `--rail-width-wide`,
       `--touch-min`; nahradit natvrdo psané rozměry v `ContentRail`, `Header`, `MapControls`, `AtlasGlobe` (**D1**).
-- [ ] **A2.2** shadcn/ui init (`components/ui/`), `Button`/`IconButton` s `cva` variantami; nahradit ruční
-      tlačítka a `PrimaryButton`/`GhostButton` (**D5**); `lucide-react` pro ikony.
-- [ ] **A2.3** `components/atlas/Rail` — jeden karusel (šipky, klávesnice, scroll-snap, `aria-roledescription`);
+- [x] **A2.2** `components/ui/button.tsx` (`cva`: primary/outline/danger/ghost, velikosti vč. `icon`), `lib/cn.ts`;
+      ruční tlačítka ve veřejné části nahrazena (**D5**; staré admin formuláře zmizí v E8); `lucide-react` pro ikony.
+- [x] **A2.3** `components/atlas/Rail` — jeden karusel (šipky, klávesnice, scroll-snap, `aria-roledescription`);
       přepsat `Timeline`, `ThematicEntries`, `VisualCarousel`, `ResourceLibrary`, `NewsTabs` (**D2**).
-- [ ] **A2.4** `components/portrait/Portrait` pro region i global issue; stránka global issue ho použije (**D3**).
-- [ ] **A2.5** `config/navigation.ts` jako jediný zdroj menu (desktop, mobil, `(pages)` layout) (**D4**).
-- [ ] **A2.6** `SafeHtml` komponenta; ESLint zákaz `dangerouslySetInnerHTML` jinde.
-- [ ] **A2.7** Storybook (nebo Ladle) se stories pro `ui/*`, `atlas/*`, `portrait/*`.
-- [ ] **A2.8** UX opravy navázané na sjednocení: Esc v inputu nezavírá panel, zoom tlačítka 44 px,
+- [x] **A2.4** `components/portrait/Portrait` pro region i global issue; stránka global issue ho použije (**D3**).
+- [x] **A2.5** `config/navigation.ts` jako jediný zdroj menu (desktop, mobil, `(pages)` layout) (**D4**).
+- [x] **A2.6** `SafeHtml` komponenta; ESLint zákaz `dangerouslySetInnerHTML` jinde.
+- [ ] **A2.7** Storybook (nebo Ladle) se stories pro `ui/*`, `atlas/*`, `portrait/*`. *(Odloženo na konec fáze E —
+      katalog dává smysl, až budou hotové i admin díly `FormField`/`DataTable`.)*
+- [x] **A2.8** UX opravy navázané na sjednocení: Esc v inputu nezavírá panel, zoom tlačítka 44 px,
       `prefers-reduced-motion`, focus trap v mobilním menu.
 - **Hotovo, když:** `jscpd` < 1 %, D1–D5 odstraněné, Playwright testy zelené, vizuálně beze změny (screenshot porovnání).
 

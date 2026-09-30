@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { deleteAccount, type ActionState } from "@/features/auth/actions";
+import { Button } from "@/components/ui/button";
 
 export default function DeleteAccount({ email }: { email: string }) {
   const [state, action, pending] = useActionState<ActionState, FormData>(deleteAccount, {
@@ -34,13 +35,9 @@ export default function DeleteAccount({ email }: { email: string }) {
             {state.error}
           </p>
         ) : null}
-        <button
-          type="submit"
-          disabled={pending}
-          className="min-h-11 rounded-full bg-red-700 px-6 text-[14px] font-medium text-white disabled:opacity-60"
-        >
+        <Button type="submit" variant="danger" disabled={pending}>
           {pending ? "Deleting…" : "Delete my account"}
-        </button>
+        </Button>
       </form>
     </details>
   );

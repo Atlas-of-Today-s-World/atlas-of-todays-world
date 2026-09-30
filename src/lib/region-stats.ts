@@ -52,8 +52,8 @@ function mostCommon(values: number[]): number {
   return [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0];
 }
 
-/** Ukazatele spočítané nad libovolnou skupinou zemí. */
-function statsForCountries(countries: Country[]): RegionStat[] {
+/** Ukazatele spočítané nad libovolnou skupinou zemí (region, global issue). */
+export function groupStats(countries: Country[]): RegionStat[] {
   const out: RegionStat[] = [];
 
   for (const id of CARD_INDICATORS) {
@@ -93,7 +93,7 @@ function statsForCountries(countries: Country[]): RegionStat[] {
 }
 
 export function regionStats(region: Region): RegionStat[] {
-  return statsForCountries(countriesOfRegion(region));
+  return groupStats(countriesOfRegion(region));
 }
 
 /** Souhrn, který se vypisuje nad kartami. */

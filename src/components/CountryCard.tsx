@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Country } from "@/lib/countries";
 import { formatPopulation } from "@/lib/countries";
 import type { CountryProfile, NewsItem } from "@/lib/content";
-import { MetricCards, StatIcon } from "./atlas-ui";
+import { MetricCards, StatIcon } from "./atlas/ui";
 
 /**
  * Karta země po kliknutí na globus (Figma: "Country View").

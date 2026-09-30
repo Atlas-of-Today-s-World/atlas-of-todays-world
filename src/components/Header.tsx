@@ -2,7 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Menu, UserRound, X } from "lucide-react";
+import { RAIL_OFFSET, railKind } from "@/config/layout";
+import { ACCOUNT_NAV, MAIN_NAV, SOCIALS } from "@/config/navigation";
+import { useFocusTrap } from "@/lib/use-focus-trap";
 import NewsletterForm from "./NewsletterForm";
 
 /**
@@ -13,33 +17,14 @@ import NewsletterForm from "./NewsletterForm";
  * a logo tam má zabírat co nejmíň. Když je vpravo otevřený bílý panel, navigace
  * se odsune doleva – jinak by bílý text zmizel na bílém pozadí.
  */
-const NAV = [
-  { href: "/", label: "Map" },
-  { href: "/about", label: "About" },
-  { href: "/patrons", label: "Atlas Patrons", primary: true },
-];
-
-const SOCIALS = [
-  {
-    href: "https://www.instagram.com/atlasoftodaysworld_official/",
-    label: "Instagram",
-    icon: "IG",
-  },
-  {
-    href: "https://www.linkedin.com/company/atlas-of-todays-world/",
-    label: "LinkedIn",
-    icon: "in",
-  },
-  { href: "https://www.facebook.com/atlasoftodaysworld/", label: "Facebook", icon: "f" },
-  { href: "https://bsky.app/profile/atlas-otw.bsky.social", label: "Bluesky", icon: "bs" },
-];
-
 export default function Header() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const menu = useRef<HTMLDivElement>(null);
+  useFocusTrap(menu, menuOpen);
 
-  const wideRail = /^\/(news|region|global-issue)\//.test(pathname);
-  const railOpen = pathname !== "/";
+  const rail = railKind(pathname);
+  const wideRail = rail === "wide";
 
   // Panel se otevírá přes celou obrazovku, takže pod ním nesmí nic rolovat.
   useEffect(() => {
@@ -62,12 +47,6 @@ export default function Header() {
     return () => window.removeEventListener("keydown", onKey);
   }, [menuOpen]);
 
-  const navOffset = wideRail
-    ? "md:right-[calc(min(52vw,46rem)+1.25rem)]"
-    : railOpen
-      ? "md:right-[calc(min(38vw,27rem)+1.25rem)]"
-      : "md:right-7";
-
   return (
     <header className="pointer-events-none absolute inset-x-0 top-0 z-40 px-4 py-3 sm:px-7 sm:py-4">
       <Link
@@ -85,9 +64,9 @@ export default function Header() {
         aria-label="Main"
         className={`pointer-events-auto absolute top-5 hidden items-center gap-6 text-sm text-white/90 ${
           wideRail ? "xl:flex" : "md:flex"
-        } ${navOffset}`}
+        } ${RAIL_OFFSET[rail]}`}
       >
-        {NAV.map((item) => (
+        {MAIN_NAV.filter((item) => !item.compactHidden).map((item) => (
           <Link
             key={item.label}
             href={item.href}
@@ -123,24 +102,12 @@ export default function Header() {
           EN
         </button>
         <Link
-          href="/login"
+          href={ACCOUNT_NAV.href}
           className="grid min-h-11 min-w-11 place-items-center text-white/60 transition hover:text-white"
           title="Sign in / your account"
           aria-label="Sign in or open your account"
         >
-          <svg
-            width="17"
-            height="17"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            aria-hidden
-          >
-            <circle cx="12" cy="8" r="3.6" />
-            <path d="M4.8 20c.9-3.6 3.8-5.6 7.2-5.6s6.3 2 7.2 5.6" />
-          </svg>
+          <UserRound size={17} strokeWidth={1.6} aria-hidden />
         </Link>
       </nav>
 
@@ -154,18 +121,12 @@ export default function Header() {
           wideRail ? "xl:hidden" : "md:hidden"
         }`}
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-          <path
-            d="M4 7h16M4 12h16M4 17h16"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-          />
-        </svg>
+        <Menu size={18} strokeWidth={1.8} aria-hidden />
       </button>
 
       {menuOpen ? (
         <div
+          ref={menu}
           role="dialog"
           aria-modal="true"
           aria-label="Menu"
@@ -181,19 +142,12 @@ export default function Header() {
               aria-label="Close menu"
               className="grid h-11 w-11 place-items-center rounded-full border border-white/25 text-white transition hover:border-white/70"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-                <path
-                  d="m6 6 12 12M18 6 6 18"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                />
-              </svg>
+              <X size={18} strokeWidth={1.8} aria-hidden />
             </button>
           </div>
 
           <nav aria-label="Main" className="mt-10 grid gap-1 text-[22px]">
-            {NAV.map((item) => (
+            {MAIN_NAV.map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
@@ -202,9 +156,6 @@ export default function Header() {
                 {item.label}
               </Link>
             ))}
-            <Link href="/news" className="font-display flex min-h-14 items-center font-bold">
-              News
-            </Link>
           </nav>
 
           <div className="mt-auto space-y-6 pb-2">
@@ -224,8 +175,11 @@ export default function Header() {
                 </a>
               ))}
               <span className="ml-auto text-[13px] text-white/60">EN</span>
-              <Link href="/login" className="flex min-h-11 items-center text-[13px] text-white/60">
-                Sign in
+              <Link
+                href={ACCOUNT_NAV.href}
+                className="flex min-h-11 items-center text-[13px] text-white/60"
+              >
+                {ACCOUNT_NAV.label}
               </Link>
             </div>
           </div>

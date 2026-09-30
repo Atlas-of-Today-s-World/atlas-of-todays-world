@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ContentRail from "@/components/ContentRail";
-import RegionPortrait from "@/components/RegionPortrait";
+import Portrait, { newsCards } from "@/components/portrait/Portrait";
 import MapFocus from "@/components/map/MapFocus";
 import { REGIONS, REGION_BY_SLUG } from "@/data/regions";
 import { countriesOfRegion } from "@/lib/countries";
@@ -66,13 +66,18 @@ export default async function RegionPage({ params }: { params: Promise<{ slug: s
         regionStroke={region.stroke}
       />
       <ContentRail wide>
-        <RegionPortrait
-          region={region}
-          newsItems={newsItems}
+        <Portrait
+          subject={{
+            kind: "region",
+            name: region.name,
+            summary: region.summary,
+            hero: region.hero,
+            countries: countries.map(({ slug, name }) => ({ slug, name })),
+            population: population(countries),
+          }}
+          news={newsCards(newsItems)}
           dossier={dossier}
           stats={regionStats(region)}
-          countryCount={countries.length}
-          population={population(countries)}
         />
       </ContentRail>
 

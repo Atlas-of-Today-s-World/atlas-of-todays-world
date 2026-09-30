@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Rail } from "@/components/atlas/Rail";
 import { NEWS_CATEGORIES, type NewsCategory } from "@/lib/content-types";
 import { cssBackgroundImage } from "@/lib/security/urls";
 
@@ -29,13 +30,14 @@ export default function NewsTabs({ newsItems }: { newsItems: NewsCard[] }) {
       <h2 className="font-display text-[24px] font-bold">Our News</h2>
 
       {available.length ? (
-        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-[13px]">
+        <div className="mt-4 flex flex-wrap gap-x-5 text-[13px]" aria-label="News categories">
           {available.map((category) => (
             <button
               key={category}
               type="button"
+              aria-pressed={active === category}
               onClick={() => setActive(category)}
-              className={`transition ${
+              className={`min-h-11 transition ${
                 active === category
                   ? "font-semibold text-[#7f97ff]"
                   : "text-white/65 hover:text-white"
@@ -48,7 +50,7 @@ export default function NewsTabs({ newsItems }: { newsItems: NewsCard[] }) {
       ) : null}
 
       {visible.length ? (
-        <div className="panel-scroll -mx-1 mt-5 flex snap-x gap-3 overflow-x-auto px-1 pb-2">
+        <Rail label="News" tone="dark">
           {visible.map((item) => (
             <Link
               key={item.slug}
@@ -72,7 +74,7 @@ export default function NewsTabs({ newsItems }: { newsItems: NewsCard[] }) {
               </div>
             </Link>
           ))}
-        </div>
+        </Rail>
       ) : (
         <p className="mt-5 text-[13px] text-white/60">
           No news published in this region yet. Contributors welcome.

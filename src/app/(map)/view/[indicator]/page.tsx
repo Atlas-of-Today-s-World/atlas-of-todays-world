@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import ContentRail from "@/components/ContentRail";
 import MapFocus from "@/components/map/MapFocus";
 import MapViewSetter from "@/components/map/MapViewSetter";
-import { SectionLabel } from "@/components/atlas-ui";
+import { SectionLabel } from "@/components/atlas/ui";
 import { INDICATORS, formatValue, getIndicator } from "@/lib/indicators";
 import { countryByIso3 } from "@/lib/countries";
 import { absoluteUrl, alternates, breadcrumbJsonLd } from "@/lib/seo";

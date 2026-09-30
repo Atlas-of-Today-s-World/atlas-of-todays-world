@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import ContentRail from "@/components/ContentRail";
 import MapFocus from "@/components/map/MapFocus";
-import { SectionLabel } from "@/components/atlas-ui";
+import { SectionLabel } from "@/components/atlas/ui";
 import { allNews, newsBySlug } from "@/lib/content";
 import { countryByIso3 } from "@/lib/countries";
 import { globalIssueBySlug } from "@/lib/global-issues";
