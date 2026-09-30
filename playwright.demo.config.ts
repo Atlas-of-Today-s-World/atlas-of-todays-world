@@ -17,7 +17,10 @@ export default defineConfig({
   reporter: [["list"]],
   use: { trace: "retain-on-failure", locale: "en-GB", timezoneId: "Europe/Prague" },
   projects: [
-    { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } } },
+    {
+      name: "desktop",
+      use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } },
+    },
     { name: "mobile", use: { ...devices["Pixel 7"] } },
   ],
 });

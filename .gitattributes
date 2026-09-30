@@ -1,0 +1,6 @@
+# Jednotné konce řádků (Prettier čeká LF, vývoj běží i na Windows).
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.webp binary
+*.ico binary

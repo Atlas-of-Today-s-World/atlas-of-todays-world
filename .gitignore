@@ -22,3 +22,7 @@ playwright-report/
 
 # Interní dokumenty – jen lokálně, repo je veřejné
 docs/
+
+# Výstupy testů
+coverage/
+

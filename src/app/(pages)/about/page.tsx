@@ -15,34 +15,30 @@ export default function AboutPage() {
         About the Atlas
       </h1>
       <p className="mt-4">
-        Atlas of Today&rsquo;s World is an independent encyclopedia of the
-        present. Instead of an A&ndash;Z list, it starts from a satellite globe:
-        you spin it, click a country, and the Atlas opens that country&rsquo;s
-        profile together with the portrait of the world region it belongs to.
-        News opens inside the same map, so the geographic context never
-        disappears.
+        Atlas of Today&rsquo;s World is an independent encyclopedia of the present. Instead of an
+        A&ndash;Z list, it starts from a satellite globe: you spin it, click a country, and the
+        Atlas opens that country&rsquo;s profile together with the portrait of the world region it
+        belongs to. News opens inside the same map, so the geographic context never disappears.
       </p>
 
       <h2>Where the data comes from</h2>
       <p>
-        Country borders and names come from Natural Earth. The data layers are
-        imported in bulk from Our World in Data and refreshed with a single
-        command, so a yearly update takes minutes rather than manual editing:
+        Country borders and names come from Natural Earth. The data layers are imported in bulk from
+        Our World in Data and refreshed with a single command, so a yearly update takes minutes
+        rather than manual editing:
       </p>
       <ul>
         {INDICATORS.map((indicator) => (
           <li key={indicator.id}>
-            <strong>{indicator.label}</strong> &mdash; {indicator.source} (
-            {indicator.latestYear})
+            <strong>{indicator.label}</strong> &mdash; {indicator.source} ({indicator.latestYear})
           </li>
         ))}
       </ul>
 
       <h2>Editorial content</h2>
       <p>
-        Region portraits, country profiles and news are written
-        by the Atlas team and stored as plain Markdown, so writers never have to
-        touch the codebase.
+        Region portraits, country profiles and news are written by the Atlas team and stored as
+        plain Markdown, so writers never have to touch the codebase.
       </p>
     </main>
   );

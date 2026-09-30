@@ -6,24 +6,20 @@ import { REGIONS } from "@/data/regions";
 
 export const metadata: Metadata = {
   title: "All news",
-  description:
-    "Every published item of Atlas of Today's World, by region and by theme.",
+  description: "Every published item of Atlas of Today's World, by region and by theme.",
   alternates: { canonical: "/news" },
 };
 
 export default async function NewsIndexPage() {
-  const [newsItems, issues] = await Promise.all([
-    allNews(),
-    allGlobalIssues(),
-  ]);
+  const [newsItems, issues] = await Promise.all([allNews(), allGlobalIssues()]);
   const issueName = new Map(issues.map((item) => [item.slug, item.name]));
 
   return (
     <main>
       <h1 className="font-display text-[34px] font-bold">News</h1>
       <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-[var(--color-ink-soft)]">
-        Each news item opens inside the world map, so you never lose the geographic
-        context. {newsItems.length} published so far.
+        Each news item opens inside the world map, so you never lose the geographic context.{" "}
+        {newsItems.length} published so far.
       </p>
 
       {NEWS_CATEGORIES.map((category) => {
@@ -39,7 +35,7 @@ export default async function NewsIndexPage() {
                     href={`/news/${item.slug}`}
                     className="group block h-full rounded-xl border border-[var(--color-line)] p-4 transition hover:border-[var(--color-accent)]"
                   >
-                    <span className="text-[11px] uppercase tracking-wide text-[var(--color-ink-muted)]">
+                    <span className="text-[11px] tracking-wide text-[var(--color-ink-muted)] uppercase">
                       {item.regionRef?.name}
                       {item.issue ? (
                         <>
@@ -50,7 +46,7 @@ export default async function NewsIndexPage() {
                         </>
                       ) : null}
                     </span>
-                    <span className="mt-1 block font-display text-[15px] font-bold group-hover:text-[var(--color-accent)]">
+                    <span className="font-display mt-1 block text-[15px] font-bold group-hover:text-[var(--color-accent)]">
                       {item.title}
                     </span>
                     <span className="mt-1.5 block text-[12.5px] leading-relaxed text-[var(--color-ink-muted)]">

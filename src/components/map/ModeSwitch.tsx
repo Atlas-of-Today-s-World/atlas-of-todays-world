@@ -47,10 +47,7 @@ export default function ModeSwitch({
   return (
     <div className="relative">
       {hinting ? (
-        <span
-          aria-hidden
-          className="pointer-events-none absolute -right-1 -top-1 flex h-3 w-3"
-        >
+        <span aria-hidden className="pointer-events-none absolute -top-1 -right-1 flex h-3 w-3">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#7f97ff] opacity-80" />
           <span className="relative inline-flex h-3 w-3 rounded-full bg-[#3b4ce0] shadow-[0_0_10px_rgba(127,151,255,0.9)]" />
         </span>

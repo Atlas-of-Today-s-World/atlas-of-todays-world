@@ -98,8 +98,7 @@ export async function POST(request: Request) {
     : [];
   const hero = String(body.hero ?? "").trim();
   const author = String(body.author ?? "").trim();
-  const published = String(body.published ?? "").trim() ||
-    new Date().toISOString().slice(0, 10);
+  const published = String(body.published ?? "").trim() || new Date().toISOString().slice(0, 10);
   const words = markdown.split(/\s+/).length;
 
   const frontmatter = [

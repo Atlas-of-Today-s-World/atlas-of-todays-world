@@ -7,7 +7,7 @@ import ContentRail from "./ContentRail";
 export default function RailSkeleton({ wide = false }: { wide?: boolean }) {
   return (
     <ContentRail wide={wide}>
-      <div className="animate-pulse px-6 pb-10 pt-6">
+      <div className="animate-pulse px-6 pt-6 pb-10">
         <div className="h-40 w-full rounded-xl bg-[var(--color-line)]" />
         <div className="mt-5 h-7 w-2/3 rounded bg-[var(--color-line)]" />
         <div className="mt-2.5 h-4 w-1/2 rounded bg-[var(--color-line)]" />

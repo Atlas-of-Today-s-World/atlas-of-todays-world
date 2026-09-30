@@ -109,9 +109,7 @@ export default function ProfilesAdmin({
     setMarkdown(country?.markdown ?? "");
     setIntro(region?.intro ?? "");
     setFeatured(country?.featured ?? []);
-    setMetrics(
-      scope === "country" ? (country?.metrics ?? []) : (region?.metrics ?? []),
-    );
+    setMetrics(scope === "country" ? (country?.metrics ?? []) : (region?.metrics ?? []));
     setLoadedSlug(slug);
     setError(null);
     setDone(null);
@@ -235,9 +233,7 @@ export default function ProfilesAdmin({
                     </span>
                     <span
                       className={`text-[10.5px] ${
-                        country.slug === slug
-                          ? "text-white/70"
-                          : "text-[var(--color-ink-muted)]"
+                        country.slug === slug ? "text-white/70" : "text-[var(--color-ink-muted)]"
                       }`}
                     >
                       {country.regionName ?? "—"}
@@ -272,9 +268,7 @@ export default function ProfilesAdmin({
                     <span>{region.name}</span>
                     <span
                       className={`text-[10.5px] ${
-                        region.slug === slug
-                          ? "text-white/70"
-                          : "text-[var(--color-ink-muted)]"
+                        region.slug === slug ? "text-white/70" : "text-[var(--color-ink-muted)]"
                       }`}
                     >
                       {count ? `${count} ukazatelů` : "bez ukazatelů"}
@@ -333,12 +327,10 @@ export default function ProfilesAdmin({
             </div>
 
             <fieldset className="mt-6">
-              <legend className={LABEL}>
-                Automatické ukazatele, které se u země ukážou
-              </legend>
+              <legend className={LABEL}>Automatické ukazatele, které se u země ukážou</legend>
               <p className="mt-1 text-[11.5px] text-[var(--color-ink-muted)]">
-                Data z Our World in Data, obnovují se příkazem{" "}
-                <code>npm run data:indicators</code>. Nic nevybráno = prvních šest.
+                Data z Our World in Data, obnovují se příkazem <code>npm run data:indicators</code>.
+                Nic nevybráno = prvních šest.
               </p>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {indicators.map((indicator) => {
@@ -393,9 +385,7 @@ export default function ProfilesAdmin({
           metrics={metrics}
           onChange={updateMetric}
           onAdd={() => setMetrics((current) => [...current, { ...EMPTY_METRIC }])}
-          onRemove={(index) =>
-            setMetrics((current) => current.filter((_, i) => i !== index))
-          }
+          onRemove={(index) => setMetrics((current) => current.filter((_, i) => i !== index))}
           onMove={(index, delta) =>
             setMetrics((current) => {
               const next = [...current];
@@ -410,8 +400,7 @@ export default function ProfilesAdmin({
         {scope === "country" ? (
           <div className="mt-6">
             <label className={LABEL} htmlFor="profile-markdown">
-              Delší text k zemi (Markdown){" "}
-              <span className="font-normal">(nepovinný)</span>
+              Delší text k zemi (Markdown) <span className="font-normal">(nepovinný)</span>
             </label>
             <textarea
               id="profile-markdown"
@@ -425,9 +414,7 @@ export default function ProfilesAdmin({
         ) : null}
 
         {error ? (
-          <p className="mt-5 rounded-lg bg-red-50 px-3 py-2 text-[13px] text-red-700">
-            {error}
-          </p>
+          <p className="mt-5 rounded-lg bg-red-50 px-3 py-2 text-[13px] text-red-700">{error}</p>
         ) : null}
         {done ? (
           <p className="mt-5 rounded-lg bg-emerald-50 px-3 py-2 text-[13px] text-emerald-800">
@@ -491,8 +478,7 @@ function MetricEditor({
           </span>
         </h4>
         <p className="text-[11.5px] text-[var(--color-ink-muted)]">
-          Čísla, která nejsou v Our World in Data. Bez zdroje se karta
-          nepublikuje.
+          Čísla, která nejsou v Our World in Data. Bez zdroje se karta nepublikuje.
         </p>
       </div>
 
@@ -503,7 +489,7 @@ function MetricEditor({
             className="rounded-lg border border-[var(--color-line)] bg-[var(--color-line)]/10 p-4"
           >
             <div className="flex items-center justify-between gap-2">
-              <span className="text-[11px] font-medium uppercase tracking-[0.1em] text-[var(--color-ink-muted)]">
+              <span className="text-[11px] font-medium tracking-[0.1em] text-[var(--color-ink-muted)] uppercase">
                 Ukazatel {index + 1}
               </span>
               <span className="flex gap-1">
@@ -570,9 +556,7 @@ function MetricEditor({
                 id={`metric-desc-${index}`}
                 rows={2}
                 value={metric.description ?? ""}
-                onChange={(event) =>
-                  onChange(index, { description: event.target.value })
-                }
+                onChange={(event) => onChange(index, { description: event.target.value })}
                 className={`mt-1.5 ${FIELD}`}
                 placeholder="Amount of unemployment in the region for the over 60 % of the population who are under 30."
               />
@@ -599,9 +583,7 @@ function MetricEditor({
                   id={`metric-url-${index}`}
                   type="url"
                   value={metric.sourceUrl ?? ""}
-                  onChange={(event) =>
-                    onChange(index, { sourceUrl: event.target.value })
-                  }
+                  onChange={(event) => onChange(index, { sourceUrl: event.target.value })}
                   className={`mt-1.5 ${FIELD}`}
                   placeholder="https://www.unhcr.org/…"
                 />
@@ -622,10 +604,10 @@ function MetricEditor({
 
             {metric.value || metric.label ? (
               <div className="mt-4 rounded-lg border border-dashed border-[var(--color-line)] bg-white p-3">
-                <span className="text-[10.5px] uppercase tracking-[0.1em] text-[var(--color-ink-muted)]">
+                <span className="text-[10.5px] tracking-[0.1em] text-[var(--color-ink-muted)] uppercase">
                   Náhled karty
                 </span>
-                <p className="mt-1.5 font-display text-[22px] font-semibold leading-none text-[var(--color-ink)]">
+                <p className="font-display mt-1.5 text-[22px] leading-none font-semibold text-[var(--color-ink)]">
                   {metric.value || "—"}
                 </p>
                 <p className="mt-1.5 text-[13px] font-medium text-[var(--color-ink)]">

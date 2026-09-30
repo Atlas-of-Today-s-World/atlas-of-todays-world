@@ -133,10 +133,9 @@ export default function GlobalIssuesAdmin({
     if (!confirm(`Smazat celek „${slug}"?`)) return;
     setBusy(true);
     try {
-      const res = await fetch(
-        `/api/admin/global-issues?slug=${encodeURIComponent(slug)}`,
-        { method: "DELETE" },
-      );
+      const res = await fetch(`/api/admin/global-issues?slug=${encodeURIComponent(slug)}`, {
+        method: "DELETE",
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Smazání selhalo.");
       router.refresh();
@@ -155,14 +154,16 @@ export default function GlobalIssuesAdmin({
         </h2>
         <p className="mt-2 text-[13px] leading-relaxed text-[var(--color-ink-soft)]">
           Global Issues se na globusu zapínají přepínačem{" "}
-          <strong className="font-medium">Global Issues</strong>. Nemusí
-          respektovat hranice devíti regionů Atlasu.
+          <strong className="font-medium">Global Issues</strong>. Nemusí respektovat hranice devíti
+          regionů Atlasu.
         </p>
 
         <form onSubmit={save} className="mt-5 grid gap-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className={LABEL} htmlFor="sr-name">Název</label>
+              <label className={LABEL} htmlFor="sr-name">
+                Název
+              </label>
               <input
                 id="sr-name"
                 required
@@ -173,7 +174,9 @@ export default function GlobalIssuesAdmin({
               />
             </div>
             <div>
-              <label className={LABEL} htmlFor="sr-subtitle">Podtitul</label>
+              <label className={LABEL} htmlFor="sr-subtitle">
+                Podtitul
+              </label>
               <input
                 id="sr-subtitle"
                 value={draft.subtitle}
@@ -185,7 +188,9 @@ export default function GlobalIssuesAdmin({
           </div>
 
           <div>
-            <label className={LABEL} htmlFor="sr-summary">Popis</label>
+            <label className={LABEL} htmlFor="sr-summary">
+              Popis
+            </label>
             <textarea
               id="sr-summary"
               rows={3}
@@ -220,18 +225,22 @@ export default function GlobalIssuesAdmin({
           <div>
             <div className="flex flex-wrap items-end justify-between gap-3">
               <span className={LABEL}>
-                Země v celku{" "}
-                <span className="font-normal">({draft.countries.length} vybráno)</span>
+                Země v celku <span className="font-normal">({draft.countries.length} vybráno)</span>
               </span>
               <select
                 aria-label="Přidat celý region Atlasu"
                 defaultValue=""
-                onChange={(e) => { addAtlasRegion(e.target.value); e.target.value = ""; }}
+                onChange={(e) => {
+                  addAtlasRegion(e.target.value);
+                  e.target.value = "";
+                }}
                 className="rounded-lg border border-[var(--color-line)] px-2 py-1 text-[12px] text-[var(--color-ink-soft)]"
               >
                 <option value="">+ přidat celý region Atlasu</option>
                 {atlasRegions.map((region) => (
-                  <option key={region.slug} value={region.slug}>{region.name}</option>
+                  <option key={region.slug} value={region.slug}>
+                    {region.name}
+                  </option>
                 ))}
               </select>
             </div>
@@ -272,7 +281,9 @@ export default function GlobalIssuesAdmin({
           {done ? (
             <p className="rounded-lg bg-emerald-50 px-3 py-2 text-[13px] text-emerald-800">
               Uloženo.{" "}
-              <Link href={done} className="font-medium underline">Otevřít v mapě</Link>
+              <Link href={done} className="font-medium underline">
+                Otevřít v mapě
+              </Link>
             </p>
           ) : null}
 
@@ -299,8 +310,7 @@ export default function GlobalIssuesAdmin({
 
       <section>
         <h2 className="font-display text-[20px] font-bold">
-          Global Issues{" "}
-          <span className="text-[var(--color-ink-muted)]">({regions.length})</span>
+          Global Issues <span className="text-[var(--color-ink-muted)]">({regions.length})</span>
         </h2>
 
         <ul className="mt-5 grid gap-2">

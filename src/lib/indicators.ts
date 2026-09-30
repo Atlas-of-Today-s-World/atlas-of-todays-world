@@ -1,6 +1,6 @@
 import raw from "@/data/indicators.generated.json";
 
-export interface IndicatorCategory {
+interface IndicatorCategory {
   value: number;
   label: string;
   color: string;
@@ -30,8 +30,6 @@ const INDICATOR_MAP = raw as unknown as Record<string, Indicator>;
 
 export const INDICATORS: Indicator[] = Object.values(INDICATOR_MAP);
 
-export const INDICATOR_IDS = INDICATORS.map((indicator) => indicator.id);
-
 export function getIndicator(id: string): Indicator | null {
   return INDICATOR_MAP[id] ?? null;
 }
@@ -40,7 +38,7 @@ export function getIndicator(id: string): Indicator | null {
  * Barva země pro danou vrstvu. Sekvenční škály interpolují mezi zastávkami
  * rampy, kategoriální berou barvu přímo z číselníku.
  */
-export function colorForValue(indicator: Indicator, value: number): string {
+function colorForValue(indicator: Indicator, value: number): string {
   if (indicator.type === "categorical") {
     const match = indicator.categories?.find((c) => c.value === Math.round(value));
     return match?.color ?? "#C9CED8";
@@ -55,12 +53,7 @@ export function colorForValue(indicator: Indicator, value: number): string {
   return mixHex(ramp[lower], ramp[upper], scaled - lower);
 }
 
-function normalise(
-  value: number,
-  min: number,
-  max: number,
-  scale?: "log",
-): number {
+function normalise(value: number, min: number, max: number, scale?: "log"): number {
   if (scale === "log") {
     const safe = Math.max(value, 1);
     const t = (Math.log(safe) - Math.log(min)) / (Math.log(max) - Math.log(min));

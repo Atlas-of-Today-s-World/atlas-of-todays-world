@@ -177,9 +177,7 @@ export default function AdminClient({
 
   function toggleCountry(iso3: string) {
     setCountries((current) =>
-      current.includes(iso3)
-        ? current.filter((item) => item !== iso3)
-        : [...current, iso3],
+      current.includes(iso3) ? current.filter((item) => item !== iso3) : [...current, iso3],
     );
   }
 
@@ -189,8 +187,8 @@ export default function AdminClient({
         <div>
           <h2 className="font-display text-[22px] font-bold">Novinky</h2>
           <p className="mt-1 text-[13px] text-[var(--color-ink-soft)]">
-            Krátký útvar: novinka se uloží jako Markdown a objeví se v profilu
-            regionu i každé označené země.
+            Krátký útvar: novinka se uloží jako Markdown a objeví se v profilu regionu i každé
+            označené země.
           </p>
         </div>
         <button
@@ -213,35 +211,61 @@ export default function AdminClient({
           <form onSubmit={submit} className="mt-5 grid gap-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className={LABEL} htmlFor="title">Název</label>
-                <input id="title" name="title" required className={`mt-1.5 ${FIELD}`}
-                  placeholder="The Regime of Vladimir Putin" />
+                <label className={LABEL} htmlFor="title">
+                  Název
+                </label>
+                <input
+                  id="title"
+                  name="title"
+                  required
+                  className={`mt-1.5 ${FIELD}`}
+                  placeholder="The Regime of Vladimir Putin"
+                />
               </div>
               <div>
-                <label className={LABEL} htmlFor="slug">URL (nepovinné)</label>
-                <input id="slug" name="slug" className={`mt-1.5 ${FIELD}`}
-                  placeholder="odvodí se z názvu" />
+                <label className={LABEL} htmlFor="slug">
+                  URL (nepovinné)
+                </label>
+                <input
+                  id="slug"
+                  name="slug"
+                  className={`mt-1.5 ${FIELD}`}
+                  placeholder="odvodí se z názvu"
+                />
               </div>
             </div>
 
             <div>
-              <label className={LABEL} htmlFor="summary">Perex</label>
-              <textarea id="summary" name="summary" required rows={2}
+              <label className={LABEL} htmlFor="summary">
+                Perex
+              </label>
+              <textarea
+                id="summary"
+                name="summary"
+                required
+                rows={2}
                 className={`mt-1.5 ${FIELD}`}
-                placeholder="Jedna až dvě věty do přehledu novinek a do výsledků hledání." />
+                placeholder="Jedna až dvě věty do přehledu novinek a do výsledků hledání."
+              />
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className={LABEL} htmlFor="category">Kategorie</label>
+                <label className={LABEL} htmlFor="category">
+                  Kategorie
+                </label>
                 <select id="category" name="category" className={`mt-1.5 ${FIELD}`}>
                   {categories.map((category) => (
-                    <option key={category} value={category}>{category}</option>
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className={LABEL} htmlFor="region">Region</label>
+                <label className={LABEL} htmlFor="region">
+                  Region
+                </label>
                 <select
                   id="region"
                   name="region"
@@ -253,7 +277,9 @@ export default function AdminClient({
                   className={`mt-1.5 ${FIELD}`}
                 >
                   {regions.map((item) => (
-                    <option key={item.slug} value={item.slug}>{item.name}</option>
+                    <option key={item.slug} value={item.slug}>
+                      {item.name}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -301,9 +327,7 @@ export default function AdminClient({
             <div>
               <span className={LABEL}>
                 Země, kterých se novinka týká{" "}
-                <span className="font-normal">
-                  (novinka se pak ukáže v profilu každé z nich)
-                </span>
+                <span className="font-normal">(novinka se pak ukáže v profilu každé z nich)</span>
               </span>
               <div className="mt-2 flex max-h-40 flex-wrap gap-1.5 overflow-y-auto rounded-lg border border-[var(--color-line)] p-2.5">
                 {pickable.map((country) => {
@@ -329,27 +353,51 @@ export default function AdminClient({
 
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="sm:col-span-2">
-                <label className={LABEL} htmlFor="hero">Obrázek (URL)</label>
-                <input id="hero" name="hero" type="url" className={`mt-1.5 ${FIELD}`}
-                  placeholder="https://images.unsplash.com/…" />
+                <label className={LABEL} htmlFor="hero">
+                  Obrázek (URL)
+                </label>
+                <input
+                  id="hero"
+                  name="hero"
+                  type="url"
+                  className={`mt-1.5 ${FIELD}`}
+                  placeholder="https://images.unsplash.com/…"
+                />
               </div>
               <div>
-                <label className={LABEL} htmlFor="published">Datum</label>
+                <label className={LABEL} htmlFor="published">
+                  Datum
+                </label>
                 <input id="published" name="published" type="date" className={`mt-1.5 ${FIELD}`} />
               </div>
             </div>
 
             <div>
-              <label className={LABEL} htmlFor="author">Autor</label>
-              <input id="author" name="author" className={`mt-1.5 ${FIELD}`}
-                placeholder="Atlas editorial team" />
+              <label className={LABEL} htmlFor="author">
+                Autor
+              </label>
+              <input
+                id="author"
+                name="author"
+                className={`mt-1.5 ${FIELD}`}
+                placeholder="Atlas editorial team"
+              />
             </div>
 
             <div>
-              <label className={LABEL} htmlFor="markdown">Text novinky (Markdown)</label>
-              <textarea id="markdown" name="markdown" required rows={12}
+              <label className={LABEL} htmlFor="markdown">
+                Text novinky (Markdown)
+              </label>
+              <textarea
+                id="markdown"
+                name="markdown"
+                required
+                rows={12}
                 className={`mt-1.5 font-mono text-[13px] ${FIELD}`}
-                placeholder={"Úvodní odstavec.\n\n## Mezinadpis\n\nDalší text, **tučně**, [odkaz](https://…)."} />
+                placeholder={
+                  "Úvodní odstavec.\n\n## Mezinadpis\n\nDalší text, **tučně**, [odkaz](https://…)."
+                }
+              />
             </div>
 
             {error ? (
@@ -381,7 +429,9 @@ export default function AdminClient({
       <section aria-label="Publikované novinky" className="mt-10">
         <div className="grid gap-3 rounded-xl border border-[var(--color-line)] bg-[var(--color-line)]/10 p-4 sm:grid-cols-2 lg:grid-cols-5">
           <div>
-            <label className={LABEL} htmlFor="filter-region">Region</label>
+            <label className={LABEL} htmlFor="filter-region">
+              Region
+            </label>
             <select
               id="filter-region"
               value={filterRegion}
@@ -393,13 +443,17 @@ export default function AdminClient({
             >
               <option value="">Všechny</option>
               {regions.map((item) => (
-                <option key={item.slug} value={item.slug}>{item.name}</option>
+                <option key={item.slug} value={item.slug}>
+                  {item.name}
+                </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className={LABEL} htmlFor="filter-country">Země</label>
+            <label className={LABEL} htmlFor="filter-country">
+              Země
+            </label>
             <select
               id="filter-country"
               value={filterCountry}
@@ -416,7 +470,9 @@ export default function AdminClient({
           </div>
 
           <div>
-            <label className={LABEL} htmlFor="filter-issue">Global Issue</label>
+            <label className={LABEL} htmlFor="filter-issue">
+              Global Issue
+            </label>
             <select
               id="filter-issue"
               value={filterIssue}
@@ -425,13 +481,17 @@ export default function AdminClient({
             >
               <option value="">Všechny</option>
               {issues.map((item) => (
-                <option key={item.slug} value={item.slug}>{item.name}</option>
+                <option key={item.slug} value={item.slug}>
+                  {item.name}
+                </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className={LABEL} htmlFor="filter-category">Kategorie</label>
+            <label className={LABEL} htmlFor="filter-category">
+              Kategorie
+            </label>
             <select
               id="filter-category"
               value={filterCategory}
@@ -440,13 +500,17 @@ export default function AdminClient({
             >
               <option value="">Všechny</option>
               {categories.map((category) => (
-                <option key={category} value={category}>{category}</option>
+                <option key={category} value={category}>
+                  {category}
+                </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className={LABEL} htmlFor="filter-query">Název obsahuje</label>
+            <label className={LABEL} htmlFor="filter-query">
+              Název obsahuje
+            </label>
             <input
               id="filter-query"
               value={query}
@@ -519,9 +583,7 @@ export default function AdminClient({
 
         {!filtered.length ? (
           <p className="mt-4 text-[13px] text-[var(--color-ink-muted)]">
-            {newsItems.length
-              ? "Filtrům neodpovídá žádná novinka."
-              : "Zatím žádné novinky."}
+            {newsItems.length ? "Filtrům neodpovídá žádná novinka." : "Zatím žádné novinky."}
           </p>
         ) : null}
       </section>

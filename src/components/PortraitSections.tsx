@@ -1,12 +1,7 @@
 import Link from "next/link";
 import { MetricCards, StatIcon } from "./atlas-ui";
 import type { RegionStat } from "@/lib/region-stats";
-import type {
-  FaqItem,
-  MetricCard,
-  ResourceItem,
-  TimelineItem,
-} from "@/lib/content-types";
+import type { FaqItem, MetricCard, ResourceItem, TimelineItem } from "@/lib/content-types";
 
 /**
  * Stavební díly portrétu. Používá je portrét regionu i portrét global issue –
@@ -69,7 +64,7 @@ export function EmptySection({
   return (
     <section className="border-t border-[var(--color-line)] px-6 py-8 sm:px-10">
       <SectionHead title={title} lead={lead} muted />
-      <div aria-hidden className="pointer-events-none mt-5 select-none space-y-2 opacity-55">
+      <div aria-hidden className="pointer-events-none mt-5 space-y-2 opacity-55 select-none">
         {children ?? (
           <>
             {Array.from({ length: rows }).map((_, index) => (
@@ -83,10 +78,7 @@ export function EmptySection({
       </div>
       <p className="mt-4 text-[12px] text-[var(--color-ink-muted)]">
         Not written yet.{" "}
-        <Link
-          href="/patrons"
-          className="font-medium text-[var(--color-link)] hover:underline"
-        >
+        <Link href="/patrons" className="font-medium text-[var(--color-link)] hover:underline">
           Help Us Complete It By Joining Atlas Patrons →
         </Link>
       </p>
@@ -133,13 +125,11 @@ export function IndicatorCards({
           <div key={stat.id}>
             <div className="flex items-center gap-2.5 text-[var(--color-ink)]">
               <StatIcon id={stat.id} />
-              <span className="font-display text-[19px] font-semibold leading-none">
+              <span className="font-display text-[19px] leading-none font-semibold">
                 {stat.value}
               </span>
             </div>
-            <dt className="mt-2 text-[12.5px] font-medium text-[var(--color-ink)]">
-              {stat.label}
-            </dt>
+            <dt className="mt-2 text-[12.5px] font-medium text-[var(--color-ink)]">{stat.label}</dt>
             <dd className="mt-1 text-[11px] leading-relaxed text-[var(--color-ink-muted)]">
               {stat.coverage.have} of {stat.coverage.total} countries · {stat.year}
               <br />
@@ -178,7 +168,7 @@ export function Timeline({
       <div className="panel-scroll -mx-1 mt-6 flex snap-x gap-6 overflow-x-auto px-1 pb-3">
         {items.map((item) => (
           <div key={item.title} className="w-60 shrink-0 snap-start">
-            <h3 className="font-display text-[14px] font-bold leading-snug text-[var(--color-ink)]">
+            <h3 className="font-display text-[14px] leading-snug font-bold text-[var(--color-ink)]">
               {item.title}
             </h3>
             <p className="mt-1 text-[11.5px] text-[var(--color-ink-muted)]">{item.date}</p>
@@ -218,7 +208,7 @@ export function ThematicEntries({ entries }: { entries: PlannedEntry[] }) {
           const group = entries.filter((entry) => entry.category === category);
           return (
             <div key={category}>
-              <h3 className="text-[11px] font-medium uppercase tracking-[0.1em] text-[var(--color-ink-muted)]">
+              <h3 className="text-[11px] font-medium tracking-[0.1em] text-[var(--color-ink-muted)] uppercase">
                 {category}
               </h3>
               <div className="panel-scroll -mx-1 mt-2.5 flex snap-x gap-2.5 overflow-x-auto px-1 pb-2">
@@ -228,7 +218,7 @@ export function ThematicEntries({ entries }: { entries: PlannedEntry[] }) {
                       <Link
                         key={entry.title}
                         href={`/news/${entry.slug}`}
-                        className="w-56 shrink-0 snap-start rounded-xl border border-[var(--color-line)] p-3 text-[13px] font-medium leading-snug text-[var(--color-ink)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+                        className="w-56 shrink-0 snap-start rounded-xl border border-[var(--color-line)] p-3 text-[13px] leading-snug font-medium text-[var(--color-ink)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
                       >
                         {entry.title}
                       </Link>
@@ -254,10 +244,7 @@ export function ThematicEntries({ entries }: { entries: PlannedEntry[] }) {
         })}
       </div>
       <p className="mt-3 text-[12px] text-[var(--color-ink-muted)]">
-        <Link
-          href="/patrons"
-          className="font-medium text-[var(--color-link)] hover:underline"
-        >
+        <Link href="/patrons" className="font-medium text-[var(--color-link)] hover:underline">
           Help Us Complete It By Joining Atlas Patrons →
         </Link>
       </p>
@@ -304,12 +291,11 @@ export function ResourceLibrary({ resources }: { resources: ResourceItem[] }) {
     <section className="border-t border-[var(--color-line)] bg-[var(--color-band)] px-6 py-8 text-white sm:px-10">
       <h2 className="font-display text-[20px] font-bold">Learn more elsewhere</h2>
       <p className="mt-2 max-w-2xl text-[12.5px] leading-relaxed text-white/65">
-        Documentaries, lectures, reports and databases picked by the Atlas team
-        for this group.
+        Documentaries, lectures, reports and databases picked by the Atlas team for this group.
       </p>
       {categories.map((category) => (
         <div key={category} className="mt-5">
-          <h3 className="text-[11px] font-medium uppercase tracking-[0.1em] text-white/55">
+          <h3 className="text-[11px] font-medium tracking-[0.1em] text-white/55 uppercase">
             {category}
           </h3>
           <div className="panel-scroll -mx-1 mt-2.5 flex snap-x gap-3 overflow-x-auto px-1 pb-2">
@@ -330,7 +316,7 @@ export function ResourceLibrary({ resources }: { resources: ResourceItem[] }) {
                     />
                   ) : null}
                   <span className="block p-3">
-                    <span className="block font-display text-[13px] font-bold leading-snug">
+                    <span className="font-display block text-[13px] leading-snug font-bold">
                       {resource.title}
                     </span>
                     <span className="mt-1 block text-[11px] text-[var(--color-ink-muted)]">
@@ -381,9 +367,7 @@ export function PatronsCallout({ complete }: { complete: boolean }) {
   return (
     <section className="border-t border-[var(--color-line)] px-6 py-9 text-center sm:px-10">
       <h2 className="font-display text-[22px] font-bold text-[var(--color-ink)]">
-        {complete
-          ? "Together We Can Build a New Encyclopedia"
-          : "This portrait is not finished"}
+        {complete ? "Together We Can Build a New Encyclopedia" : "This portrait is not finished"}
       </h2>
       <p className="mx-auto mt-2.5 max-w-lg text-[12.5px] leading-relaxed text-[var(--color-ink-muted)]">
         {complete

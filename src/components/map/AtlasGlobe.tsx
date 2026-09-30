@@ -2,12 +2,18 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import maplibregl, { type Map as MapLibreMap, type MapMouseEvent } from "maplibre-gl";
+import {
+  Map as MapLibreMap,
+  type ErrorEvent,
+  type ExpressionSpecification,
+  type MapMouseEvent,
+  type MapSourceDataEvent,
+} from "maplibre-gl";
 import { buildStyle, LAYERS } from "./mapStyle";
 import { EUROPE_CENTER, globeFillZoom } from "@/lib/home-location";
 import { useMapState } from "./MapContext";
 
-export interface GlobeColorSets {
+interface GlobeColorSets {
   /** ISO3 -> barva pro každou vrstvu, předpočítané na serveru. */
   [view: string]: Record<string, string>;
 }
@@ -73,18 +79,16 @@ function applyFeatureState(
   ref.current = next;
 }
 
-const setHoverState = (
-  map: MapLibreMap,
-  ref: { current: string[] },
-  next: string[],
-) => applyFeatureState(map, ref, next, "hover");
+const setHoverState = (map: MapLibreMap, ref: { current: string[] }, next: string[]) =>
+  applyFeatureState(map, ref, next, "hover");
 
 /** Z mapy ISO3->barva udělá MapLibre `match` výraz. */
-function matchExpression(colors: Record<string, string>): unknown[] {
-  const stops: unknown[] = [];
+function matchExpression(colors: Record<string, string>): ExpressionSpecification {
+  const stops: string[] = [];
   for (const [iso3, color] of Object.entries(colors)) stops.push(iso3, color);
-  if (!stops.length) return ["literal", NEUTRAL] as unknown[];
-  return ["match", ["get", "iso3"], ...stops, NEUTRAL];
+  if (!stops.length) return ["literal", NEUTRAL];
+  // Typy MapLibre neumí vyjádřit proměnný počet dvojic klíč–barva v "match".
+  return ["match", ["get", "iso3"], ...stops, NEUTRAL] as unknown as ExpressionSpecification;
 }
 
 export default function AtlasGlobe({ colorSets, slugs, regions, issue }: Props) {
@@ -121,7 +125,7 @@ export default function AtlasGlobe({ colorSets, slugs, regions, issue }: Props) 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
-    const map = new maplibregl.Map({
+    const map = new MapLibreMap({
       container: containerRef.current,
       style: buildStyle(),
       // První snímek rovnou ve výchozí vzdálenosti, ať se mapa nezobrazí
@@ -135,10 +139,8 @@ export default function AtlasGlobe({ colorSets, slugs, regions, issue }: Props) 
       maxPitch: 0,
     });
     mapRef.current = map;
-    // Ladicí úchyt: v konzoli prohlížeče je mapa dostupná jako window.atlasMap.
-    (window as unknown as { atlasMap?: MapLibreMap }).atlasMap = map;
 
-    map.on("error", (event) => {
+    map.on("error", (event: ErrorEvent) => {
       console.error("[atlas-globe]", event.error?.message ?? event);
     });
 
@@ -146,6 +148,15 @@ export default function AtlasGlobe({ colorSets, slugs, regions, issue }: Props) 
       readyRef.current = true;
       setReady(true);
     });
+
+    // Stav pro e2e testy a diagnostiku: hranice zemí jsou načtené a vykreslené.
+    // "idle" nestačí — při animaci kamery nemusí přijít; sourcedata přijde vždy.
+    const markCountriesLoaded = (event: MapSourceDataEvent) => {
+      if (event.sourceId !== "countries" || !map.isSourceLoaded("countries")) return;
+      containerRef.current?.setAttribute("data-countries", "loaded");
+      map.off("sourcedata", markCountriesLoaded);
+    };
+    map.on("sourcedata", markCountriesLoaded);
 
     /** Co je pod kurzorem: ISO3 země, její název a cílová URL podle režimu. */
     const targetAt = (point: MapMouseEvent["point"]) => {
@@ -271,16 +282,8 @@ export default function AtlasGlobe({ colorSets, slugs, regions, issue }: Props) 
 
     // V režimu regionů ustoupí vnitřní hranice a názvy států do pozadí,
     // aby barevné celky četly jako regiony.
-    map.setPaintProperty(
-      LAYERS.border,
-      "line-opacity",
-      isGrouped ? 0.25 : 1,
-    );
-    map.setLayoutProperty(
-      LAYERS.label,
-      "visibility",
-      isGrouped ? "none" : "visible",
-    );
+    map.setPaintProperty(LAYERS.border, "line-opacity", isGrouped ? 0.25 : 1);
+    map.setLayoutProperty(LAYERS.label, "visibility", isGrouped ? "none" : "visible");
     map.setLayoutProperty(
       LAYERS.regionLabel,
       "visibility",
@@ -306,13 +309,7 @@ export default function AtlasGlobe({ colorSets, slugs, regions, issue }: Props) 
     if (focus.regionStroke) {
       map.setPaintProperty(LAYERS.regionOutline, "line-color", focus.regionStroke);
     }
-  }, [
-    focus.activeIso3,
-    focus.regionCountries,
-    focus.regionStroke,
-    pendingIso3,
-    ready,
-  ]);
+  }, [focus.activeIso3, focus.regionCountries, focus.regionStroke, pendingIso3, ready]);
 
   // Jakmile dorazí obsah, převezme zvýraznění stránka a dočasné zmizí.
   useEffect(() => {
@@ -356,7 +353,7 @@ export default function AtlasGlobe({ colorSets, slugs, regions, issue }: Props) 
     <div className="absolute inset-0">
       <div ref={containerRef} className="h-full w-full" />
 
-      <div className="pointer-events-none absolute left-5 top-24 flex flex-col gap-1.5">
+      <div className="pointer-events-none absolute top-24 left-5 flex flex-col gap-1.5">
         <button
           type="button"
           aria-label="Zoom in"

@@ -15,7 +15,6 @@ import { INDICATORS } from "./indicators.config.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
-
 /** Kosovo má v OWID vlastní kód, Natural Earth ho vede jako XKX. */
 const CODE_ALIASES = { OWID_KOS: "XKX" };
 
@@ -69,13 +68,9 @@ async function importIndicator(indicator) {
 
   const codeIdx = header.indexOf("code");
   const yearIdx = header.indexOf("year");
-  const valueIdx = indicator.valueColumn
-    ? header.indexOf(indicator.valueColumn)
-    : 3;
+  const valueIdx = indicator.valueColumn ? header.indexOf(indicator.valueColumn) : 3;
   if (codeIdx < 0 || yearIdx < 0 || valueIdx < 0) {
-    throw new Error(
-      `Neznámá struktura CSV u ${indicator.owidSlug}: ${header.join(",")}`,
-    );
+    throw new Error(`Neznámá struktura CSV u ${indicator.owidSlug}: ${header.join(",")}`);
   }
 
   /** @type {Record<string, { value: number; year: number }>} */
@@ -98,7 +93,7 @@ async function importIndicator(indicator) {
   }
 
   const years = Object.values(byCountry).map((entry) => entry.year);
-  const { valueColumn, owidSlug, ...meta } = indicator;
+  const { valueColumn: _valueColumn, owidSlug, ...meta } = indicator;
 
   return {
     ...meta,
@@ -119,9 +114,7 @@ async function main() {
     try {
       const data = await importIndicator(indicator);
       out[indicator.id] = data;
-      process.stdout.write(
-        `${data.countryCount} zemí, poslední rok ${data.latestYear}\n`,
-      );
+      process.stdout.write(`${data.countryCount} zemí, poslední rok ${data.latestYear}\n`);
     } catch (error) {
       failures.push(`${indicator.id}: ${error.message}`);
       process.stdout.write(`CHYBA\n`);

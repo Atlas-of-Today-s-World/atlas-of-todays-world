@@ -47,7 +47,7 @@ export default function ViewSwitcher({ options }: { options: ViewOption[] }) {
       </button>
 
       {open ? (
-        <div className="glass absolute right-0 top-11 z-40 w-72 overflow-hidden rounded-2xl p-1.5 shadow-2xl shadow-black/50">
+        <div className="glass absolute top-11 right-0 z-40 w-72 overflow-hidden rounded-2xl p-1.5 shadow-2xl shadow-black/50">
           {options.map((option) => (
             <button
               key={option.id}
@@ -64,13 +64,15 @@ export default function ViewSwitcher({ options }: { options: ViewOption[] }) {
             >
               <span className="flex shrink-0 overflow-hidden rounded-full">
                 {option.swatches.length ? (
-                  option.swatches.slice(0, 4).map((swatch) => (
-                    <span
-                      key={swatch.label + swatch.color}
-                      style={{ background: swatch.color }}
-                      className="h-3 w-3"
-                    />
-                  ))
+                  option.swatches
+                    .slice(0, 4)
+                    .map((swatch) => (
+                      <span
+                        key={swatch.label + swatch.color}
+                        style={{ background: swatch.color }}
+                        className="h-3 w-3"
+                      />
+                    ))
                 ) : (
                   <span className="h-3 w-3 rounded-full bg-white/40" />
                 )}
@@ -103,15 +105,11 @@ export function MapLegend({ options }: { options: ViewOption[] }) {
         {option.swatches.map((swatch) => (
           <div key={swatch.label + swatch.color} className="flex-1">
             <div style={{ background: swatch.color }} className="h-2.5" />
-            <div className="mt-1 text-center text-[10px] text-white/65">
-              {swatch.label}
-            </div>
+            <div className="mt-1 text-center text-[10px] text-white/65">{swatch.label}</div>
           </div>
         ))}
       </div>
-      <p className="mt-1.5 text-[10.5px] leading-snug text-white/55">
-        {option.caption}
-      </p>
+      <p className="mt-1.5 text-[10.5px] leading-snug text-white/55">{option.caption}</p>
     </div>
   );
 }

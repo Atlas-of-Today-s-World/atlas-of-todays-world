@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import LoginForm from "./LoginForm";
+import { safeRedirect } from "@/lib/security/redirect";
 
 export const metadata: Metadata = {
   title: "Administrace — přihlášení",
@@ -24,11 +25,11 @@ export default async function AdminLoginPage({
     <main className="mx-auto max-w-md">
       <h1 className="font-display text-[28px] font-bold">Administrace</h1>
       <p className="mt-3 text-[14px] leading-relaxed text-[var(--color-ink-soft)]">
-        Redakční část Atlasu je zamčená sdíleným heslem. Dokud nebude hotové
-        přihlášení s účty, tohle je jediná zábrana — heslo tedy nikam nelepte.
+        Redakční část Atlasu je zamčená sdíleným heslem. Dokud nebude hotové přihlášení s účty,
+        tohle je jediná zábrana — heslo tedy nikam nelepte.
       </p>
 
-      <LoginForm next={next ?? "/admin"} error={error} />
+      <LoginForm next={safeRedirect(next, "/admin")} error={error} />
     </main>
   );
 }

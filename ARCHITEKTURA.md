@@ -502,7 +502,7 @@ Každý bod má kontrolu v testech nebo v CI (sloupec „Ověření“).
 | S5 | URL | `safeUrl()` pro `href`/`src`/CSS; DB CHECK `^https://` na URL sloupcích | unit + DB test |
 | S6 | Open redirect | `safeRedirect()` pro `next`/`redirectTo` | unit test |
 | S7 | CSRF | Server Actions (Next ověřuje Origin); Route Handlers s cookie auth ověřují `Origin`; cookies `SameSite=Lax` | e2e test cizího Origin |
-| S8 | Hlavičky | CSP s **nonce** (bez `unsafe-eval`, bez `unsafe-inline` ve script-src), HSTS, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `frame-ancestors 'none'` | smoke test hlaviček |
+| S8 | Hlavičky | CSP z `lib/security/csp.ts` (v produkci bez `unsafe-eval`; `unsafe-inline` ve script-src viz ADR-012), HSTS, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `Cross-Origin-Opener-Policy`, `frame-ancestors 'none'` | unit test CSP + smoke test hlaviček |
 | S9 | Rate limiting | sdílené úložiště (tabulka `rate_limits` v Postgres nebo Upstash Free) — ne paměť procesu | integrační test |
 | S10 | Tajné údaje | jen server; `server-only`; GitHub secret scanning + push protection; `grep` bundlu v CI | CI krok |
 | S11 | Závislosti | Dependabot (týdně), `npm audit --audit-level=high` v CI, CodeQL (zdarma pro veřejné repo), zamčené verze | CI |
@@ -518,7 +518,7 @@ Každý bod má kontrolu v testech nebo v CI (sloupec „Ověření“).
 
 ```
 default-src 'self';
-script-src 'self' 'nonce-{random}' 'strict-dynamic';
+script-src 'self' 'unsafe-inline' blob:;                           # bez nonce — ADR-012
 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;      # Tailwind/MapLibre inline styly
 img-src 'self' data: blob: https://*.supabase.co https://server.arcgisonline.com https://api.maptiler.com;
 font-src 'self' https://fonts.gstatic.com data:;
@@ -530,7 +530,8 @@ worker-src 'self' blob:;
 object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
 ```
 
-Nonce generuje middleware na každý request. Nová externí služba = změna CSP v `lib/security/csp.ts` + test.
+CSP skládá `buildCsp()` v `lib/security/csp.ts`; middleware ji posílá s každou odpovědí. Nonce záměrně
+nepoužíváme (ADR-012). Nová externí služba = změna CSP v `lib/security/csp.ts` + test.
 
 ### 8.3 Sanitizace HTML (jediná allowlist)
 
@@ -630,6 +631,8 @@ noc:  zašifrovaná záloha DB · npm audit · CodeQL
 | ADR-009 | Veřejný GitHub repozitář | Vercel Hobby jinak blokuje nasazení od více autorů; zdarma CodeQL a secret scanning | soukromé repo + Vercel Pro |
 | ADR-010 | TipTap + sanitizace na serveru při uložení i vykreslení | bezpečný WYSIWYG, strukturovaný výstup | Markdown editor |
 | ADR-011 | Rate limiting v Postgres (`rate_limits` + funkce) | žádná další služba; sdílené mezi instancemi | Upstash Redis Free |
+| ADR-012 | CSP bez nonce: `script-src 'self' 'unsafe-inline'`, v produkci bez `unsafe-eval` | nonce vyžaduje dynamické renderování každé stránky → konec statických/ISR stránek; XSS řeší sanitizace (8.3) a zákaz `dangerouslySetInnerHTML` mimo `SafeHtml` | nonce + dynamické renderování; SRI hash (experimentální v Next 15) — přehodnotit s Next 16 |
+| ADR-013 | Zůstat na MapLibre 5 s výjimkou v auditu (GHSA-jrc7-96c5-q579) | zranitelnost je v `DOM.sanitize`, kterou v5 volá jen pro náš pevný atribuční text; MapLibre 6 v bundleru Next nenačte web worker (hranice zemí se nevykreslí) | MapLibre 6 s vlastním načítáním workeru (úkol A9) |
 
 Nové rozhodnutí = nový řádek (další číslo), nikdy přepsání starého; zrušené označit „nahrazeno ADR-xxx“.
 

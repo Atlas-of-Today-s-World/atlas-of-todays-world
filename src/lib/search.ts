@@ -3,9 +3,9 @@ import { REGIONS } from "@/data/regions";
 import { allNews } from "@/lib/content";
 import { indexableCountries } from "@/lib/countries";
 
-export type SearchKind = "region" | "country" | "news";
+type SearchKind = "region" | "country" | "news";
 
-export interface SearchDoc {
+interface SearchDoc {
   id: string;
   kind: SearchKind;
   title: string;
@@ -21,8 +21,7 @@ export interface SearchHit extends SearchDoc {
   score: number;
 }
 
-let indexPromise: Promise<{ index: MiniSearch<SearchDoc>; docs: SearchDoc[] }> | null =
-  null;
+let indexPromise: Promise<{ index: MiniSearch<SearchDoc>; docs: SearchDoc[] }> | null = null;
 
 async function buildDocs(): Promise<SearchDoc[]> {
   const docs: SearchDoc[] = [];
@@ -41,9 +40,7 @@ async function buildDocs(): Promise<SearchDoc[]> {
   }
 
   for (const country of indexableCountries()) {
-    const stats = country.stats
-      .map((stat) => `${stat.label} ${stat.value}`)
-      .join(". ");
+    const stats = country.stats.map((stat) => `${stat.label} ${stat.value}`).join(". ");
     docs.push({
       id: `country:${country.iso3}`,
       kind: "country",

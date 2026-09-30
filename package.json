@@ -21,33 +21,70 @@
     "db:seed": "node scripts/db/build-seed.mjs",
     "test:db": "node scripts/db/build-seed.mjs && node --test supabase/tests/rls.test.mjs supabase/tests/seed.test.mjs",
     "test:e2e": "playwright test",
-    "test:demo": "node demo/build.mjs && playwright test -c playwright.demo.config.ts"
+    "test:demo": "node demo/build.mjs && playwright test -c playwright.demo.config.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "check:dup": "jscpd",
+    "check:unused": "knip",
+    "prepare": "husky",
+    "check:audit": "audit-ci --config audit-ci.jsonc"
   },
   "dependencies": {
     "@types/sanitize-html": "^2.16.1",
     "gray-matter": "^4.0.3",
-    "maplibre-gl": "^5.9.0",
+    "maplibre-gl": "^5.24.0",
     "marked": "^16.4.0",
     "minisearch": "^7.2.0",
     "next": "^15.5.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "sanitize-html": "^2.17.7"
+    "sanitize-html": "^2.17.7",
+    "server-only": "^0.0.1",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",
+    "@eslint/eslintrc": "^3.3.7",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.1.14",
     "@types/node": "^22.18.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "@vitest/coverage-v8": "^5.0.3",
+    "audit-ci": "^7.1.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "15.5",
+    "eslint-plugin-security": "^4.1.0",
+    "husky": "^9.1.7",
+    "jscpd": "^5.3.3",
+    "knip": "^6.39.0",
+    "lint-staged": "^17.6.0",
     "polygon-clipping": "^0.15.7",
+    "prettier": "^3.9.9",
+    "prettier-plugin-tailwindcss": "^0.8.1",
     "sharp": "^0.35.4",
     "tailwindcss": "^4.1.14",
     "topojson-client": "^3.1.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.3"
   },
   "engines": {
     "node": ">=22"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,mjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,yml}": [
+      "prettier --write"
+    ]
+  },
+  "overrides": {
+    "postcss": "^8.5.28"
   }
 }

@@ -3,6 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { NEWS_CATEGORIES, type NewsCategory } from "@/lib/content-types";
+import { cssBackgroundImage } from "@/lib/security/urls";
+
+const FALLBACK_HERO = "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&q=60";
 
 export interface NewsCard {
   slug: string;
@@ -19,9 +22,7 @@ export default function NewsTabs({ newsItems }: { newsItems: NewsCard[] }) {
   );
   const [active, setActive] = useState<NewsCategory | null>(available[0] ?? null);
 
-  const visible = active
-    ? newsItems.filter((item) => item.category === active)
-    : newsItems;
+  const visible = active ? newsItems.filter((item) => item.category === active) : newsItems;
 
   return (
     <section className="bg-[var(--color-band)] px-6 py-9 text-white sm:px-8">
@@ -57,11 +58,12 @@ export default function NewsTabs({ newsItems }: { newsItems: NewsCard[] }) {
               <div
                 className="h-28 w-full bg-cover bg-center"
                 style={{
-                  backgroundImage: `url(${item.hero ?? "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&q=60"})`,
+                  backgroundImage:
+                    cssBackgroundImage(item.hero) ?? cssBackgroundImage(FALLBACK_HERO),
                 }}
               />
               <div className="p-3">
-                <h3 className="font-display text-[13.5px] font-bold leading-snug group-hover:text-[var(--color-accent)]">
+                <h3 className="font-display text-[13.5px] leading-snug font-bold group-hover:text-[var(--color-accent)]">
                   {item.title}
                 </h3>
                 <p className="mt-1 line-clamp-3 text-[11.5px] leading-snug text-[var(--color-ink-muted)]">

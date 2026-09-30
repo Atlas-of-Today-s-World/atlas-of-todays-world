@@ -13,6 +13,9 @@ export const dynamic = "force-dynamic";
  * robots.txt má /api/ mimo index.
  */
 export async function GET() {
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
   const newsItems = await allNews();
   const dossiers = Object.fromEntries(
     await Promise.all(

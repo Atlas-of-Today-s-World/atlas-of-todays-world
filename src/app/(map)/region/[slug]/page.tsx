@@ -7,14 +7,8 @@ import { REGIONS, REGION_BY_SLUG } from "@/data/regions";
 import { countriesOfRegion } from "@/lib/countries";
 import { newsOfRegion, regionDossier } from "@/lib/content";
 import { population, regionStats } from "@/lib/region-stats";
-import {
-  absoluteUrl,
-  alternates,
-  breadcrumbJsonLd,
-  geoCoordinates,
-  geoMeta,
-  jsonLdHtml,
-} from "@/lib/seo";
+import { absoluteUrl, alternates, breadcrumbJsonLd, geoCoordinates, geoMeta } from "@/lib/seo";
+import { JsonLd } from "@/components/JsonLd";
 
 export const dynamicParams = false;
 
@@ -52,11 +46,7 @@ export async function generateMetadata({
  * Portrét regionu. Krátká verze zanikla – zadání chce jeden úplný portrét bez
  * mezikroku, takže `/region/[slug]/full` jen přesměrovává (viz next.config.ts).
  */
-export default async function RegionPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function RegionPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const region = REGION_BY_SLUG[slug];
   if (!region) notFound();
@@ -86,50 +76,47 @@ export default async function RegionPage({
         />
       </ContentRail>
 
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: jsonLdHtml([
-            {
-              "@context": "https://schema.org",
-              "@type": "Place",
-              "@id": absoluteUrl(`/region/${region.slug}#region`),
-              name: region.name,
-              description: region.summary,
-              url: absoluteUrl(`/region/${region.slug}`),
-              image: region.hero,
-              hasMap: absoluteUrl(`/region/${region.slug}`),
-              geo: geoCoordinates(region.center[1], region.center[0]),
-              containsPlace: countries.map((country) => ({
-                "@type": "Country",
-                name: country.name,
-                url: absoluteUrl(`/country/${country.slug}`),
-              })),
-              subjectOf: newsItems.map((item) => ({
-                "@type": "Article",
-                headline: item.title,
-                url: absoluteUrl(`/news/${item.slug}`),
-              })),
-            },
-            ...(dossier.faq?.length
-              ? [
-                  {
-                    "@context": "https://schema.org",
-                    "@type": "FAQPage",
-                    mainEntity: dossier.faq.map((item) => ({
-                      "@type": "Question",
-                      name: item.question,
-                      acceptedAnswer: { "@type": "Answer", text: item.answer },
-                    })),
-                  },
-                ]
-              : []),
-            breadcrumbJsonLd([
-              { name: "Atlas of Today's World", path: "/" },
-              { name: region.name, path: `/region/${region.slug}` },
-            ]),
+      <JsonLd
+        data={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Place",
+            "@id": absoluteUrl(`/region/${region.slug}#region`),
+            name: region.name,
+            description: region.summary,
+            url: absoluteUrl(`/region/${region.slug}`),
+            image: region.hero,
+            hasMap: absoluteUrl(`/region/${region.slug}`),
+            geo: geoCoordinates(region.center[1], region.center[0]),
+            containsPlace: countries.map((country) => ({
+              "@type": "Country",
+              name: country.name,
+              url: absoluteUrl(`/country/${country.slug}`),
+            })),
+            subjectOf: newsItems.map((item) => ({
+              "@type": "Article",
+              headline: item.title,
+              url: absoluteUrl(`/news/${item.slug}`),
+            })),
+          },
+          ...(dossier.faq?.length
+            ? [
+                {
+                  "@context": "https://schema.org",
+                  "@type": "FAQPage",
+                  mainEntity: dossier.faq.map((item) => ({
+                    "@type": "Question",
+                    name: item.question,
+                    acceptedAnswer: { "@type": "Answer", text: item.answer },
+                  })),
+                },
+              ]
+            : []),
+          breadcrumbJsonLd([
+            { name: "Atlas of Today's World", path: "/" },
+            { name: region.name, path: `/region/${region.slug}` },
           ]),
-        }}
+        ]}
       />
     </>
   );

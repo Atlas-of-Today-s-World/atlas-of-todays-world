@@ -59,7 +59,7 @@ export default async function SearchPage({
           <li key={hit.id} className="py-4">
             <Link href={hit.url} className="group block">
               <span className="flex items-center gap-2">
-                <span className="rounded-full bg-[var(--color-accent-soft)] px-2 py-0.5 text-[10px] uppercase tracking-wide text-[var(--color-accent)]">
+                <span className="rounded-full bg-[var(--color-accent-soft)] px-2 py-0.5 text-[10px] tracking-wide text-[var(--color-accent)] uppercase">
                   {KIND_LABEL[hit.kind] ?? hit.kind}
                 </span>
                 <span className="font-display text-[16px] font-bold text-[var(--color-ink)] group-hover:text-[var(--color-accent)]">
@@ -69,7 +69,7 @@ export default async function SearchPage({
               <span className="mt-1 block text-[12.5px] text-[var(--color-ink-muted)]">
                 {hit.subtitle}
               </span>
-              <span className="mt-1.5 block line-clamp-2 text-[13px] leading-relaxed text-[var(--color-ink-soft)]">
+              <span className="mt-1.5 line-clamp-2 block text-[13px] leading-relaxed text-[var(--color-ink-soft)]">
                 {hit.body}
               </span>
             </Link>

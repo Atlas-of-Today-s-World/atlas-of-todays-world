@@ -39,29 +39,33 @@
 ## Fáze 0 — Repozitář a proces (≈ 0,5 čd)
 
 - [ ] **0.1** Ochrana `main`: merge jen přes PR se zelenými checky, zákaz force-push, lineární historie.
-- [ ] **0.2** `.github/pull_request_template.md` (co / proč / jak testováno / Security impact), `CODEOWNERS`
+- [x] **0.2** `.github/pull_request_template.md` (co / proč / jak testováno / Security impact), `CODEOWNERS`
       (`supabase/`, `src/middleware.ts`, `src/lib/security/`, `.github/` → vlastník).
-- [ ] **0.3** `.nvmrc` (22), `engines` v `package.json`, `SECURITY.md`, `public/.well-known/security.txt`.
-- [ ] **0.4** Dependabot (npm + GitHub Actions, týdně, seskupené), zapnout secret scanning + push protection, CodeQL.
-- [ ] **0.5** Úklid `.gitignore` (odstranit řádky `supabase/config.toml`, `seed.sql` — soubory jsou záměrně verzované).
+- [x] **0.3** `.nvmrc` (22), `engines` v `package.json`, `SECURITY.md`, `public/.well-known/security.txt`.
+- [x] **0.4** Dependabot (npm + GitHub Actions, týdně, seskupené), zapnout secret scanning + push protection, CodeQL.
+- [x] **0.5** ~~Úklid `.gitignore`~~ — ověřeno, soubory v `.gitignore` nejsou (chybný nález).
+- [x] **0.6** Nasazení v limitu Vercel Hobby (5 000 nahraných souborů/den): build na Vercelu, `.vercelignore`. (#1)
 - **Hotovo, když:** PR do `main` bez zelených checků nejde sloučit; CodeQL běží.
 
 ## Fáze A — Nástroje a bezpečnostní základ (≈ 3 čd) → M1
 
-- [ ] **A1** ESLint (`next/core-web-vitals`, `@typescript-eslint`, `eslint-plugin-security`), Prettier +
+- [x] **A1** ESLint (`next/core-web-vitals`, `@typescript-eslint`, `eslint-plugin-security`), Prettier +
       `prettier-plugin-tailwindcss`, `lint-staged` + `husky`; skripty `lint`, `format`, `typecheck`.
-- [ ] **A2** Vitest (+ `@vitest/coverage-v8`), skript `test`; první testy pro existující `lib/`.
-- [ ] **A3** `ci.yml`: install → typecheck → lint → unit → `test:db` → build → `jscpd` → `knip`.
+- [x] **A2** Vitest (+ `@vitest/coverage-v8`), skript `test`; první testy pro existující `lib/`.
+- [x] **A3** `ci.yml`: install → typecheck → lint → unit → `test:db` → build → `jscpd` → `knip`.
       `deploy.yml` nasazuje až po úspěšném `ci.yml`.
-- [ ] **A4** `src/lib/env.ts` (Zod validace env, pád buildu při chybě).
-- [ ] **A5** `src/lib/security/`: `sanitize.ts` (jediná allowlist, převzít z `content.ts`), `urls.ts` (`safeUrl`),
+- [x] **A4** `src/lib/env.ts` (Zod validace env, pád buildu při chybě).
+- [x] **A5** `src/lib/security/`: `sanitize.ts` (jediná allowlist, převzít z `content.ts`), `urls.ts` (`safeUrl`),
       `redirect.ts` (`safeRedirect`), `csp.ts` + 100% unit testy vč. XSS payloadů.
-- [ ] **A6** Middleware: CSP s nonce (bez `unsafe-eval`), HSTS, MapTiler v `connect-src`/`img-src` (SEC-07).
-- [ ] **A7** Rychlé opravy: SEC-01 (`remotePatterns`), SEC-02 (`safeRedirect` v loginu), SEC-04 (export za
+- [x] **A6** Middleware: CSP z `lib/security/csp.ts` (v produkci bez `unsafe-eval`, bez nonce — ADR-012), HSTS, COOP, MapTiler a Supabase v `connect-src` (SEC-07).
+- [x] **A7** Rychlé opravy: SEC-01 (`remotePatterns`), SEC-02 (`safeRedirect` v loginu), SEC-04 (export za
       přihlášení/build skript), SEC-05 (`hero` přes `safeUrl`, délkové limity), SEC-08 (odkazy na admin),
       SEC-09 (limit v search, `window.atlasMap`, hláška newsletteru).
-- [ ] **A8** Smoke test rozšířit o: hlavičky (CSP bez `unsafe-eval`, HSTS), `/_next/image` s cizím hostem → 400,
+- [x] **A8** Smoke test rozšířit o: hlavičky (CSP bez `unsafe-eval`, HSTS), `/_next/image` s cizím hostem → 400,
       `/api/export-demo` → 401/404.
+- [x] **A8b** E2E test, že globus opravdu načte hranice zemí (`data-countries="loaded"`) — dosavadní testy rozbitý globus neodhalily.
+- [x] **A8c** Zranitelné závislosti: postcss (přes `overrides`), audit v CI přes `audit-ci` se zdokumentovanými výjimkami.
+- [ ] **A9** MapLibre 6 (oprava GHSA-jrc7-96c5-q579): vyřešit načítání web workeru v bundleru Next (samostatný ES modul `maplibre-gl-worker.mjs`); v izolovaném testu se mapa nedokončí ani mimo Next — prověřit s verzí > 6.11.2. Do té doby výjimka v `audit-ci.jsonc` (ADR-013), přezkum do 2026-12-31.
 - **Hotovo, když:** CI zelené, smoke test prochází proti produkci, `lib/security` pokrytí 100 %.
 
 ## Fáze A2 — Sjednocení komponent (≈ 3 čd) → M1

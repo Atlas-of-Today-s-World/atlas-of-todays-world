@@ -4,8 +4,7 @@ import MapControls from "@/components/map/MapControls";
 import { MapProvider } from "@/components/map/MapContext";
 import { MapLegend, type ViewOption } from "@/components/map/ViewSwitcher";
 import { REGIONS } from "@/data/regions";
-import { allNews } from "@/lib/content";
-import { countryByIso3, indexableCountries, regionColorMap } from "@/lib/countries";
+import { indexableCountries, regionColorMap } from "@/lib/countries";
 import { INDICATORS, colorMapFor, legendFor } from "@/lib/indicators";
 import { issueColorMap, issueLookup } from "@/lib/global-issues";
 
@@ -37,11 +36,7 @@ function buildViewOptions(): ViewOption[] {
  * regionem, zemí a encyklopedickým heslem neznamená nové načtení mapy –
  * uživatel s ní nikdy neztratí kontakt.
  */
-export default async function MapLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function MapLayout({ children }: { children: React.ReactNode }) {
   const slugs = Object.fromEntries(
     indexableCountries().map((country) => [country.iso3, country.slug]),
   );
@@ -55,39 +50,23 @@ export default async function MapLayout({
 
   const regionLookup: RegionLookup = {
     slugByCountry: Object.fromEntries(
-      REGIONS.flatMap((region) =>
-        region.countries.map((iso3) => [iso3, region.slug]),
-      ),
+      REGIONS.flatMap((region) => region.countries.map((iso3) => [iso3, region.slug])),
     ),
     bySlug: Object.fromEntries(
-      REGIONS.map((region) => [
-        region.slug,
-        { name: region.name, countries: region.countries },
-      ]),
+      REGIONS.map((region) => [region.slug, { name: region.name, countries: region.countries }]),
     ),
   };
 
   const viewOptions = buildViewOptions();
-  const [issue, issueColors] = await Promise.all([
-    issueLookup(),
-    issueColorMap(),
-  ]);
+  const [issue, issueColors] = await Promise.all([issueLookup(), issueColorMap()]);
   colorSets.issue = issueColors;
 
   return (
     <MapProvider>
       <main className="relative h-dvh w-full overflow-hidden bg-[var(--color-space-deep)]">
-        <AtlasGlobe
-          colorSets={colorSets}
-          slugs={slugs}
-          regions={regionLookup}
-          issue={issue}
-        />
+        <AtlasGlobe colorSets={colorSets} slugs={slugs} regions={regionLookup} issue={issue} />
         <Header />
-        <MapControls
-          options={viewOptions}
-          hasIssues={Object.keys(issue.bySlug).length > 0}
-        />
+        <MapControls options={viewOptions} hasIssues={Object.keys(issue.bySlug).length > 0} />
         <MapLegend options={viewOptions} />
         {children}
       </main>

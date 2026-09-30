@@ -3,21 +3,11 @@ import { notFound } from "next/navigation";
 import ContentRail from "@/components/ContentRail";
 import CountryCard from "@/components/CountryCard";
 import MapFocus from "@/components/map/MapFocus";
-import {
-  countryBySlug,
-  formatPopulation,
-  indexableCountries,
-  type Country,
-} from "@/lib/countries";
+import { countryBySlug, formatPopulation, indexableCountries, type Country } from "@/lib/countries";
 import { countryProfile, newsOfCountry } from "@/lib/content";
-import {
-  absoluteUrl,
-  alternates,
-  breadcrumbJsonLd,
-  geoCoordinates,
-  geoMeta,
-  jsonLdHtml,
-} from "@/lib/seo";
+import { absoluteUrl, alternates, breadcrumbJsonLd, geoCoordinates, geoMeta } from "@/lib/seo";
+import { JsonLd } from "@/components/JsonLd";
+import { SafeHtml } from "@/components/atlas/SafeHtml";
 
 export const dynamicParams = false;
 
@@ -89,11 +79,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function CountryPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function CountryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const country = countryBySlug(slug);
   if (!country) notFound();
@@ -128,63 +114,61 @@ export default async function CountryPage({
           description={description}
           profile={profile}
         />
-        {profile?.html ? (
-          <div
-            className="prose-atlas px-6 pb-10"
-            dangerouslySetInnerHTML={{ __html: profile.html }}
-          />
-        ) : null}
+        {profile?.html ? <SafeHtml className="prose-atlas px-6 pb-10" html={profile.html} /> : null}
       </ContentRail>
 
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: jsonLdHtml([
-            {
-              "@context": "https://schema.org",
-              "@type": "Country",
-              "@id": absoluteUrl(`/country/${country.slug}#country`),
-              name: country.name,
-              alternateName: country.nameFormal ?? undefined,
-              description,
-              url: absoluteUrl(`/country/${country.slug}`),
-              identifier: [
-                { "@type": "PropertyValue", propertyID: "ISO 3166-1 alpha-3", value: country.iso3 },
-                ...(country.iso2
-                  ? [{ "@type": "PropertyValue", propertyID: "ISO 3166-1 alpha-2", value: country.iso2 }]
-                  : []),
-              ],
-              geo: geoCoordinates(country.labelLat, country.labelLon),
-              hasMap: absoluteUrl(`/country/${country.slug}`),
-              containedInPlace: region
-                ? {
-                    "@type": "Place",
-                    name: region.name,
-                    url: absoluteUrl(`/region/${region.slug}`),
-                  }
-                : undefined,
-              // Ukazatele jako strojově čitelné hodnoty i se zdrojem a rokem.
-              additionalProperty: country.stats.map((stat) => ({
-                "@type": "PropertyValue",
-                name: stat.label,
-                value: stat.raw,
-                unitText: stat.value.replace(/^[\d.,\s]+/, "").trim() || undefined,
-                valueReference: `${stat.source} (${stat.year})`,
-                url: stat.sourceUrl,
-              })),
-              subjectOf: newsItems.map((item) => ({
-                "@type": "Article",
-                headline: item.title,
-                url: absoluteUrl(`/news/${item.slug}`),
-              })),
-            },
-            breadcrumbJsonLd([
-              { name: "Atlas of Today's World", path: "/" },
-              ...(region ? [{ name: region.name, path: `/region/${region.slug}` }] : []),
-              { name: country.name, path: `/country/${country.slug}` },
-            ]),
+      <JsonLd
+        data={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Country",
+            "@id": absoluteUrl(`/country/${country.slug}#country`),
+            name: country.name,
+            alternateName: country.nameFormal ?? undefined,
+            description,
+            url: absoluteUrl(`/country/${country.slug}`),
+            identifier: [
+              { "@type": "PropertyValue", propertyID: "ISO 3166-1 alpha-3", value: country.iso3 },
+              ...(country.iso2
+                ? [
+                    {
+                      "@type": "PropertyValue",
+                      propertyID: "ISO 3166-1 alpha-2",
+                      value: country.iso2,
+                    },
+                  ]
+                : []),
+            ],
+            geo: geoCoordinates(country.labelLat, country.labelLon),
+            hasMap: absoluteUrl(`/country/${country.slug}`),
+            containedInPlace: region
+              ? {
+                  "@type": "Place",
+                  name: region.name,
+                  url: absoluteUrl(`/region/${region.slug}`),
+                }
+              : undefined,
+            // Ukazatele jako strojově čitelné hodnoty i se zdrojem a rokem.
+            additionalProperty: country.stats.map((stat) => ({
+              "@type": "PropertyValue",
+              name: stat.label,
+              value: stat.raw,
+              unitText: stat.value.replace(/^[\d.,\s]+/, "").trim() || undefined,
+              valueReference: `${stat.source} (${stat.year})`,
+              url: stat.sourceUrl,
+            })),
+            subjectOf: newsItems.map((item) => ({
+              "@type": "Article",
+              headline: item.title,
+              url: absoluteUrl(`/news/${item.slug}`),
+            })),
+          },
+          breadcrumbJsonLd([
+            { name: "Atlas of Today's World", path: "/" },
+            ...(region ? [{ name: region.name, path: `/region/${region.slug}` }] : []),
+            { name: country.name, path: `/country/${country.slug}` },
           ]),
-        }}
+        ]}
       />
     </>
   );

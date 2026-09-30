@@ -72,12 +72,12 @@ export default function RegionPortrait({
         aria-label={`${region.name} seen from orbit`}
       />
 
-      <header className="px-6 pb-7 pt-7 sm:px-10">
-        <h1 className="font-display text-[30px] font-bold leading-tight text-[var(--color-ink)]">
+      <header className="px-6 pt-7 pb-7 sm:px-10">
+        <h1 className="font-display text-[30px] leading-tight font-bold text-[var(--color-ink)]">
           {region.name}
         </h1>
         {/* Úvodní odstavec píše redakce; bez něj zůstává shrnutí z dat Atlasu. */}
-        <p className="mt-3 whitespace-pre-line text-[13.5px] leading-relaxed text-[var(--color-ink-soft)]">
+        <p className="mt-3 text-[13.5px] leading-relaxed whitespace-pre-line text-[var(--color-ink-soft)]">
           {dossier.intro?.trim() || region.summary}
         </p>
         <dl className="mt-5 grid grid-cols-2 gap-4 border-t border-[var(--color-line)] pt-4 text-[12.5px]">
@@ -87,9 +87,7 @@ export default function RegionPortrait({
           </div>
           <div>
             <dt className="text-[var(--color-ink-muted)]">People</dt>
-            <dd className="font-medium text-[var(--color-ink)]">
-              {formatPopulation(population)}
-            </dd>
+            <dd className="font-medium text-[var(--color-ink)]">{formatPopulation(population)}</dd>
           </div>
         </dl>
       </header>

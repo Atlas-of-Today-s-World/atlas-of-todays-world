@@ -3,13 +3,13 @@ import { REGIONS, regionOf, type Region } from "@/data/regions";
 import { INDICATORS, formatValue, type Indicator } from "@/lib/indicators";
 
 /** Vysvětlení, proč hranice země vypadá tak, jak vypadá (viz territories.json). */
-export interface TerritoryNote {
+interface TerritoryNote {
   status: "disputed" | "non-self-governing" | "occupied";
   note: string;
   basis: string;
 }
 
-export interface GeneratedCountry {
+interface GeneratedCountry {
   iso3: string;
   iso2: string | null;
   name: string;
@@ -30,7 +30,7 @@ export interface GeneratedCountry {
   bbox: [number, number, number, number] | null;
 }
 
-export interface CountryStat {
+interface CountryStat {
   id: string;
   label: string;
   shortLabel: string;
@@ -88,15 +88,13 @@ function statsFor(iso3: string): CountryStat[] {
 
 let cache: Country[] | null = null;
 
-export function allCountries(): Country[] {
+function allCountries(): Country[] {
   if (cache) return cache;
-  cache = RAW.filter((country) => !HIDDEN_FROM_INDEX.has(country.iso3)).map(
-    (country) => ({
-      ...country,
-      region: regionOf(country.iso3),
-      stats: statsFor(country.iso3),
-    }),
-  );
+  cache = RAW.filter((country) => !HIDDEN_FROM_INDEX.has(country.iso3)).map((country) => ({
+    ...country,
+    region: regionOf(country.iso3),
+    stats: statsFor(country.iso3),
+  }));
   return cache;
 }
 

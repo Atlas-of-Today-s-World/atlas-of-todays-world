@@ -66,15 +66,9 @@ export default function NewsletterForm() {
       </div>
 
       <label className="mt-2.5 flex items-start gap-2 text-[11.5px] leading-relaxed text-white/60">
-        <input
-          type="checkbox"
-          name="consent"
-          required
-          className="mt-0.5 h-4 w-4 shrink-0"
-        />
+        <input type="checkbox" name="consent" required className="mt-0.5 h-4 w-4 shrink-0" />
         <span>
-          Send me occasional emails about new Atlas entries. I can unsubscribe at
-          any time.
+          Send me occasional emails about new Atlas entries. I can unsubscribe at any time.
         </span>
       </label>
 
