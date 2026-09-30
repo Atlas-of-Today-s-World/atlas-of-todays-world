@@ -38,7 +38,7 @@
 
 ## Fáze 0 — Repozitář a proces (≈ 0,5 čd)
 
-- [ ] **0.1** Ochrana `main`: merge jen přes PR se zelenými checky, zákaz force-push, lineární historie.
+- [x] **0.1** Ochrana `main`: merge jen přes PR se zelenými checky, zákaz force-push, lineární historie.
 - [x] **0.2** `.github/pull_request_template.md` (co / proč / jak testováno / Security impact), `CODEOWNERS`
       (`supabase/`, `src/middleware.ts`, `src/lib/security/`, `.github/` → vlastník).
 - [x] **0.3** `.nvmrc` (22), `engines` v `package.json`, `SECURITY.md`, `public/.well-known/security.txt`.
@@ -65,6 +65,7 @@
       `/api/export-demo` → 401/404.
 - [x] **A8b** E2E test, že globus opravdu načte hranice zemí (`data-countries="loaded"`) — dosavadní testy rozbitý globus neodhalily.
 - [x] **A8c** Zranitelné závislosti: postcss (přes `overrides`), audit v CI přes `audit-ci` se zdokumentovanými výjimkami.
+- [ ] **A10** Next 16 + TypeScript 7 (major migrace; Dependabot major verze ignoruje).
 - [ ] **A9** MapLibre 6 (oprava GHSA-jrc7-96c5-q579): vyřešit načítání web workeru v bundleru Next (samostatný ES modul `maplibre-gl-worker.mjs`); v izolovaném testu se mapa nedokončí ani mimo Next — prověřit s verzí > 6.11.2. Do té doby výjimka v `audit-ci.jsonc` (ADR-013), přezkum do 2026-12-31.
 - **Hotovo, když:** CI zelené, smoke test prochází proti produkci, `lib/security` pokrytí 100 %.
 
