@@ -37,7 +37,6 @@ export async function generateMetadata({
       type: "article",
       title: `${item.title} — Atlas of Today's World`,
       description: item.summary,
-      images: item.hero ? [item.hero] : undefined,
       url: absoluteUrl(`/news/${item.slug}`),
       publishedTime: item.published,
       modifiedTime: item.updated ?? item.published,

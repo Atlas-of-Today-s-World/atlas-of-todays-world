@@ -33,6 +33,10 @@
 | U3 | E-maily adminů (pro `db:make-admin`) | C5 | ✅ 2 admini (v neveřejném `docs/tym.md`) |
 | U4 | Platnost pozvánky, doménové omezení týmu | B3 | ✅ 5 dní, bez omezení domény |
 | U5 | Přístup k DNS `atlasoftodaysworld.org` pro SMTP (Resend) | G1 | ⬜ |
+| U6 | UptimeRobot na `/api/health`; GitHub variable `SITE_URL` | F2 | ⬜ |
+| U7 | Sentry účet + DSN | F3 | ⬜ |
+| U8 | `age` klíč pro zálohy (`BACKUP_AGE_RECIPIENT`), soukromá část mimo GitHub | F4 | ⬜ |
+| U9 | Nahrát `supabase/seed.sql` do produkční DB před nasazením fáze D; schválit ADR-014 | D | ⬜ |
 
 ---
 
@@ -174,14 +178,18 @@ Dělá se **před** napojením na DB, aby se komponenty přepisovaly jen jednou.
 
 ## Fáze F — Provozní připravenost (≈ 3 čd) → M5
 
-- [ ] **F1** `not-found.tsx`, `error.tsx`, `global-error.tsx`, `loading.tsx` na všech datových stránkách.
-- [ ] **F2** `/api/health` (DB + verze buildu), UptimeRobot, noční keep-alive workflow (Supabase Free se neuspí).
-- [ ] **F3** Sentry (Free) se source mapami, filtrování PII; cookie-less analytika (Vercel Web Analytics).
-- [ ] **F4** Noční zašifrovaná záloha DB (`pg_dump` + age), retence 14 dní, dokumentovaný test obnovy.
-- [ ] **F5** Privacy policy, Terms, prohlášení o přístupnosti (SEC-11); souhlas newsletteru odkazuje na privacy.
-- [ ] **F6** Feature flagy v DB (`feature_flags`) + režim údržby.
-- [ ] **F7** Runbook incidentů v `docs/` (únik klíče, výpadek, zneužití účtu, obnova).
-- [ ] **F8** Přístupnost: skip-link, `@axe-core/playwright` v CI, kontrast popisků nad satelitem, globus z klávesnice.
+- [x] **F1** `not-found.tsx`, `error.tsx`, `global-error.tsx`, `loading.tsx` na všech datových stránkách.
+- [x] **F2** `/api/health` (DB + verze buildu), denní keep-alive workflow (`keepalive.yml`, proměnná `SITE_URL`).
+      *UptimeRobot nastaví vlastník (U6).*
+- [~] **F3** Cookie-less analytika (Vercel Web Analytics) hotová. *Sentry čeká na účet a DSN (U7).*
+- [x] **F4** Noční zašifrovaná záloha DB (`backup.yml`: dump + age), retence 14 dní, postup a test obnovy v runbooku.
+      *Vlastník: vytvořit age klíč a nastavit `BACKUP_AGE_RECIPIENT` (U8); první test obnovy.*
+- [x] **F5** Privacy policy, Terms, prohlášení o přístupnosti (SEC-11); souhlas newsletteru odkazuje na privacy;
+      newsletter jako Server Action s rate limitem v DB (D6). *Texty zkontroluje vlastník / právník; kontakt `NEXT_PUBLIC_CONTACT_EMAIL`.*
+- [x] **F6** Feature flagy v DB (`feature_flags`) + režim údržby.
+- [x] **F7** Runbook incidentů v `docs/` (únik klíče, výpadek, zneužití účtu, obnova).
+- [x] **F8** Přístupnost: skip-link, `@axe-core/playwright` v e2e (10 typů stránek, 0 závažných nálezů), opravený `<dl>`
+      u karet ukazatelů (jedna `StatItem`), viditelný fokus globusu. OG obrázky (`next/og`) pro zemi, region, issue, novinku.
 - **Hotovo, když:** checklist ARCHITEKTURA 16.2 a 16.4 je bez ⬜ v položkách označených pro M5.
 
 ## Fáze G — Rozšíření (po M5, samostatně plánovat)

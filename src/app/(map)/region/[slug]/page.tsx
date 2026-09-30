@@ -34,7 +34,6 @@ export async function generateMetadata({
       title: `${region.name} — Atlas of Today's World`,
       description: region.summary.slice(0, 180),
       url: absoluteUrl(`/region/${region.slug}`),
-      images: region.hero ? [region.hero] : undefined,
     },
     other: geoMeta({
       lat: region.center[1],

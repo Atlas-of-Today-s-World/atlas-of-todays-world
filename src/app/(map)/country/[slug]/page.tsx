@@ -70,7 +70,6 @@ export async function generateMetadata({
       title: `${country.name} — Atlas of Today's World`,
       description: description.slice(0, 180),
       url: absoluteUrl(`/country/${country.slug}`),
-      images: country.region?.hero ? [country.region.hero] : undefined,
     },
     other: geoMeta({
       lat: country.labelLat,
