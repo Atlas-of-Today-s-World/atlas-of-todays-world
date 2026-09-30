@@ -11,7 +11,10 @@ import { test, expect, type Page } from "@playwright/test";
 
 /** Ověří, že se na prvek dá pohodlně klepnout (minimum ze zadání je 44 px). */
 async function hasTouchTarget(page: Page, selector: string) {
-  const box = await page.locator(selector).first().boundingBox();
+  const target = page.locator(selector).first();
+  // boundingBox() nečeká; panel se vysouvá až po hydrataci.
+  await expect(target).toBeVisible();
+  const box = await target.boundingBox();
   expect(box, `${selector} není vidět`).not.toBeNull();
   expect(box!.width, `${selector} je příliš úzký`).toBeGreaterThanOrEqual(43);
   expect(box!.height, `${selector} je příliš nízký`).toBeGreaterThanOrEqual(43);
@@ -135,22 +138,24 @@ test.describe("mobil", () => {
   });
 });
 
-test.describe("administrace", () => {
-  test("bez hesla se do redakce nedá", async ({ page }) => {
-    // Běží-li vývojový server bez ADMIN_TOKEN, administrace je schválně
-    // otevřená; test pak jen ověří, že stránka vůbec existuje.
-    const response = await page.goto("/admin");
-    expect(response?.status()).toBeLessThan(500);
-    // Produkční build bez ADMIN_TOKEN administraci úplně skryje.
-    if (response?.status() === 404) return;
+test.describe("přihlášení", () => {
+  test("administrace bez přihlášení vede na přihlášení přes Google", async ({ page }) => {
+    await page.goto("/admin");
+    await expect(page).toHaveURL(/\/login\?next=%2Fadmin/);
+    await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
+    // Bez Supabase v prostředí (lokální build) stránka jen oznámí, že přihlášení není.
+    const google = page.getByRole("button", { name: "Continue with Google" });
+    const unavailable = page.getByText("Sign-in is not available");
+    await expect(google.or(unavailable)).toBeVisible();
+  });
 
-    const locked = page.url().includes("/admin/login");
-    if (locked) {
-      await expect(page.getByRole("heading", { name: "Administrace" })).toBeVisible();
-      await expect(page.getByLabel("Heslo redakce")).toBeVisible();
-    } else {
-      await expect(page.getByRole("heading", { name: "Administrace" })).toBeVisible();
-      await expect(page.getByText("Global Issues").first()).toBeVisible();
-    }
+  test("účet bez přihlášení vede na přihlášení", async ({ page }) => {
+    await page.goto("/ucet");
+    await expect(page).toHaveURL(/\/login\?next=%2Fucet/);
+  });
+
+  test("stránka pozvánky vysvětlí, jak se přihlásit", async ({ page }) => {
+    await page.goto("/pozvanka");
+    await expect(page.getByRole("heading", { name: "Pozvánka do týmu Atlasu" })).toBeVisible();
   });
 });

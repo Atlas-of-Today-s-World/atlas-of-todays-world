@@ -163,11 +163,7 @@ export default async function GlobalIssuePage({ params }: { params: Promise<{ sl
 
           <p className="mt-8 text-[11.5px] text-[var(--color-ink-muted)]">
             Global Issues are assembled by the Atlas team and can cross the boundaries of the nine
-            Atlas regions.{" "}
-            <Link href="/admin" className="text-[var(--color-link)] hover:underline">
-              Edit them in the administration
-            </Link>
-            .
+            Atlas regions.
           </p>
         </article>
       </ContentRail>

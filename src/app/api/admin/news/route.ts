@@ -1,4 +1,5 @@
 import { writeFile, unlink } from "node:fs/promises";
+import { requirePermission } from "@/features/auth/access";
 import { join } from "node:path";
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
@@ -45,6 +46,9 @@ function refreshPaths(slug: string, region: string, issue?: string) {
 }
 
 export async function GET() {
+  const gate = await requirePermission("news", "v");
+  if ("response" in gate) return gate.response;
+
   const newsItems = await allNews();
   return NextResponse.json({
     newsItems: newsItems.map((item) => ({
@@ -59,6 +63,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const gate = await requirePermission("news", "e");
+  if ("response" in gate) return gate.response;
+
   let body: Record<string, unknown>;
   try {
     body = await request.json();
@@ -126,6 +133,9 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const gate = await requirePermission("news", "d");
+  if ("response" in gate) return gate.response;
+
   const { searchParams } = new URL(request.url);
   const slug = slugify(searchParams.get("slug") ?? "");
   if (!slug) return NextResponse.json({ error: "Chybí slug." }, { status: 400 });

@@ -123,23 +123,23 @@ export default function Header() {
           EN
         </button>
         <Link
-          href="/admin"
-          className="text-white/45 transition hover:text-white"
-          title="Mock administration"
-          aria-label="Administration"
+          href="/login"
+          className="grid min-h-11 min-w-11 place-items-center text-white/60 transition hover:text-white"
+          title="Sign in / your account"
+          aria-label="Sign in or open your account"
         >
           <svg
-            width="16"
-            height="16"
+            width="17"
+            height="17"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinejoin="round"
+            strokeWidth="1.6"
+            strokeLinecap="round"
             aria-hidden
           >
-            <path d="M10.13 5.88L10.21 3.59L13.79 3.59L13.87 5.88A6.4 6.4 0 0 1 15.00 6.35L16.68 4.79L19.21 7.32L17.65 9.00A6.4 6.4 0 0 1 18.12 10.13L20.41 10.21L20.41 13.79L18.12 13.87A6.4 6.4 0 0 1 17.65 15.00L19.21 16.68L16.68 19.21L15.00 17.65A6.4 6.4 0 0 1 13.87 18.12L13.79 20.41L10.21 20.41L10.13 18.12A6.4 6.4 0 0 1 9.00 17.65L7.32 19.21L4.79 16.68L6.35 15.00A6.4 6.4 0 0 1 5.88 13.87L3.59 13.79L3.59 10.21L5.88 10.13A6.4 6.4 0 0 1 6.35 9.00L4.79 7.32L7.32 4.79L9.00 6.35A6.4 6.4 0 0 1 10.13 5.88Z" />
-            <circle cx="12" cy="12" r="3.1" />
+            <circle cx="12" cy="8" r="3.6" />
+            <path d="M4.8 20c.9-3.6 3.8-5.6 7.2-5.6s6.3 2 7.2 5.6" />
           </svg>
         </Link>
       </nav>
@@ -224,8 +224,8 @@ export default function Header() {
                 </a>
               ))}
               <span className="ml-auto text-[13px] text-white/60">EN</span>
-              <Link href="/admin" className="text-[13px] text-white/45">
-                Admin
+              <Link href="/login" className="flex min-h-11 items-center text-[13px] text-white/60">
+                Sign in
               </Link>
             </div>
           </div>

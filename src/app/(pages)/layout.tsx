@@ -22,8 +22,8 @@ export default function PagesLayout({ children }: { children: React.ReactNode })
             <Link href="/about" className="hover:text-[var(--color-accent)]">
               About
             </Link>
-            <Link href="/admin" className="hover:text-[var(--color-accent)]">
-              Admin
+            <Link href="/login" className="hover:text-[var(--color-accent)]">
+              Sign in
             </Link>
             <Link
               href="/patrons"

@@ -112,20 +112,21 @@ Dělá se **před** napojením na DB, aby se komponenty přepisovaly jen jednou.
 
 ## Fáze C — Přihlášení a pozvánky (≈ 2,5 čd) → M2
 
-- [ ] **C1** `@supabase/ssr`: `lib/supabase/{server,public,service,browser,middleware}.ts` s `server-only`;
-      ESLint zákaz přímého `@supabase/supabase-js` jinde.
-- [ ] **C2** Google OAuth: provider v Supabase, `/login` (tlačítko Google; e-mailová varianta skrytá za feature
+- [x] **C1** `@supabase/ssr`: `lib/supabase/{server,service,browser,middleware,config}.ts` s `server-only`;
+      ESLint zákaz přímého `@supabase/supabase-js` jinde. *(`public.ts` vznikne v D1 s prvním veřejným dotazem — knip.)*
+- [x] **C2** Google OAuth: provider v Supabase, `/login` (tlačítko Google; e-mailová varianta skrytá za feature
       flagem), `/auth/callback` (PKCE, `safeRedirect`, volání `claim_invitation()`), odhlášení. *(závisí na U1)*
-- [ ] **C3** Middleware: obnova session; `/admin/**` bez session → `/login?next=…`; odstranit `ADMIN_TOKEN`,
+- [x] **C3** Middleware: obnova session; `/admin/**` bez session → `/login?next=…`; odstranit `ADMIN_TOKEN`,
       cookie `atlas_admin`, `/api/admin/session`, 404 gate (SEC-03).
-- [ ] **C4** Layout administrace: `getUser()` + `my_permissions()`; čtenář bez týmové role → stránka 403
+- [x] **C4** Layout administrace: `getUser()` + `my_permissions()`; čtenář bez týmové role → stránka 403
       „Nemáte přístup“; menu z oprávnění.
-- [ ] **C5** Skript `npm run db:make-admin -- <email>` (servisní klíč, jen lokálně); nastavit prvního admina. *(závisí na U3)*
-- [ ] **C6** Minimální sekce **Účty → Pozvánky**: vytvořit (e-mail, role, schvalování), zkopírovat odkaz,
-      odvolat; stránka `/pozvanka` s instrukcí přihlášení.
-- [ ] **C7** Profil čtenáře `/ucet`: jméno, odhlášení, smazání účtu (GDPR).
-- [ ] **C8** E2E: čtenář (Google mock přes Auth Admin API) nemá přístup; pozvaný publisher vidí jen své sekce;
-      pozvánka pro jiný e-mail se nepřijme.
+- [x] **C5** Skript `npm run db:make-admin -- <email>` (servisní klíč, jen lokálně); nastavit prvního admina. *(závisí na U3)*
+- [x] **C6** Minimální sekce **Účty → Pozvánky**: vytvořit (e-mail, role), zkopírovat odkaz,
+      odvolat; stránka `/pozvanka` s instrukcí přihlášení. *(Schvalovací přiřazení v pozvánce až v E6.)*
+- [x] **C7** Profil čtenáře `/ucet`: jméno, odhlášení, smazání účtu (GDPR).
+- [x] **C8** E2E (`tests/auth.spec.ts`, přihlášení magic linkem z Auth Admin API přes `/auth/confirm`): čtenář nemá přístup;
+      pozvaný publisher vidí jen své sekce; pozvánka pro jiný e-mail se nepřijme; odhlášení. V CI potřebuje secret
+      `SUPABASE_SERVICE_ROLE_KEY_DEV`, jinak se sada přeskočí.
 - **Hotovo, když:** v produkci se lze přihlásit přes Google, admin pozve člena týmu a ten po přihlášení
   dostane správnou roli.
 

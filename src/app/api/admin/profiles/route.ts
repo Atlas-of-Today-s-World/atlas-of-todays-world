@@ -1,4 +1,5 @@
 import { readFile, writeFile, unlink, mkdir } from "node:fs/promises";
+import { requirePermission } from "@/features/auth/access";
 import { join } from "node:path";
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
@@ -98,6 +99,9 @@ function readMetrics(input: unknown): { metrics: MetricCard[] } | { error: strin
 }
 
 export async function POST(request: Request) {
+  const gate = await requirePermission("regions", "e");
+  if ("response" in gate) return gate.response;
+
   let body: Record<string, unknown>;
   try {
     body = (await request.json()) as Record<string, unknown>;
@@ -191,6 +195,9 @@ export async function POST(request: Request) {
 
 /** Smazání redakčního profilu země; region má vlastní soubor s osou, ten nemažeme. */
 export async function DELETE(request: Request) {
+  const gate = await requirePermission("regions", "d");
+  if ("response" in gate) return gate.response;
+
   const { searchParams } = new URL(request.url);
   const country = countryBySlug(searchParams.get("slug") ?? "");
   if (!country) {

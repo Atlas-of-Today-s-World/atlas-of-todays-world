@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { can, getAccess, type Section } from "@/features/auth/access";
 import { REGIONS } from "@/data/regions";
 import {
   allNews,
@@ -14,6 +15,14 @@ import AdminClient from "./AdminClient";
 import AdminTabs from "./AdminTabs";
 import GlobalIssuesAdmin from "./GlobalIssuesAdmin";
 import ProfilesAdmin, { type AdminCountryProfile, type AdminRegionProfile } from "./ProfilesAdmin";
+
+/** Která sekce oprávnění (role_permissions.section) patří k záložce. */
+const TAB_SECTION: Record<string, Section> = {
+  novinky: "news",
+  zeme: "regions",
+  regiony: "regions",
+  "global-issues": "specials",
+};
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +41,9 @@ const KEPT_SECTIONS: { key: "timeline" | "visuals" | "resources" | "faq"; label:
 ];
 
 export default async function AdminPage() {
+  // Layout už ověřil přihlášení i přístup; tady jen výběr záložek podle práv.
+  const access = await getAccess();
+  if (!access) return null;
   const countries = indexableCountries();
   const [newsItems, issues, profileSlugs] = await Promise.all([
     allNews(),
@@ -204,7 +216,7 @@ export default async function AdminPage() {
               />
             ),
           },
-        ]}
+        ].filter((tab) => can(access.permissions, TAB_SECTION[tab.id], "v"))}
       />
     </main>
   );

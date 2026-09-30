@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requirePermission } from "@/features/auth/access";
 import { revalidatePath } from "next/cache";
 import { allGlobalIssues, saveGlobalIssues, type GlobalIssue } from "@/lib/global-issues";
 
@@ -7,8 +8,8 @@ export const dynamic = "force-dynamic";
 /**
  * Správa vlastních („issue") regionů z administrace.
  *
- * MOCK: bez autentizace, zapisuje do src/content/global-issues.json, takže
- * běží jen lokálně. Pro ostrý provoz sem patří redakční systém s účty.
+ * Přístup hlídá requirePermission; zápis jde do src/content/global-issues.json,
+ * takže běží jen lokálně (fáze E ho převede do DB). Pro ostrý provoz sem patří redakční systém s účty.
  */
 function slugify(value: string): string {
   return value
@@ -38,10 +39,16 @@ function revalidateAll(slug?: string) {
 }
 
 export async function GET() {
+  const gate = await requirePermission("specials", "v");
+  if ("response" in gate) return gate.response;
+
   return NextResponse.json({ regions: await allGlobalIssues() });
 }
 
 export async function POST(request: Request) {
+  const gate = await requirePermission("specials", "e");
+  if ("response" in gate) return gate.response;
+
   let body: Record<string, unknown>;
   try {
     body = await request.json();
@@ -97,6 +104,9 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const gate = await requirePermission("specials", "d");
+  if ("response" in gate) return gate.response;
+
   const { searchParams } = new URL(request.url);
   const slug = slugify(searchParams.get("slug") ?? "");
   if (!slug) return NextResponse.json({ error: "Chybí slug." }, { status: 400 });
