@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { useHydrated } from "@/lib/use-hydrated";
 import type { EditableEntry } from "../editorial";
 
 /** Jak často se rozepsaný článek zálohuje do prohlížeče. */
@@ -66,15 +67,18 @@ export function useDraftBackup(
   key: string,
   serverUpdatedAt: string | null,
 ) {
-  const [offer, setOffer] = useState<DraftBackup | null>(null);
+  const hydrated = useHydrated();
+  // Záloha z prohlížeče, jen je-li novější než poslední uložení do DB.
+  const stored = useMemo(() => {
+    const backup = hydrated ? read(key) : null;
+    const fresh =
+      backup && (!serverUpdatedAt || Date.parse(backup.savedAt) > Date.parse(serverUpdatedAt));
+    return fresh ? backup : null;
+  }, [hydrated, key, serverUpdatedAt]);
+  /** Nabídka vyřízená (obnoveno, zahozeno nebo uloženo). */
+  const [handled, setHandled] = useState(false);
+  const offer = handled ? null : stored;
   const baseline = useRef<string | null>(null);
-
-  useEffect(() => {
-    const backup = read(key);
-    if (backup && (!serverUpdatedAt || Date.parse(backup.savedAt) > Date.parse(serverUpdatedAt)))
-      setOffer(backup);
-    else if (backup) write(key, null);
-  }, [key, serverUpdatedAt]);
 
   useEffect(() => {
     // Stav z databáze hned po vykreslení — zálohuje se až skutečná změna.
@@ -96,18 +100,18 @@ export function useDraftBackup(
   const clear = useCallback(() => {
     write(key, null);
     baseline.current = formRef.current ? JSON.stringify(snapshot(formRef.current)) : null;
-    setOffer(null);
+    setHandled(true);
   }, [formRef, key]);
 
   const dismiss = useCallback(() => {
     write(key, null);
-    setOffer(null);
+    setHandled(true);
   }, [key]);
 
   /** Po obnovení se do polí dostane záloha — ta je teď nový výchozí stav. */
   const accept = useCallback(() => {
     baseline.current = null;
-    setOffer(null);
+    setHandled(true);
   }, []);
 
   return { offer, clear, dismiss, accept };

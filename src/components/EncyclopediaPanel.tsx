@@ -19,10 +19,7 @@ export default function EncyclopediaPanel() {
 
   useEffect(() => {
     const trimmed = query.trim();
-    if (trimmed.length < 2) {
-      setHits([]);
-      return;
-    }
+    if (trimmed.length < 2) return;
     const controller = new AbortController();
     const timer = setTimeout(async () => {
       setSearching(true);

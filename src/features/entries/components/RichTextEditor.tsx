@@ -18,7 +18,7 @@ import {
   Undo2,
   type LucideIcon,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useId, useState } from "react";
 import { cn } from "@/lib/cn";
 import { ACCEPT_IMAGES, uploadImage } from "@/lib/upload";
 
@@ -78,7 +78,9 @@ export function RichTextEditor({
 }
 
 function Toolbar({ editor }: { editor: Editor }) {
-  const file = useRef<HTMLInputElement>(null);
+  // Skryté pole pro obrázek se otevírá podle id (React Compiler: žádný ref
+  // v objektu nástrojů, který vzniká při vykreslení).
+  const fileId = useId();
   const [error, setError] = useState("");
 
   const addLink = () => {
@@ -141,7 +143,7 @@ function Toolbar({ editor }: { editor: Editor }) {
       active: editor.isActive("blockquote"),
     },
     { label: "Odkaz", icon: Link2, run: addLink, active: editor.isActive("link") },
-    { label: "Obrázek", icon: ImagePlus, run: () => file.current?.click() },
+    { label: "Obrázek", icon: ImagePlus, run: () => document.getElementById(fileId)?.click() },
     { label: "Zpět", icon: Undo2, run: () => editor.chain().focus().undo().run() },
     { label: "Znovu", icon: Redo2, run: () => editor.chain().focus().redo().run() },
   ];
@@ -166,7 +168,7 @@ function Toolbar({ editor }: { editor: Editor }) {
           </button>
         ))}
         <input
-          ref={file}
+          id={fileId}
           type="file"
           accept={ACCEPT_IMAGES}
           className="hidden"

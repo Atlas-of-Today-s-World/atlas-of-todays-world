@@ -8,6 +8,9 @@ import { getPickerOptions } from "@/features/geography/queries";
 import { SITE_URL } from "@/lib/site";
 import { createServerClient } from "@/lib/supabase/server";
 import InvitationForm from "./InvitationForm";
+
+/** Prošlá pozvánka (stránka je dynamická, „teď" = čas požadavku). */
+const isPast = (iso: string) => new Date(iso).getTime() < Date.now();
 import RevokeButton from "./RevokeButton";
 
 export const metadata: Metadata = { title: "Pozvánky" };
@@ -30,7 +33,6 @@ export default async function InvitationsPage() {
   ]);
   const roleName = new Map(roles.map((role) => [role.id, role.name]));
   const isAdmin = access.roleId === "admin";
-  const now = Date.now();
   const canRevoke = can(access.permissions, "users", "e");
 
   return (
@@ -76,7 +78,7 @@ export default async function InvitationsPage() {
                 ? "přijatá"
                 : invite.revoked_at
                   ? "odvolaná"
-                  : new Date(invite.expires_at).getTime() < now
+                  : isPast(invite.expires_at)
                     ? "prošlá"
                     : `platí do ${dateFormat.format(new Date(invite.expires_at))}`,
           },

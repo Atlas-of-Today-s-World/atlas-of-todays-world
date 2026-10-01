@@ -27,13 +27,7 @@ const config = [
       // Dynamický přístup k objektům je v datovém kódu běžný a bezpečný (klíče
       // jsou ISO kódy a slugy z vlastních dat); pravidlo dává hlavně šum.
       "security/detect-object-injection": "off",
-      // Pravidla pro React Compiler (eslint-config-next 16). Stávající kód je
-      // porušuje ve vzorech, které dnes fungují (ref s poslední hodnotou v
-      // globusu, setState v efektu po načtení, Date.now v serverové stránce);
-      // přepis je samostatný úkol A11 v PLAN-REALIZACE.md, do té doby varování.
-      "react-hooks/set-state-in-effect": "warn",
-      "react-hooks/refs": "warn",
-      "react-hooks/purity": "warn",
+      // Pravidla React Compileru (eslint-config-next 16) platí naplno (A11).
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },

@@ -15,6 +15,7 @@ import { Minus, Plus } from "lucide-react";
 import { buildStyle, LAYERS, type RegionLabel, type StyleOptions } from "./mapStyle";
 import { EUROPE_CENTER, globeFillZoom } from "@/lib/home-location";
 import { useMapState } from "./MapContext";
+import { useLatest } from "@/lib/use-latest";
 import { DESKTOP_MIN_PX, railKind, railWidthPx } from "@/config/layout";
 
 interface GlobeColorSets {
@@ -116,17 +117,16 @@ export default function AtlasGlobe({
   const [hoverLabel, setHoverLabel] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   /** Země, na kterou se právě kliklo – zvýrazníme ji dřív, než dorazí obsah. */
-  const [pendingIso3, setPendingIso3] = useState<string | null>(null);
+  // Platí, dokud se nezmění aktivní země (since) — pak převezme stránka.
+  const [pending, setPending] = useState<{ iso3: string; since: string | null } | null>(null);
+  const pendingIso3 = pending && pending.since === focus.activeIso3 ? pending.iso3 : null;
 
   // Obsluha myši se mění s režimem, ale mapu kvůli tomu nevytváříme znovu.
-  const modeRef = useRef(mode);
-  modeRef.current = mode;
-  const regionsRef = useRef(regions);
-  regionsRef.current = regions;
-  const issueRef = useRef(issue);
-  issueRef.current = issue;
-  const slugsRef = useRef(slugs);
-  slugsRef.current = slugs;
+  const modeRef = useLatest(mode);
+  const regionsRef = useLatest(regions);
+  const issueRef = useLatest(issue);
+  const slugsRef = useLatest(slugs);
+  const activeRef = useLatest(focus.activeIso3);
   /** URL, které už jsme předstáhli – ať neprefetchujeme totéž při každém pohybu. */
   const prefetchedRef = useRef(new Set<string>());
   /** Poslední pozice kurzoru nad mapou, pro přepočet po dojezdu kamery. */
@@ -237,7 +237,7 @@ export default function AtlasGlobe({
     const onClick = (event: MapMouseEvent) => {
       const target = targetAt(event.point);
       if (!target) return;
-      setPendingIso3(target.iso3);
+      setPending({ iso3: target.iso3, since: activeRef.current });
       router.push(target.href);
     };
 
@@ -327,11 +327,6 @@ export default function AtlasGlobe({
       map.setPaintProperty(LAYERS.regionOutline, "line-color", focus.regionStroke);
     }
   }, [focus.activeIso3, focus.regionCountries, focus.regionStroke, pendingIso3, ready]);
-
-  // Jakmile dorazí obsah, převezme zvýraznění stránka a dočasné zmizí.
-  useEffect(() => {
-    if (focus.activeIso3) setPendingIso3(null);
-  }, [focus.activeIso3]);
 
   // --- přelet kamery ---
   useEffect(() => {

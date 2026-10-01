@@ -1,9 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useHydrated } from "@/lib/use-hydrated";
 import { useMapState, type SelectionMode } from "./MapContext";
 
 const SEEN_KEY = "atlas.modeSwitchSeen";
+
+function seenBefore() {
+  try {
+    return localStorage.getItem(SEEN_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Co se na globusu vybírá: státy, regiony Atlasu, nebo global issues.
@@ -17,7 +26,11 @@ export default function ModeSwitch({
   hasIssues: boolean;
 }) {
   const { mode, setMode } = useMapState();
-  const [hinting, setHinting] = useState(false);
+  // Až po připojení (localStorage zná jen prohlížeč), ať server a klient
+  // vykreslí stejné HTML.
+  const hydrated = useHydrated();
+  const [dismissed, setDismissed] = useState(false);
+  const hinting = hydrated && !dismissed && !seenBefore();
 
   const options: { id: SelectionMode; label: string }[] = [
     { id: "countries", label: "Countries" },
@@ -25,18 +38,9 @@ export default function ModeSwitch({
     ...(hasIssues ? [{ id: "issue" as const, label: "Global Issues" }] : []),
   ];
 
-  // Až po připojení, aby se server a klient neshodly na jiném HTML.
-  useEffect(() => {
-    try {
-      setHinting(localStorage.getItem(SEEN_KEY) !== "1");
-    } catch {
-      setHinting(true);
-    }
-  }, []);
-
   function choose(next: SelectionMode) {
     setMode(next);
-    setHinting(false);
+    setDismissed(true);
     try {
       localStorage.setItem(SEEN_KEY, "1");
     } catch {

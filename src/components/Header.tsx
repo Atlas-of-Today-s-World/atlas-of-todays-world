@@ -19,7 +19,11 @@ import NewsletterForm from "./NewsletterForm";
  */
 export default function Header({ newsletter = true }: { newsletter?: boolean }) {
   const pathname = usePathname();
-  const [menuOpen, setMenuOpen] = useState(false);
+  // Menu je otevřené jen na stránce, kde se otevřelo — přechod jinam ho zavře
+  // bez efektu (React Compiler: žádný setState v efektu).
+  const [menuPath, setMenuPath] = useState<string | null>(null);
+  const menuOpen = menuPath === pathname;
+  const setMenuOpen = (open: boolean) => setMenuPath(open ? pathname : null);
   const menu = useRef<HTMLDivElement>(null);
   useFocusTrap(menu, menuOpen);
 
@@ -35,13 +39,9 @@ export default function Header({ newsletter = true }: { newsletter?: boolean }) 
   }, [menuOpen]);
 
   useEffect(() => {
-    setMenuOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
     if (!menuOpen) return;
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMenuOpen(false);
+      if (event.key === "Escape") setMenuPath(null);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);

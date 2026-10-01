@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
+import { useHydrated } from "@/lib/use-hydrated";
 import MapFocus from "./MapFocus";
 import { EUROPE_CENTER, detectHomeCamera, globeFillZoom } from "@/lib/home-location";
 
@@ -16,17 +17,14 @@ export default function HomeFocus({
   /** ISO 3166-1 alpha-2 -> [lon, lat] */
   centers: Record<string, [number, number]>;
 }) {
-  const [camera, setCamera] = useState<{
-    center: [number, number];
-    zoom: number;
-  }>({ center: EUROPE_CENTER, zoom: 2.6 });
-
-  useEffect(() => {
-    setCamera({
-      center: detectHomeCamera(centers).center,
-      zoom: globeFillZoom(),
-    });
-  }, [centers]);
+  const hydrated = useHydrated();
+  const camera = useMemo(
+    () =>
+      hydrated
+        ? { center: detectHomeCamera(centers).center, zoom: globeFillZoom() }
+        : { center: EUROPE_CENTER, zoom: 2.6 },
+    [hydrated, centers],
+  );
 
   return <MapFocus center={camera.center} zoom={camera.zoom} />;
 }
