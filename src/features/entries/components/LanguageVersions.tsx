@@ -6,7 +6,7 @@ import type { listLanguageVersions } from "../editorial";
 import { StatusBadge } from "./StatusBadge";
 
 /** Jak se jmenuje tlačítko pro nový jazyk (administrace je česká). */
-const CREATE_LABEL: Partial<Record<string, string>> = { cs: "Vytvořit českou verzi" };
+const CREATE_LABEL: Partial<Record<string, string>> = { cs: "Create Czech version" };
 
 /**
  * Jazykové verze článku (G5.3): originál a jeho překlady s odkazy a stavem;
@@ -39,7 +39,7 @@ export function LanguageVersions({
               <span className="font-medium">{version.title}</span>
             ) : (
               <Link
-                href={`/admin/obsah/${version.id}`}
+                href={`/admin/content/${version.id}`}
                 className="text-[var(--color-link)] underline"
               >
                 {version.title}
@@ -47,7 +47,7 @@ export function LanguageVersions({
             )}
             <StatusBadge status={version.status} />
             {version.translation_of === null ? (
-              <span className="text-[11px] text-[var(--color-ink-muted)]">originál</span>
+              <span className="text-[11px] text-[var(--color-ink-muted)]">original</span>
             ) : null}
           </li>
         ))}
@@ -59,14 +59,14 @@ export function LanguageVersions({
               <input type="hidden" name="locale" value={locale} />
               <SubmitButton size="sm" variant="outline">
                 {CREATE_LABEL[locale] ??
-                  `Vytvořit verzi: ${isLocale(locale) ? LOCALE_NAMES[locale] : locale}`}
+                  `Create version: ${isLocale(locale) ? LOCALE_NAMES[locale] : locale}`}
               </SubmitButton>
             </form>
           ))
         : null}
       <p className="text-[11.5px] text-[var(--color-ink-muted)]">
-        Překlad má stejnou adresu s jazykovou předponou (/cs/…) a vlastní schvalování. Dokud není
-        zveřejněný, čtenáři vidí originál s poznámkou.
+        A translation has the same URL with a language prefix (/cs/…) and its own approval. Until it
+        is published, readers see the original with a note.
       </p>
     </div>
   );

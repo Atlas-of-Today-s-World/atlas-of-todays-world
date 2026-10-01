@@ -21,7 +21,7 @@ import type { Revision } from "../editorial";
 import type { EntryStatus } from "../schema";
 import { ActionForm } from "@/components/ui/action-form";
 
-const dateFormat = new Intl.DateTimeFormat("cs-CZ", { dateStyle: "medium", timeStyle: "short" });
+const dateFormat = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" });
 
 /**
  * Stav článku a kroky schvalování. Tlačítka se ukazují podle práv, ale o tom,
@@ -53,7 +53,7 @@ export function EntryWorkflow({
     <div className="grid gap-4">
       {reviewNote && status === "draft" ? (
         <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-[13.5px]">
-          <p className="font-medium">Vráceno k úpravě:</p>
+          <p className="font-medium">Returned for changes:</p>
           <p className="mt-1 whitespace-pre-line">{reviewNote}</p>
         </div>
       ) : null}
@@ -61,48 +61,48 @@ export function EntryWorkflow({
       <div className="flex flex-wrap gap-2">
         {status === "draft" ? (
           <ConfirmButton
-            label="Odeslat ke schválení"
+            label="Submit for approval"
             variant="primary"
-            title="Odeslat ke schválení?"
-            body="Článek uvidí schvalovatelé. Do rozhodnutí ho můžete dál upravovat."
-            confirm="Odeslat"
+            title="Submit for approval?"
+            body="Approvers will see the article. You can keep editing it until they decide."
+            confirm="Submit"
             action={() => submitEntry(id)}
             onDone={done}
           />
         ) : null}
         {status === "pending" && canApprove ? (
           <ConfirmButton
-            label="Schválit a zveřejnit"
+            label="Approve and publish"
             variant="primary"
-            title="Zveřejnit článek?"
-            body="Článek se hned objeví na webu."
-            confirm="Zveřejnit"
+            title="Publish the article?"
+            body="The article will appear on the website right away."
+            confirm="Publish"
             action={() => approveEntry(id)}
             onDone={done}
           />
         ) : null}
         {status === "published" && canApprove ? (
           <ConfirmButton
-            label="Stáhnout z webu"
+            label="Unpublish"
             variant="danger"
-            title="Stáhnout článek z webu?"
-            body="Článek zmizí z webu a vrátí se do konceptů. Adresa přestane fungovat."
-            confirm="Stáhnout"
+            title="Unpublish the article?"
+            body="The article will disappear from the website and return to drafts. Its URL will stop working."
+            confirm="Unpublish"
             action={() => unpublishEntry(id)}
             onDone={done}
           />
         ) : null}
         {canDelete && status !== "published" ? (
           <ConfirmButton
-            label="Smazat"
+            label="Delete"
             variant="danger"
-            title="Smazat článek natrvalo?"
-            body="Smaže se i historie změn. Tohle nejde vrátit."
-            confirm="Smazat"
+            title="Delete the article permanently?"
+            body="Its change history will be deleted too. This can't be undone."
+            confirm="Delete"
             action={() => deleteEntry(id)}
             onDone={(state) => {
               setResult(state);
-              if (state.ok) router.push("/admin/obsah");
+              if (state.ok) router.push("/admin/content");
             }}
           />
         ) : null}
@@ -114,22 +114,22 @@ export function EntryWorkflow({
         <div className="grid gap-3 rounded-xl border border-[var(--color-line)] p-4 text-[13.5px]">
           <p>
             <span className="font-medium">
-              Naplánováno na {/* Server formátuje v UTC, prohlížeč v místním čase. */}
+              Scheduled for {/* Server formátuje v UTC, prohlížeč v místním čase. */}
               <time dateTime={publishAt} suppressHydrationWarning>
                 {dateFormat.format(new Date(publishAt))}
               </time>
               .
             </span>{" "}
-            Na webu se objeví nejpozději hodinu po tomto čase. Když článek mezitím upraví někdo
-            jiný, plán se zruší.
+            It will appear on the website within an hour of this time. If someone else edits the
+            article in the meantime, the schedule is canceled.
           </p>
           {canApprove ? (
             <div>
               <ConfirmButton
-                label="Zrušit plán"
-                title="Zrušit plánované zveřejnění?"
-                body="Článek zůstane ve frontě ke schválení."
-                confirm="Zrušit plán"
+                label="Cancel schedule"
+                title="Cancel the scheduled publication?"
+                body="The article will stay in the approval queue."
+                confirm="Cancel schedule"
                 action={() => unscheduleEntry(id)}
                 onDone={done}
               />
@@ -168,15 +168,15 @@ function Schedule({ id, onDone }: { id: string; onDone: (state: ActionState) => 
       <input type="hidden" name="id" value={id} />
       <FormField
         id="publish_at_local"
-        label="Publikovat v čase…"
-        hint="Místo okamžitého zveřejnění. Na webu se článek objeví nejpozději hodinu po zvoleném čase."
+        label="Publish at a set time…"
+        hint="Instead of publishing now. The article will appear on the website within an hour of the chosen time."
         errors={state.fieldErrors?.publish_at}
       >
         <Input id="publish_at_local" name="publish_at_local" type="datetime-local" required />
       </FormField>
       <div>
-        <SubmitButton variant="outline" pending="Plánuji…">
-          Naplánovat zveřejnění
+        <SubmitButton variant="outline" pending="Scheduling…">
+          Schedule publication
         </SubmitButton>
       </div>
     </ActionForm>
@@ -200,15 +200,15 @@ function SendBack({ id, onDone }: { id: string; onDone: (state: ActionState) => 
       <input type="hidden" name="id" value={id} />
       <FormField
         id="note"
-        label="Vrátit autorovi s poznámkou"
-        hint="Autor poznámku uvidí u článku."
+        label="Return to the author with a note"
+        hint="The author will see the note on the article."
         errors={state.fieldErrors?.note}
       >
         <Textarea id="note" name="note" rows={3} maxLength={2000} required />
       </FormField>
       <div>
-        <SubmitButton variant="outline" pending="Vracím…">
-          Vrátit k úpravě
+        <SubmitButton variant="outline" pending="Returning…">
+          Request changes
         </SubmitButton>
       </div>
     </ActionForm>
@@ -219,7 +219,7 @@ export function RevisionList({ entryId, revisions }: { entryId: string; revision
   const router = useRouter();
   const [result, setResult] = useState<ActionState>({ ok: false });
   if (!revisions.length) {
-    return <p className="text-[13px] text-[var(--color-ink-muted)]">Zatím žádné starší verze.</p>;
+    return <p className="text-[13px] text-[var(--color-ink-muted)]">No earlier versions yet.</p>;
   }
   return (
     <div className="grid gap-2">
@@ -232,10 +232,10 @@ export function RevisionList({ entryId, revisions }: { entryId: string; revision
               <span className="text-[var(--color-ink-muted)]"> · {revision.title}</span>
             </span>
             <ConfirmButton
-              label="Obnovit"
-              title="Obnovit tuto verzi?"
-              body="Titulek, perex, obrázek a text se vrátí do této podoby. Současná verze zůstane v historii."
-              confirm="Obnovit"
+              label="Restore"
+              title="Restore this version?"
+              body="The title, summary, image and text will revert to this version. The current version stays in the history."
+              confirm="Restore"
               action={() => restoreRevision(entryId, revision.id)}
               onDone={(state) => {
                 setResult(state);

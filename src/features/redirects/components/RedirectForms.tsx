@@ -19,12 +19,12 @@ export function RedirectForm() {
       action={action}
       className="grid max-w-2xl gap-4 rounded-2xl border border-[var(--color-line)] p-5"
     >
-      <h2 className="font-display text-[17px] font-bold">Nové přesměrování</h2>
+      <h2 className="font-display text-[17px] font-bold">New redirect</h2>
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField
           id="redirect-from"
-          label="Stará cesta"
-          hint="Např. /news/stary-nazev"
+          label="Old path"
+          hint="E.g. /news/old-title"
           required
           errors={errors.from_path}
         >
@@ -33,13 +33,13 @@ export function RedirectForm() {
             name="from_path"
             required
             maxLength={300}
-            placeholder="/news/stary-nazev"
+            placeholder="/news/old-title"
           />
         </FormField>
         <FormField
           id="redirect-to"
-          label="Nová cesta"
-          hint="Např. /news/novy-nazev"
+          label="New path"
+          hint="E.g. /news/new-title"
           required
           errors={errors.to_path}
         >
@@ -48,17 +48,17 @@ export function RedirectForm() {
             name="to_path"
             required
             maxLength={300}
-            placeholder="/news/novy-nazev"
+            placeholder="/news/new-title"
           />
         </FormField>
       </div>
       <Checkbox
         name="permanent"
         defaultChecked
-        label="Trvalé (308) — vyhledávače si zapamatují novou adresu"
+        label="Permanent (308) — search engines will remember the new URL"
       />
       <div className="flex flex-wrap items-center gap-3">
-        <SubmitButton pending="Ukládám…">Přidat přesměrování</SubmitButton>
+        <SubmitButton pending="Saving…">Add redirect</SubmitButton>
         <ActionStatus state={state} />
       </div>
     </ActionForm>
@@ -69,11 +69,11 @@ export function DeleteRedirect({ id, from }: { id: string; from: string }) {
   const router = useRouter();
   return (
     <ConfirmButton
-      label="Smazat"
+      label="Delete"
       variant="danger"
-      title="Smazat přesměrování?"
-      body={`Adresa ${from} pak skončí na stránce „nenalezeno".`}
-      confirm="Smazat"
+      title="Delete the redirect?"
+      body={`The URL ${from} will then lead to the “not found” page.`}
+      confirm="Delete"
       action={() => deleteRedirect(id)}
       onDone={(state) => {
         if (state.ok) router.refresh();

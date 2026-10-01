@@ -51,23 +51,23 @@ export function ThemeForm({ saturation, border }: { saturation: number; border: 
     <ActionForm action={action} className="grid max-w-xl gap-6">
       <Range
         id="saturation"
-        label="Sytost barev vrstev"
-        hint="Platí pro regiony, ukazatele i global issues. 1 = původní barvy."
+        label="Layer color saturation"
+        hint="Applies to regions, indicators and global issues. 1 = original colors."
         min={0.2}
         max={2}
         defaultValue={saturation}
       />
       <Range
         id="border"
-        label="Síla hranic"
-        hint="Tloušťka hranic zemí a obrysů ploch."
+        label="Border weight"
+        hint="Thickness of country borders and area outlines."
         min={0.4}
         max={2.2}
         defaultValue={border}
       />
       <ActionStatus state={state} />
       <div>
-        <SubmitButton>Uložit vzhled</SubmitButton>
+        <SubmitButton>Save appearance</SubmitButton>
       </div>
     </ActionForm>
   );
@@ -99,7 +99,7 @@ export function AreaForm({
     <ActionForm action={action} className="grid max-w-3xl gap-5">
       {area ? <input type="hidden" name="original_slug" value={area.slug} /> : null}
       <div className="grid gap-5 sm:grid-cols-2">
-        <FormField id="name" label="Název" required errors={errors.name}>
+        <FormField id="name" label="Name" required errors={errors.name}>
           <Input
             id="name"
             name="name"
@@ -111,7 +111,7 @@ export function AreaForm({
             }}
           />
         </FormField>
-        <FormField id="slug" label="Identifikátor" required errors={errors.slug}>
+        <FormField id="slug" label="Identifier" required errors={errors.slug}>
           <Input
             id="slug"
             name="slug"
@@ -124,10 +124,10 @@ export function AreaForm({
             }}
           />
         </FormField>
-        <FormField id="label" label="Popisek na mapě" hint="Prázdné = název." errors={errors.label}>
+        <FormField id="label" label="Map label" hint="Empty = name." errors={errors.label}>
           <Input id="label" name="label" maxLength={60} defaultValue={area?.label} />
         </FormField>
-        <FormField id="country_iso3" label="Země (nepovinné)" errors={errors.country_iso3}>
+        <FormField id="country_iso3" label="Country (optional)" errors={errors.country_iso3}>
           <Select id="country_iso3" name="country_iso3" defaultValue={area?.country_iso3 ?? ""}>
             <option value="">—</option>
             {countries.map((country) => (
@@ -137,7 +137,7 @@ export function AreaForm({
             ))}
           </Select>
         </FormField>
-        <FormField id="fill" label="Výplň" required errors={errors.fill}>
+        <FormField id="fill" label="Fill" required errors={errors.fill}>
           <Input
             id="fill"
             name="fill"
@@ -146,7 +146,7 @@ export function AreaForm({
             defaultValue={area?.fill ?? "#e0a040"}
           />
         </FormField>
-        <FormField id="stroke" label="Obrys" required errors={errors.stroke}>
+        <FormField id="stroke" label="Outline" required errors={errors.stroke}>
           <Input
             id="stroke"
             name="stroke"
@@ -156,14 +156,14 @@ export function AreaForm({
           />
         </FormField>
       </div>
-      <FormField id="note" label="Poznámka" errors={errors.note}>
+      <FormField id="note" label="Note" errors={errors.note}>
         <Textarea id="note" name="note" maxLength={1000} rows={2} defaultValue={area?.note} />
       </FormField>
       <FormField
         id="geometry"
-        label="Obrazec (GeoJSON Polygon)"
+        label="Shape (GeoJSON Polygon)"
         required
-        hint="Nakreslete ho třeba na geojson.io a vložte sem. Jeden uzavřený prstenec, nejvýš 2000 bodů."
+        hint="Draw it e.g. on geojson.io and paste it here. One closed ring, at most 2000 points."
         errors={errors.geometry}
       >
         <Textarea
@@ -177,7 +177,7 @@ export function AreaForm({
       </FormField>
       <ActionStatus state={state} />
       <div>
-        <SubmitButton>{area ? "Uložit plochu" : "Založit plochu"}</SubmitButton>
+        <SubmitButton>{area ? "Save area" : "Create area"}</SubmitButton>
       </div>
     </ActionForm>
   );
@@ -187,14 +187,14 @@ export function DeleteArea({ slug }: { slug: string }) {
   const router = useRouter();
   return (
     <ConfirmButton
-      label="Smazat"
+      label="Delete"
       variant="danger"
-      title="Smazat plochu z mapy?"
-      body="Plocha zmizí z globusu. Novinky na ni navázané zůstanou."
-      confirm="Smazat"
+      title="Delete area from the map?"
+      body="The area disappears from the globe. Articles linked to it remain."
+      confirm="Delete"
       action={() => deleteArea(slug)}
       onDone={(state) => {
-        if (state.ok) router.push("/admin/oblasti");
+        if (state.ok) router.push("/admin/areas");
       }}
     />
   );

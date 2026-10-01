@@ -16,7 +16,7 @@ import { SITE_URL } from "@/lib/site";
 import { createServiceClient } from "@/lib/supabase/service";
 import { InvitationId, InvitationInput } from "./schema";
 
-const PAGE = "/admin/ucty/pozvanky";
+const PAGE = "/admin/accounts/invitations";
 
 /**
  * Nová pozvánka do týmu (ARCHITEKTURA 7.3). Kdo smí koho pozvat, hlídá DB
@@ -46,7 +46,7 @@ export async function createInvitation(
   return { ok: true, message: await sendInvitationEmail(email) };
 }
 
-const SHARE_LINK = "Pošlete pozvanému odkaz na stránku /pozvanka.";
+const SHARE_LINK = "Send the invitee a link to the /pozvanka page.";
 
 /**
  * E-mail s pozvánkou (G1) — jen se zapnutým přepínačem `email_auth` (vlastní
@@ -55,7 +55,7 @@ const SHARE_LINK = "Pošlete pozvanému odkaz na stránku /pozvanka.";
  * nedostane — pozvánka se uplatní při jeho dalším přihlášení.
  */
 async function sendInvitationEmail(email: string): Promise<string> {
-  const created = "Pozvánka je vytvořená.";
+  const created = "Invitation created.";
   if (!(await getFlags()).emailAuth || !serverEnv.SUPABASE_SERVICE_ROLE_KEY) {
     return `${created} ${SHARE_LINK}`;
   }
@@ -63,17 +63,17 @@ async function sendInvitationEmail(email: string): Promise<string> {
     redirectTo: `${SITE_URL}/auth/confirm?next=/admin`,
     data: { locale: "en" },
   });
-  if (!error) return `${created} Pozvaný dostal e-mail s odkazem.`;
+  if (!error) return `${created} The invitee received an email with a link.`;
   if (error.code === "email_exists") {
-    return `${created} Účet s tímto e-mailem už existuje — pozvánka se uplatní při jeho dalším přihlášení.`;
+    return `${created} An account with this email already exists — the invitation will apply on its next sign-in.`;
   }
   console.error("[invite-email]", error.code ?? error.message);
-  return `${created} E-mail se nepodařilo odeslat. ${SHARE_LINK}`;
+  return `${created} The email couldn't be sent. ${SHARE_LINK}`;
 }
 
 export async function revokeInvitation(id: string): Promise<ActionState> {
   const parsed = InvitationId.safeParse(id);
-  if (!parsed.success) return { ok: false, error: "Neplatná pozvánka." };
+  if (!parsed.success) return { ok: false, error: "Invalid invitation." };
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
 
@@ -84,8 +84,8 @@ export async function revokeInvitation(id: string): Promise<ActionState> {
     .is("accepted_at", null)
     .select("id");
   if (error) return failed(error);
-  if (!data?.length) return { ok: false, error: "Pozvánku nejde odvolat." };
+  if (!data?.length) return { ok: false, error: "This invitation can't be revoked." };
 
   revalidatePath(PAGE);
-  return { ok: true, message: "Pozvánka odvolána." };
+  return { ok: true, message: "Invitation revoked." };
 }

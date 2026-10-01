@@ -2,9 +2,11 @@
 export function NoAccess() {
   return (
     <div data-testid="section-forbidden">
-      <h1 className="font-display text-[24px] font-bold">Na tuto sekci nemáte oprávnění</h1>
+      <h1 className="font-display text-[24px] font-bold">
+        You don&apos;t have permission for this section
+      </h1>
       <p className="mt-2 text-[14px] text-[var(--color-ink-soft)]">
-        O přístup požádejte správce oprávnění.
+        Ask a permissions administrator for access.
       </p>
     </div>
   );

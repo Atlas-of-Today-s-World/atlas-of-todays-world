@@ -35,8 +35,8 @@ export async function saveAuthor(_prev: ActionState, formData: FormData): Promis
       .select("id")
       .single();
     if (error) return failed(error);
-    revalidatePath("/admin/autori");
-    redirect(`/admin/autori/${data.id}?ulozeno=1`);
+    revalidatePath("/admin/authors");
+    redirect(`/admin/authors/${data.id}?saved=1`);
   }
 
   const { data, error } = await session.supabase
@@ -45,21 +45,21 @@ export async function saveAuthor(_prev: ActionState, formData: FormData): Promis
     .eq("id", id)
     .select("id");
   if (error) return failed(error);
-  if (!data.length) return { ok: false, error: "Autora nemůžete upravit (nemáte právo)." };
+  if (!data.length) return { ok: false, error: "You can't edit this author (no permission)." };
   updateTag(tags.entries);
-  revalidatePath("/admin/autori");
-  return { ok: true, message: "Uloženo." };
+  revalidatePath("/admin/authors");
+  return { ok: true, message: "Saved." };
 }
 
 /** Smaže autora; hesla zůstanou, jen bez profilu autora (FK on delete set null). */
 export async function deleteAuthor(id: string): Promise<ActionState> {
-  if (!uuid.safeParse(id).success) return { ok: false, error: "Neplatný autor." };
+  if (!uuid.safeParse(id).success) return { ok: false, error: "Invalid author." };
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
   const { data, error } = await session.supabase.from("authors").delete().eq("id", id).select("id");
   if (error) return failed(error);
-  if (!data.length) return { ok: false, error: "Autora nejde smazat (nemáte právo)." };
+  if (!data.length) return { ok: false, error: "The author can't be deleted (no permission)." };
   updateTag(tags.entries);
-  revalidatePath("/admin/autori");
-  return { ok: true, message: "Smazáno." };
+  revalidatePath("/admin/authors");
+  return { ok: true, message: "Deleted." };
 }

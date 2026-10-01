@@ -18,8 +18,8 @@ const KINDS = {
       "image/avif": "avif",
     } as Record<string, string>,
     maxBytes: 3 * 1024 * 1024,
-    typeError: "Povolené jsou JPEG, PNG, WebP a AVIF.",
-    sizeError: "Obrázek může mít nejvýš 3 MB.",
+    typeError: "Allowed formats: JPEG, PNG, WebP and AVIF.",
+    sizeError: "Images can be at most 3 MB.",
   },
   // Zvuková verze hesla (P9): pět běžných formátů, jak je posílají různé systémy.
   audio: {
@@ -39,8 +39,8 @@ const KINDS = {
       "audio/x-flac": "flac",
     } as Record<string, string>,
     maxBytes: 50 * 1024 * 1024,
-    typeError: "Povolené jsou MP3, M4A/AAC, Ogg/Opus, WAV a FLAC.",
-    sizeError: "Zvuk může mít nejvýš 50 MB — dlouhé heslo uložte jako MP3 nebo M4A.",
+    typeError: "Allowed formats: MP3, M4A/AAC, Ogg/Opus, WAV and FLAC.",
+    sizeError: "Audio can be at most 50 MB — save a long entry as MP3 or M4A.",
   },
 } as const;
 
@@ -62,12 +62,12 @@ export async function uploadFile(file: File, kind: UploadKind): Promise<string> 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) throw new Error("Přihlaste se prosím znovu.");
+  if (!user) throw new Error("Please sign in again.");
   const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
   const { error } = await supabase.storage
     .from(rules.bucket)
     .upload(path, file, { contentType: file.type, upsert: false });
-  if (error) throw new Error("Nahrání se nepovedlo. Máte právo přidávat obsah?");
+  if (error) throw new Error("Upload failed. Do you have permission to add content?");
   return supabase.storage.from(rules.bucket).getPublicUrl(path).data.publicUrl;
 }
 

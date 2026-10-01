@@ -14,5 +14,5 @@ export const AccountInput = z
   })
   .refine((value) => value.status !== "blocked" || Boolean(value.blocked_note?.trim()), {
     path: ["blocked_note"],
-    message: "Napište důvod blokace (uvidí ho ostatní správci).",
+    message: "Enter a reason for blocking (other admins will see it).",
   });

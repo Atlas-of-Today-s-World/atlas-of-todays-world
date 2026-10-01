@@ -19,7 +19,7 @@ export function DataTable<T>({
   rows,
   columns,
   rowKey,
-  empty = "Nic tu zatím není.",
+  empty = "Nothing here yet.",
   caption,
 }: {
   rows: T[];

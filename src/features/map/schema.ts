@@ -23,7 +23,7 @@ const point = z.tuple([z.number().min(-180).max(180), z.number().min(-90).max(90
 const Polygon = z
   .object({
     type: z.literal("Polygon"),
-    coordinates: z.array(z.array(point).min(4).max(2000)).length(1, "Jen jeden prstenec."),
+    coordinates: z.array(z.array(point).min(4).max(2000)).length(1, "Only one ring allowed."),
   })
   .refine(
     (value) => {
@@ -31,7 +31,7 @@ const Polygon = z
       const [a, b] = [ring[0], ring.at(-1)];
       return Boolean(a && b && a[0] === b[0] && a[1] === b[1]);
     },
-    { message: "Obrazec musí končit v bodě, kde začíná." },
+    { message: "The shape must end at the point where it starts." },
   );
 
 export const AreaInput = z.object({
@@ -45,7 +45,7 @@ export const AreaInput = z.object({
   country_iso3: z.preprocess(blankToUndefined, iso3.optional()),
   geometry: z
     .string()
-    .max(200_000, "Obrazec je příliš podrobný.")
+    .max(200_000, "The shape is too detailed.")
     .transform((value, ctx) => {
       try {
         const parsed = JSON.parse(value);
@@ -56,7 +56,7 @@ export const AreaInput = z.object({
             ? parsed.features?.[0]?.geometry
             : parsed;
       } catch {
-        ctx.addIssue({ code: "custom", message: "Není to platný JSON." });
+        ctx.addIssue({ code: "custom", message: "This isn't valid JSON." });
         return z.NEVER;
       }
     })

@@ -37,12 +37,12 @@ export async function grantMembership(
     started_at: new Date().toISOString(),
   });
   if (error) return failed(error);
-  revalidatePath("/admin/clenove");
-  return { ok: true, message: "Členství zdarma uděleno." };
+  revalidatePath("/admin/members");
+  return { ok: true, message: "Complimentary membership granted." };
 }
 
 export async function revokeMembership(userId: string): Promise<ActionState> {
-  if (!uuid.safeParse(userId).success) return { ok: false, error: "Neplatný účet." };
+  if (!uuid.safeParse(userId).success) return { ok: false, error: "Invalid account." };
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
   const { data, error } = await session.supabase
@@ -52,7 +52,7 @@ export async function revokeMembership(userId: string): Promise<ActionState> {
     .eq("complimentary", true)
     .select("user_id");
   if (error) return failed(error);
-  if (!data.length) return { ok: false, error: "Zrušit jde jen členství zdarma." };
-  revalidatePath("/admin/clenove");
-  return { ok: true, message: "Členství zrušeno." };
+  if (!data.length) return { ok: false, error: "Only complimentary memberships can be revoked." };
+  revalidatePath("/admin/members");
+  return { ok: true, message: "Membership revoked." };
 }

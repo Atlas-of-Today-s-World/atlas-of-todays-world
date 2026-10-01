@@ -15,7 +15,7 @@ import {
 import { DeleteIndicator } from "@/features/indicators/components/DeleteIndicator";
 import { indicatorForEdit } from "@/features/indicators/editorial";
 
-export const metadata: Metadata = { title: "Ukazatel" };
+export const metadata: Metadata = { title: "Indicator" };
 
 export default async function IndicatorPage({ params }: { params: Promise<{ id: string }> }) {
   const access = await sectionAccess("layers");
@@ -33,9 +33,9 @@ export default async function IndicatorPage({ params }: { params: Promise<{ id: 
         title={indicator.label}
         lead={
           <>
-            {indicator.is_custom ? "Vlastní ukazatel redakce." : "Importovaný ukazatel."}{" "}
+            {indicator.is_custom ? "Custom editorial indicator." : "Imported indicator."}{" "}
             <Link href={`/view/${indicator.id}`} className="text-[var(--color-link)] underline">
-              Zobrazit na webu
+              View on site
             </Link>
           </>
         }
@@ -45,43 +45,43 @@ export default async function IndicatorPage({ params }: { params: Promise<{ id: 
 
       {indicator.type === "categorical" ? (
         <section className="mt-12">
-          <h2 className="font-display mb-4 text-[18px] font-bold">Kategorie</h2>
+          <h2 className="font-display mb-4 text-[18px] font-bold">Categories</h2>
           <CategoriesForm id={indicator.id} initial={categories} />
         </section>
       ) : null}
 
       <section className="mt-12">
-        <h2 className="font-display mb-1 text-[18px] font-bold">Ruční hodnota</h2>
+        <h2 className="font-display mb-1 text-[18px] font-bold">Manual value</h2>
         <p className="mb-4 text-[13px] text-[var(--color-ink-muted)]">
-          Přepíše importovanou hodnotu země, nebo doplní chybějící. Příští import ruční hodnoty
-          nepřepíše.
+          Overrides a country&apos;s imported value or fills in a missing one. The next import
+          won&apos;t overwrite manual values.
         </p>
         <ValueForm indicatorId={indicator.id} countries={countries} />
       </section>
 
       <section className="mt-12">
-        <h2 className="font-display mb-4 text-[18px] font-bold">Hodnoty ({values.length})</h2>
+        <h2 className="font-display mb-4 text-[18px] font-bold">Values ({values.length})</h2>
         <DataTable
-          caption="Hodnoty ukazatele"
+          caption="Indicator values"
           rows={values}
           rowKey={(row) => row.country_iso3}
           columns={[
             {
               key: "country",
-              header: "Země",
+              header: "Country",
               cell: (row) => name.get(row.country_iso3) ?? row.country_iso3,
             },
             {
               key: "value",
-              header: "Hodnota",
-              cell: (row) => Number(row.value).toLocaleString("cs-CZ"),
+              header: "Value",
+              cell: (row) => Number(row.value).toLocaleString("en-GB"),
             },
-            { key: "year", header: "Rok", cell: (row) => row.year ?? "—" },
+            { key: "year", header: "Year", cell: (row) => row.year ?? "—" },
             {
               key: "source",
-              header: "Původ",
+              header: "Origin",
               wide: true,
-              cell: (row) => (row.is_manual ? `Ručně: ${row.source_note}` : "Import"),
+              cell: (row) => (row.is_manual ? `Manual: ${row.source_note}` : "Import"),
             },
             {
               key: "actions",

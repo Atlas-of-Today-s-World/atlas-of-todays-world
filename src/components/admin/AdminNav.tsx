@@ -10,7 +10,7 @@ export function AdminNav({ allowed }: { allowed: string[] }) {
   const pathname = usePathname();
   const items = ADMIN_NAV.filter((item) => allowed.includes(item.href));
   return (
-    <nav aria-label="Administrace" className="flex gap-1 overflow-x-auto md:flex-col">
+    <nav aria-label="Administration" className="flex gap-1 overflow-x-auto md:flex-col">
       {items.map((item) => {
         const active =
           item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href);

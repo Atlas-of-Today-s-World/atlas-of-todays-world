@@ -58,7 +58,7 @@ export function ConfirmButton({
         ) : null}
         <div className="mt-6 flex justify-end gap-2">
           <Button variant="outline" size="sm" onClick={() => dialog.current?.close()}>
-            Zrušit
+            Cancel
           </Button>
           <Button
             size="sm"
@@ -68,12 +68,12 @@ export function ConfirmButton({
               start(async () => {
                 const state = await action();
                 if (state.ok) dialog.current?.close();
-                else setError(state.error ?? "Nepovedlo se.");
+                else setError(state.error ?? "Something went wrong.");
                 onDone?.(state);
               })
             }
           >
-            {pending ? "Pracuji…" : confirm}
+            {pending ? "Working…" : confirm}
           </Button>
         </div>
       </dialog>

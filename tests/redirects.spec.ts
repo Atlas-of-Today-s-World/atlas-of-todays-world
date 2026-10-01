@@ -30,15 +30,15 @@ test("redakce přidá přesměrování a návštěvník skončí na nové adrese
   // Přesměrování spadají pod sekci news; admin by chtěl TOTP (MfaGate).
   await createUser(admin, "content-editor");
   await signIn(page, admin, "/admin");
-  await page.goto("/admin/presmerovani");
+  await page.goto("/admin/redirects");
 
   for (const [from, to] of [
     [oldCountry, "/country/ukraine"],
     [oldPath, "/about"],
   ] as const) {
-    await page.getByLabel("Stará cesta").fill(from);
-    await page.getByLabel("Nová cesta").fill(to);
-    await page.getByRole("button", { name: "Přidat přesměrování" }).click();
+    await page.getByLabel("Old path").fill(from);
+    await page.getByLabel("New path").fill(to);
+    await page.getByRole("button", { name: "Add redirect" }).click();
     await expect(page.getByRole("cell", { name: from })).toBeVisible();
   }
 

@@ -44,8 +44,8 @@ export function TranslationForm({
             label={FIELD_LABELS[field] ?? field}
             hint={
               original
-                ? `Originál: ${original.slice(0, 400)}${original.length > 400 ? "…" : ""}`
-                : "V originálu prázdné."
+                ? `Original: ${original.slice(0, 400)}${original.length > 400 ? "…" : ""}`
+                : "Empty in the original."
             }
             errors={errors.fields}
           >
@@ -64,7 +64,7 @@ export function TranslationForm({
       })}
       <ActionStatus state={state} />
       <div>
-        <SubmitButton>Uložit překlad</SubmitButton>
+        <SubmitButton>Save translation</SubmitButton>
       </div>
     </ActionForm>
   );

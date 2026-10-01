@@ -7,21 +7,21 @@ export const TARGET_LOCALES = LOCALES.filter((locale) => locale !== "en") as [Lo
 
 /** Popisky polí v administraci. */
 export const FIELD_LABELS: Record<string, string> = {
-  name: "Název",
-  name_formal: "Úřední název",
-  tagline: "Podtitul",
-  subtitle: "Podtitul",
-  summary: "Shrnutí",
-  blurb: "Krátký popis",
+  name: "Name",
+  name_formal: "Official name",
+  tagline: "Subtitle",
+  subtitle: "Subtitle",
+  summary: "Summary",
+  blurb: "Short description",
   profile_html: "Profil (HTML)",
-  label: "Název ukazatele",
-  short_label: "Krátký název",
-  description: "Popis",
+  label: "Indicator name",
+  short_label: "Short name",
+  description: "Description",
 };
 
 export const ENTITY_LABELS = {
-  region: "Regiony",
-  country: "Země",
+  region: "Regions",
+  country: "Countries",
   issue: "Global Issues",
-  indicator: "Ukazatele",
+  indicator: "Indicators",
 } as const;

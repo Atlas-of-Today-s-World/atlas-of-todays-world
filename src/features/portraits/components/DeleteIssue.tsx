@@ -8,11 +8,11 @@ export function DeleteIssue({ slug }: { slug: string }) {
   const router = useRouter();
   return (
     <ConfirmButton
-      label="Smazat"
+      label="Delete"
       variant="danger"
-      title="Smazat global issue?"
-      body="Zmizí z mapy i jeho portrét (časová osa, zdroje, FAQ). Novinky zůstanou, jen ztratí vazbu."
-      confirm="Smazat"
+      title="Delete global issue?"
+      body="It disappears from the map along with its portrait (timeline, resources, FAQ). Articles stay but lose the link."
+      confirm="Delete"
       action={() => deleteIssue(slug)}
       onDone={(state) => {
         if (state.ok) router.push("/admin/global-issues");

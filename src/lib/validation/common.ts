@@ -15,24 +15,27 @@ export const slug = (max = 120) =>
     .trim()
     .toLowerCase()
     .max(max)
-    .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "Jen malá písmena bez diakritiky, číslice a pomlčky.");
+    .regex(
+      /^[a-z0-9]+(-[a-z0-9]+)*$/,
+      "Lowercase letters without accents, digits and hyphens only.",
+    );
 
-export const text = (max: number) => z.string().trim().max(max, `Nejvýš ${max} znaků.`);
+export const text = (max: number) => z.string().trim().max(max, `At most ${max} characters.`);
 
-export const requiredText = (max: number) => text(max).min(1, "Vyplňte prosím.");
+export const requiredText = (max: number) => text(max).min(1, "Please fill this in.");
 
 export const httpsUrl = z
   .string()
   .trim()
   .max(1000)
-  .regex(/^https:\/\/\S+$/, "Adresa musí začínat https://.");
+  .regex(/^https:\/\/\S+$/, "The URL must start with https://.");
 
 export const optionalHttpsUrl = z.preprocess(blankToUndefined, httpsUrl.optional());
 
 export const hexColor = z
   .string()
   .trim()
-  .regex(/^#[0-9a-fA-F]{6}$/, "Barva ve tvaru #rrggbb.")
+  .regex(/^#[0-9a-fA-F]{6}$/, "Color in the format #rrggbb.")
   .transform((value) => value.toLowerCase());
 
 export const iso3 = z.string().regex(/^[A-Z]{3}$/);
@@ -43,7 +46,7 @@ export const emailAddress = z
   .trim()
   .toLowerCase()
   .max(254)
-  .regex(/^[^@\s]+@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/, "Zadejte platný e-mail.");
+  .regex(/^[^@\s]+@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/, "Enter a valid email address.");
 
 export const uuid = z.string().uuid();
 

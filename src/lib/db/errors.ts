@@ -20,15 +20,15 @@ export function mapDbError(error: DbError): string {
   }
   switch (error.code) {
     case "42501":
-      return "Na tuto akci nemáte oprávnění.";
+      return "You don't have permission for this action.";
     case "23505":
-      return "Takový záznam už existuje.";
+      return "This record already exists.";
     case "23514":
-      return "Některá hodnota nesplňuje pravidla (délka, formát nebo adresa).";
+      return "Some value doesn't meet the rules (length, format or address).";
     case "23503":
-      return "Záznam je propojený s jinými daty.";
+      return "This record is linked to other data.";
     default:
       console.error("[db]", error.code, message);
-      return "Uložení se nepovedlo. Zkuste to prosím znovu.";
+      return "Saving failed. Please try again.";
   }
 }

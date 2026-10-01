@@ -31,25 +31,25 @@ export interface AdminNavItem {
 
 /** Jediná definice menu administrace (ARCHITEKTURA 5.2); zobrazí se jen sekce s právem „v". */
 export const ADMIN_NAV: readonly AdminNavItem[] = [
-  { href: "/admin", label: "Přehled", section: null, icon: LayoutDashboard },
-  { href: "/admin/obsah", label: "Novinky a hesla", section: "news", icon: Newspaper },
-  { href: "/admin/autori", label: "Autoři", section: "news", icon: PenLine },
-  { href: "/admin/schvalovani", label: "Schvalování", section: "approvals", icon: BadgeCheck },
-  { href: "/admin/presmerovani", label: "Přesměrování", section: "news", icon: SignpostBig },
-  { href: "/admin/regiony", label: "Regiony a země", section: "regions", icon: Globe2 },
+  { href: "/admin", label: "Overview", section: null, icon: LayoutDashboard },
+  { href: "/admin/content", label: "News & entries", section: "news", icon: Newspaper },
+  { href: "/admin/authors", label: "Authors", section: "news", icon: PenLine },
+  { href: "/admin/approvals", label: "Approvals", section: "approvals", icon: BadgeCheck },
+  { href: "/admin/redirects", label: "Redirects", section: "news", icon: SignpostBig },
+  { href: "/admin/regions", label: "Regions & countries", section: "regions", icon: Globe2 },
   { href: "/admin/global-issues", label: "Global Issues", section: "specials", icon: Shapes },
-  { href: "/admin/data", label: "Datové vrstvy", section: "layers", icon: Layers },
+  { href: "/admin/data", label: "Data layers", section: "layers", icon: Layers },
   {
-    href: "/admin/preklady",
-    label: "Překlady",
+    href: "/admin/translations",
+    label: "Translations",
     section: ["regions", "specials", "layers"],
     icon: Languages,
   },
-  { href: "/admin/oblasti", label: "Mapové oblasti", section: "areas", icon: MapIcon },
-  { href: "/admin/vzhled", label: "Vzhled mapy", section: "appearance", icon: Brush },
-  { href: "/admin/ucty", label: "Účty a pozvánky", section: "users", icon: Users },
-  { href: "/admin/role", label: "Role a práva", section: "permissions", icon: ShieldCheck },
-  { href: "/admin/clenove", label: "Členové", section: "members", icon: UserRound },
+  { href: "/admin/areas", label: "Map areas", section: "areas", icon: MapIcon },
+  { href: "/admin/appearance", label: "Map appearance", section: "appearance", icon: Brush },
+  { href: "/admin/accounts", label: "Accounts & invitations", section: "users", icon: Users },
+  { href: "/admin/roles", label: "Roles & permissions", section: "permissions", icon: ShieldCheck },
+  { href: "/admin/members", label: "Members", section: "members", icon: UserRound },
 ];
 
 /** Smí položku menu vidět (právo „v" v některé z jejích sekcí)? */

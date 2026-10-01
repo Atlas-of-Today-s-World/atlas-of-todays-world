@@ -13,7 +13,7 @@ const Key = z
 
 /** Zapne/vypne přepínač (feature_flags; právo permissions „e" hlídá RLS). */
 export async function setFlag(key: string, enabled: boolean): Promise<ActionState> {
-  if (!Key.safeParse(key).success) return { ok: false, error: "Neplatný přepínač." };
+  if (!Key.safeParse(key).success) return { ok: false, error: "Invalid switch." };
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
   const { data, error } = await session.supabase
@@ -22,8 +22,8 @@ export async function setFlag(key: string, enabled: boolean): Promise<ActionStat
     .eq("key", key)
     .select("key");
   if (error) return failed(error);
-  if (!data.length) return { ok: false, error: "Přepínač nemůžete měnit." };
+  if (!data.length) return { ok: false, error: "You can't change this switch." };
   updateTag(tags.flags);
-  revalidatePath("/admin/role");
-  return { ok: true, message: enabled ? "Zapnuto." : "Vypnuto." };
+  revalidatePath("/admin/roles");
+  return { ok: true, message: enabled ? "Turned on." : "Turned off." };
 }

@@ -7,7 +7,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { can, sectionAccess } from "@/features/auth/access";
 import { getAtlas } from "@/features/geography/queries";
 
-export const metadata: Metadata = { title: "Datové vrstvy" };
+export const metadata: Metadata = { title: "Data layers" };
 
 export default async function DataPage() {
   const access = await sectionAccess("layers");
@@ -17,24 +17,24 @@ export default async function DataPage() {
   return (
     <>
       <PageHeader
-        title="Datové vrstvy"
-        lead="Ukazatele, které barví globus. Importované z Our World in Data jdou opravit ruční hodnotou se zdrojem; vlastní vrstvy založíte tady."
+        title="Data layers"
+        lead="Indicators that color the globe. Values imported from Our World in Data can be corrected with a manual, sourced value; create custom layers here."
         actions={
           can(access.permissions, "layers", "c") ? (
-            <Link href="/admin/data/novy" className={buttonVariants()}>
-              Nový ukazatel
+            <Link href="/admin/data/new" className={buttonVariants()}>
+              New indicator
             </Link>
           ) : null
         }
       />
       <DataTable
-        caption="Ukazatele"
+        caption="Indicators"
         rows={indicators}
         rowKey={(indicator) => indicator.id}
         columns={[
           {
             key: "label",
-            header: "Ukazatel",
+            header: "Indicator",
             cell: (indicator) => (
               <Link href={`/admin/data/${indicator.id}`} className="font-medium hover:underline">
                 {indicator.label}
@@ -43,13 +43,18 @@ export default async function DataPage() {
           },
           {
             key: "type",
-            header: "Druh",
-            cell: (indicator) => (indicator.type === "categorical" ? "Kategorie" : "Škála"),
+            header: "Type",
+            cell: (indicator) => (indicator.type === "categorical" ? "Categories" : "Scale"),
             wide: true,
           },
-          { key: "source", header: "Zdroj", cell: (indicator) => indicator.source, wide: true },
-          { key: "year", header: "Data z roku", cell: (indicator) => indicator.latestYear ?? "—" },
-          { key: "count", header: "Zemí", cell: (indicator) => indicator.countryCount, end: true },
+          { key: "source", header: "Source", cell: (indicator) => indicator.source, wide: true },
+          { key: "year", header: "Data year", cell: (indicator) => indicator.latestYear ?? "—" },
+          {
+            key: "count",
+            header: "Countries",
+            cell: (indicator) => indicator.countryCount,
+            end: true,
+          },
         ]}
       />
     </>

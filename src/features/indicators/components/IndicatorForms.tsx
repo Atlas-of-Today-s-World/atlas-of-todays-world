@@ -58,14 +58,18 @@ export function IndicatorForm({ indicator }: { indicator: IndicatorValues | null
     <ActionForm action={action} className="grid max-w-3xl gap-5">
       <input type="hidden" name="is_new" value={indicator ? "false" : "true"} />
       <div className="grid gap-5 sm:grid-cols-2">
-        <FormField id="label" label="Název" required errors={errors.label}>
+        <FormField id="label" label="Name" required errors={errors.label}>
           <Input id="label" name="label" required maxLength={120} defaultValue={values.label} />
         </FormField>
         <FormField
           id="id"
-          label="Identifikátor"
+          label="Identifier"
           required
-          hint={indicator ? "Po založení se nemění." : "Adresa /view/…, malá písmena a pomlčky."}
+          hint={
+            indicator
+              ? "Can't be changed after creation."
+              : "URL /view/…, lowercase letters and hyphens."
+          }
           errors={errors.id}
         >
           <Input
@@ -77,7 +81,7 @@ export function IndicatorForm({ indicator }: { indicator: IndicatorValues | null
             readOnly={Boolean(indicator)}
           />
         </FormField>
-        <FormField id="short_label" label="Krátký název" errors={errors.short_label}>
+        <FormField id="short_label" label="Short name" errors={errors.short_label}>
           <Input
             id="short_label"
             name="short_label"
@@ -85,14 +89,18 @@ export function IndicatorForm({ indicator }: { indicator: IndicatorValues | null
             defaultValue={values.short_label}
           />
         </FormField>
-        <FormField id="type" label="Druh" hint={indicator ? "Po založení se nemění." : undefined}>
+        <FormField
+          id="type"
+          label="Type"
+          hint={indicator ? "Can't be changed after creation." : undefined}
+        >
           {indicator ? (
             <>
               <input type="hidden" name="type" value={values.type} />
               <Input
                 id="type"
                 readOnly
-                value={values.type === "categorical" ? "Kategorie" : "Spojitá škála"}
+                value={values.type === "categorical" ? "Categories" : "Continuous scale"}
               />
             </>
           ) : (
@@ -102,13 +110,13 @@ export function IndicatorForm({ indicator }: { indicator: IndicatorValues | null
               value={type}
               onChange={(event) => setType(event.target.value as IndicatorValues["type"])}
             >
-              <option value="sequential">Spojitá škála</option>
-              <option value="categorical">Kategorie</option>
+              <option value="sequential">Continuous scale</option>
+              <option value="categorical">Categories</option>
             </Select>
           )}
         </FormField>
       </div>
-      <FormField id="description" label="Popis" errors={errors.description}>
+      <FormField id="description" label="Description" errors={errors.description}>
         <Textarea
           id="description"
           name="description"
@@ -118,10 +126,10 @@ export function IndicatorForm({ indicator }: { indicator: IndicatorValues | null
         />
       </FormField>
       <div className="grid gap-5 sm:grid-cols-2">
-        <FormField id="source" label="Zdroj" errors={errors.source}>
+        <FormField id="source" label="Source" errors={errors.source}>
           <Input id="source" name="source" maxLength={200} defaultValue={values.source} />
         </FormField>
-        <FormField id="source_url" label="Odkaz na zdroj" errors={errors.source_url}>
+        <FormField id="source_url" label="Source link" errors={errors.source_url}>
           <Input
             id="source_url"
             name="source_url"
@@ -130,10 +138,10 @@ export function IndicatorForm({ indicator }: { indicator: IndicatorValues | null
             defaultValue={values.source_url ?? ""}
           />
         </FormField>
-        <FormField id="unit" label="Jednotka (za číslem)" errors={errors.unit}>
+        <FormField id="unit" label="Unit (after the number)" errors={errors.unit}>
           <Input id="unit" name="unit" maxLength={20} defaultValue={values.unit} />
         </FormField>
-        <FormField id="decimals" label="Desetinná místa" errors={errors.decimals}>
+        <FormField id="decimals" label="Decimal places" errors={errors.decimals}>
           <Input
             id="decimals"
             name="decimals"
@@ -147,15 +155,15 @@ export function IndicatorForm({ indicator }: { indicator: IndicatorValues | null
 
       {type === "sequential" ? (
         <fieldset className="grid gap-4 rounded-xl border border-[var(--color-line)] p-4">
-          <legend className="px-1 text-[13px] font-medium">Škála a paleta</legend>
+          <legend className="px-1 text-[13px] font-medium">Scale & palette</legend>
           <div className="grid gap-5 sm:grid-cols-3">
-            <FormField id="scale" label="Průběh" errors={errors.scale}>
+            <FormField id="scale" label="Scale type" errors={errors.scale}>
               <Select id="scale" name="scale" defaultValue={values.scale}>
-                <option value="linear">Lineární</option>
-                <option value="log">Logaritmický</option>
+                <option value="linear">Linear</option>
+                <option value="log">Logarithmic</option>
               </Select>
             </FormField>
-            <FormField id="domain_min" label="Od" errors={errors.domain_min}>
+            <FormField id="domain_min" label="From" errors={errors.domain_min}>
               <Input
                 id="domain_min"
                 name="domain_min"
@@ -164,7 +172,7 @@ export function IndicatorForm({ indicator }: { indicator: IndicatorValues | null
                 defaultValue={values.domain_min ?? ""}
               />
             </FormField>
-            <FormField id="domain_max" label="Do" errors={errors.domain_max}>
+            <FormField id="domain_max" label="To" errors={errors.domain_max}>
               <Input
                 id="domain_max"
                 name="domain_max"
@@ -176,7 +184,7 @@ export function IndicatorForm({ indicator }: { indicator: IndicatorValues | null
           </div>
           <div className="grid gap-2">
             <span className="text-[12.5px] font-medium text-[var(--color-ink-soft)]">
-              Barvy od nejnižší po nejvyšší hodnotu
+              Colors from lowest to highest value
             </span>
             <div
               aria-hidden
@@ -190,19 +198,19 @@ export function IndicatorForm({ indicator }: { indicator: IndicatorValues | null
                     type="color"
                     name="ramp"
                     value={color}
-                    aria-label={`Barva ${index + 1}`}
+                    aria-label={`Color ${index + 1}`}
                     onChange={(event) =>
                       setRamp((current) =>
                         current.map((c, i) => (i === index ? event.target.value : c)),
                       )
                     }
-                    className="h-11 w-12 cursor-pointer rounded-lg border border-[var(--color-line)] p-1"
+                    className="h-11 w-12 cursor-pointer rounded-lg border border-[var(--color-field-border)] p-1"
                   />
                   {ramp.length > 2 ? (
                     <Button
                       variant="ghost"
                       size="icon"
-                      aria-label={`Odebrat barvu ${index + 1}`}
+                      aria-label={`Remove color ${index + 1}`}
                       onClick={() => setRamp((current) => current.filter((_, i) => i !== index))}
                     >
                       <Trash2 size={15} aria-hidden />
@@ -216,7 +224,7 @@ export function IndicatorForm({ indicator }: { indicator: IndicatorValues | null
                   size="sm"
                   onClick={() => setRamp((current) => [...current, current.at(-1) ?? "#888888"])}
                 >
-                  <Plus size={15} aria-hidden /> Barva
+                  <Plus size={15} aria-hidden /> Color
                 </Button>
               ) : null}
             </div>
@@ -225,7 +233,7 @@ export function IndicatorForm({ indicator }: { indicator: IndicatorValues | null
           <Checkbox
             name="higher_is_better"
             defaultChecked={values.higher_is_better}
-            label="Vyšší hodnota je lepší (pořadí zemí od nejvyšší)"
+            label="Higher is better (rank countries from highest)"
           />
         </fieldset>
       ) : (
@@ -237,7 +245,7 @@ export function IndicatorForm({ indicator }: { indicator: IndicatorValues | null
 
       <ActionStatus state={state} />
       <div>
-        <SubmitButton>{indicator ? "Uložit ukazatel" : "Založit ukazatel"}</SubmitButton>
+        <SubmitButton>{indicator ? "Save indicator" : "Create indicator"}</SubmitButton>
       </div>
     </ActionForm>
   );
@@ -259,7 +267,7 @@ export function CategoriesForm({ id, initial }: { id: string; initial: Category[
       <input type="hidden" name="items" value={JSON.stringify(items)} />
       {items.map((item, index) => (
         <div key={index} className="grid grid-cols-[5rem_1fr_3.5rem_auto] items-end gap-2">
-          <FormField id={`cat-${index}-value`} label="Hodnota">
+          <FormField id={`cat-${index}-value`} label="Value">
             <Input
               id={`cat-${index}-value`}
               type="number"
@@ -271,7 +279,7 @@ export function CategoriesForm({ id, initial }: { id: string; initial: Category[
               }
             />
           </FormField>
-          <FormField id={`cat-${index}-label`} label="Popisek">
+          <FormField id={`cat-${index}-label`} label="Label">
             <Input
               id={`cat-${index}-label`}
               maxLength={80}
@@ -283,7 +291,7 @@ export function CategoriesForm({ id, initial }: { id: string; initial: Category[
               }
             />
           </FormField>
-          <FormField id={`cat-${index}-color`} label="Barva">
+          <FormField id={`cat-${index}-color`} label="Color">
             <Input
               id={`cat-${index}-color`}
               type="color"
@@ -299,7 +307,7 @@ export function CategoriesForm({ id, initial }: { id: string; initial: Category[
           <Button
             variant="ghost"
             size="icon"
-            aria-label={`Odebrat kategorii ${index + 1}`}
+            aria-label={`Remove category ${index + 1}`}
             onClick={() => setItems((c) => c.filter((_, i) => i !== index))}
           >
             <Trash2 size={15} aria-hidden />
@@ -318,9 +326,9 @@ export function CategoriesForm({ id, initial }: { id: string; initial: Category[
             ])
           }
         >
-          <Plus size={15} aria-hidden /> Kategorie
+          <Plus size={15} aria-hidden /> Category
         </Button>
-        <SubmitButton size="sm">Uložit číselník</SubmitButton>
+        <SubmitButton size="sm">Save categories</SubmitButton>
       </div>
     </ActionForm>
   );
@@ -347,10 +355,10 @@ export function ValueForm({
   return (
     <ActionForm action={action} className="grid max-w-3xl gap-4 sm:grid-cols-2">
       <input type="hidden" name="indicator_id" value={indicatorId} />
-      <FormField id="country_iso3" label="Země" required errors={errors.country_iso3}>
+      <FormField id="country_iso3" label="Country" required errors={errors.country_iso3}>
         <Select id="country_iso3" name="country_iso3" required defaultValue="">
           <option value="" disabled>
-            Vyberte…
+            Select…
           </option>
           {countries.map((country) => (
             <option key={country.iso3} value={country.iso3}>
@@ -360,29 +368,29 @@ export function ValueForm({
         </Select>
       </FormField>
       <div className="grid grid-cols-2 gap-4">
-        <FormField id="value" label="Hodnota" required errors={errors.value}>
+        <FormField id="value" label="Value" required errors={errors.value}>
           <Input id="value" name="value" type="number" step="any" required />
         </FormField>
-        <FormField id="year" label="Rok" errors={errors.year}>
+        <FormField id="year" label="Year" errors={errors.year}>
           <Input id="year" name="year" type="number" min={1800} max={2100} />
         </FormField>
       </div>
       <FormField
         id="source_note"
-        label="Zdroj hodnoty"
+        label="Value source"
         required
-        hint="Bez zdroje se ruční hodnota neuloží."
+        hint="A manual value can't be saved without a source."
         errors={errors.source_note}
       >
         <Input id="source_note" name="source_note" required maxLength={300} />
       </FormField>
-      <FormField id="note" label="Poznámka u hodnoty („odhad“)" errors={errors.note}>
+      <FormField id="note" label="Value note (“estimate”)" errors={errors.note}>
         <Input id="note" name="note" maxLength={120} />
       </FormField>
       <div className="grid gap-3 sm:col-span-2">
         <ActionStatus state={state} />
         <div>
-          <SubmitButton>Uložit hodnotu</SubmitButton>
+          <SubmitButton>Save value</SubmitButton>
         </div>
       </div>
     </ActionForm>
@@ -401,11 +409,11 @@ export function DeleteValue({
   const router = useRouter();
   return (
     <ConfirmButton
-      label="Smazat"
+      label="Delete"
       variant="danger"
-      title={`Smazat hodnotu – ${name}?`}
-      body="Země pak ve vrstvě nebude mít data, dokud je znovu nezadáte nebo nenaimportujete."
-      confirm="Smazat"
+      title={`Delete value – ${name}?`}
+      body="The country will have no data in this layer until you enter or import it again."
+      confirm="Delete"
       action={() => deleteValue(indicatorId, iso3)}
       onDone={(state) => {
         if (state.ok) router.refresh();

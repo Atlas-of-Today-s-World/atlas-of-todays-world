@@ -27,12 +27,12 @@ export async function signedIn(): Promise<{ supabase: Client; user: User } | nul
   return user ? { supabase, user } : null;
 }
 
-export const NOT_SIGNED_IN: ActionState = { ok: false, error: "Přihlaste se prosím znovu." };
+export const NOT_SIGNED_IN: ActionState = { ok: false, error: "Please sign in again." };
 
 export function invalid(error: ZodError): ActionState {
   return {
     ok: false,
-    error: "Zkontrolujte zvýrazněná pole.",
+    error: "Please check the highlighted fields.",
     fieldErrors: error.flatten().fieldErrors as ActionState["fieldErrors"],
   };
 }
@@ -62,7 +62,7 @@ export function listItemError(
   labels: Record<string, string>,
 ): ActionState {
   const issue = error.issues[0];
-  if (!issue) return { ok: false, error: "Zkontrolujte zvýrazněná pole." };
+  if (!issue) return { ok: false, error: "Please check the highlighted fields." };
   const [index, field] = issue.path;
   return {
     ok: false,
@@ -75,4 +75,4 @@ export function listItemError(
 
 /** Text první chyby validace (krátké formuláře s jedním polem). */
 export const firstIssue = (error: ZodError) =>
-  error.issues[0]?.message ?? "Zkontrolujte zvýrazněná pole.";
+  error.issues[0]?.message ?? "Please check the highlighted fields.";

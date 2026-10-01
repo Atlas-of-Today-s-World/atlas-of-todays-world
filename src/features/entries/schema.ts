@@ -23,7 +23,7 @@ const lines = (value: unknown) =>
 /** Odrážky shrnutí hesla i kapitoly: nejvýš 5 po 300 znacích (DB `short_items`). */
 const summaryPoints = z.preprocess(
   lines,
-  z.array(text(300)).max(5, "Nejvýš 5 odrážek, jedna na řádek."),
+  z.array(text(300)).max(5, "At most 5 bullet points, one per line."),
 );
 
 /** Vstup editoru novinky/hesla — limity shodné s tabulkou `entries`. */
@@ -34,7 +34,7 @@ export const EntryInput = z.object({
   title: requiredText(200),
   summary: text(600),
   category: z.enum(NEWS_CATEGORIES as [string, ...string[]], {
-    message: "Vyberte kategorii.",
+    message: "Choose a category.",
   }),
   region_slug: z.preprocess(blankToUndefined, slug(120).optional()),
   special_slug: z.preprocess(blankToUndefined, slug(120).optional()),
@@ -42,8 +42,8 @@ export const EntryInput = z.object({
   cover_credit: text(300),
   author_name: text(120),
   reading_minutes: optionalNumber(z.number().int().min(1).max(180)),
-  body_html: z.string().max(400_000, "Text je příliš dlouhý."),
-  countries: z.array(iso3).max(60, "Nejvýš 60 zemí."),
+  body_html: z.string().max(400_000, "The text is too long."),
+  countries: z.array(iso3).max(60, "At most 60 countries."),
   planned: z.preprocess((value) => value === "on", z.boolean()),
   // Jen u encyklopedického hesla (P9); u novinky zůstanou prázdné.
   summary_points: summaryPoints.default([]),
@@ -55,7 +55,7 @@ export type EntryInput = z.infer<typeof EntryInput>;
 export const ChapterInput = z.object({
   title: requiredText(200),
   summary_points: summaryPoints,
-  body_html: z.string().max(200_000, "Text kapitoly je příliš dlouhý."),
+  body_html: z.string().max(200_000, "The chapter text is too long."),
   illustration_url: optionalHttpsUrl,
   illustration_credit: text(300).default(""),
   // Zvuková verze kapitoly (R4) — po kapitolách, ať se soubor vejde do 50 MB.
@@ -64,12 +64,12 @@ export const ChapterInput = z.object({
 export type ChapterInput = z.infer<typeof ChapterInput>;
 
 export const CHAPTER_FIELD_LABEL: Record<string, string> = {
-  title: "titulek",
-  summary_points: "shrnutí",
+  title: "title",
+  summary_points: "summary",
   body_html: "text",
-  illustration_url: "ilustrace",
-  illustration_credit: "kredit ilustrace",
-  audio_url: "zvuk",
+  illustration_url: "illustration",
+  illustration_credit: "illustration credit",
+  audio_url: "audio",
 };
 
 export const SendBackInput = z.object({
@@ -87,19 +87,23 @@ const SCHEDULE_MAX_DAYS = 365;
  */
 export const ScheduleInput = z.object({
   id: uuid,
-  publish_at: z.iso.datetime({ offset: true, message: "Zadejte datum a čas." }).refine((value) => {
-    const at = Date.parse(value);
-    const now = Date.now();
-    return at >= now + SCHEDULE_MIN_MINUTES * 60_000 && at <= now + SCHEDULE_MAX_DAYS * 86_400_000;
-  }, `Čas musí být aspoň ${SCHEDULE_MIN_MINUTES} minut dopředu a nejvýš za rok.`),
+  publish_at: z.iso
+    .datetime({ offset: true, message: "Enter a date and time." })
+    .refine((value) => {
+      const at = Date.parse(value);
+      const now = Date.now();
+      return (
+        at >= now + SCHEDULE_MIN_MINUTES * 60_000 && at <= now + SCHEDULE_MAX_DAYS * 86_400_000
+      );
+    }, `The time must be at least ${SCHEDULE_MIN_MINUTES} minutes ahead and at most a year away.`),
 });
 
 export const ENTRY_STATUSES = ["draft", "pending", "published", "planned"] as const;
 export type EntryStatus = (typeof ENTRY_STATUSES)[number];
 
 export const STATUS_LABEL: Record<EntryStatus, string> = {
-  draft: "Koncept",
-  pending: "Čeká na schválení",
-  published: "Zveřejněno",
-  planned: "Plánováno",
+  draft: "Draft",
+  pending: "Pending approval",
+  published: "Published",
+  planned: "Scheduled",
 };

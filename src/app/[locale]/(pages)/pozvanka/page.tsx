@@ -3,7 +3,7 @@ import { supabaseConfig } from "@/lib/supabase/config";
 import GoogleSignIn from "../login/GoogleSignIn";
 
 export const metadata: Metadata = {
-  title: "Pozvánka do týmu",
+  title: "Team invitation",
   robots: { index: false, follow: false },
 };
 
@@ -14,21 +14,21 @@ export const metadata: Metadata = {
 export default function InvitationPage() {
   return (
     <main className="mx-auto max-w-md">
-      <h1 className="font-display text-[28px] font-bold">Pozvánka do týmu Atlasu</h1>
+      <h1 className="font-display text-[28px] font-bold">Invitation to the Atlas team</h1>
       <p className="mt-3 text-[14px] leading-relaxed text-[var(--color-ink-soft)]">
-        Přihlaste se přes Google <strong>stejnou e-mailovou adresou</strong>, na kterou vám pozvánka
-        přišla. Roli v týmu dostanete automaticky a otevře se vám administrace.
+        Sign in with Google using <strong>the same email address</strong> the invitation was sent
+        to. You&apos;ll get your team role automatically and the administration will open.
       </p>
       <p className="mt-3 text-[13px] leading-relaxed text-[var(--color-ink-muted)]">
-        Pozvánka platí 5 dní. Pokud vypršela nebo se přihlásíte jinou adresou, požádejte o novou
-        toho, kdo vás zval.
+        The invitation is valid for 5 days. If it has expired or you sign in with a different
+        address, ask the person who invited you for a new one.
       </p>
       <div className="mt-8">
         {supabaseConfig() ? (
           <GoogleSignIn next="/admin" />
         ) : (
           <p className="text-[13px] text-[var(--color-ink-muted)]">
-            Přihlášení zatím není dostupné.
+            Sign-in isn&apos;t available yet.
           </p>
         )}
       </div>

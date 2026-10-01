@@ -6,7 +6,7 @@ import { ADMIN_NAV, navVisible } from "@/config/admin-nav";
 import { can, getAccess } from "@/features/auth/access";
 import { approvalQueue, listEntries } from "@/features/entries/editorial";
 
-export const metadata: Metadata = { title: "Přehled" };
+export const metadata: Metadata = { title: "Overview" };
 
 /** Úvod administrace: co na mě čeká a kam dál (podle oprávnění). */
 export default async function AdminHome() {
@@ -29,12 +29,12 @@ export default async function AdminHome() {
   return (
     <>
       <PageHeader
-        title="Přehled"
-        lead={`Přihlášeni jako ${access.email} (${access.roleName}).`}
+        title="Overview"
+        lead={`Signed in as ${access.email} (${access.roleName}).`}
         actions={
           can(access.permissions, "news", "c") ? (
-            <Link href="/admin/obsah/novy" className={buttonVariants()}>
-              Nový článek
+            <Link href="/admin/content/new" className={buttonVariants()}>
+              New article
             </Link>
           ) : null
         }
@@ -42,21 +42,21 @@ export default async function AdminHome() {
 
       <div className="grid gap-4 sm:grid-cols-3">
         {writes ? (
-          <Tile href="/admin/obsah?moje=1&stav=draft" value={drafts.length} label="mých konceptů" />
+          <Tile href="/admin/content?mine=1&status=draft" value={drafts.length} label="my drafts" />
         ) : null}
         {writes ? (
           <Tile
-            href="/admin/obsah?moje=1&stav=draft"
+            href="/admin/content?mine=1&status=draft"
             value={returned.length}
-            label="vráceno k úpravě"
+            label="returned for changes"
             tone={returned.length ? "warn" : undefined}
           />
         ) : null}
         {approves ? (
           <Tile
-            href="/admin/schvalovani"
+            href="/admin/approvals"
             value={forMe.length}
-            label="čeká na mé schválení"
+            label="awaiting my approval"
             tone={forMe.length ? "warn" : undefined}
           />
         ) : null}
@@ -64,11 +64,11 @@ export default async function AdminHome() {
 
       {returned.length ? (
         <section className="mt-10">
-          <h2 className="font-display mb-3 text-[17px] font-bold">Vráceno k úpravě</h2>
+          <h2 className="font-display mb-3 text-[17px] font-bold">Returned for changes</h2>
           <ul className="grid gap-2">
             {returned.map((entry) => (
               <li key={entry.id} className="rounded-xl border border-amber-300 bg-amber-50 p-3">
-                <Link href={`/admin/obsah/${entry.id}`} className="font-medium hover:underline">
+                <Link href={`/admin/content/${entry.id}`} className="font-medium hover:underline">
                   {entry.title}
                 </Link>
                 <p className="mt-1 text-[13px] whitespace-pre-line">{entry.review_note}</p>
@@ -79,7 +79,7 @@ export default async function AdminHome() {
       ) : null}
 
       <section className="mt-10">
-        <h2 className="font-display mb-3 text-[17px] font-bold">Vaše sekce</h2>
+        <h2 className="font-display mb-3 text-[17px] font-bold">Your sections</h2>
         <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {sections.map((item) => (
             <li key={item.href}>

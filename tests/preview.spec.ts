@@ -24,26 +24,26 @@ test("rozepsaný koncept se po znovuotevření nabídne k obnovení a náhled ho
   browser,
 }) => {
   await signIn(page, publisher, "/admin");
-  await page.goto("/admin/obsah/novy");
-  await page.getByLabel("Titulek").fill(title);
-  await page.getByLabel("Adresa (slug)").fill(slug);
-  await page.getByLabel("Kategorie").selectOption("Society");
-  await page.getByRole("button", { name: "Vytvořit koncept" }).click();
-  await expect(page).toHaveURL(/\/admin\/obsah\/[0-9a-f-]{36}/);
+  await page.goto("/admin/content/new");
+  await page.getByLabel("Title").fill(title);
+  await page.getByLabel("URL (slug)").fill(slug);
+  await page.getByLabel("Category").selectOption("Society");
+  await page.getByRole("button", { name: "Create draft" }).click();
+  await expect(page).toHaveURL(/\/admin\/content\/[0-9a-f-]{36}/);
 
   // Změna bez uložení → záloha (interval 5 s) → po znovunačtení nabídka.
-  await page.getByLabel("Perex").fill("Neuložený perex z e2e.");
+  await page.getByLabel(/^Summary( \*)?$/).fill("Neuložený perex z e2e.");
   await page.waitForTimeout(6_000);
   await page.reload();
-  await expect(page.getByText(/neuloženou rozepsanou verzi/)).toBeVisible();
-  await page.getByRole("button", { name: "Obnovit" }).click();
-  await expect(page.getByLabel("Perex")).toHaveValue("Neuložený perex z e2e.");
-  await page.getByRole("button", { name: "Uložit změny" }).click();
-  await expect(page.getByText(/neuloženou rozepsanou verzi/)).toHaveCount(0);
+  await expect(page.getByText(/You have an unsaved draft/)).toBeVisible();
+  await page.getByRole("button", { name: "Restore" }).click();
+  await expect(page.getByLabel(/^Summary( \*)?$/)).toHaveValue("Neuložený perex z e2e.");
+  await page.getByRole("button", { name: "Save changes" }).click();
+  await expect(page.getByText(/You have an unsaved draft/)).toHaveCount(0);
 
   // Odkaz na náhled otevře koncept i bez přihlášení.
-  await page.getByRole("button", { name: "Vytvořit náhled" }).click();
-  const link = page.getByLabel("Odkaz na náhled");
+  await page.getByRole("button", { name: "Create preview" }).click();
+  const link = page.getByLabel("Preview link");
   await expect(link).toHaveValue(/\/preview\/[0-9a-f]{64}$/);
   const url = await link.inputValue();
 

@@ -18,11 +18,11 @@ export default async function IssuesPage() {
     <>
       <PageHeader
         title="Global Issues"
-        lead="Celky zemí napříč regiony (válka, migrace, klima…). Každý má na webu vlastní portrét."
+        lead="Groups of countries across regions (war, migration, climate…). Each has its own portrait on the site."
         actions={
           can(access.permissions, "specials", "c") ? (
-            <Link href="/admin/global-issues/novy" className={buttonVariants()}>
-              Nový global issue
+            <Link href="/admin/global-issues/new" className={buttonVariants()}>
+              New global issue
             </Link>
           ) : null
         }
@@ -45,7 +45,7 @@ export default async function IssuesPage() {
           },
           {
             key: "name",
-            header: "Název",
+            header: "Name",
             cell: (issue) => (
               <Link
                 href={`/admin/global-issues/${issue.slug}`}
@@ -55,8 +55,13 @@ export default async function IssuesPage() {
               </Link>
             ),
           },
-          { key: "subtitle", header: "Podtitul", cell: (issue) => issue.subtitle, wide: true },
-          { key: "countries", header: "Zemí", cell: (issue) => issue.countries.length, end: true },
+          { key: "subtitle", header: "Subtitle", cell: (issue) => issue.subtitle, wide: true },
+          {
+            key: "countries",
+            header: "Countries",
+            cell: (issue) => issue.countries.length,
+            end: true,
+          },
         ]}
       />
     </>

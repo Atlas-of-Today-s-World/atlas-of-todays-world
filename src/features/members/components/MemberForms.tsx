@@ -14,7 +14,7 @@ export const PLAN_LABEL: Record<string, string> = {
   none: "—",
   patron: "Patron",
   founding: "Founding patron",
-  institution: "Instituce",
+  institution: "Institution",
 };
 
 export function GrantForm({ accounts }: { accounts: { id: string; label: string }[] }) {
@@ -25,10 +25,10 @@ export function GrantForm({ accounts }: { accounts: { id: string; label: string 
       action={action}
       className="grid max-w-2xl gap-4 sm:grid-cols-[1fr_12rem_auto] sm:items-end"
     >
-      <FormField id="user_id" label="Účet" errors={errors.user_id}>
+      <FormField id="user_id" label="Account" errors={errors.user_id}>
         <Select id="user_id" name="user_id" required defaultValue="">
           <option value="" disabled>
-            Vyberte…
+            Select…
           </option>
           {accounts.map((account) => (
             <option key={account.id} value={account.id}>
@@ -37,7 +37,7 @@ export function GrantForm({ accounts }: { accounts: { id: string; label: string 
           ))}
         </Select>
       </FormField>
-      <FormField id="plan" label="Členství" errors={errors.plan}>
+      <FormField id="plan" label="Membership" errors={errors.plan}>
         <Select id="plan" name="plan" defaultValue="patron">
           {["patron", "founding", "institution"].map((plan) => (
             <option key={plan} value={plan}>
@@ -46,7 +46,7 @@ export function GrantForm({ accounts }: { accounts: { id: string; label: string 
           ))}
         </Select>
       </FormField>
-      <SubmitButton size="sm">Udělit zdarma</SubmitButton>
+      <SubmitButton size="sm">Grant for free</SubmitButton>
       <div className="sm:col-span-3">
         <ActionStatus state={state} />
       </div>
@@ -58,11 +58,11 @@ export function RevokeMembership({ userId, label }: { userId: string; label: str
   const router = useRouter();
   return (
     <ConfirmButton
-      label="Zrušit"
+      label="Revoke"
       variant="danger"
-      title={`Zrušit členství zdarma – ${label}?`}
-      body="Účet přestane být Atlas Patron."
-      confirm="Zrušit"
+      title={`Revoke complimentary membership – ${label}?`}
+      body="The account will no longer be an Atlas Patron."
+      confirm="Revoke"
       action={() => revokeMembership(userId)}
       onDone={(state) => {
         if (state.ok) router.refresh();

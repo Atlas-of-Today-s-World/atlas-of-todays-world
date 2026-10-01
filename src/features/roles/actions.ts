@@ -14,7 +14,7 @@ import {
 import { slug } from "@/lib/validation/common";
 import { MatrixInput, RoleInput, SecurityInput } from "./schema";
 
-const PAGE = "/admin/role";
+const PAGE = "/admin/roles";
 
 /**
  * Oprávnění jedné role (řádek matice role × sekce × vced). Admin je zamčený
@@ -60,7 +60,7 @@ export async function saveMatrix(_prev: ActionState, formData: FormData): Promis
   revalidatePath(PAGE);
   return {
     ok: true,
-    message: upserts.length || removals.length ? "Oprávnění uložena." : "Beze změny.",
+    message: upserts.length || removals.length ? "Permissions saved." : "No changes.",
   };
 }
 
@@ -75,18 +75,18 @@ export async function saveRole(_prev: ActionState, formData: FormData): Promise<
     : await session.supabase.from("roles").update(fields).eq("id", id);
   if (error) return failed(error);
   revalidatePath(PAGE);
-  return { ok: true, message: is_new ? "Role založena." : "Role uložena." };
+  return { ok: true, message: is_new ? "Role created." : "Role saved." };
 }
 
 export async function deleteRole(id: string): Promise<ActionState> {
-  if (!slug(40).safeParse(id).success) return { ok: false, error: "Neplatná role." };
+  if (!slug(40).safeParse(id).success) return { ok: false, error: "Invalid role." };
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
   const { data, error } = await session.supabase.from("roles").delete().eq("id", id).select("id");
   if (error) return failed(error);
-  if (!data.length) return { ok: false, error: "Roli nemůžete smazat." };
+  if (!data.length) return { ok: false, error: "You can't delete this role." };
   revalidatePath(PAGE);
-  return { ok: true, message: "Role smazána." };
+  return { ok: true, message: "Role deleted." };
 }
 
 export async function saveSecurity(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -100,7 +100,7 @@ export async function saveSecurity(_prev: ActionState, formData: FormData): Prom
     .eq("id", 1)
     .select("id");
   if (error) return failed(error);
-  if (!data.length) return { ok: false, error: "Bezpečnostní nastavení nemůžete měnit." };
+  if (!data.length) return { ok: false, error: "You can't change the security settings." };
   revalidatePath(PAGE);
-  return { ok: true, message: "Nastavení uloženo." };
+  return { ok: true, message: "Settings saved." };
 }

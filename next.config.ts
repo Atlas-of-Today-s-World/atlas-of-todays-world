@@ -1,5 +1,34 @@
 import type { NextConfig } from "next";
 
+// The admin moved to English URLs; old Czech bookmarks redirect.
+// More specific paths must come before general ones (first match wins).
+const LEGACY_ADMIN_PATHS: readonly (readonly [string, string])[] = [
+  ["/admin/obsah/novy", "/admin/content/new"],
+  ["/admin/autori/novy", "/admin/authors/new"],
+  ["/admin/oblasti/nova", "/admin/areas/new"],
+  ["/admin/data/novy", "/admin/data/new"],
+  ["/admin/global-issues/novy", "/admin/global-issues/new"],
+  ["/admin/ucty/pozvanky", "/admin/accounts/invitations"],
+  ["/admin/regiony/zeme/:slug", "/admin/regions/countries/:slug"],
+  ["/admin/obsah/:path*", "/admin/content/:path*"],
+  ["/admin/autori/:path*", "/admin/authors/:path*"],
+  ["/admin/schvalovani", "/admin/approvals"],
+  ["/admin/presmerovani", "/admin/redirects"],
+  ["/admin/regiony/:path*", "/admin/regions/:path*"],
+  ["/admin/preklady/:path*", "/admin/translations/:path*"],
+  ["/admin/oblasti/:path*", "/admin/areas/:path*"],
+  ["/admin/vzhled", "/admin/appearance"],
+  ["/admin/ucty/:path*", "/admin/accounts/:path*"],
+  ["/admin/role/:path*", "/admin/roles/:path*"],
+  ["/admin/clenove", "/admin/members"],
+];
+
+const LEGACY_ADMIN_REDIRECTS = LEGACY_ADMIN_PATHS.map(([source, destination]) => ({
+  source,
+  destination,
+  permanent: true,
+}));
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   // Produkční build si umí sáhnout do jiné složky než běžící `next dev`.
@@ -23,6 +52,7 @@ const nextConfig: NextConfig = {
         destination: "/region/:slug",
         permanent: true,
       },
+      ...LEGACY_ADMIN_REDIRECTS,
     ];
   },
   // MapLibre z public/maplibre/<verze>/ (ADR-017): verze je v cestě, takže se

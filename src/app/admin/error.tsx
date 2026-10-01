@@ -17,10 +17,10 @@ export default function AdminError({
   }, [error]);
   return (
     <ErrorState
-      code={error.digest ? `Chyba ${error.digest}` : "Chyba"}
-      title="Tuto část se nepodařilo načíst"
-      lead="Zkuste to znovu. Pokud chyba trvá, pošlete kód chyby správci."
-      action={<Button onClick={reset}>Zkusit znovu</Button>}
+      code={error.digest ? `Error ${error.digest}` : "Error"}
+      title="This section failed to load"
+      lead="Try again. If the error persists, send the error code to an administrator."
+      action={<Button onClick={reset}>Try again</Button>}
     />
   );
 }
