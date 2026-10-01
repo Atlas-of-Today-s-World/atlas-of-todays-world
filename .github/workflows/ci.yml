@@ -68,6 +68,12 @@ jobs:
       - name: Lighthouse (rozpočty výkonu a přístupnosti, lighthouserc.json)
         run: npx --yes @lhci/cli@0.14 autorun
       - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse
+          path: .lighthouseci/
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: playwright-report
