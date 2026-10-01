@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
-import { notFound } from "next/navigation";
+import { redirectOrNotFound } from "@/features/redirects/queries";
 import { getAtlas } from "@/features/geography/queries";
 
 /**
- * Neznámá adresa → skutečná 404 ještě před streamováním. Stránka má
+ * Neznámá adresa → přesměrování (správa v administraci), jinak skutečná 404,
+ * obojí ještě před streamováním. Stránka má
  * loading.tsx, takže notFound() až v ní by odešel se stavem 200.
  */
 export default async function RegionLayout({
@@ -14,6 +15,6 @@ export default async function RegionLayout({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  if (!(await getAtlas()).regionBySlug.has(slug)) notFound();
+  if (!(await getAtlas()).regionBySlug.has(slug)) return redirectOrNotFound(`/region/${slug}`);
   return children;
 }
