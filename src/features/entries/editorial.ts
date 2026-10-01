@@ -194,3 +194,29 @@ export async function publishedVersion(entryId: string) {
     ? (published.snapshot as { title: string; summary: string; body_html: string })
     : null;
 }
+
+/**
+ * Články ve skupině zemí (globální téma nebo vlastní region) a články, které
+ * se do ní dají přidat — pro stránku skupiny v administraci. RLS ukáže jen
+ * to, na co role dosáhne.
+ */
+export async function listGroupArticles(slug: string) {
+  const supabase = await createServerClient();
+  const { data, error } = await supabase
+    .from("entries")
+    .select("id, title, status, special_slug")
+    .is("translation_of", null)
+    .order("updated_at", { ascending: false })
+    .limit(300);
+  if (error) throw new Error(`[entries] ${error.message}`);
+  const rows = data as {
+    id: string;
+    title: string;
+    status: EntryStatus;
+    special_slug: string | null;
+  }[];
+  return {
+    members: rows.filter((row) => row.special_slug === slug),
+    candidates: rows.filter((row) => row.special_slug !== slug),
+  };
+}

@@ -77,7 +77,7 @@ export async function issueForEdit(slug: string) {
   const { data, error } = await supabase
     .from("special_regions")
     .select(
-      "slug, name, subtitle, summary, intro, hero_url, hero_credit, fill, stroke, center_lon, center_lat, zoom, timeline_title, timeline_subtitle, special_region_countries(country_iso3)",
+      "slug, kind, name, subtitle, summary, intro, hero_url, hero_credit, fill, stroke, center_lon, center_lat, zoom, timeline_title, timeline_subtitle, special_region_countries(country_iso3)",
     )
     .eq("slug", slug)
     .maybeSingle();
@@ -115,6 +115,7 @@ export async function portraitRights(
   return {
     head: can(permissions, kind === "issue" ? "specials" : "regions", "e"),
     text: can(permissions, "news", "e") && allNews === true,
-    metrics: can(permissions, "regions", "e"),
+    // Karty metrik skupiny hlídá právo na skupiny (RLS portrait_metrics, migrace 30).
+    metrics: can(permissions, kind === "issue" ? "specials" : "regions", "e"),
   };
 }

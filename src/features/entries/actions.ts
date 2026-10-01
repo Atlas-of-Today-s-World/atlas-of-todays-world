@@ -16,7 +16,7 @@ import {
 import { tags } from "@/lib/cache/tags";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { DEFAULT_LOCALE, isLocale } from "@/features/i18n/config";
-import { uuid } from "@/lib/validation/common";
+import { slug as slugSchema, uuid } from "@/lib/validation/common";
 import { COLLECTIONS } from "@/features/portraits/schema";
 import {
   CHAPTER_FIELD_LABEL,
@@ -318,6 +318,46 @@ export async function createTranslation(formData: FormData): Promise<void> {
   });
   if (error) redirect(`/admin/content/${entryId}?translation=error`);
   redirect(`/admin/content/${data}?saved=1`);
+}
+
+/**
+ * Přiřadí článek ke skupině zemí (globální téma nebo vlastní region), nebo ho
+ * od ní odpojí (`slug` null) — ze stránky skupiny, ne jen z editoru článku.
+ * Kdo smí článek měnit, rozhoduje RLS jako u uložení (zveřejněný jen schvalovatel).
+ */
+export async function setEntryGroup(entryId: string, slug: string | null): Promise<ActionState> {
+  if (
+    !uuid.safeParse(entryId).success ||
+    (slug !== null && !slugSchema(120).safeParse(slug).success)
+  ) {
+    return { ok: false, error: "Invalid request." };
+  }
+  const session = await signedIn();
+  if (!session) return NOT_SIGNED_IN;
+  const { data: before } = await session.supabase
+    .from("entries")
+    .select("special_slug")
+    .eq("id", entryId)
+    .maybeSingle();
+  const { data, error } = await session.supabase
+    .from("entries")
+    .update({ special_slug: slug })
+    .eq("id", entryId)
+    .select("slug, status, region_slug");
+  if (error) return failed(error);
+  const row = data[0];
+  if (!row) return { ok: false, error: "You can't change this article." };
+  if (row.status === "published") {
+    // Obnovit portrét původní i nové skupiny.
+    refresh(row.slug, row.region_slug, slug);
+    if (before?.special_slug && before.special_slug !== slug) {
+      updateTag(tags.portrait("issue", before.special_slug));
+    }
+  }
+  return {
+    ok: true,
+    message: slug ? "Article added to the group." : "Article removed from the group.",
+  };
 }
 
 export async function deleteEntry(id: string): Promise<ActionState> {
