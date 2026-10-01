@@ -153,5 +153,54 @@
   },
   "newsletter": {
     "signUp": "Sign up"
+  },
+  "about": {
+    "title": "About the Atlas",
+    "description": "Atlas of Today’s World is an independent encyclopedia of the present, built around an interactive 3D globe.",
+    "intro": "Atlas of Today’s World is an independent encyclopedia of the present. Instead of an A–Z list, it starts from a satellite globe: you spin it, click a country, and the Atlas opens that country’s profile together with the portrait of the world region it belongs to. News opens inside the same map, so the geographic context never disappears.",
+    "dataTitle": "Where the data comes from",
+    "dataText": "Country borders and names come from Natural Earth. The data layers are imported in bulk from Our World in Data and refreshed with a single command, so a yearly update takes minutes rather than manual editing:",
+    "editorialTitle": "Editorial content",
+    "editorialText": "Region portraits, country profiles and news are written by the Atlas team in the Atlas’s own editorial system, where every change goes through review before it is published."
+  },
+  "patrons": {
+    "title": "Support the Atlas",
+    "description": "Join the membership community and help build an independent encyclopedia of the present.",
+    "heading": "Together We Can Build a New Encyclopedia",
+    "intro": "By joining our membership community, you support Atlas development and gradually secure its independent funding. And you can directly participate in the development.",
+    "card1Title": "Help Us Build Atlas",
+    "card1Text": "Help build the encyclopedia and power its long-term, independent future through a strong membership community.",
+    "card2Title": "Participate on Its Development",
+    "card2Text": "Create content. Build powerful partnerships. Drive global impact.",
+    "card3Title": "Join Our Community",
+    "card3Text": "Connect with our team, members, and future authors and partners.",
+    "paymentsSoon": "Membership payments are coming soon."
+  },
+  "newsIndex": {
+    "title": "All news",
+    "heading": "News",
+    "description": "Every published item of Atlas of Today’s World, by region and by theme.",
+    "intro": "Each news item opens inside the world map, so you never lose the geographic context.",
+    "count": "{count} published so far.",
+    "byRegion": "Browse by region"
+  },
+  "searchPage": {
+    "title": "Search the Atlas",
+    "description": "Search every region, country and encyclopedia item of the Atlas.",
+    "placeholder": "Try “political situation in Russia”",
+    "submit": "Search",
+    "resultsOne": "1 result for “{query}”",
+    "resultsMany": "{count} results for “{query}”",
+    "nothing": "Nothing in the Atlas matches that yet."
+  },
+  "legal": {
+    "englishOnly": ""
+  },
+  "countryText": {
+    "intro": "{name} is a country in {area}, covered by the Atlas as part of {region}.",
+    "world": "the world",
+    "population": "It is home to about {population} people.",
+    "hdi": "Its Human Development Index of {value} ranks it {rank} of {of} countries ({year}).",
+    "regime": "Its political system is classified as {regime}."
   }
 }

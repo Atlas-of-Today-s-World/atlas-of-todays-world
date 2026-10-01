@@ -1,34 +1,28 @@
 import type { Metadata } from "next";
 import { getAtlas } from "@/features/geography/queries";
+import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
+import { alternates } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "About the Atlas",
-  description:
-    "Atlas of Today's World is an independent encyclopedia of the present, built around an interactive 3D globe.",
-  alternates: { canonical: "/about" },
-};
+type Params = { params: Promise<{ locale: string }> };
 
-export default async function AboutPage({ params }: { params: Promise<{ locale: string }> }) {
-  const { indicators } = await getAtlas(await localeFrom(params));
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const locale = await localeFrom(params);
+  const t = getMessages(locale).about;
+  return { title: t.title, description: t.description, alternates: alternates("/about", locale) };
+}
+
+export default async function AboutPage({ params }: Params) {
+  const locale = await localeFrom(params);
+  const t = getMessages(locale).about;
+  const { indicators } = await getAtlas(locale);
   return (
     <main className="prose-atlas max-w-2xl">
-      <h1 className="font-display text-[34px] font-bold text-[var(--color-ink)]">
-        About the Atlas
-      </h1>
-      <p className="mt-4">
-        Atlas of Today&rsquo;s World is an independent encyclopedia of the present. Instead of an
-        A&ndash;Z list, it starts from a satellite globe: you spin it, click a country, and the
-        Atlas opens that country&rsquo;s profile together with the portrait of the world region it
-        belongs to. News opens inside the same map, so the geographic context never disappears.
-      </p>
+      <h1 className="font-display text-[34px] font-bold text-[var(--color-ink)]">{t.title}</h1>
+      <p className="mt-4">{t.intro}</p>
 
-      <h2>Where the data comes from</h2>
-      <p>
-        Country borders and names come from Natural Earth. The data layers are imported in bulk from
-        Our World in Data and refreshed with a single command, so a yearly update takes minutes
-        rather than manual editing:
-      </p>
+      <h2>{t.dataTitle}</h2>
+      <p>{t.dataText}</p>
       <ul>
         {indicators.map((indicator) => (
           <li key={indicator.id}>
@@ -37,12 +31,8 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
         ))}
       </ul>
 
-      <h2>Editorial content</h2>
-      <p>
-        Region portraits, country profiles and news are written by the Atlas team in the
-        Atlas&rsquo;s own editorial system, where every change goes through review before it is
-        published.
-      </p>
+      <h2>{t.editorialTitle}</h2>
+      <p>{t.editorialText}</p>
     </main>
   );
 }

@@ -2,24 +2,30 @@ import type { Metadata } from "next";
 import Link from "@/components/i18n/Link";
 import { getEntries } from "@/features/entries/queries";
 import { getAtlas } from "@/features/geography/queries";
+import { format, getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
+import { alternates } from "@/lib/seo";
 import { NEWS_CATEGORIES } from "@/lib/content-types";
 
-export const metadata: Metadata = {
-  title: "All news",
-  description: "Every published item of Atlas of Today's World, by region and by theme.",
-  alternates: { canonical: "/news" },
-};
+type Params = { params: Promise<{ locale: string }> };
 
-export default async function NewsIndexPage({ params }: { params: Promise<{ locale: string }> }) {
-  const [newsItems, atlas] = await Promise.all([getEntries(), getAtlas(await localeFrom(params))]);
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const locale = await localeFrom(params);
+  const t = getMessages(locale).newsIndex;
+  return { title: t.title, description: t.description, alternates: alternates("/news", locale) };
+}
+
+export default async function NewsIndexPage({ params }: Params) {
+  const locale = await localeFrom(params);
+  const messages = getMessages(locale);
+  const t = messages.newsIndex;
+  const [newsItems, atlas] = await Promise.all([getEntries(), getAtlas(locale)]);
 
   return (
     <main>
-      <h1 className="font-display text-[34px] font-bold">News</h1>
+      <h1 className="font-display text-[34px] font-bold">{t.heading}</h1>
       <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-[var(--color-ink-soft)]">
-        Each news item opens inside the world map, so you never lose the geographic context.{" "}
-        {newsItems.length} published so far.
+        {t.intro} {format(t.count, { count: String(newsItems.length) })}
       </p>
 
       {NEWS_CATEGORIES.map((category) => {
@@ -27,7 +33,7 @@ export default async function NewsIndexPage({ params }: { params: Promise<{ loca
         if (!group.length) return null;
         return (
           <section key={category} className="mt-10">
-            <h2 className="font-display text-[18px] font-bold">{category}</h2>
+            <h2 className="font-display text-[18px] font-bold">{messages.categories[category]}</h2>
             <ul className="mt-4 grid gap-3 sm:grid-cols-2">
               {group.map((item) => (
                 <li key={item.slug}>
@@ -61,7 +67,7 @@ export default async function NewsIndexPage({ params }: { params: Promise<{ loca
       })}
 
       <section className="mt-12 border-t border-[var(--color-line)] pt-8">
-        <h2 className="font-display text-[18px] font-bold">Browse by region</h2>
+        <h2 className="font-display text-[18px] font-bold">{t.byRegion}</h2>
         <div className="mt-4 flex flex-wrap gap-2">
           {atlas.regions.map((region) => (
             <Link

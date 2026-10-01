@@ -5,7 +5,8 @@ import CountryCard from "@/components/CountryCard";
 import MapFocus from "@/components/map/MapFocus";
 import { entriesOfCountry, getEntries } from "@/features/entries/queries";
 import { getAtlas } from "@/features/geography/queries";
-import { localeFrom } from "@/features/i18n/request";
+import { format, type Messages } from "@/features/i18n/messages";
+import { getT, localeFrom } from "@/features/i18n/request";
 import type { Country } from "@/features/geography/types";
 import { formatPopulation } from "@/lib/format";
 import { absoluteUrl, alternates, breadcrumbJsonLd, geoCoordinates, geoMeta } from "@/lib/seo";
@@ -22,26 +23,30 @@ export async function generateStaticParams() {
 }
 
 /** Popis pro země bez redakčního textu – složený z importovaných dat. */
-function fallbackDescription(country: Country): string {
-  const parts: string[] = [];
-  parts.push(
-    `${country.nameFormal ?? country.name} is a country in ${
-      country.unSubregion ?? country.continent ?? "the world"
-    }, covered by the Atlas as part of ${country.region?.name ?? "the world"}.`,
-  );
+function fallbackDescription(country: Country, t: Messages["countryText"]): string {
+  const parts: string[] = [
+    format(t.intro, {
+      name: country.nameFormal ?? country.name,
+      area: country.unSubregion ?? country.continent ?? t.world,
+      region: country.region?.name ?? t.world,
+    }),
+  ];
   if (country.population) {
-    parts.push(`It is home to about ${formatPopulation(country.population)} people.`);
+    parts.push(format(t.population, { population: formatPopulation(country.population) }));
   }
   const hdi = country.stats.find((stat) => stat.id === "hdi");
   if (hdi?.rank) {
     parts.push(
-      `Its Human Development Index of ${hdi.value} ranks it ${hdi.rank} of ${hdi.rankOf} countries (${hdi.year}).`,
+      format(t.hdi, {
+        value: String(hdi.value),
+        rank: String(hdi.rank),
+        of: String(hdi.rankOf),
+        year: String(hdi.year),
+      }),
     );
   }
   const regime = country.stats.find((stat) => stat.id === "political-regime");
-  if (regime) {
-    parts.push(`Its political system is classified as ${regime.value.toLowerCase()}.`);
-  }
+  if (regime) parts.push(format(t.regime, { regime: regime.value.toLowerCase() }));
   return parts.join(" ");
 }
 
@@ -54,7 +59,7 @@ export async function generateMetadata({
   const country = (await getAtlas(await localeFrom(params))).countryBySlug.get(slug);
   if (!country) return {};
 
-  const description = country.profile.summary || fallbackDescription(country);
+  const description = country.profile.summary || fallbackDescription(country, getT().countryText);
 
   return {
     title: `${country.name} — country profile`,
@@ -94,7 +99,7 @@ export default async function CountryPage({
 
   const newsItems = entriesOfCountry(await getEntries(), country.iso3);
   const profile = country.profile;
-  const description = profile.summary || fallbackDescription(country);
+  const description = profile.summary || fallbackDescription(country, getT().countryText);
   const region = country.region;
 
   return (
