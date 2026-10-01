@@ -141,7 +141,8 @@
     "nothing": "Nothing found in the Atlas yet.",
     "kindRegion": "Region",
     "kindCountry": "Country",
-    "kindNews": "News"
+    "kindNews": "News",
+    "kindIssue": "Global issue"
   },
   "country": {
     "disputed": "Disputed territory.",
@@ -229,5 +230,96 @@
     "issue": "Global issue",
     "news": "News",
     "entry": "Encyclopedic entry"
+  },
+  "errors": {
+    "pageNotFoundTitle": "Page not found",
+    "pageNotFoundLead": "The page may have moved, or the address has a typo.",
+    "pageErrorTitle": "Something went wrong",
+    "pageErrorLead": "Try again in a moment. If it keeps happening, let us know.",
+    "errorCode": "Error {digest}"
+  },
+  "home": {
+    "title": "Atlas of Today's World — an interactive encyclopedia on a 3D globe",
+    "description": "Spin the satellite globe, click any country and read its profile: human development, political regime, living conditions and the news behind them.",
+    "intro": "An interactive encyclopedia of the present. Explore the world on a 3D satellite globe, switch between data layers such as the Human Development Index, political regime or corruption perceptions, and open the profile of any region or country.",
+    "regions": "World regions",
+    "countries": "Countries"
+  },
+  "view": {
+    "title": "{label} by country",
+    "description": "{label} for {count} countries, mapped on an interactive 3D globe. Latest data: {year}. Source: {source}.",
+    "meta": "{count} countries · latest data {year} · source",
+    "otherLayers": "Other layers:"
+  },
+  "preview": {
+    "title": "Preview",
+    "published": "published",
+    "notPublished": "not published yet",
+    "expires": "This link expires on {date} UTC."
+  },
+  "account": {
+    "title": "Your account",
+    "email": "Email",
+    "role": "Role",
+    "reader": "Reader",
+    "openAdmin": "Open the administration",
+    "download": "Download my data",
+    "signOut": "Sign out",
+    "delete": "Delete my account",
+    "deleteText": "This removes your account and personal data for good. Type {email} to confirm.",
+    "emailLabel": "Your email address",
+    "deleting": "Deleting…",
+    "errors": {
+      "signIn": "Sign in first.",
+      "confirm": "Type your email address to confirm.",
+      "failed": "The account could not be deleted. If you are the last admin, hand the role over first."
+    }
+  },
+  "invite": {
+    "title": "Team invitation",
+    "heading": "Invitation to the Atlas team",
+    "lead": "Sign in with Google using the same email address the invitation was sent to. You’ll get your team role automatically and the administration will open.",
+    "validity": "The invitation is valid for 5 days. If it has expired or you sign in with a different address, ask the person who invited you for a new one.",
+    "unavailable": "Sign-in isn’t available yet."
+  },
+  "ui": {
+    "railPrevious": "{label}: previous",
+    "railNext": "{label}: next",
+    "newsOne": "{count} news item published",
+    "newsMany": "{count} news items published",
+    "source": "Source:",
+    "fromOrbit": "{name} seen from orbit",
+    "breadcrumb": "Breadcrumb"
+  },
+  "countryCard": {
+    "title": "{name} — country profile",
+    "ranked": "Ranked {rank} of {of} · ",
+    "population": "Population",
+    "subregion": "Subregion",
+    "newsAbout": "News about {name}"
+  },
+  "newsTabs": {
+    "heading": "Our News",
+    "categories": "News categories",
+    "empty": "No news published in this region yet. Contributors welcome."
+  },
+  "encyclopedia": {
+    "heading": "Global Encyclopedia",
+    "hint": "Try “political situation in Russia”, “Ukraine” or “Eastern Europe”."
+  },
+  "newsletterForm": {
+    "label": "New Atlas content in your inbox",
+    "placeholder": "you@example.org",
+    "consent": "Send me occasional emails about new Atlas entries. I can unsubscribe at any time. See our",
+    "privacyLink": "privacy policy",
+    "messages": {
+      "confirm": "Almost there — confirm the email we just sent.",
+      "thanks": "Thanks.",
+      "invalidEmail": "That address looks wrong.",
+      "consent": "Please tick the consent box.",
+      "rateLimited": "Too many attempts. Try again later.",
+      "notConnected": "The newsletter is not connected yet.",
+      "failed": "Sign-up failed. Try again later."
+    }
   }
 }

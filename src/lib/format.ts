@@ -1,7 +1,7 @@
 import type { Locale } from "@/features/i18n/config";
 
 const INTL: Record<Locale, string> = { en: "en-US", cs: "cs-CZ" };
-const DATE_INTL: Record<Locale, string> = { en: "en-GB", cs: "cs-CZ" };
+export const DATE_INTL: Record<Locale, string> = { en: "en-GB", cs: "cs-CZ" };
 
 /** Číslo s pevným počtem desetinných míst v zápisu jazyka (0.92 / 0,92). */
 export function formatNumber(value: number, decimals: number, locale: Locale = "en"): string {

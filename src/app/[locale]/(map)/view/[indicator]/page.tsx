@@ -6,6 +6,7 @@ import MapFocus from "@/components/map/MapFocus";
 import MapViewSetter from "@/components/map/MapViewSetter";
 import { SectionLabel } from "@/components/atlas/ui";
 import { getAtlas } from "@/features/geography/queries";
+import { format, getMessages } from "@/features/i18n/messages";
 import { getRequestLocale, getT, localeFrom } from "@/features/i18n/request";
 import { formatValue } from "@/lib/indicators";
 import { absoluteUrl, alternates, breadcrumbJsonLd } from "@/lib/seo";
@@ -26,14 +27,22 @@ export async function generateMetadata({
   params: Promise<{ locale: string; indicator: string }>;
 }): Promise<Metadata> {
   const { indicator: id } = await params;
-  const indicator = (await getAtlas(await localeFrom(params))).indicatorById.get(id);
+  const locale = await localeFrom(params);
+  const t = getMessages(locale).view;
+  const indicator = (await getAtlas(locale)).indicatorById.get(id);
   if (!indicator) return {};
-  const description = `${indicator.label} for ${indicator.countryCount} countries, mapped on an interactive 3D globe. Latest data: ${indicator.latestYear}. Source: ${indicator.source}.`;
+  const description = format(t.description, {
+    label: indicator.label,
+    count: String(indicator.countryCount),
+    year: String(indicator.latestYear),
+    source: indicator.source,
+  });
+  const title = format(t.title, { label: indicator.label });
   return {
-    title: `${indicator.label} by country`,
+    title,
     description,
     alternates: alternates(`/view/${indicator.id}`, await localeFrom(params)),
-    openGraph: { title: `${indicator.label} by country`, description },
+    openGraph: { title, description },
   };
 }
 
@@ -66,7 +75,10 @@ export default async function IndicatorViewPage({
             {indicator.label}
           </h1>
           <p className="mt-2 text-[12.5px] leading-relaxed text-[var(--color-ink-muted)]">
-            {indicator.countryCount} countries · latest data {indicator.latestYear} · source{" "}
+            {format(getT().view.meta, {
+              count: String(indicator.countryCount),
+              year: String(indicator.latestYear),
+            })}{" "}
             <a
               href={indicator.sourceUrl}
               target="_blank"
@@ -97,7 +109,7 @@ export default async function IndicatorViewPage({
           </ol>
 
           <p className="mt-6 text-[11px] leading-relaxed text-[var(--color-ink-muted)]">
-            Other layers:{" "}
+            {getT().view.otherLayers}{" "}
             {atlas.indicators
               .filter((item) => item.id !== indicator.id)
               .map((item, i) => (

@@ -18,7 +18,12 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return { title: t.title, description: t.description, robots: { index: false, follow: true } };
 }
 
-const KIND_KEY = { region: "kindRegion", country: "kindCountry", news: "kindNews" } as const;
+const KIND_KEY = {
+  region: "kindRegion",
+  country: "kindCountry",
+  issue: "kindIssue",
+  news: "kindNews",
+} as const;
 
 export default async function SearchPage({
   params,

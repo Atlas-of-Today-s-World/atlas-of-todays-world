@@ -35,6 +35,7 @@ export const service = (
 ) as SupabaseClient;
 
 const created: string[] = [];
+const invited: string[] = [];
 
 export function testEmail(label: string) {
   return `e2e-${label}-${randomUUID().slice(0, 8)}@example.com`;
@@ -58,6 +59,7 @@ export async function createUser(email: string, roleId?: string) {
 export async function invite(email: string, roleId: string) {
   const { error } = await service.from("invitations").insert({ email, role_id: roleId });
   if (error) throw error;
+  invited.push(email);
 }
 
 /** Přihlášení přes jednorázový odkaz → /auth/confirm (stejná cesta jako e-mail). */
@@ -72,9 +74,15 @@ export async function signIn(page: Page, email: string, next = "/ucet") {
   await page.goto(`/auth/confirm?${params}`);
 }
 
-/** Úklid po sadě: testovací účty, pozvánky a články s předponou e2e-. */
+/**
+ * Úklid po sadě: jen to, co založila tahle sada (články jejích účtů, její
+ * pozvánky, účty). Sady běží v CI souběžně ve více workerech — plošné mazání
+ * podle předpony e2e- by smazalo rozpracovaná data jiné sady.
+ */
 export async function cleanUp() {
-  await service.from("entries").delete().like("slug", "e2e-%");
-  for (const id of created.splice(0)) await service.auth.admin.deleteUser(id);
-  await service.from("invitations").delete().like("email", "e2e-%@example.com");
+  const users = created.splice(0);
+  if (users.length) await service.from("entries").delete().in("owner_id", users);
+  for (const id of users) await service.auth.admin.deleteUser(id);
+  const emails = invited.splice(0);
+  if (emails.length) await service.from("invitations").delete().in("email", emails);
 }

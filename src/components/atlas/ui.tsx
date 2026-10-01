@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import type { MetricCard } from "@/lib/content-types";
 import { safeUrl } from "@/lib/security/urls";
+import { format } from "@/features/i18n/messages";
+import { getT } from "@/features/i18n/request";
 
 export function SectionLabel({ children }: { children: ReactNode }) {
   return (
@@ -26,7 +28,7 @@ export function NewsBadge({ count }: { count: number }) {
   return (
     <span className="inline-flex items-center gap-1.5 text-[12px] text-[var(--color-ink-muted)]">
       <span className="h-2 w-2 rounded-full bg-[var(--color-live)]" />
-      {count} {count === 1 ? "news item" : "news items"} published
+      {format(count === 1 ? getT().ui.newsOne : getT().ui.newsMany, { count: String(count) })}
     </span>
   );
 }
@@ -113,7 +115,7 @@ export function MetricCards({
         <StatItem key={`${metric.label}-${metric.value}`} label={metric.label} value={metric.value}>
           {metric.description ? <span className="block">{metric.description}</span> : null}
           <span className="mt-0.5 block">
-            Source: <SourceLink href={metric.sourceUrl}>{metric.source}</SourceLink>
+            {getT().ui.source} <SourceLink href={metric.sourceUrl}>{metric.source}</SourceLink>
             {metric.year ? `, ${metric.year}` : ""}
           </span>
         </StatItem>

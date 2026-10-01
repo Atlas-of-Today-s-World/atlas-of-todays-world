@@ -4,24 +4,27 @@ import { useActionState } from "react";
 import { deleteAccount, type ActionState } from "@/features/auth/actions";
 import { Button } from "@/components/ui/button";
 import { ActionForm } from "@/components/ui/action-form";
+import { useMessages } from "@/components/i18n/LocaleProvider";
 
 export default function DeleteAccount({ email }: { email: string }) {
+  const t = useMessages().account;
+  // „{email}" v textu nahradí tučná adresa (věta se v jazycích liší pořadím).
+  const [before, after = ""] = t.deleteText.split("{email}");
   const [state, action, pending] = useActionState<ActionState, FormData>(deleteAccount, {
     ok: false,
   });
 
   return (
     <details className="mt-12 rounded-xl border border-[var(--color-line)] p-4">
-      <summary className="cursor-pointer text-[13px] font-medium text-red-700">
-        Delete my account
-      </summary>
+      <summary className="cursor-pointer text-[13px] font-medium text-red-700">{t.delete}</summary>
       <ActionForm action={action} className="mt-4 grid gap-3">
         <p className="text-[13px] leading-relaxed text-[var(--color-ink-soft)]">
-          This removes your account and personal data for good. Type <strong>{email}</strong> to
-          confirm.
+          {before}
+          <strong>{email}</strong>
+          {after}
         </p>
         <label htmlFor="confirm" className="sr-only">
-          Your email address
+          {t.emailLabel}
         </label>
         <input
           id="confirm"
@@ -33,11 +36,11 @@ export default function DeleteAccount({ email }: { email: string }) {
         />
         {state.error ? (
           <p role="alert" className="text-[13px] text-red-700">
-            {state.error}
+            {state.error ? t.errors[state.error] : null}
           </p>
         ) : null}
         <Button type="submit" variant="danger" disabled={pending}>
-          {pending ? "Deleting…" : "Delete my account"}
+          {pending ? t.deleting : t.delete}
         </Button>
       </ActionForm>
     </details>

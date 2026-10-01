@@ -17,12 +17,15 @@ export default function NewsletterForm() {
   const [state, action, pending] = useActionState<ActionState, FormData>(subscribe, {
     ok: false,
   });
-  const message = state.error ?? state.message;
+  const code = state.error ?? state.message;
+  const texts: Record<string, string> = t.newsletterForm.messages;
+  // Neznámý kód (např. obecná chyba validace) → „adresa nevypadá správně".
+  const message = code ? (texts[code] ?? texts.invalidEmail) : null;
 
   return (
     <ActionForm action={action} className="text-[13px]">
       <label htmlFor="newsletter-email" className="block font-medium">
-        New Atlas content in your inbox
+        {t.newsletterForm.label}
       </label>
 
       <div className="mt-2 flex gap-2">
@@ -32,7 +35,7 @@ export default function NewsletterForm() {
           type="email"
           required
           autoComplete="email"
-          placeholder="you@example.org"
+          placeholder={t.newsletterForm.placeholder}
           className="min-h-11 flex-1 rounded-lg border border-white/25 bg-white/10 px-3 text-[14px] text-white placeholder:text-white/40 focus:border-white/70 focus:outline-none"
         />
         <button
@@ -47,9 +50,9 @@ export default function NewsletterForm() {
       <label className="mt-2.5 flex items-start gap-2 text-[11.5px] leading-relaxed text-white/60">
         <input type="checkbox" name="consent" required className="mt-0.5 h-4 w-4 shrink-0" />
         <span>
-          Send me occasional emails about new Atlas entries. I can unsubscribe at any time. See our{" "}
+          {t.newsletterForm.consent}{" "}
           <Link href="/privacy" className="underline">
-            privacy policy
+            {t.newsletterForm.privacyLink}
           </Link>
           .
         </span>

@@ -181,7 +181,7 @@ export function Timeline({
       title={title || t.portrait.timeline}
       lead={subtitle || t.portrait.timelineLead}
     >
-      <Rail label="Timeline" gap="lg" className="mt-6">
+      <Rail label={t.portrait.timeline} gap="lg" className="mt-6">
         {items.map((item) => (
           <div key={`${item.date}-${item.title}`} className="w-60 shrink-0 snap-start">
             <h3 className="font-display text-[14px] leading-snug font-bold text-[var(--color-ink)]">

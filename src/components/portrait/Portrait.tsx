@@ -83,7 +83,7 @@ export default function Portrait({
           className="h-52 w-full bg-cover bg-center"
           style={{ backgroundImage: hero }}
           role="img"
-          aria-label={`${subject.name} seen from orbit`}
+          aria-label={format(t.ui.fromOrbit, { name: subject.name })}
         />
       ) : null}
 
@@ -184,7 +184,7 @@ export default function Portrait({
 
       <p className="px-6 pb-8 text-center text-[11.5px] text-[var(--color-ink-muted)] sm:px-10">
         <Link href="/" className="inline-flex min-h-11 items-center hover:underline">
-          ← Back to the globe
+          ← {t.common.backToGlobe}
         </Link>
       </p>
     </article>

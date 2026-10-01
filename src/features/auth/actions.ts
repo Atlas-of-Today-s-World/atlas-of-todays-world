@@ -8,7 +8,8 @@ import { createServiceClient } from "@/lib/supabase/service";
 
 export interface ActionState {
   ok: boolean;
-  error?: string;
+  /** Kód chyby — text v jazyce stránky vybere formulář (messages: account.errors). */
+  error?: "signIn" | "confirm" | "failed";
 }
 
 const DeleteInput = z.object({ confirm: z.string().trim().toLowerCase() });
@@ -24,19 +25,15 @@ export async function deleteAccount(_prev: ActionState, formData: FormData): Pro
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Sign in first." };
+  if (!user) return { ok: false, error: "signIn" };
   if (!parsed.success || parsed.data.confirm !== (user.email ?? "").toLowerCase()) {
-    return { ok: false, error: "Type your e-mail address to confirm." };
+    return { ok: false, error: "confirm" };
   }
 
   const { error } = await createServiceClient().auth.admin.deleteUser(user.id);
   if (error) {
     console.error("[account] delete failed", error.message);
-    return {
-      ok: false,
-      error:
-        "The account could not be deleted. If you are the last admin, hand the role over first.",
-    };
+    return { ok: false, error: "failed" };
   }
   await supabase.auth.signOut();
   redirect("/");

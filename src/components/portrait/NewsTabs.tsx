@@ -29,10 +29,10 @@ export default function NewsTabs({ newsItems }: { newsItems: NewsCard[] }) {
 
   return (
     <section className="bg-[var(--color-band)] px-6 py-9 text-white sm:px-8">
-      <h2 className="font-display text-[24px] font-bold">Our News</h2>
+      <h2 className="font-display text-[24px] font-bold">{t.newsTabs.heading}</h2>
 
       {available.length ? (
-        <div className="mt-4 flex flex-wrap gap-x-5 text-[13px]" aria-label="News categories">
+        <div className="mt-4 flex flex-wrap gap-x-5 text-[13px]" aria-label={t.newsTabs.categories}>
           {available.map((category) => (
             <button
               key={category}
@@ -45,7 +45,7 @@ export default function NewsTabs({ newsItems }: { newsItems: NewsCard[] }) {
                   : "text-white/65 hover:text-white"
               }`}
             >
-              {category}
+              {t.categories[category]}
             </button>
           ))}
         </div>
@@ -78,9 +78,7 @@ export default function NewsTabs({ newsItems }: { newsItems: NewsCard[] }) {
           ))}
         </Rail>
       ) : (
-        <p className="mt-5 text-[13px] text-white/60">
-          No news published in this region yet. Contributors welcome.
-        </p>
+        <p className="mt-5 text-[13px] text-white/60">{t.newsTabs.empty}</p>
       )}
     </section>
   );
