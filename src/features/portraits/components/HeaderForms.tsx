@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { GROUP_KIND_LABEL } from "../constants";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { CountryPicker, type CountryOption } from "@/components/admin/CountryPicker";
 import { SubmitButton } from "@/components/admin/SubmitButton";
@@ -141,6 +142,7 @@ export function RegionForm({
 }
 
 export interface IssueValues {
+  kind: "issue" | "region";
   slug: string;
   name: string;
   subtitle: string;
@@ -161,15 +163,19 @@ export interface IssueValues {
 export function IssueForm({
   issue,
   countries,
+  defaultKind = "issue",
 }: {
   issue: IssueValues | null;
   countries: CountryOption[];
+  /** Typ nové skupiny (tlačítko „New custom region" / „New global issue"). */
+  defaultKind?: "issue" | "region";
 }) {
   const [state, action] = useSave(saveIssue);
   const [slug, setSlug] = useState(issue?.slug ?? "");
   const [slugTouched, setSlugTouched] = useState(Boolean(issue));
   const errors = state.fieldErrors ?? {};
   const values: IssueValues = issue ?? {
+    kind: defaultKind,
     slug: "",
     name: "",
     subtitle: "",
@@ -190,6 +196,35 @@ export function IssueForm({
   return (
     <ActionForm action={action} className="grid max-w-3xl gap-5">
       {issue ? <input type="hidden" name="original_slug" value={issue.slug} /> : null}
+      <fieldset className="grid gap-2">
+        <legend className="text-[12.5px] font-medium text-[var(--color-ink-soft)]">Type</legend>
+        <div className="flex flex-wrap gap-x-6 gap-y-2 text-[14px]">
+          <label className="flex min-h-11 items-center gap-2">
+            <input
+              type="radio"
+              name="kind"
+              value="region"
+              defaultChecked={values.kind === "region"}
+            />
+            {GROUP_KIND_LABEL.region}
+            <span className="text-[12px] text-[var(--color-ink-muted)]">
+              — your own region from selected countries
+            </span>
+          </label>
+          <label className="flex min-h-11 items-center gap-2">
+            <input
+              type="radio"
+              name="kind"
+              value="issue"
+              defaultChecked={values.kind !== "region"}
+            />
+            {GROUP_KIND_LABEL.issue}
+            <span className="text-[12px] text-[var(--color-ink-muted)]">
+              — a topic across regions (war, migration, climate…)
+            </span>
+          </label>
+        </div>
+      </fieldset>
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField id="name" label="Name" required errors={errors.name}>
           <Input
@@ -228,8 +263,8 @@ export function IssueForm({
       </FormField>
       <FormField
         id="countries"
-        label="Countries in this issue"
-        hint="An issue can freely cross Atlas region boundaries."
+        label="Countries in this group"
+        hint="Pick any countries — a group can freely cross Atlas region boundaries."
         errors={errors.countries}
       >
         <CountryPicker
@@ -278,7 +313,9 @@ export function IssueForm({
       <PortraitHead values={values} errors={errors} />
       <ActionStatus state={state} />
       <div>
-        <SubmitButton>{issue ? "Save" : "Create global issue"}</SubmitButton>
+        <SubmitButton>
+          {issue ? "Save" : `Create ${GROUP_KIND_LABEL[values.kind].toLowerCase()}`}
+        </SubmitButton>
       </div>
     </ActionForm>
   );

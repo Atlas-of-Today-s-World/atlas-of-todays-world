@@ -8,3 +8,6 @@ export const RESOURCE_KINDS = [
   "Educational Resources",
   "Statistics & Infographics",
 ] as const;
+
+/** Typ skupiny zemí (special_regions.kind) — popisky ve formuláři a v seznamech. */
+export const GROUP_KIND_LABEL = { region: "Custom region", issue: "Global issue" } as const;

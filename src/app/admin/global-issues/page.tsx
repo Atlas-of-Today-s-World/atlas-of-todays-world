@@ -10,8 +10,9 @@ import { navIcon } from "@/config/admin-nav";
 import { can, sectionAccess } from "@/features/auth/access";
 import { getAtlas } from "@/features/geography/queries";
 import { deleteIssue } from "@/features/portraits/actions";
+import { GROUP_KIND_LABEL } from "@/features/portraits/constants";
 
-export const metadata: Metadata = { title: "Global Issues" };
+export const metadata: Metadata = { title: "Country groups" };
 
 export default async function IssuesPage() {
   const access = await sectionAccess("specials");
@@ -23,20 +24,31 @@ export default async function IssuesPage() {
     <>
       <PageHeader
         icon={navIcon("/admin/global-issues")}
-        title="Global Issues"
-        lead="Groups of countries across regions (war, migration, climate…). Each has its own portrait on the site."
+        title="Country groups"
+        lead="Global issues and custom regions built from selected countries."
         actions={
           can(access.permissions, "specials", "c") ? (
-            <Link href="/admin/global-issues/new" className={buttonVariants({ size: "sm" })}>
-              New global issue
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href="/admin/global-issues/new?kind=region"
+                className={buttonVariants({ size: "sm" })}
+              >
+                New custom region
+              </Link>
+              <Link
+                href="/admin/global-issues/new"
+                className={buttonVariants({ size: "sm", variant: "outline" })}
+              >
+                New global issue
+              </Link>
+            </div>
           ) : null
         }
       />
       <DataTable
         tableKey="admin-issues"
-        caption="Global Issues"
-        emptyTitle="No global issues yet"
+        caption="Country groups"
+        emptyTitle="No country groups yet"
         initialSort={{ key: "name", dir: "asc" }}
         actionsWidth={canDelete ? "96px" : "72px"}
         columns={[
@@ -49,6 +61,7 @@ export default async function IssuesPage() {
             filter: "text",
             width: "minmax(200px, 2fr)",
           },
+          { key: "type", label: "Type", sortable: true, filter: "select", width: "140px" },
           { key: "subtitle", label: "Subtitle", sortable: true, filter: "text" },
           { key: "countries", label: "Countries", kind: "tags", filter: "select" },
           {
@@ -66,6 +79,7 @@ export default async function IssuesPage() {
           values: {
             color: issue.fill,
             name: issue.name,
+            type: GROUP_KIND_LABEL[issue.kind],
             subtitle: issue.subtitle,
             countries: issue.countries,
             count: issue.countries.length,
@@ -79,7 +93,7 @@ export default async function IssuesPage() {
                   ? [
                       deleteAction(
                         deleteIssue.bind(null, issue.slug),
-                        `global issue ${issue.name}`,
+                        `${GROUP_KIND_LABEL[issue.kind].toLowerCase()} ${issue.name}`,
                         "Its portrait disappears from the site. The countries stay.",
                       ),
                     ]

@@ -49,6 +49,14 @@ export default async function CountryEditPage({ params }: { params: Promise<{ sl
         />
       </ReadOnly>
       <div className="mt-12 max-w-4xl">
+        <p className="mb-4 rounded-xl bg-[var(--color-accent-soft)] p-4 text-[13px] text-[var(--color-ink-soft)]">
+          Values of data layers (HDI, regime, GDP…) are imported automatically. To correct one for{" "}
+          {country.name}, open the layer in{" "}
+          <Link href="/admin/data" className="text-[var(--color-link)] underline">
+            Data layers
+          </Link>{" "}
+          and add a manual, sourced value. The cards below are your own indicators for this country.
+        </p>
         <ReadOnly
           readOnly={!rights.metrics}
           reason="Sourced indicators are edited by roles allowed to edit regions."

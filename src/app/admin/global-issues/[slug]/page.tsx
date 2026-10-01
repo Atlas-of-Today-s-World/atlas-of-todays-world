@@ -9,11 +9,14 @@ import { getPickerOptions } from "@/features/geography/queries";
 import { CollectionEditor } from "@/features/portraits/components/CollectionEditor";
 import { savePortraitSection } from "@/features/portraits/actions";
 import { IssueForm } from "@/features/portraits/components/HeaderForms";
+import { GROUP_KIND_LABEL } from "@/features/portraits/constants";
+import { GroupArticles } from "@/features/entries/components/GroupArticles";
+import { listGroupArticles } from "@/features/entries/editorial";
 import { DeleteIssue } from "@/features/portraits/components/DeleteIssue";
 import { issueForEdit, portraitItems, portraitRights } from "@/features/portraits/editorial";
 import { COLLECTION_NAMES } from "@/features/portraits/schema";
 
-export const metadata: Metadata = { title: "Global issue" };
+export const metadata: Metadata = { title: "Country group" };
 
 export default async function IssueEditPage({ params }: { params: Promise<{ slug: string }> }) {
   const access = await sectionAccess("specials");
@@ -21,11 +24,13 @@ export default async function IssueEditPage({ params }: { params: Promise<{ slug
   const { slug } = await params;
   const issue = await issueForEdit(slug);
   if (!issue) notFound();
-  const [{ countries }, items, rights] = await Promise.all([
+  const [{ countries }, items, rights, articles] = await Promise.all([
     getPickerOptions(),
     portraitItems({ issue: slug }, COLLECTION_NAMES),
     portraitRights(access.permissions, "issue"),
+    listGroupArticles(slug),
   ]);
+  const kind = issue.kind === "region" ? "region" : "issue";
 
   return (
     <>
@@ -33,7 +38,7 @@ export default async function IssueEditPage({ params }: { params: Promise<{ slug
         title={issue.name}
         lead={
           <>
-            Global issue.{" "}
+            {GROUP_KIND_LABEL[kind]}.{" "}
             <Link href={`/global-issue/${slug}`} className="text-[var(--color-link)] underline">
               View on site
             </Link>
@@ -43,11 +48,12 @@ export default async function IssueEditPage({ params }: { params: Promise<{ slug
       />
       <ReadOnly
         readOnly={!rights.head}
-        reason="Only roles allowed to edit global issues can edit this."
+        reason="Only roles allowed to edit country groups can edit this."
       >
         <IssueForm
           issue={{
             ...issue,
+            kind,
             center_lon: Number(issue.center_lon),
             center_lat: Number(issue.center_lat),
             zoom: Number(issue.zoom),
@@ -62,7 +68,7 @@ export default async function IssueEditPage({ params }: { params: Promise<{ slug
             readOnly={collection === "metrics" ? !rights.metrics : !rights.text}
             reason={
               collection === "metrics"
-                ? "Sourced indicators are edited by roles allowed to edit regions."
+                ? "Indicators of a country group are edited by roles allowed to edit country groups."
                 : "Portrait texts (timeline, FAQ, sources, visuals) are edited by editors with rights to all articles."
             }
           >
@@ -74,6 +80,7 @@ export default async function IssueEditPage({ params }: { params: Promise<{ slug
             />
           </ReadOnly>
         ))}
+        <GroupArticles slug={slug} members={articles.members} candidates={articles.candidates} />
       </div>
     </>
   );
