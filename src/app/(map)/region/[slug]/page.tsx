@@ -11,7 +11,9 @@ import { groupStats, population } from "@/lib/region-stats";
 import { absoluteUrl, alternates, breadcrumbJsonLd, geoCoordinates, geoMeta } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
 
-export const dynamicParams = false;
+// true: s false vrací Next po revalidateTag (zápis v administraci) 404 i pro
+// existující stránky (NoFallbackError). Neznámý slug skončí přes notFound().
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const { regions } = await getAtlas();
