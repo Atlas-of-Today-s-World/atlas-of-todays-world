@@ -33,6 +33,10 @@ export default async function AccountPage() {
             Open the administration
           </Link>
         ) : null}
+        {/* Stažení vlastních dat (GDPR čl. 15 a 20); obyčejný odkaz, žádný JavaScript. */}
+        <a href="/api/account/export" download className={buttonVariants({ variant: "outline" })}>
+          Download my data
+        </a>
         <form action="/auth/signout" method="post">
           <Button type="submit" variant="outline">
             Sign out

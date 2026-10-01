@@ -838,34 +838,34 @@ Doplňky, které má mít produkční webová aplikace. Stav: ✅ máme · 🟡 
 |---|---|
 | ✅ | TypeScript `strict` |
 | ⬜ | `noUncheckedIndexedAccess`, Next `typedRoutes` (typově kontrolované odkazy) |
-| ⬜ | ESLint + Prettier + `lint-staged`/`husky` pre-commit |
-| ⬜ | `.nvmrc` / `engines` — jedna verze Node (22 LTS) lokálně i v CI |
+| ✅ | ESLint + Prettier + `lint-staged`/`husky` pre-commit |
+| ✅ | `.nvmrc` / `engines` — jedna verze Node lokálně i v CI |
 | ⬜ | Conventional Commits + automatický CHANGELOG (release-please) |
-| ⬜ | PR šablona (co / proč / jak testováno / Security impact) a CODEOWNERS |
-| ⬜ | Dependabot nebo Renovate (seskupené aktualizace, týdně) |
-| ⬜ | Bundle analyzer v CI (hlídá rozpočet 200 kB JS) |
+| ✅ | PR šablona (co / proč / jak testováno / Security impact) a CODEOWNERS |
+| ✅ | Dependabot nebo Renovate (seskupené aktualizace, týdně) |
+| 🟡 | Rozpočet JS v CI (Lighthouse `resource-summary:script:size`, ADR-014); analyzer zvlášť |
 
 ### 16.2 Uživatelské minimum
 
 | Stav | Standard |
 |---|---|
-| 🟡 | Vlastní `not-found.tsx`, `error.tsx`, `global-error.tsx` s cestou zpět na mapu |
+| ✅ | Vlastní `not-found.tsx`, `error.tsx`, `global-error.tsx` s cestou zpět na mapu (skutečná 404 i pod `loading.tsx`) |
 | 🟡 | `loading.tsx` / skeletony na každé datové stránce (zatím jen část rout) |
-| ⬜ | Režim údržby (feature flag → statická stránka) |
-| ⬜ | Právní stránky: Privacy policy, Terms; cookie-less analytika = bez cookie lišty |
-| ⬜ | GDPR: export a smazání vlastního účtu (čtenář v profilu), retence dat |
-| ⬜ | E-mailové šablony Auth (pozvánka, přihlášení) ve vizuálu Atlasu, EN/CS |
-| ⬜ | Přístupnost: skip-link, focus trap v dialozích, axe v CI, prohlášení o přístupnosti |
-| 🟡 | SEO: OG obrázky přes `next/og`, hreflang, sitemap z DB s `lastmod` |
-| ⬜ | Tisková verze hesel (`@media print`) |
+| ✅ | Režim údržby (feature flag `maintenance`) |
+| ✅ | Právní stránky: Privacy policy, Terms, Accessibility; cookie-less analytika = bez cookie lišty |
+| 🟡 | GDPR: export (`/api/account/export`) a smazání vlastního účtu na stránce účtu; retence dat zbývá popsat |
+| 🟡 | E-mailové šablony Auth EN/CS připravené (`supabase/templates`, G1), zapnou se se SMTP (U5) |
+| ✅ | Přístupnost: skip-link, focus trap v dialozích, axe v CI, prohlášení o přístupnosti, `lang` jazykových verzí |
+| ✅ | SEO: OG obrázky přes `next/og`, hreflang (en/cs), sitemap z DB s jazykovými verzemi |
+| ✅ | Tisková verze (`@media print`: jen obsah panelu, u odkazů adresa) |
 
 ### 16.3 Redakce a obsah
 
 | Stav | Standard |
 |---|---|
-| ⬜ | Náhled nepublikovaného obsahu (`draftMode`) a sdílitelný náhled s expirací |
+| ✅ | Sdílitelný náhled nepublikovaného obsahu s expirací (ADR-016) |
 | ✅ | Plánované publikování (`publish_at` + pg_cron, ADR-015) |
-| ⬜ | Automatické ukládání konceptu v editoru + varování při odchodu z neuložené stránky |
+| ✅ | Automatické ukládání konceptu v editoru + varování při odchodu z neuložené stránky |
 | ✅ | Správa přesměrování (tabulka `redirects` → uplatní se místo stránky 404) při změně slugu |
 | ✅ | Kontrola odkazů (týdenní job `links.yml` hlásí mrtvé odkazy na stránkách ze sitemap) |
 | ⬜ | Povinné alt texty a kredity u každého obrázku |
@@ -874,20 +874,20 @@ Doplňky, které má mít produkční webová aplikace. Stav: ✅ máme · 🟡 
 
 | Stav | Standard |
 |---|---|
-| ⬜ | Health endpoint `/api/health` (DB dostupná, verze buildu) |
-| ⬜ | Error tracking (Sentry Free) se source mapami, bez osobních údajů |
-| ⬜ | Cookie-less analytika (Vercel Web Analytics nebo Plausible) |
-| ⬜ | Uptime monitor (UptimeRobot Free) na web a health endpoint |
-| ⬜ | Feature flagy v DB (`feature_flags`) — zapínání funkcí bez nasazení (např. e-mailová registrace po SMTP) |
-| ⬜ | Runbook incidentů (únik klíče, výpadek Supabase, zneužití účtu) v `docs/` |
-| ⬜ | Test obnovy ze zálohy 1× za čtvrtletí |
+| ✅ | Health endpoint `/api/health` (DB dostupná, verze buildu) |
+| ⬜ | Error tracking (Sentry Free) se source mapami, bez osobních údajů — čeká na účet (U7) |
+| ✅ | Cookie-less analytika (Vercel Web Analytics) |
+| ⬜ | Uptime monitor (UptimeRobot Free) na web a health endpoint — vlastník (U6) |
+| ✅ | Feature flagy v DB (`feature_flags`: maintenance, newsletter, email_auth) |
+| ✅ | Runbook incidentů (únik klíče, výpadek Supabase, zneužití účtu) v `docs/` |
+| 🟡 | Šifrovaná záloha DB denně (`backup.yml`); test obnovy 1× za čtvrtletí podle runbooku |
 
 ### 16.5 Bezpečnost nad rámec kapitoly 8
 
 | Stav | Standard |
 |---|---|
-| ⬜ | `SECURITY.md` + `/.well-known/security.txt` |
-| ⬜ | GitHub: ochrana `main`, povinné review, secret scanning + push protection, CodeQL |
-| ⬜ | Žádné skripty z cizích CDN (self-hosting), případně Subresource Integrity |
-| ⬜ | Rotace klíčů (servisní klíč, Vercel token) 1× ročně a při odchodu člena týmu |
+| ✅ | `SECURITY.md` + `/.well-known/security.txt` |
+| 🟡 | GitHub: ochrana `main` (povinné CI, lineární historie), CodeQL (`codeql.yml`); povinné review a secret scanning nastavuje vlastník |
+| ✅ | Žádné skripty z cizích CDN (fonty přes `next/font`, worker MapLibre z `public/`) |
+| 🟡 | Rotace klíčů (servisní klíč, Vercel token) — postup v runbooku, provádí vlastník |
 | ⬜ | Čtvrtletní revize přístupů (kdo má jakou roli) v sekci Účty |

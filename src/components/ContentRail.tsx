@@ -55,6 +55,7 @@ export default function ContentRail({
     <aside
       ref={panel}
       id="content"
+      data-print="content"
       tabIndex={-1}
       aria-label={t.panel.content}
       className={`pointer-events-auto absolute inset-x-0 bottom-0 z-20 max-h-[72dvh] overflow-hidden rounded-t-3xl bg-white text-[var(--color-ink)] shadow-[0_-8px_40px_rgba(0,0,0,0.45)] transition-transform duration-300 outline-none md:inset-x-auto md:inset-y-0 md:right-0 md:left-auto md:max-h-none md:rounded-none md:shadow-[0_0_60px_rgba(0,0,0,0.45)] ${

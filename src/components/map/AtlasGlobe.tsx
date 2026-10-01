@@ -364,7 +364,7 @@ export default function AtlasGlobe({
   }, [focus.bbox, focus.center, focus.zoom, ready]);
 
   return (
-    <div className="absolute inset-0">
+    <div data-print="hide" className="absolute inset-0">
       <div ref={containerRef} className="h-full w-full" />
 
       <div className="pointer-events-none absolute top-24 left-5 flex flex-col gap-1.5">

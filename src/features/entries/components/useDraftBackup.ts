@@ -96,6 +96,20 @@ export function useDraftBackup(
     return () => window.clearInterval(timer);
   }, [formRef, key]);
 
+  // Odchod ze stránky s neuloženými změnami: prohlížeč se zeptá (záloha v
+  // prohlížeči je jen pojistka, do databáze se ukládá tlačítkem).
+  useEffect(() => {
+    const warn = (event: BeforeUnloadEvent) => {
+      const form = formRef.current;
+      if (!form || baseline.current === null) return;
+      if (JSON.stringify(snapshot(form)) === baseline.current) return;
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [formRef]);
+
   /** Po uložení do databáze záloha už není potřeba. */
   const clear = useCallback(() => {
     write(key, null);

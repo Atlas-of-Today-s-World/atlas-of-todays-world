@@ -51,7 +51,10 @@ export default function Header({ newsletter = true }: { newsletter?: boolean }) 
   }, [menuOpen]);
 
   return (
-    <header className="pointer-events-none absolute inset-x-0 top-0 z-40 px-4 py-3 sm:px-7 sm:py-4">
+    <header
+      data-print="hide"
+      className="pointer-events-none absolute inset-x-0 top-0 z-40 px-4 py-3 sm:px-7 sm:py-4"
+    >
       <Link
         href="/"
         className="font-display pointer-events-auto inline-block rounded-[6px] border border-white/70 bg-white px-2.5 py-1 text-[10px] font-extrabold tracking-[0.12em] text-[#0d1324] uppercase shadow-lg shadow-black/30 sm:px-3.5 sm:py-2 sm:text-[13px]"
