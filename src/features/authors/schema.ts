@@ -7,7 +7,7 @@ import {
   uuid,
 } from "@/lib/validation/common";
 
-/** Autor hesel (P9) — limity shodné s tabulkou `authors`. */
+/** Entry author (P9) — limits matching the `authors` table. */
 export const AuthorInput = z.object({
   id: z.preprocess(blankToUndefined, uuid.optional()),
   name: requiredText(120),

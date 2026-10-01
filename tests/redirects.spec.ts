@@ -10,8 +10,8 @@ import {
 } from "./support/accounts";
 
 /**
- * G3: přesměrování přidané v administraci platí hned (obnova cache) — pro
- * starou adresu země i pro cestu, která na webu vůbec neexistuje.
+ * G3: a redirect added in the admin applies at once (cache refresh) — both for
+ * an old country URL and for a path that does not exist on the site at all.
  */
 requireDevAccounts();
 test.describe.configure({ mode: "serial" });
@@ -25,9 +25,9 @@ test.afterAll(async () => {
   await cleanUp();
 });
 
-test("redakce přidá přesměrování a návštěvník skončí na nové adrese", async ({ page, browser }) => {
+test("editors add a redirect and the visitor lands on the new URL", async ({ page, browser }) => {
   const admin = testEmail("redirects");
-  // Přesměrování spadají pod sekci news; admin by chtěl TOTP (MfaGate).
+  // Redirects belong to the news section; admin would require TOTP (MfaGate).
   await createUser(admin, "content-editor");
   await signIn(page, admin, "/admin");
   await page.goto("/admin/redirects");
@@ -43,7 +43,7 @@ test("redakce přidá přesměrování a návštěvník skončí na nové adrese
   }
 
   const visitor = await (await browser.newContext()).newPage();
-  // Skutečné HTTP přesměrování (layout běží před streamováním), ne meta refresh.
+  // A real HTTP redirect (layout runs before streaming), not a meta refresh.
   const response = await visitor.request.get(oldCountry, { maxRedirects: 0 });
   expect([307, 308]).toContain(response.status());
   expect(response.headers().location).toMatch(/\/country\/ukraine$/);

@@ -8,8 +8,8 @@ import { cn } from "@/lib/cn";
 import { useLocale, useMessages } from "./LocaleProvider";
 
 /**
- * Přepínač jazyka: stejná stránka v jiném jazyce (nepřeložené texty zůstanou
- * anglicky). Odkazy jsou obyčejné <a>, takže fungují i bez JavaScriptu.
+ * Language switcher: the same page in another language (untranslated texts stay
+ * in English). Links are plain <a>, so they work without JavaScript too.
  */
 export function LanguageSwitcher({ className }: { className?: string }) {
   const locale = useLocale();

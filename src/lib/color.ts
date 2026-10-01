@@ -1,4 +1,4 @@
-/** Barvy mapy: úprava sytosti podle vzhledu webu (site_theme.saturation). */
+/** Map colors: saturation adjustment according to the site theme (site_theme.saturation). */
 
 function hexToHsl(hex: string): [number, number, number] {
   const n = parseInt(hex.slice(1), 16);
@@ -42,14 +42,14 @@ function hslToHex(h: number, s: number, l: number): string {
   return `#${channel(h + 1 / 3)}${channel(h)}${channel(h - 1 / 3)}`;
 }
 
-/** Vynásobí sytost barvy (1 = beze změny, 0 = šedá); neplatný vstup vrátí beze změny. */
+/** Multiplies a color's saturation (1 = unchanged, 0 = grey); invalid input is returned as is. */
 export function saturate(hex: string, factor: number): string {
   if (factor === 1 || !/^#[0-9a-fA-F]{6}$/.test(hex)) return hex;
   const [h, s, l] = hexToHsl(hex);
   return hslToHex(h, Math.min(1, Math.max(0, s * factor)), l);
 }
 
-/** Totéž pro celou mapu ISO3 → barva. */
+/** Same for a whole ISO3 → color map. */
 export function saturateMap(colors: Record<string, string>, factor: number) {
   if (factor === 1) return colors;
   return Object.fromEntries(Object.entries(colors).map(([k, v]) => [k, saturate(v, factor)]));

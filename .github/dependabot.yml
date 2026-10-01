@@ -6,7 +6,7 @@ updates:
       interval: weekly
       day: monday
     open-pull-requests-limit: 5
-    # Major verze těchto balíčků vyžadují migraci (plán: A9 MapLibre 6, Next 16 + TS 7).
+    # Major versions of these packages require migration (plan: A9 MapLibre 6, Next 16 + TS 7).
     ignore:
       - dependency-name: "maplibre-gl"
         update-types: ["version-update:semver-major"]
@@ -19,7 +19,7 @@ updates:
       - dependency-name: "eslint"
         update-types: ["version-update:semver-major"]
     groups:
-      # Drobné aktualizace v jednom PR, ať se v nich neutopíme.
+      # Minor updates in a single PR so we don't drown in them.
       minor-and-patch:
         update-types: [minor, patch]
   - package-ecosystem: github-actions

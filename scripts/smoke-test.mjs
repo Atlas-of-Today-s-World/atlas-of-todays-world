@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
- * Rychlé kontroly proti běžící aplikaci.
+ * Quick checks against a running app.
  *
- * Neotvírá prohlížeč: stáhne stránky a ověří, že v nich je to, co tam podle
- * zadání být má. Smyslem je chytit regrese dřív, než se na ně někdo proklikne –
- * hlavně věci, které se snadno rozbijí přejmenováním nebo přesunem routy.
+ * Opens no browser: fetches pages and verifies they contain what the spec says
+ * they should. The point is to catch regressions before someone clicks into them –
+ * mainly things that break easily when a route is renamed or moved.
  *
- * Použití: npm run dev (v jiném okně) a pak `npm run test:smoke`
- *          nebo `BASE_URL=https://… npm run test:smoke` proti nasazené verzi.
+ * Usage: npm run dev (in another window) and then `npm run test:smoke`
+ *        or `BASE_URL=https://… npm run test:smoke` against a deployed version.
  */
 import { htmlToText } from "./lib/html.mjs";
 const BASE = process.env.BASE_URL || "http://localhost:3000";
@@ -39,11 +39,11 @@ async function get(path, options = {}) {
 }
 
 /**
- * Text, který návštěvník opravdu vidí.
+ * Text the visitor actually sees.
  *
- * Next posílá ve stránce i svoje data pro hydrataci (uvnitř <script>), takže
- * hledat v celém HTML by hlásilo nálezy, které na obrazovce nejsou. React
- * navíc rozděluje text komentáři `<!-- -->`, proto se vyhazují taky.
+ * Next also ships its hydration data in the page (inside <script>), so searching
+ * the whole HTML would report matches that are not on screen. React also splits
+ * text with `<!-- -->` comments, so those are removed too.
  */
 function visible(html) {
   return htmlToText(html)
@@ -51,7 +51,7 @@ function visible(html) {
     .replace(/\s+/g, " ");
 }
 
-/** Vytáhne ze stránky všechny bloky strukturovaných dat. */
+/** Extracts all structured-data blocks from a page. */
 function jsonLd(html) {
   const blocks = [
     ...html.matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g),
@@ -63,208 +63,217 @@ function jsonLd(html) {
 }
 
 async function main() {
-  process.stdout.write(`Kontroly proti ${BASE}\n\n`);
+  process.stdout.write(`Checks against ${BASE}\n\n`);
 
-  process.stdout.write("Mapa a rozcestníky\n");
+  process.stdout.write("Map and hub pages\n");
   for (const path of ["/", "/news", "/about", "/patrons", "/search"]) {
-    await check(`${path} odpovídá`, async () => {
+    await check(`${path} responds`, async () => {
       const { status } = await get(path);
-      assert(status === 200, `čekal jsem 200, dostal ${status}`);
+      assert(status === 200, `expected 200, got ${status}`);
     });
   }
 
-  process.stdout.write("\nPortrét regionu\n");
-  await check("otevře se rovnou úplný portrét", async () => {
+  process.stdout.write("\nRegion portrait\n");
+  await check("opens the full portrait directly", async () => {
     const { status, body } = await get("/region/middle-east-north-africa");
     assert(status === 200, `status ${status}`);
     const text = visible(body);
-    assert(text.includes("Key indicators"), "chybí sekce Key indicators");
-    assert(!text.includes("A Comprehensive Portrait"), "zůstal štítek portrétu, který měl zmizet");
-    assert(!/\d+ news items? published/.test(text), "zůstalo počítadlo novinek, které mělo zmizet");
+    assert(text.includes("Key indicators"), "missing Key indicators section");
+    assert(
+      !text.includes("A Comprehensive Portrait"),
+      "portrait label that should be gone is still there",
+    );
+    assert(
+      !/\d+ news items? published/.test(text),
+      "news counter that should be gone is still there",
+    );
   });
 
-  await check("nenapsané sekce mají výzvu k podpoře", async () => {
+  await check("unwritten sections have a call for support", async () => {
     const text = visible((await get("/region/east-asia")).body);
     assert(
       text.includes("Help Us Complete It By Joining Atlas Patrons"),
-      "chybí výzva u prázdného portrétu",
+      "missing call to action on an empty portrait",
     );
-    assert(text.includes("Not written yet"), "chybí označení prázdné sekce");
+    assert(text.includes("Not written yet"), "missing empty-section marker");
   });
 
-  await check("ukazatele mají data i u prázdného regionu", async () => {
+  await check("indicators have data even for an empty region", async () => {
     const text = visible((await get("/region/east-asia")).body);
-    assert(text.includes("Key indicators"), "chybí ukazatele");
-    assert(/\d+ of \d+ countries/.test(text), "chybí pokrytí zemí u ukazatele");
-    assert(text.includes("Human Development Index"), "chybí HDI");
+    assert(text.includes("Key indicators"), "missing indicators");
+    assert(/\d+ of \d+ countries/.test(text), "missing country coverage on indicator");
+    assert(text.includes("Human Development Index"), "missing HDI");
   });
 
-  await check("stará adresa /full přesměrovává", async () => {
+  await check("old /full URL redirects", async () => {
     const { status, headers } = await get("/region/east-asia/full");
-    assert(status === 308, `čekal jsem 308, dostal ${status}`);
+    assert(status === 308, `expected 308, got ${status}`);
     assert(
       headers.get("location")?.endsWith("/region/east-asia"),
-      `špatný cíl: ${headers.get("location")}`,
+      `wrong target: ${headers.get("location")}`,
     );
   });
 
-  process.stdout.write("\nPanel země\n");
-  await check("drobečková navigace do regionu", async () => {
+  process.stdout.write("\nCountry panel\n");
+  await check("breadcrumb to the region", async () => {
     const text = visible((await get("/country/ukraine")).body);
-    assert(text.includes("Eastern Europe & Central Asia"), "chybí region v drobečkové navigaci");
-    assert(text.includes("Explore the region"), "chybí karta regionu");
-    assert(!/\d+ news items? published/.test(text), "zůstalo počítadlo novinek");
+    assert(text.includes("Eastern Europe & Central Asia"), "missing region in breadcrumb");
+    assert(text.includes("Explore the region"), "missing region card");
+    assert(!/\d+ news items? published/.test(text), "news counter is still there");
   });
 
-  await check("Kosovo má profil i data", async () => {
+  await check("Kosovo has a profile and data", async () => {
     const { status, body } = await get("/country/kosovo");
     assert(status === 200, `status ${status}`);
     const text = visible(body);
-    assert(text.includes("Life expectancy"), "chybí ukazatele");
-    assert(text.includes("Disputed territory"), "chybí poznámka ke statusu");
-    assert(text.includes("1244"), "chybí rezoluce, o kterou se status opírá");
+    assert(text.includes("Life expectancy"), "missing indicators");
+    assert(text.includes("Disputed territory"), "missing status note");
+    assert(text.includes("1244"), "missing the resolution the status rests on");
   });
 
-  await check("Západní Sahara je samostatná", async () => {
+  await check("Western Sahara is separate", async () => {
     const { status, body } = await get("/country/western-sahara");
     assert(status === 200, `status ${status}`);
-    assert(visible(body).includes("Non-Self-Governing"), "chybí poznámka o nesamosprávném území");
+    assert(
+      visible(body).includes("Non-Self-Governing"),
+      "missing non-self-governing territory note",
+    );
   });
 
   process.stdout.write("\nGlobal Issues\n");
-  await check("první global issue je válka na Ukrajině", async () => {
+  await check("the first global issue is the war in Ukraine", async () => {
     const { status, body } = await get("/global-issue/russia-ukraine-war");
     assert(status === 200, `status ${status}`);
     const text = visible(body);
-    assert(text.includes("Russia–Ukraine War"), "chybí název");
-    assert(text.includes("Ukraine"), "chybí země celku");
+    assert(text.includes("Russia–Ukraine War"), "missing title");
+    assert(text.includes("Ukraine"), "missing issue countries");
   });
 
-  await check("stará adresa /special přesměrovává", async () => {
+  await check("old /special URL redirects", async () => {
     const { status, headers } = await get("/special/russia-ukraine-war");
-    assert(status === 308, `čekal jsem 308, dostal ${status}`);
+    assert(status === 308, `expected 308, got ${status}`);
     assert(
       headers.get("location")?.includes("/global-issue/russia-ukraine-war"),
-      `špatný cíl: ${headers.get("location")}`,
+      `wrong target: ${headers.get("location")}`,
     );
   });
 
-  process.stdout.write("\nObsah a vazby\n");
-  await check("novinka drží zemi, region i global issue", async () => {
+  process.stdout.write("\nContent and relations\n");
+  await check("news item links country, region and global issue", async () => {
     const text = visible((await get("/news/sahel-coup-belt")).body);
-    assert(text.includes("Sub-Saharan Africa"), "chybí region");
-    assert(text.includes("Food Insecurity"), "chybí global issue");
+    assert(text.includes("Sub-Saharan Africa"), "missing region");
+    assert(text.includes("Food Insecurity"), "missing global issue");
   });
 
-  await check("obsah neobsahuje nebezpečné HTML", async () => {
+  await check("content contains no dangerous HTML", async () => {
     const { body } = await get("/news/putins-regime");
-    // Markdown prochází přes sanitize-html; tohle hlídá, že to platí i po
-    // budoucích změnách vykreslování.
+    // Markdown goes through sanitize-html; this guards that it still holds after
+    // future rendering changes.
     for (const pattern of ["onerror=", "onclick=", "javascript:", "<iframe"]) {
-      assert(!body.includes(pattern), `v obsahu je ${pattern}`);
+      assert(!body.includes(pattern), `content contains ${pattern}`);
     }
   });
 
-  process.stdout.write("\nStrukturovaná data a SEO\n");
-  await check("země má platný JSON-LD", async () => {
+  process.stdout.write("\nStructured data and SEO\n");
+  await check("country has valid JSON-LD", async () => {
     const { body } = await get("/country/ukraine");
     const blocks = jsonLd(body);
-    assert(blocks.length > 0, "žádná strukturovaná data");
+    assert(blocks.length > 0, "no structured data");
     assert(
       blocks.some((block) => block["@type"] === "Country"),
-      "chybí typ Country",
+      "missing type Country",
     );
   });
 
-  await check("sitemap zná regiony i global issues", async () => {
+  await check("sitemap knows regions and global issues", async () => {
     const { body } = await get("/sitemap.xml");
-    assert(body.includes("/region/middle-east-north-africa"), "chybí region");
-    assert(!body.includes("/full"), "sitemap ještě nabízí zrušenou /full");
+    assert(body.includes("/region/middle-east-north-africa"), "missing region");
+    assert(!body.includes("/full"), "sitemap still offers the removed /full");
   });
 
-  await check("robots.txt odkazuje na sitemapu", async () => {
+  await check("robots.txt points to the sitemap", async () => {
     const { body } = await get("/robots.txt");
-    assert(body.toLowerCase().includes("sitemap"), "chybí odkaz na sitemapu");
+    assert(body.toLowerCase().includes("sitemap"), "missing link to the sitemap");
   });
 
-  process.stdout.write("\nBezpečnost\n");
-  await check("odpovědi nesou bezpečnostní hlavičky", async () => {
+  process.stdout.write("\nSecurity\n");
+  await check("responses carry security headers", async () => {
     const { headers } = await get("/");
-    assert(headers.get("content-security-policy"), "chybí CSP");
-    assert(headers.get("x-content-type-options") === "nosniff", "chybí nosniff");
-    assert(headers.get("x-frame-options") === "DENY", "chybí X-Frame-Options");
+    assert(headers.get("content-security-policy"), "missing CSP");
+    assert(headers.get("x-content-type-options") === "nosniff", "missing nosniff");
+    assert(headers.get("x-frame-options") === "DENY", "missing X-Frame-Options");
   });
 
-  await check("administrace bez přihlášení vede na /login", async () => {
+  await check("admin without sign-in leads to /login", async () => {
     const { status, headers } = await get("/admin");
-    assert(status === 307 || status === 302, `/admin vrátil ${status}`);
-    assert(headers.get("location")?.includes("/login"), `špatný cíl: ${headers.get("location")}`);
+    assert(status === 307 || status === 302, `/admin returned ${status}`);
+    assert(headers.get("location")?.includes("/login"), `wrong target: ${headers.get("location")}`);
   });
 
-  await check("zápis do obsahu chce přihlášení", async () => {
+  await check("writing content requires sign-in", async () => {
     const { status } = await get("/api/admin/news", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ title: "x" }),
     });
-    assert(status === 401, `nečekaný status ${status}`);
+    assert(status === 401, `unexpected status ${status}`);
   });
 
-  await check("přihlašovací stránka se nevrací do indexu", async () => {
+  await check("login page is kept out of the index", async () => {
     const { status, body } = await get("/login");
-    assert(status === 200, `/login vrátil ${status}`);
-    assert(/noindex/.test(body), "chybí noindex");
+    assert(status === 200, `/login returned ${status}`);
+    assert(/noindex/.test(body), "missing noindex");
   });
 
-  // Produkční build = CI nebo nasazený web (ne lokální `next dev`).
+  // Production build = CI or a deployed site (not a local `next dev`).
   const production = Boolean(process.env.CI) || !BASE.startsWith("http://localhost");
 
-  await check("CSP bez unsafe-eval a s HSTS (produkční build)", async () => {
+  await check("CSP without unsafe-eval and with HSTS (production build)", async () => {
     const { headers } = await get("/");
     const csp = headers.get("content-security-policy") ?? "";
     if (production) {
-      assert(!csp.includes("unsafe-eval"), "CSP v produkci povoluje unsafe-eval");
-      assert(headers.get("strict-transport-security"), "chybí HSTS");
+      assert(!csp.includes("unsafe-eval"), "CSP in production allows unsafe-eval");
+      assert(headers.get("strict-transport-security"), "missing HSTS");
     }
-    assert(csp.includes("frame-ancestors 'none'"), "CSP nezakazuje vložení do rámu");
+    assert(csp.includes("frame-ancestors 'none'"), "CSP does not forbid framing");
   });
 
-  await check("obrazový optimizer není otevřený proxy", async () => {
+  await check("image optimizer is not an open proxy", async () => {
     const { status } = await get("/_next/image?url=https%3A%2F%2Fexample.org%2Fa.png&w=64&q=75");
-    assert(status >= 400, `/_next/image vrátil ${status} pro cizí host`);
+    assert(status >= 400, `/_next/image returned ${status} for a foreign host`);
   });
 
-  await check("export pro demo není v produkci veřejný", async () => {
+  await check("demo export is not public in production", async () => {
     const { status } = await get("/api/export-demo");
-    assert(status === 404 || !production, `/api/export-demo vrátil ${status}`);
+    assert(status === 404 || !production, `/api/export-demo returned ${status}`);
   });
 
-  await check("vyhledávání má horní mez výsledků", async () => {
+  await check("search has an upper result limit", async () => {
     const { body } = await get("/api/search?q=a&limit=100000");
     const { results } = JSON.parse(body);
-    assert(Array.isArray(results) && results.length <= 40, "limit výsledků nefunguje");
+    assert(Array.isArray(results) && results.length <= 40, "result limit does not work");
   });
 
-  await check("security.txt je dostupný", async () => {
+  await check("security.txt is available", async () => {
     const { status } = await get("/.well-known/security.txt");
-    assert(status === 200, `security.txt vrátil ${status}`);
+    assert(status === 200, `security.txt returned ${status}`);
   });
 
-  await check("/api/health: databáze odpovídá a nic se necachuje", async () => {
+  await check("/api/health: database responds and nothing is cached", async () => {
     const { status, body, headers } = await get("/api/health");
-    assert(status === 200, `/api/health vrátil ${status}`);
+    assert(status === 200, `/api/health returned ${status}`);
     const health = JSON.parse(body);
-    assert(health.status === "ok" && health.db === "ok", `stav ${body}`);
-    assert(/no-store/.test(headers.get("cache-control") ?? ""), "health se nesmí cachovat");
+    assert(health.status === "ok" && health.db === "ok", `state ${body}`);
+    assert(/no-store/.test(headers.get("cache-control") ?? ""), "health must not be cached");
   });
 
-  await check("neexistující stránka vrátí 404 s návratem na globus", async () => {
+  await check("non-existent page returns 404 with a way back to the globe", async () => {
     const { status, body } = await get("/country/atlantis");
     assert(status === 404, `status ${status}`);
-    assert(/Back to the globe/.test(body), "chybí cesta zpět");
+    assert(/Back to the globe/.test(body), "missing way back");
   });
 
-  process.stdout.write(`\n${passed} v pořádku, ${failures.length} chyb\n`);
+  process.stdout.write(`\n${passed} passed, ${failures.length} failed\n`);
   if (failures.length) process.exit(1);
 }
 

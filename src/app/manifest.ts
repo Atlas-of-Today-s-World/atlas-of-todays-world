@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-/** Webový manifest – dělá z Atlasu instalovatelnou aplikaci a doplňuje SEO. */
+/** Web manifest – makes Atlas an installable app and complements SEO. */
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Atlas of Today's World",

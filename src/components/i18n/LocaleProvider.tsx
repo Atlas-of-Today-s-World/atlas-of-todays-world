@@ -6,12 +6,12 @@ import { getMessages, type Messages } from "@/features/i18n/messages";
 
 const LocaleContext = createContext<Locale>(DEFAULT_LOCALE);
 
-/** Jazyk stránky pro klientské komponenty (nastavuje layout `[locale]`). */
+/** Page language for client components (set by the `[locale]` layout). */
 export function LocaleProvider({ locale, children }: { locale: Locale; children: ReactNode }) {
   return <LocaleContext.Provider value={locale}>{children}</LocaleContext.Provider>;
 }
 
 export const useLocale = (): Locale => useContext(LocaleContext);
 
-/** Texty rozhraní v jazyce stránky. */
+/** UI texts in the page language. */
 export const useMessages = (): Messages => getMessages(useLocale());

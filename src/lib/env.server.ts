@@ -1,7 +1,7 @@
 import "server-only";
 import { z } from "zod";
 
-/** Tajné proměnné prostředí — jen na serveru (ARCHITEKTURA 3.4). */
+/** Secret environment variables — server only (ARCHITEKTURA 3.4). */
 const optional = <T extends z.ZodType>(schema: T) =>
   z.preprocess((value) => (value === "" ? undefined : value), schema.optional());
 

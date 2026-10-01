@@ -1,16 +1,16 @@
 /**
- * Jádro importu z Webflow (PLAN G7, brief P16) — čisté funkce bez sítě a
- * databáze, ať se dají otestovat na ukázkových datech (tests/unit/webflow-import.test.ts).
+ * Core of the Webflow import (PLAN G7, brief P16) — pure functions with no network
+ * or database, so they can be tested on sample data (tests/unit/webflow-import.test.ts).
  *
- * Vstup je export kolekce z Webflow CMS: CSV („Export" v CMS) nebo JSON
- * z Data API v2 (`GET /collections/{id}/items`). Výstup jsou řádky v tvaru,
- * který čeká Atlas: položky sekcí portrétu (`replace_portrait_items`),
- * články (`entries`) a přesměrování (`redirects`).
+ * Input is a collection export from Webflow CMS: CSV ("Export" in the CMS) or JSON
+ * from Data API v2 (`GET /collections/{id}/items`). Output is rows in the shape
+ * the Atlas expects: portrait section items (`replace_portrait_items`),
+ * entries (`entries`) and redirects (`redirects`).
  */
 
 import { htmlToText } from "../lib/html.mjs";
 
-/** Hostitelé, ze kterých Webflow servíruje nahrané soubory — ty se stáhnou do Storage. */
+/** Hosts Webflow serves uploaded files from — these are downloaded into Storage. */
 export const WEBFLOW_FILE_HOSTS = [
   "website-files.com",
   "uploads-ssl.webflow.com",
@@ -19,10 +19,10 @@ export const WEBFLOW_FILE_HOSTS = [
 ];
 
 // ---------------------------------------------------------------------------
-// Čtení exportu
+// Reading the export
 // ---------------------------------------------------------------------------
 
-/** CSV podle RFC 4180 (uvozovky, zdvojené uvozovky, nové řádky v poli, BOM). */
+/** CSV per RFC 4180 (quotes, doubled quotes, newlines inside a field, BOM). */
 export function parseCsv(text) {
   const source = text.replace(/^﻿/, "");
   const rows = [];
@@ -64,7 +64,7 @@ export function parseCsv(text) {
   );
 }
 
-/** Pole položky podle názvu sloupce v CSV i podle slugu pole v API (`Main Image` ~ `main-image`). */
+/** Item field key from the CSV column name or the API field slug (`Main Image` ~ `main-image`). */
 function keyOf(name) {
   return String(name)
     .toLowerCase()
@@ -73,9 +73,9 @@ function keyOf(name) {
 }
 
 /**
- * Položky kolekce z exportu. Koncepty a archivované položky se vynechají —
- * na web patří jen to, co je ve Webflow zveřejněné.
- * Vrací `{ id, slug, name, fields }`, kde `fields` jsou klíče ve tvaru slugu.
+ * Collection items from the export. Drafts and archived items are skipped —
+ * only what is published in Webflow belongs on the site.
+ * Returns `{ id, slug, name, fields }`, where `fields` has slug-shaped keys.
  */
 export function readItems(text, format) {
   const raw =
@@ -110,10 +110,10 @@ export function readItems(text, format) {
 }
 
 // ---------------------------------------------------------------------------
-// Pomocníci pro mapování polí
+// Field mapping helpers
 // ---------------------------------------------------------------------------
 
-/** Hodnota pole jako text; obrázek z API (`{ url }`) i seznam (`[..]`) zploští. */
+/** Field value as text; flattens an API image (`{ url }`) and a list (`[..]`). */
 export function text(value) {
   if (value == null) return "";
   if (Array.isArray(value)) return value.map(text).filter(Boolean).join(", ");
@@ -121,7 +121,7 @@ export function text(value) {
   return String(value).trim();
 }
 
-/** Prostý text z rich textu (pro perex, odpověď FAQ…). */
+/** Plain text from rich text (for a summary, FAQ answer…). */
 export function plain(html) {
   return htmlToText(text(html), { lineBreaks: true })
     .replace(/[ \t]+/g, " ")
@@ -130,7 +130,7 @@ export function plain(html) {
     .trim();
 }
 
-/** Zkrátí text na limit sloupce v DB (na celé slovo, se třemi tečkami). */
+/** Truncates text to the DB column limit (at a whole word, with an ellipsis). */
 export function clip(value, max) {
   const source = text(value);
   if (source.length <= max) return source;
@@ -138,7 +138,7 @@ export function clip(value, max) {
   return `${cut.slice(0, Math.max(cut.lastIndexOf(" "), max - 40))}…`;
 }
 
-/** Datum z Webflow („Wed Mar 05 2025 …", ISO) → `YYYY-MM-DD`, jinak null. */
+/** Date from Webflow ("Wed Mar 05 2025 …", ISO) → `YYYY-MM-DD`, otherwise null. */
 export function isoDate(value) {
   const source = text(value);
   if (!source) return null;
@@ -146,7 +146,7 @@ export function isoDate(value) {
   return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString().slice(0, 10);
 }
 
-/** Slug podle pravidel Atlasu (malá písmena bez diakritiky, číslice, pomlčky). */
+/** Slug per Atlas rules (lowercase letters without diacritics, digits, hyphens). */
 export function slugify(value) {
   return text(value)
     .normalize("NFD")
@@ -160,13 +160,13 @@ export function slugify(value) {
 const YOUTUBE =
   /(?:youtube(?:-nocookie)?\.com\/(?:embed\/|watch\?v=|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/g;
 
-/** ID videí z YouTube v textu nebo vložení (každé jen jednou, v pořadí výskytu). */
+/** YouTube video IDs in text or an embed (each once, in order of appearance). */
 export function youtubeIds(value) {
   const ids = [...text(value).matchAll(YOUTUBE)].map((match) => match[1]);
   return [...new Set(ids)];
 }
 
-/** Video z YouTube jako zdroj „Videos & Documentaries" (P16). */
+/** A YouTube video as a "Videos & Documentaries" resource (P16). */
 export function youtubeResource(id, title, source = "YouTube") {
   return {
     kind: "Videos & Documentaries",
@@ -178,7 +178,7 @@ export function youtubeResource(id, title, source = "YouTube") {
   };
 }
 
-/** Je to soubor z Webflow CDN, který patří stáhnout do Storage? */
+/** Is this a Webflow CDN file that should be downloaded into Storage? */
 export function isWebflowFile(url) {
   try {
     const host = new URL(url).hostname;
@@ -188,15 +188,15 @@ export function isWebflowFile(url) {
   }
 }
 
-/** Všechny adresy souborů z Webflow CDN v hodnotě (atributy src/href i holé URL). */
+/** All Webflow CDN file URLs in a value (src/href attributes and bare URLs). */
 export function webflowFiles(value) {
   const found = text(value).match(/https:\/\/[^\s"'()<>]+/g) ?? [];
   return [...new Set(found.filter(isWebflowFile))];
 }
 
 /**
- * Nahradí adresy souborů z Webflow CDN novými (Storage) podle mapy
- * `staré → nové`. Obrázky na `website-files.com` se nelinkují (P16).
+ * Replaces Webflow CDN file URLs with new ones (Storage) using the map
+ * `old → new`. Images on `website-files.com` are not hotlinked (P16).
  */
 export function rewriteFiles(value, map) {
   let result = text(value);
@@ -205,16 +205,16 @@ export function rewriteFiles(value, map) {
 }
 
 // ---------------------------------------------------------------------------
-// Mapování kolekcí
+// Collection mapping
 // ---------------------------------------------------------------------------
 
-/** Kam se kolekce ukládá (stejné názvy jako `replace_portrait_items`). */
+/** Where a collection is stored (same names as `replace_portrait_items`). */
 export const PORTRAIT_COLLECTIONS = ["timeline", "faq", "resources", "visuals", "metrics"];
 
 /**
- * Převede položky kolekce podle jejího záznamu v konfiguraci.
- * `collection.map(item, helpers)` vrací jeden řádek, pole řádků, nebo null
- * (položka se přeskočí). Vrací `{ rows, skipped }`.
+ * Converts collection items according to its entry in the config.
+ * `collection.map(item, helpers)` returns one row, an array of rows, or null
+ * (the item is skipped). Returns `{ rows, skipped }`.
  */
 export function mapCollection(items, collection) {
   const rows = [];
@@ -230,9 +230,9 @@ export function mapCollection(items, collection) {
 export const HELPERS = { text, plain, clip, isoDate, slugify, youtubeIds, youtubeResource };
 
 /**
- * Přesměrování starých adres: pevné páry z konfigurace a vzory podle kolekce
- * (`/post/{slug}` → `/news/{slug}`). Duplicitní `from` vyhraje první, cesta
- * sama na sebe se vynechá (DB by ji odmítla).
+ * Redirects of old URLs: fixed pairs from the config and per-collection patterns
+ * (`/post/{slug}` → `/news/{slug}`). For a duplicate `from` the first wins; a path
+ * pointing to itself is skipped (the DB would reject it).
  */
 export function buildRedirects(config, itemsByCollection) {
   const pairs = [...(config.redirects ?? [])];
@@ -261,13 +261,13 @@ export function buildRedirects(config, itemsByCollection) {
     });
 }
 
-/** Cesta bez domény, s úvodním a bez koncového lomítka (shodně s CHECK v tabulce redirects). */
+/** Path without domain, with a leading and no trailing slash (matching the CHECK on redirects). */
 export function normalizePath(value) {
   let path = text(value);
   try {
     if (/^https?:\/\//.test(path)) path = new URL(path).pathname;
   } catch {
-    /* necháme, jak je — DB případně odmítne */
+    /* leave as is — the DB may reject it */
   }
   path = `/${path.replace(/^\/+/, "")}`;
   return path.length > 1 ? path.replace(/\/+$/, "") : path;

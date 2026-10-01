@@ -10,8 +10,8 @@ export interface CountryOption {
 }
 
 /**
- * Výběr více zemí (článek, global issue, přiřazení schvalovatele). Hledá se
- * podle názvu i ISO kódu; vybrané země jdou do formuláře jako opakované pole.
+ * Multi-country picker (article, global issue, approver assignment). Searches
+ * by name and ISO code; selected countries go into the form as a repeated field.
  */
 export function CountryPicker({
   id,

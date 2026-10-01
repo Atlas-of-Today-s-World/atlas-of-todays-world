@@ -5,12 +5,12 @@ import { DEFAULT_LOCALE, localePath, splitLocale } from "@/features/i18n/config"
 import { refreshSession } from "@/lib/supabase/middleware";
 
 /**
- * Bezpečnostní hlavičky pro všechny odpovědi a přihlášení (ARCHITEKTURA 7).
+ * Security headers for all responses, plus sign-in handling (ARCHITEKTURA 7).
  *
- * Session Supabase se obnovuje jen na cestách, kde na přihlášení záleží —
- * veřejné stránky zůstávají statické a bez dotazu na Auth server.
- * Administrace bez přihlášení přesměruje na /login; KDO smí co, rozhoduje až
- * layout administrace (oprávnění z DB) a hlavně RLS.
+ * The Supabase session is refreshed only on paths where sign-in matters —
+ * public pages stay static and never query the Auth server.
+ * The admin without a session redirects to /login; WHO may do what is decided
+ * by the admin layout (permissions from the DB) and above all by RLS.
  */
 const dev = process.env.NODE_ENV !== "production";
 const CSP = buildCsp({ dev, supabaseUrl: publicEnv.NEXT_PUBLIC_SUPABASE_URL });
@@ -27,7 +27,7 @@ const PROTECTED_PATHS = ["/admin", "/api/admin", "/ucet"];
 const matches = (pathname: string, prefixes: string[]) =>
   prefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 
-/** Cesty bez jazykových verzí: administrace, API, callbacky a soubory (robots.txt…). */
+/** Paths without language versions: admin, API, callbacks and files (robots.txt…). */
 const UNLOCALIZED = ["/admin", "/api", "/auth", "/_next", "/.well-known"];
 const isFile = (pathname: string) => /\.[a-z0-9]+$/i.test(pathname);
 
@@ -38,7 +38,7 @@ export async function proxy(request: NextRequest) {
     ? splitLocale(pathname)
     : { locale: DEFAULT_LOCALE, path: pathname };
 
-  // /en/… je jen jiný zápis výchozí verze — kanonická adresa je bez předpony.
+  // /en/… is just another spelling of the default version — the canonical URL has no prefix.
   if (
     localized &&
     (pathname === `/${DEFAULT_LOCALE}` || pathname.startsWith(`/${DEFAULT_LOCALE}/`))
@@ -50,7 +50,7 @@ export async function proxy(request: NextRequest) {
     return securityHeaders(NextResponse.redirect(canonical, 308));
   }
 
-  // Angličtina bez předpony → routa [locale]=en (adresa v prohlížeči se nemění).
+  // English without a prefix → route [locale]=en (the browser URL stays the same).
   const response =
     localized && locale === DEFAULT_LOCALE
       ? NextResponse.rewrite(new URL(`/${DEFAULT_LOCALE}${pathname}${search}`, request.url), {
@@ -72,6 +72,6 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Statické soubory a obrázky hlídat nepotřebujeme.
+  // No need to guard static files and images.
   matcher: ["/((?!_next/static|_next/image|favicon.ico|data/).*)"],
 };

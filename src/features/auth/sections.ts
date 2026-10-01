@@ -1,6 +1,6 @@
 /**
- * Sekce oprávnění (role_permissions.section) a akce „vced" — pevný seznam
- * shodný s CHECK v DB. Bez závislosti na serveru (používá ho i klient).
+ * Permission sections (role_permissions.section) and actions "vced" — a fixed
+ * list matching the CHECK in the DB. No server dependency (the client uses it too).
  */
 export const SECTIONS = [
   "news",

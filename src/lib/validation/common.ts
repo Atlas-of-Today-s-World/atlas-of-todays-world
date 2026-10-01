@@ -1,11 +1,11 @@
 import { z } from "zod";
 
 /**
- * Stavební kameny Zod schémat administrace — stejné tvary jako CHECK v DB,
- * aby chyba přišla u pole, ne až z databáze.
+ * Building blocks of the admin Zod schemas — same shapes as the CHECKs in the DB,
+ * so the error shows at the field, not only once it comes from the database.
  */
 
-/** Prázdný řetězec z formuláře → undefined (volitelné pole). */
+/** Empty string from a form → undefined (optional field). */
 export const blankToUndefined = (value: unknown) =>
   typeof value === "string" && value.trim() === "" ? undefined : value;
 
@@ -40,7 +40,7 @@ export const hexColor = z
 
 export const iso3 = z.string().regex(/^[A-Z]{3}$/);
 
-/** E-mail ve stejném tvaru jako CHECK v DB (invitations); bez vnořených kvantifikátorů (žádný ReDoS). */
+/** Email in the same shape as the DB CHECK (invitations); no nested quantifiers (no ReDoS). */
 export const emailAddress = z
   .string()
   .trim()
@@ -50,7 +50,7 @@ export const emailAddress = z
 
 export const uuid = z.string().uuid();
 
-/** Číslo z formuláře (prázdné = undefined). */
+/** Number from a form (empty = undefined). */
 export const optionalNumber = (schema: z.ZodNumber) =>
   z.preprocess(
     (value) => (blankToUndefined(value) === undefined ? undefined : Number(value)),
@@ -59,7 +59,7 @@ export const optionalNumber = (schema: z.ZodNumber) =>
 
 export const checkbox = z.preprocess((value) => value === "on" || value === "true", z.boolean());
 
-/** Vytvoří z textu slug (název → adresa). */
+/** Creates a slug from text (name → URL). */
 export function slugify(value: string): string {
   return value
     .normalize("NFD")

@@ -6,7 +6,7 @@ import { safeRedirect } from "@/lib/security/redirect";
 import { Button } from "@/components/ui/button";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 
-/** Přesměruje na Google (PKCE); návrat zpracuje /auth/callback. */
+/** Redirects to Google (PKCE); the return is handled by /auth/callback. */
 export default function GoogleSignIn({ next }: { next: string }) {
   const t = useMessages().auth.google;
   const [busy, setBusy] = useState(false);

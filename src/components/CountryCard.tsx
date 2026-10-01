@@ -7,13 +7,13 @@ import { format } from "@/features/i18n/messages";
 import { MetricCards, SourceLink, StatGrid, StatIcon, StatItem } from "./atlas/ui";
 
 /**
- * Karta země po kliknutí na globus (Figma: "Country View").
+ * Country card after clicking the globe (Figma: "Country View").
  *
- * Nahoře drobečková navigace do regionu, jméno, popis a ukazatele. Region není
- * jen textový odkaz kdesi dole – dostal vlastní kartu s obrázkem a tlačítkem,
- * protože z profilu země je to nejčastější cesta dál.
+ * At the top: breadcrumbs to the region, name, description and indicators. The region
+ * isn't just a text link somewhere at the bottom – it has its own card with image and button,
+ * because that's the most common next step from a country profile.
  */
-/** Jak se status pojmenuje v profilu země (klíč textu v messages → country). */
+/** How the status is named in the country profile (text key in messages → country). */
 const TERRITORY_STATUS_KEY = {
   disputed: "disputed",
   "non-self-governing": "nonSelfGoverning",
@@ -35,9 +35,9 @@ export default function CountryCard({
   const region = country.region;
 
   /**
-   * Redakce si v administraci může vybrat, které automatické ukazatele u země
-   * stojí za ukázání a v jakém pořadí; bez volby zůstává dosavadních prvních
-   * šest. Neznámá id (zrušený ukazatel) se tiše přeskočí.
+   * Editors can choose in the admin which automatic indicators are worth showing
+   * for a country and in what order; without a choice the existing first six
+   * remain. Unknown ids (a removed indicator) are silently skipped.
    */
   const featured = profile?.featured ?? [];
   const highlights = featured.length
@@ -162,9 +162,9 @@ export default function CountryCard({
       </div>
 
       {country.territoryNote ? (
-        // Atlas kreslí hranice podle praxe OSN. Kde se to liší od faktické
-        // kontroly, musí u profilu stát proč a podle čeho – jinak to čtenář
-        // čte jako tvrzení Atlasu.
+        // Atlas draws borders according to UN practice. Where that differs from de facto
+        // control, the profile must say why and on what basis – otherwise readers
+        // take it as Atlas's own claim.
         <p className="mt-5 rounded-xl border border-[var(--color-line)] bg-[var(--color-paper-soft,#f6f7fb)] px-4 py-3 text-[12px] leading-relaxed text-[var(--color-ink-soft)]">
           <span className="font-medium text-[var(--color-ink)]">
             {

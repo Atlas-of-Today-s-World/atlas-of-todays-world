@@ -19,7 +19,7 @@ function useSave(action: (prev: ActionState, data: FormData) => Promise<ActionSt
   return useActionState<ActionState, FormData>(action, { ok: false });
 }
 
-/** Barva výplně a obrysu celku na globusu. */
+/** Fill and outline colour of the unit on the globe. */
 function ColorFields({ fill, stroke, errors }: { fill: string; stroke: string; errors: Errors }) {
   return (
     <div className="grid grid-cols-2 gap-5">
@@ -33,7 +33,7 @@ function ColorFields({ fill, stroke, errors }: { fill: string; stroke: string; e
   );
 }
 
-/** Hlavička portrétu (fotka, úvod, nadpis časové osy) — společná pro region i issue. */
+/** Portrait header (photo, intro, timeline heading) — shared by region and issue. */
 function PortraitHead({
   values,
   errors,
@@ -167,7 +167,7 @@ export function IssueForm({
 }: {
   issue: IssueValues | null;
   countries: CountryOption[];
-  /** Typ nové skupiny (tlačítko „New custom region" / „New global issue"). */
+  /** Type of the new group (button „New custom region" / „New global issue"). */
   defaultKind?: "issue" | "region";
 }) {
   const [state, action] = useSave(saveIssue);

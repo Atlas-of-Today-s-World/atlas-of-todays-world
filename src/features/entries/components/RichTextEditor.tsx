@@ -23,9 +23,9 @@ import { cn } from "@/lib/cn";
 import { ACCEPT_IMAGES, uploadImage } from "@/lib/upload";
 
 /**
- * Editor textu (ARCHITEKTURA 5.3): TipTap jen s povolenými rozšířeními —
- * nadpisy h2–h4, odstavce, seznamy, tučné/kurzíva, odkaz, citace, obrázek ze
- * Storage. Výsledné HTML jde do skrytého pole a server ho znovu vyčistí.
+ * Text editor (ARCHITEKTURA 5.3): TipTap with only allowed extensions —
+ * h2–h4 headings, paragraphs, lists, bold/italic, link, blockquote, image from
+ * Storage. The resulting HTML goes into a hidden field and the server sanitizes it again.
  */
 export function RichTextEditor({
   name,
@@ -78,8 +78,8 @@ export function RichTextEditor({
 }
 
 function Toolbar({ editor }: { editor: Editor }) {
-  // Skryté pole pro obrázek se otevírá podle id (React Compiler: žádný ref
-  // v objektu nástrojů, který vzniká při vykreslení).
+  // The hidden image field is opened by id (React Compiler: no ref
+  // in the toolbar object created during render).
   const fileId = useId();
   const [error, setError] = useState("");
 

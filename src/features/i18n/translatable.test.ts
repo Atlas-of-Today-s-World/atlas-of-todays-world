@@ -11,7 +11,7 @@ const snapshot = {
 } as unknown as AtlasSnapshot;
 
 describe("localizeSnapshot", () => {
-  it("přepíše jen povolená pole a zbytek nechá anglicky", () => {
+  it("overrides only allowed fields and leaves the rest in English", () => {
     const out = localizeSnapshot(snapshot, [
       { entity: "country", entity_key: "BRA", field: "name", value: "Brazílie" },
       { entity: "country", entity_key: "BRA", field: "population", value: "99" },
@@ -23,13 +23,13 @@ describe("localizeSnapshot", () => {
     expect(out.indicators[0]?.label).toBe("HDI");
   });
 
-  it("bez překladů vrátí tentýž snímek", () => {
+  it("without translations returns the same snapshot", () => {
     expect(localizeSnapshot(snapshot, [])).toBe(snapshot);
   });
 });
 
 describe("localePath", () => {
-  it("angličtina bez předpony, ostatní s předponou", () => {
+  it("English without a prefix, others with a prefix", () => {
     expect(localePath("en", "/country/brazil")).toBe("/country/brazil");
     expect(localePath("cs", "/country/brazil")).toBe("/cs/country/brazil");
     expect(localePath("cs", "/")).toBe("/cs");

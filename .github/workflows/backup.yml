@@ -1,12 +1,12 @@
-# Noční záloha produkční databáze (PLAN F4).
+# Nightly backup of the production database (PLAN F4).
 #
-# Schéma, data a role přes Supabase CLI → tar → šifrování `age` veřejným
-# klíčem (soukromý klíč má jen vlastník, mimo GitHub) → artefakt na 14 dní.
-# Nezašifrovaný dump nikdy neopustí běžící stroj.
+# Schema, data and roles via Supabase CLI → tar → `age` encryption with a public
+# key (only the owner holds the private key, outside GitHub) → 14-day artifact.
+# The unencrypted dump never leaves the runner.
 #
-# Potřebuje: secrets SUPABASE_ACCESS_TOKEN, SUPABASE_DB_PASSWORD,
+# Requires:  secrets SUPABASE_ACCESS_TOKEN, SUPABASE_DB_PASSWORD,
 #            variables SUPABASE_PROJECT_REF, BACKUP_AGE_RECIPIENT (age1…).
-# Obnova a její zkouška: docs/runbook.md (neveřejné).
+# Restore and restore drills: docs/runbook.md (private).
 name: Záloha DB
 
 on:
@@ -35,15 +35,15 @@ jobs:
       - uses: supabase/setup-cli@v1
         with:
           version: latest
-      - name: Nástroj age
+      - name: Install age
         run: sudo apt-get update -qq && sudo apt-get install -y -qq age
-      - name: Kontrola nastavení
+      - name: Check configuration
         run: |
           for v in SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD PROJECT_REF RECIPIENT; do
             test -n "${!v}" || { echo "Chybí $v"; exit 1; }
           done
           case "$RECIPIENT" in age1*) ;; *) echo "BACKUP_AGE_RECIPIENT není age klíč"; exit 1;; esac
-      - name: Dump a šifrování
+      - name: Dump and encrypt
         run: |
           set -euo pipefail
           umask 077

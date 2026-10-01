@@ -9,8 +9,8 @@ import { TranslationInput } from "./schema";
 import { HTML_FIELDS, TRANSLATABLE, type TranslatableEntity } from "./translatable";
 
 /**
- * Uloží překlady polí jednoho celku (G5). Vyplněné pole = upsert, prázdné =
- * smazat (web pak ukáže angličtinu). Kdo smí, rozhoduje RLS podle sekce celku.
+ * Saves field translations of one unit (G5). Filled field = upsert, empty =
+ * delete (the site then shows English). RLS decides who may, per the unit's section.
  */
 export async function saveTranslations(
   _prev: ActionState,
@@ -56,7 +56,7 @@ export async function saveTranslations(
       .in("field", removals);
     if (error) return failed(error);
   }
-  // Překlady jsou součástí snímku Atlasu v daném jazyce.
+  // Translations are part of the Atlas snapshot in the given language.
   updateTag(tags.atlas);
   return { ok: true, message: "Translation saved." };
 }

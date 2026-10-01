@@ -8,18 +8,18 @@ function directive(csp: string, name: string) {
 describe("buildCsp", () => {
   const prod = buildCsp({ dev: false, supabaseUrl: "https://abc.supabase.co" });
 
-  it("v produkci bez unsafe-eval a s upgrade-insecure-requests", () => {
+  it("in production without unsafe-eval and with upgrade-insecure-requests", () => {
     expect(directive(prod, "script-src")).not.toContain("unsafe-eval");
     expect(prod).toContain("upgrade-insecure-requests");
   });
 
-  it("ve vývoji povolí unsafe-eval", () => {
+  it("allows unsafe-eval in development", () => {
     const dev = buildCsp({ dev: true });
     expect(directive(dev, "script-src")).toContain("'unsafe-eval'");
     expect(dev).not.toContain("upgrade-insecure-requests");
   });
 
-  it("povolí Supabase (REST i realtime) a MapTiler", () => {
+  it("allows Supabase (REST and realtime) and MapTiler", () => {
     const connect = directive(prod, "connect-src");
     expect(connect).toContain("https://abc.supabase.co");
     expect(connect).toContain("wss://abc.supabase.co");
@@ -27,29 +27,29 @@ describe("buildCsp", () => {
     expect(directive(prod, "form-action")).toContain("https://abc.supabase.co");
   });
 
-  it("zvuk hesel jen z vlastního webu a přes https", () => {
+  it("entry audio only from our own site and over https", () => {
     expect(directive(prod, "media-src")).toBe("media-src 'self' https:");
   });
 
-  it("bez Supabase URL nevloží prázdné položky", () => {
+  it("without a Supabase URL inserts no empty entries", () => {
     const csp = buildCsp({ dev: false });
     expect(csp).not.toMatch(/ {2}|\s;/);
   });
 
-  it("Turnstile smí skript a iframe jen z challenges.cloudflare.com", () => {
+  it("Turnstile may load script and iframe only from challenges.cloudflare.com", () => {
     expect(directive(prod, "script-src")).toContain("https://challenges.cloudflare.com");
     expect(directive(prod, "frame-src")).toContain("https://challenges.cloudflare.com");
     expect(directive(prod, "script-src")).not.toMatch(/https:(\s|$)/);
   });
 
-  it("zakáže vložení do rámu a pluginy", () => {
+  it("forbids framing and plugins", () => {
     expect(directive(prod, "frame-ancestors")).toBe("frame-ancestors 'none'");
     expect(directive(prod, "object-src")).toBe("object-src 'none'");
   });
 });
 
 describe("securityHeaderEntries", () => {
-  it("HSTS jen mimo vývoj", () => {
+  it("HSTS only outside development", () => {
     const names = (dev: boolean) => securityHeaderEntries("x", { dev }).map(([name]) => name);
     expect(names(false)).toContain("Strict-Transport-Security");
     expect(names(true)).not.toContain("Strict-Transport-Security");

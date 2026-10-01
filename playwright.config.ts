@@ -1,26 +1,26 @@
 import { defineConfig, devices } from "@playwright/test";
 
 /**
- * Průchody aplikací v prohlížeči.
+ * In-browser walkthroughs of the app.
  *
- * Rychlé kontroly obsahu dělá `npm run test:smoke` bez prohlížeče; sem patří
- * to, co se bez něj ověřit nedá – klikání, klávesnice, mobilní menu a velikost
- * dotykových cílů.
+ * Quick content checks run in `npm run test:smoke` without a browser; this is
+ * for what can't be verified without one – clicks, keyboard, mobile menu and
+ * touch target size.
  *
- * Jede proti produkčnímu buildu (npm run build && npm run start): vývojový
- * server překládá routy až při prvním otevření a testy pak padají na čekání,
+ * Runs against the production build (npm run build && npm run start): the dev
+ * server compiles routes only on first visit and tests then time out waiting,
  * ne na chybu.
  */
 export default defineConfig({
   testDir: "./tests",
-  // tests/unit patří Vitestu.
+  // tests/unit belongs to Vitest.
   testMatch: "**/*.spec.ts",
   timeout: 60_000,
-  // CI běží globus na softwarovém WebGL; jeden pomalý průchod nemá shodit build.
+  // In CI the globe runs on software WebGL; one slow run shouldn't fail the build.
   retries: process.env.CI ? 2 : 0,
   expect: { timeout: 10_000 },
-  // Každý test si otevírá globus na WebGL; víc běhů najednou slabší stroj
-  // nezvládá a testy pak padají na čekání, ne na chybu.
+  // Every test opens the WebGL globe; a weaker machine can't handle more runs
+  // at once, and tests then fail on timeouts, not on real errors.
   fullyParallel: false,
   workers: process.env.CI ? 2 : 1,
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : [["list"]],

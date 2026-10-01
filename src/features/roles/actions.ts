@@ -17,8 +17,8 @@ import { MatrixInput, RoleInput, SecurityInput } from "./schema";
 const PAGE = "/admin/roles";
 
 /**
- * Oprávnění jedné role (řádek matice role × sekce × vced). Admin je zamčený
- * a svou vlastní roli nikdo kromě admina nemění — hlídá guard_role_permissions.
+ * Permissions of one role (a row of the role × section × vced matrix). Admin is
+ * locked and nobody but an admin changes their own role — enforced by guard_role_permissions.
  */
 export async function saveMatrix(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const sections = Object.fromEntries(

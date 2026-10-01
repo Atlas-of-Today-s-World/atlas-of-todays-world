@@ -1,4 +1,4 @@
-# Citlivé části — změny vždy s popisem „Security impact“ v PR (ARCHITEKTURA 8.4).
+# Sensitive areas — changes always need a "Security impact" note in the PR (ARCHITEKTURA 8.4).
 /supabase/                @vojtechgottvald
 /src/middleware.ts        @vojtechgottvald
 /src/lib/security/        @vojtechgottvald

@@ -11,11 +11,11 @@ import { format } from "@/features/i18n/messages";
 import { getT } from "@/features/i18n/request";
 
 /**
- * Stavební díly portrétu. Používá je portrét regionu i portrét global issue –
- * zadání pro obojí popisuje stejné sekce, takže je nemá smysl psát dvakrát.
+ * Portrait building blocks. Used by both the region portrait and the global issue
+ * portrait – the brief describes the same sections for both, so no point writing them twice.
  *
- * Nenapsané sekce se nevynechávají: kreslí se šedivé a nekliknutelné, aby bylo
- * vidět, co Atlas plánuje, a hned u nich stojí výzva k podpoře.
+ * Unwritten sections aren't skipped: they're drawn grey and non-clickable, so it's
+ * visible what Atlas is planning, with a call for support right next to them.
  */
 
 export const ENTRY_CATEGORIES = [
@@ -35,7 +35,7 @@ const section = cva("border-t px-6 py-8 sm:px-10", {
   defaultVariants: { tone: "light" },
 });
 
-/** Obal každé sekce portrétu: oddělovač, odsazení, nadpis a perex. */
+/** Wrapper for every portrait section: divider, padding, heading and lead text. */
 export function PortraitSection({
   title,
   lead,
@@ -46,7 +46,7 @@ export function PortraitSection({
 }: {
   title: string;
   lead?: string;
-  /** Šedivý nadpis u zatím nenapsaných částí. */
+  /** Grey heading for parts not written yet. */
   muted?: boolean;
   tone?: "light" | "dark";
   className?: string;
@@ -87,8 +87,8 @@ function PatronsLink({ arrow = true }: { arrow?: boolean }) {
 }
 
 /**
- * Šedivá sekce pro obsah, který redakce zatím nenapsala. Nic uvnitř nereaguje
- * na klik (`pointer-events-none`), ať je hned jasné, že tady zatím nic není.
+ * Grey section for content the editors haven't written yet. Nothing inside reacts
+ * to clicks (`pointer-events-none`), so it's immediately clear there's nothing here yet.
  */
 export function EmptySection({
   title,
@@ -118,11 +118,11 @@ export function EmptySection({
 }
 
 /**
- * Šest klíčových ukazatelů s citací zdroje.
+ * Six key indicators with source citations.
  *
- * Když redakce zadala vlastní ukazatele, mají přednost: měří věci, které
- * v Our World in Data nejsou — etnické skupiny, vysídlení, dětskou chudobu.
- * Bez nich se kreslí dopočet z importovaných dat, aby portrét nebyl prázdný.
+ * When the editors entered custom indicators, they take precedence: they measure things
+ * that aren't in Our World in Data — ethnic groups, displacement, child poverty.
+ * Without them, values computed from imported data are drawn so the portrait isn't empty.
  */
 export function IndicatorCards({
   stats,
@@ -165,7 +165,7 @@ export function IndicatorCards({
   );
 }
 
-/** Vodorovná časová osa. */
+/** Horizontal timeline. */
 export function Timeline({
   items,
   title,
@@ -209,8 +209,8 @@ export interface PlannedEntry {
 }
 
 /**
- * Čtyři tematické kategorie hesel. Nenapsaná hesla jsou šedivá a nekliknutelná;
- * podle zadání to platí i pro portrét, který už nějaká hesla má.
+ * Four topic categories of entries. Unwritten entries are grey and non-clickable;
+ * per the brief this applies even to a portrait that already has some entries.
  */
 export function ThematicEntries({ entries }: { entries: PlannedEntry[] }) {
   const t = getT();
@@ -296,7 +296,7 @@ export function VisualCarousel({
   );
 }
 
-/** Databáze zdrojů třetích stran. */
+/** Database of third-party sources. */
 export function ResourceLibrary({ resources }: { resources: ResourceItem[] }) {
   const t = getT();
   const safe = resources.flatMap((item) => {
@@ -348,7 +348,7 @@ export function ResourceLibrary({ resources }: { resources: ResourceItem[] }) {
   );
 }
 
-/** Rozbalovací FAQ. */
+/** Collapsible FAQ. */
 export function FaqList({ items }: { items: FaqItem[] }) {
   const t = getT();
   return (
@@ -378,7 +378,7 @@ export function FaqList({ items }: { items: FaqItem[] }) {
   );
 }
 
-/** Výzva k podpoře na konci portrétu. */
+/** Call for support at the end of the portrait. */
 export function PatronsCallout({ complete }: { complete: boolean }) {
   const t = getT();
   return (

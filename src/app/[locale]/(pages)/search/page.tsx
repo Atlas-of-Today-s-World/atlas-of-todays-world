@@ -7,9 +7,9 @@ import { format, getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 
 /**
- * Serverová stránka výsledků. Existuje kvůli SearchAction ve strukturovaných
- * datech (Google z ní umí nabídnout vyhledávací pole přímo ve výsledcích) a
- * pro uživatele bez JavaScriptu. Samotné výsledky se neindexují.
+ * Server-rendered results page. It exists because of SearchAction in structured
+ * data (Google can offer a search box right in its results from it) and
+ * for users without JavaScript. The results themselves are not indexed.
  */
 type Params = { params: Promise<{ locale: string }> };
 

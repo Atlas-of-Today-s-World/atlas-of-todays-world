@@ -2,9 +2,9 @@ import { z } from "zod";
 import { checkbox, uuid } from "@/lib/validation/common";
 
 /**
- * Přesměrování (tabulka `redirects`) — tvary shodné s CHECK v DB: zdroj je
- * cesta na tomto webu bez lomítka na konci, cíl také cesta na tomto webu
- * (žádná cizí doména → žádný open redirect).
+ * Redirects (table `redirects`) — shapes matching the CHECK in the DB: the source
+ * is a path on this site without a trailing slash, the target is also a path on
+ * this site (no foreign domain → no open redirect).
  */
 const FROM = /^\/[A-Za-z0-9._~%!$&'()*+,;=:@/-]+$/;
 const TO = /^\/[A-Za-z0-9._~%!$&'()*+,;=:@/?#-]*$/;
@@ -39,18 +39,18 @@ export interface RedirectRule {
   permanent: boolean;
 }
 
-/** Cesta v jednom tvaru pro porovnání: dekódovaná, bez lomítka na konci. */
+/** Path in a single form for comparison: decoded, without a trailing slash. */
 export function normalizePath(value: string): string {
   let decoded = value;
   try {
     decoded = decodeURI(value);
   } catch {
-    // Neplatné %-kódování → porovnává se tak, jak přišlo.
+    // Invalid %-encoding → compared as received.
   }
   return decoded.length > 1 ? decoded.replace(/\/+$/, "") : decoded;
 }
 
-/** Tabulka pravidel pro rychlé hledání (klíč = normalizovaná zdrojová cesta). */
+/** Rule table for fast lookup (key = normalized source path). */
 export function buildRedirectMap(
   rows: { from_path: string; to_path: string; permanent: boolean }[],
 ): Record<string, RedirectRule> {

@@ -10,16 +10,16 @@ import { signInDestination } from "./sign-in";
 import type { EmailCodeState } from "./constants";
 import { EmailCodeRequest, EmailCodeVerify } from "./schema";
 
-/** Kolik kódů smí jedna IP adresa vyžádat (vedle limitů Supabase Auth). */
+/** How many codes one IP address may request (on top of Supabase Auth limits). */
 const REQUEST_LIMIT = { limit: 5, windowSeconds: 600 };
-/** Kolik pokusů o kód z jedné IP adresy — šest číslic se nesmí dát uhodnout. */
+/** How many code attempts from one IP address — six digits must not be guessable. */
 const VERIFY_LIMIT = { limit: 10, windowSeconds: 600 };
 
 /**
- * Přihlášení kódem z e-mailu, krok 1 (G1): pošle šestimístný kód. Účet
- * čtenáře vznikne při prvním přihlášení (role reader, ARCHITEKTURA 7);
- * do týmu se dostane jen ten, koho admin pozval (pozvánku přijme ověřený e-mail).
- * Vypnuté přepínačem `email_auth`, dokud nemáme vlastní SMTP (U5).
+ * Sign-in with an email code, step 1 (G1): sends a six-digit code. A reader
+ * account is created on first sign-in (role reader, ARCHITEKTURA 7); only
+ * someone invited by an admin joins the team (a verified email accepts the invitation).
+ * Disabled by the `email_auth` flag until we have our own SMTP (U5).
  */
 export async function requestEmailCode(
   _prev: EmailCodeState,
@@ -47,11 +47,11 @@ export async function requestEmailCode(
     console.error("[email-code]", error.code ?? error.message);
     return { ok: false, error: error.code === "captcha_failed" ? "captcha" : "send_failed" };
   }
-  // Odpověď je stejná pro existující i nový účet — nic neprozradí, kdo je registrovaný.
+  // The response is the same for existing and new accounts — reveals nothing about who is registered.
   return { ok: true, email };
 }
 
-/** Krok 2: ověří kód, přihlásí a pošle dál (pozvaného člena týmu do administrace). */
+/** Step 2: verifies the code, signs in and redirects (an invited team member to the admin). */
 export async function verifyEmailCode(
   _prev: EmailCodeState,
   formData: FormData,

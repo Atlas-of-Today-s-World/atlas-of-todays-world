@@ -3,18 +3,18 @@ import type { Locale } from "@/features/i18n/config";
 import { formatValue } from "@/lib/indicators";
 
 /**
- * Klíčové ukazatele portrétu regionu i global issue.
+ * Key indicators for the region portrait and global issue.
  *
- * Zadání chce šest karet s citací zdroje. Tady se počítají z dat, která už
- * v Atlasu jsou (Our World in Data), takže je má i region, ke kterému redakce
- * zatím nenapsala řádek – portrét pak není prázdná skořápka.
+ * The brief wants six cards with a source citation. Here they are computed from
+ * data already in the Atlas (Our World in Data), so even a region the editors
+ * haven't written a line about yet has them – the portrait isn't an empty shell.
  *
- * Číselné ukazatele se průměrují vážené počtem obyvatel: region není součet
- * států, ale součet lidí, kteří v nich žijí. U kategoriálních (politický režim)
- * dává průměr nesmysl, takže se ukazuje nejčastější kategorie.
+ * Numeric indicators are averaged weighted by population: a region is not a sum
+ * of states but of the people living in them. For categorical ones (political
+ * regime) an average is meaningless, so the most common category is shown.
  */
 
-/** Šest ukazatelů na kartách, v pořadí, v jakém se kreslí. */
+/** Six indicators on the cards, in drawing order. */
 const CARD_INDICATORS = [
   "hdi",
   "life-expectancy",
@@ -28,11 +28,11 @@ export interface RegionStat {
   id: string;
   label: string;
   shortLabel: string;
-  /** Připravená hodnota k vypsání. */
+  /** Prepared value for display. */
   value: string;
-  /** Kolik zemí regionu má data a kolik jich region má celkem. */
+  /** How many of the region's countries have data, and how many it has in total. */
   coverage: { have: number; total: number };
-  /** Nejnovější rok, ze kterého data pocházejí. */
+  /** Latest year the data comes from. */
   year: number | null;
   source: string;
   sourceUrl: string;
@@ -52,7 +52,7 @@ function mostCommon(values: number[]): number {
   return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? 0;
 }
 
-/** Ukazatele spočítané nad libovolnou skupinou zemí (region, global issue). */
+/** Indicators computed over any group of countries (region, global issue). */
 export function groupStats(
   countries: Country[],
   indicators: Map<string, Indicator>,
@@ -64,8 +64,8 @@ export function groupStats(
     const indicator = indicators.get(id);
     if (!indicator) continue;
 
-    // Zemi a její hodnotu držíme spolu – po odfiltrování zemí bez dat by
-    // samotný index do původního pole ukazoval jinam a váhy by se rozjely.
+    // Keep the country and its value together – after filtering out countries without
+    // data, a bare index into the original array would point elsewhere and weights drift.
     const rows = countries
       .map((country) => ({
         stat: country.stats.find((stat) => stat.id === id),
@@ -96,7 +96,7 @@ export function groupStats(
   return out;
 }
 
-/** Souhrn, který se vypisuje nad kartami. */
+/** Summary shown above the cards. */
 export function population(countries: Country[]): number {
   return countries.reduce((sum, country) => sum + (country.population ?? 0), 0);
 }

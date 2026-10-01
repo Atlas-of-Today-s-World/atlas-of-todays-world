@@ -2,7 +2,7 @@ import { z } from "zod";
 import { SECTIONS } from "@/features/auth/sections";
 import { checkbox, requiredText, slug, text } from "@/lib/validation/common";
 
-/** Akce jedné sekce ve tvaru DB: „v", „vc", „vced"… (bez „v" nic dalšího). */
+/** Actions of one section in DB form: "v", "vc", "vced"… (without "v" nothing else). */
 const actions = z
   .array(z.enum(["v", "c", "e", "d"]))
   .transform((list) =>

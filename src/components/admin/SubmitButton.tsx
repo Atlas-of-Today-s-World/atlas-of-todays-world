@@ -4,7 +4,7 @@ import { useFormStatus } from "react-dom";
 import { Button, type ButtonVariants } from "@/components/ui/button";
 import { useActionPending } from "@/components/ui/action-form";
 
-/** Odesílací tlačítko se stavem „ukládám" (čte stav nadřazeného <ActionForm> či <form>). */
+/** Submit button with a "saving" state (reads the state of the parent <ActionForm> or <form>). */
 export function SubmitButton({
   children,
   pending: pendingLabel = "Saving…",

@@ -17,13 +17,13 @@ describe("allowRequest", () => {
     rpc.mockReset();
   });
 
-  it("bez servisního klíče (lokálně) pustí vše a do DB nesahá", async () => {
+  it("without a service key (locally) allows everything and doesn't touch the DB", async () => {
     env.SUPABASE_SERVICE_ROLE_KEY = undefined;
     expect(await allowRequest("search", headers("1.2.3.4"), opts)).toBe(true);
     expect(rpc).not.toHaveBeenCalled();
   });
 
-  it("klíč obsahuje rozsah a hash první adresy, ne adresu samotnou", async () => {
+  it("key contains the scope and a hash of the first address, not the address itself", async () => {
     rpc.mockResolvedValue({ data: true, error: null });
     expect(await allowRequest("search", headers("1.2.3.4, 10.0.0.1"), opts)).toBe(true);
     const args = rpc.mock.calls[0]?.[1];
@@ -33,7 +33,7 @@ describe("allowRequest", () => {
     expect(args).toMatchObject({ p_limit: 3, p_window_seconds: 60 });
   });
 
-  it("bez adresy počítá pod společným klíčem a odmítne nad limitem", async () => {
+  it("without an address counts under a shared key and rejects over the limit", async () => {
     rpc.mockResolvedValue({ data: false, error: null });
     expect(await allowRequest("search", headers(), opts)).toBe(false);
     rpc.mockResolvedValue({ data: false, error: null });
@@ -41,7 +41,7 @@ describe("allowRequest", () => {
     expect(rpc.mock.calls[0]?.[1].p_key).toBe(rpc.mock.calls[1]?.[1].p_key);
   });
 
-  it("výpadek databáze požadavek nezablokuje", async () => {
+  it("a database outage doesn't block the request", async () => {
     const log = vi.spyOn(console, "error").mockImplementation(() => {});
     rpc.mockResolvedValue({ data: null, error: { message: "down" } });
     expect(await allowRequest("search", headers("1.2.3.4"), opts)).toBe(true);

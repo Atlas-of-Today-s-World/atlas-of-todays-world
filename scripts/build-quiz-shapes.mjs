@@ -1,12 +1,12 @@
 /**
- * Obrysy států pro kvíz na stránce 404.
+ * Country outlines for the quiz on the 404 page.
  *
- * Z hranic, které už má mapa (public/data/countries.geo.json, Natural Earth
- * 1:50m), vyrobí pro 50 dobře rozpoznatelných států zjednodušenou SVG cestu
- * v rámečku 100 × 100. Malé a vzdálené části (zámořská území, drobné
- * ostrovy) vynechá — kvíz má ukázat tvar, který si člověk pamatuje z mapy.
+ * From the borders the map already has (public/data/countries.geo.json, Natural
+ * Earth 1:50m), builds a simplified SVG path in a 100 × 100 box for 50 easily
+ * recognisable countries. Small and distant parts (overseas territories, tiny
+ * islands) are dropped — the quiz should show the shape people remember from a map.
  *
- * Spuštění: node scripts/build-quiz-shapes.mjs → src/features/quiz/shapes.generated.json
+ * Run: node scripts/build-quiz-shapes.mjs → src/features/quiz/shapes.generated.json
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -14,9 +14,9 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
-/** 50 států: tvary, které lidé znají, z každého kontinentu. */
+/** 50 countries: shapes people know, from every continent. */
 const PICK = [
-  // Evropa
+  // Europe
   "ITA",
   "GBR",
   "FRA",
@@ -32,7 +32,7 @@ const PICK = [
   "DEU",
   "UKR",
   "HRV",
-  // Asie
+  // Asia
   "JPN",
   "CHN",
   "IND",
@@ -46,7 +46,7 @@ const PICK = [
   "TUR",
   "SAU",
   "LKA",
-  // Afrika
+  // Africa
   "EGY",
   "ZAF",
   "MDG",
@@ -57,7 +57,7 @@ const PICK = [
   "KEN",
   "COD",
   "NAM",
-  // Amerika
+  // Americas
   "USA",
   "CAN",
   "MEX",
@@ -68,18 +68,18 @@ const PICK = [
   "COL",
   "CUB",
   "BOL",
-  // Oceánie
+  // Oceania
   "AUS",
   "NZL",
 ];
 
 const BOX = 100;
 const PAD = 4;
-/** Část menší než tento podíl největší části se vynechá. */
+/** Parts smaller than this share of the largest part are dropped. */
 const MIN_PART_SHARE = 0.01;
-/** Část dál než tolik stupňů od největší části se vynechá (zámořská území). */
+/** Parts farther than this many degrees from the largest part are dropped (overseas territories). */
 const MAX_PART_DISTANCE = 30;
-/** Douglas–Peucker v jednotkách výsledného rámečku. */
+/** Douglas–Peucker tolerance in units of the output box. */
 const TOLERANCE = 0.35;
 
 const geo = JSON.parse(readFileSync(resolve(ROOT, "public/data/countries.geo.json"), "utf8"));
@@ -89,7 +89,7 @@ const metaByIso3 = new Map(meta.map((country) => [country.iso3, country]));
 const polygonsOf = (geometry) =>
   geometry.type === "Polygon" ? [geometry.coordinates] : geometry.coordinates;
 
-/** Plocha prstence ve stupních² (jen pro porovnání velikostí částí). */
+/** Ring area in degrees² (only for comparing part sizes). */
 function ringArea(ring) {
   let sum = 0;
   for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
@@ -103,7 +103,7 @@ function centroid(ring) {
   return [ring.reduce((s, p) => s + p[0], 0) / n, ring.reduce((s, p) => s + p[1], 0) / n];
 }
 
-/** Zjednodušení lomené čáry (Douglas–Peucker), body v rámečku. */
+/** Polyline simplification (Douglas–Peucker), points in the box. */
 function simplify(points, tolerance) {
   if (points.length < 4) return points;
   const keep = new Uint8Array(points.length);
@@ -134,8 +134,8 @@ function simplify(points, tolerance) {
 }
 
 /**
- * Uzavřený prstenec má první bod shodný s posledním — Douglas–Peucker by
- * mezi nimi neviděl žádnou úsečku. Rozdělí se proto v nejvzdálenějším bodě.
+ * A closed ring has its first point equal to the last — Douglas–Peucker would
+ * see no segment between them. So it is split at the farthest point.
  */
 function simplifyRing(ring, tolerance) {
   const open = ring.slice(0, -1);
@@ -156,7 +156,7 @@ function simplifyRing(ring, tolerance) {
 
 function shapeOf(feature) {
   let polygons = polygonsOf(feature.geometry);
-  // Přes 180. poledník (ostrovy u Aljašky, Nový Zéland): záporné délky posunout.
+  // Across the 180th meridian (islands off Alaska, New Zealand): shift negative longitudes.
   const lons = polygons.flat(2).map(([lon]) => lon);
   if (Math.max(...lons) - Math.min(...lons) > 180) {
     polygons = polygons.map((polygon) =>
@@ -177,7 +177,7 @@ function shapeOf(feature) {
     );
   });
 
-  // Ekvidistantní projekce se zkrácením délek podle zeměpisné šířky středu.
+  // Equirectangular projection, longitudes shortened by the latitude of the centre.
   const scaleX = Math.cos((cy * Math.PI) / 180);
   const rings = kept.flat().map((ring) => ring.map(([lon, lat]) => [lon * scaleX, -lat]));
   const xs = rings.flat().map((p) => p[0]);
@@ -208,12 +208,12 @@ function shapeOf(feature) {
 const shapes = PICK.map((iso3) => {
   const feature = geo.features.find((item) => item.properties.iso3 === iso3);
   const country = metaByIso3.get(iso3);
-  if (!feature || !country) throw new Error(`Chybí stát ${iso3}`);
+  if (!feature || !country) throw new Error(`Missing country ${iso3}`);
   return { iso3, name: country.name, continent: country.continent, path: shapeOf(feature) };
 });
 
-if (new Set(PICK).size !== 50) throw new Error("Kvíz potřebuje přesně 50 různých států.");
+if (new Set(PICK).size !== 50) throw new Error("The quiz needs exactly 50 distinct countries.");
 const out = resolve(ROOT, "src/features/quiz/shapes.generated.json");
 writeFileSync(out, `${JSON.stringify(shapes)}\n`);
 const bytes = shapes.reduce((sum, shape) => sum + shape.path.length, 0);
-console.log(`Zapsáno ${shapes.length} obrysů, ${Math.round(bytes / 1024)} kB cest → ${out}`);
+console.log(`Wrote ${shapes.length} outlines, ${Math.round(bytes / 1024)} kB of paths → ${out}`);

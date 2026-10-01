@@ -16,20 +16,20 @@ function seenBefore() {
 }
 
 /**
- * Co se na globusu vybírá: státy, regiony Atlasu, nebo global issues.
- * Dokud návštěvník přepínač poprvé nepoužije, pulzuje u něj jiskra – jinak si
- * ho nikdo nevšimne. Po prvním kliknutí zhasne natrvalo.
+ * What the globe selects: countries, Atlas regions, or global issues.
+ * Until the visitor uses the switcher for the first time, a sparkle pulses next to it –
+ * otherwise nobody would notice it. After the first click it goes out for good.
  */
 export default function ModeSwitch({
   hasIssues,
 }: {
-  /** Volbu „Issue" schováme, když redakce žádný global issue nemá. */
+  /** We hide the "Issue" option when the editors have no global issue. */
   hasIssues: boolean;
 }) {
   const t = useMessages();
   const { mode, setMode } = useMapState();
-  // Až po připojení (localStorage zná jen prohlížeč), ať server a klient
-  // vykreslí stejné HTML.
+  // Only after mount (only the browser knows localStorage), so server and client
+  // render the same HTML.
   const hydrated = useHydrated();
   const [dismissed, setDismissed] = useState(false);
   const hinting = hydrated && !dismissed && !seenBefore();
@@ -46,7 +46,7 @@ export default function ModeSwitch({
     try {
       localStorage.setItem(SEEN_KEY, "1");
     } catch {
-      /* privátní režim – nevadí, jiskra se objeví znovu */
+      /* private mode – never mind, the sparkle will show again */
     }
   }
 

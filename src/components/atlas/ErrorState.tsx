@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 import { buttonVariants } from "@/components/ui/button";
 
 /**
- * Jediný vzhled chybové a „nenalezeno" stránky (404, chyba při načtení).
- * Na mapových stránkách se vykreslí v panelu, globus zůstane.
+ * The single look for error and "not found" pages (404, load error).
+ * On map pages it renders in the panel and the globe stays.
  */
 export function ErrorState({
   code,
@@ -17,7 +17,7 @@ export function ErrorState({
   title: string;
   lead: string;
   action?: ReactNode;
-  /** Text odkazu zpět na glóbus v jazyce stránky (`common.backToGlobe`); výchozí je pro administraci. */
+  /** Text of the back-to-globe link in the page language (`common.backToGlobe`); the default is for the admin. */
   backLabel?: string;
 }) {
   return (

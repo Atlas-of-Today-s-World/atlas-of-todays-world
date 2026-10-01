@@ -11,7 +11,7 @@ interface AreaShape {
 }
 
 export interface StyleOptions {
-  /** Násobek tloušťky hranic ze vzhledu webu. */
+  /** Border width multiplier from the site appearance settings. */
   border: number;
   areas: AreaShape[];
 }
@@ -22,7 +22,7 @@ export interface RegionLabel {
   center: [number, number];
 }
 
-/** Popisky regionů – jeden bod na region, pozice je ručně zvolený střed. */
+/** Region labels – one point per region, positioned at a hand-picked center. */
 function regionLabelSource(regions: RegionLabel[]): GeoJSONSourceSpecification {
   return {
     type: "geojson",
@@ -38,8 +38,8 @@ function regionLabelSource(regions: RegionLabel[]): GeoJSONSourceSpecification {
 }
 
 /**
- * Satelitní podklad. S MapTiler klíčem jedeme na jejich dlaždice, bez klíče
- * na Esri World Imagery (zdarma, vyžaduje uvedení zdroje).
+ * Satellite basemap. With a MapTiler key we use their tiles, without a key
+ * Esri World Imagery (free, requires attribution).
  */
 function satelliteSource() {
   const key = publicEnv.NEXT_PUBLIC_MAPTILER_KEY;
@@ -63,7 +63,7 @@ function satelliteSource() {
 }
 
 export const LAYERS = {
-  /** Čárkovaný obrys území, jejichž status OSN nepovažuje za vyřešený. */
+  /** Dashed outline of territories whose status the UN doesn't consider settled. */
   disputedOutline: "country-disputed",
   satellite: "satellite",
   fill: "country-fill",
@@ -76,9 +76,9 @@ export const LAYERS = {
 } as const;
 
 /**
- * Styl globusu. Obarvení zemí neřešíme tady – přepisuje se za běhu přes
- * `setPaintProperty`, aby přepnutí vrstvy (Encyclopedia / HDI / ...) nemuselo
- * přenačítat celý styl a ztratit pozici kamery.
+ * Globe style. Country coloring isn't handled here – it's overridden at runtime via
+ * `setPaintProperty`, so switching layers (Encyclopedia / HDI / ...) doesn't have to
+ * reload the whole style and lose the camera position.
  */
 export function buildStyle(regions: RegionLabel[], options: StyleOptions): StyleSpecification {
   const satellite = satelliteSource();
@@ -106,7 +106,7 @@ export function buildStyle(regions: RegionLabel[], options: StyleOptions): Style
         data: "/data/countries.geo.json",
         promoteId: "iso3",
       },
-      // Jeden bod na zemi: jinak by MultiPolygon vysázel popisek na každý ostrov.
+      // One point per country: otherwise a MultiPolygon would place a label on every island.
       "country-labels": {
         type: "geojson",
         data: "/data/country-labels.geo.json",
@@ -123,7 +123,7 @@ export function buildStyle(regions: RegionLabel[], options: StyleOptions): Style
       "fog-ground-blend": 0.05,
       "atmosphere-blend": ["interpolate", ["linear"], ["zoom"], 0, 1, 4, 0.6, 6, 0],
     },
-    // Rovnoměrné nasvícení: den/noc terminátor by polovinu globusu utopil ve tmě.
+    // Even lighting: a day/night terminator would drown half the globe in darkness.
     light: { anchor: "viewport", position: [1.15, 210, 30], intensity: 0.05 },
     layers: [
       { id: "space", type: "background", paint: { "background-color": "#070b16" } },
@@ -145,9 +145,9 @@ export function buildStyle(regions: RegionLabel[], options: StyleOptions): Style
         paint: { "fill-color": "#7d8aa8", "fill-opacity": 0.61 },
       },
       {
-        // Zvýraznění pod kurzorem. Vrstva je vykreslená pořád, jen průhledná –
-        // mění se výhradně feature-state, takže mapa nepřetesává geometrii.
-        // (setFilter by při každém pohybu myši překreslil celou vrstvu a blikal.)
+        // Hover highlight. The layer is always rendered, just transparent –
+        // only feature-state changes, so the map doesn't re-tessellate geometry.
+        // (setFilter would redraw the whole layer on every mouse move and flicker.)
         id: LAYERS.countryHover,
         type: "fill",
         source: "countries",
@@ -167,10 +167,10 @@ export function buildStyle(regions: RegionLabel[], options: StyleOptions): Style
         },
       },
       {
-        // Sporná a nesamosprávná území (Kosovo, Západní Sahara, Palestina,
-        // Tchaj-wan) mají čárkovaný obrys – Atlas se drží praxe OSN a tohle
-        // je vizuální poznámka, že hranice není uzavřená věc.
-        // Předpis: src/data/territories.json
+        // Disputed and non-self-governing territories (Kosovo, Western Sahara, Palestine,
+        // Taiwan) have a dashed outline – Atlas follows UN practice and this
+        // is a visual note that the border isn't a settled matter.
+        // Source of truth: src/data/territories.json
         id: LAYERS.disputedOutline,
         type: "line",
         source: "countries",
@@ -181,7 +181,7 @@ export function buildStyle(regions: RegionLabel[], options: StyleOptions): Style
           "line-dasharray": [2.5, 1.8],
         },
       },
-      // Vlastní plochy redakce (administrace → Mapové oblasti).
+      // Custom editorial areas (admin → Map areas).
       {
         id: "areas-fill",
         type: "fill",
@@ -241,10 +241,10 @@ export function buildStyle(regions: RegionLabel[], options: StyleOptions): Style
         id: LAYERS.label,
         type: "symbol",
         source: "country-labels",
-        // Nízko, aby názvy států byly čitelné i na malém okně, kde koule
-        // vyplní plochu při menším zoomu.
+        // Low, so country names are legible even in a small window where the sphere
+        // fills the area at a lower zoom.
         minzoom: 1.6,
-        // LABELRANK: 1 = velké státy, 8 = drobná území. Menší se objeví až v zoomu.
+        // LABELRANK: 1 = large countries, 8 = tiny territories. Smaller ones appear only when zoomed in.
         filter: ["<=", ["get", "rank"], ["+", 0.5, ["*", 1.45, ["zoom"]]]],
         layout: {
           "text-field": ["get", "name"],
@@ -260,7 +260,7 @@ export function buildStyle(regions: RegionLabel[], options: StyleOptions): Style
         },
       },
       {
-        // Viditelné jen v režimu "Regions"; zapíná se v AtlasGlobe.
+        // Visible only in "Regions" mode; toggled in AtlasGlobe.
         id: LAYERS.regionLabel,
         type: "symbol",
         source: "region-labels",

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { blankToUndefined, checkbox, iso3, slug, text, uuid } from "@/lib/validation/common";
 
-/** Úprava účtu správcem — limity podle tabulky `profiles`. */
+/** Account update by a manager — limits per the `profiles` table. */
 export const AccountInput = z
   .object({
     id: uuid,

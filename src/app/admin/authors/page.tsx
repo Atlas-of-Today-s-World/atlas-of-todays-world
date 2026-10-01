@@ -19,8 +19,8 @@ const DONE = [
 ];
 
 /**
- * Autoři encyklopedických hesel (P9). Heslo ukazuje jejich fotku, životopis
- * a positionality statement; kdo smí co upravit, hlídá RLS (sekce news).
+ * Authors of encyclopedia entries (P9). An entry shows their photo, bio
+ * and positionality statement; who may edit what is guarded by RLS (news section).
  */
 export default async function AuthorsPage() {
   const access = await sectionAccess("news");

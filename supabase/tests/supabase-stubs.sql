@@ -1,6 +1,6 @@
--- Náhrada toho, co Supabase přidává k čistému Postgresu, aby šly migrace
--- spustit a otestovat v PGlite bez Dockeru. V opravdovém projektu tohle
--- všechno existuje samo; do migrací to nepatří.
+-- Stand-ins for what Supabase adds on top of plain Postgres, so migrations
+-- can run and be tested in PGlite without Docker. In a real project all of
+-- this exists already; it doesn't belong in migrations.
 
 create role anon nologin;
 create role authenticated nologin;
@@ -15,12 +15,12 @@ create table auth.users (
   created_at          timestamptz not null default now()
 );
 
--- Stejně jako v Supabase: přihlášený uživatel je `sub` z JWT.
+-- Same as in Supabase: the signed-in user is `sub` from the JWT.
 create function auth.uid() returns uuid
 language sql stable
 as $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
 
--- Claims celého JWT (Supabase: auth.jwt()).
+-- Claims of the whole JWT (Supabase: auth.jwt()).
 create function auth.jwt() returns jsonb
 language sql stable
 as $$ select coalesce(nullif(current_setting('request.jwt.claims', true), ''), '{}')::jsonb $$;
@@ -47,7 +47,7 @@ create table storage.objects (
 );
 alter table storage.objects enable row level security;
 
--- Složky cesty souboru (Supabase: storage.foldername).
+-- Folders of a file path (Supabase: storage.foldername).
 create function storage.foldername(name text) returns text[]
 language sql immutable
 as $$ select (string_to_array(name, '/'))[1:array_length(string_to_array(name, '/'), 1) - 1] $$;

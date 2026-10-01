@@ -1,16 +1,16 @@
 import type { Messages } from "@/features/i18n/messages";
 
 /**
- * Jediná definice menu (ARCHITEKTURA 15.1, D4) — hlavička nad mapou (desktop
- * i mobil) a hlavička stránek bez globusu.
+ * Single definition of the menu (ARCHITEKTURA 15.1, D4) — the header above the map
+ * (desktop and mobile) and the header of pages without the globe.
  */
 export interface NavItem {
   href: string;
-  /** Klíč textu v messages/<jazyk>.json → `nav`. */
+  /** Text key in messages/<language>.json → `nav`. */
   key: keyof Messages["nav"];
-  /** Zvýrazněná položka (výzva k podpoře). */
+  /** Highlighted item (call to support). */
   primary?: boolean;
-  /** Nad globusem je místa málo: na desktopu se ukáže jen v plném menu. */
+  /** Little room above the globe: on desktop it only shows in the full menu. */
   compactHidden?: boolean;
 }
 
@@ -23,7 +23,7 @@ export const MAIN_NAV: readonly NavItem[] = [
 
 export const ACCOUNT_NAV: NavItem = { href: "/login", key: "signIn" };
 
-/** Patička: právní a informační stránky. */
+/** Footer: legal and informational pages. */
 export const LEGAL_NAV: readonly NavItem[] = [
   { href: "/privacy", key: "privacy" },
   { href: "/terms", key: "terms" },

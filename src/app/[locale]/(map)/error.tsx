@@ -6,7 +6,7 @@ import { ErrorState } from "@/components/atlas/ErrorState";
 import { Button } from "@/components/ui/button";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 
-/** Chyba při načítání obsahu panelu — globus zůstává a jde to zkusit znovu. */
+/** Error loading the panel content — the globe stays and you can try again. */
 export default function MapError({
   error,
   reset,

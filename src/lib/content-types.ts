@@ -1,6 +1,6 @@
 /**
- * Typy a číselníky obsahu bez závislosti na `node:fs` – tenhle soubor smí
- * importovat i klientská komponenta. Načítání souborů žije v `content.ts`.
+ * Content types and enums without a dependency on `node:fs` – this file may be
+ * imported by client components too. File loading lives in `content.ts`.
  */
 
 export type NewsCategory =
@@ -38,35 +38,35 @@ export interface FaqItem {
 }
 
 /**
- * Ručně zadaný ukazatel u země nebo regionu.
+ * Manually entered indicator for a country or region.
  *
- * Automatické ukazatele z Our World in Data pokrývají devět veličin pro celý
- * svět (HDI, režim, korupce…). Zadání ale chce i čísla, která v OWID nejsou –
- * etnické skupiny, vysídlení, dětská chudoba, míra svobody. Ty píše redakce
- * ručně a podle zadání **se bez citace nepublikují**, takže `source` je povinný.
+ * Automatic indicators from Our World in Data cover nine measures for the whole
+ * world (HDI, regime, corruption…). The brief also wants numbers OWID lacks –
+ * ethnic groups, displacement, child poverty, freedom score. The editors enter
+ * those by hand and per the brief **they are never published without a citation**, so `source` is required.
  *
- * Tvar odpovídá kartám na stávajícím webu: velká hodnota, název, věta
- * vysvětlení a pod tím zdroj s rokem.
+ * The shape matches the cards on the current site: a big value, a title, a sentence
+ * of explanation and below it the source with the year.
  */
 export interface MetricCard {
-  /** Velké číslo na kartě, jako text – „10+", „24.4 %", „4/10", „17.8M". */
+  /** Big number on the card, as text – "10+", "24.4 %", "4/10", "17.8M". */
   value: string;
-  /** Název ukazatele – „Youth Unemployment". */
+  /** Indicator name – "Youth Unemployment". */
   label: string;
-  /** Věta, která říká, co to číslo znamená a koho se týká. */
+  /** Sentence explaining what the number means and whom it concerns. */
   description?: string;
-  /** Kdo to spočítal – „UNHCR", „Freedom House". Bez toho se karta nepublikuje. */
+  /** Who computed it – "UNHCR", "Freedom House". Without it the card is not published. */
   source: string;
   sourceUrl?: string;
-  /** Rok nebo období dat – „2024", „mid-2025". */
+  /** Year or period of the data – "2024", "mid-2025". */
   year?: string;
 }
 
-/** Redakční doplňky portrétu regionu (src/content/regions/<slug>.json). */
+/** Editorial additions to a region portrait (src/content/regions/<slug>.json). */
 export interface RegionDossier {
-  /** Úvodní odstavec o socio-politické situaci regionu (P6, sekce první). */
+  /** Intro paragraph on the region's socio-political situation (P6, first section). */
   intro?: string;
-  /** Ručně zadané ukazatele. Když jsou, mají přednost před dopočtem z OWID. */
+  /** Manually entered indicators. When present, they take precedence over OWID calculations. */
   metrics?: MetricCard[];
   timelineTitle?: string;
   timelineSubtitle?: string;

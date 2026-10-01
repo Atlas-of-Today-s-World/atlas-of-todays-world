@@ -3,12 +3,12 @@
 import { createBrowserClient } from "@/lib/supabase/browser";
 
 /**
- * Co se smí nahrát do Storage: bucket, povolené typy (MIME → přípona),
- * strop velikosti a hláška. Typ a velikost hlídá i bucket v DB — tady jde
- * jen o to, aby chyba přišla hned a česky.
+ * What may be uploaded to Storage: bucket, allowed types (MIME → extension),
+ * size cap and message. The DB bucket also enforces type and size — this is
+ * only so the error shows up immediately and in plain language.
  */
 const KINDS = {
-  // SVG schválně ne (může nést skript).
+  // Deliberately no SVG (it can carry a script).
   image: {
     bucket: "entry-images",
     types: {
@@ -21,7 +21,7 @@ const KINDS = {
     typeError: "Allowed formats: JPEG, PNG, WebP and AVIF.",
     sizeError: "Images can be at most 3 MB.",
   },
-  // Zvuková verze hesla (P9): pět běžných formátů, jak je posílají různé systémy.
+  // Audio version of an entry (P9): five common formats, as various systems send them.
   audio: {
     bucket: "entry-audio",
     types: {
@@ -50,8 +50,8 @@ export const ACCEPT_IMAGES = Object.keys(KINDS.image.types).join(",");
 export const ACCEPT_AUDIO = Object.keys(KINDS.audio.types).join(",");
 
 /**
- * Nahraje soubor do Storage (`{bucket}/{user_id}/{uuid}.{ext}`, ARCHITEKTURA
- * 4.4) a vrátí jeho veřejnou https adresu.
+ * Uploads a file to Storage (`{bucket}/{user_id}/{uuid}.{ext}`, ARCHITEKTURA
+ * 4.4) and returns its public https URL.
  */
 export async function uploadFile(file: File, kind: UploadKind): Promise<string> {
   const rules = KINDS[kind];

@@ -5,8 +5,8 @@ import { mapDbError } from "@/lib/db/errors";
 import { createServerClient } from "@/lib/supabase/server";
 
 /**
- * Výsledek Server Action pro `useActionState` (ARCHITEKTURA 4.3): hláška
- * pro uživatele, chyby u polí ze Zod a volitelně id nově vzniklého záznamu.
+ * Server Action result for `useActionState` (ARCHITEKTURA 4.3): a message for
+ * the user, Zod field errors and optionally the id of the newly created record.
  */
 export interface ActionState {
   ok: boolean;
@@ -18,7 +18,7 @@ export interface ActionState {
 
 type Client = Awaited<ReturnType<typeof createServerClient>>;
 
-/** Klient se session a ověřený uživatel (getUser, ne getSession); null = nepřihlášen. */
+/** Client with a session and the verified user (getUser, not getSession); null = signed out. */
 export async function signedIn(): Promise<{ supabase: Client; user: User } | null> {
   const supabase = await createServerClient();
   const {
@@ -41,11 +41,11 @@ export function failed(error: { code?: string; message?: string }): ActionState 
   return { ok: false, error: mapDbError(error) };
 }
 
-/** Pole z FormData jako prostý objekt (opakovaná pole jako pole hodnot). */
+/** FormData fields as a plain object (repeated fields as arrays of values). */
 export function formObject(formData: FormData, arrays: string[] = []): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const key of new Set(formData.keys())) {
-    if (key.startsWith("$")) continue; // interní pole Reactu
+    if (key.startsWith("$")) continue; // React internal field
     out[key] = arrays.includes(key) ? formData.getAll(key) : formData.get(key);
   }
   for (const key of arrays) out[key] ??= [];
@@ -53,8 +53,8 @@ export function formObject(formData: FormData, arrays: string[] = []): Record<st
 }
 
 /**
- * První chyba seznamu položek jako „Kapitola 2, Titulek: …" (formuláře, které
- * posílají pole položek — kapitoly, zdroje, sekce portrétu).
+ * First error of an item list as "Chapter 2, Title: …" (forms that submit
+ * arrays of items — chapters, sources, portrait sections).
  */
 export function listItemError(
   error: ZodError,
@@ -73,6 +73,6 @@ export function listItemError(
   };
 }
 
-/** Text první chyby validace (krátké formuláře s jedním polem). */
+/** Text of the first validation error (short single-field forms). */
 export const firstIssue = (error: ZodError) =>
   error.issues[0]?.message ?? "Please check the highlighted fields.";

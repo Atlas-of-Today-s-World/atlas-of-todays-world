@@ -18,16 +18,16 @@ const Input = z.object({
 });
 
 /**
- * Výsledky jsou kódy (messages: newsletterForm.messages) — text v jazyce
- * stránky vybere formulář.
+ * Results are codes (messages: newsletterForm.messages) — the form picks the
+ * text in the page language.
  */
 const CONFIRM = "confirm";
 
 /**
- * Přihlášení k odběru přes Mailchimp (klíč k API nesmí do prohlížeče).
- * Dvojité potvrzení (`pending`): do seznamu se adresa dostane, až člověk
- * klikne na ověřovací e-mail — jinak by šlo přihlásit cizí adresu (GDPR).
- * Rate limit je sdílený v Postgresu (SEC-06), `website` je past na roboty.
+ * Newsletter subscription via Mailchimp (the API key must not reach the browser).
+ * Double opt-in (`pending`): the address joins the list only after the person
+ * clicks the confirmation email — otherwise someone else's address could be subscribed (GDPR).
+ * The rate limit is shared in Postgres (SEC-06); `website` is a honeypot for bots.
  */
 export async function subscribe(_prev: ActionState, formData: FormData): Promise<ActionState> {
   if (String(formData.get("website") ?? "").trim()) return { ok: true, message: "thanks" };
@@ -58,8 +58,8 @@ export async function subscribe(_prev: ActionState, formData: FormData): Promise
   );
   if (!response.ok) {
     const detail = (await response.json().catch(() => ({}))) as { title?: string };
-    // Už přihlášená adresa dostane stejnou odpověď jako nová — jinak by šlo
-    // zjišťovat, kdo odebírá.
+    // An already subscribed address gets the same response as a new one — otherwise
+    // one could find out who is subscribed.
     if (detail.title === "Member Exists") return { ok: true, message: CONFIRM };
     return { ok: false, error: "failed" };
   }

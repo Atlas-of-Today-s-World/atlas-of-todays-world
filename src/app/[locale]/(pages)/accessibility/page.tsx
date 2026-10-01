@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: "How accessible Atlas of Today's World is, and how to reach us about barriers.",
 };
 
-/** Prohlášení o přístupnosti (F5, F8). Držet v souladu se skutečným stavem. */
+/** Accessibility statement (F5, F8). Keep it in line with the actual state. */
 export default async function AccessibilityPage({
   params,
 }: {

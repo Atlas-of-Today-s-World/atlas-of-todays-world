@@ -1,11 +1,11 @@
-// Konstanty pro administraci překladů bez Zodu (importují je i klientské komponenty).
+// Constants for translation admin without Zod (client components import them too).
 import { LOCALES, type Locale } from "./config";
 
-/** Jazyky, do kterých se překládá (angličtina je originál). */
-// Aspoň jeden cílový jazyk existuje vždy (LOCALES má víc než angličtinu).
+/** Languages translated into (English is the original). */
+// At least one target language always exists (LOCALES has more than English).
 export const TARGET_LOCALES = LOCALES.filter((locale) => locale !== "en") as [Locale, ...Locale[]];
 
-/** Popisky polí v administraci. */
+/** Field labels in the admin. */
 export const FIELD_LABELS: Record<string, string> = {
   name: "Name",
   name_formal: "Official name",

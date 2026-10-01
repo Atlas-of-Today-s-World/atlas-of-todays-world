@@ -16,9 +16,9 @@ const WHO = [
 ];
 
 /**
- * Fronta ke schválení (ARCHITEKTURA 5.2, E3): čekající články od nejstaršího.
- * Kdo co smí schválit, spočítá DB (`can_approve_entry`) — globálně, podle
- * přidělených zemí či autorů; vlastní článek neschvaluje nikdo kromě admina.
+ * Approval queue (ARCHITEKTURA 5.2, E3): pending articles, oldest first.
+ * Who may approve what is computed by the DB (`can_approve_entry`) — globally, by
+ * assigned countries or authors; nobody but an admin approves their own article.
  */
 export default async function ApprovalsPage() {
   if (!(await sectionAccess("approvals"))) return <NoAccess />;

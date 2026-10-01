@@ -2,8 +2,8 @@ import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 /**
- * Nadpis obrazovky administrace: dlaždice s ikonou sekce (stejnou jako v menu),
- * titulek, perex a vpravo hlavní akce („Add …").
+ * Admin screen heading: tile with the section icon (same as in the menu),
+ * title, lead text and the main action on the right ("Add …").
  */
 export function PageHeader({
   title,

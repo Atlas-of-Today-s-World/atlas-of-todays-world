@@ -1,17 +1,17 @@
-// Pravidla matice oprávnění bez Reactu a bez serveru (testuje je matrix.test.ts).
+// Permission matrix rules without React or server (tested by matrix.test.ts).
 import { ADMIN_NAV } from "@/config/admin-nav";
 import { SECTIONS, type Action, type Section } from "@/features/auth/sections";
 import { SECTION_LABEL } from "./labels";
 
-/** Pořadí akcí v DB řetězci (`role_permissions.actions`). */
+/** Order of actions in the DB string (`role_permissions.actions`). */
 export const ACTIONS = ["v", "c", "e", "d"] as const satisfies readonly Action[];
 
 export type RoleGrants = Partial<Record<Section, string>>;
 
 /**
- * Nové akce sekce po kliknutí na jedno zaškrtávátko. Stejné pravidlo jako
- * `MatrixInput` a DB: bez „v" nic dalšího neplatí, takže zaškrtnutí c/e/d
- * přidá i „v" a odškrtnutí „v" smaže všechno.
+ * New section actions after clicking one checkbox. Same rule as `MatrixInput`
+ * and the DB: without "v" nothing else applies, so checking c/e/d also adds
+ * "v" and unchecking "v" clears everything.
  */
 export function toggleAction(current: string, action: Action, checked: boolean): string {
   const next = new Set(
@@ -28,7 +28,7 @@ export function toggleAction(current: string, action: Action, checked: boolean):
   return ACTIONS.filter((item) => next.has(item)).join("");
 }
 
-/** FormData pro `saveMatrix`: celá role, `perm:<sekce>` = jednotlivé akce. */
+/** FormData for `saveMatrix`: the whole role, `perm:<section>` = individual actions. */
 export function matrixFormData(roleId: string, grants: RoleGrants): FormData {
   const data = new FormData();
   data.set("role_id", roleId);
@@ -41,11 +41,11 @@ export function matrixFormData(roleId: string, grants: RoleGrants): FormData {
 export interface MatrixSection {
   key: Section;
   label: string;
-  /** Stránky administrace, které sekce odemyká (dědí její práva). */
+  /** Admin pages the section unlocks (they inherit its rights). */
   pages: { href: string; label: string }[];
 }
 
-/** Řádky matice: sekce oprávnění a pod nimi stránky z menu administrace. */
+/** Matrix rows: permission sections with admin menu pages beneath them. */
 export function matrixSections(): MatrixSection[] {
   return SECTIONS.map((key) => ({
     key,

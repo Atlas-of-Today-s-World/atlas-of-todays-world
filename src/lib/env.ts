@@ -1,11 +1,11 @@
 /**
- * Veřejné proměnné prostředí (ARCHITEKTURA 3.4). Next je do klientského kódu
- * vkládá jen při doslovném zápisu `process.env.NEXT_PUBLIC_…`, proto je každá
- * vyjmenovaná zvlášť. Neplatná hodnota shodí build, ne až běžící stránku.
- * Tajné proměnné jsou v `env.server.ts`.
+ * Public environment variables (ARCHITEKTURA 3.4). Next inlines them into client
+ * code only for the literal `process.env.NEXT_PUBLIC_…` form, so each one is
+ * listed separately. An invalid value breaks the build, not the running page.
+ * Secret variables live in `env.server.ts`.
  *
- * Bez Zodu: modul se načítá i v prohlížeči (mapa, přihlášení) a celý Zod by
- * stál ~90 kB JS na každé stránce. Kontroly jsou jednoduché a stačí na ně pár řádků.
+ * No Zod: the module is also loaded in the browser (map, sign-in) and full Zod
+ * would cost ~90 kB of JS on every page. The checks are simple; a few lines suffice.
  */
 
 type Check = (value: string) => boolean;
@@ -23,7 +23,7 @@ const minLength =
     value.length >= length;
 const isEmail: Check = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
-/** Prázdná hodnota = nenastaveno; vyplněná musí projít kontrolou, jinak build spadne. */
+/** Empty value = not set; a filled-in one must pass the check, otherwise the build fails. */
 function optional(name: string, value: string | undefined, check: Check): string | undefined {
   if (value === undefined || value === "") return undefined;
   if (!check(value)) throw new Error(`Neplatná proměnná prostředí ${name}`);
@@ -49,13 +49,13 @@ export const publicEnv = {
     process.env.NEXT_PUBLIC_MAPTILER_KEY,
     minLength(8),
   ),
-  // Kontakt provozovatele pro zásady ochrany soukromí a přístupnost.
+  // Operator contact for the privacy policy and the accessibility statement.
   NEXT_PUBLIC_CONTACT_EMAIL: optional(
     "NEXT_PUBLIC_CONTACT_EMAIL",
     process.env.NEXT_PUBLIC_CONTACT_EMAIL,
     isEmail,
   ),
-  // Cloudflare Turnstile u přihlášení e-mailem (G1); tajný klíč ověřuje Supabase Auth (captcha).
+  // Cloudflare Turnstile for email sign-in (G1); Supabase Auth verifies the secret key (captcha).
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: optional(
     "NEXT_PUBLIC_TURNSTILE_SITE_KEY",
     process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,

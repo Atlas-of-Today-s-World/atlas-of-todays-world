@@ -11,7 +11,7 @@ import { slugify } from "@/lib/validation/common";
 import { deleteArea, saveArea, saveTheme } from "../actions";
 import { ActionForm } from "@/components/ui/action-form";
 
-/** Posuvník s číselnou hodnotou vedle (sytost, hranice). */
+/** Slider with the numeric value beside it (saturation, borders). */
 function Range({
   id,
   label,

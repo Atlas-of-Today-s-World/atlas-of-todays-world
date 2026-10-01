@@ -1,18 +1,19 @@
 /**
- * Jediný zdroj názvů cache tagů (ARCHITEKTURA 4.2). Dotaz veřejného webu se
- * označí tagem, Server Action po zápisu zavolá `updateTag` se stejným (Next 16: hned neplatné, autor vidí svou změnu).
+ * Single source of cache tag names (ARCHITEKTURA 4.2). A public site query is
+ * tagged; after a write, a Server Action calls `updateTag` with the same tag
+ * (Next 16: invalidated immediately, so the author sees their change).
  */
 export const tags = {
-  /** Regiony, země, ukazatele, global issues — celý snapshot mapy. */
+  /** Regions, countries, indicators, global issues — the whole map snapshot. */
   atlas: "atlas",
   entries: "entries",
   entry: (slug: string) => `entry:${slug}`,
   portrait: (kind: "region" | "issue", slug: string) => `portrait:${kind}:${slug}`,
-  /** Přepínače funkcí a režim údržby. */
+  /** Feature flags and maintenance mode. */
   flags: "flags",
-  /** Přesměrování starých adres (tabulka redirects). */
+  /** Redirects of old URLs (redirects table). */
   redirects: "redirects",
 } as const;
 
-/** Záchranná síť: i bez invalidace se veřejná data obnoví nejpozději za hodinu. */
+/** Safety net: even without invalidation, public data refreshes within an hour at most. */
 export const PUBLIC_REVALIDATE_SECONDS = 3600;

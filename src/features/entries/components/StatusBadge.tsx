@@ -8,7 +8,7 @@ const STATUS_TONE: Record<EntryStatus, Tone> = {
   planned: "outline",
 };
 
-/** Stavy článku jako volby sloupce DataTable (štítek, filtr, KPI). */
+/** Article statuses as DataTable column options (badge, filter, KPI). */
 export const STATUS_OPTIONS = ENTRY_STATUSES.map((status) => ({
   value: status,
   label: STATUS_LABEL[status],

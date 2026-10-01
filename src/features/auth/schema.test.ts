@@ -2,14 +2,14 @@ import { describe, expect, it } from "vitest";
 import { EmailCodeRequest, EmailCodeVerify } from "./schema";
 
 describe("EmailCodeRequest", () => {
-  it("e-mail znormalizuje, jazyk je výchozí angličtina", () => {
+  it("normalizes the email; language defaults to English", () => {
     expect(EmailCodeRequest.parse({ email: "  Ana@Example.ORG " })).toEqual({
       email: "ana@example.org",
       locale: "en",
     });
   });
 
-  it("odmítne neplatný e-mail a neznámý jazyk", () => {
+  it("rejects an invalid email and an unknown language", () => {
     expect(EmailCodeRequest.safeParse({ email: "ana@" }).success).toBe(false);
     expect(EmailCodeRequest.safeParse({ email: "ana@example.org", locale: "de" }).success).toBe(
       false,
@@ -18,7 +18,7 @@ describe("EmailCodeRequest", () => {
 });
 
 describe("EmailCodeVerify", () => {
-  it("kód má přesně šest číslic", () => {
+  it("code has exactly six digits", () => {
     const base = { email: "ana@example.org" };
     expect(EmailCodeVerify.safeParse({ ...base, code: " 123456 " }).success).toBe(true);
     for (const code of ["12345", "1234567", "12345a", ""]) {

@@ -19,9 +19,9 @@ import { InvitationId, InvitationInput } from "./schema";
 const PAGE = "/admin/accounts/invitations";
 
 /**
- * Nová pozvánka do týmu (ARCHITEKTURA 7.3). Kdo smí koho pozvat, hlídá DB
- * (RLS + guard_invitations); tady jen validace a hláška. Přiřazení
- * schvalovatele se při přijetí přenese do profilu.
+ * New team invitation (ARCHITEKTURA 7.3). Who may invite whom is enforced by
+ * the DB (RLS + guard_invitations); here only validation and a message.
+ * Approver assignments are carried over to the profile on acceptance.
  */
 export async function createInvitation(
   _prev: ActionState,
@@ -49,10 +49,10 @@ export async function createInvitation(
 const SHARE_LINK = "Send the invitee a link to the /pozvanka page.";
 
 /**
- * E-mail s pozvánkou (G1) — jen se zapnutým přepínačem `email_auth` (vlastní
- * SMTP, U5). Odkaz vede na /auth/confirm: ověří e-mail a trigger
- * `handle_user_updated` pozvánku přijme. Kdo už účet má (čtenář), e-mail
- * nedostane — pozvánka se uplatní při jeho dalším přihlášení.
+ * Invitation email (G1) — only with the `email_auth` flag enabled (own SMTP,
+ * U5). The link goes to /auth/confirm: it verifies the email and the trigger
+ * `handle_user_updated` accepts the invitation. Someone who already has an
+ * account (a reader) gets no email — the invitation applies on their next sign-in.
  */
 async function sendInvitationEmail(email: string): Promise<string> {
   const created = "Invitation created.";

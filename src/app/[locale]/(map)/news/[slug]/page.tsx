@@ -9,7 +9,7 @@ import { localeFrom } from "@/features/i18n/request";
 import { absoluteUrl, alternates, breadcrumbJsonLd, geoCoordinates, geoMeta } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
 
-// true, aby se novinka přidaná v adminu objevila hned, bez nového buildu.
+// true, so a news item added in the admin shows up immediately, without a new build.
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
@@ -30,7 +30,7 @@ export async function generateMetadata({
   return {
     title: item.title,
     description: item.summary,
-    // Bez překladu je /cs kopie originálu — kanonická je adresa originálu.
+    // Without a translation /cs is a copy of the original — the canonical URL is the original's.
     alternates: alternates(`/news/${item.slug}`, item.locale, item.languages),
     openGraph: {
       type: "article",
@@ -57,7 +57,7 @@ export default async function NewsPage({
   const { slug } = await params;
   const locale = await localeFrom(params);
   const [item, atlas] = await Promise.all([getEntry(slug, locale), getAtlas(locale)]);
-  // Neznámá adresa: přesměrování (změněný slug), jinak 404.
+  // Unknown URL: redirect (changed slug), otherwise 404.
   if (!item) return redirectOrNotFound(`/news/${slug}`, locale);
 
   const region = item.region ? atlas.regionBySlug.get(item.region) : undefined;
@@ -98,7 +98,7 @@ export default async function NewsPage({
               url: absoluteUrl("/"),
             },
             mainEntityOfPage: absoluteUrl(`/news/${item.slug}`),
-            // Kterých míst se novinka týká – tohle roboti čtou pro geo kontext.
+            // Which places the news item concerns – robots read this for geo context.
             contentLocation: region
               ? {
                   "@type": "Place",

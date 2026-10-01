@@ -12,18 +12,18 @@ import { LanguageSwitcher } from "./i18n/LanguageSwitcher";
 import { useMessages } from "./i18n/LocaleProvider";
 
 /**
- * Hlavička nad mapou.
+ * Header over the map.
  *
- * Zadání chce krátké menu: Map, About, Atlas Patrons, přepínač jazyka a odkazy
- * na sítě. Na mobilu se z toho stává hamburger, protože nad globusem není místo
- * a logo tam má zabírat co nejmíň. Když je vpravo otevřený bílý panel, navigace
- * se odsune doleva – jinak by bílý text zmizel na bílém pozadí.
+ * The brief wants a short menu: Map, About, Atlas Patrons, language switcher and social
+ * links. On mobile it becomes a hamburger, because there's no room above the globe
+ * and the logo should take as little as possible. When the white panel is open on the right,
+ * the navigation moves left – otherwise white text would vanish on a white background.
  */
 export default function Header({ newsletter = true }: { newsletter?: boolean }) {
   const pathname = usePathname();
   const t = useMessages();
-  // Menu je otevřené jen na stránce, kde se otevřelo — přechod jinam ho zavře
-  // bez efektu (React Compiler: žádný setState v efektu).
+  // The menu is open only on the page where it was opened — navigating away closes it
+  // without an effect (React Compiler: no setState in an effect).
   const [menuPath, setMenuPath] = useState<string | null>(null);
   const menuOpen = menuPath === pathname;
   const setMenuOpen = (open: boolean) => setMenuPath(open ? pathname : null);
@@ -33,7 +33,7 @@ export default function Header({ newsletter = true }: { newsletter?: boolean }) 
   const rail = railKind(pathname);
   const wideRail = rail === "wide";
 
-  // Panel se otevírá přes celou obrazovku, takže pod ním nesmí nic rolovat.
+  // The panel opens full-screen, so nothing underneath may scroll.
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
     return () => {
@@ -60,7 +60,7 @@ export default function Header({ newsletter = true }: { newsletter?: boolean }) 
         className="font-display pointer-events-auto inline-block rounded-[6px] border border-white/70 bg-white px-2.5 py-1 text-[10px] font-extrabold tracking-[0.12em] text-[#0d1324] uppercase shadow-lg shadow-black/30 sm:px-3.5 sm:py-2 sm:text-[13px]"
         aria-label={t.header.home}
       >
-        {/* Na mobilu jen značka: plný název zabíral polovinu šířky obrazovky. */}
+        {/* On mobile just the mark: the full name took half the screen width. */}
         <span className="sm:hidden">Atlas</span>
         <span className="hidden sm:inline">Atlas of Today&rsquo;s World</span>
       </Link>

@@ -12,8 +12,8 @@ import type {
 } from "./types";
 
 /**
- * Z řádků databáze skládá model Atlasu, se kterým pracují stránky. Čisté
- * funkce bez I/O — dotazy jsou v `queries.ts`, tady jde všechno testovat.
+ * Builds the Atlas model the pages work with from database rows. Pure
+ * functions without I/O — queries live in `queries.ts`, so everything here is testable.
  */
 
 export interface AtlasSnapshot {
@@ -101,7 +101,7 @@ export interface AtlasSnapshot {
   }[];
 }
 
-/** Geografická fakta z Natural Earth, která se v administraci neupravují (src/data). */
+/** Geographic facts from Natural Earth that aren't edited in the admin (src/data). */
 export interface GeoFacts {
   iso3: string;
   iso2: string | null;
@@ -109,7 +109,7 @@ export interface GeoFacts {
   territoryNote: TerritoryNote | null;
 }
 
-/** Ministátečky a závislá území, pro která Atlas profil nedělá. */
+/** Microstates and dependent territories for which the Atlas has no profile. */
 const HIDDEN_FROM_INDEX = new Set(["ATA", "ATF", "HMD", "BVT", "SGS", "UMI"]);
 
 const num = (value: number | string | null) => (value === null ? null : Number(value));
@@ -152,7 +152,7 @@ function buildIndicators(snapshot: AtlasSnapshot): Indicator[] {
   });
 }
 
-/** Pořadí zemí v každé sekvenční vrstvě (1 = nejlepší), spočítané jednou. */
+/** Country rank in each sequential layer (1 = best), computed once. */
 function rankings(indicators: Indicator[]): Map<string, Map<string, number>> {
   const out = new Map<string, Map<string, number>>();
   for (const indicator of indicators) {
@@ -300,7 +300,7 @@ export function buildAtlas(snapshot: AtlasSnapshot, geo: GeoFacts[], locale: Loc
   };
 }
 
-/** Země ze seznamu ISO3, které mají profil, od nejlidnatější. */
+/** Countries from the ISO3 list that have a profile, most populous first. */
 export function countriesOf(atlas: Atlas, iso3s: string[]): Country[] {
   return iso3s
     .map((iso3) => atlas.countryByIso3.get(iso3))
@@ -308,7 +308,7 @@ export function countriesOf(atlas: Atlas, iso3s: string[]): Country[] {
     .sort(byPopulation);
 }
 
-/** ISO3 -> barva regionu: podklad pro „Encyclopedia view" na globusu. */
+/** ISO3 -> region colour: the base for the "Encyclopedia view" on the globe. */
 export function regionColorMap(regions: Region[]): Record<string, string> {
   const out: Record<string, string> = {};
   for (const region of regions) for (const iso3 of region.countries) out[iso3] = region.fill;

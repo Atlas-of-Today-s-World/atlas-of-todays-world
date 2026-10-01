@@ -39,9 +39,9 @@ const arrow = cva(
 );
 
 /**
- * Jediný karusel Atlasu (ARCHITEKTURA 15.3, D2): časová osa, hesla, vizuály,
- * zdroje i novinky. Položky mají vlastní šířku a `snap-start`; Rail se stará
- * o posun šipkami, klávesnicí (←/→, Home/End) a o popisky pro čtečky.
+ * The single Atlas carousel (ARCHITEKTURA 15.3, D2): timeline, entries, visuals,
+ * sources and news. Items have their own width and `snap-start`; Rail handles
+ * scrolling with arrows, keyboard (←/→, Home/End) and labels for screen readers.
  */
 export function Rail({
   label,
@@ -50,7 +50,7 @@ export function Rail({
   tone = "light",
   className,
 }: {
-  /** Popisek pro čtečku („Timeline", „News") — každý karusel na stránce jiný. */
+  /** Screen-reader label ("Timeline", "News") — different for each carousel on the page. */
   label: string;
   children: ReactNode;
   gap?: "sm" | "md" | "lg";

@@ -14,7 +14,7 @@ import type { GlobalIssue, Indicator, Region } from "@/features/geography/types"
 import { saturate, saturateMap } from "@/lib/color";
 import { colorMapFor, legendFor } from "@/lib/indicators";
 
-/** Volby pro přepínač vrstev – generují se z importovaných indikátorů. */
+/** Options for the layer switcher – generated from imported indicators. */
 function buildViewOptions(indicators: Indicator[], saturation: number, t: Messages): ViewOption[] {
   return [
     {
@@ -41,11 +41,11 @@ function buildViewOptions(indicators: Indicator[], saturation: number, t: Messag
 }
 
 /**
- * Mapový shell. Globus se montuje tady, takže přechod mezi úvodní mapou,
- * regionem, zemí a encyklopedickým heslem neznamená nové načtení mapy –
- * uživatel s ní nikdy neztratí kontakt.
+ * Map shell. The globe is mounted here, so moving between the home map,
+ * a region, a country and an encyclopedia entry doesn't reload the map –
+ * the user never loses touch with it.
  */
-/** ISO3 → hodnota prvního celku, ve kterém země je (země může být ve více global issues). */
+/** ISO3 → value of the first group containing the country (a country can be in several global issues). */
 function firstByCountry<T>(
   groups: (Region | GlobalIssue)[],
   pick: (group: Region | GlobalIssue) => T,
@@ -55,7 +55,7 @@ function firstByCountry<T>(
   return out;
 }
 
-/** Region nebo global issue → podklad pro zvýraznění celku na globusu. */
+/** Region or global issue → data for highlighting the group on the globe. */
 function lookup(groups: (Region | GlobalIssue)[]): RegionLookup {
   return {
     slugByCountry: firstByCountry(groups, (group) => group.slug),

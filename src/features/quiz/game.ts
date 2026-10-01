@@ -1,6 +1,6 @@
 /**
- * Kvíz na stránce 404: poznej stát podle obrysu. Čistá logika bez Reactu,
- * ať se dá otestovat se zadaným generátorem náhody.
+ * Quiz on the 404 page: guess the country by its outline. Pure logic without React,
+ * so it can be tested with a given random generator.
  */
 
 import { swap } from "@/lib/array";
@@ -9,13 +9,13 @@ export interface CountryShape {
   iso3: string;
   name: string;
   continent: string;
-  /** SVG cesta v rámečku 0 0 100 100 (scripts/build-quiz-shapes.mjs). */
+  /** SVG path in the 0 0 100 100 box (scripts/build-quiz-shapes.mjs). */
   path: string;
 }
 
 export interface Question {
   answer: CountryShape;
-  /** Čtyři možnosti v náhodném pořadí, jedna z nich je `answer`. */
+  /** Four options in random order, one of which is `answer`. */
   options: CountryShape[];
 }
 
@@ -24,7 +24,7 @@ export const OPTIONS_PER_QUESTION = 4;
 
 type Random = () => number;
 
-/** Fisher–Yates; vrací novou kopii. */
+/** Fisher–Yates; returns a new copy. */
 export function shuffle<T>(items: readonly T[], random: Random = Math.random): T[] {
   let copy = [...items];
   for (let i = copy.length - 1; i > 0; i--) {
@@ -35,9 +35,9 @@ export function shuffle<T>(items: readonly T[], random: Random = Math.random): T
 }
 
 /**
- * Nová hra: deset různých států v náhodném pořadí — každá návštěva jiná.
- * Špatné možnosti bere nejdřív ze stejného kontinentu, ať to není zadarmo
- * (Itálie vedle Brazílie a Japonska by se poznala i bez obrysu).
+ * New game: ten distinct countries in random order — every visit is different.
+ * Wrong options come first from the same continent, so it isn't too easy
+ * (Italy next to Brazil and Japan would be guessed even without the outline).
  */
 export function newGame(shapes: readonly CountryShape[], random: Random = Math.random): Question[] {
   if (shapes.length < Math.max(QUESTIONS_PER_GAME, OPTIONS_PER_QUESTION)) {
@@ -57,7 +57,7 @@ export function newGame(shapes: readonly CountryShape[], random: Random = Math.r
     });
 }
 
-/** Slovní hodnocení na konci hry. */
+/** Verbal rating at the end of the game. */
 export function verdict(score: number): string {
   if (score === QUESTIONS_PER_GAME) return "Flawless. You could draw the Atlas from memory.";
   if (score >= 8) return "Excellent — a seasoned map reader.";

@@ -8,9 +8,9 @@ import { createPublicClient } from "@/lib/supabase/public";
 import { buildRedirectMap, matchRedirect, type RedirectRule } from "./schema";
 
 /**
- * Všechna přesměrování jedním dotazem v cache s tagem `redirects` — stránka
- * 404 se tak na DB neptá; přidání/smazání v administraci cache obnoví.
- * Výpadek DB = žádná přesměrování (stránka prostě zůstane 404).
+ * All redirects in one query, cached with the `redirects` tag — so the 404
+ * page doesn't hit the DB; adding/deleting in the admin refreshes the cache.
+ * DB outage = no redirects (the page simply stays 404).
  */
 const getRedirectMap = unstable_cache(
   async (): Promise<Record<string, RedirectRule>> => {
@@ -29,8 +29,8 @@ const getRedirectMap = unstable_cache(
 );
 
 /**
- * Místo 404: je-li pro cestu přesměrování, pošle tam (308/307), jinak 404.
- * Platí jen pro neexistující stránky — živou adresu přesměrování nepřebije.
+ * Instead of 404: if there's a redirect for the path, sends there (308/307), otherwise 404.
+ * Applies only to non-existent pages — a redirect doesn't override a live URL.
  */
 export async function redirectOrNotFound(
   pathname: string,
@@ -38,8 +38,8 @@ export async function redirectOrNotFound(
 ): Promise<never> {
   const rule = matchRedirect(await getRedirectMap(), pathname);
   if (rule) {
-    // DB už cíl omezuje na cestu na tomto webu; safeRedirect je druhá pojistka.
-    // Cíl ve stejném jazyce, v jakém návštěvník přišel (/cs/stará → /cs/nová).
+    // The DB already restricts the target to a path on this site; safeRedirect is a second safety net.
+    // Target in the same language the visitor came in (/cs/old → /cs/new).
     const target = safeRedirect(
       rule.to.startsWith("/") ? localePath(locale, rule.to) : rule.to,
       "",

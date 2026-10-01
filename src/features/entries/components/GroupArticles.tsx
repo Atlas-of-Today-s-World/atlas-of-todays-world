@@ -15,8 +15,8 @@ interface Article {
 }
 
 /**
- * Články ve skupině zemí (globální téma / vlastní region): přidat a odebrat
- * přímo ze stránky skupiny, bez otevírání editoru každého článku.
+ * Articles in a country group (global issue / custom region): add and remove
+ * directly from the group page, without opening each article's editor.
  */
 export function GroupArticles({
   slug,

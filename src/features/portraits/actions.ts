@@ -37,15 +37,15 @@ const FIELD_LABEL: Record<string, string> = {
   period: "period",
 };
 
-/** Po změně portrétu: jeho sekce a u zemí/hlaviček i snapshot mapy. */
+/** After a portrait change: its section and, for countries/headers, the map snapshot too. */
 function refresh(kind: PortraitKind, slug: string) {
   if (kind === "country") updateTag(tags.atlas);
   else updateTag(tags.portrait(kind, slug));
 }
 
 /**
- * Uloží celou sekci portrétu (časovou osu, FAQ, zdroje, vizuály, karty)
- * jedním voláním DB funkce `replace_portrait_items` — v jedné transakci.
+ * Saves a whole portrait section (timeline, FAQ, sources, visuals, cards)
+ * with a single call to the DB function `replace_portrait_items` — in one transaction.
  */
 export async function savePortraitSection(
   _prev: ActionState,
@@ -125,7 +125,7 @@ export async function saveIssue(_prev: ActionState, formData: FormData): Promise
     : await supabase.from("special_regions").insert(row);
   if (error) return failed(error);
 
-  // Země celku: rozdíl proti současnému stavu (cizí klíč se přejmenuje sám).
+  // The unit's countries: diff against the current state (the foreign key renames itself).
   const { data: current, error: readError } = await supabase
     .from("special_region_countries")
     .select("country_iso3")

@@ -4,8 +4,8 @@ import { createPublicClient } from "@/lib/supabase/public";
 export const dynamic = "force-dynamic";
 
 /**
- * Stav služby pro uptime monitor a keep-alive (F2): databáze odpovídá a jaká
- * verze běží. Bez tajných údajů; 503, když DB nejde.
+ * Service status for the uptime monitor and keep-alive (F2): whether the database
+ * responds and which version is running. No secrets; 503 when the DB is down.
  */
 export async function GET() {
   const started = Date.now();

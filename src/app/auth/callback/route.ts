@@ -4,7 +4,7 @@ import { createServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-/** Návrat z Google (PKCE): vymění kód za session a dokončí přihlášení. */
+/** Return from Google (PKCE): exchanges the code for a session and completes sign-in. */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
   const code = searchParams.get("code");

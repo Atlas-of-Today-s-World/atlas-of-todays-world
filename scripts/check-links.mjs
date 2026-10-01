@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 /**
- * Kontrola mrtvých odkazů (PLAN G3, ARCHITEKTURA 16.3).
+ * Dead link check (PLAN G3, ARCHITEKTURA 16.3).
  *
- * Projde všechny stránky ze sitemap.xml nasazeného webu, posbírá odkazy
- * (`<a href>`) a obrázky (`<img src>`) — interní i externí — a každý jednou
- * ověří. Nic nikam nezapisuje: výsledek je jen ve výstupu jobu (stdout a
- * souhrn GitHub Actions). Neptá se databáze, čte jen veřejný web.
+ * Walks every page from the deployed site's sitemap.xml, collects links
+ * (`<a href>`) and images (`<img src>`) — internal and external — and checks
+ * each one once. Writes nothing anywhere: the result is only in the job output
+ * (stdout and the GitHub Actions summary). No database access, public site only.
  *
- * Použití: SITE_URL=https://… node scripts/check-links.mjs
- *   LINKCHECK_MAX_PAGES (výchozí 2000), LINKCHECK_CONCURRENCY (výchozí 6)
+ * Usage: SITE_URL=https://… node scripts/check-links.mjs
+ *   LINKCHECK_MAX_PAGES (default 2000), LINKCHECK_CONCURRENCY (default 6)
  *
- * Konec s kódem 1, když najde nefunkční odkaz (404/410, neexistující doména,
- * spojení odmítnuto…). Weby, které roboty blokují (401/403/429) nebo dočasně
- * selhaly (5xx, timeout), se vypíšou jako „nelze ověřit", job kvůli nim nepadá.
+ * Exits with code 1 when it finds a broken link (404/410, non-existent domain,
+ * connection refused…). Sites that block bots (401/403/429) or failed
+ * temporarily (5xx, timeout) are listed as "cannot verify"; the job does not fail on them.
  */
 import { appendFileSync } from "node:fs";
 import { decodeEntities } from "./lib/html.mjs";
@@ -24,11 +24,11 @@ const TIMEOUT_MS = 15_000;
 const USER_AGENT = `AtlasLinkChecker/1.0 (+${SITE || "https://atlasoftodaysworld.org"})`;
 
 if (!/^https?:\/\/[^/]+$/.test(SITE)) {
-  console.error("Nastavte SITE_URL (např. https://atlasoftodaysworld.org).");
+  console.error("Set SITE_URL (e.g. https://atlasoftodaysworld.org).");
   process.exit(2);
 }
 
-/** Opakovaný běh úloh s omezenou souběžností. */
+/** Runs tasks with limited concurrency. */
 async function pool(items, limit, worker) {
   const queue = [...items];
   const runners = Array.from({ length: Math.min(limit, queue.length) }, async () => {
@@ -52,7 +52,7 @@ async function request(url, method) {
   }
 }
 
-/** Odkazy a obrázky ze stránky jako absolutní http(s) URL bez kotvy. */
+/** Links and images from a page as absolute http(s) URLs without a fragment. */
 function extractLinks(html, pageUrl) {
   const found = new Set();
   const pattern = /<(a|img)\b[^>]*?\s(href|src)\s*=\s*("([^"]*)"|'([^']*)')/gi;
@@ -74,25 +74,25 @@ function extractLinks(html, pageUrl) {
   return found;
 }
 
-/** ok | broken | unknown (nelze ověřit) + popis. */
+/** ok | broken | unknown (cannot verify) + detail. */
 async function checkLink(url) {
-  if (url.startsWith("invalid:")) return { state: "broken", detail: "neplatná adresa" };
+  if (url.startsWith("invalid:")) return { state: "broken", detail: "invalid address" };
   let response;
   try {
     response = await request(url, "HEAD");
-    // Část serverů HEAD nepodporuje nebo na něj odpovídá jinak než na GET.
+    // Some servers do not support HEAD or answer it differently than GET.
     if (response.status >= 400) response = await request(url, "GET");
   } catch {
     try {
       response = await request(url, "GET");
     } catch (error) {
-      const code = error?.cause?.code ?? error?.name ?? "chyba";
+      const code = error?.cause?.code ?? error?.name ?? "error";
       const definite = ["ENOTFOUND", "ECONNREFUSED", "ERR_INVALID_URL", "CERT_HAS_EXPIRED"];
       return { state: definite.includes(code) ? "broken" : "unknown", detail: String(code) };
     }
   }
   const status = response.status;
-  // Tělo nepotřebujeme — uvolnit spojení.
+  // We do not need the body — release the connection.
   await response.body?.cancel().catch(() => {});
   if (status < 400) return { state: "ok", detail: String(status) };
   if ([404, 410].includes(status)) return { state: "broken", detail: String(status) };
@@ -101,15 +101,15 @@ async function checkLink(url) {
 
 async function main() {
   const sitemap = await request(`${SITE}/sitemap.xml`, "GET");
-  if (!sitemap.ok) throw new Error(`sitemap.xml vrátila ${sitemap.status}`);
+  if (!sitemap.ok) throw new Error(`sitemap.xml returned ${sitemap.status}`);
   const pages = [...(await sitemap.text()).matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g)]
     .map((match) => decodeEntities(match[1]))
-    // Sitemap může nést produkční doménu i při kontrole jiného nasazení.
+    // The sitemap may carry the production domain even when checking another deployment.
     .map((loc) => SITE + new URL(loc).pathname)
     .slice(0, MAX_PAGES);
-  console.log(`Stránek ze sitemap: ${pages.length}`);
+  console.log(`Pages from sitemap: ${pages.length}`);
 
-  /** URL odkazu → stránky, na kterých je. */
+  /** Link URL → pages it appears on. */
   const sources = new Map();
   const brokenPages = [];
   await pool(pages, CONCURRENCY, async (page) => {
@@ -124,10 +124,10 @@ async function main() {
         sources.get(link).add(new URL(page).pathname);
       }
     } catch (error) {
-      brokenPages.push({ url: page, detail: error?.cause?.code ?? error?.name ?? "chyba" });
+      brokenPages.push({ url: page, detail: error?.cause?.code ?? error?.name ?? "error" });
     }
   });
-  console.log(`Různých odkazů: ${sources.size}`);
+  console.log(`Distinct links: ${sources.size}`);
 
   const results = { ok: 0, broken: [], unknown: [] };
   await pool([...sources.keys()], CONCURRENCY, async (link) => {
@@ -143,19 +143,19 @@ async function main() {
     lines.push(`\n### ${title} (${rows.length})\n`);
     for (const row of rows.sort((a, b) => a.url.localeCompare(b.url))) {
       const on = row.on
-        ? ` — na ${row.on.slice(0, 3).join(", ")}${row.on.length > 3 ? " …" : ""}`
+        ? ` — on ${row.on.slice(0, 3).join(", ")}${row.on.length > 3 ? " …" : ""}`
         : "";
       lines.push(`- \`${row.detail}\` ${row.url}${on}`);
     }
   };
-  lines.push(`## Kontrola odkazů ${SITE}`);
+  lines.push(`## Link check ${SITE}`);
   lines.push(
-    `\nStránek: ${pages.length} · odkazů: ${sources.size} · v pořádku: ${results.ok} · ` +
-      `nefunkčních: ${results.broken.length + brokenPages.length} · nelze ověřit: ${results.unknown.length}`,
+    `\nPages: ${pages.length} · links: ${sources.size} · ok: ${results.ok} · ` +
+      `broken: ${results.broken.length + brokenPages.length} · cannot verify: ${results.unknown.length}`,
   );
-  list("Stránky ze sitemap, které nejdou načíst", brokenPages);
-  list("Nefunkční odkazy", results.broken);
-  list("Nelze ověřit (blokují roboty, dočasná chyba)", results.unknown);
+  list("Sitemap pages that fail to load", brokenPages);
+  list("Broken links", results.broken);
+  list("Cannot verify (bots blocked, temporary error)", results.unknown);
 
   const report = lines.join("\n");
   console.log(report);
@@ -165,6 +165,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(`Kontrola odkazů selhala: ${error.message}`);
+  console.error(`Link check failed: ${error.message}`);
   process.exit(2);
 });

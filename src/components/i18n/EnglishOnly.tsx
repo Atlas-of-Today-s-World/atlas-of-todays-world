@@ -3,8 +3,8 @@ import { DEFAULT_LOCALE, type Locale } from "@/features/i18n/config";
 import { getMessages } from "@/features/i18n/messages";
 
 /**
- * Obsah, který zatím existuje jen anglicky (právní texty). V jiném jazyce nad
- * ním stojí poznámka a obsah nese lang="en", aby ho čtečka četla anglicky.
+ * Content that so far exists only in English (legal texts). In other languages a
+ * note sits above it and the content carries lang="en" so screen readers read it in English.
  */
 export function EnglishOnly({ locale, children }: { locale: Locale; children: ReactNode }) {
   if (locale === DEFAULT_LOCALE) return <>{children}</>;

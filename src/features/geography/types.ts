@@ -1,29 +1,29 @@
 /**
- * Typy veřejného Atlasu — regiony, země, ukazatele a global issues, jak je
- * skládá `model.ts` z databáze. Bez závislosti na serveru, takže je smí
- * importovat i klientská komponenta.
+ * Public Atlas types — regions, countries, indicators and global issues as
+ * `model.ts` assembles them from the database. No server dependency, so a
+ * client component may import them too.
  */
 import type { MetricCard } from "@/lib/content-types";
 
 export interface Region {
-  /** Totéž co slug; drží se kvůli čitelnosti porovnání „stejný region". */
+  /** Same as slug; kept for readability of "same region" comparisons. */
   id: string;
   /** URL segment: /region/<slug> */
   slug: string;
   name: string;
   tagline: string;
-  /** Výplň zemí regionu na globusu. */
+  /** Fill of the region's countries on the globe. */
   fill: string;
-  /** Obrys regionu (silnější linka po obvodu). */
+  /** Region outline (thicker line along the perimeter). */
   stroke: string;
-  /** Kam se globus otočí, když region otevřeš: [lon, lat] a zoom. */
+  /** Where the globe turns when you open the region: [lon, lat] and zoom. */
   center: [number, number];
   zoom: number;
   hero: string | null;
   heroCredit: string;
-  /** Perex – zobrazuje se v panelu mapy i jako meta description. */
+  /** Lead – shown in the map panel and as the meta description. */
   summary: string;
-  /** ISO3 zemí regionu, od nejlidnatější. */
+  /** ISO3 codes of the region's countries, most populous first. */
   countries: string[];
 }
 
@@ -53,7 +53,7 @@ export interface Indicator {
   values: Record<string, { value: number; year: number }>;
 }
 
-/** Vysvětlení, proč hranice země vypadá tak, jak vypadá (src/data/territories.json). */
+/** Explanation of why a country's border looks the way it does (src/data/territories.json). */
 export interface TerritoryNote {
   status: "disputed" | "non-self-governing" | "occupied";
   note: string;
@@ -69,19 +69,19 @@ export interface CountryStat {
   year: number;
   source: string;
   sourceUrl: string;
-  /** Pořadí mezi zeměmi světa, 1 = nejlepší. Chybí u kategoriálních vrstev. */
+  /** Rank among the world's countries, 1 = best. Missing for categorical layers. */
   rank: number | null;
   rankOf: number | null;
 }
 
-/** Redakční profil země — text, podtitulek, ruční karty, výběr ukazatelů. */
+/** Editorial country profile — text, subtitle, manual cards, indicator selection. */
 export interface CountryProfile {
   summary: string;
   tagline: string;
-  /** Vyčištěné HTML; vykresluje se přes <SafeHtml>. */
+  /** Sanitized HTML; rendered via <SafeHtml>. */
   html: string;
   metrics: MetricCard[];
-  /** Které automatické ukazatele ukázat a v jakém pořadí; prázdné = prvních šest. */
+  /** Which automatic indicators to show and in what order; empty = the first six. */
   featured: string[];
 }
 
@@ -96,7 +96,7 @@ export interface Country {
   population: number | null;
   labelLon: number | null;
   labelLat: number | null;
-  /** Výřez hlavní pevniny [minLon, minLat, maxLon, maxLat] pro zoom na zemi. */
+  /** Mainland bounding box [minLon, minLat, maxLon, maxLat] for zooming to the country. */
   bbox: [number, number, number, number] | null;
   territoryNote: TerritoryNote | null;
   region: Region | null;
@@ -104,7 +104,7 @@ export interface Country {
   profile: CountryProfile;
 }
 
-/** Vlastní celek redakce (skládá se z celých zemí). */
+/** Custom editorial unit (composed of whole countries). */
 export interface GlobalIssue {
   slug: string;
   name: string;
@@ -115,12 +115,12 @@ export interface GlobalIssue {
   center: [number, number];
   zoom: number;
   hero: string | null;
-  /** Globální téma (válka, migrace…), nebo vlastní region složený ze zemí. */
+  /** Global issue (war, migration…), or a custom region made of countries. */
   kind: "issue" | "region";
   countries: string[];
 }
 
-/** Vlastní plocha na mapě (GeoJSON Polygon z administrace). */
+/** Custom area on the map (GeoJSON Polygon from the admin). */
 export interface MapArea {
   slug: string;
   name: string;
@@ -133,15 +133,15 @@ export interface MapArea {
 
 /** Vzhled mapy ze site_theme. */
 interface MapTheme {
-  /** Násobek sytosti barev vrstev (1 = beze změny). */
+  /** Multiplier of layer colour saturation (1 = unchanged). */
   saturation: number;
-  /** Násobek tloušťky hranic (1 = beze změny). */
+  /** Multiplier of border width (1 = unchanged). */
   border: number;
 }
 
 export interface Atlas {
   regions: Region[];
-  /** Země s profilem (zařazené do regionu), od nejlidnatější. */
+  /** Countries with a profile (assigned to a region), most populous first. */
   countries: Country[];
   indicators: Indicator[];
   issues: GlobalIssue[];

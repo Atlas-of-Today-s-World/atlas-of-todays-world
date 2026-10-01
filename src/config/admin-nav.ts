@@ -22,14 +22,14 @@ export interface AdminNavItem {
   href: string;
   label: string;
   /**
-   * Sekce oprávnění (role_permissions.section); více sekcí = stačí kterákoli;
-   * null = vidí každý člen týmu.
+   * Permission section(s) (role_permissions.section); with several, any one is enough;
+   * null = visible to every team member.
    */
   section: Section | readonly Section[] | null;
   icon: LucideIcon;
 }
 
-/** Jediná definice menu administrace (ARCHITEKTURA 5.2); zobrazí se jen sekce s právem „v". */
+/** Single definition of the admin menu (ARCHITEKTURA 5.2); shows only sections with the "v" right. */
 export const ADMIN_NAV: readonly AdminNavItem[] = [
   { href: "/admin", label: "Overview", section: null, icon: LayoutDashboard },
   { href: "/admin/content", label: "Articles", section: "news", icon: Newspaper },
@@ -52,15 +52,15 @@ export const ADMIN_NAV: readonly AdminNavItem[] = [
   { href: "/admin/members", label: "Patron memberships", section: "members", icon: UserRound },
 ];
 
-/** Ikona sekce podle adresy (dlaždice v PageHeader) — stejná jako v menu. */
+/** Section icon by URL (tile in PageHeader) — same as in the menu. */
 export function navIcon(href: string): LucideIcon | undefined {
   return ADMIN_NAV.find((item) => item.href === href)?.icon;
 }
 
-/** Smí položku menu vidět (právo „v" v některé z jejích sekcí)? */
+/** May the user see the menu item ("v" right in any of its sections)? */
 export function navVisible(item: AdminNavItem, permissions: Permissions): boolean {
   if (item.section === null) return true;
   const sections = typeof item.section === "string" ? [item.section] : item.section;
-  // Stejné jako can(…, "v"); config importuje i klientské menu, proto bez access.ts.
+  // Same as can(…, "v"); config is imported by the client menu too, hence no access.ts.
   return sections.some((section) => permissions[section]?.includes("v") ?? false);
 }

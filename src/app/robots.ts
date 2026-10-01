@@ -2,10 +2,10 @@ import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/site";
 
 /**
- * Otevřeno pro všechny roboty včetně AI crawlerů (GPTBot, ClaudeBot,
- * PerplexityBot, Google-Extended). Kdyby ATW nechtělo, aby se obsah Atlasu
- * používal pro trénink modelů, stačí sem přidat pravidlo s `disallow: "/"`
- * pro konkrétního user-agenta.
+ * Open to all robots including AI crawlers (GPTBot, ClaudeBot,
+ * PerplexityBot, Google-Extended). If ATW ever doesn't want Atlas content
+ * used for model training, just add a rule with `disallow: "/"`
+ * for the specific user agent.
  */
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -13,7 +13,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        // Vyhledávací API nemá co dělat v indexu – generuje nekonečno URL.
+        // The search API has no business in the index – it generates infinite URLs.
         disallow: ["/api/"],
       },
     ],

@@ -1,20 +1,20 @@
 #!/usr/bin/env node
 /**
- * Import obsahu ze starého webu na Webflow (PLAN G7, brief P16).
+ * Content import from the old Webflow site (PLAN G7, brief P16).
  *
- *   node scripts/import-webflow.mjs --dir <adresář exportu>
+ *   node scripts/import-webflow.mjs --dir <export directory>
  *        [--config scripts/webflow/mapping.config.mjs]
  *        [--apply --project dev|prod] [--env .env.local]
  *
- * Bez --apply běží NANEČISTO: přečte export, namapuje ho a vypíše, co by se
- * zapsalo (počty, chybějící soubory, přeskočené položky, obrázky ke stažení).
- * Do databáze ani Storage nesáhne.
+ * Without --apply it is a DRY RUN: reads the export, maps it and prints what would
+ * be written (counts, missing files, skipped items, images to download).
+ * It touches neither the database nor Storage.
  *
- * S --apply zapisuje servisním klíčem (ARCHITEKTURA 2.4 — importy) do projektu,
- * jehož ref musí odpovídat --project; do produkce jen s výslovným --project prod.
- * Import je opakovatelný: sekce portrétu se nahrazují celé (replace_portrait_items,
- * jedna transakce), články a přesměrování se upsertují podle slugu / staré cesty,
- * obrázky z Webflow CDN se nahrají do Storage pod jménem odvozeným z jejich URL.
+ * With --apply it writes with the service key (ARCHITEKTURA 2.4 — imports) into the
+ * project whose ref must match --project; production only with an explicit --project prod.
+ * The import is repeatable: portrait sections are replaced whole (replace_portrait_items,
+ * one transaction), entries and redirects are upserted by slug / old path, and
+ * images from the Webflow CDN are uploaded to Storage under a name derived from their URL.
  */
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
@@ -51,7 +51,7 @@ const { values: args } = parseArgs({
 
 if (!args.dir) {
   console.error(
-    "Použití: node scripts/import-webflow.mjs --dir <adresář exportu> [--apply --project dev|prod]",
+    "Usage: node scripts/import-webflow.mjs --dir <export directory> [--apply --project dev|prod]",
   );
   process.exit(2);
 }
@@ -59,7 +59,7 @@ if (!args.dir) {
 const config = (await import(pathToFileURL(resolve(args.config)).href)).default;
 
 // ---------------------------------------------------------------------------
-// 1. Čtení a mapování (nanečisto i naostro)
+// 1. Reading and mapping (dry run and live)
 // ---------------------------------------------------------------------------
 
 const itemsByCollection = new Map();
@@ -71,7 +71,7 @@ for (const collection of config.collections) {
   const alternative = file.replace(/\.csv$/, ".json");
   const path = existsSync(file) ? file : existsSync(alternative) ? alternative : null;
   if (!path) {
-    warnings.push(`${collection.name}: soubor ${collection.file} v exportu chybí — přeskočeno`);
+    warnings.push(`${collection.name}: file ${collection.file} missing from export — skipped`);
     continue;
   }
   const items = readItems(readFileSync(path, "utf8"), extname(path) === ".json" ? "json" : "csv");
@@ -79,22 +79,22 @@ for (const collection of config.collections) {
   const { rows, skipped } = mapCollection(items, collection);
   if (skipped.length)
     warnings.push(
-      `${collection.name}: přeskočeno ${skipped.length} (${skipped.slice(0, 5).join(", ")}…)`,
+      `${collection.name}: skipped ${skipped.length} (${skipped.slice(0, 5).join(", ")}…)`,
     );
   console.log(`${collection.name}: ${items.length} položek → ${rows.length} řádků`);
 
   const target = collection.target;
   if (target.type === "portrait") {
     if (!PORTRAIT_COLLECTIONS.includes(target.collection))
-      throw new Error(`${collection.name}: neznámá sekce ${target.collection}`);
-    // Víc kolekcí do jedné sekce (zdroje + videa) se spojí — sekce se nahrazuje celá.
+      throw new Error(`${collection.name}: unknown section ${target.collection}`);
+    // Several collections into one section (resources + videos) are combined — the section is replaced whole.
     const key = `${target.kind}:${target.slug}:${target.collection}`;
     plan.portraits.set(key, [...(plan.portraits.get(key) ?? []), ...rows]);
   } else if (target.type === "entries") {
     plan.entries.push(...rows);
   } else if (target.type === "region") {
     if (rows.length) plan.regions.push({ slug: target.slug, fields: rows[0] });
-  } else throw new Error(`${collection.name}: neznámý cíl ${target.type}`);
+  } else throw new Error(`${collection.name}: unknown target ${target.type}`);
 }
 
 const redirects = buildRedirects(config, itemsByCollection);
@@ -105,8 +105,8 @@ const files = new Set(
 );
 
 console.log(
-  `\nPlán: ${plan.portraits.size} sekcí portrétů, ${plan.entries.length} článků, ` +
-    `${plan.regions.length} hlaviček regionů, ${redirects.length} přesměrování, ${files.size} souborů z Webflow CDN.`,
+  `\nPlan: ${plan.portraits.size} portrait sections, ${plan.entries.length} entries, ` +
+    `${plan.regions.length} region headers, ${redirects.length} redirects, ${files.size} files from Webflow CDN.`,
 );
 for (const warning of warnings) console.warn(`⚠ ${warning}`);
 
@@ -116,7 +116,7 @@ if (!args.apply) {
 }
 
 // ---------------------------------------------------------------------------
-// 2. Zápis (jen s --apply)
+// 2. Writing (only with --apply)
 // ---------------------------------------------------------------------------
 
 const env = { ...readEnvFile(args.env), ...process.env };
@@ -129,7 +129,7 @@ if (!expected || !url.includes(`${expected}.supabase.co`)) {
   process.exit(2);
 }
 if (!env.SUPABASE_SERVICE_ROLE_KEY) {
-  console.error("Chybí SUPABASE_SERVICE_ROLE_KEY.");
+  console.error("Missing SUPABASE_SERVICE_ROLE_KEY.");
   process.exit(2);
 }
 
@@ -137,13 +137,13 @@ const { createClient } = await import("@supabase/supabase-js");
 const { sanitizeRichHtml } = await import("../src/lib/security/sanitize.ts");
 const db = createClient(url, env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
 
-// Soubory z Webflow CDN → Storage (jméno podle hashe URL = opakovatelné).
+// Files from Webflow CDN → Storage (name from the URL hash = repeatable).
 const moved = new Map();
 for (const file of files) {
   const response = await fetch(file);
   const type = (response.headers.get("content-type") ?? "").split(";")[0];
   if (!response.ok || !IMAGE_TYPES[type]) {
-    warnings.push(`soubor ${file} nejde přenést (${response.status} ${type}) — zůstává odkaz`);
+    warnings.push(`file ${file} cannot be transferred (${response.status} ${type}) — link kept`);
     continue;
   }
   const name = `import/webflow/${createHash("sha1").update(file).digest("hex")}.${IMAGE_TYPES[type]}`;
@@ -176,7 +176,7 @@ for (const [key, rows] of plan.portraits) {
   });
   if (error) throw new Error(`${key}: ${error.message}`);
   if (rows.length > 50)
-    warnings.push(`${key}: sekce má ${rows.length} položek, uloženo prvních 50`);
+    warnings.push(`${key}: section has ${rows.length} items, saved the first 50`);
 }
 
 for (const { countries = [], ...row } of plan.entries) {
@@ -186,24 +186,24 @@ for (const { countries = [], ...row } of plan.entries) {
     .upsert({ locale: "en", ...entry }, { onConflict: "slug,locale" })
     .select("id")
     .single();
-  if (error) throw new Error(`článek ${row.slug}: ${error.message}`);
+  if (error) throw new Error(`entry ${row.slug}: ${error.message}`);
   await db.from("entry_countries").delete().eq("entry_id", data.id);
   if (countries.length) {
     const { error: countryError } = await db
       .from("entry_countries")
       .insert(countries.map((country_iso3) => ({ entry_id: data.id, country_iso3 })));
-    if (countryError) throw new Error(`země článku ${row.slug}: ${countryError.message}`);
+    if (countryError) throw new Error(`entry countries ${row.slug}: ${countryError.message}`);
   }
 }
 
 if (redirects.length) {
   const { error } = await db.from("redirects").upsert(redirects, { onConflict: "from_path" });
-  if (error) throw new Error(`přesměrování: ${error.message}`);
+  if (error) throw new Error(`redirects: ${error.message}`);
 }
 
-console.log(`\nZapsáno do ${args.project}. Přeneseno ${moved.size} souborů.`);
+console.log(`\nWritten to ${args.project}. Transferred ${moved.size} files.`);
 for (const warning of warnings) console.warn(`⚠ ${warning}`);
-console.log("Web se obnoví nejpozději za hodinu (cache), nebo hned po novém nasazení.");
+console.log("The site refreshes within an hour (cache), or immediately after a new deployment.");
 
 function readEnvFile(path) {
   if (!existsSync(path)) return {};

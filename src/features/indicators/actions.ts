@@ -17,12 +17,12 @@ import { tags } from "@/lib/cache/tags";
 import { iso3, slug } from "@/lib/validation/common";
 import { CategoryInput, IndicatorInput, ValueInput } from "./schema";
 
-/** Ukazatele jsou součástí snapshotu mapy — každá změna ho obnoví. */
+/** Indicators are part of the map snapshot — every change refreshes it. */
 const refresh = () => updateTag(tags.atlas);
 
 /**
- * Založení vlastního ukazatele nebo úprava popisu a škály. Druh (sekvenční /
- * kategoriální) a příznak „vlastní" se po založení nemění (guard_indicators).
+ * Creating a custom indicator or editing its description and scale. The kind (sequential /
+ * categorical) and the "custom" flag don't change after creation (guard_indicators).
  */
 export async function saveIndicator(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = IndicatorInput.safeParse(formObject(formData, ["ramp"]));
@@ -73,7 +73,7 @@ export async function deleteIndicator(id: string): Promise<ActionState> {
   return { ok: true, message: "Indicator deleted." };
 }
 
-/** Ruční hodnota (nová nebo oprava importované); zdroj je povinný. */
+/** Manual value (new or a correction of an imported one); the source is required. */
 export async function setValue(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = ValueInput.safeParse(formObject(formData));
   if (!parsed.success) return invalid(parsed.error);
@@ -106,7 +106,7 @@ export async function deleteValue(indicatorId: string, country: string): Promise
   return { ok: true, message: "Value deleted." };
 }
 
-/** Číselník kategoriálního ukazatele (hodnota → popisek a barva). */
+/** Code list of a categorical indicator (value → label and colour). */
 export async function saveCategories(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const id = slug(60).safeParse(formData.get("indicator_id"));
   if (!id.success) return { ok: false, error: "Invalid indicator." };

@@ -1,7 +1,7 @@
-// Jednorázově vygeneruje migraci s českými názvy (G5): státy z Unicode CLDR
-// (Intl.DisplayNames podle ISO 3166-1 alpha-2), regiony, globální témata a
-// ukazatele ručně. Výstup: supabase/migrations/20261001000003_translations_cs.sql.
-// Překlady jdou dál upravit v administraci (Překlady); migrace jen nic nepřepíše.
+// One-off generator of the migration with Czech names (G5): countries from Unicode
+// CLDR (Intl.DisplayNames by ISO 3166-1 alpha-2), regions, global issues and
+// indicators by hand. Output: supabase/migrations/20261001000003_translations_cs.sql.
+// Translations can still be edited in the admin (Překlady); the migration overwrites nothing.
 import { readFileSync, writeFileSync } from "node:fs";
 
 const countries = JSON.parse(readFileSync("src/data/countries.generated.json", "utf8"));
@@ -49,9 +49,9 @@ for (const country of countries) {
   try {
     cs = names.of(country.iso2);
   } catch {
-    continue; // neplatný kód (např. "-99" u sporných území v Natural Earth)
+    continue; // invalid code (e.g. "-99" for disputed territories in Natural Earth)
   }
-  // CLDR vrací kód, když název nezná — takový řádek nemá smysl.
+  // CLDR returns the code when it does not know the name — such a row is pointless.
   if (!cs || cs === country.iso2 || cs === country.name) continue;
   rows.push(["country", country.iso3, "name", cs]);
 }
@@ -80,4 +80,4 @@ ${values}
 on conflict (entity, entity_key, field, locale) do nothing;
 `;
 writeFileSync("supabase/migrations/20261001000003_translations_cs.sql", sql);
-console.log(`${rows.length} překladů`);
+console.log(`${rows.length} translations`);

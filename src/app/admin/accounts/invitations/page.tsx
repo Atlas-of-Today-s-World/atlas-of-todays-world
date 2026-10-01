@@ -13,7 +13,7 @@ import { SITE_URL } from "@/lib/site";
 import { createServerClient } from "@/lib/supabase/server";
 import InvitationForm from "./InvitationForm";
 
-/** Prošlá pozvánka (stránka je dynamická, „teď" = čas požadavku). */
+/** Expired invitation (the page is dynamic, "now" = request time). */
 const isPast = (iso: string) => new Date(iso).getTime() < Date.now();
 
 export const metadata: Metadata = { title: "Team invitations" };

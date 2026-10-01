@@ -13,7 +13,7 @@ import {
 import { tags } from "@/lib/cache/tags";
 import { RedirectId, RedirectInput } from "./schema";
 
-/** Přidá přesměrování (RLS: sekce news „c"; smyčky a tvar cest hlídá DB). */
+/** Adds a redirect (RLS: section news "c"; the DB enforces loops and path shape). */
 export async function addRedirect(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = RedirectInput.safeParse(formObject(formData));
   if (!parsed.success) return invalid(parsed.error);
@@ -26,7 +26,7 @@ export async function addRedirect(_prev: ActionState, formData: FormData): Promi
   return { ok: true, message: `Redirect added: ${parsed.data.from_path} → ${parsed.data.to_path}` };
 }
 
-/** Smaže přesměrování (RLS: sekce news „d"). */
+/** Deletes a redirect (RLS: section news "d"). */
 export async function deleteRedirect(id: string): Promise<ActionState> {
   if (!RedirectId.safeParse(id).success) return { ok: false, error: "Invalid redirect." };
   const session = await signedIn();

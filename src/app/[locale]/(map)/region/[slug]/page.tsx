@@ -18,8 +18,8 @@ import { groupStats, population } from "@/lib/region-stats";
 import { absoluteUrl, alternates, breadcrumbJsonLd, geoCoordinates, geoMeta } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
 
-// true: s false vrací Next po revalidateTag (zápis v administraci) 404 i pro
-// existující stránky (NoFallbackError). Neznámý slug skončí přes notFound().
+// true: with false, Next returns 404 after revalidateTag (an admin write) even for
+// existing pages (NoFallbackError). An unknown slug ends up in notFound().
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
@@ -53,8 +53,8 @@ export async function generateMetadata({
 }
 
 /**
- * Portrét regionu. Krátká verze zanikla – zadání chce jeden úplný portrét bez
- * mezikroku, takže `/region/[slug]/full` jen přesměrovává (viz next.config.ts).
+ * Region portrait. The short version is gone – the brief wants one full portrait
+ * with no intermediate step, so `/region/[slug]/full` just redirects (see next.config.ts).
  */
 export default async function RegionPage({
   params,

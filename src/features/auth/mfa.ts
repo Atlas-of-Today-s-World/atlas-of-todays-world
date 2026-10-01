@@ -2,8 +2,8 @@ import "server-only";
 import { createServerClient } from "@/lib/supabase/server";
 
 /**
- * Potřebuje přihlášený druhý faktor, a má ho v této session? (DB funkce
- * mfa_status, E10). Bez něj DB roli s povinným 2FA nedá žádná oprávnění.
+ * Does the user need a second factor, and do they have it in this session? (DB
+ * function mfa_status, E10). Without it the DB grants no permissions to a role requiring 2FA.
  */
 export async function mfaGate(): Promise<null | { hasFactor: boolean }> {
   const supabase = await createServerClient();

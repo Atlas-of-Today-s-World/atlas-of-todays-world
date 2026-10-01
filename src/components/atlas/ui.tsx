@@ -33,7 +33,7 @@ export function NewsBadge({ count }: { count: number }) {
   );
 }
 
-/** Mřížka karet ukazatelů (jeden <dl> pro kartu země i portrét). */
+/** Grid of indicator cards (one <dl> for both the country card and the portrait). */
 export function StatGrid({
   children,
   className = "",
@@ -45,8 +45,8 @@ export function StatGrid({
 }
 
 /**
- * Jedna karta ukazatele. Vizuálně je nahoře hodnota, v DOM ale nejdřív název
- * (dt) — platný <dl>, takže čtečka přečte „název: hodnota" (WCAG 1.3.1).
+ * A single indicator card. Visually the value is on top, but in the DOM the name
+ * (dt) comes first — a valid <dl>, so a screen reader reads "name: value" (WCAG 1.3.1).
  */
 export function StatItem({
   label,
@@ -77,7 +77,7 @@ export function StatItem({
   );
 }
 
-/** Odkaz na zdroj čísla (jen https; bez adresy jen název). */
+/** Link to the figure's source (https only; without a URL just the name). */
 export function SourceLink({ href, children }: { href?: string | null; children: ReactNode }) {
   const url = safeUrl(href);
   return url ? (
@@ -95,11 +95,11 @@ export function SourceLink({ href, children }: { href?: string | null; children:
 }
 
 /**
- * Ručně zadaný ukazatel na kartě – stejný tvar u země i u regionu.
+ * Manually entered indicator on a card – same shape for countries and regions.
  *
- * Automatické ukazatele z OWID mají ikonu a hodnocení pořadí; tyhle mají místo
- * toho větu vysvětlení, protože měří věci, které nejdou seřadit (etnické
- * skupiny, míra svobody). Zdroj je povinný, takže se vypisuje vždy.
+ * Automatic OWID indicators have an icon and a rank rating; these instead have
+ * an explanatory sentence, because they measure things that can't be ranked (ethnic
+ * groups, degree of freedom). The source is mandatory, so it's always shown.
  */
 export function MetricCards({
   metrics,

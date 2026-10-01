@@ -1,11 +1,11 @@
 import { ImageResponse } from "next/og";
 
-/** Rozměr náhledu pro sítě (Open Graph, X, LinkedIn). */
+/** Preview image size for social networks (Open Graph, X, LinkedIn). */
 export const OG_SIZE = { width: 1200, height: 630 };
 
 /**
- * Jediný vzhled náhledových obrázků (next/og): tmavé „vesmírné" pozadí Atlasu,
- * štítek, nadpis a podtitul. Barva celku (region, issue) jako proužek.
+ * The single look of preview images (next/og): the Atlas's dark "space" background,
+ * a label, title and subtitle. The color of the whole (region, issue) as a stripe.
  */
 export function renderOg({
   kicker,

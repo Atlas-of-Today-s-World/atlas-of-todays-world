@@ -4,7 +4,7 @@ import { ACCOUNT_NAV, LEGAL_NAV, MAIN_NAV } from "@/config/navigation";
 import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 
-/** Jednoduchý světlý layout pro stránky mimo mapu (About, News, Support). */
+/** Simple light layout for pages outside the map (About, News, Support). */
 export default async function PagesLayout({
   children,
   params,

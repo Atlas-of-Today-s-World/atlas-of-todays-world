@@ -17,7 +17,7 @@ export interface NewsCard {
   hero?: string;
 }
 
-/** Sekce "Our News" – tmavý pruh se záložkami kategorií a řadou karet. */
+/** "Our News" section – a dark strip with category tabs and a row of cards. */
 export default function NewsTabs({ newsItems }: { newsItems: NewsCard[] }) {
   const t = useMessages();
   const available = NEWS_CATEGORIES.filter((category) =>

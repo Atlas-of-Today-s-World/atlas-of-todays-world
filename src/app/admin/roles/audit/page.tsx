@@ -8,7 +8,7 @@ import { auditLog } from "@/features/roles/editorial";
 
 export const metadata: Metadata = { title: "Audit log" };
 
-/** Záznam změn (audit_log): kdo, kdy, co — bez osobních údajů v detailu (DB-14). */
+/** Change log (audit_log): who, when, what — no personal data in the details (DB-14). */
 export default async function AuditPage({
   searchParams,
 }: {

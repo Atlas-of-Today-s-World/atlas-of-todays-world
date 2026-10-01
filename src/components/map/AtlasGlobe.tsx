@@ -19,35 +19,35 @@ import { DESKTOP_MIN_PX, railKind, railWidthPx } from "@/config/layout";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 
 interface GlobeColorSets {
-  /** ISO3 -> barva pro každou vrstvu, předpočítané na serveru. */
+  /** ISO3 -> color for each layer, precomputed on the server. */
   [view: string]: Record<string, string>;
 }
 
 export interface RegionLookup {
   /** ISO3 -> slug regionu. */
   slugByCountry: Record<string, string>;
-  /** slug regionu -> jeho země a název. */
+  /** region slug -> its countries and name. */
   bySlug: Record<string, { name: string; countries: string[] }>;
 }
 
 interface Props {
   colorSets: GlobeColorSets;
-  /** ISO3 -> slug země, pro navigaci po kliknutí. */
+  /** ISO3 -> country slug, for navigation on click. */
   slugs: Record<string, string>;
   regions: RegionLookup;
-  /** Global Issues redakce; prázdné, když žádné nejsou. */
+  /** Editorial Global Issues; empty when there are none. */
   issue: RegionLookup;
-  /** Popisky regionů nad globusem. */
+  /** Region labels over the globe. */
   regionLabels: RegionLabel[];
-  /** Vzhled a vlastní plochy z administrace. */
+  /** Appearance and custom areas from the admin. */
   styleOptions: StyleOptions;
 }
 
 const NEUTRAL = "#7d8aa8";
 
 /**
- * Odsazení výřezu tak, aby zemi nezakryl pravý panel s obsahem — široký
- * i úzký, podle cesty, na kterou se právě jde (tokeny z config/layout.ts).
+ * Viewport padding so the right content panel doesn't cover the country — wide
+ * or narrow, depending on the path being navigated to (tokens from config/layout.ts).
  */
 function railPadding() {
   if (typeof window === "undefined") return 60;
@@ -64,8 +64,8 @@ function railPadding() {
 type StateKey = "hover" | "inRegion" | "active";
 
 /**
- * Přepne feature-state u zadaných zemí a zhasne ty předchozí.
- * Ref si drží, co právě svítí, aby se sahalo jen na rozdíl.
+ * Toggles feature-state for the given countries and turns off the previous ones.
+ * The ref holds what's currently lit, so only the difference is touched.
  */
 function applyFeatureState(
   map: MapLibreMap,
@@ -91,12 +91,12 @@ function applyFeatureState(
 const setHoverState = (map: MapLibreMap, ref: { current: string[] }, next: string[]) =>
   applyFeatureState(map, ref, next, "hover");
 
-/** Z mapy ISO3->barva udělá MapLibre `match` výraz. */
+/** Turns an ISO3->color map into a MapLibre `match` expression. */
 function matchExpression(colors: Record<string, string>): ExpressionSpecification {
   const stops: string[] = [];
   for (const [iso3, color] of Object.entries(colors)) stops.push(iso3, color);
   if (!stops.length) return ["literal", NEUTRAL];
-  // Typy MapLibre neumí vyjádřit proměnný počet dvojic klíč–barva v "match".
+  // MapLibre types can't express a variable number of key–color pairs in "match".
   return ["match", ["get", "iso3"], ...stops, NEUTRAL] as unknown as ExpressionSpecification;
 }
 
@@ -117,27 +117,27 @@ export default function AtlasGlobe({
   const { focus, view, mode } = useMapState();
   const [hoverLabel, setHoverLabel] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
-  /** Země, na kterou se právě kliklo – zvýrazníme ji dřív, než dorazí obsah. */
-  // Platí, dokud se nezmění aktivní země (since) — pak převezme stránka.
+  /** The country just clicked – we highlight it before the content arrives. */
+  // Valid until the active country changes (since) — then the page takes over.
   const [pending, setPending] = useState<{ iso3: string; since: string | null } | null>(null);
   const pendingIso3 = pending && pending.since === focus.activeIso3 ? pending.iso3 : null;
 
-  // Obsluha myši se mění s režimem, ale mapu kvůli tomu nevytváříme znovu.
+  // Mouse handling changes with the mode, but we don't recreate the map for that.
   const modeRef = useLatest(mode);
   const regionsRef = useLatest(regions);
   const issueRef = useLatest(issue);
   const slugsRef = useLatest(slugs);
   const activeRef = useLatest(focus.activeIso3);
-  /** URL, které už jsme předstáhli – ať neprefetchujeme totéž při každém pohybu. */
+  /** URLs we've already prefetched – so we don't prefetch the same on every move. */
   const prefetchedRef = useRef(new Set<string>());
-  /** Poslední pozice kurzoru nad mapou, pro přepočet po dojezdu kamery. */
+  /** Last cursor position over the map, for recomputing after the camera settles. */
   const cursorRef = useRef<MapMouseEvent["point"] | null>(null);
-  // Co právě svítí ve feature-state, ať se při změně sahá jen na rozdíl.
+  // What's currently lit in feature-state, so changes only touch the difference.
   const hoveredIsoRef = useRef<string[]>([]);
   const regionIsoRef = useRef<string[]>([]);
   const activeIsoRef = useRef<string[]>([]);
 
-  // --- inicializace mapy (jen jednou za celý život aplikace) ---
+  // --- map initialization (only once for the app's whole lifetime) ---
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
@@ -149,8 +149,8 @@ export default function AtlasGlobe({
       const map = new MapLibreMap({
         container: containerRef.current,
         style: buildStyle(regionLabels, styleOptions),
-        // První snímek rovnou ve výchozí vzdálenosti, ať se mapa nezobrazí
-        // nejdřív jako malá kulička a teprve pak nepřiletí.
+        // First frame straight at the default distance, so the map doesn't first
+        // appear as a tiny ball and only then fly in.
         center: EUROPE_CENTER,
         zoom: globeFillZoom(),
         minZoom: 0.8,
@@ -170,8 +170,8 @@ export default function AtlasGlobe({
         setReady(true);
       });
 
-      // Stav pro e2e testy a diagnostiku: hranice zemí jsou načtené a vykreslené.
-      // "idle" nestačí — při animaci kamery nemusí přijít; sourcedata přijde vždy.
+      // State for e2e tests and diagnostics: country borders are loaded and rendered.
+      // "idle" isn't enough — it may not fire during camera animation; sourcedata always does.
       const markCountriesLoaded = (event: MapSourceDataEvent) => {
         if (event.sourceId !== "countries" || !map.isSourceLoaded("countries")) return;
         containerRef.current?.setAttribute("data-countries", "loaded");
@@ -179,7 +179,7 @@ export default function AtlasGlobe({
       };
       map.on("sourcedata", markCountriesLoaded);
 
-      /** Co je pod kurzorem: ISO3 země, její název a cílová URL podle režimu. */
+      /** What's under the cursor: country ISO3, its name and the target URL per mode. */
       const targetAt = (point: MapMouseEvent["point"]) => {
         const feature = map.queryRenderedFeatures(point, {
           layers: [LAYERS.fill],
@@ -187,7 +187,7 @@ export default function AtlasGlobe({
         const iso3 = (feature?.properties?.iso3 as string | undefined) ?? null;
         if (!iso3) return null;
 
-        // Skupinové režimy: kliknutí otevře celý celek, ne jednu zemi.
+        // Group modes: a click opens the whole group, not a single country.
         if (modeRef.current === "regions" || modeRef.current === "issue") {
           const isIssue = modeRef.current === "issue";
           const lookup = isIssue ? issueRef.current : regionsRef.current;
@@ -212,21 +212,21 @@ export default function AtlasGlobe({
         };
       };
 
-      /** Přepočítá zvýraznění pro daný bod na plátně. */
+      /** Recomputes the highlight for the given point on the canvas. */
       const applyHover = (point: MapMouseEvent["point"] | null) => {
         const target = point ? targetAt(point) : null;
         const key = target?.href ?? null;
         if (key === hoveredRef.current) return;
         hoveredRef.current = key;
 
-        // Zvýrazněné země držíme ve feature-state. Je to jen příznak na už
-        // nahrané geometrii, takže mapa nic nepřetesává a nebliká.
+        // Highlighted countries are kept in feature-state. It's just a flag on already
+        // loaded geometry, so the map doesn't re-tessellate anything and doesn't flicker.
         setHoverState(map, hoveredIsoRef, target ? target.countries : []);
 
         setHoverLabel(target?.label ?? null);
         map.getCanvas().style.cursor = target ? "pointer" : "grab";
 
-        // Obsah panelu stáhneme už při najetí, ať je klik okamžitý.
+        // Fetch the panel content already on hover, so the click is instant.
         if (target && !prefetchedRef.current.has(target.href)) {
           prefetchedRef.current.add(target.href);
           router.prefetch(target.href);
@@ -245,9 +245,9 @@ export default function AtlasGlobe({
         router.push(target.href);
       };
 
-      // Během přeletu kamery se pod nehybným kurzorem vystřídají různé země.
-      // Zvýraznění proto na začátku pohybu zhasneme a po dojezdu přepočítáme,
-      // jinak by na mapě zůstala viset náhodná země z půlky animace.
+      // During a camera flight different countries pass under a still cursor.
+      // So we turn the highlight off when movement starts and recompute it when it ends,
+      // otherwise a random country from mid-animation would stay highlighted.
       const onMoveStart = () => {
         hoveredRef.current = null;
         setHoverState(map, hoveredIsoRef, []);
@@ -271,11 +271,11 @@ export default function AtlasGlobe({
       cancelled = true;
       cleanup?.();
     };
-    // Mapa se schválně nevytváří znovu – závislosti čte přes ref/router.
+    // The map is deliberately not recreated – dependencies are read via ref/router.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // --- obarvení podle zvolené vrstvy ---
+  // --- coloring by the selected layer ---
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
@@ -289,7 +289,7 @@ export default function AtlasGlobe({
     const isData = view !== "encyclopedia";
     map.setPaintProperty(LAYERS.fill, "fill-opacity", isData ? 0.88 : 0.55);
 
-    // Datové vrstvy chtějí čitelné plochy, encyklopedie chce vidět terén.
+    // Data layers want legible fills, the encyclopedia wants to see the terrain.
     map.setPaintProperty(LAYERS.satellite, "raster-opacity", isData ? 0.28 : 1);
     map.setPaintProperty(LAYERS.satellite, "raster-saturation", isData ? -0.6 : -0.35);
     map.setPaintProperty(
@@ -299,15 +299,15 @@ export default function AtlasGlobe({
     );
   }, [colorSets, view, mode, ready]);
 
-  // --- režim výběru: státy vs. regiony ---
+  // --- selection mode: countries vs. regions ---
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
 
     const isGrouped = mode !== "countries";
 
-    // V režimu regionů ustoupí vnitřní hranice a názvy států do pozadí,
-    // aby barevné celky četly jako regiony.
+    // In regions mode internal borders and country names recede into the background,
+    // so the colored groups read as regions.
     map.setPaintProperty(LAYERS.border, "line-opacity", isGrouped ? 0.25 : 1);
     map.setLayoutProperty(LAYERS.label, "visibility", isGrouped ? "none" : "visible");
     map.setLayoutProperty(
@@ -316,18 +316,18 @@ export default function AtlasGlobe({
       mode === "regions" ? "visible" : "none",
     );
 
-    // Přepnutí režimu ruší rozpracované zvýraznění pod kurzorem.
+    // Switching mode cancels any pending highlight under the cursor.
     setHoverState(map, hoveredIsoRef, []);
     hoveredRef.current = null;
     setHoverLabel(null);
   }, [mode, ready]);
 
-  // --- zvýraznění aktivní země / regionu ---
+  // --- highlight of the active country / region ---
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
 
-    // pendingIso3 drží zvýraznění hned po kliknutí, než dorazí nová stránka.
+    // pendingIso3 holds the highlight right after a click, until the new page arrives.
     const active = focus.activeIso3 ?? pendingIso3;
     applyFeatureState(map, activeIsoRef, active ? [active] : [], "active");
     applyFeatureState(map, regionIsoRef, focus.regionCountries, "inRegion");
@@ -337,12 +337,12 @@ export default function AtlasGlobe({
     }
   }, [focus.activeIso3, focus.regionCountries, focus.regionStroke, pendingIso3, ready]);
 
-  // --- přelet kamery ---
+  // --- camera flight ---
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
 
-    // Výřez umí zoomovat "podle velikosti země": Lucembursko zblízka, Rusko z dálky.
+    // The viewport can zoom "by country size": Luxembourg up close, Russia from afar.
     if (focus.bbox) {
       const [minLon, minLat, maxLon, maxLat] = focus.bbox;
       map.fitBounds(
@@ -351,7 +351,7 @@ export default function AtlasGlobe({
           [maxLon, maxLat],
         ],
         {
-          // Vpravo je panel s obsahem, takže zemi posuneme do levé části mapy.
+          // The content panel is on the right, so we shift the country to the left part of the map.
           padding: railPadding(),
           maxZoom: 6,
           duration: 1600,

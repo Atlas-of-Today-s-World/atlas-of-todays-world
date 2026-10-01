@@ -3,8 +3,8 @@ import { createServerClient } from "@/lib/supabase/server";
 import type { EntryStatus } from "./schema";
 
 /**
- * Čtení pro redakci — pod session uživatele, takže RLS ukáže jen to, na co
- * role dosáhne (vlastní koncepty, frontu ke schválení…). Bez cache.
+ * Reads for editors — under the user's session, so RLS shows only what the
+ * role can reach (own drafts, approval queue…). No cache.
  */
 
 export interface EditorialRow {
@@ -20,7 +20,7 @@ export interface EditorialRow {
   updated_at: string;
   review_note: string | null;
   publish_at: string | null;
-  /** Jazyk textu; překlad má navíc `translation_of` (G5.3). */
+  /** Text language; a translation also has `translation_of` (G5.3). */
   locale: string;
   translation_of: string | null;
 }
@@ -42,7 +42,7 @@ export async function listEntries({
     .from("entries")
     .select(LIST_COLUMNS)
     .order("updated_at", { ascending: false })
-    // Celý výpis redakce; hledání a filtry stavu dělá tabulka (DataTable).
+    // The full editorial listing; search and status filters are done by the table (DataTable).
     .limit(1000);
   if (mine) query = query.eq("owner_id", userId);
   if (q?.trim()) query = query.ilike("title", `%${q.trim().replace(/[%_]/g, "")}%`);
@@ -84,7 +84,7 @@ export async function getEditableEntry(id: string): Promise<EditableEntry | null
   };
 }
 
-/** Jazykové verze článku pro administraci: originál a všechny jeho překlady. */
+/** Language versions of an article for the admin: the original and all its translations. */
 export async function listLanguageVersions(entry: { id: string; translation_of: string | null }) {
   const supabase = await createServerClient();
   const original = entry.translation_of ?? entry.id;
@@ -103,7 +103,7 @@ export async function listLanguageVersions(entry: { id: string; translation_of: 
   }[];
 }
 
-/** Kapitola v editoru (pořadí = pozice). */
+/** A chapter in the editor (order = position). */
 export interface EditableChapter {
   title: string;
   summary_points: string[];
@@ -113,7 +113,7 @@ export interface EditableChapter {
   audio_url: string | null;
 }
 
-/** Kapitoly a zdroje hesla pro editor (P9). */
+/** Entry chapters and sources for the editor (P9). */
 export async function getEntryParts(id: string) {
   const supabase = await createServerClient();
   const [chapters, resources] = await Promise.all([
@@ -132,7 +132,7 @@ export async function getEntryParts(id: string) {
   if (resources.error) throw new Error(`[resources] ${resources.error.message}`);
   return {
     chapters: chapters.data as EditableChapter[],
-    // Editor sekcí pracuje s textovými poli — null jako prázdný řetězec.
+    // The section editor works with text fields — null as an empty string.
     resources: resources.data.map((row) =>
       Object.fromEntries(Object.entries(row).map(([key, value]) => [key, value ?? ""])),
     ),
@@ -161,7 +161,7 @@ export async function listRevisions(entryId: string): Promise<Revision[]> {
   }));
 }
 
-/** Fronta ke schválení: čekající články, které smí tento člověk schválit. */
+/** Approval queue: pending articles this person may approve. */
 export async function approvalQueue(): Promise<(EditorialRow & { canApprove: boolean })[]> {
   const supabase = await createServerClient();
   const { data, error } = await supabase
@@ -178,7 +178,7 @@ export async function approvalQueue(): Promise<(EditorialRow & { canApprove: boo
   return rows.map((row, index) => ({ ...row, canApprove: checks[index]?.data === true }));
 }
 
-/** Zveřejněná podoba (poslední schválená revize) pro porovnání v detailu schvalování. */
+/** Published version (last approved revision) for comparison in the approval detail. */
 export async function publishedVersion(entryId: string) {
   const supabase = await createServerClient();
   const { data } = await supabase
@@ -196,9 +196,9 @@ export async function publishedVersion(entryId: string) {
 }
 
 /**
- * Články ve skupině zemí (globální téma nebo vlastní region) a články, které
- * se do ní dají přidat — pro stránku skupiny v administraci. RLS ukáže jen
- * to, na co role dosáhne.
+ * Articles in a country group (global issue or custom region) and articles that
+ * can be added to it — for the group page in the admin. RLS shows only what
+ * the role can reach.
  */
 export async function listGroupArticles(slug: string) {
   const supabase = await createServerClient();

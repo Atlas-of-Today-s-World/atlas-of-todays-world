@@ -22,9 +22,9 @@ export async function generateMetadata({
 }
 
 /**
- * Přihlášení (ARCHITEKTURA 7.1): Google hned, kód z e-mailu až s vlastním
- * SMTP (přepínač `email_auth`, G1). Čtenář se tím zároveň zaregistruje;
- * do redakce se vstupuje pozvánkou.
+ * Sign-in (ARCHITEKTURA 7.1): Google right away, the e-mail code only with our own
+ * SMTP (`email_auth` switch, G1). Signing in also registers a reader;
+ * joining the editorial team is by invitation.
  */
 export default async function LoginPage({
   params,

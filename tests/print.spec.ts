@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-/** Tisk profilu: bez glóbu, hlavičky a ovládání, obsah panelu zůstane celý. */
-test("tisková verze ukáže jen obsah panelu", async ({ page }) => {
+/** Printing a profile: no globe, header or controls; the panel content stays whole. */
+test("print version shows only the panel content", async ({ page }) => {
   await page.goto("/country/ukraine");
   await page.emulateMedia({ media: "print" });
   await expect(page.locator("header[data-print=hide]")).toBeHidden();

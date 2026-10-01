@@ -8,7 +8,7 @@ import {
   text,
 } from "@/lib/validation/common";
 
-/** Vzhled mapy (site_theme) — rozsahy shodné s CHECK v DB. */
+/** Map appearance (site_theme) — ranges matching the CHECK in the DB. */
 export const ThemeInput = z.object({
   saturation: z.coerce.number().min(0.2).max(2),
   border: z.coerce.number().min(0.4).max(2.2),
@@ -17,8 +17,8 @@ export const ThemeInput = z.object({
 const point = z.tuple([z.number().min(-180).max(180), z.number().min(-90).max(90)]);
 
 /**
- * GeoJSON Polygon s jedním uzavřeným prstencem — stejná pravidla jako DB
- * funkce `is_polygon` (4–2000 bodů, první = poslední, souřadnice v rozsahu).
+ * GeoJSON Polygon with one closed ring — the same rules as the DB function
+ * `is_polygon` (4–2000 points, first = last, coordinates within range).
  */
 const Polygon = z
   .object({
@@ -49,7 +49,7 @@ export const AreaInput = z.object({
     .transform((value, ctx) => {
       try {
         const parsed = JSON.parse(value);
-        // Přijmout i celý Feature nebo FeatureCollection s jedním prvkem.
+        // Also accept a whole Feature or a FeatureCollection with one feature.
         return parsed?.type === "Feature"
           ? parsed.geometry
           : parsed?.type === "FeatureCollection"

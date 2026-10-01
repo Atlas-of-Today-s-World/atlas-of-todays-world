@@ -9,7 +9,7 @@ import {
   type CountryShape,
 } from "./game";
 
-/** Opakovatelná „náhoda" pro testy (mulberry32). */
+/** Repeatable "randomness" for tests (mulberry32). */
 function seeded(seed: number) {
   return () => {
     seed = (seed + 0x6d2b79f5) | 0;
@@ -21,8 +21,8 @@ function seeded(seed: number) {
 
 const all = shapes as CountryShape[];
 
-describe("obrysy", () => {
-  it("je jich 50, různých a s cestou v rámečku 100 × 100", () => {
+describe("outlines", () => {
+  it("there are 50, distinct, with a path in the 100 × 100 box", () => {
     expect(all).toHaveLength(50);
     expect(new Set(all.map((shape) => shape.iso3)).size).toBe(50);
     for (const shape of all) {
@@ -38,7 +38,7 @@ describe("obrysy", () => {
 });
 
 describe("newGame", () => {
-  it("deset různých států, každý se čtyřmi různými možnostmi včetně správné", () => {
+  it("ten distinct countries, each with four distinct options including the right one", () => {
     const game = newGame(all, seeded(1));
     expect(game).toHaveLength(QUESTIONS_PER_GAME);
     expect(new Set(game.map((q) => q.answer.iso3)).size).toBe(QUESTIONS_PER_GAME);
@@ -50,7 +50,7 @@ describe("newGame", () => {
     }
   });
 
-  it("špatné možnosti jsou přednostně ze stejného kontinentu", () => {
+  it("wrong options preferably come from the same continent", () => {
     for (const question of newGame(all, seeded(7))) {
       const sameContinent = all.filter(
         (shape) => shape.continent === question.answer.continent && shape !== question.answer,
@@ -62,7 +62,7 @@ describe("newGame", () => {
     }
   });
 
-  it("každá hra je jiná a správná odpověď není pořád na stejném místě", () => {
+  it("every game differs and the right answer isn't always in the same spot", () => {
     const first = newGame(all, seeded(1)).map((q) => q.answer.iso3);
     const second = newGame(all, seeded(2)).map((q) => q.answer.iso3);
     expect(first).not.toEqual(second);
@@ -70,20 +70,20 @@ describe("newGame", () => {
     expect(new Set(positions).size).toBeGreaterThan(1);
   });
 
-  it("odmítne příliš málo států", () => {
+  it("rejects too few countries", () => {
     expect(() => newGame(all.slice(0, 5))).toThrow();
   });
 });
 
-describe("shuffle a verdict", () => {
-  it("shuffle nemění vstup a zachová prvky", () => {
+describe("shuffle and verdict", () => {
+  it("shuffle doesn't mutate the input and keeps the elements", () => {
     const input = [1, 2, 3, 4, 5];
     const output = shuffle(input, seeded(4));
     expect(input).toEqual([1, 2, 3, 4, 5]);
     expect([...output].sort()).toEqual(input);
   });
 
-  it("hodnocení pokryje 0 až 10 bodů", () => {
+  it("rating covers 0 to 10 points", () => {
     for (let score = 0; score <= QUESTIONS_PER_GAME; score++) {
       expect(verdict(score).length).toBeGreaterThan(0);
     }

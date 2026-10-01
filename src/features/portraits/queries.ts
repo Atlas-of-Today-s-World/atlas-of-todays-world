@@ -7,8 +7,8 @@ import { createPublicClient } from "@/lib/supabase/public";
 type Kind = "region" | "issue";
 
 /**
- * Redakční obsah portrétu regionu nebo global issue — jedním voláním DB funkce
- * `portrait()` (ARCHITEKTURA 4.2). Prázdné sekce kreslí portrét šedivě.
+ * Editorial content of a region or global issue portrait — in a single call to the
+ * DB function `portrait()` (ARCHITEKTURA 4.2). Empty sections render the portrait greyed out.
  */
 export function getPortrait(kind: Kind, slug: string): Promise<RegionDossier> {
   return unstable_cache(
@@ -19,7 +19,7 @@ export function getPortrait(kind: Kind, slug: string): Promise<RegionDossier> {
       });
       if (error) throw new Error(`[portrait] ${error.message}`);
       if (!data) return {};
-      // Tvar JSON drží DB funkce portrait(); null z DB → undefined pro komponenty.
+      // The JSON shape is defined by the DB function portrait(); null from the DB → undefined for components.
       const dossier = data as unknown as Omit<
         RegionDossier,
         "timelineTitle" | "timelineSubtitle"
@@ -31,7 +31,7 @@ export function getPortrait(kind: Kind, slug: string): Promise<RegionDossier> {
         ...dossier,
         timelineTitle: dossier.timelineTitle ?? undefined,
         timelineSubtitle: dossier.timelineSubtitle ?? undefined,
-        // Bez citace se karta nepublikuje (P1); DB to vynucuje, tady pojistka.
+        // A card without a citation isn't published (P1); the DB enforces it, this is a safety net.
         metrics: (dossier.metrics ?? []).filter((metric) => metric.source?.trim()),
       };
     },

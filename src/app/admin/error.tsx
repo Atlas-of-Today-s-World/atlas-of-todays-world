@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { ErrorState } from "@/components/atlas/ErrorState";
 import { Button } from "@/components/ui/button";
 
-/** Chyba v administraci (načtení z DB). Hláška bez detailů; detail je v logu serveru. */
+/** Error in the admin (loading from DB). Message without details; details are in the server log. */
 export default function AdminError({
   error,
   reset,

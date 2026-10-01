@@ -15,7 +15,7 @@ import { AccountInput } from "./schema";
 
 type Client = NonNullable<Awaited<ReturnType<typeof signedIn>>>["supabase"];
 
-/** Vyrovná přiřazení (země / autoři) na požadovaný seznam. */
+/** Reconciles assignments (countries / authors) to the requested list. */
 async function syncAssignments(
   supabase: Client,
   table: "approver_countries" | "approver_authors",
@@ -23,7 +23,7 @@ async function syncAssignments(
   userId: string,
   want: string[],
 ): Promise<ActionState | null> {
-  // Obě tabulky mají tvar (user_id, <column>); typy Supabase to jednou funkcí neumí vyjádřit.
+  // Both tables have the shape (user_id, <column>); Supabase types can't express that in one function.
   const from = () => supabase.from(table as "approver_countries");
   const key = column as "country_iso3";
   const { data, error } = await from().select(key).eq("user_id", userId);
@@ -47,9 +47,9 @@ async function syncAssignments(
 }
 
 /**
- * Úprava účtu (ARCHITEKTURA 7, E6): role, blokace, přiřazení schvalovatele.
- * Co kdo smí, hlídá guard_profiles + RLS; zablokovaný účet se navíc
- * zablokuje i v Supabase Auth, aby mu hned přestala platit session (DB-18).
+ * Account update (ARCHITEKTURA 7, E6): role, block, approver assignments.
+ * Who may do what is enforced by guard_profiles + RLS; a blocked account is
+ * also banned in Supabase Auth so its session stops working immediately (DB-18).
  */
 export async function saveAccount(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = AccountInput.safeParse(formObject(formData, ["countries", "authors"]));
@@ -78,7 +78,7 @@ export async function saveAccount(_prev: ActionState, formData: FormData): Promi
     status: fields.status,
     blocked_note: fields.status === "blocked" ? (blocked_note ?? null) : null,
   };
-  // Globální schvalovatele určuje jen admin — neposílat, když se nemění.
+  // Global approvers are set only by an admin — don't send them when unchanged.
   if (fields.approval_global !== before.approval_global) {
     update.approval_global = fields.approval_global;
   }
@@ -95,7 +95,7 @@ export async function saveAccount(_prev: ActionState, formData: FormData): Promi
   }
 
   if (before.status !== fields.status && serverEnv.SUPABASE_SERVICE_ROLE_KEY) {
-    // Profil se změnil pod RLS (oprávnění ověřena); ban v Auth umí jen servisní klíč.
+    // The profile changed under RLS (permissions verified); only the service key can ban in Auth.
     const { error: banError } = await createServiceClient().auth.admin.updateUserById(id, {
       ban_duration: fields.status === "blocked" ? "876000h" : "none",
     });

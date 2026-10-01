@@ -16,9 +16,9 @@ import { uuid } from "@/lib/validation/common";
 import { AuthorInput } from "./schema";
 
 /**
- * Uloží autora (RLS: nového přidá, kdo smí psát; cizí bio mění jen redakce
- * s přístupem ke všem článkům, DB-04). Autor se ukazuje v hlavičce hesel,
- * proto se obnoví i cache článků.
+ * Saves an author (RLS: anyone who may write can add a new one; someone else's
+ * bio may only be changed by editors with access to all articles, DB-04). The
+ * author appears in entry headers, so the article cache is revalidated too.
  */
 export async function saveAuthor(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = AuthorInput.safeParse(formObject(formData));
@@ -51,7 +51,7 @@ export async function saveAuthor(_prev: ActionState, formData: FormData): Promis
   return { ok: true, message: "Saved." };
 }
 
-/** Smaže autora; hesla zůstanou, jen bez profilu autora (FK on delete set null). */
+/** Deletes an author; entries remain, just without an author profile (FK on delete set null). */
 export async function deleteAuthor(id: string): Promise<ActionState> {
   if (!uuid.safeParse(id).success) return { ok: false, error: "Invalid author." };
   const session = await signedIn();

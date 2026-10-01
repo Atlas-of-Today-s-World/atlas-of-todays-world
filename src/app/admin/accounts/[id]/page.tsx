@@ -24,7 +24,7 @@ export default async function AccountPage({ params }: { params: Promise<{ id: st
   ]);
   if (!account) notFound();
   const isAdmin = access.roleId === "admin";
-  // Roli admin nabízí jen admin; ostatním ji DB stejně nedovolí dát.
+  // Only an admin is offered the admin role; the DB wouldn't let others grant it anyway.
   const offered = roles.filter((role) => isAdmin || !role.locked || role.id === account.role_id);
 
   return (

@@ -16,15 +16,15 @@ export const metadata: Metadata = {
 };
 
 /**
- * Shell administrace (ARCHITEKTURA 5.2, 7.3): bez přihlášení na /login,
- * čtenář bez týmové role dostane „Nemáte přístup". Menu z `my_permissions()`;
- * každá sekce si právo ověří i sama a zápisy hlídá RLS.
+ * Admin shell (ARCHITEKTURA 5.2, 7.3): without sign-in goes to /login,
+ * a reader without a team role gets "No access". Menu from `my_permissions()`;
+ * each section also checks the permission itself and RLS guards writes.
  */
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const access = await getAccess();
   if (!access) redirect("/login?next=/admin");
 
-  // Role s povinným 2FA nemá bez druhého faktoru v DB žádná práva (E10).
+  // A role with mandatory 2FA has no permissions in the DB without the second factor (E10).
   const mfa = await mfaGate();
   if (mfa) {
     return (

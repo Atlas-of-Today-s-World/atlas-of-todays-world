@@ -8,8 +8,8 @@ import type {
 import { cn } from "@/lib/cn";
 
 /**
- * Formulářová primitiva administrace (ARCHITEKTURA 15.1, D7): jeden vzhled
- * ovládacích prvků a jeden `FormField` (popisek + prvek + nápověda + chyba ze Zod).
+ * Admin form primitives (ARCHITEKTURA 15.1, D7): one look for
+ * controls and one `FormField` (label + control + hint + error from Zod).
  */
 const control = cva(
   "w-full rounded-lg border border-[var(--color-field-border)] bg-white px-3 text-[14px] text-[var(--color-ink)] transition placeholder:text-[var(--color-ink-muted)] focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent-soft)] focus:outline-none disabled:opacity-60 aria-[invalid=true]:border-red-500",
@@ -63,7 +63,7 @@ export function FormField({
   );
 }
 
-/** aria atributy, které propojí prvek s nápovědou a chybou z FormField. */
+/** aria attributes that link the control with the hint and error from FormField. */
 export function describedBy(id: string, { hint, errors }: { hint?: string; errors?: string[] }) {
   const ids = [hint ? `${id}-hint` : null, errors?.length ? `${id}-error` : null].filter(Boolean);
   return {

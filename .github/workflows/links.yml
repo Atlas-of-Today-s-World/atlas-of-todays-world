@@ -1,6 +1,6 @@
-# Týdenní kontrola mrtvých odkazů (PLAN G3). Projde stránky ze sitemap.xml
-# nasazeného webu a ověří každý odkaz a obrázek. Nic nezapisuje — výsledek je
-# jen ve výstupu a souhrnu jobu; nefunkční odkaz = neúspěšný běh (e-mail z Actions).
+# Weekly dead-link check (PLAN G3). Crawls the pages from the deployed site's
+# sitemap.xml and verifies every link and image. Writes nothing — the result is
+# only in the output and job summary; a broken link = failed run (e-mail from Actions).
 name: Kontrola odkazů
 
 on:
@@ -20,7 +20,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-      - name: Odkazy ve zveřejněném obsahu
+      - name: Links in published content
         env:
           SITE_URL: ${{ vars.SITE_URL }}
         run: |

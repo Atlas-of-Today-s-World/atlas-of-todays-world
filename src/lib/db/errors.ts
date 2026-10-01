@@ -1,7 +1,7 @@
 /**
- * Chyba z Postgresu/PostgREST → hláška pro uživatele (ARCHITEKTURA 4.3).
- * Vlastní výjimky z triggerů (errcode 42501, 22023, 23505 s textem) jsou psané
- * pro lidi, ty se ukážou. Ostatní detaily jdou jen do logu serveru.
+ * Postgres/PostgREST error → message for the user (ARCHITEKTURA 4.3).
+ * Custom exceptions from triggers (errcode 42501, 22023, 23505 with text) are
+ * written for people, so they are shown. Other details go only to the server log.
  */
 interface DbError {
   code?: string;

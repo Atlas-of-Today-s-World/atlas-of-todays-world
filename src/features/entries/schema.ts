@@ -11,7 +11,7 @@ import {
   uuid,
 } from "@/lib/validation/common";
 
-/** Text s jednou položkou na řádek → seznam neprázdných řádků (CR odstraní trim). */
+/** Text with one item per line → list of non-empty lines (trim removes CR). */
 const lines = (value: unknown) =>
   typeof value === "string"
     ? value
@@ -20,13 +20,13 @@ const lines = (value: unknown) =>
         .filter(Boolean)
     : value;
 
-/** Odrážky shrnutí hesla i kapitoly: nejvýš 5 po 300 znacích (DB `short_items`). */
+/** Summary bullets for entries and chapters: at most 5 of 300 characters (DB `short_items`). */
 const summaryPoints = z.preprocess(
   lines,
   z.array(text(300)).max(5, "At most 5 bullet points, one per line."),
 );
 
-/** Vstup editoru novinky/hesla — limity shodné s tabulkou `entries`. */
+/** News/entry editor input — limits matching the `entries` table. */
 export const EntryInput = z.object({
   id: z.preprocess(blankToUndefined, uuid.optional()),
   slug: slug(120),
@@ -45,20 +45,20 @@ export const EntryInput = z.object({
   body_html: z.string().max(400_000, "The text is too long."),
   countries: z.array(iso3).max(60, "At most 60 countries."),
   planned: z.preprocess((value) => value === "on", z.boolean()),
-  // Jen u encyklopedického hesla (P9); u novinky zůstanou prázdné.
+  // Encyclopedia entries only (P9); left empty for news.
   summary_points: summaryPoints.default([]),
   author_id: z.preprocess(blankToUndefined, uuid.optional()),
 });
 export type EntryInput = z.infer<typeof EntryInput>;
 
-/** Kapitola hesla — limity shodné s tabulkou `entry_chapters`. */
+/** Entry chapter — limits matching the `entry_chapters` table. */
 export const ChapterInput = z.object({
   title: requiredText(200),
   summary_points: summaryPoints,
   body_html: z.string().max(200_000, "The chapter text is too long."),
   illustration_url: optionalHttpsUrl,
   illustration_credit: text(300).default(""),
-  // Zvuková verze kapitoly (R4) — po kapitolách, ať se soubor vejde do 50 MB.
+  // Chapter audio version (R4) — per chapter, so the file fits within 50 MB.
   audio_url: optionalHttpsUrl,
 });
 export type ChapterInput = z.infer<typeof ChapterInput>;
@@ -77,13 +77,13 @@ export const SendBackInput = z.object({
   note: requiredText(2000),
 });
 
-/** Nejdřív a nejpozději lze zveřejnění naplánovat (shodné se schedule_entry v DB). */
+/** Earliest and latest a publication can be scheduled (matches schedule_entry in the DB). */
 const SCHEDULE_MIN_MINUTES = 5;
 const SCHEDULE_MAX_DAYS = 365;
 
 /**
- * Plánované zveřejnění: čas jako ISO s posunem (prohlížeč převede místní čas
- * z pole datetime-local). Okno 5 minut až rok hlídá i DB funkce.
+ * Scheduled publication: time as ISO with offset (the browser converts local time
+ * from the datetime-local field). The DB function also enforces the 5-minute-to-1-year window.
  */
 export const ScheduleInput = z.object({
   id: uuid,

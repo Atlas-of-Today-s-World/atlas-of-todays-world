@@ -17,8 +17,8 @@ const LABELS: Record<(typeof PREVIEW_HOURS)[number], string> = {
 };
 
 /**
- * Náhled článku tak, jak bude vypadat na webu, a odkaz pro lidi bez účtu
- * (G2). Odkaz platí zvolenou dobu; kdo ho má, článek uvidí i nezveřejněný.
+ * Article preview as it will look on the site, and a link for people without an
+ * account (G2). The link is valid for the chosen period; whoever has it sees the article even unpublished.
  */
 export function PreviewShare({ entryId }: { entryId: string }) {
   const [hours, setHours] = useState<number>(PREVIEW_HOURS[0]);

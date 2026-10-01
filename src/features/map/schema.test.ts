@@ -17,7 +17,7 @@ const ring = [
 ];
 
 describe("AreaInput", () => {
-  it("přijme Polygon i Feature a barvy převede na malá písmena", () => {
+  it("accepts a Polygon and a Feature and lowercases colours", () => {
     const polygon = AreaInput.parse({
       ...base,
       geometry: JSON.stringify({ type: "Polygon", coordinates: [ring] }),
@@ -34,7 +34,7 @@ describe("AreaInput", () => {
     expect(feature.geometry.coordinates[0]).toHaveLength(4);
   });
 
-  it("odmítne neuzavřený obrazec, souřadnice mimo rozsah a nesmysl", () => {
+  it("rejects an unclosed shape, out-of-range coordinates and nonsense", () => {
     const open = { type: "Polygon", coordinates: [[...ring.slice(0, 3), [38, 48]]] };
     expect(AreaInput.safeParse({ ...base, geometry: JSON.stringify(open) }).success).toBe(false);
     const far = {

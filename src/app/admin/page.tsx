@@ -8,7 +8,7 @@ import { approvalQueue, listEntries } from "@/features/entries/editorial";
 
 export const metadata: Metadata = { title: "Overview" };
 
-/** Úvod administrace: co na mě čeká a kam dál (podle oprávnění). */
+/** Admin home: what's waiting for me and where to go next (by permissions). */
 export default async function AdminHome() {
   const access = await getAccess();
   if (!access) return null;

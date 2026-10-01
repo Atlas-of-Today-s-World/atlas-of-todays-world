@@ -2,7 +2,7 @@ import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 import security from "eslint-plugin-security";
 
-// Pravidla vychází z ARCHITEKTURA.md kap. 8 (bezpečnost) a 15 (deduplikace).
+// Rules follow ARCHITEKTURA.md ch. 8 (security) and 15 (deduplication).
 const config = [
   {
     ignores: [
@@ -25,10 +25,10 @@ const config = [
   security.configs.recommended,
   {
     rules: {
-      // Dynamický přístup k objektům je v datovém kódu běžný a bezpečný (klíče
-      // jsou ISO kódy a slugy z vlastních dat); pravidlo dává hlavně šum.
+      // Dynamic object access is common and safe in data code (keys are
+      // ISO codes and slugs from our own data); the rule is mostly noise.
       "security/detect-object-injection": "off",
-      // Pravidla React Compileru (eslint-config-next 16) platí naplno (A11).
+      // React Compiler rules (eslint-config-next 16) apply in full (A11).
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
@@ -38,7 +38,7 @@ const config = [
   {
     files: ["src/**/*.{ts,tsx}"],
     rules: {
-      // Supabase jen přes lib/supabase (správný klíč na správném místě).
+      // Supabase only via lib/supabase (the right key in the right place).
       "no-restricted-imports": [
         "error",
         {
@@ -51,7 +51,7 @@ const config = [
           ],
         },
       ],
-      // HTML jen přes <SafeHtml> (ARCHITEKTURA 5.1, 8.3).
+      // HTML only via <SafeHtml> (ARCHITEKTURA 5.1, 8.3).
       "no-restricted-syntax": [
         "error",
         {
@@ -62,8 +62,8 @@ const config = [
     },
   },
   {
-    // Místa, kde je vložení HTML legitimní: SafeHtml samotná a JSON-LD
-    // (escapované přes jsonLdHtml).
+    // Places where injecting HTML is legitimate: SafeHtml itself and JSON-LD
+    // (escaped via jsonLdHtml).
     files: ["src/components/atlas/SafeHtml.tsx", "src/components/JsonLd.tsx"],
     rules: { "no-restricted-syntax": "off" },
   },
@@ -72,8 +72,8 @@ const config = [
     rules: { "no-restricted-imports": "off" },
   },
   {
-    // Node skripty a konfigurace běží mimo prohlížeč a čtou soubory z cest,
-    // které si samy skládají.
+    // Node scripts and configs run outside the browser and read files from
+    // paths they build themselves.
     files: ["scripts/**", "supabase/**", "*.config.*", "tests/**"],
     rules: {
       "security/detect-non-literal-fs-filename": "off",

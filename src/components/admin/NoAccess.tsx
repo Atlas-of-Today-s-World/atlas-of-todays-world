@@ -1,4 +1,4 @@
-/** Sekce, na kterou role nemá právo (stránka je chráněná i mimo menu). */
+/** A section the role has no permission for (the page is protected even outside the menu). */
 export function NoAccess() {
   return (
     <div data-testid="section-forbidden">

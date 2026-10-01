@@ -6,8 +6,8 @@ import { Dialog } from "@/components/ui/dialog";
 import type { ActionState } from "@/lib/actions";
 
 /**
- * Tlačítko pro nevratnou nebo citlivou akci (smazat, stáhnout z webu…):
- * nejdřív potvrzovací dialog (`ui/dialog`), pak Server Action.
+ * Button for an irreversible or sensitive action (delete, unpublish…):
+ * first a confirmation dialog (`ui/dialog`), then the Server Action.
  */
 export function ConfirmButton({
   label,
@@ -20,7 +20,7 @@ export function ConfirmButton({
   ...variants
 }: ButtonVariants & {
   label: string;
-  /** Jen ikona (řádkové akce tabulky); `label` pak slouží jako název pro čtečku a tooltip. */
+  /** Icon only (table row actions); `label` then serves as the screen-reader name and tooltip. */
   icon?: ReactNode;
   title: string;
   body: string;

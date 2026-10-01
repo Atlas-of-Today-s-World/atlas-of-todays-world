@@ -2,7 +2,7 @@ import { publicEnv } from "@/lib/env";
 
 const FALLBACK = "https://github.com/Atlas-of-Today-s-World/atlas-of-todays-world/issues";
 
-/** Jak kontaktovat provozovatele: e-mail z NEXT_PUBLIC_CONTACT_EMAIL, jinak GitHub. */
+/** How to contact the operator: e-mail from NEXT_PUBLIC_CONTACT_EMAIL, otherwise GitHub. */
 export function ContactLink() {
   const email = publicEnv.NEXT_PUBLIC_CONTACT_EMAIL;
   return email ? (

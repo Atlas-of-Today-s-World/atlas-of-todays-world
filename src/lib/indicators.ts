@@ -3,13 +3,13 @@ import { formatNumber } from "@/lib/format";
 import type { Indicator } from "@/features/geography/types";
 
 /**
- * Barvy, legenda a formát hodnot datových vrstev. Čisté funkce nad
- * `Indicator` z databáze (features/geography/model.ts).
+ * Colors, legend and value formatting for data layers. Pure functions over
+ * `Indicator` from the database (features/geography/model.ts).
  */
 
 /**
- * Barva země pro danou vrstvu. Sekvenční škály interpolují mezi zastávkami
- * rampy, kategoriální berou barvu přímo z číselníku.
+ * Country color for the given layer. Sequential scales interpolate between
+ * ramp stops; categorical ones take the color straight from the lookup table.
  */
 function colorForValue(indicator: Indicator, value: number): string {
   if (indicator.type === "categorical") {
@@ -56,7 +56,7 @@ function hexToRgb(hex: string): [number, number, number] {
   ];
 }
 
-/** Naformátuje hodnotu pro kartu země a legendu. */
+/** Formats a value for the country card and the legend. */
 export function formatValue(indicator: Indicator, value: number, locale: Locale = "en"): string {
   if (indicator.type === "categorical") {
     const match = indicator.categories?.find((c) => c.value === Math.round(value));
@@ -69,8 +69,8 @@ export function formatValue(indicator: Indicator, value: number, locale: Locale 
 }
 
 /**
- * Hodnoty pro obarvení globusu: {ISO3: "#rrggbb"}. Posílá se do klienta jako
- * jeden malý objekt místo celého datasetu.
+ * Values for coloring the globe: {ISO3: "#rrggbb"}. Sent to the client as
+ * one small object instead of the whole dataset.
  */
 export function colorMapFor(indicator: Indicator): Record<string, string> {
   const out: Record<string, string> = {};
@@ -80,7 +80,7 @@ export function colorMapFor(indicator: Indicator): Record<string, string> {
   return out;
 }
 
-/** Podklad pro legendu pod globusem. */
+/** Data for the legend below the globe. */
 export function legendFor(
   indicator: Indicator,
   locale: Locale = "en",

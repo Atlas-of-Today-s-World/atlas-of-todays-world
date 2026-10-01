@@ -7,17 +7,17 @@ import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 
 /**
- * Panel s obsahem vedle mapy. Nese profil regionu, kartu země i celé
- * novinku – uživatel tak nikdy neopustí mapu.
+ * Content panel next to the map. Holds the region profile, the country card and
+ * whole news items – so the user never leaves the map.
  *
- * Na desktopu je to pravý sloupec, na mobilu spodní sheet; obsah se renderuje
- * jen jednou, aby se v HTML neduplikoval.
+ * On desktop it's the right column, on mobile a bottom sheet; the content is rendered
+ * only once so it isn't duplicated in the HTML.
  */
 export default function ContentRail({
   children,
   /**
-   * Kam se vrátit křížkem. Výchozí je globus: křížek má panel zavřít, ne
-   * otevřít jiný – o cestu "o úroveň výš" se stará drobečková navigace.
+   * Where the close button goes back to. Defaults to the globe: the X should close
+   * the panel, not open another – "one level up" is handled by the breadcrumbs.
    */
   closeHref = "/",
   wide = false,
@@ -27,9 +27,9 @@ export default function ContentRail({
   closeHref?: string;
   wide?: boolean;
   /**
-   * Skeleton z loading.tsx: bez `id="content"` a `data-print`. Při streamování
-   * je skeleton chvíli v DOM vedle skutečného panelu (skrytého do odkrytí) —
-   * se stejným id by stránka měla dva `#content` a tisk dva panely.
+   * Skeleton from loading.tsx: no `id="content"` and `data-print`. While streaming,
+   * the skeleton briefly sits in the DOM next to the real panel (hidden until revealed) —
+   * with the same id the page would have two `#content` and print two panels.
    */
   placeholder?: boolean;
 }) {
@@ -38,8 +38,8 @@ export default function ContentRail({
   const router = useLocalizedRouter();
   const panel = useRef<HTMLElement>(null);
 
-  // Panel se zavírá i klávesou Esc – jinak by se z něj klávesnicí nešlo dostat.
-  // Esc v poli formuláře (hledání, newsletter) patří tomu poli, ne panelu.
+  // The panel also closes with Esc – otherwise keyboard users couldn't get out of it.
+  // Esc in a form field (search, newsletter) belongs to that field, not the panel.
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape" || event.defaultPrevented) return;
@@ -53,8 +53,8 @@ export default function ContentRail({
     return () => window.removeEventListener("keydown", onKey);
   }, [closeHref, router]);
 
-  // Po otevření patří ohnisko do panelu, ať čtečka i klávesnice pokračují tam,
-  // kde přibyl obsah, a ne na začátku stránky.
+  // On open, focus moves into the panel so screen readers and keyboard continue where
+  // the content appeared, not at the top of the page.
   useEffect(() => {
     panel.current?.focus({ preventScroll: true });
   }, []);
@@ -71,12 +71,12 @@ export default function ContentRail({
         wide ? "md:w-(--rail-width-wide)" : "md:w-(--rail-width)"
       } ${collapsed ? "md:translate-x-full" : "md:translate-x-0"}`}
     >
-      {/* Úchyt sheetu na mobilu */}
+      {/* Sheet handle on mobile */}
       <div className="flex justify-center py-2.5 md:hidden">
         <span className="h-1 w-10 rounded-full bg-[var(--color-line)]" />
       </div>
 
-      {/* Sbalení panelu na desktopu */}
+      {/* Panel collapse on desktop */}
       <button
         type="button"
         aria-label={collapsed ? t.panel.show : t.panel.hide}
@@ -86,7 +86,7 @@ export default function ContentRail({
         {collapsed ? <ChevronLeft size={16} aria-hidden /> : <ChevronRight size={16} aria-hidden />}
       </button>
 
-      {/* Odkaz, ne tlačítko: zavře panel i před připojením Reactu. */}
+      {/* A link, not a button: closes the panel even before React hydrates. */}
       <Link
         href={closeHref}
         aria-label={t.common.close}

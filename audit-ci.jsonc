@@ -1,8 +1,8 @@
 {
   "$schema": "https://github.com/IBM/audit-ci/raw/main/docs/schema.json",
-  // CI selže na zranitelnosti high a vyšší v produkčních závislostech.
+  // CI fails on high or higher vulnerabilities in production dependencies.
   "high": true,
   "skip-dev": true,
-  // MapLibre 6.11 (A9) opravuje GHSA-jrc7-96c5-q579; výjimka už není potřeba.
+  // MapLibre 6.11 (A9) fixes GHSA-jrc7-96c5-q579; the exception is no longer needed.
   "allowlist": [],
 }

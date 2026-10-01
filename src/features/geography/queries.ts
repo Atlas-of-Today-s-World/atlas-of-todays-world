@@ -9,11 +9,11 @@ import { createPublicClient } from "@/lib/supabase/public";
 import { buildAtlas, type AtlasSnapshot, type GeoFacts } from "./model";
 import type { Atlas } from "./types";
 
-const PAGE = 1000; // PostgREST vrací nejvýš 1000 řádků na dotaz.
+const PAGE = 1000; // PostgREST returns at most 1000 rows per query.
 
 type Page<T> = PromiseLike<{ data: T[] | null; error: { message: string } | null }>;
 
-/** Načte celou tabulku po stránkách; chyba DB shodí build, ne tiché prázdno. */
+/** Loads a whole table page by page; a DB error fails the build instead of silently returning nothing. */
 async function all<T>(label: string, page: (from: number, to: number) => Page<T>): Promise<T[]> {
   const out: T[] = [];
   for (let from = 0; ; from += PAGE) {
@@ -24,7 +24,7 @@ async function all<T>(label: string, page: (from: number, to: number) => Page<T>
   }
 }
 
-/** Všechno, z čeho se kreslí mapa, jedním během; výsledek v datové cache Next. */
+/** Everything the map is drawn from, in one pass; the result goes into the Next data cache. */
 const loadSnapshot = unstable_cache(
   async (): Promise<AtlasSnapshot> => {
     const db = createPublicClient();
@@ -144,7 +144,7 @@ const GEO: GeoFacts[] = (generated as GeneratedCountry[]).map(
   ({ iso3, iso2, continent, territoryNote }) => ({ iso3, iso2, continent, territoryNote }),
 );
 
-/** Překlady textů do jednoho jazyka (G5); obnovují se se stejným tagem jako Atlas. */
+/** Text translations into one language (G5); revalidated with the same tag as the Atlas. */
 const loadTranslations = unstable_cache(
   async (locale: string): Promise<TranslationRow[]> => {
     const db = createPublicClient();
@@ -164,8 +164,8 @@ const loadTranslations = unstable_cache(
 );
 
 /**
- * Model Atlasu pro jeden request a jazyk (snapshot je v cache, skládání jen
- * jednou). Nepřeložené texty zůstávají anglicky.
+ * Atlas model for one request and language (the snapshot is cached, assembly
+ * happens only once). Untranslated texts stay in English.
  */
 export const getAtlas = cache(async (locale: Locale = DEFAULT_LOCALE): Promise<Atlas> => {
   const snapshot = await loadSnapshot();
@@ -173,7 +173,7 @@ export const getAtlas = cache(async (locale: Locale = DEFAULT_LOCALE): Promise<A
   return buildAtlas(localizeSnapshot(snapshot, await loadTranslations(locale)), GEO, locale);
 });
 
-/** Volby pro výběry v administraci (regiony, global issues, země podle abecedy). */
+/** Options for admin selects (regions, global issues, countries alphabetically). */
 export async function getPickerOptions() {
   const atlas = await getAtlas();
   const byName = (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name, "en");

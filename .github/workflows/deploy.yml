@@ -1,12 +1,12 @@
-# Nasazení na Vercel přes token (Hobby účet nenasazuje z Git integrace commity
-# cizích autorů, proto nasazuje tahle pipeline).
-#   - main: produkce, ale až když na daném commitu prošlo CI (ci.yml)
-#   - pull request: náhledová verze
+# Deploys to Vercel via token (a Hobby account won't deploy commits by other
+# authors from the Git integration, so this pipeline deploys instead).
+#   - main: production, but only once CI (ci.yml) has passed on that commit
+#   - pull request: preview deployment
 #
-# Build běží na Vercelu, ne tady: Hobby dovolí nahrát max. 5 000 souborů denně
-# a hotový build (~270 stránek) by limit vyčerpal po pár nasazeních. Nahrává se
-# jen zdrojový kód a nezměněné soubory Vercel podle hashe znovu nechce.
-# Co se nenahrává, určuje .vercelignore.
+# The build runs on Vercel, not here: Hobby allows uploading max. 5,000 files a day
+# and a finished build (~270 pages) would exhaust the limit after a few deploys.
+# Only source code is uploaded, and Vercel skips unchanged files by hash.
+# What is not uploaded is set by .vercelignore.
 name: Deploy to Vercel
 
 on:
@@ -38,9 +38,9 @@ env:
   VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
 
 jobs:
-  # Migrace databáze do produkce PŘED nasazením aplikace — proto musí být
-  # zpětně kompatibilní s běžící verzí (ARCHITEKTURA 6.3). Náhledy PR migrace
-  # nespouští; zkoušejí se na dev projektu (atlas-dev).
+  # Database migrations go to production BEFORE the app is deployed — so they
+  # must be backward compatible with the running version (ARCHITEKTURA 6.3).
+  # PR previews don't run migrations; they are tried on the dev project (atlas-dev).
   migrate:
     if: >-
       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
@@ -56,10 +56,10 @@ jobs:
       - uses: supabase/setup-cli@v1
         with:
           version: latest
-      # --include-seed: supabase/seed.sql (zmrazený snímek výchozího obsahu) se
-      # do prázdné produkce nahraje jednou. CLI si pamatuje hash v
-      # supabase_migrations.seed_files a už nahraný seed znovu nespustí, takže
-      # nepřepíše, co redakce mezitím změnila v administraci.
+      # --include-seed: supabase/seed.sql (a frozen snapshot of the initial content)
+      # is loaded into the empty production once. The CLI remembers its hash in
+      # supabase_migrations.seed_files and won't rerun an already applied seed, so
+      # it doesn't overwrite what editors have since changed in the admin.
       - name: Migrace do produkce
         run: |
           supabase link --project-ref "${{ vars.SUPABASE_PROJECT_REF }}" --password "$SUPABASE_DB_PASSWORD"
@@ -67,8 +67,8 @@ jobs:
 
   deploy:
     needs: migrate
-    # Produkci nasadit jen po zeleném CI a úspěšné migraci. Náhled PR z forku
-    # nemá přístup k tokenu.
+    # Deploy production only after green CI and a successful migration. A PR
+    # preview from a fork has no access to the token.
     if: >-
       always() && (needs.migrate.result == 'success' || needs.migrate.result == 'skipped') && (
         (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||

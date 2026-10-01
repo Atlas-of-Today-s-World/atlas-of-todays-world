@@ -8,7 +8,7 @@ import { format, getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import { DATE_INTL } from "@/lib/format";
 
-// Náhled nezveřejněného článku přes sdílený odkaz (G2): vždy čerstvý, nikdy v indexu.
+// Preview of an unpublished article via a shared link (G2): always fresh, never indexed.
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({

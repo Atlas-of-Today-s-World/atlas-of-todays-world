@@ -9,23 +9,23 @@ type Client = Awaited<ReturnType<typeof createServerClient>>;
 const DEFAULT_AFTER_SIGN_IN = "/ucet";
 
 /**
- * Dokončení přihlášení (Google i odkaz z e-mailu): přijme čekající pozvánku
- * a pošle uživatele dál — jen na vlastní web.
+ * Finishing sign-in (Google and email link): accepts a pending invitation
+ * and redirects the user onward — only within our own site.
  *
- * Pozvánku často přijme už trigger při založení účtu, takže o cíli nerozhoduje
- * výsledek `claim_invitation()`, ale role: člen týmu bez konkrétního cíle
- * jde rovnou do administrace.
+ * The invitation is often already accepted by a trigger on account creation, so
+ * the destination isn't decided by the result of `claim_invitation()` but by the
+ * role: a team member without a specific destination goes straight to the admin.
  */
 export async function finishSignIn(supabase: Client, next: string | null, origin: string) {
   return NextResponse.redirect(new URL(await signInDestination(supabase, next), origin));
 }
 
-/** Kam po přihlášení — pro route handler (finishSignIn) i Server Action s kódem z e-mailu. */
+/** Where to go after sign-in — for the route handler (finishSignIn) and the email-code Server Action. */
 export async function signInDestination(supabase: Client, next: string | null) {
   const target = safeRedirect(next, DEFAULT_AFTER_SIGN_IN);
   await supabase.rpc("claim_invitation");
 
-  // Výchozí cíl v kterémkoli jazyce (/ucet, /cs/ucet) = člen týmu nemá kam jinam.
+  // Default destination in any language (/ucet, /cs/ucet) = the team member has nowhere else to go.
   if (splitLocale(target).path === DEFAULT_AFTER_SIGN_IN) {
     const { data: role } = await supabase.rpc("my_role");
     if (role && role.id !== "reader") return "/admin";

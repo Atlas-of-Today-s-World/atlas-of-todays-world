@@ -10,9 +10,10 @@ import {
 } from "./support/accounts";
 
 /**
- * Matice oprávnění (role × sekce × vced): každé kliknutí se hned uloží přes
- * Server Action `saveMatrix` a rozhoduje DB. Dočasná role „správce oprávnění"
- * bez povinného 2FA mění dočasnou cílovou roli; admin a vlastní role jsou zamčené.
+ * Permission matrix (role × section × vced): every click is saved at once via
+ * the `saveMatrix` Server Action and the DB decides. A temporary "permission
+ * manager" role without mandatory 2FA edits a temporary target role; admin and
+ * the manager's own role are locked.
  */
 requireDevAccounts();
 test.describe.configure({ mode: "serial" });

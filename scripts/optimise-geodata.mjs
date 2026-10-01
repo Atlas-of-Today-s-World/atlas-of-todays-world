@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 /**
- * Zmenší hranice zemí pro mapu. Běží nad tím, co stáhl `npm run data:geo`.
+ * Shrinks country borders for the map. Runs on what `npm run data:geo` downloaded.
  *
- * Tři úpravy, každá měřitelná:
- *   1. Douglas–Peucker zjednodušení každého prstence.
- *   2. Zahození drobných ostrovů, které jsou na globusu stejně pod pixel.
- *   3. Zaokrouhlení souřadnic (výchozí 2 desetinná místa ≈ 1 km).
+ * Three steps, each measurable:
+ *   1. Douglas–Peucker simplification of every ring.
+ *   2. Dropping tiny islands that are below a pixel on the globe anyway.
+ *   3. Rounding coordinates (default 2 decimal places ≈ 1 km).
  *
- * Kvalita klesne jen tam, kde to při pohledu z vesmíru není vidět; tvar
- * pevnin a hranice mezi sousedy zůstávají.
+ * Quality drops only where it cannot be seen from space; the shape of
+ * landmasses and the borders between neighbours stay.
  *
- * Použití: npm run data:optimise -- [tolerance] [minPlocha] [desetinnáMísta]
+ * Usage: npm run data:optimise -- [tolerance] [minArea] [decimalPlaces]
  */
 import { readFile, writeFile, stat } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
@@ -20,13 +20,13 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE = resolve(ROOT, "public/data/countries.geo.json");
 
 const [, , tolArg, areaArg, digitsArg] = process.argv;
-/** Tolerance zjednodušení ve stupních. 0.04° ≈ 4 km. */
+/** Simplification tolerance in degrees. 0.04° ≈ 4 km. */
 const TOLERANCE = Number(tolArg ?? 0.04);
-/** Nejmenší plocha ostrova ve čtverečních stupních, kterou ještě kreslíme. */
+/** Smallest island area in square degrees that is still drawn. */
 const MIN_AREA = Number(areaArg ?? 0.02);
 const DIGITS = Number(digitsArg ?? 2);
 
-/** Kolmá vzdálenost bodu od úsečky – jádro Douglas–Peuckera. */
+/** Perpendicular distance of a point from a segment – the core of Douglas–Peucker. */
 function sqSegmentDistance(p, a, b) {
   let x = a[0];
   let y = a[1];
@@ -75,16 +75,16 @@ function simplifyRing(points, tolerance) {
 
   const out = [];
   for (let i = 0; i < points.length; i += 1) if (keep[i]) out.push(points[i]);
-  // Polygon musí zůstat uzavřený a mít aspoň trojúhelník.
+  // The polygon must stay closed and be at least a triangle.
   if (out.length < 4) return points;
   return out;
 }
 
 /**
- * Shoelace se znaménkem: kladné = prstenec obtočený proti směru hodinových
- * ručiček. Zjednodušení a zaokrouhlení dokáže u drobného ostrova směr obrátit
- * a na kouli pak takový prstenec znamená "všechno kromě" – jeden takový ostrov
- * přebarví celou planetu. Proto směr po úpravě vždycky srovnáváme s předlohou.
+ * Signed shoelace: positive = ring wound counter-clockwise. Simplification
+ * and rounding can flip the winding of a tiny island, and on a sphere such a
+ * ring then means "everything except" – one such island repaints the whole
+ * planet. So after processing we always align the winding with the source.
  */
 function signedArea(ring) {
   let sum = 0;
@@ -94,7 +94,7 @@ function signedArea(ring) {
   return sum / 2;
 }
 
-/** Prstenec po zjednodušení: uzavřený, bez splynulých bodů, ve správném směru. */
+/** Ring after simplification: closed, no merged points, correct winding. */
 function tidyRing(source, tolerance) {
   const simplified = simplifyRing(source, tolerance).map((point) => [
     round(point[0]),
@@ -113,7 +113,7 @@ function tidyRing(source, tolerance) {
   return compact;
 }
 
-/** Plocha prstence ve čtverečních stupních (shoelace), korigovaná o šířku. */
+/** Ring area in square degrees (shoelace), corrected for latitude. */
 function ringArea(ring) {
   let sum = 0;
   for (let i = 0, j = ring.length - 1; i < ring.length; j = i, i += 1) {
@@ -130,7 +130,7 @@ function processPolygon(polygon) {
   if (!outer || ringArea(outer) < MIN_AREA) return null;
 
   const rings = [outer];
-  // Díry (jezera, enklávy) necháváme jen ty, co po zjednodušení něco znamenají.
+  // Keep only holes (lakes, enclaves) that still matter after simplification.
   for (let i = 1; i < polygon.length; i += 1) {
     const hole = tidyRing(polygon[i], TOLERANCE);
     if (hole && ringArea(hole) >= MIN_AREA * 4) rings.push(hole);
@@ -158,7 +158,7 @@ async function main() {
 
     const kept = polygons.map(processPolygon).filter(Boolean);
     if (!kept.length) {
-      // Nikdy nezahodíme celou zemi – radši u ní necháme největší ostrov.
+      // Never drop a whole country – keep its largest island instead.
       const biggest = polygons
         .map((p) => ({ p, area: ringArea(p[0]) }))
         .sort((a, b) => b.area - a.area)[0];
@@ -189,10 +189,10 @@ async function main() {
   const pct = (a, b) => `${Math.round((1 - a / b) * 100)} %`;
   process.stdout.write(
     [
-      `tolerance ${TOLERANCE}°, min. plocha ${MIN_AREA}, ${DIGITS} desetinná místa`,
-      `body:     ${before.points.toLocaleString("cs")} -> ${after.points.toLocaleString("cs")}  (-${pct(after.points, before.points)})`,
-      `velikost: ${(before.bytes / 1024 / 1024).toFixed(2)} MB -> ${(after.bytes / 1024 / 1024).toFixed(2)} MB  (-${pct(after.bytes, before.bytes)})`,
-      `zahozeno drobných ostrovů: ${dropped}`,
+      `tolerance ${TOLERANCE}°, min. area ${MIN_AREA}, ${DIGITS} decimal places`,
+      `points:   ${before.points.toLocaleString("cs")} -> ${after.points.toLocaleString("cs")}  (-${pct(after.points, before.points)})`,
+      `size:     ${(before.bytes / 1024 / 1024).toFixed(2)} MB -> ${(after.bytes / 1024 / 1024).toFixed(2)} MB  (-${pct(after.bytes, before.bytes)})`,
+      `tiny islands dropped: ${dropped}`,
       "",
     ].join("\n"),
   );

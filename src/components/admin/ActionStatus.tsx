@@ -1,6 +1,6 @@
 import type { ActionState } from "@/lib/actions";
 
-/** Výsledek odeslání formuláře: chyba (alert) nebo potvrzení (status). */
+/** Form submission result: error (alert) or confirmation (status). */
 export function ActionStatus({ state, success }: { state: ActionState; success?: string }) {
   if (state.error) {
     return (

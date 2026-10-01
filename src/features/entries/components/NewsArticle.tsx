@@ -7,8 +7,8 @@ import type { Entry } from "../queries";
 import { ArticleFrame, META_LINE, PlaceLinks } from "./ArticleFrame";
 
 /**
- * Novinka tak, jak ji vidí čtenář (mapa zaostřená na region + článek).
- * Jediná podoba pro veřejnou stránku i náhled nezveřejněného článku.
+ * A news item as the reader sees it (map focused on the region + article).
+ * The single rendering for both the public page and the unpublished-article preview.
  */
 export function NewsArticle({
   item,
@@ -17,7 +17,7 @@ export function NewsArticle({
 }: {
   item: Entry;
   atlas: Atlas;
-  /** Pruh nad článkem (náhled: stav a platnost odkazu). */
+  /** Bar above the article (preview: status and link validity). */
   banner?: React.ReactNode;
 }) {
   const t = getT().article;

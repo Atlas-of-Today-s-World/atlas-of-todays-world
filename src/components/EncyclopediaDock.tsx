@@ -7,11 +7,11 @@ import EncyclopediaPanel from "./EncyclopediaPanel";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 
 /**
- * Vyhledávání nad mapou.
+ * Search over the map.
  *
- * Na desktopu je na úvodní mapě rozbalené (jako ve Figmě). Na mobilu je vždycky
- * jen ikona, protože rozbalený panel by zakryl skoro celý globus – klepnutím se
- * otevře. Nad profilem regionu nebo země se schovává i na desktopu.
+ * On desktop it's expanded on the home map (as in Figma). On mobile it's always
+ * just an icon, because the expanded panel would cover almost the whole globe – a tap
+ * opens it. Over a region or country profile it hides on desktop too.
  */
 export default function EncyclopediaDock() {
   const t = useMessages();

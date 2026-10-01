@@ -8,11 +8,11 @@ export interface ItemField {
   options?: readonly string[];
   required?: boolean;
   max?: number;
-  /** Na širokém displeji přes celý řádek. */
+  /** Spans the full row on a wide display. */
   full?: boolean;
 }
 
-/** Jak se v editoru zobrazí položka každé sekce portrétu (tvar = schema.ts). */
+/** How each portrait section's item is shown in the editor (shape = schema.ts). */
 export const COLLECTION_UI: Record<
   Collection,
   { title: string; lead: string; itemLabel: string; fields: ItemField[] }

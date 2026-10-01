@@ -6,10 +6,10 @@ import MapFocus from "./MapFocus";
 import { EUROPE_CENTER, detectHomeCamera, globeFillZoom } from "@/lib/home-location";
 
 /**
- * Výchozí pohled na úvodní stránce: celý globus vyplní okno, názvy států jsou
- * čitelné a koule je otočená nad zemí návštěvníka. Detekce běží až v prohlížeči,
- * takže serverové HTML má vždycky stejný (evropský) výřez a hydratace se
- * nerozejde.
+ * Default view on the home page: the whole globe fills the window, country names are
+ * legible and the sphere is rotated over the visitor's country. Detection runs only in the browser,
+ * so the server HTML always has the same (European) viewport and hydration
+ * doesn't diverge.
  */
 export default function HomeFocus({
   centers,

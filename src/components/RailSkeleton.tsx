@@ -1,8 +1,8 @@
 import ContentRail from "./ContentRail";
 
 /**
- * Zobrazí se hned po kliknutí na globus, než dorazí obsah panelu.
- * Bez něj by se po kliknutí chvíli nedělo vůbec nic.
+ * Shown right after clicking the globe, before the panel content arrives.
+ * Without it nothing at all would happen for a moment after the click.
  */
 export default function RailSkeleton({ wide = false }: { wide?: boolean }) {
   return (

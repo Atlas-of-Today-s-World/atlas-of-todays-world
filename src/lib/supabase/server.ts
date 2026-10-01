@@ -5,9 +5,9 @@ import type { Database } from "@/lib/db/types.gen";
 import { requireSupabaseConfig } from "./config";
 
 /**
- * Klient se session přihlášeného uživatele (ARCHITEKTURA 4.1). Každý dotaz jde
- * pod RLS jako tento uživatel. Pro každý request nový klient.
- * Identitu ověřuj `supabase.auth.getUser()`, nikdy jen `getSession()`.
+ * Client with the signed-in user's session (ARCHITEKTURA 4.1). Every query runs
+ * under RLS as this user. A new client for every request.
+ * Verify identity with `supabase.auth.getUser()`, never just `getSession()`.
  */
 export async function createServerClient() {
   const { url, anonKey } = requireSupabaseConfig();
@@ -19,14 +19,14 @@ export async function createServerClient() {
         try {
           for (const { name, value, options } of toSet) cookieStore.set(name, value, options);
         } catch {
-          // Server Component cookies zapsat nesmí; session obnovuje proxy (src/proxy.ts).
+          // Server Components may not write cookies; the proxy refreshes the session (src/proxy.ts).
         }
       },
     },
   });
 }
 
-/** Přihlášený uživatel ověřený u Auth serveru, nebo null. */
+/** Signed-in user verified with the Auth server, or null. */
 export async function currentUser() {
   const supabase = await createServerClient();
   const {

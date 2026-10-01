@@ -15,7 +15,7 @@ import { tags } from "@/lib/cache/tags";
 import { slug } from "@/lib/validation/common";
 import { AreaInput, ThemeInput } from "./schema";
 
-/** Vzhled mapy: sytost barev a síla hranic (site_theme, sekce appearance). */
+/** Map appearance: colour saturation and border strength (site_theme, section appearance). */
 export async function saveTheme(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = ThemeInput.safeParse(formObject(formData));
   if (!parsed.success) return invalid(parsed.error);
@@ -32,7 +32,7 @@ export async function saveTheme(_prev: ActionState, formData: FormData): Promise
   return { ok: true, message: "Appearance saved. The map will update on the next load." };
 }
 
-/** Vlastní plocha na mapě (map_areas, sekce areas). */
+/** Custom area on the map (map_areas, section areas). */
 export async function saveArea(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = AreaInput.safeParse(formObject(formData));
   if (!parsed.success) return invalid(parsed.error);

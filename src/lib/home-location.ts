@@ -1,24 +1,24 @@
 /**
- * Kam otevřít globus, když uživatel přijde na úvodní stránku.
+ * Where to open the globe when the user arrives on the home page.
  *
- * Nepoužíváme geolokaci prohlížeče – ta vyskakuje s dotazem na povolení a pro
- * „otevři to u mě doma" je to zbytečně invazivní. Stačí dva signály, které
- * prohlížeč dává sám:
- *   1. časové pásmo (Europe/Prague → Česko) – nejlepší odhad polohy,
- *   2. jazyk (cs-CZ, nebo `cs` rozbalené přes Intl.Locale na CZ),
- *   3. když ani jedno nesedí, střed Evropy.
+ * We don't use browser geolocation – it pops up a permission prompt, which is
+ * needlessly invasive for "open it near me". Two signals the browser provides
+ * on its own are enough:
+ *   1. time zone (Europe/Prague → Czechia) – the best location estimate,
+ *   2. language (cs-CZ, or `cs` expanded to CZ via Intl.Locale),
+ *   3. if neither matches, the center of Europe.
  */
 
-/** Střed Evropy – výchozí pohled, když se polohu určit nepodaří. */
+/** Center of Europe – the default view when the location can't be determined. */
 export const EUROPE_CENTER: [number, number] = [14, 49.5];
 
 /**
- * Přiblížení, při kterém koule vyplní okno. MapLibre má obvod světa
- * 512·2^zoom pixelů, průměr koule je tedy (512·2^zoom)/π – z toho zpětně
- * dopočítáme zoom pro požadovaný průměr v pixelech.
+ * Zoom at which the globe fills the window. MapLibre's world circumference is
+ * 512·2^zoom pixels, so the globe's diameter is (512·2^zoom)/π – from that we
+ * derive the zoom for the desired diameter in pixels.
  *
- * Na malém okně vyjde menší zoom; proto mají popisky států nízké minzoom,
- * ať jsou vidět i tam.
+ * A small window yields a lower zoom; that's why country labels have a low
+ * minzoom, so they are visible there too.
  */
 export function globeFillZoom(fill = 1.04): number {
   if (typeof window === "undefined") return 2.6;
@@ -27,7 +27,7 @@ export function globeFillZoom(fill = 1.04): number {
   return Math.max(1.7, Math.min(3.4, zoom));
 }
 
-/** Hrubý střed kontinentu podle prefixu časového pásma. */
+/** Rough continent center by time zone prefix. */
 const CONTINENT_CENTER: Record<string, [number, number]> = {
   Europe: [14, 49.5],
   America: [-96, 39],
@@ -41,11 +41,11 @@ const CONTINENT_CENTER: Record<string, [number, number]> = {
 };
 
 /**
- * Časové pásmo -> ISO 3166-1 alpha-2. Není to úplný seznam IANA zón, jen ty,
- * které reálně chodí z prohlížečů. Co tu chybí, spadne na prefix kontinentu.
+ * Time zone -> ISO 3166-1 alpha-2. Not a full list of IANA zones, only those
+ * browsers actually report. Anything missing falls back to the continent prefix.
  */
 const ZONE_TO_ISO2: Record<string, string> = {
-  // Evropa
+  // Europe
   "Europe/Prague": "CZ",
   "Europe/Bratislava": "SK",
   "Europe/Vienna": "AT",
@@ -112,7 +112,7 @@ const ZONE_TO_ISO2: Record<string, string> = {
   "Atlantic/Madeira": "PT",
   "Atlantic/Azores": "PT",
 
-  // Asie a Blízký východ
+  // Asia and the Middle East
   "Asia/Jerusalem": "IL",
   "Asia/Tel_Aviv": "IL",
   "Asia/Gaza": "PS",
@@ -186,7 +186,7 @@ const ZONE_TO_ISO2: Record<string, string> = {
   "Asia/Barnaul": "RU",
   "Asia/Tomsk": "RU",
 
-  // Afrika
+  // Africa
   "Africa/Cairo": "EG",
   "Africa/Tripoli": "LY",
   "Africa/Tunis": "TN",
@@ -241,7 +241,7 @@ const ZONE_TO_ISO2: Record<string, string> = {
   "Africa/Nouakchott": "MR",
   "Atlantic/Cape_Verde": "CV",
 
-  // Amerika
+  // Americas
   "America/New_York": "US",
   "America/Chicago": "US",
   "America/Denver": "US",
@@ -302,7 +302,7 @@ const ZONE_TO_ISO2: Record<string, string> = {
   "America/Godthab": "GL",
   "America/Nuuk": "GL",
 
-  // Oceánie
+  // Oceania
   "Australia/Sydney": "AU",
   "Australia/Melbourne": "AU",
   "Australia/Brisbane": "AU",
@@ -327,7 +327,7 @@ const ZONE_TO_ISO2: Record<string, string> = {
 
 export interface HomeCamera {
   center: [number, number];
-  /** Co pohled určilo – hodí se pro ladění a pro popisek v UI. */
+  /** What determined the view – useful for debugging and for a UI label. */
   source: "timezone" | "language" | "continent" | "fallback";
 }
 
@@ -339,7 +339,7 @@ function timeZone(): string | null {
   }
 }
 
-/** Z jazyka prohlížeče vytáhne region. `cs` se přes maximize() rozbalí na CZ. */
+/** Extracts the region from the browser language. `cs` expands to CZ via maximize(). */
 function localeRegions(): string[] {
   if (typeof navigator === "undefined") return [];
   const tags = navigator.languages?.length
@@ -358,15 +358,15 @@ function localeRegions(): string[] {
       const region = new Intl.Locale(tag).maximize().region;
       if (region) out.push(region.toUpperCase());
     } catch {
-      /* neplatný jazykový tag – přeskočíme */
+      /* invalid language tag – skip it */
     }
   }
   return out;
 }
 
 /**
- * Vybere, nad čím se globus otevře. `centers` je ISO2 -> [lon, lat]; posílá
- * ho server, aby se kvůli tomu nemusel do klienta tahat celý číselník zemí.
+ * Picks what the globe opens over. `centers` is ISO2 -> [lon, lat]; the server
+ * sends it so the whole country list doesn't have to be shipped to the client.
  */
 export function detectHomeCamera(centers: Record<string, [number, number]>): HomeCamera {
   const zone = timeZone();

@@ -1,6 +1,6 @@
-/** Číselníky portrétů bez Zodu — smí je importovat i klientský editor sekcí. */
+/** Portrait code lists without Zod — the client section editor may import them. */
 
-/** Druhy zdrojů — shodné s CHECK v tabulce resources. */
+/** Source kinds — matching the CHECK in the resources table. */
 export const RESOURCE_KINDS = [
   "Videos & Documentaries",
   "Lectures & Debates",
@@ -9,5 +9,5 @@ export const RESOURCE_KINDS = [
   "Statistics & Infographics",
 ] as const;
 
-/** Typ skupiny zemí (special_regions.kind) — popisky ve formuláři a v seznamech. */
+/** Country group type (special_regions.kind) — labels in the form and in lists. */
 export const GROUP_KIND_LABEL = { region: "Custom region", issue: "Global issue" } as const;

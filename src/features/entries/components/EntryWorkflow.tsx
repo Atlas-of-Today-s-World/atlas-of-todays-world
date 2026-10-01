@@ -26,8 +26,8 @@ import { ActionForm } from "@/components/ui/action-form";
 const dateFormat = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" });
 
 /**
- * Stav článku a kroky schvalování. Tlačítka se ukazují podle práv, ale o tom,
- * jestli krok projde, rozhodují DB funkce (submit/approve/send_back/unpublish).
+ * Article status and approval steps. Buttons are shown per permissions, but
+ * whether a step succeeds is decided by DB functions (submit/approve/send_back/unpublish).
  */
 export function EntryWorkflow({
   id,
@@ -116,7 +116,7 @@ export function EntryWorkflow({
         <div className="grid gap-3 rounded-xl border border-[var(--color-line)] p-4 text-[13.5px]">
           <p>
             <span className="font-medium">
-              Scheduled for {/* Server formátuje v UTC, prohlížeč v místním čase. */}
+              Scheduled for {/* The server formats in UTC, the browser in local time. */}
               <time dateTime={publishAt} suppressHydrationWarning>
                 {dateFormat.format(new Date(publishAt))}
               </time>
@@ -146,8 +146,8 @@ export function EntryWorkflow({
 }
 
 /**
- * „Publikovat v čase…": místní čas z pole datetime-local převede prohlížeč na
- * ISO s posunem (server běží v UTC a časové pásmo redaktora nezná).
+ * "Publish at a set time…": the browser converts local time from the datetime-local
+ * field to ISO with offset (the server runs in UTC and doesn't know the editor's time zone).
  */
 function Schedule({ id, onDone }: { id: string; onDone: (state: ActionState) => void }) {
   const [state, action] = useActionState<ActionState, FormData>(
@@ -217,7 +217,7 @@ function SendBack({ id, onDone }: { id: string; onDone: (state: ActionState) => 
   );
 }
 
-/** Uložené verze článku (posledních 30) s obnovou — kompaktní DataTable. */
+/** Saved versions of the article (last 30) with restore — a compact DataTable. */
 export function RevisionList({ entryId, revisions }: { entryId: string; revisions: Revision[] }) {
   return (
     <DataTable

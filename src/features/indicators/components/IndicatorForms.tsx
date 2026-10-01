@@ -45,7 +45,7 @@ const NEW: IndicatorValues = {
   higher_is_better: true,
 };
 
-/** Popis a škála ukazatele; u nového i id a druh (po založení se nemění). */
+/** Indicator description and scale; for a new one also id and kind (unchangeable after creation). */
 export function IndicatorForm({ indicator }: { indicator: IndicatorValues | null }) {
   const values = indicator ?? NEW;
   const [state, action] = useActionState<ActionState, FormData>(saveIndicator, { ok: false });
@@ -256,7 +256,7 @@ interface Category {
   color: string;
 }
 
-/** Číselník kategoriálního ukazatele. */
+/** Code list of a categorical indicator. */
 export function CategoriesForm({ id, initial }: { id: string; initial: Category[] }) {
   const [items, setItems] = useState(initial);
   const [state, action] = useActionState<ActionState, FormData>(saveCategories, { ok: false });
@@ -333,7 +333,7 @@ export function CategoriesForm({ id, initial }: { id: string; initial: Category[
   );
 }
 
-/** Ruční hodnota pro jednu zemi (nová nebo oprava importované). */
+/** Manual value for one country (new or a correction of an imported one). */
 export function ValueForm({
   indicatorId,
   countries,

@@ -3,8 +3,8 @@
 import { useEffect } from "react";
 
 /**
- * Poslední záchrana, když selže i kořenový layout. Musí mít vlastní <html>
- * a obejít se bez stylů aplikace.
+ * Last resort when even the root layout fails. It must have its own <html>
+ * and work without the app's styles.
  */
 export default function GlobalError({
   error,

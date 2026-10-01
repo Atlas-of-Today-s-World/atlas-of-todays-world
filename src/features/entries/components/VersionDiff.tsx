@@ -8,7 +8,7 @@ const STYLE = {
 
 const MARK = { same: "", added: "Added: ", removed: "Removed: " } as const;
 
-/** Co se změnilo proti zveřejněné verzi — titulek, perex a text po odstavcích. */
+/** What changed versus the published version — title, lead and text by paragraph. */
 export function VersionDiff({
   before,
   after,

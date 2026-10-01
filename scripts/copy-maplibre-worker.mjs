@@ -1,10 +1,11 @@
-// Worker MapLibre 6 jako statický soubor (ADR-013 → A9).
+// MapLibre 6 worker as a static file (ADR-013 → A9).
 //
-// MapLibre 6 hledá worker vedle svého modulu (import.meta.url). Bundler Next
-// ale z knihovny udělá chunk s jiným jménem a worker vedle něj nenajde — mapa
-// pak nenačte hranice zemí. Proto se worker a sdílený modul, který importuje,
-// kopírují do public/maplibre/<verze>/ a globus ho nastaví přes setWorkerUrl.
-// Verze v cestě = nový soubor při každém upgradu (dlouhá cache bez rizika).
+// MapLibre 6 looks for its worker next to its module (import.meta.url). The Next
+// bundler, however, turns the library into a differently named chunk and the worker
+// is not found next to it — the map then fails to load country borders. So the
+// worker and the shared module it imports are copied to public/maplibre/<version>/
+// and the globe sets it via setWorkerUrl. Version in the path = a new file on every
+// upgrade (long caching without risk).
 import { copyFileSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -16,8 +17,8 @@ const { version } = JSON.parse(
 );
 const target = join(root, "public", "maplibre", version);
 mkdirSync(target, { recursive: true });
-// Hlavní modul se načítá taky odsud (src/components/map/maplibre.ts), ať
-// hlavní vlákno i worker sdílejí jeden maplibre-gl-shared.mjs.
+// The main module is loaded from here too (src/components/map/maplibre.ts), so
+// the main thread and the worker share a single maplibre-gl-shared.mjs.
 for (const file of ["maplibre-gl.mjs", "maplibre-gl-worker.mjs", "maplibre-gl-shared.mjs"]) {
   copyFileSync(join(dist, file), join(target, file));
 }

@@ -4,9 +4,9 @@ import { createServerClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 
 /**
- * GDPR čl. 15/20: přihlášený si stáhne svá data jako JSON. Čte se session
- * klientem, takže RLS vrátí jen vlastní řádky (profil, členství, vlastní články).
- * Účet smaže tlačítko na stránce účtu (deleteAccount).
+ * GDPR Art. 15/20: a signed-in user downloads their data as JSON. Read with the session
+ * client, so RLS returns only their own rows (profile, memberships, own articles).
+ * The account is deleted by the button on the account page (deleteAccount).
  */
 export async function GET() {
   const supabase = await createServerClient();
