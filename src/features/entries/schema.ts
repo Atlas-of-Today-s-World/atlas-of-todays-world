@@ -51,9 +51,6 @@ export const EntryInput = z.object({
 });
 export type EntryInput = z.infer<typeof EntryInput>;
 
-/** Nejvýš kapitol v hesle (zadání chce 4–6; DB pustí 8). */
-export const MAX_CHAPTERS = 8;
-
 /** Kapitola hesla — limity shodné s tabulkou `entry_chapters`. */
 export const ChapterInput = z.object({
   title: requiredText(200),
@@ -106,6 +103,3 @@ export const STATUS_LABEL: Record<EntryStatus, string> = {
   published: "Zveřejněno",
   planned: "Plánováno",
 };
-
-/** Doby platnosti sdíleného náhledu v hodinách (DB povolí 1 až 720). */
-export const PREVIEW_HOURS = [24, 72, 168, 720] as const;

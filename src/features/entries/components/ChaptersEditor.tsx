@@ -11,7 +11,7 @@ import { IconAction } from "@/features/portraits/components/CollectionEditor";
 import type { ActionState } from "@/lib/actions";
 import { saveChapters } from "../actions";
 import type { EditableChapter } from "../editorial";
-import { MAX_CHAPTERS } from "../schema";
+import { MAX_CHAPTERS } from "../constants";
 import { RichTextEditor } from "./RichTextEditor";
 import { UploadField } from "./UploadField";
 import { swap } from "@/lib/array";

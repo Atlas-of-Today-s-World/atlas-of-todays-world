@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { FormField, Input } from "@/components/ui/field";
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import { requestEmailCode, verifyEmailCode } from "@/features/auth/email-actions";
-import { EMAIL_CODE_LENGTH, type EmailCodeState } from "@/features/auth/schema";
+import { EMAIL_CODE_LENGTH, type EmailCodeState } from "@/features/auth/constants";
 import { format } from "@/features/i18n/messages";
 import { publicEnv } from "@/lib/env";
 

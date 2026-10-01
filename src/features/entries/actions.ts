@@ -22,11 +22,10 @@ import {
   CHAPTER_FIELD_LABEL,
   ChapterInput,
   EntryInput,
-  MAX_CHAPTERS,
-  PREVIEW_HOURS,
   ScheduleInput,
   SendBackInput,
 } from "./schema";
+import { MAX_CHAPTERS, PREVIEW_HOURS } from "./constants";
 
 /** Po změně zveřejněného obsahu obnovit seznamy, detail i portréty. */
 function refresh(slug?: string | null, region?: string | null, issue?: string | null) {

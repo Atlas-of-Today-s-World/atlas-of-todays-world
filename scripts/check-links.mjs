@@ -15,6 +15,7 @@
  * selhaly (5xx, timeout), se vypíšou jako „nelze ověřit", job kvůli nim nepadá.
  */
 import { appendFileSync } from "node:fs";
+import { decodeEntities } from "./lib/html.mjs";
 
 const SITE = (process.env.SITE_URL || "").replace(/\/+$/, "");
 const MAX_PAGES = Number(process.env.LINKCHECK_MAX_PAGES || 2000);
@@ -50,14 +51,6 @@ async function request(url, method) {
     clearTimeout(timer);
   }
 }
-
-const decodeEntities = (value) =>
-  value
-    .replace(/&amp;/g, "&")
-    .replace(/&#x2F;/gi, "/")
-    .replace(/&#47;/g, "/")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
 
 /** Odkazy a obrázky ze stránky jako absolutní http(s) URL bez kotvy. */
 function extractLinks(html, pageUrl) {

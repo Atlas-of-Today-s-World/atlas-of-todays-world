@@ -7,7 +7,8 @@ import { getFlags } from "@/features/flags/queries";
 import { allowRequest } from "@/lib/security/rate-limit";
 import { createServerClient } from "@/lib/supabase/server";
 import { signInDestination } from "./sign-in";
-import { EmailCodeRequest, EmailCodeVerify, type EmailCodeState } from "./schema";
+import type { EmailCodeState } from "./constants";
+import { EmailCodeRequest, EmailCodeVerify } from "./schema";
 
 /** Kolik kódů smí jedna IP adresa vyžádat (vedle limitů Supabase Auth). */
 const REQUEST_LIMIT = { limit: 5, windowSeconds: 600 };

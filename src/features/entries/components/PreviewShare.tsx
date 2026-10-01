@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { FormField, Input, Select } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
 import { createPreviewLink } from "../actions";
-import { PREVIEW_HOURS } from "../schema";
+import { PREVIEW_HOURS } from "../constants";
 
 const LABELS: Record<(typeof PREVIEW_HOURS)[number], string> = {
   24: "1 den",

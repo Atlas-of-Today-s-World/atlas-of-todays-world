@@ -8,6 +8,8 @@
  * články (`entries`) a přesměrování (`redirects`).
  */
 
+import { htmlToText } from "../lib/html.mjs";
+
 /** Hostitelé, ze kterých Webflow servíruje nahrané soubory — ty se stáhnou do Storage. */
 export const WEBFLOW_FILE_HOSTS = [
   "website-files.com",
@@ -121,17 +123,9 @@ export function text(value) {
 
 /** Prostý text z rich textu (pro perex, odpověď FAQ…). */
 export function plain(html) {
-  return text(html)
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<\/(p|li|h[1-6])>/gi, "\n")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;|&apos;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
+  return htmlToText(text(html), { lineBreaks: true })
     .replace(/[ \t]+/g, " ")
+    .replace(/ ?\n ?/g, "\n")
     .replace(/\n{2,}/g, "\n")
     .trim();
 }
