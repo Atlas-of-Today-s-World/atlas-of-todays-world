@@ -68,6 +68,11 @@ test("one click saves a permission; admin and own role stay locked", async ({ pa
   await matrix.getByRole("checkbox", { name: `Edit – News & entries – ${targetName}` }).check();
   await expect.poll(() => newsOf(targetRole)).toBe("ve");
 
+  // The saved state stays on screen (no flicker back while the page refreshes).
+  await expect(
+    matrix.getByRole("checkbox", { name: `View – News & entries – ${targetName}` }),
+  ).toBeChecked();
+
   // Removing view removes the section.
   await matrix.getByRole("checkbox", { name: `View – News & entries – ${targetName}` }).uncheck();
   await expect.poll(() => newsOf(targetRole)).toBe("");

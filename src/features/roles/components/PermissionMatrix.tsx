@@ -53,10 +53,21 @@ export function PermissionMatrix({
 }) {
   const router = useRouter();
   const sections = matrixSections();
-  // Rozdíly proti databázi jen po dobu ukládání; jinak platí `granted` ze serveru
-  // (saveMatrix obnoví stránku), takže matice ukazuje, co DB opravdu uložila.
-  const [pending, setPending] = useState<Grants>({});
-  const grants: Grants = { ...granted, ...pending };
+  // Kliknutí platí hned (optimisticky), dokud ze serveru nepřijdou nová data.
+  // Pak rozhoduje `granted` — matice ukazuje, co DB opravdu uložila, i když
+  // změnu odmítla nebo ji RLS tiše neprovedla.
+  const [overrides, setOverrides] = useState<
+    Record<string, { grants: RoleGrants; saving: boolean }>
+  >({});
+  const [seen, setSeen] = useState(granted);
+  if (seen !== granted) {
+    setSeen(granted);
+    setOverrides((current) =>
+      Object.fromEntries(Object.entries(current).filter(([, override]) => override.saving)),
+    );
+  }
+  const grants: Grants = { ...granted };
+  for (const [roleId, override] of Object.entries(overrides)) grants[roleId] = override.grants;
   const [expanded, setExpanded] = useState<Set<Section>>(new Set());
   const [status, setStatus] = useState<{ tone: "ok" | "error" | "busy"; text: string } | null>(
     null,
@@ -79,21 +90,27 @@ export function PermissionMatrix({
       // Newer clicks are still queued: keep showing them.
       if (latest.current[roleId] !== sent) return;
       delete latest.current[roleId];
-      setPending((current) => {
-        const next = { ...current };
-        delete next[roleId];
-        return next;
-      });
+      if (state.ok) {
+        // Keep the saved state on screen until the refreshed data arrives.
+        setOverrides((current) => ({ ...current, [roleId]: { grants: sent, saving: false } }));
+        router.refresh();
+      } else {
+        setOverrides((current) => {
+          const next = { ...current };
+          delete next[roleId];
+          return next;
+        });
+      }
     };
     const queued = (queues.current.get(roleId) ?? Promise.resolve()).then(run, run);
     queues.current.set(roleId, queued);
   };
 
   const toggle = (roleId: string, section: Section, action: Action, checked: boolean) => {
-    const role = { ...(latest.current[roleId] ?? granted[roleId] ?? {}) };
+    const role = { ...(latest.current[roleId] ?? grants[roleId] ?? {}) };
     role[section] = toggleAction(role[section] ?? "", action, checked);
     latest.current[roleId] = role;
-    setPending((current) => ({ ...current, [roleId]: role }));
+    setOverrides((current) => ({ ...current, [roleId]: { grants: role, saving: true } }));
     save(roleId);
   };
 
