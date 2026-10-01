@@ -17,6 +17,7 @@ export function defaultPreferences(
   columnKeys: readonly string[],
   hidden: readonly string[] = [],
   sort: SortState | null = null,
+  filters: Record<string, FilterValue> = {},
   pageSize = 50,
 ): TablePreferences {
   return {
@@ -26,7 +27,7 @@ export function defaultPreferences(
     sort,
     columnWidths: {},
     search: "",
-    filters: {},
+    filters,
   };
 }
 
@@ -86,7 +87,7 @@ export function parsePreferences(raw: string | null, defaults: TablePreferences)
     sort: sort === undefined ? defaults.sort : sort,
     columnWidths: parseWidths(data.columnWidths),
     search: typeof data.search === "string" ? data.search : defaults.search,
-    filters: parseFilters(data.filters),
+    filters: "filters" in data ? parseFilters(data.filters) : defaults.filters,
   };
 }
 

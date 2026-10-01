@@ -1,15 +1,22 @@
 import type { Metadata } from "next";
-import { DataTable } from "@/components/admin/DataTable";
 import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
-import { Input } from "@/components/ui/field";
+import { DataTable } from "@/components/data-table/DataTable";
+import { RowActions } from "@/components/data-table/RowActions";
+import { deleteAction } from "@/components/data-table/row-actions";
+import { optionStats } from "@/components/data-table/stats";
+import { navIcon } from "@/config/admin-nav";
 import { can, sectionAccess } from "@/features/auth/access";
-import { DeleteRedirect, RedirectForm } from "@/features/redirects/components/RedirectForms";
+import { deleteRedirect } from "@/features/redirects/actions";
+import { RedirectForm } from "@/features/redirects/components/RedirectForms";
 import { listRedirects } from "@/features/redirects/editorial";
 
 export const metadata: Metadata = { title: "Redirects" };
 
-const dateFormat = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium" });
+const KIND = [
+  { value: "permanent", label: "Permanent", tone: "accent" as const },
+  { value: "temporary", label: "Temporary", tone: "neutral" as const },
+];
 
 /**
  * Správa přesměrování (G3). Přesměrování se uplatní jen místo stránky 404 —
@@ -29,63 +36,59 @@ export default async function RedirectsPage({
   return (
     <>
       <PageHeader
+        icon={navIcon("/admin/redirects")}
         title="Redirects"
         lead="When an article's or page's address changes, add a redirect from the old path to the new one. It applies only where the page would otherwise be “not found” — it never overrides an existing page."
       />
 
       {can(access.permissions, "news", "c") ? <RedirectForm /> : null}
 
-      <div className="mt-12 mb-3 flex flex-wrap items-center gap-3">
-        <h2 className="font-display text-[18px] font-bold">List ({rows.length})</h2>
-        <form action="/admin/redirects" className="ml-auto">
-          <label htmlFor="q" className="sr-only">
-            Search redirects
-          </label>
-          <Input id="q" name="q" type="search" placeholder="Path…" defaultValue={q} />
-        </form>
-      </div>
-      <DataTable
-        caption="Redirects"
-        rows={rows}
-        rowKey={(row) => row.id}
-        empty="No redirects yet."
-        columns={[
-          {
-            key: "from",
-            header: "Old path",
-            cell: (row) => <code className="text-[12.5px] break-all">{row.from_path}</code>,
-          },
-          {
-            key: "to",
-            header: "New path",
-            cell: (row) => <code className="text-[12.5px] break-all">{row.to_path}</code>,
-          },
-          {
-            key: "kind",
-            header: "Type",
-            cell: (row) => (row.permanent ? "permanent" : "temporary"),
-            wide: true,
-          },
-          {
-            key: "created",
-            header: "Added",
-            cell: (row) => dateFormat.format(new Date(row.created_at)),
-            wide: true,
-          },
-          ...(canDelete
-            ? [
-                {
-                  key: "actions",
-                  header: "Actions",
-                  cell: (row: (typeof rows)[number]) => (
-                    <DeleteRedirect id={row.id} from={row.from_path} />
+      <div className="mt-10">
+        <DataTable
+          tableKey="admin-redirects"
+          caption="Redirects"
+          searchParam="q"
+          searchPlaceholder="Search paths…"
+          emptyTitle="No redirects yet"
+          initialSort={{ key: "created", dir: "desc" }}
+          stats={optionStats("kind", KIND)}
+          actionsWidth="48px"
+          columns={[
+            { key: "from", label: "Old path", kind: "code", sortable: true, filter: "text" },
+            { key: "to", label: "New path", kind: "code", sortable: true, filter: "text" },
+            {
+              key: "kind",
+              label: "Type",
+              kind: "badge",
+              options: KIND,
+              sortable: true,
+              filter: "select",
+              width: "150px",
+            },
+            { key: "created", label: "Added", kind: "date", sortable: true, width: "128px" },
+          ]}
+          rows={rows.map((row) => ({
+            id: row.id,
+            values: {
+              from: row.from_path,
+              to: row.to_path,
+              kind: row.permanent ? "permanent" : "temporary",
+              created: row.created_at,
+            },
+            actions: canDelete ? (
+              <RowActions
+                actions={[
+                  deleteAction(
+                    deleteRedirect.bind(null, row.id),
+                    "the redirect",
+                    `The URL ${row.from_path} will then lead to the “not found” page.`,
                   ),
-                  end: true,
-                },
-              ]
-            : []),
-        ]}
-      />
+                ]}
+              />
+            ) : undefined,
+          }))}
+        />
+      </div>
     </>
   );
 }

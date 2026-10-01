@@ -10,6 +10,7 @@ import type { EntryStatus } from "./schema";
 export interface EditorialRow {
   id: string;
   slug: string;
+  kind: "news" | "entry";
   title: string;
   status: EntryStatus;
   category: string;
@@ -25,15 +26,13 @@ export interface EditorialRow {
 }
 
 const LIST_COLUMNS =
-  "id, slug, title, status, category, region_slug, owner_id, author_name, updated_at, review_note, publish_at, locale, translation_of";
+  "id, slug, kind, title, status, category, region_slug, owner_id, author_name, updated_at, review_note, publish_at, locale, translation_of";
 
 export async function listEntries({
-  status,
   q,
   mine,
   userId,
 }: {
-  status?: EntryStatus;
   q?: string;
   mine?: boolean;
   userId: string;
@@ -43,8 +42,8 @@ export async function listEntries({
     .from("entries")
     .select(LIST_COLUMNS)
     .order("updated_at", { ascending: false })
-    .limit(200);
-  if (status) query = query.eq("status", status);
+    // Celý výpis redakce; hledání a filtry stavu dělá tabulka (DataTable).
+    .limit(1000);
   if (mine) query = query.eq("owner_id", userId);
   if (q?.trim()) query = query.ilike("title", `%${q.trim().replace(/[%_]/g, "")}%`);
   const { data, error } = await query;
@@ -53,7 +52,6 @@ export async function listEntries({
 }
 
 export interface EditableEntry extends EditorialRow {
-  kind: "news" | "entry";
   summary: string;
   special_slug: string | null;
   cover_url: string | null;
@@ -71,7 +69,7 @@ export async function getEditableEntry(id: string): Promise<EditableEntry | null
   const { data, error } = await supabase
     .from("entries")
     .select(
-      `${LIST_COLUMNS}, kind, summary, special_slug, cover_url, cover_credit, reading_minutes, body_html, published_on, summary_points, author_id, entry_countries(country_iso3)`,
+      `${LIST_COLUMNS}, summary, special_slug, cover_url, cover_credit, reading_minutes, body_html, published_on, summary_points, author_id, entry_countries(country_iso3)`,
     )
     .eq("id", id)
     .maybeSingle();

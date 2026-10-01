@@ -55,6 +55,14 @@ describe("parsePreferences", () => {
     });
   });
 
+  it("uses the default filters only until the user saves their own", () => {
+    const withFilters = defaultPreferences(["a"], [], null, { a: ["x"] });
+    expect(parsePreferences(JSON.stringify({ search: "" }), withFilters).filters).toEqual({
+      a: ["x"],
+    });
+    expect(parsePreferences(JSON.stringify({ filters: {} }), withFilters).filters).toEqual({});
+  });
+
   it("keeps an explicitly cleared sort", () => {
     expect(parsePreferences(JSON.stringify({ sort: null }), defaults).sort).toBeNull();
   });

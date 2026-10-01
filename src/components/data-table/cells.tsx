@@ -63,7 +63,11 @@ function renderValue(column: ColumnDef, value: CellValue): ReactNode {
       );
     }
     case "code":
-      return <code className="truncate font-mono text-[12px]">{String(value)}</code>;
+      return (
+        <code title={String(value)} className="truncate font-mono text-[12px]">
+          {String(value)}
+        </code>
+      );
     case "boolean":
       return value ? "Yes" : "No";
     case "color":
@@ -74,8 +78,15 @@ function renderValue(column: ColumnDef, value: CellValue): ReactNode {
           style={{ background: String(value) }}
         />
       );
-    default:
-      return <span className="truncate">{displayText(column, value)}</span>;
+    default: {
+      // Truncated text keeps the full value in a tooltip (TealHub ellipsis cells).
+      const text = displayText(column, value);
+      return (
+        <span title={text} className="truncate">
+          {text}
+        </span>
+      );
+    }
   }
 }
 

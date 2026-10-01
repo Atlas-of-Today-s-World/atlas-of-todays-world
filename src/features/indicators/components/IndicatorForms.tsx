@@ -4,12 +4,11 @@ import { Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useActionState, useState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
-import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { Button } from "@/components/ui/button";
 import { Checkbox, FormField, Input, Select, Textarea } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
-import { deleteValue, saveCategories, saveIndicator, setValue } from "../actions";
+import { saveCategories, saveIndicator, setValue } from "../actions";
 import { ActionForm } from "@/components/ui/action-form";
 
 export interface IndicatorValues {
@@ -394,30 +393,5 @@ export function ValueForm({
         </div>
       </div>
     </ActionForm>
-  );
-}
-
-export function DeleteValue({
-  indicatorId,
-  iso3,
-  name,
-}: {
-  indicatorId: string;
-  iso3: string;
-  name: string;
-}) {
-  const router = useRouter();
-  return (
-    <ConfirmButton
-      label="Delete"
-      variant="danger"
-      title={`Delete value – ${name}?`}
-      body="The country will have no data in this layer until you enter or import it again."
-      confirm="Delete"
-      action={() => deleteValue(indicatorId, iso3)}
-      onDone={(state) => {
-        if (state.ok) router.refresh();
-      }}
-    />
   );
 }

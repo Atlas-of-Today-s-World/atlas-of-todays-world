@@ -6,6 +6,7 @@ import {
   type KeyboardEvent,
   type PointerEvent,
   type ReactNode,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -43,6 +44,8 @@ export interface DataTableProps<K extends string> {
   columns: readonly ColumnDef<K>[];
   rows: readonly DataTableRow<K>[];
   initialSort?: SortState;
+  /** Filters of a first visit (until the user changes or clears them). */
+  initialFilters?: Record<string, string[]>;
   /** KPI chips above the toolbar. */
   stats?: readonly StatDef<K>[];
   /** Page-specific toggles in the toolbar, before Export / Columns. */
@@ -61,6 +64,11 @@ export interface DataTableProps<K extends string> {
   actionsWidth?: string;
   /** Short list in a card: no toolbar, no footer. */
   compact?: boolean;
+  /**
+   * Column filters from the URL (a dashboard link such as `?status=draft`),
+   * applied once on arrival and then kept like any other filter.
+   */
+  seedFilters?: Record<string, string[]>;
 }
 
 const SEARCH_DEBOUNCE_MS = 350;
@@ -83,6 +91,7 @@ export function DataTable<K extends string>({
   columns,
   rows,
   initialSort,
+  initialFilters,
   stats,
   toolbar,
   searchPlaceholder,
@@ -92,19 +101,22 @@ export function DataTable<K extends string>({
   selectable = false,
   actionsWidth = "96px",
   compact = false,
+  seedFilters,
 }: DataTableProps<K>) {
   const allColumns = columns as readonly ColumnDef[];
   const columnKeys = allColumns.map((column) => column.key).join("|");
+  const initialFiltersKey = JSON.stringify(initialFilters ?? {});
   const defaults = useMemo<TablePreferences>(
     () =>
       defaultPreferences(
         columnKeys.split("|"),
         allColumns.filter((column) => column.hidden).map((column) => column.key),
         initialSort ?? null,
+        JSON.parse(initialFiltersKey) as Record<string, string[]>,
       ),
     // Defaults depend on the column set, not on the identity of the array.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [columnKeys, initialSort?.key, initialSort?.dir],
+    [columnKeys, initialSort?.key, initialSort?.dir, initialFiltersKey],
   );
   const [prefs, setPrefs, resetPrefs] = useTablePreferences(tableKey, defaults);
 
@@ -127,6 +139,13 @@ export function DataTable<K extends string>({
       router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
     }, SEARCH_DEBOUNCE_MS);
   };
+
+  const seed = seedFilters && Object.keys(seedFilters).length ? JSON.stringify(seedFilters) : "";
+  useEffect(() => {
+    if (seed) setPrefs({ filters: JSON.parse(seed) as Record<string, string[]> });
+    // Once per arrival with a seed; later changes belong to the user.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seed]);
 
   const filters = prefs.filters;
   const setFilter = (key: string, value: FilterValue) =>
@@ -322,7 +341,7 @@ export function DataTable<K extends string>({
       ) : null}
 
       <div className="overflow-hidden rounded-xl border border-[var(--color-line)] bg-white">
-        <div className="overflow-x-auto">
+        <div className="relative overflow-x-auto">
           <table
             role="table"
             aria-label={caption}
@@ -381,7 +400,7 @@ export function DataTable<K extends string>({
                   <th
                     role="columnheader"
                     scope="col"
-                    className={cn(headerCell, stickyRight, "justify-end px-2.5")}
+                    className={cn(headerCell, stickyRight, "justify-end px-2.5 uppercase")}
                   >
                     Actions
                   </th>
@@ -471,7 +490,7 @@ export function DataTable<K extends string>({
               <select
                 value={prefs.pageSize}
                 onChange={(event) => setPrefs({ pageSize: Number(event.target.value) })}
-                className="h-7 rounded-md border border-[var(--color-line)] bg-white px-1.5 text-[12px] text-[var(--color-ink)] pointer-coarse:h-(--touch-min)"
+                className="h-7 rounded-md border border-[var(--color-field-border)] bg-white px-1.5 text-[12px] text-[var(--color-ink)] pointer-coarse:h-(--touch-min)"
               >
                 {PAGE_SIZES.map((size) => (
                   <option key={size} value={size}>

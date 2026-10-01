@@ -52,6 +52,11 @@ export const ADMIN_NAV: readonly AdminNavItem[] = [
   { href: "/admin/members", label: "Members", section: "members", icon: UserRound },
 ];
 
+/** Ikona sekce podle adresy (dlaždice v PageHeader) — stejná jako v menu. */
+export function navIcon(href: string): LucideIcon | undefined {
+  return ADMIN_NAV.find((item) => item.href === href)?.icon;
+}
+
 /** Smí položku menu vidět (právo „v" v některé z jejích sekcí)? */
 export function navVisible(item: AdminNavItem, permissions: Permissions): boolean {
   if (item.section === null) return true;

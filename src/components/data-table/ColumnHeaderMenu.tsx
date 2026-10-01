@@ -10,7 +10,7 @@ import { isActiveFilter } from "./rows";
 import type { ColumnDef, FilterOption, FilterValue, SortState } from "./types";
 
 const searchInput =
-  "h-8 w-full rounded-lg border border-[var(--color-line)] bg-white pr-2 pl-7 text-[12.5px] focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent-soft)] focus:outline-none pointer-coarse:h-(--touch-min)";
+  "h-8 w-full rounded-lg border border-[var(--color-field-border)] bg-white pr-2 pl-7 text-[12.5px] focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent-soft)] focus:outline-none pointer-coarse:h-(--touch-min)";
 
 /**
  * Header cell content: the label is a sort button (asc → desc → off) and the

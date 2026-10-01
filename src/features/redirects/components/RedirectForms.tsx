@@ -1,14 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useActionState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
-import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { ActionForm } from "@/components/ui/action-form";
 import { Checkbox, FormField, Input } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
-import { addRedirect, deleteRedirect } from "../actions";
+import { addRedirect } from "../actions";
 
 /** Nové přesměrování staré cesty na novou (obě na tomto webu). */
 export function RedirectForm() {
@@ -62,22 +60,5 @@ export function RedirectForm() {
         <ActionStatus state={state} />
       </div>
     </ActionForm>
-  );
-}
-
-export function DeleteRedirect({ id, from }: { id: string; from: string }) {
-  const router = useRouter();
-  return (
-    <ConfirmButton
-      label="Delete"
-      variant="danger"
-      title="Delete the redirect?"
-      body={`The URL ${from} will then lead to the “not found” page.`}
-      confirm="Delete"
-      action={() => deleteRedirect(id)}
-      onDone={(state) => {
-        if (state.ok) router.refresh();
-      }}
-    />
   );
 }

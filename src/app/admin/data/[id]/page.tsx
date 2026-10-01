@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { DataTable } from "@/components/admin/DataTable";
 import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
+import { DataTable } from "@/components/data-table/DataTable";
+import { RowActions } from "@/components/data-table/RowActions";
+import { deleteAction } from "@/components/data-table/row-actions";
+import { optionStats } from "@/components/data-table/stats";
 import { can, sectionAccess } from "@/features/auth/access";
 import { getPickerOptions } from "@/features/geography/queries";
+import { deleteValue } from "@/features/indicators/actions";
 import {
   CategoriesForm,
-  DeleteValue,
   IndicatorForm,
   ValueForm,
 } from "@/features/indicators/components/IndicatorForms";
@@ -16,6 +19,11 @@ import { DeleteIndicator } from "@/features/indicators/components/DeleteIndicato
 import { indicatorForEdit } from "@/features/indicators/editorial";
 
 export const metadata: Metadata = { title: "Indicator" };
+
+const ORIGIN = [
+  { value: "import", label: "Import", tone: "neutral" as const },
+  { value: "manual", label: "Manual", tone: "accent" as const },
+];
 
 export default async function IndicatorPage({ params }: { params: Promise<{ id: string }> }) {
   const access = await sectionAccess("layers");
@@ -62,41 +70,67 @@ export default async function IndicatorPage({ params }: { params: Promise<{ id: 
       <section className="mt-12">
         <h2 className="font-display mb-4 text-[18px] font-bold">Values ({values.length})</h2>
         <DataTable
-          caption="Indicator values"
-          rows={values}
-          rowKey={(row) => row.country_iso3}
+          tableKey="admin-indicator-values"
+          caption={`Values of ${indicator.label}`}
+          emptyTitle="No values yet"
+          initialSort={{ key: "country", dir: "asc" }}
+          stats={optionStats("origin", ORIGIN)}
+          actionsWidth="48px"
           columns={[
             {
               key: "country",
-              header: "Country",
-              cell: (row) => name.get(row.country_iso3) ?? row.country_iso3,
+              label: "Country",
+              sortable: true,
+              filter: "text",
+              width: "minmax(180px, 2fr)",
             },
+            { key: "iso3", label: "ISO3", kind: "code", sortable: true, width: "80px" },
             {
               key: "value",
-              header: "Value",
-              cell: (row) => Number(row.value).toLocaleString("en-GB"),
+              label: "Value",
+              kind: "number",
+              align: "right",
+              sortable: true,
+              width: "128px",
             },
-            { key: "year", header: "Year", cell: (row) => row.year ?? "—" },
+            { key: "year", label: "Year", sortable: true, filter: "select", width: "88px" },
             {
-              key: "source",
-              header: "Origin",
-              wide: true,
-              cell: (row) => (row.is_manual ? `Manual: ${row.source_note}` : "Import"),
+              key: "origin",
+              label: "Origin",
+              kind: "badge",
+              options: ORIGIN,
+              sortable: true,
+              filter: "select",
+              width: "112px",
             },
-            {
-              key: "actions",
-              header: "",
-              end: true,
-              cell: (row) =>
-                canDelete && row.is_manual ? (
-                  <DeleteValue
-                    indicatorId={indicator.id}
-                    iso3={row.country_iso3}
-                    name={name.get(row.country_iso3) ?? row.country_iso3}
-                  />
-                ) : null,
-            },
+            { key: "note", label: "Source note", filter: "text" },
           ]}
+          rows={values.map((row) => {
+            const country = name.get(row.country_iso3) ?? row.country_iso3;
+            return {
+              id: row.country_iso3,
+              values: {
+                country,
+                iso3: row.country_iso3,
+                value: Number(row.value),
+                year: row.year === null ? null : String(row.year),
+                origin: row.is_manual ? "manual" : "import",
+                note: row.is_manual ? row.source_note : null,
+              },
+              actions:
+                canDelete && row.is_manual ? (
+                  <RowActions
+                    actions={[
+                      deleteAction(
+                        deleteValue.bind(null, indicator.id, row.country_iso3),
+                        `the value for ${country}`,
+                        "The country will have no data in this layer until you enter or import it again.",
+                      ),
+                    ]}
+                  />
+                ) : undefined,
+            };
+          })}
         />
       </section>
     </>

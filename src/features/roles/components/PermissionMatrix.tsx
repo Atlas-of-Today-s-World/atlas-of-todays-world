@@ -53,44 +53,47 @@ export function PermissionMatrix({
 }) {
   const router = useRouter();
   const sections = matrixSections();
-  const [grants, setGrants] = useState<Grants>(granted);
+  // Rozdíly proti databázi jen po dobu ukládání; jinak platí `granted` ze serveru
+  // (saveMatrix obnoví stránku), takže matice ukazuje, co DB opravdu uložila.
+  const [pending, setPending] = useState<Grants>({});
+  const grants: Grants = { ...granted, ...pending };
   const [expanded, setExpanded] = useState<Set<Section>>(new Set());
   const [status, setStatus] = useState<{ tone: "ok" | "error" | "busy"; text: string } | null>(
     null,
   );
-  const latest = useRef(grants);
-  const confirmed = useRef(granted);
+  const latest = useRef<Grants>({});
   const queues = useRef(new Map<string, Promise<void>>());
 
   const readOnly = (role: MatrixRole) => role.locked || !canEdit || role.id === ownRoleId;
 
   const save = (roleId: string) => {
     const run = async () => {
+      const sent = latest.current[roleId] ?? {};
       setStatus({ tone: "busy", text: "Saving…" });
-      const state = await saveMatrix(
-        { ok: false },
-        matrixFormData(roleId, latest.current[roleId] ?? {}),
+      const state = await saveMatrix({ ok: false }, matrixFormData(roleId, sent));
+      setStatus(
+        state.ok
+          ? { tone: "ok", text: "Permissions saved." }
+          : { tone: "error", text: state.error ?? "Could not save the permissions." },
       );
-      if (state.ok) {
-        confirmed.current = { ...confirmed.current, [roleId]: latest.current[roleId] ?? {} };
-        setStatus({ tone: "ok", text: "Permissions saved." });
-      } else {
-        const back = { ...latest.current, [roleId]: confirmed.current[roleId] ?? {} };
-        latest.current = back;
-        setGrants(back);
-        setStatus({ tone: "error", text: state.error ?? "Could not save the permissions." });
-      }
+      // Newer clicks are still queued: keep showing them.
+      if (latest.current[roleId] !== sent) return;
+      delete latest.current[roleId];
+      setPending((current) => {
+        const next = { ...current };
+        delete next[roleId];
+        return next;
+      });
     };
     const queued = (queues.current.get(roleId) ?? Promise.resolve()).then(run, run);
     queues.current.set(roleId, queued);
   };
 
   const toggle = (roleId: string, section: Section, action: Action, checked: boolean) => {
-    const role = { ...(latest.current[roleId] ?? {}) };
+    const role = { ...(latest.current[roleId] ?? granted[roleId] ?? {}) };
     role[section] = toggleAction(role[section] ?? "", action, checked);
-    const next = { ...latest.current, [roleId]: role };
-    latest.current = next;
-    setGrants(next);
+    latest.current[roleId] = role;
+    setPending((current) => ({ ...current, [roleId]: role }));
     save(roleId);
   };
 
@@ -143,7 +146,7 @@ export function PermissionMatrix({
         </p>
       ) : null}
 
-      <div className="overflow-x-auto rounded-xl border border-[var(--color-line)]">
+      <div className="relative overflow-x-auto rounded-xl border border-[var(--color-line)]">
         <table className="min-w-max table-fixed border-collapse text-[13px]">
           <caption className="sr-only">Permissions of roles by section</caption>
           <thead className="bg-[var(--color-surface-muted)] text-[var(--color-ink-muted)]">

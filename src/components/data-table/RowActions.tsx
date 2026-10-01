@@ -15,10 +15,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { buttonVariants } from "@/components/ui/button";
-import type { ActionState } from "@/lib/actions";
+import type { RowAction, RowActionIcon } from "./row-actions";
 
 /** Icons by name, so a Server Component can describe actions as plain data. */
-const ICONS = {
+const ICONS: Record<RowActionIcon, LucideIcon> = {
   edit: Pencil,
   view: Eye,
   open: ExternalLink,
@@ -27,24 +27,7 @@ const ICONS = {
   restore: ArchiveRestore,
   revoke: Ban,
   delete: Trash2,
-} satisfies Record<string, LucideIcon>;
-
-type RowActionIcon = keyof typeof ICONS;
-
-export type RowAction =
-  | { kind: "link"; icon: RowActionIcon; label: string; href: string; newTab?: boolean }
-  | {
-      kind: "action";
-      icon: RowActionIcon;
-      label: string;
-      /** Server Action bound to the row (e.g. `deleteRedirect.bind(null, id)`). */
-      action: () => Promise<ActionState>;
-      /** Destructive: red icon. Every action is confirmed in a dialog first. */
-      danger?: boolean;
-      confirmTitle: string;
-      confirmBody: string;
-      confirmLabel?: string;
-    };
+};
 
 /**
  * Row actions as icon buttons right in the row (TealHub owner rule: one click,

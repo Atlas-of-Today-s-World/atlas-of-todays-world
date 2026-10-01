@@ -33,8 +33,12 @@ export function StatChips({
           onClick={() => onToggle(item.key)}
           className={cn(
             badgeVariants({ tone: item.tone, size: "md" }),
-            "min-h-8 gap-2 border border-transparent px-3 font-normal transition focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none pointer-coarse:min-h-(--touch-min)",
-            item.pressed ? "border-current" : "hover:border-current/40",
+            "min-h-8 gap-2 border px-3 font-normal transition focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none pointer-coarse:min-h-(--touch-min)",
+            item.pressed
+              ? "border-current"
+              : item.tone === "outline"
+                ? "hover:border-current/40"
+                : "border-transparent hover:border-current/40",
           )}
         >
           <span>{item.label}</span>
