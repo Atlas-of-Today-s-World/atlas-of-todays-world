@@ -4,13 +4,22 @@ import { notFound } from "next/navigation";
 import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { can, sectionAccess } from "@/features/auth/access";
+import { listAuthors } from "@/features/authors/editorial";
+import { saveEntryResources } from "@/features/entries/actions";
+import { ChaptersEditor } from "@/features/entries/components/ChaptersEditor";
 import { EntryForm } from "@/features/entries/components/EntryForm";
 import { EntryWorkflow, RevisionList } from "@/features/entries/components/EntryWorkflow";
 import { PreviewShare } from "@/features/entries/components/PreviewShare";
 import { StatusBadge } from "@/features/entries/components/StatusBadge";
 import { VersionDiff } from "@/features/entries/components/VersionDiff";
-import { getEditableEntry, listRevisions, publishedVersion } from "@/features/entries/editorial";
+import {
+  getEditableEntry,
+  getEntryParts,
+  listRevisions,
+  publishedVersion,
+} from "@/features/entries/editorial";
 import { getPickerOptions } from "@/features/geography/queries";
+import { CollectionEditor } from "@/features/portraits/components/CollectionEditor";
 import { uuid } from "@/lib/validation/common";
 import { createServerClient } from "@/lib/supabase/server";
 
@@ -32,13 +41,16 @@ export default async function EditEntryPage({
   if (!entry) notFound();
 
   const supabase = await createServerClient();
-  const [options, revisions, approve, edit, published] = await Promise.all([
+  const isEntry = entry.kind === "entry";
+  const [options, revisions, approve, edit, published, authors, parts] = await Promise.all([
     getPickerOptions(),
     listRevisions(id),
     supabase.rpc("can_approve_entry", { p_entry: id }),
     // Seedované články vlastníka nemají — pak rozhoduje rozsah role (news_scope).
     supabase.rpc("can_edit_entry", { p_owner: entry.owner_id as string }),
     entry.status === "pending" ? publishedVersion(id) : Promise.resolve(null),
+    listAuthors(),
+    isEntry ? getEntryParts(id) : Promise.resolve(null),
   ]);
   const canApprove = approve.data === true;
   const canEdit = edit.data === true && (entry.status !== "published" || canApprove);
@@ -52,7 +64,10 @@ export default async function EditEntryPage({
           <span className="flex flex-wrap items-center gap-3">
             <StatusBadge status={entry.status} />
             {entry.status === "published" ? (
-              <Link href={`/news/${entry.slug}`} className="text-[var(--color-link)] underline">
+              <Link
+                href={`/${isEntry ? "entry" : "news"}/${entry.slug}`}
+                className="text-[var(--color-link)] underline"
+              >
                 Zobrazit na webu
               </Link>
             ) : null}
@@ -65,7 +80,20 @@ export default async function EditEntryPage({
         <div className="grid content-start gap-6">
           {published ? <VersionDiff before={published} after={entry} /> : null}
           {canEdit ? (
-            <EntryForm entry={entry} {...options} />
+            <>
+              <EntryForm entry={entry} authors={authors} {...options} />
+              {parts ? (
+                <>
+                  <ChaptersEditor entryId={entry.id} initial={parts.chapters} />
+                  <CollectionEditor
+                    save={saveEntryResources}
+                    target={{ entry_id: entry.id }}
+                    collection="resources"
+                    initial={parts.resources}
+                  />
+                </>
+              ) : null}
+            </>
           ) : (
             <p className="rounded-xl bg-[var(--color-line)]/30 p-4 text-[13.5px]">
               {entry.status === "published"

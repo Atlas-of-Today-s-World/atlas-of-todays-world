@@ -7,6 +7,7 @@ import {
   type LucideIcon,
   Map as MapIcon,
   Newspaper,
+  PenLine,
   ShieldCheck,
   SignpostBig,
   Shapes,
@@ -27,6 +28,7 @@ export interface AdminNavItem {
 export const ADMIN_NAV: readonly AdminNavItem[] = [
   { href: "/admin", label: "Přehled", section: null, icon: LayoutDashboard },
   { href: "/admin/obsah", label: "Novinky a hesla", section: "news", icon: Newspaper },
+  { href: "/admin/autori", label: "Autoři", section: "news", icon: PenLine },
   { href: "/admin/schvalovani", label: "Schvalování", section: "approvals", icon: BadgeCheck },
   { href: "/admin/presmerovani", label: "Přesměrování", section: "news", icon: SignpostBig },
   { href: "/admin/regiony", label: "Regiony a země", section: "regions", icon: Globe2 },

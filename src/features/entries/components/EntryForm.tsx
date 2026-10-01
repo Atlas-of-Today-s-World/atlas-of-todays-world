@@ -11,7 +11,7 @@ import { NEWS_CATEGORIES } from "@/lib/content-types";
 import { slugify } from "@/lib/validation/common";
 import { saveEntry } from "../actions";
 import type { EditableEntry } from "../editorial";
-import { ImageField } from "./ImageField";
+import { UploadField } from "./UploadField";
 import { RichTextEditor } from "./RichTextEditor";
 import { useDraftBackup } from "./useDraftBackup";
 import { ActionForm } from "@/components/ui/action-form";
@@ -21,17 +21,23 @@ interface Option {
   name: string;
 }
 
-/** Editor novinky/hesla: metadata, země, obálka a text (Server Action `saveEntry`). */
+/**
+ * Editor novinky/hesla: metadata, země, obálka a text (Server Action `saveEntry`).
+ * Encyklopedické heslo (P9) má navíc odrážky shrnutí, zvuk a autora z profilu;
+ * kapitoly a zdroje mají vlastní editory pod formulářem.
+ */
 export function EntryForm({
   entry,
   regions,
   issues,
   countries,
+  authors,
 }: {
   entry: EditableEntry | null;
   regions: Option[];
   issues: Option[];
   countries: CountryOption[];
+  authors: { id: string; name: string }[];
 }) {
   const [state, action] = useActionState<ActionState, FormData>(saveEntry, { ok: false });
   const formRef = useRef<HTMLFormElement>(null);
@@ -41,6 +47,8 @@ export function EntryForm({
   const [generation, setGeneration] = useState(0);
   const [slug, setSlug] = useState(entry?.slug ?? "");
   const [slugTouched, setSlugTouched] = useState(Boolean(entry));
+  const [kind, setKind] = useState(entry?.kind ?? "news");
+  const isEntry = kind === "entry";
   const errors = state.fieldErrors ?? {};
   const published = entry?.status === "published";
   const field = (id: string, hint?: string) => describedBy(id, { hint, errors: errors[id] });
@@ -55,6 +63,7 @@ export function EntryForm({
     const restored = { ...entry, ...backup.offer.values };
     setValues(restored);
     if (!published) setSlug(restored.slug ?? "");
+    if (restored.kind) setKind(restored.kind);
     setSlugTouched(true);
     setGeneration((n) => n + 1);
     backup.accept();
@@ -102,7 +111,7 @@ export function EntryForm({
         hint={
           published
             ? "Zveřejněný článek adresu nemění — odkazy na něj už kolují."
-            : `atlasoftodaysworld.org/news/${slug || "…"}`
+            : `atlasoftodaysworld.org/${isEntry ? "entry" : "news"}/${slug || "…"}`
         }
         errors={errors.slug}
       >
@@ -133,7 +142,12 @@ export function EntryForm({
           </Select>
         </FormField>
         <FormField id="kind" label="Druh" errors={errors.kind}>
-          <Select id="kind" name="kind" defaultValue={values?.kind ?? "news"}>
+          <Select
+            id="kind"
+            name="kind"
+            value={kind}
+            onChange={(event) => setKind(event.target.value as "news" | "entry")}
+          >
             <option value="news">Novinka</option>
             <option value="entry">Encyklopedické heslo</option>
           </Select>
@@ -190,8 +204,58 @@ export function EntryForm({
         />
       </FormField>
 
+      {isEntry ? (
+        <>
+          <FormField
+            id="summary_points"
+            label="Shrnutí v odrážkách"
+            hint="3–5 odrážek, každá na vlastní řádek. Ukazují se v hlavičce hesla."
+            errors={errors.summary_points}
+          >
+            <Textarea
+              id="summary_points"
+              name="summary_points"
+              rows={5}
+              defaultValue={values?.summary_points?.join("\n")}
+              {...field("summary_points", "hint")}
+            />
+          </FormField>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <FormField
+              id="author_id"
+              label="Autor (profil)"
+              hint="Fotka, životopis a positionality se berou z profilu (sekce Autoři)."
+              errors={errors.author_id}
+            >
+              <Select id="author_id" name="author_id" defaultValue={values?.author_id ?? ""}>
+                <option value="">— bez profilu —</option>
+                {authors.map((author) => (
+                  <option key={author.id} value={author.id}>
+                    {author.name}
+                  </option>
+                ))}
+              </Select>
+            </FormField>
+            <FormField
+              id="audio_url"
+              label="Zvuková verze"
+              hint="MP3, M4A/AAC, Ogg/Opus, WAV nebo FLAC do 50 MB. Na webu se přehrávač ukáže jen se stopou."
+              errors={errors.audio_url}
+            >
+              <UploadField
+                id="audio_url"
+                name="audio_url"
+                kind="audio"
+                defaultValue={values?.audio_url ?? ""}
+                invalid={Boolean(errors.audio_url)}
+              />
+            </FormField>
+          </div>
+        </>
+      ) : null}
+
       <FormField id="cover_url" label="Titulní obrázek" errors={errors.cover_url}>
-        <ImageField
+        <UploadField
           id="cover_url"
           name="cover_url"
           defaultValue={values?.cover_url ?? ""}
@@ -234,7 +298,9 @@ export function EntryForm({
       </div>
 
       <div className="grid gap-1.5">
-        <span className="text-[12.5px] font-medium text-[var(--color-ink-soft)]">Text</span>
+        <span className="text-[12.5px] font-medium text-[var(--color-ink-soft)]">
+          {isEntry ? "Úvod hesla (před kapitolami, nepovinný)" : "Text"}
+        </span>
         <RichTextEditor
           name="body_html"
           initialHtml={values?.body_html ?? ""}

@@ -11,6 +11,21 @@ import {
   uuid,
 } from "@/lib/validation/common";
 
+/** Text s jednou položkou na řádek → seznam neprázdných řádků (CR odstraní trim). */
+const lines = (value: unknown) =>
+  typeof value === "string"
+    ? value
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean)
+    : value;
+
+/** Odrážky shrnutí hesla i kapitoly: nejvýš 5 po 300 znacích (DB `short_items`). */
+const summaryPoints = z.preprocess(
+  lines,
+  z.array(text(300)).max(5, "Nejvýš 5 odrážek, jedna na řádek."),
+);
+
 /** Vstup editoru novinky/hesla — limity shodné s tabulkou `entries`. */
 export const EntryInput = z.object({
   id: z.preprocess(blankToUndefined, uuid.optional()),
@@ -30,8 +45,33 @@ export const EntryInput = z.object({
   body_html: z.string().max(400_000, "Text je příliš dlouhý."),
   countries: z.array(iso3).max(60, "Nejvýš 60 zemí."),
   planned: z.preprocess((value) => value === "on", z.boolean()),
+  // Jen u encyklopedického hesla (P9); u novinky zůstanou prázdné.
+  summary_points: summaryPoints.default([]),
+  audio_url: optionalHttpsUrl,
+  author_id: z.preprocess(blankToUndefined, uuid.optional()),
 });
 export type EntryInput = z.infer<typeof EntryInput>;
+
+/** Nejvýš kapitol v hesle (zadání chce 4–6; DB pustí 8). */
+export const MAX_CHAPTERS = 8;
+
+/** Kapitola hesla — limity shodné s tabulkou `entry_chapters`. */
+export const ChapterInput = z.object({
+  title: requiredText(200),
+  summary_points: summaryPoints,
+  body_html: z.string().max(200_000, "Text kapitoly je příliš dlouhý."),
+  illustration_url: optionalHttpsUrl,
+  illustration_credit: text(300).default(""),
+});
+export type ChapterInput = z.infer<typeof ChapterInput>;
+
+export const CHAPTER_FIELD_LABEL: Record<string, string> = {
+  title: "titulek",
+  summary_points: "shrnutí",
+  body_html: "text",
+  illustration_url: "ilustrace",
+  illustration_credit: "kredit ilustrace",
+};
 
 export const SendBackInput = z.object({
   id: uuid,

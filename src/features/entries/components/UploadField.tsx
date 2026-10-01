@@ -4,25 +4,33 @@ import { useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/field";
 import { cn } from "@/lib/cn";
-import { cssBackgroundImage } from "@/lib/security/urls";
-import { ACCEPT_IMAGES, uploadImage } from "@/lib/upload";
+import { cssBackgroundImage, safeUrl } from "@/lib/security/urls";
+import { ACCEPT_AUDIO, ACCEPT_IMAGES, uploadFile, type UploadKind } from "@/lib/upload";
 
-/** Pole s adresou obrázku: vložit https adresu, nebo nahrát soubor do Storage. */
-export function ImageField({
+const ACCEPT: Record<UploadKind, string> = { image: ACCEPT_IMAGES, audio: ACCEPT_AUDIO };
+
+/**
+ * Pole s adresou souboru: vložit https adresu, nebo nahrát soubor do Storage.
+ * Obrázek ukáže náhled, zvuk přehrávač.
+ */
+export function UploadField({
   id,
   name,
   defaultValue,
   invalid,
+  kind = "image",
 }: {
   id: string;
   name: string;
   defaultValue: string;
   invalid?: boolean;
+  kind?: UploadKind;
 }) {
   const [url, setUrl] = useState(defaultValue);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const preview = cssBackgroundImage(url);
+  const preview = kind === "image" ? cssBackgroundImage(url) : undefined;
+  const audio = kind === "audio" ? safeUrl(url) : null;
 
   return (
     <div className="grid gap-2">
@@ -45,7 +53,7 @@ export function ImageField({
           {busy ? "Nahrávám…" : "Nahrát"}
           <input
             type="file"
-            accept={ACCEPT_IMAGES}
+            accept={ACCEPT[kind]}
             className="sr-only"
             disabled={busy}
             onChange={async (event) => {
@@ -55,7 +63,7 @@ export function ImageField({
               setBusy(true);
               setError("");
               try {
-                setUrl(await uploadImage(picked));
+                setUrl(await uploadFile(picked, kind));
               } catch (failure) {
                 setError((failure as Error).message);
               } finally {
@@ -78,6 +86,7 @@ export function ImageField({
           aria-label="Náhled obrázku"
         />
       ) : null}
+      {audio ? <audio controls preload="none" src={audio} className="w-full max-w-md" /> : null}
     </div>
   );
 }

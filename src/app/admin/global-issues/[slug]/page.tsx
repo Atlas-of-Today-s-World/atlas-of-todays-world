@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/admin/PageHeader";
 import { can, sectionAccess } from "@/features/auth/access";
 import { getPickerOptions } from "@/features/geography/queries";
 import { CollectionEditor } from "@/features/portraits/components/CollectionEditor";
+import { savePortraitSection } from "@/features/portraits/actions";
 import { IssueForm } from "@/features/portraits/components/HeaderForms";
 import { DeleteIssue } from "@/features/portraits/components/DeleteIssue";
 import { issueForEdit, portraitItems, portraitRights } from "@/features/portraits/editorial";
@@ -66,8 +67,8 @@ export default async function IssueEditPage({ params }: { params: Promise<{ slug
             }
           >
             <CollectionEditor
-              kind="issue"
-              slug={slug}
+              save={savePortraitSection}
+              target={{ kind: "issue", slug }}
               collection={collection}
               initial={items[collection] ?? []}
             />

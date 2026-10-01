@@ -3,6 +3,7 @@
 import "server-only";
 import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
+import { z } from "zod";
 import {
   failed,
   formObject,
@@ -14,7 +15,16 @@ import {
 import { tags } from "@/lib/cache/tags";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { uuid } from "@/lib/validation/common";
-import { EntryInput, PREVIEW_HOURS, ScheduleInput, SendBackInput } from "./schema";
+import { COLLECTIONS } from "@/features/portraits/schema";
+import {
+  CHAPTER_FIELD_LABEL,
+  ChapterInput,
+  EntryInput,
+  MAX_CHAPTERS,
+  PREVIEW_HOURS,
+  ScheduleInput,
+  SendBackInput,
+} from "./schema";
 
 /** Po změně zveřejněného obsahu obnovit seznamy, detail i portréty. */
 function refresh(slug?: string | null, region?: string | null, issue?: string | null) {
@@ -47,6 +57,8 @@ export async function saveEntry(_prev: ActionState, formData: FormData): Promise
     author_name: fields.author_name || null,
     reading_minutes: fields.reading_minutes ?? null,
     body_html: sanitizeRichHtml(fields.body_html),
+    audio_url: fields.audio_url ?? null,
+    author_id: fields.author_id ?? null,
   };
 
   let entryId = id;
@@ -92,7 +104,7 @@ export async function saveEntry(_prev: ActionState, formData: FormData): Promise
 }
 
 async function syncCountries(
-  supabase: NonNullable<Awaited<ReturnType<typeof signedIn>>>["supabase"],
+  supabase: Client,
   entryId: string,
   countries: string[],
 ): Promise<ActionState | null> {
@@ -138,15 +150,107 @@ async function transition(fn: Transition, id: string): Promise<ActionState> {
   const { supabase } = session;
   const { error } = await supabase.rpc(fn, { p_entry: id });
   if (error) return failed(error);
-  if (fn !== "submit_entry") {
-    const { data } = await supabase
-      .from("entries")
-      .select("slug, region_slug, special_slug")
-      .eq("id", id)
-      .maybeSingle();
-    refresh(data?.slug, data?.region_slug, data?.special_slug);
-  }
+  if (fn !== "submit_entry") await refreshEntry(supabase, id);
   return { ok: true, message: DONE[fn] };
+}
+
+/** Obnoví cache článku podle jeho zařazení (`onlyPublished`: jen když je na webu). */
+async function refreshEntry(supabase: Client, id: string, onlyPublished = false) {
+  const { data } = await supabase
+    .from("entries")
+    .select("slug, status, region_slug, special_slug")
+    .eq("id", id)
+    .maybeSingle();
+  if (onlyPublished && data?.status !== "published") return;
+  refresh(data?.slug, data?.region_slug, data?.special_slug);
+}
+
+type Client = NonNullable<Awaited<ReturnType<typeof signedIn>>>["supabase"];
+
+/** První chyba seznamu položek jako „Kapitola 2, titulek: …". */
+function itemError(error: z.ZodError, item: string, labels: Record<string, string>): ActionState {
+  const issue = error.issues[0];
+  const [index, field] = issue.path;
+  return {
+    ok: false,
+    error:
+      typeof index === "number"
+        ? `${item} ${index + 1}, ${labels[String(field)] ?? String(field)}: ${issue.message}`
+        : issue.message,
+  };
+}
+
+/**
+ * Kapitoly hesla (P9) — formulář posílá pole každé kapitoly pod stejnými
+ * jmény v pořadí na stránce. Uloží se všechny najednou v jedné transakci
+ * (DB `replace_entry_parts`); kdo smí, rozhoduje RLS jako u článku.
+ */
+export async function saveChapters(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const entryId = String(formData.get("entry_id") ?? "");
+  if (!uuid.safeParse(entryId).success) return { ok: false, error: "Neplatné heslo." };
+  const column = (name: string) => formData.getAll(name).map(String);
+  const titles = column("title");
+  const [points, bodies, illustrations, credits] = [
+    column("summary_points"),
+    column("body_html"),
+    column("illustration_url"),
+    column("illustration_credit"),
+  ];
+  const parsed = z
+    .array(ChapterInput)
+    .max(MAX_CHAPTERS, `Nejvýš ${MAX_CHAPTERS} kapitol.`)
+    .safeParse(
+      titles.map((title, index) => ({
+        title,
+        summary_points: points[index],
+        body_html: bodies[index],
+        illustration_url: illustrations[index],
+        illustration_credit: credits[index],
+      })),
+    );
+  if (!parsed.success) return itemError(parsed.error, "Kapitola", CHAPTER_FIELD_LABEL);
+
+  const session = await signedIn();
+  if (!session) return NOT_SIGNED_IN;
+  const { error } = await session.supabase.rpc("replace_entry_parts", {
+    p_entry: entryId,
+    p_part: "chapters",
+    p_items: parsed.data.map((chapter) => ({
+      ...chapter,
+      body_html: sanitizeRichHtml(chapter.body_html),
+    })),
+  });
+  if (error) return failed(error);
+  await refreshEntry(session.supabase, entryId, true);
+  return { ok: true, message: "Kapitoly uloženy." };
+}
+
+/** Zdroje hesla — stejné položky jako zdroje portrétu, ukládá je editor sekcí. */
+export async function saveEntryResources(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const entryId = String(formData.get("entry_id") ?? "");
+  if (!uuid.safeParse(entryId).success) return { ok: false, error: "Neplatné heslo." };
+  let raw: unknown;
+  try {
+    raw = JSON.parse(String(formData.get("items") ?? "[]"));
+  } catch {
+    return { ok: false, error: "Neplatná data sekce." };
+  }
+  const parsed = z.array(COLLECTIONS.resources).max(50).safeParse(raw);
+  if (!parsed.success) return itemError(parsed.error, "Zdroj", {});
+
+  const session = await signedIn();
+  if (!session) return NOT_SIGNED_IN;
+  const { error } = await session.supabase.rpc("replace_entry_parts", {
+    p_entry: entryId,
+    p_part: "resources",
+    p_items: parsed.data,
+  });
+  if (error) return failed(error);
+  await refreshEntry(session.supabase, entryId, true);
+  return { ok: true, message: "Zdroje uloženy." };
 }
 
 export async function submitEntry(id: string) {

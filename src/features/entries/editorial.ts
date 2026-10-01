@@ -59,6 +59,9 @@ export interface EditableEntry extends EditorialRow {
   body_html: string;
   published_on: string | null;
   countries: string[];
+  summary_points: string[];
+  audio_url: string | null;
+  author_id: string | null;
 }
 
 export async function getEditableEntry(id: string): Promise<EditableEntry | null> {
@@ -66,7 +69,7 @@ export async function getEditableEntry(id: string): Promise<EditableEntry | null
   const { data, error } = await supabase
     .from("entries")
     .select(
-      `${LIST_COLUMNS}, kind, summary, special_slug, cover_url, cover_credit, reading_minutes, body_html, published_on, entry_countries(country_iso3)`,
+      `${LIST_COLUMNS}, kind, summary, special_slug, cover_url, cover_credit, reading_minutes, body_html, published_on, summary_points, audio_url, author_id, entry_countries(country_iso3)`,
     )
     .eq("id", id)
     .maybeSingle();
@@ -78,6 +81,41 @@ export async function getEditableEntry(id: string): Promise<EditableEntry | null
   return {
     ...(rest as unknown as EditableEntry),
     countries: entry_countries.map((c) => c.country_iso3),
+  };
+}
+
+/** Kapitola v editoru (pořadí = pozice). */
+export interface EditableChapter {
+  title: string;
+  summary_points: string[];
+  body_html: string;
+  illustration_url: string | null;
+  illustration_credit: string | null;
+}
+
+/** Kapitoly a zdroje hesla pro editor (P9). */
+export async function getEntryParts(id: string) {
+  const supabase = await createServerClient();
+  const [chapters, resources] = await Promise.all([
+    supabase
+      .from("entry_chapters")
+      .select("title, summary_points, body_html, illustration_url, illustration_credit")
+      .eq("entry_id", id)
+      .order("position"),
+    supabase
+      .from("resources")
+      .select("kind, title, source, description, url, image_url")
+      .eq("entry_id", id)
+      .order("position"),
+  ]);
+  if (chapters.error) throw new Error(`[chapters] ${chapters.error.message}`);
+  if (resources.error) throw new Error(`[resources] ${resources.error.message}`);
+  return {
+    chapters: chapters.data as EditableChapter[],
+    // Editor sekcí pracuje s textovými poli — null jako prázdný řetězec.
+    resources: resources.data.map((row) =>
+      Object.fromEntries(Object.entries(row).map(([key, value]) => [key, value ?? ""])),
+    ),
   };
 }
 

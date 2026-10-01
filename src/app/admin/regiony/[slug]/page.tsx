@@ -6,6 +6,7 @@ import { ReadOnly } from "@/components/admin/ReadOnly";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { sectionAccess } from "@/features/auth/access";
 import { CollectionEditor } from "@/features/portraits/components/CollectionEditor";
+import { savePortraitSection } from "@/features/portraits/actions";
 import { RegionForm } from "@/features/portraits/components/HeaderForms";
 import { portraitItems, portraitRights, regionForEdit } from "@/features/portraits/editorial";
 import { COLLECTION_NAMES } from "@/features/portraits/schema";
@@ -51,8 +52,8 @@ export default async function RegionEditPage({ params }: { params: Promise<{ slu
             }
           >
             <CollectionEditor
-              kind="region"
-              slug={slug}
+              save={savePortraitSection}
+              target={{ kind: "region", slug }}
               collection={collection}
               initial={items[collection] ?? []}
             />
