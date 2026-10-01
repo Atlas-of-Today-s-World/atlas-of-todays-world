@@ -44,6 +44,8 @@ interface Props {
 }
 
 const NEUTRAL = "#7d8aa8";
+/** Upper bound for the globe canvas pixel ratio (see the Map options). */
+const MAX_PIXEL_RATIO = 1.5;
 
 /**
  * Viewport padding so the right content panel doesn't cover the country — wide
@@ -156,6 +158,9 @@ export default function AtlasGlobe({
         minZoom: 0.8,
         maxZoom: 9,
         attributionControl: { compact: true },
+        // Satellite imagery is 256 px raster; rendering above 1.5× only multiplies
+        // GPU/CPU work (2.6× DPR phones paint ~3× the pixels) without visible gain.
+        pixelRatio: Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO),
         dragRotate: true,
         maxPitch: 0,
       });
