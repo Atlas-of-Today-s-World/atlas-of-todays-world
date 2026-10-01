@@ -229,5 +229,56 @@
     "issue": "Globální téma",
     "news": "Novinky",
     "entry": "Encyklopedické heslo"
+  },
+  "errors": {
+    "pageNotFoundTitle": "Stránka nenalezena",
+    "pageNotFoundLead": "Stránka se mohla přesunout, nebo je v adrese překlep.",
+    "pageErrorTitle": "Něco se pokazilo",
+    "pageErrorLead": "Zkuste to prosím za chvíli znovu. Když to nepomůže, dejte nám vědět.",
+    "errorCode": "Chyba {digest}"
+  },
+  "home": {
+    "title": "Atlas of Today's World — interaktivní encyklopedie na 3D glóbu",
+    "description": "Otočte satelitním glóbem, klikněte na kteroukoli zemi a přečtěte si její profil: lidský rozvoj, politický režim, životní podmínky a zprávy, které za tím stojí.",
+    "intro": "Interaktivní encyklopedie současnosti. Prozkoumejte svět na 3D satelitním glóbu, přepínejte datové vrstvy jako index lidského rozvoje, politický režim nebo vnímání korupce a otevřete profil kteréhokoli regionu či země.",
+    "regions": "Regiony světa",
+    "countries": "Země"
+  },
+  "view": {
+    "title": "{label} podle zemí",
+    "description": "{label} pro {count} zemí na interaktivním 3D glóbu. Poslední data: {year}. Zdroj: {source}.",
+    "meta": "{count} zemí · poslední data {year} · zdroj",
+    "otherLayers": "Další vrstvy:"
+  },
+  "preview": {
+    "title": "Náhled",
+    "published": "zveřejněno",
+    "notPublished": "zatím nezveřejněno",
+    "expires": "Odkaz platí do {date} UTC."
+  },
+  "account": {
+    "title": "Váš účet",
+    "email": "E-mail",
+    "role": "Role",
+    "reader": "Čtenář",
+    "openAdmin": "Otevřít administraci",
+    "download": "Stáhnout moje data",
+    "signOut": "Odhlásit se",
+    "delete": "Smazat můj účet",
+    "deleteText": "Tím natrvalo smažete účet i osobní údaje. Pro potvrzení napište {email}.",
+    "emailLabel": "Vaše e-mailová adresa",
+    "deleting": "Mažu…",
+    "errors": {
+      "signIn": "Nejdřív se přihlaste.",
+      "confirm": "Pro potvrzení napište svou e-mailovou adresu.",
+      "failed": "Účet se nepodařilo smazat. Pokud jste poslední admin, předejte nejdřív roli."
+    }
+  },
+  "invite": {
+    "title": "Pozvánka do týmu",
+    "heading": "Pozvánka do týmu Atlasu",
+    "lead": "Přihlaste se přes Google stejnou e-mailovou adresou, na kterou vám pozvánka přišla. Roli v týmu dostanete automaticky a otevře se vám administrace.",
+    "validity": "Pozvánka platí 5 dní. Pokud vypršela nebo se přihlásíte jinou adresou, požádejte o novou toho, kdo vás zval.",
+    "unavailable": "Přihlášení zatím není dostupné."
   }
 }

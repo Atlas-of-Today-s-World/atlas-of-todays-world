@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import HomeFocus from "@/components/map/HomeFocus";
 import { getAtlas } from "@/features/geography/queries";
+import Link from "@/components/i18n/Link";
+import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import { absoluteUrl, alternates } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
@@ -10,14 +12,14 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
+  const t = getMessages(await localeFrom(params)).home;
   return {
     // `absolute` obejde šablonu "%s — Atlas of Today's World" z root layoutu,
     // jinak by se název webu v titulku úvodní stránky objevil dvakrát.
     title: {
-      absolute: "Atlas of Today's World — an interactive encyclopedia on a 3D globe",
+      absolute: t.title,
     },
-    description:
-      "Spin the satellite globe, click any country and read its profile: human development, political regime, living conditions and the news behind them.",
+    description: t.description,
     alternates: alternates("/", await localeFrom(params)),
     keywords: [
       "world atlas",
@@ -32,7 +34,9 @@ export async function generateMetadata({
 }
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
-  const { countries, regions, indicators } = await getAtlas(await localeFrom(params));
+  const locale = await localeFrom(params);
+  const t = getMessages(locale).home;
+  const { countries, regions, indicators } = await getAtlas(locale);
 
   // ISO2 -> [lon, lat]: podle toho HomeFocus otočí globus nad zemi návštěvníka.
   const homeCenters: Record<string, [number, number]> = {};
@@ -108,24 +112,20 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       {/* Text pro vyhledávače a čtečky – vizuálně skrytý, mapa je v layoutu. */}
       <div id="content" tabIndex={-1} className="sr-only">
         <h1>Atlas of Today&rsquo;s World</h1>
-        <p>
-          An interactive encyclopedia of the present. Explore the world on a 3D satellite globe,
-          switch between data layers such as the Human Development Index, political regime or
-          corruption perceptions, and open the profile of any region or country.
-        </p>
-        <h2>World regions</h2>
+        <p>{t.intro}</p>
+        <h2>{t.regions}</h2>
         <ul>
           {regions.map((region) => (
             <li key={region.slug}>
-              <a href={`/region/${region.slug}`}>{region.name}</a>
+              <Link href={`/region/${region.slug}`}>{region.name}</Link>
             </li>
           ))}
         </ul>
-        <h2>Countries</h2>
+        <h2>{t.countries}</h2>
         <ul>
           {countries.map((country) => (
             <li key={country.iso3}>
-              <a href={`/country/${country.slug}`}>{country.name}</a>
+              <Link href={`/country/${country.slug}`}>{country.name}</Link>
             </li>
           ))}
         </ul>

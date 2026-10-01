@@ -17,7 +17,7 @@ export function ErrorState({
   title: string;
   lead: string;
   action?: ReactNode;
-  /** Text odkazu zpět na glóbus v jazyce stránky. */
+  /** Text odkazu zpět na glóbus v jazyce stránky (`common.backToGlobe`); výchozí je pro administraci. */
   backLabel?: string;
 }) {
   return (
