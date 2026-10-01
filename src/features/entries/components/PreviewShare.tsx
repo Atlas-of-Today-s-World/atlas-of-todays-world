@@ -10,10 +10,10 @@ import { createPreviewLink } from "../actions";
 import { PREVIEW_HOURS } from "../constants";
 
 const LABELS: Record<(typeof PREVIEW_HOURS)[number], string> = {
-  24: "1 den",
-  72: "3 dny",
-  168: "7 dní",
-  720: "30 dní",
+  24: "1 day",
+  72: "3 days",
+  168: "7 days",
+  720: "30 days",
 };
 
 /**
@@ -38,7 +38,7 @@ export function PreviewShare({ entryId }: { entryId: string }) {
   return (
     <div className="grid gap-3">
       <div className="flex flex-wrap items-end gap-2">
-        <FormField id="preview-hours" label="Platnost odkazu">
+        <FormField id="preview-hours" label="Link valid for">
           <Select
             id="preview-hours"
             value={hours}
@@ -52,7 +52,7 @@ export function PreviewShare({ entryId }: { entryId: string }) {
           </Select>
         </FormField>
         <Button type="button" variant="outline" disabled={pending} onClick={create}>
-          {pending ? "Vytvářím…" : "Vytvořit náhled"}
+          {pending ? "Creating…" : "Create preview"}
         </Button>
       </div>
       <ActionStatus state={state} />
@@ -61,7 +61,7 @@ export function PreviewShare({ entryId }: { entryId: string }) {
           <Input
             readOnly
             value={url}
-            aria-label="Odkaz na náhled"
+            aria-label="Preview link"
             onFocus={(e) => e.target.select()}
           />
           <div className="flex flex-wrap gap-2">
@@ -74,7 +74,7 @@ export function PreviewShare({ entryId }: { entryId: string }) {
                 setCopied(true);
               }}
             >
-              <Copy aria-hidden className="size-4" /> {copied ? "Zkopírováno" : "Kopírovat"}
+              <Copy aria-hidden className="size-4" /> {copied ? "Copied" : "Copy"}
             </Button>
             <a
               href={url}
@@ -82,11 +82,12 @@ export function PreviewShare({ entryId }: { entryId: string }) {
               rel="noopener noreferrer"
               className="inline-flex min-h-(--touch-min) items-center gap-1.5 px-2 text-[13px] text-[var(--color-link)] underline"
             >
-              <ExternalLink aria-hidden className="size-4" /> Otevřít náhled
+              <ExternalLink aria-hidden className="size-4" /> Open preview
             </a>
           </div>
           <p className="text-[12px] text-[var(--color-ink-muted)]">
-            Kdo odkaz má, uvidí článek bez přihlášení. Zrušit jde smazáním článku nebo vypršením.
+            Anyone with the link can see the article without signing in. It ends when the article is
+            deleted or the link expires.
           </p>
         </div>
       ) : null}

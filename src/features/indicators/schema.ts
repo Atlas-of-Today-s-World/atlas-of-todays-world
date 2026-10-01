@@ -33,26 +33,26 @@ export const IndicatorInput = z
   .superRefine((value, ctx) => {
     if (value.type !== "sequential") return;
     if (value.domain_min === undefined || value.domain_max === undefined) {
-      ctx.addIssue({ code: "custom", path: ["domain_min"], message: "Škála potřebuje rozsah." });
+      ctx.addIssue({ code: "custom", path: ["domain_min"], message: "The scale needs a range." });
     } else if (value.domain_min === value.domain_max) {
       ctx.addIssue({
         code: "custom",
         path: ["domain_max"],
-        message: "Konec musí být jiný než začátek.",
+        message: "The end must differ from the start.",
       });
     }
     if (value.scale === "log" && (value.domain_min ?? 0) <= 0) {
       ctx.addIssue({
         code: "custom",
         path: ["domain_min"],
-        message: "Logaritmická škála začíná nad nulou.",
+        message: "A logarithmic scale must start above zero.",
       });
     }
     if (value.ramp.length < 2) {
       ctx.addIssue({
         code: "custom",
         path: ["ramp"],
-        message: "Paleta potřebuje aspoň dvě barvy.",
+        message: "The palette needs at least two colors.",
       });
     }
   });
@@ -61,7 +61,7 @@ export const IndicatorInput = z
 export const ValueInput = z.object({
   indicator_id: slug(60),
   country_iso3: iso3,
-  value: z.coerce.number({ message: "Zadejte číslo." }).finite(),
+  value: z.coerce.number({ message: "Enter a number." }).finite(),
   year: optionalNumber(z.number().int().min(1800).max(2100)),
   note: z.preprocess(blankToUndefined, text(120).optional()),
   source_note: requiredText(300),

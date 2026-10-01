@@ -161,6 +161,6 @@ test.describe("přihlášení", () => {
 
   test("stránka pozvánky vysvětlí, jak se přihlásit", async ({ page }) => {
     await page.goto("/pozvanka");
-    await expect(page.getByRole("heading", { name: "Pozvánka do týmu Atlasu" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Invitation to the Atlas team" })).toBeVisible();
   });
 });

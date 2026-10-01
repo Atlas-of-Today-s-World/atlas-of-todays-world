@@ -19,22 +19,22 @@ import { slug as slugSchema } from "@/lib/validation/common";
 import { COLLECTIONS, CountryInput, IssueInput, PortraitKind, RegionInput } from "./schema";
 
 const FIELD_LABEL: Record<string, string> = {
-  date_label: "datum",
-  title: "název",
+  date_label: "date",
+  title: "title",
   body: "text",
-  question: "otázka",
-  answer: "odpověď",
-  kind: "druh",
-  url: "adresa",
-  image_url: "obrázek",
-  source: "zdroj",
-  source_url: "odkaz na zdroj",
-  value: "hodnota",
-  label: "popisek",
-  provider: "typ",
-  caption: "popisek",
-  description: "popis",
-  period: "období",
+  question: "question",
+  answer: "answer",
+  kind: "type",
+  url: "URL",
+  image_url: "image",
+  source: "source",
+  source_url: "source link",
+  value: "value",
+  label: "label",
+  provider: "type",
+  caption: "caption",
+  description: "description",
+  period: "period",
 };
 
 /** Po změně portrétu: jeho sekce a u zemí/hlaviček i snapshot mapy. */
@@ -58,17 +58,17 @@ export async function savePortraitSection(
       collection: z.enum(Object.keys(COLLECTIONS) as [keyof typeof COLLECTIONS]),
     })
     .safeParse(formObject(formData));
-  if (!head.success) return { ok: false, error: "Neplatná sekce portrétu." };
+  if (!head.success) return { ok: false, error: "Invalid portrait section." };
   const { kind, slug, collection } = head.data;
 
   let raw: unknown;
   try {
     raw = JSON.parse(String(formData.get("items") ?? "[]"));
   } catch {
-    return { ok: false, error: "Neplatná data sekce." };
+    return { ok: false, error: "Invalid section data." };
   }
   const items = z.array(COLLECTIONS[collection]).max(50).safeParse(raw);
-  if (!items.success) return listItemError(items.error, "Položka", FIELD_LABEL);
+  if (!items.success) return listItemError(items.error, "Item", FIELD_LABEL);
 
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
@@ -80,7 +80,7 @@ export async function savePortraitSection(
   });
   if (error) return failed(error);
   refresh(kind, slug);
-  return { ok: true, message: "Sekce uložena." };
+  return { ok: true, message: "Section saved." };
 }
 
 export async function saveRegion(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -100,10 +100,10 @@ export async function saveRegion(_prev: ActionState, formData: FormData): Promis
     .eq("slug", slug)
     .select("slug");
   if (error) return failed(error);
-  if (!data.length) return { ok: false, error: "Region nemůžete upravit." };
+  if (!data.length) return { ok: false, error: "You can't edit this region." };
   updateTag(tags.atlas);
   updateTag(tags.portrait("region", slug));
-  return { ok: true, message: "Region uložen." };
+  return { ok: true, message: "Region saved." };
 }
 
 export async function saveIssue(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -156,11 +156,12 @@ export async function saveIssue(_prev: ActionState, formData: FormData): Promise
   if (!original_slug || original_slug !== fields.slug) {
     redirect(`/admin/global-issues/${fields.slug}`);
   }
-  return { ok: true, message: "Global issue uložen." };
+  return { ok: true, message: "Global issue saved." };
 }
 
 export async function deleteIssue(slug: string): Promise<ActionState> {
-  if (!slugSchema(120).safeParse(slug).success) return { ok: false, error: "Neplatný celek." };
+  if (!slugSchema(120).safeParse(slug).success)
+    return { ok: false, error: "Invalid global issue." };
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
   const { data, error } = await session.supabase
@@ -169,10 +170,11 @@ export async function deleteIssue(slug: string): Promise<ActionState> {
     .eq("slug", slug)
     .select("slug");
   if (error) return failed(error);
-  if (!data.length) return { ok: false, error: "Celek nejde smazat (nemáte právo)." };
+  if (!data.length)
+    return { ok: false, error: "Can't delete this global issue (you don't have permission)." };
   updateTag(tags.atlas);
   updateTag(tags.entries);
-  return { ok: true, message: "Smazáno." };
+  return { ok: true, message: "Deleted." };
 }
 
 export async function saveCountry(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -192,7 +194,7 @@ export async function saveCountry(_prev: ActionState, formData: FormData): Promi
     .eq("iso3", iso3)
     .select("iso3");
   if (error) return failed(error);
-  if (!data.length) return { ok: false, error: "Zemi nemůžete upravit." };
+  if (!data.length) return { ok: false, error: "You can't edit this country." };
   updateTag(tags.atlas);
-  return { ok: true, message: "Profil země uložen." };
+  return { ok: true, message: "Country profile saved." };
 }

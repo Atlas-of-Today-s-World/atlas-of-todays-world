@@ -36,15 +36,15 @@ test.describe("účty a pozvánky", () => {
 
     // Přijatá pozvánka posílá rovnou do administrace.
     await expect(page).toHaveURL(/\/admin$/);
-    const nav = page.getByRole("navigation", { name: "Administrace" });
+    const nav = page.getByRole("navigation", { name: "Administration" });
     await expect(page.getByText(`${email} · Publisher`)).toBeVisible();
     // Menu jen ze sekcí, na které role má právo „v".
-    await expect(nav.getByRole("link", { name: "Novinky a hesla" })).toBeVisible();
-    await expect(nav.getByRole("link", { name: "Účty a pozvánky" })).toHaveCount(0);
-    await expect(nav.getByRole("link", { name: "Role a práva" })).toHaveCount(0);
+    await expect(nav.getByRole("link", { name: "News & entries" })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "Accounts & invitations" })).toHaveCount(0);
+    await expect(nav.getByRole("link", { name: "Roles & permissions" })).toHaveCount(0);
 
     // Sekce je chráněná i mimo menu.
-    await page.goto("/admin/ucty/pozvanky");
+    await page.goto("/admin/accounts/invitations");
     await expect(page.getByTestId("section-forbidden")).toBeVisible();
 
     const { data: invitation } = await admin

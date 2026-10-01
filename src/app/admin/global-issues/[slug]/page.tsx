@@ -35,7 +35,7 @@ export default async function IssueEditPage({ params }: { params: Promise<{ slug
           <>
             Global issue.{" "}
             <Link href={`/global-issue/${slug}`} className="text-[var(--color-link)] underline">
-              Zobrazit na webu
+              View on site
             </Link>
           </>
         }
@@ -43,7 +43,7 @@ export default async function IssueEditPage({ params }: { params: Promise<{ slug
       />
       <ReadOnly
         readOnly={!rights.head}
-        reason="Celek upravuje role s právem upravovat global issues."
+        reason="Only roles allowed to edit global issues can edit this."
       >
         <IssueForm
           issue={{
@@ -62,8 +62,8 @@ export default async function IssueEditPage({ params }: { params: Promise<{ slug
             readOnly={collection === "metrics" ? !rights.metrics : !rights.text}
             reason={
               collection === "metrics"
-                ? "Ukazatele se zdrojem upravuje role s právem upravovat regiony."
-                : "Texty portrétu (osa, FAQ, zdroje, vizuály) upravuje redakce s právem na všechny články."
+                ? "Sourced indicators are edited by roles allowed to edit regions."
+                : "Portrait texts (timeline, FAQ, sources, visuals) are edited by editors with rights to all articles."
             }
           >
             <CollectionEditor

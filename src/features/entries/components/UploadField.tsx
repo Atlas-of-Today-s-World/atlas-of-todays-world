@@ -72,7 +72,7 @@ export function UploadField({
             "shrink-0 cursor-pointer focus-within:ring-2 focus-within:ring-[var(--color-accent)]",
           )}
         >
-          {busy ? "Nahrávám…" : "Nahrát"}
+          {busy ? "Uploading…" : "Upload"}
           <input
             type="file"
             accept={ACCEPT[kind]}
@@ -105,7 +105,7 @@ export function UploadField({
           className="h-32 w-full max-w-sm rounded-lg bg-cover bg-center"
           style={{ backgroundImage: preview }}
           role="img"
-          aria-label="Náhled obrázku"
+          aria-label="Image preview"
         />
       ) : null}
       {audio ? <audio controls preload="none" src={audio} className="w-full max-w-md" /> : null}

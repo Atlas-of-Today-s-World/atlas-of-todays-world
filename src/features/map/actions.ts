@@ -27,9 +27,9 @@ export async function saveTheme(_prev: ActionState, formData: FormData): Promise
     .eq("id", 1)
     .select("id");
   if (error) return failed(error);
-  if (!data.length) return { ok: false, error: "Vzhled nemůžete měnit." };
+  if (!data.length) return { ok: false, error: "You can't change the appearance." };
   updateTag(tags.atlas);
-  return { ok: true, message: "Vzhled uložen. Mapa se obnoví při dalším načtení." };
+  return { ok: true, message: "Appearance saved. The map will update on the next load." };
 }
 
 /** Vlastní plocha na mapě (map_areas, sekce areas). */
@@ -46,12 +46,12 @@ export async function saveArea(_prev: ActionState, formData: FormData): Promise<
     : await supabase.from("map_areas").insert({ ...row, created_by: user.id });
   if (error) return failed(error);
   updateTag(tags.atlas);
-  if (original_slug !== fields.slug) redirect(`/admin/oblasti/${fields.slug}`);
-  return { ok: true, message: "Plocha uložena." };
+  if (original_slug !== fields.slug) redirect(`/admin/areas/${fields.slug}`);
+  return { ok: true, message: "Area saved." };
 }
 
 export async function deleteArea(areaSlug: string): Promise<ActionState> {
-  if (!slug(120).safeParse(areaSlug).success) return { ok: false, error: "Neplatná plocha." };
+  if (!slug(120).safeParse(areaSlug).success) return { ok: false, error: "Invalid area." };
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
   const { data, error } = await session.supabase
@@ -60,7 +60,7 @@ export async function deleteArea(areaSlug: string): Promise<ActionState> {
     .eq("slug", areaSlug)
     .select("slug");
   if (error) return failed(error);
-  if (!data.length) return { ok: false, error: "Plochu nemůžete smazat." };
+  if (!data.length) return { ok: false, error: "You can't delete this area." };
   updateTag(tags.atlas);
-  return { ok: true, message: "Plocha smazána." };
+  return { ok: true, message: "Area deleted." };
 }

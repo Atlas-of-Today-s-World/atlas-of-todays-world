@@ -7,7 +7,7 @@ import { useActionPending } from "@/components/ui/action-form";
 /** Odesílací tlačítko se stavem „ukládám" (čte stav nadřazeného <ActionForm> či <form>). */
 export function SubmitButton({
   children,
-  pending: pendingLabel = "Ukládám…",
+  pending: pendingLabel = "Saving…",
   name,
   value,
   ...variants

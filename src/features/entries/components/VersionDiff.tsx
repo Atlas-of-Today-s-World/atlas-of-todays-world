@@ -6,7 +6,7 @@ const STYLE = {
   removed: "bg-red-50 text-red-900 line-through border-l-2 border-red-400 pl-2",
 } as const;
 
-const MARK = { same: "", added: "Přidáno: ", removed: "Odebráno: " } as const;
+const MARK = { same: "", added: "Added: ", removed: "Removed: " } as const;
 
 /** Co se změnilo proti zveřejněné verzi — titulek, perex a text po odstavcích. */
 export function VersionDiff({
@@ -24,7 +24,7 @@ export function VersionDiff({
   return (
     <details className="rounded-xl border border-[var(--color-line)] p-4" open={changed}>
       <summary className="cursor-pointer text-[13.5px] font-medium">
-        Změny proti zveřejněné verzi {changed ? "" : "(žádné)"}
+        Changes from the published version {changed ? "" : "(none)"}
       </summary>
       <ol className="mt-3 grid gap-1.5 text-[13px] leading-relaxed">
         {parts.map((part, index) => (

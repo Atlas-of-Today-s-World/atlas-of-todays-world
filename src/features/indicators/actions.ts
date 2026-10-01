@@ -48,13 +48,13 @@ export async function saveIndicator(_prev: ActionState, formData: FormData): Pro
   }
   const { data, error } = await supabase.from("indicators").update(row).eq("id", id).select("id");
   if (error) return failed(error);
-  if (!data.length) return { ok: false, error: "Ukazatel nemůžete upravit." };
+  if (!data.length) return { ok: false, error: "You can't edit this indicator." };
   refresh();
-  return { ok: true, message: "Ukazatel uložen." };
+  return { ok: true, message: "Indicator saved." };
 }
 
 export async function deleteIndicator(id: string): Promise<ActionState> {
-  if (!slug(60).safeParse(id).success) return { ok: false, error: "Neplatný ukazatel." };
+  if (!slug(60).safeParse(id).success) return { ok: false, error: "Invalid indicator." };
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
   const { data, error } = await session.supabase
@@ -64,10 +64,13 @@ export async function deleteIndicator(id: string): Promise<ActionState> {
     .select("id");
   if (error) return failed(error);
   if (!data.length) {
-    return { ok: false, error: "Smazat jde jen vlastní ukazatel, a jen s právem mazat." };
+    return {
+      ok: false,
+      error: "Only custom indicators can be deleted, and only with delete permission.",
+    };
   }
   refresh();
-  return { ok: true, message: "Ukazatel smazán." };
+  return { ok: true, message: "Indicator deleted." };
 }
 
 /** Ruční hodnota (nová nebo oprava importované); zdroj je povinný. */
@@ -82,12 +85,12 @@ export async function setValue(_prev: ActionState, formData: FormData): Promise<
     .upsert({ ...fields, year: year ?? null, note: note ?? null });
   if (error) return failed(error);
   refresh();
-  return { ok: true, message: "Hodnota uložena." };
+  return { ok: true, message: "Value saved." };
 }
 
 export async function deleteValue(indicatorId: string, country: string): Promise<ActionState> {
   if (!slug(60).safeParse(indicatorId).success || !iso3.safeParse(country).success) {
-    return { ok: false, error: "Neplatná hodnota." };
+    return { ok: false, error: "Invalid value." };
   }
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
@@ -98,26 +101,26 @@ export async function deleteValue(indicatorId: string, country: string): Promise
     .eq("country_iso3", country)
     .select("country_iso3");
   if (error) return failed(error);
-  if (!data.length) return { ok: false, error: "Hodnotu nemůžete smazat." };
+  if (!data.length) return { ok: false, error: "You can't delete this value." };
   refresh();
-  return { ok: true, message: "Hodnota smazána." };
+  return { ok: true, message: "Value deleted." };
 }
 
 /** Číselník kategoriálního ukazatele (hodnota → popisek a barva). */
 export async function saveCategories(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const id = slug(60).safeParse(formData.get("indicator_id"));
-  if (!id.success) return { ok: false, error: "Neplatný ukazatel." };
+  if (!id.success) return { ok: false, error: "Invalid indicator." };
   let raw: unknown;
   try {
     raw = JSON.parse(String(formData.get("items") ?? "[]"));
   } catch {
-    return { ok: false, error: "Neplatná data." };
+    return { ok: false, error: "Invalid data." };
   }
   const items = z
     .array(CategoryInput)
     .max(20)
     .refine((list) => new Set(list.map((c) => c.value)).size === list.length, {
-      message: "Každá hodnota smí být v číselníku jen jednou.",
+      message: "Each value may appear in the category list only once.",
     })
     .safeParse(raw);
   if (!items.success) return { ok: false, error: firstIssue(items.error) };
@@ -137,5 +140,5 @@ export async function saveCategories(_prev: ActionState, formData: FormData): Pr
     if (error) return failed(error);
   }
   refresh();
-  return { ok: true, message: "Číselník uložen." };
+  return { ok: true, message: "Categories saved." };
 }

@@ -35,11 +35,11 @@ export function MatrixForm({
       <input type="hidden" name="role_id" value={roleId} />
       <div className="overflow-x-auto rounded-xl border border-[var(--color-line)]">
         <table className="w-full text-[13px]">
-          <caption className="sr-only">Oprávnění role {roleName}</caption>
+          <caption className="sr-only">Permissions of role {roleName}</caption>
           <thead className="bg-[var(--color-line)]/30 text-[12px] text-[var(--color-ink-muted)]">
             <tr>
               <th scope="col" className="px-3 py-2 text-left font-medium">
-                Sekce
+                Section
               </th>
               {ACTIONS.map((a) => (
                 <th key={a} scope="col" className="px-2 py-2 font-medium">
@@ -74,13 +74,13 @@ export function MatrixForm({
       </div>
       {readOnly ? (
         <p className="text-[12.5px] text-[var(--color-ink-muted)]">
-          Admin má vždy všechno; jeho oprávnění se nedají omezit.
+          Admin always has full access; its permissions can’t be restricted.
         </p>
       ) : (
         <>
           <ActionStatus state={state} />
           <div>
-            <SubmitButton size="sm">Uložit oprávnění</SubmitButton>
+            <SubmitButton size="sm">Save permissions</SubmitButton>
           </div>
         </>
       )}
@@ -106,7 +106,7 @@ export function RoleForm({ role }: { role: RoleValues | null }) {
       <input type="hidden" name="is_new" value={role ? "false" : "true"} />
       {role ? <input type="hidden" name="id" value={role.id} /> : null}
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField id={`${prefix}-name`} label="Název" required errors={errors.name}>
+        <FormField id={`${prefix}-name`} label="Name" required errors={errors.name}>
           <Input
             id={`${prefix}-name`}
             name="name"
@@ -116,36 +116,44 @@ export function RoleForm({ role }: { role: RoleValues | null }) {
           />
         </FormField>
         {!role ? (
-          <FormField id={`${prefix}-id`} label="Identifikátor" required errors={errors.id}>
+          <FormField id={`${prefix}-id`} label="Identifier" required errors={errors.id}>
             <Input
               id={`${prefix}-id`}
               name="id"
               required
               maxLength={40}
-              placeholder="napr-lektor"
+              placeholder="e-g-lecturer"
             />
           </FormField>
         ) : null}
-        <FormField id={`${prefix}-news`} label="Čí články upravuje" errors={errors.news_scope}>
+        <FormField
+          id={`${prefix}-news`}
+          label="Whose articles they edit"
+          errors={errors.news_scope}
+        >
           <Select id={`${prefix}-news`} name="news_scope" defaultValue={role?.news_scope ?? "none"}>
-            <option value="none">žádné</option>
-            <option value="own">jen své</option>
-            <option value="all">všechny</option>
+            <option value="none">none</option>
+            <option value="own">own only</option>
+            <option value="all">all</option>
           </Select>
         </FormField>
-        <FormField id={`${prefix}-approval`} label="Co schvaluje" errors={errors.approval_scope}>
+        <FormField
+          id={`${prefix}-approval`}
+          label="What they approve"
+          errors={errors.approval_scope}
+        >
           <Select
             id={`${prefix}-approval`}
             name="approval_scope"
             defaultValue={role?.approval_scope ?? "none"}
           >
-            <option value="none">nic</option>
-            <option value="assigned">přidělené země a autory</option>
-            <option value="global">všechno</option>
+            <option value="none">nothing</option>
+            <option value="assigned">assigned countries and authors</option>
+            <option value="global">everything</option>
           </Select>
         </FormField>
       </div>
-      <FormField id={`${prefix}-note`} label="Popis role" errors={errors.note}>
+      <FormField id={`${prefix}-note`} label="Role description" errors={errors.note}>
         <Textarea
           id={`${prefix}-note`}
           name="note"
@@ -156,7 +164,7 @@ export function RoleForm({ role }: { role: RoleValues | null }) {
       </FormField>
       <ActionStatus state={state} />
       <div>
-        <SubmitButton size="sm">{role ? "Uložit roli" : "Založit roli"}</SubmitButton>
+        <SubmitButton size="sm">{role ? "Save role" : "Create role"}</SubmitButton>
       </div>
     </ActionForm>
   );
@@ -166,11 +174,11 @@ export function DeleteRole({ id, name }: { id: string; name: string }) {
   const router = useRouter();
   return (
     <ConfirmButton
-      label="Smazat roli"
+      label="Delete role"
       variant="danger"
-      title={`Smazat roli ${name}?`}
-      body="Jde to jen u role, kterou nikdo nemá. Účty nejdřív převeďte jinam."
-      confirm="Smazat"
+      title={`Delete role ${name}?`}
+      body="Only possible for a role nobody has. Move the accounts to another role first."
+      confirm="Delete"
       action={() => deleteRole(id)}
       onDone={(state) => {
         if (state.ok) router.refresh();
@@ -196,11 +204,7 @@ export function SecurityForm({
   return (
     <ActionForm action={action} className="grid max-w-2xl gap-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <FormField
-          id="session_hours"
-          label="Délka přihlášení (hodin)"
-          errors={errors.session_hours}
-        >
+        <FormField id="session_hours" label="Session length (hours)" errors={errors.session_hours}>
           <Input
             id="session_hours"
             name="session_hours"
@@ -210,11 +214,7 @@ export function SecurityForm({
             defaultValue={settings.session_hours}
           />
         </FormField>
-        <FormField
-          id="lock_after"
-          label="Zamknout po neúspěšných pokusech"
-          errors={errors.lock_after}
-        >
+        <FormField id="lock_after" label="Lock after failed attempts" errors={errors.lock_after}>
           <Input
             id="lock_after"
             name="lock_after"
@@ -228,11 +228,11 @@ export function SecurityForm({
       <Checkbox
         name="invite_only"
         defaultChecked={settings.invite_only}
-        label="Do týmu jen pozvánkou (a jen z povolených adres, je-li seznam vyplněný)"
+        label="Team by invitation only (and only from allowed addresses, if the list is filled in)"
       />
       <fieldset>
         <legend className="mb-1 text-[12.5px] font-medium text-[var(--color-ink-soft)]">
-          Role, které musí mít dvoufázové ověření (TOTP)
+          Roles that require two-factor authentication (TOTP)
         </legend>
         <div className="grid sm:grid-cols-2">
           {roles.map((role) => (
@@ -248,7 +248,7 @@ export function SecurityForm({
       </fieldset>
       <ActionStatus state={state} />
       <div>
-        <SubmitButton size="sm">Uložit nastavení</SubmitButton>
+        <SubmitButton size="sm">Save settings</SubmitButton>
       </div>
     </ActionForm>
   );

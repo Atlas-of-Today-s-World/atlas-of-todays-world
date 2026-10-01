@@ -8,9 +8,9 @@ interface Row {
 }
 
 const columns: Column<Row>[] = [
-  { key: "title", header: "Titulek", cell: (row) => row.title },
-  { key: "status", header: "Stav", cell: (row) => row.status, wide: true },
-  { key: "edit", header: "", cell: () => <a href="#">Upravit</a>, end: true },
+  { key: "title", header: "Title", cell: (row) => row.title },
+  { key: "status", header: "Status", cell: (row) => row.status, wide: true },
+  { key: "edit", header: "", cell: () => <a href="#">Edit</a>, end: true },
 ];
 
 const meta = {
@@ -18,12 +18,12 @@ const meta = {
   component: DataTable<Row>,
   args: {
     rows: [
-      { id: "1", title: "Elections in Moldova", status: "Zveřejněno" },
-      { id: "2", title: "Water crisis in Iran", status: "Koncept" },
+      { id: "1", title: "Elections in Moldova", status: "Published" },
+      { id: "2", title: "Water crisis in Iran", status: "Draft" },
     ],
     columns,
     rowKey: (row: Row) => row.id,
-    caption: "Články",
+    caption: "Articles",
   },
 } satisfies Meta<typeof DataTable<Row>>;
 

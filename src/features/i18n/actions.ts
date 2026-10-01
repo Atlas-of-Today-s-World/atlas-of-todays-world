@@ -58,5 +58,5 @@ export async function saveTranslations(
   }
   // Překlady jsou součástí snímku Atlasu v daném jazyce.
   updateTag(tags.atlas);
-  return { ok: true, message: "Překlad uložen." };
+  return { ok: true, message: "Translation saved." };
 }

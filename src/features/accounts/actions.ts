@@ -84,7 +84,7 @@ export async function saveAccount(_prev: ActionState, formData: FormData): Promi
   }
   const { data, error } = await supabase.from("profiles").update(update).eq("id", id).select("id");
   if (error) return failed(error);
-  if (!data.length) return { ok: false, error: "Účet nemůžete upravit." };
+  if (!data.length) return { ok: false, error: "You can't edit this account." };
 
   for (const [table, column, want] of [
     ["approver_countries", "country_iso3", countries],
@@ -103,9 +103,9 @@ export async function saveAccount(_prev: ActionState, formData: FormData): Promi
       console.error("[accounts] ban failed", banError.message);
       return {
         ok: false,
-        error: "Stav účtu je uložený, ale přihlášení se nepodařilo zablokovat. Zkuste to znovu.",
+        error: "The account status is saved, but sign-in couldn't be blocked. Try again.",
       };
     }
   }
-  return { ok: true, message: "Účet uložen." };
+  return { ok: true, message: "Account saved." };
 }

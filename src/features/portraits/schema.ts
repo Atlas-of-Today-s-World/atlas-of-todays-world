@@ -100,7 +100,7 @@ export const CountryInput = z.object({
   iso3: z.string().regex(/^[A-Z]{3}$/),
   blurb: text(1000),
   tagline: text(300),
-  profile_html: z.string().max(200_000, "Text je příliš dlouhý."),
+  profile_html: z.string().max(200_000, "The text is too long."),
   featured_indicators: z.array(slug(60)).max(12),
   region_slug: z.preprocess(blankToUndefined, slug(120).optional()),
 });

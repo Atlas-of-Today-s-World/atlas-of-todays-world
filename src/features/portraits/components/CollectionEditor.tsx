@@ -75,19 +75,19 @@ export function CollectionEditor({
               </span>
               <span className="flex gap-1">
                 <IconAction
-                  label={`Posunout ${ui.itemLabel.toLowerCase()} ${index + 1} nahoru`}
+                  label={`Move ${ui.itemLabel.toLowerCase()} ${index + 1} up`}
                   disabled={index === 0}
                   onClick={() => move(index, -1)}
                   icon={<ArrowUp size={16} aria-hidden />}
                 />
                 <IconAction
-                  label={`Posunout ${ui.itemLabel.toLowerCase()} ${index + 1} dolů`}
+                  label={`Move ${ui.itemLabel.toLowerCase()} ${index + 1} down`}
                   disabled={index === items.length - 1}
                   onClick={() => move(index, 1)}
                   icon={<ArrowDown size={16} aria-hidden />}
                 />
                 <IconAction
-                  label={`Odebrat ${ui.itemLabel.toLowerCase()} ${index + 1}`}
+                  label={`Remove ${ui.itemLabel.toLowerCase()} ${index + 1}`}
                   onClick={() => setItems((current) => current.filter((_, i) => i !== index))}
                   icon={<Trash2 size={16} aria-hidden />}
                 />
@@ -141,7 +141,7 @@ export function CollectionEditor({
 
         {!items.length ? (
           <p className="text-[13px] text-[var(--color-ink-muted)]">
-            Sekce je prázdná — na webu se ukáže šedě s výzvou k podpoře.
+            This section is empty — the site shows it grayed out with a call for support.
           </p>
         ) : null}
 
@@ -153,9 +153,9 @@ export function CollectionEditor({
             onClick={() => setItems((current) => [...current, blank()])}
             disabled={items.length >= 50}
           >
-            <Plus size={16} aria-hidden /> Přidat {ui.itemLabel.toLowerCase()}
+            <Plus size={16} aria-hidden /> Add {ui.itemLabel.toLowerCase()}
           </Button>
-          <SubmitButton size="sm">Uložit sekci</SubmitButton>
+          <SubmitButton size="sm">Save section</SubmitButton>
         </div>
       </ActionForm>
     </section>

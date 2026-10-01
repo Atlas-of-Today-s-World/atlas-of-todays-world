@@ -13,22 +13,22 @@ const path = (pattern: RegExp, message: string) =>
   z
     .string()
     .trim()
-    .max(300, "Nejvýš 300 znaků.")
+    .max(300, "At most 300 characters.")
     .regex(pattern, message)
     .refine((value) => !value.startsWith("//"), message);
 
 export const RedirectInput = z
   .object({
-    from_path: path(FROM, "Cesta na tomto webu, např. /news/stary-nazev (bez domény).").refine(
+    from_path: path(FROM, "A path on this website, e.g. /news/old-title (no domain).").refine(
       (value) => value.length > 1 && !value.endsWith("/"),
-      "Bez lomítka na konci a ne celý web.",
+      "No trailing slash, and not the whole website.",
     ),
-    to_path: path(TO, "Cesta na tomto webu, např. /news/novy-nazev (bez domény)."),
+    to_path: path(TO, "A path on this website, e.g. /news/new-title (no domain)."),
     permanent: checkbox,
   })
   .refine((value) => value.from_path !== value.to_path, {
     path: ["to_path"],
-    message: "Cíl musí být jiná adresa.",
+    message: "The target must be a different URL.",
   });
 export type RedirectInput = z.infer<typeof RedirectInput>;
 

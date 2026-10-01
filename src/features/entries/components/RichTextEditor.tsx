@@ -69,7 +69,7 @@ export function RichTextEditor({
   });
 
   return (
-    <div className="rounded-xl border border-[var(--color-line)] focus-within:border-[var(--color-accent)]">
+    <div className="rounded-xl border border-[var(--color-field-border)] focus-within:border-[var(--color-accent)]">
       {editor ? <Toolbar editor={editor} /> : null}
       <EditorContent editor={editor} />
       <input type="hidden" name={name} value={html} />
@@ -85,14 +85,14 @@ function Toolbar({ editor }: { editor: Editor }) {
 
   const addLink = () => {
     const previous = editor.getAttributes("link").href as string | undefined;
-    const url = window.prompt("Adresa odkazu (https://…)", previous ?? "https://");
+    const url = window.prompt("Link URL (https://…)", previous ?? "https://");
     if (url === null) return;
     if (!url.trim()) {
       editor.chain().focus().extendMarkRange("link").unsetLink().run();
       return;
     }
     if (!/^(https:\/\/|mailto:)/.test(url.trim())) {
-      setError("Odkaz musí začínat https:// nebo mailto:.");
+      setError("The link must start with https:// or mailto:.");
       return;
     }
     setError("");
@@ -101,56 +101,56 @@ function Toolbar({ editor }: { editor: Editor }) {
 
   const tools: { label: string; icon: LucideIcon; run: () => void; active?: boolean }[] = [
     {
-      label: "Nadpis",
+      label: "Heading",
       icon: Heading2,
       run: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
       active: editor.isActive("heading", { level: 2 }),
     },
     {
-      label: "Podnadpis",
+      label: "Subheading",
       icon: Heading3,
       run: () => editor.chain().focus().toggleHeading({ level: 3 }).run(),
       active: editor.isActive("heading", { level: 3 }),
     },
     {
-      label: "Tučně",
+      label: "Bold",
       icon: Bold,
       run: () => editor.chain().focus().toggleBold().run(),
       active: editor.isActive("bold"),
     },
     {
-      label: "Kurzíva",
+      label: "Italic",
       icon: Italic,
       run: () => editor.chain().focus().toggleItalic().run(),
       active: editor.isActive("italic"),
     },
     {
-      label: "Odrážky",
+      label: "Bulleted list",
       icon: List,
       run: () => editor.chain().focus().toggleBulletList().run(),
       active: editor.isActive("bulletList"),
     },
     {
-      label: "Číslovaný seznam",
+      label: "Numbered list",
       icon: ListOrdered,
       run: () => editor.chain().focus().toggleOrderedList().run(),
       active: editor.isActive("orderedList"),
     },
     {
-      label: "Citace",
+      label: "Quote",
       icon: Quote,
       run: () => editor.chain().focus().toggleBlockquote().run(),
       active: editor.isActive("blockquote"),
     },
-    { label: "Odkaz", icon: Link2, run: addLink, active: editor.isActive("link") },
-    { label: "Obrázek", icon: ImagePlus, run: () => document.getElementById(fileId)?.click() },
-    { label: "Zpět", icon: Undo2, run: () => editor.chain().focus().undo().run() },
-    { label: "Znovu", icon: Redo2, run: () => editor.chain().focus().redo().run() },
+    { label: "Link", icon: Link2, run: addLink, active: editor.isActive("link") },
+    { label: "Image", icon: ImagePlus, run: () => document.getElementById(fileId)?.click() },
+    { label: "Undo", icon: Undo2, run: () => editor.chain().focus().undo().run() },
+    { label: "Redo", icon: Redo2, run: () => editor.chain().focus().redo().run() },
   ];
 
   return (
     <div className="border-b border-[var(--color-line)]">
-      <div role="toolbar" aria-label="Formátování textu" className="flex flex-wrap gap-0.5 p-1">
+      <div role="toolbar" aria-label="Text formatting" className="flex flex-wrap gap-0.5 p-1">
         {tools.map((tool) => (
           <button
             key={tool.label}
@@ -179,7 +179,7 @@ function Toolbar({ editor }: { editor: Editor }) {
             try {
               setError("");
               const src = await uploadImage(picked);
-              const alt = window.prompt("Popis obrázku pro nevidomé (alt)", "") ?? "";
+              const alt = window.prompt("Image description for screen readers (alt)", "") ?? "";
               editor.chain().focus().setImage({ src, alt }).run();
             } catch (failure) {
               setError((failure as Error).message);

@@ -51,7 +51,7 @@ export function AccountForm({
       <input type="hidden" name="id" value={account.id} />
       {isSelf ? (
         <p className="rounded-lg bg-amber-50 px-3 py-2 text-[13px]">
-          Svou vlastní roli ani stav měnit nemůžete — požádejte jiného správce.
+          You can’t change your own role or status — ask another admin.
         </p>
       ) : null}
       <div className="grid gap-5 sm:grid-cols-2">
@@ -70,7 +70,7 @@ export function AccountForm({
             ))}
           </Select>
         </FormField>
-        <FormField id="status" label="Stav" errors={errors.status}>
+        <FormField id="status" label="Status" errors={errors.status}>
           <Select
             id="status"
             name="status"
@@ -78,8 +78,8 @@ export function AccountForm({
             disabled={isSelf}
             onChange={(event) => setStatus(event.target.value)}
           >
-            <option value="active">Aktivní</option>
-            <option value="blocked">Zablokovaný</option>
+            <option value="active">Active</option>
+            <option value="blocked">Blocked</option>
           </Select>
         </FormField>
       </div>
@@ -90,7 +90,12 @@ export function AccountForm({
         </>
       ) : null}
       {status === "blocked" ? (
-        <FormField id="blocked_note" label="Důvod blokace" required errors={errors.blocked_note}>
+        <FormField
+          id="blocked_note"
+          label="Reason for blocking"
+          required
+          errors={errors.blocked_note}
+        >
           <Textarea
             id="blocked_note"
             name="blocked_note"
@@ -103,12 +108,12 @@ export function AccountForm({
 
       {role?.approval_scope === "assigned" ? (
         <fieldset className="grid gap-4 rounded-xl border border-[var(--color-line)] p-4">
-          <legend className="px-1 text-[13px] font-medium">Co tento schvalovatel schvaluje</legend>
+          <legend className="px-1 text-[13px] font-medium">What this approver approves</legend>
           {isAdmin ? (
             <Checkbox
               name="approval_global"
               defaultChecked={account.approval_global}
-              label="Všechno (globální schvalovatel)"
+              label="Everything (global approver)"
             />
           ) : (
             <input
@@ -117,7 +122,7 @@ export function AccountForm({
               value={account.approval_global ? "true" : "false"}
             />
           )}
-          <FormField id="countries" label="Články o těchto zemích">
+          <FormField id="countries" label="Articles about these countries">
             <CountryPicker
               id="countries"
               name="countries"
@@ -127,7 +132,7 @@ export function AccountForm({
           </FormField>
           <fieldset>
             <legend className="mb-1 text-[12.5px] font-medium text-[var(--color-ink-soft)]">
-              Články těchto autorů
+              Articles by these authors
             </legend>
             <div className="grid sm:grid-cols-2">
               {authors.map((author) => (
@@ -160,7 +165,7 @@ export function AccountForm({
 
       <ActionStatus state={state} />
       <div>
-        <SubmitButton>Uložit účet</SubmitButton>
+        <SubmitButton>Save account</SubmitButton>
       </div>
     </ActionForm>
   );

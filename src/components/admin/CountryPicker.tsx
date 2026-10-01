@@ -50,7 +50,7 @@ export function CountryPicker({
         <input key={iso3} type="hidden" name={name} value={iso3} />
       ))}
       {selected.length ? (
-        <ul className="flex flex-wrap gap-1.5" aria-label="Vybrané země">
+        <ul className="flex flex-wrap gap-1.5" aria-label="Selected countries">
           {selected.map((iso3) => (
             <li
               key={iso3}
@@ -59,7 +59,7 @@ export function CountryPicker({
               {byIso.get(iso3) ?? iso3}
               <button
                 type="button"
-                aria-label={`Odebrat ${byIso.get(iso3) ?? iso3}`}
+                aria-label={`Remove ${byIso.get(iso3) ?? iso3}`}
                 onClick={() => setSelected((current) => current.filter((c) => c !== iso3))}
                 className="grid size-7 place-items-center rounded-full hover:bg-white/70"
               >
@@ -79,7 +79,7 @@ export function CountryPicker({
             add(matches[0].iso3);
           }
         }}
-        placeholder="Přidat zemi…"
+        placeholder="Add a country…"
         autoComplete="off"
         role="combobox"
         aria-expanded={matches.length > 0}
@@ -89,7 +89,7 @@ export function CountryPicker({
         <ul
           id={`${id}-list`}
           role="listbox"
-          className="max-h-60 overflow-auto rounded-lg border border-[var(--color-line)]"
+          className="max-h-60 overflow-auto rounded-lg border border-[var(--color-field-border)]"
         >
           {matches.map((option) => (
             <li key={option.iso3} role="option" aria-selected={false}>

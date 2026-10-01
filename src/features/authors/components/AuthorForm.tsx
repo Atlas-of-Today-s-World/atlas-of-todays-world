@@ -22,7 +22,7 @@ export function AuthorForm({ author }: { author: AuthorRow | null }) {
     <ActionForm action={action} className="grid max-w-2xl gap-5">
       {author ? <input type="hidden" name="id" value={author.id} /> : null}
 
-      <FormField id="name" label="Jméno" required errors={errors.name}>
+      <FormField id="name" label="Name" required errors={errors.name}>
         <Input
           id="name"
           name="name"
@@ -35,8 +35,8 @@ export function AuthorForm({ author }: { author: AuthorRow | null }) {
 
       <FormField
         id="photo_url"
-        label="Fotka"
-        hint="Čtvercová, na webu se ořízne do kruhu."
+        label="Photo"
+        hint="Square; cropped to a circle on the website."
         errors={errors.photo_url}
       >
         <UploadField
@@ -49,8 +49,8 @@ export function AuthorForm({ author }: { author: AuthorRow | null }) {
 
       <FormField
         id="bio"
-        label="Životopis"
-        hint="Kdo autor je a čím se zabývá. Ukazuje se pod heslem."
+        label="Bio"
+        hint="Who the author is and what they work on. Shown below the entry."
         errors={errors.bio}
       >
         <Textarea
@@ -66,7 +66,7 @@ export function AuthorForm({ author }: { author: AuthorRow | null }) {
       <FormField
         id="positionality"
         label="Positionality statement"
-        hint="Odkud autor o tématu píše — vlastní zkušenost, vztah k místu, možné předpojatosti."
+        hint="Where the author writes from — personal experience, relationship to the place, possible biases."
         errors={errors.positionality}
       >
         <Textarea
@@ -80,7 +80,7 @@ export function AuthorForm({ author }: { author: AuthorRow | null }) {
       </FormField>
 
       <div className="flex flex-wrap items-center gap-3">
-        <SubmitButton pending="Ukládám…">{author ? "Uložit změny" : "Přidat autora"}</SubmitButton>
+        <SubmitButton pending="Saving…">{author ? "Save changes" : "Add author"}</SubmitButton>
         <ActionStatus state={state} />
       </div>
     </ActionForm>
@@ -91,14 +91,14 @@ export function DeleteAuthor({ id, name }: { id: string; name: string }) {
   const router = useRouter();
   return (
     <ConfirmButton
-      label="Smazat autora"
+      label="Delete author"
       variant="danger"
-      title={`Smazat autora ${name}?`}
-      body="Jeho hesla zůstanou, jen u nich zmizí fotka, životopis a positionality statement."
-      confirm="Smazat"
+      title={`Delete author ${name}?`}
+      body="Their entries will remain, but without the photo, bio and positionality statement."
+      confirm="Delete"
       action={() => deleteAuthor(id)}
       onDone={(state) => {
-        if (state.ok) router.push("/admin/autori");
+        if (state.ok) router.push("/admin/authors");
       }}
     />
   );

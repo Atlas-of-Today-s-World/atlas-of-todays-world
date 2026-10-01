@@ -79,20 +79,19 @@ export function EntryForm({
           className="flex flex-wrap items-center gap-3 rounded-xl border border-amber-300 bg-amber-50 p-3 text-[13px]"
         >
           <span>
-            Máte neuloženou rozepsanou verzi z{" "}
-            {new Date(backup.offer.savedAt).toLocaleString("cs-CZ")}.
+            You have an unsaved draft from {new Date(backup.offer.savedAt).toLocaleString("en-GB")}.
           </span>
           <Button type="button" size="sm" onClick={restore}>
-            Obnovit
+            Restore
           </Button>
           <Button type="button" size="sm" variant="ghost" onClick={backup.dismiss}>
-            Zahodit
+            Discard
           </Button>
         </div>
       ) : null}
       {entry ? <input type="hidden" name="id" value={entry.id} /> : null}
 
-      <FormField id="title" label="Titulek" required errors={errors.title}>
+      <FormField id="title" label="Title" required errors={errors.title}>
         <Input
           id="title"
           name="title"
@@ -108,13 +107,13 @@ export function EntryForm({
 
       <FormField
         id="slug"
-        label="Adresa (slug)"
+        label="URL (slug)"
         required
         hint={
           translation
-            ? "Překlad má stejnou adresu jako originál, jen s jazykovou předponou."
+            ? "A translation has the same URL as the original, just with a language prefix."
             : published
-              ? "Zveřejněný článek adresu nemění — odkazy na něj už kolují."
+              ? "A published article keeps its URL — links to it are already out there."
               : `atlasoftodaysworld.org/${isEntry ? "entry" : "news"}/${slug || "…"}`
         }
         errors={errors.slug}
@@ -135,17 +134,17 @@ export function EntryForm({
       </FormField>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <FormField id="category" label="Kategorie" required errors={errors.category}>
+        <FormField id="category" label="Category" required errors={errors.category}>
           <Select id="category" name="category" defaultValue={values?.category ?? ""} required>
             <option value="" disabled>
-              Vyberte…
+              Choose…
             </option>
             {NEWS_CATEGORIES.map((category) => (
               <option key={category}>{category}</option>
             ))}
           </Select>
         </FormField>
-        <FormField id="kind" label="Druh" errors={errors.kind}>
+        <FormField id="kind" label="Type" errors={errors.kind}>
           <Select
             id="kind"
             name="kind"
@@ -153,13 +152,13 @@ export function EntryForm({
             disabled={translation}
             onChange={(event) => setKind(event.target.value as "news" | "entry")}
           >
-            <option value="news">Novinka</option>
-            <option value="entry">Encyklopedické heslo</option>
+            <option value="news">News article</option>
+            <option value="entry">Encyclopedia entry</option>
           </Select>
         </FormField>
         <FormField id="region_slug" label="Region" errors={errors.region_slug}>
           <Select id="region_slug" name="region_slug" defaultValue={values?.region_slug ?? ""}>
-            <option value="">— bez regionu —</option>
+            <option value="">— no region —</option>
             {regions.map((region) => (
               <option key={region.slug} value={region.slug}>
                 {region.name}
@@ -169,7 +168,7 @@ export function EntryForm({
         </FormField>
         <FormField id="special_slug" label="Global Issue" errors={errors.special_slug}>
           <Select id="special_slug" name="special_slug" defaultValue={values?.special_slug ?? ""}>
-            <option value="">— žádný —</option>
+            <option value="">— none —</option>
             {issues.map((issue) => (
               <option key={issue.slug} value={issue.slug}>
                 {issue.name}
@@ -181,8 +180,8 @@ export function EntryForm({
 
       <FormField
         id="countries"
-        label="Země, kterých se článek týká"
-        hint="Článek se ukáže v profilu každé z nich."
+        label="Countries the article covers"
+        hint="The article will appear in each country’s profile."
         errors={errors.countries}
       >
         <CountryPicker
@@ -195,8 +194,8 @@ export function EntryForm({
 
       <FormField
         id="summary"
-        label="Perex"
-        hint="Jedna až dvě věty; ukazují se v seznamech a vyhledávačích."
+        label="Summary"
+        hint="One or two sentences; shown in listings and search engines."
         errors={errors.summary}
       >
         <Textarea
@@ -213,8 +212,8 @@ export function EntryForm({
         <>
           <FormField
             id="summary_points"
-            label="Shrnutí v odrážkách"
-            hint="3–5 odrážek, každá na vlastní řádek. Ukazují se v hlavičce hesla."
+            label="Summary bullet points"
+            hint="3–5 bullet points, one per line. Shown in the entry header."
             errors={errors.summary_points}
           >
             <Textarea
@@ -227,12 +226,12 @@ export function EntryForm({
           </FormField>
           <FormField
             id="author_id"
-            label="Autor (profil)"
-            hint="Fotka, životopis a positionality se berou z profilu (sekce Autoři). Zvuk se nahrává u kapitol."
+            label="Author (profile)"
+            hint="Photo, bio and positionality come from the profile (Authors section). Audio is uploaded per chapter."
             errors={errors.author_id}
           >
             <Select id="author_id" name="author_id" defaultValue={values?.author_id ?? ""}>
-              <option value="">— bez profilu —</option>
+              <option value="">— no profile —</option>
               {authors.map((author) => (
                 <option key={author.id} value={author.id}>
                   {author.name}
@@ -243,7 +242,7 @@ export function EntryForm({
         </>
       ) : null}
 
-      <FormField id="cover_url" label="Titulní obrázek" errors={errors.cover_url}>
+      <FormField id="cover_url" label="Cover image" errors={errors.cover_url}>
         <UploadField
           id="cover_url"
           name="cover_url"
@@ -255,7 +254,7 @@ export function EntryForm({
       <div className="grid gap-5 sm:grid-cols-3">
         <FormField
           id="cover_credit"
-          label="Autor fotky"
+          label="Photo credit"
           className="sm:col-span-1"
           errors={errors.cover_credit}
         >
@@ -266,7 +265,7 @@ export function EntryForm({
             defaultValue={values?.cover_credit ?? ""}
           />
         </FormField>
-        <FormField id="author_name" label="Autor textu" errors={errors.author_name}>
+        <FormField id="author_name" label="Text author" errors={errors.author_name}>
           <Input
             id="author_name"
             name="author_name"
@@ -274,7 +273,7 @@ export function EntryForm({
             defaultValue={values?.author_name ?? ""}
           />
         </FormField>
-        <FormField id="reading_minutes" label="Minut čtení" errors={errors.reading_minutes}>
+        <FormField id="reading_minutes" label="Reading time (min)" errors={errors.reading_minutes}>
           <Input
             id="reading_minutes"
             name="reading_minutes"
@@ -288,12 +287,12 @@ export function EntryForm({
 
       <div className="grid gap-1.5">
         <span className="text-[12.5px] font-medium text-[var(--color-ink-soft)]">
-          {isEntry ? "Úvod hesla (před kapitolami, nepovinný)" : "Text"}
+          {isEntry ? "Entry introduction (before chapters, optional)" : "Text"}
         </span>
         <RichTextEditor
           name="body_html"
           initialHtml={values?.body_html ?? ""}
-          label="Text článku"
+          label="Article text"
         />
         {errors.body_html ? (
           <p className="text-[12px] text-red-700">{errors.body_html[0]}</p>
@@ -304,13 +303,13 @@ export function EntryForm({
         <Checkbox
           name="planned"
           defaultChecked={values?.status === "planned"}
-          label="Jen plánované téma (na portrétu šedá dlaždice, zatím se nepíše)"
+          label="Planned topic only (gray tile on the portrait, not being written yet)"
         />
       ) : null}
 
       <ActionStatus state={state} />
       <div className="flex flex-wrap gap-2">
-        <SubmitButton>{entry ? "Uložit změny" : "Vytvořit koncept"}</SubmitButton>
+        <SubmitButton>{entry ? "Save changes" : "Create draft"}</SubmitButton>
       </div>
     </ActionForm>
   );

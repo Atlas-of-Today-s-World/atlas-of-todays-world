@@ -17,11 +17,11 @@ export function FlagToggle({
   const router = useRouter();
   return (
     <ConfirmButton
-      label={enabled ? "Vypnout" : "Zapnout"}
+      label={enabled ? "Turn off" : "Turn on"}
       variant={enabled ? "outline" : "primary"}
-      title={`${enabled ? "Vypnout" : "Zapnout"}: ${label}?`}
-      body="Změna se na webu projeví hned."
-      confirm={enabled ? "Vypnout" : "Zapnout"}
+      title={`${enabled ? "Turn off" : "Turn on"}: ${label}?`}
+      body="The change takes effect on the website immediately."
+      confirm={enabled ? "Turn off" : "Turn on"}
       action={() => setFlag(flagKey, !enabled)}
       onDone={(state) => {
         if (state.ok) router.refresh();

@@ -84,36 +84,36 @@ const forbidden = (page: Page) => expect(page.getByTestId("section-forbidden")).
 // Sekce news přináší i Autoři a Přesměrování; regions/specials/layers i Překlady.
 const MENU: Record<Exclude<(typeof ROLES)[number], "reader">, string[]> = {
   "content-editor": [
-    "Přehled",
-    "Novinky a hesla",
-    "Autoři",
-    "Schvalování",
-    "Přesměrování",
-    "Regiony a země",
+    "Overview",
+    "News & entries",
+    "Authors",
+    "Approvals",
+    "Redirects",
+    "Regions & countries",
     "Global Issues",
-    "Datové vrstvy",
-    "Překlady",
+    "Data layers",
+    "Translations",
   ],
-  "content-approver": ["Přehled", "Novinky a hesla", "Autoři", "Schvalování", "Přesměrování"],
+  "content-approver": ["Overview", "News & entries", "Authors", "Approvals", "Redirects"],
   publisher: [
-    "Přehled",
-    "Novinky a hesla",
-    "Autoři",
-    "Přesměrování",
-    "Regiony a země",
-    "Datové vrstvy",
-    "Překlady",
+    "Overview",
+    "News & entries",
+    "Authors",
+    "Redirects",
+    "Regions & countries",
+    "Data layers",
+    "Translations",
   ],
   "data-editor": [
-    "Přehled",
-    "Regiony a země",
+    "Overview",
+    "Regions & countries",
     "Global Issues",
-    "Datové vrstvy",
-    "Překlady",
-    "Vzhled mapy",
+    "Data layers",
+    "Translations",
+    "Map appearance",
   ],
-  observer: ["Přehled", "Novinky a hesla", "Autoři", "Přesměrování"],
-  [areasRole]: ["Přehled", "Mapové oblasti"],
+  observer: ["Overview", "News & entries", "Authors", "Redirects"],
+  [areasRole]: ["Overview", "Map areas"],
 };
 
 test.describe("menu administrace", () => {
@@ -122,7 +122,7 @@ test.describe("menu administrace", () => {
       page,
     }) => {
       await signInAs(page, role as (typeof ROLES)[number]);
-      const menu = page.getByRole("navigation", { name: "Administrace" });
+      const menu = page.getByRole("navigation", { name: "Administration" });
       await expect(menu.getByRole("link")).toHaveText(items);
     });
   }
@@ -130,7 +130,7 @@ test.describe("menu administrace", () => {
   test("čtenář do administrace nesmí vůbec", async ({ page }) => {
     await signInAs(page, "reader");
     await expect(page.getByTestId("admin-forbidden")).toBeVisible();
-    await expect(page.getByRole("navigation", { name: "Administrace" })).toHaveCount(0);
+    await expect(page.getByRole("navigation", { name: "Administration" })).toHaveCount(0);
     await page.goto("/admin/data/internet-users");
     await expect(page.getByTestId("admin-forbidden")).toBeVisible();
   });
@@ -144,24 +144,24 @@ const FORBIDDEN: [(typeof ROLES)[number], string[]][] = [
   [
     "publisher",
     [
-      "/admin/schvalovani",
+      "/admin/approvals",
       "/admin/global-issues",
-      "/admin/global-issues/novy",
-      "/admin/data/novy",
-      "/admin/oblasti",
-      "/admin/oblasti/nova",
-      "/admin/vzhled",
-      "/admin/ucty",
-      "/admin/ucty/pozvanky",
-      "/admin/role",
-      "/admin/role/audit",
-      "/admin/clenove",
+      "/admin/global-issues/new",
+      "/admin/data/new",
+      "/admin/areas",
+      "/admin/areas/new",
+      "/admin/appearance",
+      "/admin/accounts",
+      "/admin/accounts/invitations",
+      "/admin/roles",
+      "/admin/roles/audit",
+      "/admin/members",
     ],
   ],
-  ["observer", ["/admin/obsah/novy", "/admin/schvalovani", "/admin/regiony", "/admin/data"]],
-  ["data-editor", ["/admin/obsah", "/admin/schvalovani", "/admin/oblasti", "/admin/ucty"]],
-  ["content-editor", ["/admin/data/novy", "/admin/global-issues/novy", "/admin/vzhled"]],
-  [areasRole, ["/admin/obsah", "/admin/regiony", "/admin/data", "/admin/role"]],
+  ["observer", ["/admin/content/new", "/admin/approvals", "/admin/regions", "/admin/data"]],
+  ["data-editor", ["/admin/content", "/admin/approvals", "/admin/areas", "/admin/accounts"]],
+  ["content-editor", ["/admin/data/new", "/admin/global-issues/new", "/admin/appearance"]],
+  [areasRole, ["/admin/content", "/admin/regions", "/admin/data", "/admin/roles"]],
 ];
 
 test.describe("přímé adresy bez práva", () => {
@@ -217,14 +217,14 @@ test.describe("ruční hodnota ukazatele", () => {
 
   // Mimo formulář má roli „alert" i hlasatel změny stránky v Next.js.
   const valueForm = (page: Page) =>
-    page.locator("form").filter({ has: page.getByRole("button", { name: "Uložit hodnotu" }) });
+    page.locator("form").filter({ has: page.getByRole("button", { name: "Save value" }) });
 
   async function fillValue(page: Page, source: string) {
-    await page.getByLabel("Země").selectOption(country);
-    await page.getByLabel(/^Hodnota/).fill("12.5");
-    await page.getByLabel("Rok").fill("2025");
-    await page.getByLabel("Zdroj hodnoty").fill(source);
-    await page.getByRole("button", { name: "Uložit hodnotu" }).click();
+    await page.getByLabel("Country").selectOption(country);
+    await page.getByLabel(/^Value( \*)?$/).fill("12.5");
+    await page.getByLabel("Year").fill("2025");
+    await page.getByLabel("Value source").fill(source);
+    await page.getByRole("button", { name: "Save value" }).click();
   }
 
   test("publisher sekci vidí, ale hodnotu neuloží", async ({ page }) => {
@@ -244,18 +244,20 @@ test.describe("ruční hodnota ukazatele", () => {
     await signInAs(page, "data-editor", `/admin/data/${indicator}`);
     // Mezery projdou atributem required prohlížeče, ale ne validací na serveru.
     await fillValue(page, "   ");
-    await expect(valueForm(page).getByRole("alert")).toHaveText("Zkontrolujte zvýrazněná pole.");
-    await expect(page.getByLabel("Země")).toHaveValue(country);
-    await expect(page.getByLabel(/^Hodnota/)).toHaveValue("12.5");
-    await expect(page.getByLabel("Rok")).toHaveValue("2025");
+    await expect(valueForm(page).getByRole("alert")).toHaveText(
+      "Please check the highlighted fields.",
+    );
+    await expect(page.getByLabel("Country")).toHaveValue(country);
+    await expect(page.getByLabel(/^Value( \*)?$/)).toHaveValue("12.5");
+    await expect(page.getByLabel("Year")).toHaveValue("2025");
   });
 
   test("data-editor se zdrojem hodnotu uloží", async ({ page }) => {
     await signInAs(page, "data-editor", `/admin/data/${indicator}`);
     const source = `e2e zdroj ${run}`;
     await fillValue(page, source);
-    await expect(valueForm(page).getByRole("status")).toHaveText("Hodnota uložena.");
-    await expect(page.getByText(`Ručně: ${source}`)).toBeVisible();
+    await expect(valueForm(page).getByRole("status")).toHaveText("Value saved.");
+    await expect(page.getByText(`Manual: ${source}`)).toBeVisible();
     const { data } = await service
       .from("indicator_values")
       .select("value, year, is_manual, source_note")
@@ -292,24 +294,24 @@ test.describe("mapové oblasti", () => {
   });
 
   test("publisher ani data-editor na založení plochy nedosáhnou", async ({ page, browser }) => {
-    await signInAs(page, "publisher", "/admin/oblasti/nova");
+    await signInAs(page, "publisher", "/admin/areas/new");
     await forbidden(page);
-    await expect(page.getByRole("button", { name: "Založit plochu" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Create area" })).toHaveCount(0);
 
     const other = await (await browser.newContext()).newPage();
-    await signInAs(other, "data-editor", "/admin/oblasti/nova");
+    await signInAs(other, "data-editor", "/admin/areas/new");
     await forbidden(other);
   });
 
   test("role s právem ploch plochu založí a smaže", async ({ page }) => {
-    await signInAs(page, areasRole, "/admin/oblasti");
-    await page.getByRole("link", { name: "Nová plocha" }).click();
-    await page.getByLabel("Název").fill(`E2E plocha ${run}`);
-    await page.getByLabel("Identifikátor").fill(slug);
-    await page.getByLabel("Obrazec (GeoJSON Polygon)").fill(polygon);
-    await page.getByRole("button", { name: "Založit plochu" }).click();
+    await signInAs(page, areasRole, "/admin/areas");
+    await page.getByRole("link", { name: "New area" }).click();
+    await page.getByLabel("Name").fill(`E2E plocha ${run}`);
+    await page.getByLabel("Identifier").fill(slug);
+    await page.getByLabel("Shape (GeoJSON Polygon)").fill(polygon);
+    await page.getByRole("button", { name: "Create area" }).click();
 
-    await expect(page).toHaveURL((url) => url.pathname === `/admin/oblasti/${slug}`);
+    await expect(page).toHaveURL((url) => url.pathname === `/admin/areas/${slug}`);
     const { data: created } = await service
       .from("map_areas")
       .select("slug, name")
@@ -317,9 +319,9 @@ test.describe("mapové oblasti", () => {
       .single();
     expect(created?.name).toBe(`E2E plocha ${run}`);
 
-    await page.getByRole("button", { name: "Smazat" }).click();
-    await page.getByRole("dialog").getByRole("button", { name: "Smazat" }).click();
-    await expect(page).toHaveURL(/\/admin\/oblasti$/);
+    await page.getByRole("button", { name: "Delete" }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Delete" }).click();
+    await expect(page).toHaveURL(/\/admin\/areas$/);
     const { data: gone } = await service.from("map_areas").select("slug").eq("slug", slug);
     expect(gone).toEqual([]);
   });
@@ -355,48 +357,50 @@ test.describe("sekce portrétu regionu", () => {
   });
 
   async function addFaq(page: Page, question: string) {
-    const faq = page.getByRole("region", { name: "Časté otázky" });
-    await faq.getByRole("button", { name: "Přidat otázka" }).click();
+    const faq = page.getByRole("region", { name: "FAQ", exact: true });
+    await faq.getByRole("button", { name: "Add question" }).click();
     const index = await faq.locator("fieldset").count();
     await faq
-      .getByLabel(/^Otázka \*$/)
+      .getByLabel(/^Question \*$/)
       .nth(index - 1)
       .fill(question);
     await faq
-      .getByLabel(/^Odpověď/)
+      .getByLabel(/^Answer/)
       .nth(index - 1)
       .fill("Odpověď napsaná v e2e testu.");
-    await faq.getByRole("button", { name: "Uložit sekci" }).click();
+    await faq.getByRole("button", { name: "Save section" }).click();
     return faq;
   }
 
   // Texty portrétu smí jen redakce s právem na všechny články (RLS); ostatní
   // je vidí jen pro čtení, s vysvětlením — žádný editor, který by pak selhal.
   test("publisher portrét vidí jen pro čtení", async ({ page }) => {
-    await signInAs(page, "publisher", `/admin/regiony/${region}`);
-    const faq = page.getByRole("region", { name: "Časté otázky" });
-    await expect(faq.getByRole("button", { name: "Uložit sekci" })).toBeDisabled();
-    await expect(faq.getByRole("button", { name: "Přidat otázka" })).toBeDisabled();
+    await signInAs(page, "publisher", `/admin/regions/${region}`);
+    const faq = page.getByRole("region", { name: "FAQ", exact: true });
+    await expect(faq.getByRole("button", { name: "Save section" })).toBeDisabled();
+    await expect(faq.getByRole("button", { name: "Add question" })).toBeDisabled();
     await expect(
-      page.getByText("Texty portrétu (osa, FAQ, zdroje, vizuály) upravuje redakce").first(),
+      page
+        .getByText("Portrait texts (timeline, FAQ, sources, visuals) are edited by editors")
+        .first(),
     ).toBeVisible();
-    await expect(page.getByRole("button", { name: "Uložit region" })).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Save region" })).toBeDisabled();
   });
 
   test("data-editor upraví hlavičku a karty, texty jen čte", async ({ page }) => {
-    await signInAs(page, "data-editor", `/admin/regiony/${region}`);
-    await expect(page.getByRole("button", { name: "Uložit region" })).toBeEnabled();
-    const metrics = page.getByRole("region", { name: "Klíčové ukazatele" });
-    await expect(metrics.getByRole("button", { name: "Uložit sekci" })).toBeEnabled();
-    const faq = page.getByRole("region", { name: "Časté otázky" });
-    await expect(faq.getByRole("button", { name: "Uložit sekci" })).toBeDisabled();
+    await signInAs(page, "data-editor", `/admin/regions/${region}`);
+    await expect(page.getByRole("button", { name: "Save region" })).toBeEnabled();
+    const metrics = page.getByRole("region", { name: "Key indicators" });
+    await expect(metrics.getByRole("button", { name: "Save section" })).toBeEnabled();
+    const faq = page.getByRole("region", { name: "FAQ", exact: true });
+    await expect(faq.getByRole("button", { name: "Save section" })).toBeDisabled();
   });
 
   test("content-editor sekci uloží", async ({ page }) => {
-    await signInAs(page, "content-editor", `/admin/regiony/${region}`);
+    await signInAs(page, "content-editor", `/admin/regions/${region}`);
     const question = `E2E otázka ${run}?`;
     const faq = await addFaq(page, question);
-    await expect(faq.getByRole("status")).toHaveText("Sekce uložena.");
+    await expect(faq.getByRole("status")).toHaveText("Section saved.");
     const { data } = await service
       .from("faq_items")
       .select("question")

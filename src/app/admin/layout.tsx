@@ -11,7 +11,7 @@ import { mfaGate } from "@/features/auth/mfa";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: { default: "Administrace", template: "%s — Administrace Atlasu" },
+  title: { default: "Administration", template: "%s — Atlas administration" },
   robots: { index: false, follow: false },
 };
 
@@ -38,15 +38,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     return (
       <Shell>
         <main className="mx-auto max-w-md py-16" data-testid="admin-forbidden">
-          <h1 className="font-display text-[28px] font-bold">Nemáte přístup</h1>
+          <h1 className="font-display text-[28px] font-bold">No access</h1>
           <p className="mt-3 text-[14px] leading-relaxed text-[var(--color-ink-soft)]">
-            Administrace je jen pro tým Atlasu. Do týmu se vstupuje pozvánkou — pokud jste ji
-            dostali, přihlaste se stejnou e-mailovou adresou, na kterou přišla.
+            Administration is for the Atlas team only. You join the team by invitation — if you
+            received one, sign in with the same email address it was sent to.
           </p>
           <p className="mt-6 text-[13px] text-[var(--color-ink-muted)]">
-            Přihlášeni jako {access.email}.{" "}
+            Signed in as {access.email}.{" "}
             <Link href="/ucet" className="underline">
-              Váš účet
+              Your account
             </Link>
           </p>
         </main>
@@ -67,13 +67,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         >
           Atlas
         </Link>
-        <span className="text-[13px] font-medium">Administrace</span>
+        <span className="text-[13px] font-medium">Administration</span>
         <span className="ml-auto text-[12.5px] text-[var(--color-ink-muted)]">
           {access.email} · {access.roleName}
         </span>
         <form action="/auth/signout" method="post">
           <Button type="submit" variant="ghost" size="sm">
-            Odhlásit
+            Sign out
           </Button>
         </form>
       </header>

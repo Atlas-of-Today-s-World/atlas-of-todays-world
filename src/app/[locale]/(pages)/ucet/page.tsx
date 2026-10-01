@@ -21,7 +21,7 @@ export default async function AccountPage() {
     <main className="mx-auto max-w-md">
       <h1 className="font-display text-[28px] font-bold">Your account</h1>
       <dl className="mt-6 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-[14px]">
-        <dt className="text-[var(--color-ink-muted)]">E-mail</dt>
+        <dt className="text-[var(--color-ink-muted)]">Email</dt>
         <dd>{access.email}</dd>
         <dt className="text-[var(--color-ink-muted)]">Role</dt>
         <dd>{access.roleName ?? "Reader"}</dd>

@@ -22,10 +22,10 @@ function useSave(action: (prev: ActionState, data: FormData) => Promise<ActionSt
 function ColorFields({ fill, stroke, errors }: { fill: string; stroke: string; errors: Errors }) {
   return (
     <div className="grid grid-cols-2 gap-5">
-      <FormField id="fill" label="Výplň na mapě" required errors={errors.fill}>
+      <FormField id="fill" label="Map fill" required errors={errors.fill}>
         <Input id="fill" name="fill" type="color" defaultValue={fill} className="h-11 p-1" />
       </FormField>
-      <FormField id="stroke" label="Obrys" required errors={errors.stroke}>
+      <FormField id="stroke" label="Outline" required errors={errors.stroke}>
         <Input id="stroke" name="stroke" type="color" defaultValue={stroke} className="h-11 p-1" />
       </FormField>
     </div>
@@ -51,8 +51,8 @@ function PortraitHead({
     <>
       <FormField
         id="summary"
-        label="Shrnutí"
-        hint="Ukazuje se v panelu mapy a ve vyhledávačích, dokud redakce nenapíše úvod."
+        label="Summary"
+        hint="Shown in the map panel and in search engines until the editors write an intro."
         errors={errors.summary}
       >
         <Textarea
@@ -63,13 +63,13 @@ function PortraitHead({
           defaultValue={values.summary}
         />
       </FormField>
-      <FormField id="intro" label="Úvod portrétu" errors={errors.intro}>
+      <FormField id="intro" label="Portrait intro" errors={errors.intro}>
         <Textarea id="intro" name="intro" maxLength={5000} rows={6} defaultValue={values.intro} />
       </FormField>
-      <FormField id="hero_url" label="Fotka v hlavičce" errors={errors.hero_url}>
+      <FormField id="hero_url" label="Header photo" errors={errors.hero_url}>
         <UploadField id="hero_url" name="hero_url" defaultValue={values.hero_url ?? ""} />
       </FormField>
-      <FormField id="hero_credit" label="Autor fotky" errors={errors.hero_credit}>
+      <FormField id="hero_credit" label="Photo credit" errors={errors.hero_credit}>
         <Input
           id="hero_credit"
           name="hero_credit"
@@ -78,7 +78,7 @@ function PortraitHead({
         />
       </FormField>
       <div className="grid gap-5 sm:grid-cols-2">
-        <FormField id="timeline_title" label="Nadpis časové osy" errors={errors.timeline_title}>
+        <FormField id="timeline_title" label="Timeline heading" errors={errors.timeline_title}>
           <Input
             id="timeline_title"
             name="timeline_title"
@@ -87,7 +87,7 @@ function PortraitHead({
             placeholder="How the present came about"
           />
         </FormField>
-        <FormField id="timeline_subtitle" label="Podnadpis" errors={errors.timeline_subtitle}>
+        <FormField id="timeline_subtitle" label="Subheading" errors={errors.timeline_subtitle}>
           <Input
             id="timeline_subtitle"
             name="timeline_subtitle"
@@ -123,10 +123,10 @@ export function RegionForm({
     <ActionForm action={action} className="grid max-w-3xl gap-5">
       <input type="hidden" name="slug" value={region.slug} />
       <div className="grid gap-5 sm:grid-cols-2">
-        <FormField id="name" label="Název" required errors={errors.name}>
+        <FormField id="name" label="Name" required errors={errors.name}>
           <Input id="name" name="name" required maxLength={120} defaultValue={region.name} />
         </FormField>
-        <FormField id="tagline" label="Podtitul" errors={errors.tagline}>
+        <FormField id="tagline" label="Subtitle" errors={errors.tagline}>
           <Input id="tagline" name="tagline" maxLength={200} defaultValue={region.tagline} />
         </FormField>
       </div>
@@ -134,7 +134,7 @@ export function RegionForm({
       <PortraitHead values={region} errors={errors} />
       <ActionStatus state={state} />
       <div>
-        <SubmitButton>Uložit region</SubmitButton>
+        <SubmitButton>Save region</SubmitButton>
       </div>
     </ActionForm>
   );
@@ -191,7 +191,7 @@ export function IssueForm({
     <ActionForm action={action} className="grid max-w-3xl gap-5">
       {issue ? <input type="hidden" name="original_slug" value={issue.slug} /> : null}
       <div className="grid gap-5 sm:grid-cols-2">
-        <FormField id="name" label="Název" required errors={errors.name}>
+        <FormField id="name" label="Name" required errors={errors.name}>
           <Input
             id="name"
             name="name"
@@ -205,7 +205,7 @@ export function IssueForm({
         </FormField>
         <FormField
           id="slug"
-          label="Adresa (slug)"
+          label="URL (slug)"
           required
           hint={`/global-issue/${slug || "…"}`}
           errors={errors.slug}
@@ -223,13 +223,13 @@ export function IssueForm({
           />
         </FormField>
       </div>
-      <FormField id="subtitle" label="Podtitul" errors={errors.subtitle}>
+      <FormField id="subtitle" label="Subtitle" errors={errors.subtitle}>
         <Input id="subtitle" name="subtitle" maxLength={200} defaultValue={values.subtitle} />
       </FormField>
       <FormField
         id="countries"
-        label="Země celku"
-        hint="Celek může libovolně křížit hranice regionů Atlasu."
+        label="Countries in this issue"
+        hint="An issue can freely cross Atlas region boundaries."
         errors={errors.countries}
       >
         <CountryPicker
@@ -241,7 +241,7 @@ export function IssueForm({
       </FormField>
       <ColorFields fill={values.fill} stroke={values.stroke} errors={errors} />
       <div className="grid grid-cols-3 gap-5">
-        <FormField id="center_lon" label="Střed – délka" required errors={errors.center_lon}>
+        <FormField id="center_lon" label="Center – longitude" required errors={errors.center_lon}>
           <Input
             id="center_lon"
             name="center_lon"
@@ -252,7 +252,7 @@ export function IssueForm({
             defaultValue={values.center_lon}
           />
         </FormField>
-        <FormField id="center_lat" label="Střed – šířka" required errors={errors.center_lat}>
+        <FormField id="center_lat" label="Center – latitude" required errors={errors.center_lat}>
           <Input
             id="center_lat"
             name="center_lat"
@@ -263,7 +263,7 @@ export function IssueForm({
             defaultValue={values.center_lat}
           />
         </FormField>
-        <FormField id="zoom" label="Přiblížení" required errors={errors.zoom}>
+        <FormField id="zoom" label="Zoom" required errors={errors.zoom}>
           <Input
             id="zoom"
             name="zoom"
@@ -278,7 +278,7 @@ export function IssueForm({
       <PortraitHead values={values} errors={errors} />
       <ActionStatus state={state} />
       <div>
-        <SubmitButton>{issue ? "Uložit" : "Založit global issue"}</SubmitButton>
+        <SubmitButton>{issue ? "Save" : "Create global issue"}</SubmitButton>
       </div>
     </ActionForm>
   );
@@ -309,12 +309,12 @@ export function CountryForm({
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField
           id="region_slug"
-          label="Region Atlasu"
-          hint="Bez regionu země nemá profil."
+          label="Atlas region"
+          hint="Without a region, the country has no profile."
           errors={errors.region_slug}
         >
           <Select id="region_slug" name="region_slug" defaultValue={country.region_slug ?? ""}>
-            <option value="">— bez regionu —</option>
+            <option value="">— no region —</option>
             {regions.map((region) => (
               <option key={region.slug} value={region.slug}>
                 {region.name}
@@ -322,14 +322,14 @@ export function CountryForm({
             ))}
           </Select>
         </FormField>
-        <FormField id="tagline" label="Podtitul" errors={errors.tagline}>
+        <FormField id="tagline" label="Subtitle" errors={errors.tagline}>
           <Input id="tagline" name="tagline" maxLength={300} defaultValue={country.tagline} />
         </FormField>
       </div>
       <FormField
         id="blurb"
-        label="Shrnutí"
-        hint="Jedna až dvě věty pod názvem. Bez nich se složí věta z importovaných dat."
+        label="Summary"
+        hint="One or two sentences under the name. Without them, a sentence is built from imported data."
         errors={errors.blurb}
       >
         <Textarea
@@ -342,7 +342,7 @@ export function CountryForm({
       </FormField>
       <fieldset className="grid gap-1">
         <legend className="mb-1 text-[12.5px] font-medium text-[var(--color-ink-soft)]">
-          Automatické ukazatele na kartě (nic nevybráno = prvních šest)
+          Automatic indicators on the card (none selected = first six)
         </legend>
         <div className="grid sm:grid-cols-2">
           {indicators.map((indicator) => (
@@ -357,16 +357,16 @@ export function CountryForm({
         </div>
       </fieldset>
       <div className="grid gap-1.5">
-        <span className="text-[12.5px] font-medium text-[var(--color-ink-soft)]">Delší text</span>
+        <span className="text-[12.5px] font-medium text-[var(--color-ink-soft)]">Long text</span>
         <RichTextEditor
           name="profile_html"
           initialHtml={country.profile_html}
-          label={`Text profilu – ${country.name}`}
+          label={`Profile text – ${country.name}`}
         />
       </div>
       <ActionStatus state={state} />
       <div>
-        <SubmitButton>Uložit profil</SubmitButton>
+        <SubmitButton>Save profile</SubmitButton>
       </div>
     </ActionForm>
   );

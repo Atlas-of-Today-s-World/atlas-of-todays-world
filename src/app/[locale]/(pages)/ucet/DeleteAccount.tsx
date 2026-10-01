@@ -21,7 +21,7 @@ export default function DeleteAccount({ email }: { email: string }) {
           confirm.
         </p>
         <label htmlFor="confirm" className="sr-only">
-          Your e-mail address
+          Your email address
         </label>
         <input
           id="confirm"

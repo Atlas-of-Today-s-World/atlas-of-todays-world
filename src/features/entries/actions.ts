@@ -105,8 +105,8 @@ export async function saveEntry(_prev: ActionState, formData: FormData): Promise
   if (countryError) return countryError;
 
   if (status === "published") refresh(row.slug, row.region_slug, row.special_slug);
-  if (!id) redirect(`/admin/obsah/${entryId}?ulozeno=1`);
-  return { ok: true, message: "Uloženo.", id: entryId };
+  if (!id) redirect(`/admin/content/${entryId}?saved=1`);
+  return { ok: true, message: "Saved.", id: entryId };
 }
 
 async function syncCountries(
@@ -143,14 +143,14 @@ async function syncCountries(
 type Transition = "submit_entry" | "approve_entry" | "unpublish_entry";
 
 const DONE: Record<Transition, string> = {
-  submit_entry: "Odesláno ke schválení.",
-  approve_entry: "Schváleno a zveřejněno.",
-  unpublish_entry: "Staženo z webu, článek je znovu koncept.",
+  submit_entry: "Submitted for approval.",
+  approve_entry: "Approved and published.",
+  unpublish_entry: "Unpublished; the article is a draft again.",
 };
 
 /** Přechod stavu jen přes RPC funkci v DB (ARCHITEKTURA 4.3) — nikdy přímý UPDATE. */
 async function transition(fn: Transition, id: string): Promise<ActionState> {
-  if (!uuid.safeParse(id).success) return { ok: false, error: "Neplatný článek." };
+  if (!uuid.safeParse(id).success) return { ok: false, error: "Invalid article." };
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
   const { supabase } = session;
@@ -180,7 +180,7 @@ type Client = NonNullable<Awaited<ReturnType<typeof signedIn>>>["supabase"];
  */
 export async function saveChapters(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const entryId = String(formData.get("entry_id") ?? "");
-  if (!uuid.safeParse(entryId).success) return { ok: false, error: "Neplatné heslo." };
+  if (!uuid.safeParse(entryId).success) return { ok: false, error: "Invalid entry." };
   const column = (name: string) => formData.getAll(name).map(String);
   const titles = column("title");
   const [points, bodies, illustrations, credits, audio] = [
@@ -192,7 +192,7 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
   ];
   const parsed = z
     .array(ChapterInput)
-    .max(MAX_CHAPTERS, `Nejvýš ${MAX_CHAPTERS} kapitol.`)
+    .max(MAX_CHAPTERS, `At most ${MAX_CHAPTERS} chapters.`)
     .safeParse(
       titles.map((title, index) => ({
         title,
@@ -203,7 +203,7 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
         audio_url: audio[index],
       })),
     );
-  if (!parsed.success) return listItemError(parsed.error, "Kapitola", CHAPTER_FIELD_LABEL);
+  if (!parsed.success) return listItemError(parsed.error, "Chapter", CHAPTER_FIELD_LABEL);
 
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
@@ -217,7 +217,7 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
   });
   if (error) return failed(error);
   await refreshEntry(session.supabase, entryId, true);
-  return { ok: true, message: "Kapitoly uloženy." };
+  return { ok: true, message: "Chapters saved." };
 }
 
 /** Zdroje hesla — stejné položky jako zdroje portrétu, ukládá je editor sekcí. */
@@ -226,15 +226,15 @@ export async function saveEntryResources(
   formData: FormData,
 ): Promise<ActionState> {
   const entryId = String(formData.get("entry_id") ?? "");
-  if (!uuid.safeParse(entryId).success) return { ok: false, error: "Neplatné heslo." };
+  if (!uuid.safeParse(entryId).success) return { ok: false, error: "Invalid entry." };
   let raw: unknown;
   try {
     raw = JSON.parse(String(formData.get("items") ?? "[]"));
   } catch {
-    return { ok: false, error: "Neplatná data sekce." };
+    return { ok: false, error: "Invalid section data." };
   }
   const parsed = z.array(COLLECTIONS.resources).max(50).safeParse(raw);
-  if (!parsed.success) return listItemError(parsed.error, "Zdroj", {});
+  if (!parsed.success) return listItemError(parsed.error, "Source", {});
 
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
@@ -245,7 +245,7 @@ export async function saveEntryResources(
   });
   if (error) return failed(error);
   await refreshEntry(session.supabase, entryId, true);
-  return { ok: true, message: "Zdroje uloženy." };
+  return { ok: true, message: "Sources saved." };
 }
 
 export async function submitEntry(id: string) {
@@ -270,7 +270,7 @@ export async function sendBackEntry(_prev: ActionState, formData: FormData): Pro
     p_note: parsed.data.note,
   });
   if (error) return failed(error);
-  return { ok: true, message: "Vráceno autorovi s poznámkou." };
+  return { ok: true, message: "Returned to the author with a note." };
 }
 
 /**
@@ -288,16 +288,16 @@ export async function scheduleEntry(_prev: ActionState, formData: FormData): Pro
     p_at: parsed.data.publish_at,
   });
   if (error) return failed(error);
-  return { ok: true, message: "Zveřejnění naplánováno." };
+  return { ok: true, message: "Publication scheduled." };
 }
 
 export async function unscheduleEntry(id: string): Promise<ActionState> {
-  if (!uuid.safeParse(id).success) return { ok: false, error: "Neplatný článek." };
+  if (!uuid.safeParse(id).success) return { ok: false, error: "Invalid article." };
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
   const { error } = await session.supabase.rpc("unschedule_entry", { p_entry: id });
   if (error) return failed(error);
-  return { ok: true, message: "Plán zrušen, článek dál čeká na schválení." };
+  return { ok: true, message: "Schedule canceled; the article is still pending approval." };
 }
 
 /**
@@ -308,20 +308,20 @@ export async function createTranslation(formData: FormData): Promise<void> {
   const entryId = String(formData.get("entry_id") ?? "");
   const locale = String(formData.get("locale") ?? "");
   if (!uuid.safeParse(entryId).success || !isLocale(locale) || locale === DEFAULT_LOCALE) {
-    redirect("/admin/obsah");
+    redirect("/admin/content");
   }
   const session = await signedIn();
-  if (!session) redirect(`/login?next=/admin/obsah/${entryId}`);
+  if (!session) redirect(`/login?next=/admin/content/${entryId}`);
   const { data, error } = await session.supabase.rpc("create_entry_translation", {
     p_entry: entryId,
     p_locale: locale,
   });
-  if (error) redirect(`/admin/obsah/${entryId}?preklad=chyba`);
-  redirect(`/admin/obsah/${data}?ulozeno=1`);
+  if (error) redirect(`/admin/content/${entryId}?translation=error`);
+  redirect(`/admin/content/${data}?saved=1`);
 }
 
 export async function deleteEntry(id: string): Promise<ActionState> {
-  if (!uuid.safeParse(id).success) return { ok: false, error: "Neplatný článek." };
+  if (!uuid.safeParse(id).success) return { ok: false, error: "Invalid article." };
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
   const { data, error } = await session.supabase
@@ -331,17 +331,20 @@ export async function deleteEntry(id: string): Promise<ActionState> {
     .select("slug, status, region_slug, special_slug");
   if (error) return failed(error);
   if (!data.length)
-    return { ok: false, error: "Článek nejde smazat (nemáte právo nebo už neexistuje)." };
+    return {
+      ok: false,
+      error: "The article can't be deleted (no permission or it no longer exists).",
+    };
   const [removed] = data;
   if (removed?.status === "published")
     refresh(removed.slug, removed.region_slug, removed.special_slug);
-  return { ok: true, message: "Smazáno." };
+  return { ok: true, message: "Deleted." };
 }
 
 /** Obnoví text z historie; současná podoba se tím sama uloží jako další revize. */
 export async function restoreRevision(entryId: string, revisionId: number): Promise<ActionState> {
   if (!uuid.safeParse(entryId).success || !Number.isInteger(revisionId)) {
-    return { ok: false, error: "Neplatná revize." };
+    return { ok: false, error: "Invalid revision." };
   }
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
@@ -374,7 +377,7 @@ export async function restoreRevision(entryId: string, revisionId: number): Prom
   if (updated.status === "published") {
     refresh(updated.slug, updated.region_slug, updated.special_slug);
   }
-  return { ok: true, message: "Obnoveno z historie." };
+  return { ok: true, message: "Restored from history." };
 }
 
 /**
@@ -387,7 +390,7 @@ export async function createPreviewLink(
   hours: number,
 ): Promise<ActionState & { token?: string }> {
   if (!uuid.safeParse(entryId).success || !PREVIEW_HOURS.includes(hours as never)) {
-    return { ok: false, error: "Neplatný požadavek." };
+    return { ok: false, error: "Invalid request." };
   }
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
