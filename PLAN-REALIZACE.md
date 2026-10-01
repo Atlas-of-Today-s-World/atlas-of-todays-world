@@ -37,6 +37,7 @@
 | U7 | Sentry účet + DSN | F3 | ⬜ |
 | U8 | `age` klíč pro zálohy (`BACKUP_AGE_RECIPIENT`), soukromá část mimo GitHub | F4 | ⬜ |
 | U9 | Nahrát `supabase/seed.sql` do produkční DB před nasazením fáze D; schválit ADR-014 | D | ⬜ |
+| U10 | Export kolekcí z Webflow CMS (CSV „Export“ u každé kolekce, nebo API token pro Data API v2) | G7 | ⬜ |
 
 ---
 
@@ -133,10 +134,19 @@ Dělá se **před** napojením na DB, aby se komponenty přepisovaly jen jednou.
 - [x] **G3** Plánované publikování (`publish_at` + pg_cron každých 5 min, `schedule_entry`/`unschedule_entry`, migrace 13),
       správa přesměrování (`redirects`, sekce news, uplatní se jen místo 404, migrace 14), týdenní kontrola odkazů
       (`links.yml`, `npm run check:links`). *Vlastník: ověřit pg_cron na dev projektu před nasazením.*
-- [ ] **G4** Encyklopedická hesla P9 (`/entry/[slug]`, kapitoly, autor s positionality, audio R4).
+- [x] **G4** Encyklopedická hesla P9 (`/entry/[slug]`, kapitoly, autor s positionality, audio R4).
+      *Hotovo: migrace 20261002000001–02, správa Autoři, editor kapitol a zdrojů, zvuk po kapitolách
+      (bucket `entry-audio`: MP3, M4A/AAC, Ogg/Opus, WAV, FLAC do 50 MB — rozhodnutí vlastníka 2026-10-01;
+      syntéza hlasu R4 až po výběru služby), plánovaná hesla šedivě na portrétu.*
+      Navíc: stránka 404 s kvízem obrysů 50 států (jen EN, větev `feat/404-quiz`).
 - [ ] **G5** Jazykové mutace P15 (`[locale]`, `translations`, `messages/*.json`).
 - [ ] **G6** Platby P10 (Stripe, webhook → `memberships`) — po přechodu na Vercel Pro (komerční použití).
 - [ ] **G7** Webflow import P16 a přesměrování starých URL; přechod koncept → produkce (ARCHITEKTURA 13.5).
+      *Připraveno: `scripts/import-webflow.mjs` (CSV z CMS Exportu i JSON z Data API v2, nanečisto bez `--apply`,
+      zápis jen do projektu z `--project`, opakovatelný, obrázky z Webflow CDN do Storage, YouTube → zdroje),
+      mapování `scripts/webflow/mapping.config.mjs` a 6 přesměrování starých stránek. Ověřeno na atlas-dev.
+      **Vlastník (U10): dodat export kolekcí z Webflow CMS** — pak upravit názvy polí v konfiguraci a spustit
+      nanečisto → `--apply --project dev` → kontrola → `--project prod`. Checklist 13.5 zůstává na vlastníkovi.*
 
 ---
 
