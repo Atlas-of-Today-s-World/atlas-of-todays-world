@@ -3,6 +3,7 @@ import { getEncyclopediaEntries, getEntries } from "@/features/entries/queries";
 import { getAtlas } from "@/features/geography/queries";
 import { LEGAL_NAV } from "@/config/navigation";
 import { LOCALES, localePath, type Locale } from "@/features/i18n/config";
+import { MEMBERSHIP_PATH } from "@/features/membership/config";
 import { SITE_URL } from "@/lib/site";
 
 /**
@@ -46,7 +47,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     page("", "daily", 1),
     page("/news", "weekly", 0.7),
     page("/about", "yearly", 0.4),
-    page("/patrons", "yearly", 0.4),
+    page(MEMBERSHIP_PATH, "monthly", 0.5),
     ...LEGAL_NAV.map((item) => page(item.href, "yearly", 0.2)),
     ...atlas.regions.map((region) =>
       page(`/region/${region.slug}`, "weekly", 0.9, {

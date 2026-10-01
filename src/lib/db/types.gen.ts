@@ -1035,6 +1035,7 @@ export type Database = {
         Row: {
           complimentary: boolean
           current_period_end: string | null
+          monthly_amount_cents: number | null
           plan: string
           started_at: string | null
           status: string
@@ -1046,6 +1047,7 @@ export type Database = {
         Insert: {
           complimentary?: boolean
           current_period_end?: string | null
+          monthly_amount_cents?: number | null
           plan?: string
           started_at?: string | null
           status?: string
@@ -1057,6 +1059,7 @@ export type Database = {
         Update: {
           complimentary?: boolean
           current_period_end?: string | null
+          monthly_amount_cents?: number | null
           plan?: string
           started_at?: string | null
           status?: string
@@ -1946,6 +1949,13 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      patron_stats: {
+        Args: never
+        Returns: {
+          monthly_cents: number
+          patrons: number
+        }[]
       }
       planned_entries: {
         Args: never

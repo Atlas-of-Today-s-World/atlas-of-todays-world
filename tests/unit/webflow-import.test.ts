@@ -143,11 +143,10 @@ describe("mapping by configuration", () => {
     });
   });
 
-  it("redirects: all six old pages lead to existing Atlas paths", () => {
+  it("redirects: the old pages lead to existing Atlas paths (/membership keeps its address)", () => {
     const rows = buildRedirects(config, new Map());
     expect(rows.map((row) => row.from_path)).toEqual([
       "/about-us",
-      "/membership",
       "/middle-east-and-north-africa",
       "/russia",
       "/adecadeofwarinukraine",

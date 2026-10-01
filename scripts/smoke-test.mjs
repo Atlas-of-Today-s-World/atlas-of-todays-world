@@ -66,7 +66,7 @@ async function main() {
   process.stdout.write(`Checks against ${BASE}\n\n`);
 
   process.stdout.write("Map and hub pages\n");
-  for (const path of ["/", "/news", "/about", "/patrons", "/search"]) {
+  for (const path of ["/", "/news", "/about", "/membership", "/search"]) {
     await check(`${path} responds`, async () => {
       const { status } = await get(path);
       assert(status === 200, `expected 200, got ${status}`);

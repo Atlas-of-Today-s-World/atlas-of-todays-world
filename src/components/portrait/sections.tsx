@@ -3,11 +3,13 @@ import type { ReactNode } from "react";
 import { cva } from "class-variance-authority";
 import { MetricCards, SourceLink, StatGrid, StatIcon, StatItem } from "@/components/atlas/ui";
 import { Rail } from "@/components/atlas/Rail";
+import { Accordion } from "@/components/atlas/Accordion";
 import { buttonVariants } from "@/components/ui/button";
 import type { RegionStat } from "@/lib/region-stats";
 import type { FaqItem, MetricCard, ResourceItem, TimelineItem } from "@/lib/content-types";
 import { cssBackgroundImage, safeUrl } from "@/lib/security/urls";
 import { format } from "@/features/i18n/messages";
+import { MEMBERSHIP_PATH } from "@/features/membership/config";
 import { getT } from "@/features/i18n/request";
 
 /**
@@ -79,7 +81,7 @@ export function PortraitSection({
 function PatronsLink({ arrow = true }: { arrow?: boolean }) {
   const t = getT();
   return (
-    <Link href="/patrons" className="font-medium text-[var(--color-link)] hover:underline">
+    <Link href={MEMBERSHIP_PATH} className="font-medium text-[var(--color-link)] hover:underline">
       {t.portrait.patronsCta}
       {arrow ? " →" : ""}
     </Link>
@@ -353,26 +355,8 @@ export function FaqList({ items }: { items: FaqItem[] }) {
   const t = getT();
   return (
     <PortraitSection title={t.portrait.faq}>
-      <div className="mt-4 space-y-2">
-        {items.map((item) => (
-          <details
-            key={item.question}
-            className="group rounded-xl border border-[var(--color-line)] px-4 py-3"
-          >
-            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-[13px] font-medium text-[var(--color-ink)]">
-              {item.question}
-              <span
-                aria-hidden
-                className="text-[var(--color-ink-muted)] transition group-open:rotate-180"
-              >
-                ⌄
-              </span>
-            </summary>
-            <p className="mt-2.5 text-[12.5px] leading-relaxed text-[var(--color-ink-soft)]">
-              {item.answer}
-            </p>
-          </details>
-        ))}
+      <div className="mt-4">
+        <Accordion items={items} />
       </div>
     </PortraitSection>
   );
@@ -390,7 +374,7 @@ export function PatronsCallout({ complete }: { complete: boolean }) {
         {complete ? t.portrait.patronsCompleteText : t.portrait.patronsTodoText}
       </p>
       <div className="mt-6">
-        <Link href="/patrons" className={buttonVariants({ className: "text-[13px]" })}>
+        <Link href={MEMBERSHIP_PATH} className={buttonVariants({ className: "text-[13px]" })}>
           {t.portrait.patronsCta}
         </Link>
       </div>

@@ -34,3 +34,17 @@ export function formatLongDate(isoDate: string, locale: Locale = "en"): string {
     year: "numeric",
   });
 }
+
+/** Whole-euro amount in the locale's notation ("€10,000" / "10 000 €"). */
+export function formatEuro(value: number, locale: Locale = "en"): string {
+  return new Intl.NumberFormat(INTL[locale], {
+    style: "currency",
+    currency: "EUR",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+/** Whole percent in the locale's notation ("42%" / "42 %"). */
+export function formatPercent(percent: number, locale: Locale = "en"): string {
+  return new Intl.NumberFormat(INTL[locale], { style: "percent" }).format(percent / 100);
+}

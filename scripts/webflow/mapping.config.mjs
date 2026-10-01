@@ -195,7 +195,7 @@ const config = {
    */
   redirects: [
     { from: "/about-us", to: "/about" },
-    { from: "/membership", to: "/patrons" },
+    // /membership needs no redirect: Atlas Patrons keep the same address.
     { from: "/middle-east-and-north-africa", to: "/region/middle-east-north-africa" },
     { from: "/russia", to: "/country/russia" },
     { from: "/adecadeofwarinukraine", to: "/global-issue/russia-ukraine-war" },

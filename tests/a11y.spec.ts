@@ -19,6 +19,10 @@ const PAGES = [
   "/login",
   "/news/nordic-model-under-strain",
   "/search?q=Japan",
+  "/membership",
+  "/membership/checkout?period=monthly&amount=10",
+  "/membership/thank-you?period=one-time&amount=50",
+  "/membership/manage",
   // Czech version (G5): different texts and label lengths — checked separately.
   "/cs",
   "/cs/country/ukraine",
@@ -29,6 +33,7 @@ const PAGES = [
   "/cs/about",
   "/cs/search?q=Japan",
   "/cs/login",
+  "/cs/membership",
   // The 404 page both inside and outside the map.
   "/news/this-does-not-exist",
   "/this-page-does-not-exist",

@@ -166,17 +166,133 @@
     "editorialText": "Portréty regionů, profily zemí a novinky píše tým Atlasu ve vlastním redakčním systému, kde každá změna před zveřejněním prochází kontrolou."
   },
   "patrons": {
-    "title": "Podpořte Atlas",
-    "description": "Přidejte se ke komunitě členů a pomozte budovat nezávislou encyklopedii současnosti.",
-    "heading": "Společně můžeme vytvořit novou encyklopedii",
-    "intro": "Členstvím podpoříte vývoj Atlasu a postupně zajistíte jeho nezávislé financování. Na vývoji se můžete i přímo podílet.",
-    "card1Title": "Pomozte nám budovat Atlas",
-    "card1Text": "Pomozte vytvořit encyklopedii a zajistit její dlouhodobou, nezávislou budoucnost díky silné komunitě členů.",
-    "card2Title": "Podílejte se na vývoji",
-    "card2Text": "Tvořte obsah. Budujte silná partnerství. Měňte svět.",
-    "card3Title": "Přidejte se ke komunitě",
-    "card3Text": "Seznamte se s naším týmem, členy, budoucími autory a partnery.",
-    "paymentsSoon": "Platby členství brzy spustíme."
+    "title": "Atlas Patrons",
+    "description": "Přidejte se k Atlas Patrons, komunitě našich podporovatelů, a pomozte budovat nezávislou a volně dostupnou encyklopedii dnešního světa.",
+    "heroTitle": "Pomozte nám budovat",
+    "heroTitleAccent": "Atlas of Today's World",
+    "heroLead": [
+      "Jsme **nezisková iniciativa**, kterou zatím vyvíjejí **výhradně dobrovolníci**.",
+      "Když se přidáte k Atlas Patrons, komunitě našich podporovatelů, **pomůžete Atlas budovat a můžete se podílet na jeho vývoji.**"
+    ],
+    "heroCta": "Přispět a přidat se",
+    "card": {
+      "label": "Darovat",
+      "introMonthly": "Zvolte si výši měsíčního příspěvku. Zrušit ho můžete kdykoli.",
+      "introOneTime": "Zvolte si výši jednorázového daru. Kdykoli ho můžete změnit na měsíční.",
+      "frequency": "Četnost daru",
+      "monthly": "Měsíčně",
+      "oneTime": "Jednorázově",
+      "amount": "Částka",
+      "other": "Jiná částka",
+      "otherLabel": "Vaše částka v eurech",
+      "otherHint": "Od {min} do {max}",
+      "submit": "Přispět a přidat se",
+      "processedBy": "Všechny dary zpracovává zabezpečená platforma Stripe.",
+      "manage": "(Spravovat stávající dar)"
+    },
+    "benefitsTitle": "Jako patron budete:",
+    "benefits": [
+      {
+        "title": "Pomáhat nám budovat Atlas",
+        "text": [
+          "Přispějete k tvorbě této encyklopedie a **pomůžete nám zajistit dlouhodobý, udržitelný a nezávislý provoz.**",
+          "Chceme, aby se Atlas Patrons stali naším hlavním dlouhodobým zdrojem financování."
+        ]
+      },
+      {
+        "title": "Dostávat zvláštní newsletter",
+        "text": [
+          "V měsíčním newsletteru jen pro patrony dostanete **interní informace o našem vývoji** a **příležitost se na něm podílet.**",
+          "Můžete nám tak dávat zpětnou vazbu, hlasovat v anketách nebo se účastnit větších online setkání."
+        ]
+      }
+    ],
+    "goal": {
+      "title": "Náš současný cíl",
+      "pill": "{patrons} patronů ({amount} měsíčně)",
+      "name": "První profesionalizace týmu",
+      "lead": "**Zatím jsme tým dobrovolníků.** Taková práce ale naráží na výrazné limity.",
+      "listIntro": "**Částečná profesionalizace týmu by nám umožnila pravidelně:**",
+      "items": [
+        "vytvářet nový obsah",
+        "vyjednávat partnerství s akademickými institucemi, médii, neziskovými organizacemi nebo influencery",
+        "získávat větší granty, které vývoj Atlasu dál urychlí",
+        "celkově stabilizovat náš provoz"
+      ],
+      "patronsLabel": "Patroni",
+      "joined": "Zatím se přidalo",
+      "progressLabel": "Kde jsme?",
+      "ofMonthly": "Z {amount} měsíčně",
+      "progressAria": "Plnění měsíčního cíle",
+      "note": "Tento ukazatel znázorňuje, jak daleko jsme od splnění současného cíle."
+    },
+    "faqTitle": "Časté otázky",
+    "faq": [
+      {
+        "question": "Bude obsah zdarma pro všechny?",
+        "answer": "Naším hlavním posláním je dát každému možnost porozumět situaci v dnešním světě. Naše encyklopedie proto bude plně a volně dostupná všem čtenářům na celém světě. Členská komunita toto poslání podporuje."
+      },
+      {
+        "question": "Jste registrovaná nezisková organizace?",
+        "answer": "Náš projekt vyrostl z Online encyklopedie migrace, neziskové nevládní organizace registrované v České republice od roku 2016 (oficiálně se jmenujeme Online Encyklopedie Migrace, z.s.). Podle českých zákonů nesmíme vytvářet zisk."
+      },
+      {
+        "question": "Jak mohu zrušit nebo změnit svůj měsíční příspěvek?",
+        "answer": "Měsíční příspěvek můžete kdykoli zrušit přes Stripe. Odkaz najdete pod tlačítkem Přispět a přidat se, v úvodním registračním e-mailu a na konci každého newsletteru pro členy. Případně nám napište na {email} a my vám pomůžeme. Stejným postupem můžete změnit původní jednorázový dar na měsíční."
+      }
+    ],
+    "finalTitle": "S vaší pomocí",
+    "finalTitleAccent": "to dokážeme!",
+    "checkout": {
+      "title": "Platba (ukázka)",
+      "demoBanner": "Ukázkový režim — žádná platba neproběhne. Použijte testovací kartu 4242 4242 4242 4242.",
+      "back": "Zpět na Atlas Patrons",
+      "product": "Atlas Patrons",
+      "monthly": "Měsíční příspěvek",
+      "oneTime": "Jednorázový dar",
+      "perMonth": "{amount} / měsíc",
+      "total": "K zaplacení dnes",
+      "contact": "Kontaktní údaje",
+      "email": "E-mail",
+      "payment": "Platební metoda",
+      "cardNumber": "Číslo karty",
+      "expiry": "Platnost (MM / RR)",
+      "cvc": "CVC",
+      "name": "Jméno na kartě",
+      "country": "Země nebo oblast",
+      "subscribe": "Předplatit",
+      "pay": "Zaplatit {amount}",
+      "processing": "Zpracovává se…",
+      "privacy": "V této ukázce zůstávají údaje o kartě ve vašem prohlížeči — nic se neodesílá ani neukládá.",
+      "errors": {
+        "required": "Toto pole je povinné.",
+        "email": "Zadejte platnou e-mailovou adresu.",
+        "number": "Číslo karty je neplatné.",
+        "expiry": "Platnost karty je neplatná nebo už vypršela.",
+        "cvc": "Bezpečnostní kód karty je neplatný.",
+        "declined": "Karta byla zamítnuta. (Ukázka: 4000 0000 0000 0002 se zamítne vždy.)"
+      }
+    },
+    "thankYou": {
+      "title": "Děkujeme",
+      "heading": "Vítejte mezi Atlas Patrons!",
+      "leadMonthly": "Děkujeme za váš měsíční příspěvek {amount}.",
+      "leadOneTime": "Děkujeme za váš dar {amount}.",
+      "demoNote": "Šlo o ukázku — žádná platba neproběhla.",
+      "nextTitle": "Co bude dál",
+      "next": [
+        "Přijde vám potvrzovací e-mail s dokladem o platbě.",
+        "Měsíční newsletter jen pro patrony vám přinese interní novinky z vývoje, ankety a pozvánky na online setkání.",
+        "Příspěvek můžete kdykoli zrušit nebo změnit — odkaz je na konci každého newsletteru."
+      ],
+      "backToAtlas": "Zpět do Atlasu"
+    },
+    "manage": {
+      "title": "Správa vašeho daru",
+      "lead": "V ostrém provozu tento odkaz otevře zabezpečený zákaznický portál Stripe, kde můžete změnit kartu, upravit částku nebo dar zrušit.",
+      "demo": "Toto je ukázka — účet Stripe zatím není připojený.",
+      "help": "Potřebujete pomoc? Napište nám na {email}."
+    }
   },
   "newsIndex": {
     "title": "Všechny novinky",
@@ -230,7 +346,8 @@
     "region": "Světový region",
     "issue": "Globální téma",
     "news": "Novinky",
-    "entry": "Encyklopedické heslo"
+    "entry": "Encyklopedické heslo",
+    "patrons": "Atlas Patrons"
   },
   "errors": {
     "pageNotFoundTitle": "Stránka nenalezena",

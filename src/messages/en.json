@@ -166,17 +166,133 @@
     "editorialText": "Region portraits, country profiles and news are written by the Atlas team in the Atlas’s own editorial system, where every change goes through review before it is published."
   },
   "patrons": {
-    "title": "Support the Atlas",
-    "description": "Join the membership community and help build an independent encyclopedia of the present.",
-    "heading": "Together We Can Build a New Encyclopedia",
-    "intro": "By joining our membership community, you support Atlas development and gradually secure its independent funding. And you can directly participate in the development.",
-    "card1Title": "Help Us Build Atlas",
-    "card1Text": "Help build the encyclopedia and power its long-term, independent future through a strong membership community.",
-    "card2Title": "Participate on Its Development",
-    "card2Text": "Create content. Build powerful partnerships. Drive global impact.",
-    "card3Title": "Join Our Community",
-    "card3Text": "Connect with our team, members, and future authors and partners.",
-    "paymentsSoon": "Membership payments are coming soon."
+    "title": "Atlas Patrons",
+    "description": "Join Atlas Patrons, our community of supporters, and help build an independent, open-access encyclopedia of today's world.",
+    "heroTitle": "Help Us Build",
+    "heroTitleAccent": "Atlas of Today's World",
+    "heroLead": [
+      "We are **a nonprofit initiative** that is currently being developed **entirely by volunteers**.",
+      "By joining Atlas Patrons, our community of supporters, **you can help build Atlas and participate on its development.**"
+    ],
+    "heroCta": "Donate and Join",
+    "card": {
+      "label": "Make a donation",
+      "introMonthly": "Make a monthly donation of your choice. You can cancel it anytime.",
+      "introOneTime": "Make a one-time donation of your choice. You can make it monthly anytime.",
+      "frequency": "Donation frequency",
+      "monthly": "Monthly",
+      "oneTime": "One-time",
+      "amount": "Amount",
+      "other": "Other amount",
+      "otherLabel": "Your amount in euros",
+      "otherHint": "From {min} to {max}",
+      "submit": "Donate & Join",
+      "processedBy": "All donations are processed by the secure Stripe platform.",
+      "manage": "(Manage Existing Donation)"
+    },
+    "benefitsTitle": "As a Patron, You Will:",
+    "benefits": [
+      {
+        "title": "Help Us Build Atlas",
+        "text": [
+          "You will contribute to creating this encyclopedia and **help us secure long-term, sustainable and independent operation.**",
+          "We aim to make Atlas Patrons our long-term primary funding source."
+        ]
+      },
+      {
+        "title": "Receive a Special Newsletter",
+        "text": [
+          "Through the patron-only monthly newsletter, you will receive **internal information about our development** and will **get a chance to participate** on it.",
+          "Thus you can provide feedback, vote at polls or attend bigger online meetings."
+        ]
+      }
+    ],
+    "goal": {
+      "title": "Our Current Goal",
+      "pill": "{patrons} patrons ({amount} per month)",
+      "name": "The Initial Team Professionalisation",
+      "lead": "**We are currently a team of volunteers.** But we face significant limits of such work.",
+      "listIntro": "**Partly professionalising our team would enable us to regularly:**",
+      "items": [
+        "produce new content",
+        "negotiate partnerships with various academic institutions, media outlets, NGOs or influencers",
+        "seek bigger grant funding to boost Atlas development even further",
+        "stabilise our operation in general"
+      ],
+      "patronsLabel": "Patrons",
+      "joined": "Joined so far",
+      "progressLabel": "How far we are?",
+      "ofMonthly": "From {amount} per month",
+      "progressAria": "Progress towards the monthly goal",
+      "note": "This calculator visualises how far we are from achieving our current goal."
+    },
+    "faqTitle": "FAQ",
+    "faq": [
+      {
+        "question": "Will the content be free for everyone?",
+        "answer": "Our primary mission is to give everyone a chance to reflect on the situation in our world. Therefore, our encyclopedia will be fully open-access to any reader all over the world. The role of the membership community is to support this mission."
+      },
+      {
+        "question": "Are you a registered nonprofit organisation?",
+        "answer": "Our project grew out of the Online Encyclopedia of Migration, a non-profit, non-governmental organisation that has been registered in the Czech Republic since 2016 (we are officially called Online Encyklopedie Migrace, z.s.). Within Czech legislation, we are not permitted to make any profit."
+      },
+      {
+        "question": "How can I cancel or change my monthly donation?",
+        "answer": "You can cancel your monthly donation anytime via Stripe. The link is available below the Donate & Join button, in your initial registration email, and at the bottom of each members-only newsletter. Alternatively, you can email us at {email}, and we will help you. Similarly, you can change your initial one-time donation to a monthly donation by following the same steps."
+      }
+    ],
+    "finalTitle": "With Your Help,",
+    "finalTitleAccent": "We Can Build It!",
+    "checkout": {
+      "title": "Checkout (demo)",
+      "demoBanner": "Demo mode — no payment will be taken. Use test card 4242 4242 4242 4242.",
+      "back": "Back to Atlas Patrons",
+      "product": "Atlas Patrons",
+      "monthly": "Monthly donation",
+      "oneTime": "One-time donation",
+      "perMonth": "{amount} / month",
+      "total": "Total due today",
+      "contact": "Contact information",
+      "email": "Email",
+      "payment": "Payment method",
+      "cardNumber": "Card number",
+      "expiry": "Expiry (MM / YY)",
+      "cvc": "CVC",
+      "name": "Name on card",
+      "country": "Country or region",
+      "subscribe": "Subscribe",
+      "pay": "Pay {amount}",
+      "processing": "Processing…",
+      "privacy": "In this demo, card details stay in your browser — nothing is sent or stored.",
+      "errors": {
+        "required": "This field is required.",
+        "email": "Enter a valid email address.",
+        "number": "Your card number is invalid.",
+        "expiry": "Your card's expiry date is invalid or in the past.",
+        "cvc": "Your card's security code is invalid.",
+        "declined": "Your card was declined. (Demo: 4000 0000 0000 0002 is always declined.)"
+      }
+    },
+    "thankYou": {
+      "title": "Thank you",
+      "heading": "Welcome to Atlas Patrons!",
+      "leadMonthly": "Thank you for your monthly donation of {amount}.",
+      "leadOneTime": "Thank you for your donation of {amount}.",
+      "demoNote": "This was a demo — no payment was taken.",
+      "nextTitle": "What happens next",
+      "next": [
+        "You will receive a confirmation email with your receipt.",
+        "The patron-only monthly newsletter will bring you internal news about our development, polls and invitations to online meetings.",
+        "You can cancel or change your donation anytime — the link is at the bottom of every newsletter."
+      ],
+      "backToAtlas": "Back to the Atlas"
+    },
+    "manage": {
+      "title": "Manage your donation",
+      "lead": "In production, this link opens the secure Stripe customer portal, where you can update your card, change the amount or cancel your donation.",
+      "demo": "This is a demo — no Stripe account is connected yet.",
+      "help": "Need help? Email us at {email}."
+    }
   },
   "newsIndex": {
     "title": "All news",
@@ -230,7 +346,8 @@
     "region": "World region",
     "issue": "Global issue",
     "news": "News",
-    "entry": "Encyclopedic entry"
+    "entry": "Encyclopedic entry",
+    "patrons": "Atlas Patrons"
   },
   "errors": {
     "pageNotFoundTitle": "Page not found",

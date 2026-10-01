@@ -13,6 +13,8 @@ export const tags = {
   flags: "flags",
   /** Redirects of old URLs (redirects table). */
   redirects: "redirects",
+  /** Atlas Patrons progress (patron_stats) — payment webhook and admin grants. */
+  patrons: "patrons",
 } as const;
 
 /** Safety net: even without invalidation, public data refreshes within an hour at most. */
