@@ -14,7 +14,7 @@ import {
 import { tags } from "@/lib/cache/tags";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { uuid } from "@/lib/validation/common";
-import { EntryInput, SendBackInput } from "./schema";
+import { EntryInput, ScheduleInput, SendBackInput } from "./schema";
 
 /** Po změně zveřejněného obsahu obnovit seznamy, detail i portréty. */
 function refresh(slug?: string | null, region?: string | null, issue?: string | null) {
@@ -172,6 +172,33 @@ export async function sendBackEntry(_prev: ActionState, formData: FormData): Pro
   });
   if (error) return failed(error);
   return { ok: true, message: "Vráceno autorovi s poznámkou." };
+}
+
+/**
+ * Naplánuje zveřejnění čekajícího článku (DB `schedule_entry` — smí jen ten,
+ * kdo smí článek schválit). V daný čas ho zveřejní pg_cron; web se obnoví
+ * nejpozději po PUBLIC_REVALIDATE_SECONDS, proto tady se cache nemaže.
+ */
+export async function scheduleEntry(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const parsed = ScheduleInput.safeParse(formObject(formData));
+  if (!parsed.success) return invalid(parsed.error);
+  const session = await signedIn();
+  if (!session) return NOT_SIGNED_IN;
+  const { error } = await session.supabase.rpc("schedule_entry", {
+    p_entry: parsed.data.id,
+    p_at: parsed.data.publish_at,
+  });
+  if (error) return failed(error);
+  return { ok: true, message: "Zveřejnění naplánováno." };
+}
+
+export async function unscheduleEntry(id: string): Promise<ActionState> {
+  if (!uuid.safeParse(id).success) return { ok: false, error: "Neplatný článek." };
+  const session = await signedIn();
+  if (!session) return NOT_SIGNED_IN;
+  const { error } = await session.supabase.rpc("unschedule_entry", { p_entry: id });
+  if (error) return failed(error);
+  return { ok: true, message: "Plán zrušen, článek dál čeká na schválení." };
 }
 
 export async function deleteEntry(id: string): Promise<ActionState> {

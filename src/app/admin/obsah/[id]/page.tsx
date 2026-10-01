@@ -82,6 +82,7 @@ export default async function EditEntryPage({
               canApprove={canApprove}
               canDelete={canEdit && can(access.permissions, "news", "d")}
               reviewNote={entry.review_note}
+              publishAt={entry.publish_at}
             />
           </section>
           <section>

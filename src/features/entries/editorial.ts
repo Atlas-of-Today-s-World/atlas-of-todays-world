@@ -18,10 +18,11 @@ export interface EditorialRow {
   author_name: string | null;
   updated_at: string;
   review_note: string | null;
+  publish_at: string | null;
 }
 
 const LIST_COLUMNS =
-  "id, slug, title, status, category, region_slug, owner_id, author_name, updated_at, review_note";
+  "id, slug, title, status, category, region_slug, owner_id, author_name, updated_at, review_note, publish_at";
 
 export async function listEntries({
   status,

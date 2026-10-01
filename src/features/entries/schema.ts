@@ -38,6 +38,23 @@ export const SendBackInput = z.object({
   note: requiredText(2000),
 });
 
+/** Nejdřív a nejpozději lze zveřejnění naplánovat (shodné se schedule_entry v DB). */
+const SCHEDULE_MIN_MINUTES = 5;
+const SCHEDULE_MAX_DAYS = 365;
+
+/**
+ * Plánované zveřejnění: čas jako ISO s posunem (prohlížeč převede místní čas
+ * z pole datetime-local). Okno 5 minut až rok hlídá i DB funkce.
+ */
+export const ScheduleInput = z.object({
+  id: uuid,
+  publish_at: z.iso.datetime({ offset: true, message: "Zadejte datum a čas." }).refine((value) => {
+    const at = Date.parse(value);
+    const now = Date.now();
+    return at >= now + SCHEDULE_MIN_MINUTES * 60_000 && at <= now + SCHEDULE_MAX_DAYS * 86_400_000;
+  }, `Čas musí být aspoň ${SCHEDULE_MIN_MINUTES} minut dopředu a nejvýš za rok.`),
+});
+
 export const ENTRY_STATUSES = ["draft", "pending", "published", "planned"] as const;
 export type EntryStatus = (typeof ENTRY_STATUSES)[number];
 

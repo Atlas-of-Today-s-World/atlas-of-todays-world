@@ -67,6 +67,12 @@ function Queue({
         { key: "category", header: "Kategorie", cell: (row) => row.category, wide: true },
         { key: "author", header: "Autor", cell: (row) => row.author_name ?? "—", wide: true },
         {
+          key: "scheduled",
+          header: "Naplánováno",
+          cell: (row) => (row.publish_at ? dateFormat.format(new Date(row.publish_at)) : "—"),
+          wide: true,
+        },
+        {
           key: "waiting",
           header: "Odesláno",
           cell: (row) => dateFormat.format(new Date(row.updated_at)),
