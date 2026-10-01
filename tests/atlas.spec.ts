@@ -13,6 +13,8 @@ import { test, expect, type Page } from "@playwright/test";
 async function hasTouchTarget(page: Page, selector: string) {
   const target = page.locator(selector).first();
   // boundingBox() does not wait; the panel slides out only after hydration.
+  // Callers scope the selector to the real panel (#content): the loading
+  // skeleton renders the same controls and is swapped out while streaming.
   await expect(target).toBeVisible();
   const box = await target.boundingBox();
   expect(box, `${selector} není vidět`).not.toBeNull();
@@ -59,9 +61,9 @@ test.describe("panel s obsahem", () => {
 
   test("close button has a comfortable touch target and closes the panel", async ({ page }) => {
     await page.goto("/country/ukraine");
-    await hasTouchTarget(page, 'a[aria-label="Close"]');
+    await hasTouchTarget(page, '#content a[aria-label="Close"]');
 
-    await page.getByRole("link", { name: "Close" }).click();
+    await page.locator("#content").getByRole("link", { name: "Close" }).click();
     await expect(page).toHaveURL(/\/$/);
   });
 
@@ -69,7 +71,7 @@ test.describe("panel s obsahem", () => {
     await page.goto("/country/ukraine");
     // Only hydrated React handles the key, so wait for the panel to come alive
     // and click into the page — otherwise the key has nowhere to go.
-    await expect(page.getByRole("link", { name: "Close" })).toBeVisible();
+    await expect(page.locator("#content").getByRole("link", { name: "Close" })).toBeVisible();
 
     // The key handler works only after React hydrates. When exactly that happens
     // cannot be reliably detected from outside, so we retry the key press.

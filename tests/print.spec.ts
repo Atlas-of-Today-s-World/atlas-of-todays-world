@@ -7,5 +7,5 @@ test("print version shows only the panel content", async ({ page }) => {
   await expect(page.locator("header[data-print=hide]")).toBeHidden();
   await expect(page.locator("[data-print=content]")).toBeVisible();
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Close" })).toBeHidden();
+  await expect(page.locator("#content").getByRole("link", { name: "Close" })).toBeHidden();
 });
