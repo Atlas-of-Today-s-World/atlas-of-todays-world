@@ -3,6 +3,7 @@ import ContentRail from "@/components/ContentRail";
 import MapFocus from "@/components/map/MapFocus";
 import { SectionLabel } from "@/components/atlas/ui";
 import type { Atlas } from "@/features/geography/types";
+import { getT } from "@/features/i18n/request";
 import { cssBackgroundImage } from "@/lib/security/urls";
 import type { EntrySummary } from "../queries";
 
@@ -62,7 +63,7 @@ export function ArticleFrame({
           ) : null}
 
           <div className="px-6 pt-7 pb-12 sm:px-10">
-            <SectionLabel>{item.category}</SectionLabel>
+            <SectionLabel>{getT().categories[item.category]}</SectionLabel>
 
             <h1 className="font-display mt-4 text-[30px] leading-tight font-bold text-[var(--color-ink)]">
               {item.title}

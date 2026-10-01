@@ -1,4 +1,5 @@
 import { getEntry } from "@/features/entries/queries";
+import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import { OG_SIZE, renderOg } from "@/lib/og";
 
@@ -11,10 +12,12 @@ export default async function Image({
 }: {
   params: Promise<{ locale: string; slug: string }>;
 }) {
-  const entry = await getEntry((await params).slug, await localeFrom(params));
+  const locale = await localeFrom(params);
+  const messages = getMessages(locale);
+  const entry = await getEntry((await params).slug, locale);
   return renderOg({
-    kicker: entry?.category ?? "News",
-    title: entry?.title ?? "Atlas of Today's World",
+    kicker: entry ? messages.categories[entry.category] : messages.og.news,
+    title: entry?.title ?? messages.og.site,
     subtitle: entry?.summary,
   });
 }

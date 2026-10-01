@@ -202,5 +202,32 @@
     "population": "It is home to about {population} people.",
     "hdi": "Its Human Development Index of {value} ranks it {rank} of {of} countries ({year}).",
     "regime": "Its political system is classified as {regime}."
+  },
+  "article": {
+    "by": "By {author}",
+    "minRead": "{minutes} min read",
+    "published": "Published",
+    "updated": "Last updated",
+    "summary": "Summary",
+    "chapters": "Chapters",
+    "inThisEntry": "In this entry",
+    "chapter": "Chapter {number}",
+    "readChapter": "Read the full chapter",
+    "closeChapter": "Close the chapter",
+    "listen": "Listen to this chapter",
+    "audioLabel": "Audio version: {title}",
+    "downloadAudio": "Download the audio version",
+    "transcript": "The transcript is the full chapter text below.",
+    "aboutAuthor": "About the author: {name}",
+    "photoOf": "Photo of {name}",
+    "positionality": "Positionality statement"
+  },
+  "og": {
+    "site": "Atlas of Today's World",
+    "country": "Country profile",
+    "region": "World region",
+    "issue": "Global issue",
+    "news": "News",
+    "entry": "Encyclopedic entry"
   }
 }

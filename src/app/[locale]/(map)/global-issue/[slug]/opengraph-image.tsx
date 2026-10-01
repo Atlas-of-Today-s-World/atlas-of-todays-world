@@ -1,4 +1,5 @@
 import { getAtlas } from "@/features/geography/queries";
+import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import { OG_SIZE, renderOg } from "@/lib/og";
 
@@ -11,10 +12,12 @@ export default async function Image({
 }: {
   params: Promise<{ locale: string; slug: string }>;
 }) {
-  const issue = (await getAtlas(await localeFrom(params))).issueBySlug.get((await params).slug);
+  const locale = await localeFrom(params);
+  const t = getMessages(locale).og;
+  const issue = (await getAtlas(locale)).issueBySlug.get((await params).slug);
   return renderOg({
-    kicker: "Global issue",
-    title: issue?.name ?? "Atlas of Today's World",
+    kicker: t.issue,
+    title: issue?.name ?? t.site,
     subtitle: issue?.subtitle || issue?.summary,
     accent: issue?.fill,
   });

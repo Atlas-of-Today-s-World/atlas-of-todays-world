@@ -202,5 +202,32 @@
     "population": "Žije zde přibližně {population} obyvatel.",
     "hdi": "Index lidského rozvoje {value} ji řadí na {rank}. místo ze {of} zemí ({year}).",
     "regime": "Její politický systém je klasifikován jako: {regime}."
+  },
+  "article": {
+    "by": "Autor: {author}",
+    "minRead": "{minutes} min čtení",
+    "published": "Zveřejněno",
+    "updated": "Aktualizováno",
+    "summary": "Shrnutí",
+    "chapters": "Kapitoly",
+    "inThisEntry": "V tomto hesle",
+    "chapter": "Kapitola {number}",
+    "readChapter": "Číst celou kapitolu",
+    "closeChapter": "Zavřít kapitolu",
+    "listen": "Poslechněte si kapitolu",
+    "audioLabel": "Zvuková verze: {title}",
+    "downloadAudio": "Stáhnout zvukovou verzi",
+    "transcript": "Přepisem je celý text kapitoly níže.",
+    "aboutAuthor": "O autorovi: {name}",
+    "photoOf": "Fotografie: {name}",
+    "positionality": "Positionality statement"
+  },
+  "og": {
+    "site": "Atlas of Today's World",
+    "country": "Profil země",
+    "region": "Světový region",
+    "issue": "Globální téma",
+    "news": "Novinky",
+    "entry": "Encyklopedické heslo"
   }
 }
