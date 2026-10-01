@@ -108,12 +108,14 @@ export function AccountForm({
 
       {role?.approval_scope === "assigned" ? (
         <fieldset className="grid gap-4 rounded-xl border border-[var(--color-line)] p-4">
-          <legend className="px-1 text-[13px] font-medium">What this approver approves</legend>
+          <legend className="px-1 text-[13px] font-medium">
+            Which articles this account approves
+          </legend>
           {isAdmin ? (
             <Checkbox
               name="approval_global"
               defaultChecked={account.approval_global}
-              label="Everything (global approver)"
+              label="All articles (global article approver)"
             />
           ) : (
             <input

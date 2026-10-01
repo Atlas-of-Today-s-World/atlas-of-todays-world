@@ -33,7 +33,7 @@ export default async function AreaPage({ params }: { params: Promise<{ slug: str
   return (
     <>
       <PageHeader
-        title={area?.name ?? "New area"}
+        title={area?.name ?? "New map area"}
         actions={
           area && can(access.permissions, "areas", "d") ? <DeleteArea slug={area.slug} /> : null
         }

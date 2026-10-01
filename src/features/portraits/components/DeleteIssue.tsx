@@ -10,7 +10,7 @@ export function DeleteIssue({ slug }: { slug: string }) {
     <ConfirmButton
       label="Delete"
       variant="danger"
-      title="Delete global issue?"
+      title="Delete country group?"
       body="It disappears from the map along with its portrait (timeline, resources, FAQ). Articles stay but lose the link."
       confirm="Delete"
       action={() => deleteIssue(slug)}

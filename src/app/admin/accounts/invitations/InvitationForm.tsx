@@ -55,8 +55,10 @@ export default function InvitationForm({
       </FormField>
       {role?.approval_scope === "assigned" ? (
         <fieldset className="grid gap-3 rounded-xl bg-[var(--color-line)]/25 p-4">
-          <legend className="sr-only">What they will approve</legend>
-          {isAdmin ? <Checkbox name="approvalGlobal" label="Everything (global approver)" /> : null}
+          <legend className="sr-only">Which articles they will approve</legend>
+          {isAdmin ? (
+            <Checkbox name="approvalGlobal" label="All articles (global article approver)" />
+          ) : null}
           <FormField id="invite-countries" label="Articles about these countries">
             <CountryPicker
               id="invite-countries"

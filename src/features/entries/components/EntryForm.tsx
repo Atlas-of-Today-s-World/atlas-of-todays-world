@@ -166,7 +166,7 @@ export function EntryForm({
             ))}
           </Select>
         </FormField>
-        <FormField id="special_slug" label="Global Issue" errors={errors.special_slug}>
+        <FormField id="special_slug" label="Country group" errors={errors.special_slug}>
           <Select id="special_slug" name="special_slug" defaultValue={values?.special_slug ?? ""}>
             <option value="">— none —</option>
             {issues.map((issue) => (

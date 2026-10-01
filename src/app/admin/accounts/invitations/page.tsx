@@ -16,7 +16,7 @@ import InvitationForm from "./InvitationForm";
 /** Prošlá pozvánka (stránka je dynamická, „teď" = čas požadavku). */
 const isPast = (iso: string) => new Date(iso).getTime() < Date.now();
 
-export const metadata: Metadata = { title: "Invitations" };
+export const metadata: Metadata = { title: "Team invitations" };
 
 const STATE = [
   { value: "valid", label: "Valid", tone: "accent" as const },
@@ -46,7 +46,7 @@ export default async function InvitationsPage() {
     <>
       <PageHeader
         icon={navIcon("/admin/accounts")}
-        title="Invitations"
+        title="Team invitations"
         lead={
           <>
             The team is invitation-only. The invitee signs in with Google using{" "}
@@ -69,7 +69,7 @@ export default async function InvitationsPage() {
         <DataTable
           tableKey="admin-invitations"
           caption="Sent invitations"
-          emptyTitle="No invitations yet"
+          emptyTitle="No team invitations yet"
           initialSort={{ key: "created", dir: "desc" }}
           stats={optionStats("state", STATE)}
           actionsWidth="48px"

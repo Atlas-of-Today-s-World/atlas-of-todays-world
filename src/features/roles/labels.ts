@@ -3,14 +3,14 @@ import type { SECTIONS } from "@/features/auth/sections";
 
 /** Popisky sekcí oprávnění (role_permissions.section) pro matici. */
 export const SECTION_LABEL: Record<(typeof SECTIONS)[number], string> = {
-  news: "News & entries",
-  approvals: "Approvals",
+  news: "Articles",
+  approvals: "Article approvals",
   regions: "Regions & countries",
-  specials: "Global Issues",
-  layers: "Data layers",
-  areas: "Map areas",
+  specials: "Country groups",
+  layers: "Map data layers",
+  areas: "Custom map areas",
   appearance: "Map appearance",
-  users: "Accounts",
+  users: "Accounts & invitations",
   permissions: "Roles & permissions",
-  members: "Members",
+  members: "Patron memberships",
 };

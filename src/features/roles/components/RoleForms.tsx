@@ -52,14 +52,14 @@ export function RoleForm({ role }: { role: RoleValues | null }) {
           errors={errors.news_scope}
         >
           <Select id={`${prefix}-news`} name="news_scope" defaultValue={role?.news_scope ?? "none"}>
-            <option value="none">none</option>
-            <option value="own">own only</option>
-            <option value="all">all</option>
+            <option value="none">None</option>
+            <option value="own">Only their own</option>
+            <option value="all">All articles</option>
           </Select>
         </FormField>
         <FormField
           id={`${prefix}-approval`}
-          label="What they approve"
+          label="Which articles they approve"
           errors={errors.approval_scope}
         >
           <Select
@@ -67,9 +67,9 @@ export function RoleForm({ role }: { role: RoleValues | null }) {
             name="approval_scope"
             defaultValue={role?.approval_scope ?? "none"}
           >
-            <option value="none">nothing</option>
-            <option value="assigned">assigned countries and authors</option>
-            <option value="global">everything</option>
+            <option value="none">None</option>
+            <option value="assigned">Articles of assigned countries and authors</option>
+            <option value="global">All articles</option>
           </Select>
         </FormField>
       </div>

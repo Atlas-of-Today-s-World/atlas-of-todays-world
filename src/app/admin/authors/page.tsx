@@ -11,7 +11,7 @@ import { can, sectionAccess } from "@/features/auth/access";
 import { deleteAuthor } from "@/features/authors/actions";
 import { listAuthors } from "@/features/authors/editorial";
 
-export const metadata: Metadata = { title: "Authors" };
+export const metadata: Metadata = { title: "Author profiles" };
 
 const DONE = [
   { value: "yes", label: "Filled in", tone: "success" as const },
@@ -32,12 +32,12 @@ export default async function AuthorsPage() {
     <>
       <PageHeader
         icon={navIcon("/admin/authors")}
-        title="Authors"
-        lead="People who write encyclopedia entries. Each entry shows their photo, bio and positionality statement."
+        title="Author profiles"
+        lead="Public profiles of the people who write encyclopedia entries. Each entry shows its author's photo, bio and positionality statement."
         actions={
           can(access.permissions, "news", "c") ? (
             <Link href="/admin/authors/new" className={buttonVariants({ size: "sm" })}>
-              Add author
+              Add author profile
             </Link>
           ) : null
         }
@@ -45,7 +45,7 @@ export default async function AuthorsPage() {
       <DataTable
         tableKey="admin-authors"
         caption="Authors"
-        emptyTitle="No authors yet"
+        emptyTitle="No author profiles yet"
         initialSort={{ key: "name", dir: "asc" }}
         stats={[
           { key: "all", label: "All" },

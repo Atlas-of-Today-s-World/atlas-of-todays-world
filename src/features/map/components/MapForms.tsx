@@ -177,7 +177,7 @@ export function AreaForm({
       </FormField>
       <ActionStatus state={state} />
       <div>
-        <SubmitButton>{area ? "Save area" : "Create area"}</SubmitButton>
+        <SubmitButton>{area ? "Save map area" : "Create map area"}</SubmitButton>
       </div>
     </ActionForm>
   );

@@ -80,7 +80,9 @@ export function AuthorForm({ author }: { author: AuthorRow | null }) {
       </FormField>
 
       <div className="flex flex-wrap items-center gap-3">
-        <SubmitButton pending="Saving…">{author ? "Save changes" : "Add author"}</SubmitButton>
+        <SubmitButton pending="Saving…">
+          {author ? "Save changes" : "Add author profile"}
+        </SubmitButton>
         <ActionStatus state={state} />
       </div>
     </ActionForm>

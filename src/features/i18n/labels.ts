@@ -13,7 +13,7 @@ export const FIELD_LABELS: Record<string, string> = {
   subtitle: "Subtitle",
   summary: "Summary",
   blurb: "Short description",
-  profile_html: "Profil (HTML)",
+  profile_html: "Profile (HTML)",
   label: "Indicator name",
   short_label: "Short name",
   description: "Description",
@@ -22,6 +22,6 @@ export const FIELD_LABELS: Record<string, string> = {
 export const ENTITY_LABELS = {
   region: "Regions",
   country: "Countries",
-  issue: "Global Issues",
+  issue: "Country groups",
   indicator: "Indicators",
 } as const;

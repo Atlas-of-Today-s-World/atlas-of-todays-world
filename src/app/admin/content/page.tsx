@@ -15,7 +15,7 @@ import { STATUS_OPTIONS } from "@/features/entries/components/StatusBadge";
 import { listEntries } from "@/features/entries/editorial";
 import { ENTRY_STATUSES, type EntryStatus } from "@/features/entries/schema";
 
-export const metadata: Metadata = { title: "News & entries" };
+export const metadata: Metadata = { title: "Articles" };
 
 export default async function EntriesPage({
   searchParams,
@@ -40,8 +40,8 @@ export default async function EntriesPage({
     <>
       <PageHeader
         icon={navIcon("/admin/content")}
-        title="News & entries"
-        lead="Drafts, articles pending approval and published content. Publishing always goes through approval."
+        title="Articles"
+        lead="News articles and encyclopedia entries — drafts, pending approval and published. Publishing always goes through Article approvals."
         actions={
           can(access.permissions, "news", "c") ? (
             <Link href="/admin/content/new" className={buttonVariants({ size: "sm" })}>
@@ -61,7 +61,7 @@ export default async function EntriesPage({
         stats={optionStats("status", STATUS_OPTIONS)}
         toolbar={
           <ToolbarLink href={mineHref} active={mine}>
-            <UserRound aria-hidden className="size-3.5" /> Only mine
+            <UserRound aria-hidden className="size-3.5" /> Only my articles
           </ToolbarLink>
         }
         actionsWidth="64px"

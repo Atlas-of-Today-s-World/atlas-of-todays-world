@@ -66,7 +66,7 @@ export function EntryWorkflow({
             label="Submit for approval"
             variant="primary"
             title="Submit for approval?"
-            body="Approvers will see the article. You can keep editing it until they decide."
+            body="Article approvers will see it. You can keep editing it until they decide."
             confirm="Submit"
             action={() => submitEntry(id)}
             onDone={done}

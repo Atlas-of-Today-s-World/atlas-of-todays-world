@@ -111,7 +111,7 @@ export default async function EditEntryPage({
           ) : (
             <p className="rounded-xl bg-[var(--color-line)]/30 p-4 text-[13.5px]">
               {entry.status === "published"
-                ? "A published article can only be edited by someone who may also approve it. Ask an approver, or have it unpublished."
+                ? "A published article can only be edited by someone who may also approve it. Ask an article approver, or have it unpublished."
                 : "You can't edit this article."}
             </p>
           )}
