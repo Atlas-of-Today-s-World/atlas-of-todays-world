@@ -50,7 +50,7 @@ Každý vizuální vzor, konstanta a datová definice existuje **právě jednou*
 3. **Žádná magická čísla**: šířky panelu, breakpointy, z-indexy, 44 px cíle jen z tokenů / `config/layout.ts`.
 4. **Jedna datová definice**: menu z `config/navigation.ts`; kategorie, sekce, typy z DB typů nebo jednoho `const`.
 5. **Stejná data = stejná komponenta**: region i global issue → `Portrait`; všechny karusely → `Rail`;
-   formuláře → `FormField` + Zod + `useActionState`; tabulky → `DataTable`; ikony → `lucide-react`;
+   formuláře → `FormField` + Zod + `useActionState`; tabulky → `DataTable` (skill `atlas-datatable`, vždy s akcemi v řádku); ikony → `lucide-react`;
    volání serveru z klienta → Server Action nebo `apiFetch()`, nikdy ruční `fetch` v komponentě.
 6. **Při úpravě souboru s duplicitou z tabulky D1–D8** (ARCHITEKTURA 15.3) ji v témže PR odstraň nebo
    zapiš, proč ne. Nezaváděj nové výskyty.
@@ -121,3 +121,15 @@ Oprava chyby začíná testem, který ji reprodukuje. Server Action = unit test 
   nikdy force-push na `main` bez výslovného souhlasu vlastníka.
 - Supabase projekty: `ewbzkxialhtwuqlenjof` (prod), `bognwszwhxxyjafqzfuh` (`atlas-dev` — preview, e2e, zkoušení migrací; **testy a pokusy vždy sem, nikdy do prod**). Tajné údaje lokálně jen v `.env.deploy.local` (gitignored);
   nevypisuj jejich hodnoty do výstupu.
+
+## Pracovní dohody (projektová paměť)
+
+- **GitHub účet:** pro tento repozitář jen účet vlastníka `vojtechgottvald` přes `GH_TOKEN` z `.env.deploy.local`
+  (`gh` s tímto tokenem, push přes `git -c credential.helper='!gh auth git-credential'`). Jiné globálně
+  přihlášené účty v shellu nepoužívej a globální přihlášení neměň. Token nikdy nevypisuj.
+- **Paralelní session:** na plánu pracuje víc session najednou. Před větší změnou se domluv (vlastnictví souborů,
+  čísla migrací, pořadí slučování); jeden úkol = jedna větev = jeden PR, žádné společné rozpracované soubory.
+- **Komentáře a názvy testů anglicky**, texty UI administrace anglicky, veřejný web přes `src/messages/{en,cs}.json`.
+- **Migrace a atlas-dev:** e2e v CI běží proti `atlas-dev`; novou migraci aplikuj na `atlas-dev` dřív, než na ni
+  spoléháš v e2e (ověř project-ref = dev).
+- **Tajné údaje** jen v GitHub Secrets / `.env*.local` (gitignored); repo je veřejné.
