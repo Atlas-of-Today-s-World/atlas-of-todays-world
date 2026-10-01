@@ -32,24 +32,24 @@ export interface AdminNavItem {
 /** Jediná definice menu administrace (ARCHITEKTURA 5.2); zobrazí se jen sekce s právem „v". */
 export const ADMIN_NAV: readonly AdminNavItem[] = [
   { href: "/admin", label: "Overview", section: null, icon: LayoutDashboard },
-  { href: "/admin/content", label: "News & entries", section: "news", icon: Newspaper },
-  { href: "/admin/authors", label: "Authors", section: "news", icon: PenLine },
-  { href: "/admin/approvals", label: "Approvals", section: "approvals", icon: BadgeCheck },
-  { href: "/admin/redirects", label: "Redirects", section: "news", icon: SignpostBig },
+  { href: "/admin/content", label: "Articles", section: "news", icon: Newspaper },
+  { href: "/admin/authors", label: "Author profiles", section: "news", icon: PenLine },
+  { href: "/admin/approvals", label: "Article approvals", section: "approvals", icon: BadgeCheck },
+  { href: "/admin/redirects", label: "URL redirects", section: "news", icon: SignpostBig },
   { href: "/admin/regions", label: "Regions & countries", section: "regions", icon: Globe2 },
-  { href: "/admin/global-issues", label: "Global Issues", section: "specials", icon: Shapes },
-  { href: "/admin/data", label: "Data layers", section: "layers", icon: Layers },
+  { href: "/admin/global-issues", label: "Country groups", section: "specials", icon: Shapes },
+  { href: "/admin/data", label: "Map data layers", section: "layers", icon: Layers },
   {
     href: "/admin/translations",
     label: "Translations",
     section: ["regions", "specials", "layers"],
     icon: Languages,
   },
-  { href: "/admin/areas", label: "Map areas", section: "areas", icon: MapIcon },
+  { href: "/admin/areas", label: "Custom map areas", section: "areas", icon: MapIcon },
   { href: "/admin/appearance", label: "Map appearance", section: "appearance", icon: Brush },
   { href: "/admin/accounts", label: "Accounts & invitations", section: "users", icon: Users },
   { href: "/admin/roles", label: "Roles & permissions", section: "permissions", icon: ShieldCheck },
-  { href: "/admin/members", label: "Members", section: "members", icon: UserRound },
+  { href: "/admin/members", label: "Patron memberships", section: "members", icon: UserRound },
 ];
 
 /** Ikona sekce podle adresy (dlaždice v PageHeader) — stejná jako v menu. */

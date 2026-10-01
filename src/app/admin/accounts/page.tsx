@@ -12,7 +12,7 @@ import { navIcon } from "@/config/admin-nav";
 import { sectionAccess } from "@/features/auth/access";
 import { listAccounts, listRoles } from "@/features/accounts/editorial";
 
-export const metadata: Metadata = { title: "Accounts" };
+export const metadata: Metadata = { title: "Team & reader accounts" };
 
 const STATUS = [
   { value: "active", label: "Active", tone: "success" as const },
@@ -34,11 +34,11 @@ export default async function AccountsPage({
     <>
       <PageHeader
         icon={navIcon("/admin/accounts")}
-        title="Accounts"
+        title="Team & reader accounts"
         lead="The Atlas team and registered readers. The team is invitation-only."
         actions={
           <Link href="/admin/accounts/invitations" className={buttonVariants({ size: "sm" })}>
-            Invitations
+            Team invitations
           </Link>
         }
       />
@@ -48,13 +48,13 @@ export default async function AccountsPage({
         caption={kind === "staff" ? "Team accounts" : "Reader accounts"}
         searchParam="q"
         searchPlaceholder="Email or name…"
-        emptyTitle="No accounts"
+        emptyTitle="No accounts found"
         initialSort={{ key: "email", dir: "asc" }}
         stats={optionStats("status", STATUS)}
         toolbar={
           <>
             <ToolbarLink kind="tab" href="/admin/accounts" active={kind === "staff"}>
-              Team
+              Team members
             </ToolbarLink>
             <ToolbarLink kind="tab" href="/admin/accounts?kind=readers" active={kind === "reader"}>
               Readers

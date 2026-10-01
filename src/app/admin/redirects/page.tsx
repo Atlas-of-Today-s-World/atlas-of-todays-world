@@ -11,7 +11,7 @@ import { deleteRedirect } from "@/features/redirects/actions";
 import { RedirectForm } from "@/features/redirects/components/RedirectForms";
 import { listRedirects } from "@/features/redirects/editorial";
 
-export const metadata: Metadata = { title: "Redirects" };
+export const metadata: Metadata = { title: "URL redirects" };
 
 const KIND = [
   { value: "permanent", label: "Permanent", tone: "accent" as const },
@@ -37,7 +37,7 @@ export default async function RedirectsPage({
     <>
       <PageHeader
         icon={navIcon("/admin/redirects")}
-        title="Redirects"
+        title="URL redirects"
         lead="When an article's or page's address changes, add a redirect from the old path to the new one. It applies only where the page would otherwise be “not found” — it never overrides an existing page."
       />
 
@@ -49,7 +49,7 @@ export default async function RedirectsPage({
           caption="Redirects"
           searchParam="q"
           searchPlaceholder="Search paths…"
-          emptyTitle="No redirects yet"
+          emptyTitle="No URL redirects yet"
           initialSort={{ key: "created", dir: "desc" }}
           stats={optionStats("kind", KIND)}
           actionsWidth="48px"

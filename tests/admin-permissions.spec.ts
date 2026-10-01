@@ -85,35 +85,41 @@ const forbidden = (page: Page) => expect(page.getByTestId("section-forbidden")).
 const MENU: Record<Exclude<(typeof ROLES)[number], "reader">, string[]> = {
   "content-editor": [
     "Overview",
-    "News & entries",
-    "Authors",
-    "Approvals",
-    "Redirects",
+    "Articles",
+    "Author profiles",
+    "Article approvals",
+    "URL redirects",
     "Regions & countries",
-    "Global Issues",
-    "Data layers",
+    "Country groups",
+    "Map data layers",
     "Translations",
   ],
-  "content-approver": ["Overview", "News & entries", "Authors", "Approvals", "Redirects"],
+  "content-approver": [
+    "Overview",
+    "Articles",
+    "Author profiles",
+    "Article approvals",
+    "URL redirects",
+  ],
   publisher: [
     "Overview",
-    "News & entries",
-    "Authors",
-    "Redirects",
+    "Articles",
+    "Author profiles",
+    "URL redirects",
     "Regions & countries",
-    "Data layers",
+    "Map data layers",
     "Translations",
   ],
   "data-editor": [
     "Overview",
     "Regions & countries",
-    "Global Issues",
-    "Data layers",
+    "Country groups",
+    "Map data layers",
     "Translations",
     "Map appearance",
   ],
-  observer: ["Overview", "News & entries", "Authors", "Redirects"],
-  [areasRole]: ["Overview", "Map areas"],
+  observer: ["Overview", "Articles", "Author profiles", "URL redirects"],
+  [areasRole]: ["Overview", "Custom map areas"],
 };
 
 test.describe("menu administrace", () => {
@@ -298,7 +304,7 @@ test.describe("mapové oblasti", () => {
   test("publisher ani data-editor na založení plochy nedosáhnou", async ({ page, browser }) => {
     await signInAs(page, "publisher", "/admin/areas/new");
     await forbidden(page);
-    await expect(page.getByRole("button", { name: "Create area" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Create map area" })).toHaveCount(0);
 
     const other = await (await browser.newContext()).newPage();
     await signInAs(other, "data-editor", "/admin/areas/new");
@@ -307,13 +313,13 @@ test.describe("mapové oblasti", () => {
 
   test("role s právem ploch plochu založí a smaže", async ({ page }) => {
     await signInAs(page, areasRole, "/admin/areas");
-    await page.getByRole("link", { name: "New area" }).click();
+    await page.getByRole("link", { name: "New map area" }).click();
     // Seznam má v hlavičce tabulky ovládání se jmény sloupců („Filter Name") — počkat na formulář.
     await expect(page).toHaveURL((url) => url.pathname === "/admin/areas/new");
     await page.getByLabel("Name").fill(`E2E plocha ${run}`);
     await page.getByLabel("Identifier").fill(slug);
     await page.getByLabel("Shape (GeoJSON Polygon)").fill(polygon);
-    await page.getByRole("button", { name: "Create area" }).click();
+    await page.getByRole("button", { name: "Create map area" }).click();
 
     await expect(page).toHaveURL((url) => url.pathname === `/admin/areas/${slug}`);
     const { data: created } = await service

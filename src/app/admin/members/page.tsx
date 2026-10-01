@@ -11,7 +11,7 @@ import { GrantForm } from "@/features/members/components/MemberForms";
 import { PLAN_LABEL } from "@/features/members/labels";
 import { createServerClient } from "@/lib/supabase/server";
 
-export const metadata: Metadata = { title: "Members" };
+export const metadata: Metadata = { title: "Patron memberships" };
 
 const PLANS = (["patron", "founding", "institution"] as const).map((plan) => ({
   value: plan,
@@ -43,12 +43,14 @@ export default async function MembersPage() {
     <>
       <PageHeader
         icon={navIcon("/admin/members")}
-        title="Members"
-        lead="Atlas Patrons. Paid memberships are managed by the payment gateway; here you only get an overview and complimentary memberships."
+        title="Patron memberships"
+        lead="Atlas Patron memberships of reader accounts. Paid memberships are managed by the payment gateway; here you get an overview and can grant complimentary ones."
       />
       {isAdmin ? (
         <section className="mb-10">
-          <h2 className="font-display mb-3 text-[17px] font-bold">Complimentary membership</h2>
+          <h2 className="font-display mb-3 text-[17px] font-bold">
+            Grant a complimentary membership
+          </h2>
           <GrantForm
             accounts={all
               .filter((row) => row.plan === "none")
@@ -58,15 +60,15 @@ export default async function MembersPage() {
       ) : null}
       <DataTable
         tableKey="admin-members"
-        caption="Members"
-        emptyTitle="No members yet"
+        caption="Patron memberships"
+        emptyTitle="No patron memberships yet"
         initialSort={{ key: "who", dir: "asc" }}
         stats={optionStats("plan", PLANS)}
         actionsWidth="48px"
         columns={[
           {
             key: "who",
-            label: "Account",
+            label: "Member account",
             sortable: true,
             filter: "text",
             width: "minmax(220px, 2fr)",

@@ -17,7 +17,7 @@ export function RedirectForm() {
       action={action}
       className="grid max-w-2xl gap-4 rounded-2xl border border-[var(--color-line)] p-5"
     >
-      <h2 className="font-display text-[17px] font-bold">New redirect</h2>
+      <h2 className="font-display text-[17px] font-bold">New URL redirect</h2>
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField
           id="redirect-from"

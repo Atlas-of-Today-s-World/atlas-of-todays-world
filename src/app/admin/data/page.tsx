@@ -11,7 +11,7 @@ import { navIcon } from "@/config/admin-nav";
 import { can, sectionAccess } from "@/features/auth/access";
 import { getAtlas } from "@/features/geography/queries";
 
-export const metadata: Metadata = { title: "Data layers" };
+export const metadata: Metadata = { title: "Map data layers" };
 
 const TYPES = [
   { value: "sequential", label: "Scale", tone: "accent" as const },
@@ -27,8 +27,8 @@ export default async function DataPage() {
     <>
       <PageHeader
         icon={navIcon("/admin/data")}
-        title="Data layers"
-        lead="Indicators that color the globe. Values imported from Our World in Data can be corrected with a manual, sourced value; create custom layers here."
+        title="Map data layers"
+        lead="Indicators that color the globe — each one is a map data layer. Values imported from Our World in Data can be corrected with a manual, sourced value; create custom layers here."
         actions={
           can(access.permissions, "layers", "c") ? (
             <Link href="/admin/data/new" className={buttonVariants({ size: "sm" })}>

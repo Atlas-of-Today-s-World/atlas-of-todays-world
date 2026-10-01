@@ -42,13 +42,17 @@ export default async function AdminHome() {
 
       <div className="grid gap-4 sm:grid-cols-3">
         {writes ? (
-          <Tile href="/admin/content?mine=1&status=draft" value={drafts.length} label="my drafts" />
+          <Tile
+            href="/admin/content?mine=1&status=draft"
+            value={drafts.length}
+            label="my article drafts"
+          />
         ) : null}
         {writes ? (
           <Tile
             href="/admin/content?mine=1&status=draft"
             value={returned.length}
-            label="returned for changes"
+            label="my articles returned for changes"
             tone={returned.length ? "warn" : undefined}
           />
         ) : null}
@@ -56,7 +60,7 @@ export default async function AdminHome() {
           <Tile
             href="/admin/approvals"
             value={forMe.length}
-            label="awaiting my approval"
+            label="articles awaiting my approval"
             tone={forMe.length ? "warn" : undefined}
           />
         ) : null}
@@ -64,7 +68,9 @@ export default async function AdminHome() {
 
       {returned.length ? (
         <section className="mt-10">
-          <h2 className="font-display mb-3 text-[17px] font-bold">Returned for changes</h2>
+          <h2 className="font-display mb-3 text-[17px] font-bold">
+            Articles returned to you for changes
+          </h2>
           <ul className="grid gap-2">
             {returned.map((entry) => (
               <li key={entry.id} className="rounded-xl border border-amber-300 bg-amber-50 p-3">
@@ -79,7 +85,7 @@ export default async function AdminHome() {
       ) : null}
 
       <section className="mt-10">
-        <h2 className="font-display mb-3 text-[17px] font-bold">Your sections</h2>
+        <h2 className="font-display mb-3 text-[17px] font-bold">Sections you can open</h2>
         <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {sections.map((item) => (
             <li key={item.href}>

@@ -8,11 +8,11 @@ import { navIcon } from "@/config/admin-nav";
 import { sectionAccess } from "@/features/auth/access";
 import { approvalQueue } from "@/features/entries/editorial";
 
-export const metadata: Metadata = { title: "Approvals" };
+export const metadata: Metadata = { title: "Article approvals" };
 
 const WHO = [
   { value: "you", label: "You can approve", tone: "success" as const },
-  { value: "others", label: "Other approvers", tone: "neutral" as const },
+  { value: "others", label: "Another approver", tone: "neutral" as const },
 ];
 
 /**
@@ -28,15 +28,15 @@ export default async function ApprovalsPage() {
     <>
       <PageHeader
         icon={navIcon("/admin/approvals")}
-        title="Approvals"
+        title="Article approvals"
         lead="Articles waiting for a second pair of eyes. Open an article, compare it with the published version, then approve it or return it with a note."
       />
       <DataTable
         tableKey="admin-approvals"
         caption="Articles waiting for approval"
-        emptyTitle="Nothing is waiting for approval"
+        emptyTitle="No articles are waiting for approval"
         initialSort={{ key: "submitted", dir: "asc" }}
-        stats={optionStats("who", WHO, "All pending")}
+        stats={optionStats("who", WHO, "All awaiting approval")}
         actionsWidth="48px"
         columns={[
           {
@@ -49,7 +49,7 @@ export default async function ApprovalsPage() {
           },
           {
             key: "who",
-            label: "Approver",
+            label: "Who approves",
             kind: "badge",
             options: WHO,
             filter: "select",
@@ -75,7 +75,12 @@ export default async function ApprovalsPage() {
           actions: (
             <RowActions
               actions={[
-                { kind: "link", icon: "view", label: "Review", href: `/admin/content/${row.id}` },
+                {
+                  kind: "link",
+                  icon: "view",
+                  label: "Review article",
+                  href: `/admin/content/${row.id}`,
+                },
               ]}
             />
           ),

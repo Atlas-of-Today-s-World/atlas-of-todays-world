@@ -11,7 +11,7 @@ import { can, sectionAccess } from "@/features/auth/access";
 import { getAtlas } from "@/features/geography/queries";
 import { deleteArea } from "@/features/map/actions";
 
-export const metadata: Metadata = { title: "Map areas" };
+export const metadata: Metadata = { title: "Custom map areas" };
 
 export default async function AreasPage() {
   const access = await sectionAccess("areas");
@@ -22,20 +22,20 @@ export default async function AreasPage() {
     <>
       <PageHeader
         icon={navIcon("/admin/areas")}
-        title="Map areas"
+        title="Custom map areas"
         lead="Custom areas on the globe that don't follow state borders — occupied territories, river basins, front lines."
         actions={
           can(access.permissions, "areas", "c") ? (
             <Link href="/admin/areas/new" className={buttonVariants({ size: "sm" })}>
-              New area
+              New map area
             </Link>
           ) : null
         }
       />
       <DataTable
         tableKey="admin-areas"
-        caption="Map areas"
-        emptyTitle="No areas yet"
+        caption="Custom map areas"
+        emptyTitle="No custom map areas yet"
         initialSort={{ key: "name", dir: "asc" }}
         actionsWidth={canDelete ? "72px" : "48px"}
         columns={[

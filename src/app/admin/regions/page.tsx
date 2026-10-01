@@ -26,7 +26,7 @@ export default async function RegionsPage() {
       <PageHeader
         icon={navIcon("/admin/regions")}
         title="Regions & countries"
-        lead="Portraits of the Atlas's nine regions and editorial country profiles. Indicator values live in Data layers."
+        lead="Portraits of the Atlas's nine regions and editorial country profiles. Indicator values live in Map data layers."
       />
       <DataTable
         compact

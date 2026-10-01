@@ -7,7 +7,7 @@ import { AuthorForm, DeleteAuthor } from "@/features/authors/components/AuthorFo
 import { getAuthor } from "@/features/authors/editorial";
 import { uuid } from "@/lib/validation/common";
 
-export const metadata: Metadata = { title: "Author" };
+export const metadata: Metadata = { title: "Author profile" };
 
 /** Nový autor (`/admin/authors/new`), nebo úprava existujícího. */
 export default async function AuthorPage({
@@ -25,7 +25,7 @@ export default async function AuthorPage({
     if (!can(access.permissions, "news", "c")) return <NoAccess />;
     return (
       <>
-        <PageHeader title="New author" />
+        <PageHeader title="New author profile" />
         <AuthorForm author={null} />
       </>
     );
@@ -40,7 +40,7 @@ export default async function AuthorPage({
     <>
       <PageHeader
         title={author.name}
-        lead={saved ? <span role="status">Author added.</span> : undefined}
+        lead={saved ? <span role="status">Author profile added.</span> : undefined}
       />
       <AuthorForm author={author} />
       {can(access.permissions, "news", "d") ? (

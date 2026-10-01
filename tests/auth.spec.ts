@@ -37,9 +37,9 @@ test.describe("účty a pozvánky", () => {
     // Přijatá pozvánka posílá rovnou do administrace.
     await expect(page).toHaveURL(/\/admin$/);
     const nav = page.getByRole("navigation", { name: "Administration" });
-    await expect(page.getByText(`${email} · Publisher`)).toBeVisible();
+    await expect(page.getByText(`${email} · Article writer`)).toBeVisible();
     // Menu jen ze sekcí, na které role má právo „v".
-    await expect(nav.getByRole("link", { name: "News & entries" })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "Articles" })).toBeVisible();
     await expect(nav.getByRole("link", { name: "Accounts & invitations" })).toHaveCount(0);
     await expect(nav.getByRole("link", { name: "Roles & permissions" })).toHaveCount(0);
 
