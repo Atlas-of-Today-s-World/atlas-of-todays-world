@@ -1387,3 +1387,32 @@ test("heslo: náhled přes odkaz vrátí i kapitoly, autora a zdroje", async () 
     0,
   );
 });
+
+test("překlady: čte je každý, píše jen sekce celku", async () => {
+  const row = ["country", "BRA", "name", "cs", "Brazílie"];
+  const insert =
+    "insert into translations (entity, entity_key, field, locale, value) values ($1, $2, $3, $4, $5)";
+  await as(null, () => refused(q(insert, row)));
+  await as(id.reader, () => refused(q(insert, row)));
+  // publisher nemá sekci regions; data-editor ukazatele (layers), ne země
+  await as(id.pubA, () => refused(q(insert, row)));
+  await as(id.admin, () => q(insert, row));
+  await as(id.admin, () =>
+    refused(q(insert, ["country", "BRA", "name", "en", "Brazil"]), /check constraint/),
+  );
+  await as(id.admin, () =>
+    refused(q(insert, ["planet", "X", "name", "cs", "X"]), /check constraint/),
+  );
+
+  const seen = await as(null, () =>
+    q("select value from translations where entity = 'country' and entity_key = 'BRA'"),
+  );
+  assert.deepEqual(seen, [{ value: "Brazílie" }]);
+  await as(null, () => refused(q("select updated_by from translations")));
+
+  const byPublisher = await as(id.pubA, () =>
+    q("update translations set value = 'X' where entity_key = 'BRA' returning value"),
+  );
+  assert.equal(byPublisher.length, 0);
+  await as(id.admin, () => q("delete from translations where entity_key = 'BRA'"));
+});

@@ -1718,6 +1718,51 @@ export type Database = {
           },
         ]
       }
+      translations: {
+        Row: {
+          entity: string
+          entity_key: string
+          field: string
+          locale: string
+          updated_at: string
+          updated_by: string | null
+          value: string
+        }
+        Insert: {
+          entity: string
+          entity_key: string
+          field: string
+          locale: string
+          updated_at?: string
+          updated_by?: string | null
+          value: string
+        }
+        Update: {
+          entity?: string
+          entity_key?: string
+          field?: string
+          locale?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "translations_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "members_overview"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "translations_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       visual_embeds: {
         Row: {
           caption: string
@@ -1933,6 +1978,7 @@ export type Database = {
         Returns: boolean
       }
       submit_entry: { Args: { p_entry: string }; Returns: undefined }
+      translation_section: { Args: { p_entity: string }; Returns: string }
       unpublish_entry: { Args: { p_entry: string }; Returns: undefined }
       unschedule_entry: { Args: { p_entry: string }; Returns: undefined }
       write_audit: {
