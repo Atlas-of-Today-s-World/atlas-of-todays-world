@@ -4,10 +4,30 @@ import { useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/field";
 import { cn } from "@/lib/cn";
-import { cssBackgroundImage, safeUrl } from "@/lib/security/urls";
+import { publicEnv } from "@/lib/env";
+import { cssBackgroundImage } from "@/lib/security/urls";
 import { ACCEPT_AUDIO, ACCEPT_IMAGES, uploadFile, type UploadKind } from "@/lib/upload";
 
 const ACCEPT: Record<UploadKind, string> = { image: ACCEPT_IMAGES, audio: ACCEPT_AUDIO };
+
+const STORAGE_PUBLIC = `${publicEnv.NEXT_PUBLIC_SUPABASE_URL ?? ""}/storage/v1/object/public/`;
+
+/** Veřejná adresa souboru v našem Supabase Storage, nebo null. */
+function storageAudioUrl(value: string): string | null {
+  if (!publicEnv.NEXT_PUBLIC_SUPABASE_URL || !value.startsWith(STORAGE_PUBLIC)) return null;
+  const path = value
+    .slice(STORAGE_PUBLIC.length)
+    .split("/")
+    .map((part) => {
+      try {
+        return encodeURIComponent(decodeURIComponent(part));
+      } catch {
+        return encodeURIComponent(part); // zkomolené %xx v adrese
+      }
+    })
+    .join("/");
+  return path ? `${STORAGE_PUBLIC}${path}` : null;
+}
 
 /**
  * Pole s adresou souboru: vložit https adresu, nebo nahrát soubor do Storage.
@@ -30,8 +50,9 @@ export function UploadField({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const preview = kind === "image" ? cssBackgroundImage(url) : undefined;
-  // Přehrávač jen pro https adresu (safeUrl zahodí i javascript: a data:).
-  const audio = kind === "audio" && /^https:\/\//.test(url) ? safeUrl(url) : null;
+  // Přehrávač jen pro soubor z našeho úložiště: adresa se skládá z pevné
+  // předpony a cesty souboru, ne z toho, co kdo napíše do pole.
+  const audio = kind === "audio" ? storageAudioUrl(url) : null;
 
   return (
     <div className="grid gap-2">
