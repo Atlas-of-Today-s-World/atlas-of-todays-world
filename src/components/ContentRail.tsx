@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocalizedRouter } from "@/components/i18n/useLocalizedRouter";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 
 /**
@@ -85,14 +86,15 @@ export default function ContentRail({
         {collapsed ? <ChevronLeft size={16} aria-hidden /> : <ChevronRight size={16} aria-hidden />}
       </button>
 
-      <button
-        type="button"
+      {/* Odkaz, ne tlačítko: zavře panel i před připojením Reactu. */}
+      <Link
+        href={closeHref}
         aria-label={t.common.close}
-        onClick={() => router.push(closeHref)}
+        data-print="hide"
         className="absolute top-2 right-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/85 text-[var(--color-ink-soft)] backdrop-blur transition hover:bg-[var(--color-line)] hover:text-[var(--color-ink)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] active:scale-95 md:top-3"
       >
         <X size={18} strokeWidth={1.8} aria-hidden />
-      </button>
+      </Link>
 
       <div className="panel-scroll max-h-[calc(72dvh-1.75rem)] overflow-y-auto overscroll-contain pb-6 md:h-full md:max-h-none md:pb-0">
         {children}

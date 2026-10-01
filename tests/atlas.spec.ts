@@ -59,9 +59,9 @@ test.describe("panel s obsahem", () => {
 
   test("křížek má pohodlný dotykový cíl a zavírá panel", async ({ page }) => {
     await page.goto("/country/ukraine");
-    await hasTouchTarget(page, 'button[aria-label="Close"]');
+    await hasTouchTarget(page, 'a[aria-label="Close"]');
 
-    await page.getByRole("button", { name: "Close" }).click();
+    await page.getByRole("link", { name: "Close" }).click();
     await expect(page).toHaveURL(/\/$/);
   });
 
@@ -69,7 +69,7 @@ test.describe("panel s obsahem", () => {
     await page.goto("/country/ukraine");
     // Klávesu obsluhuje až připojený React, takže počkáme, než panel ožije,
     // a klikneme do stránky – jinak klávesa nemá kam dorazit.
-    await expect(page.getByRole("button", { name: "Close" })).toBeEnabled();
+    await expect(page.getByRole("link", { name: "Close" })).toBeVisible();
 
     // Obsluha klávesy začne fungovat až po připojení Reactu. Kdy přesně to je,
     // se zvenčí spolehlivě poznat nedá, takže stisk opakujeme.
