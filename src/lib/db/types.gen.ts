@@ -276,6 +276,7 @@ export type Database = {
           approved_at: string | null
           approved_by: string | null
           area_id: string | null
+          audio_url: string | null
           author_id: string | null
           author_name: string | null
           body_html: string
@@ -298,6 +299,7 @@ export type Database = {
           special_slug: string | null
           status: string
           summary: string
+          summary_points: string[]
           title: string
           updated_at: string
         }
@@ -305,6 +307,7 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           area_id?: string | null
+          audio_url?: string | null
           author_id?: string | null
           author_name?: string | null
           body_html?: string
@@ -327,6 +330,7 @@ export type Database = {
           special_slug?: string | null
           status?: string
           summary?: string
+          summary_points?: string[]
           title: string
           updated_at?: string
         }
@@ -334,6 +338,7 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           area_id?: string | null
+          audio_url?: string | null
           author_id?: string | null
           author_name?: string | null
           body_html?: string
@@ -356,6 +361,7 @@ export type Database = {
           special_slug?: string | null
           status?: string
           summary?: string
+          summary_points?: string[]
           title?: string
           updated_at?: string
         }
@@ -1822,6 +1828,17 @@ export type Database = {
           updated_at: string
         }[]
       }
+      entry_preview_parts: {
+        Args: { p_token: string }
+        Returns: {
+          audio_url: string
+          author: Json
+          chapters: Json
+          kind: string
+          resources: Json
+          summary_points: string[]
+        }[]
+      }
       has_perm: {
         Args: { p_action: string; p_section: string }
         Returns: boolean
@@ -1865,10 +1882,24 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      planned_entries: {
+        Args: never
+        Returns: {
+          category: string
+          countries: string[]
+          region_slug: string
+          special_slug: string
+          title: string
+        }[]
+      }
       portrait: { Args: { p_kind: string; p_slug: string }; Returns: Json }
       publish_due_entries: { Args: never; Returns: number }
       purge_audit_log: { Args: never; Returns: number }
       record_page_view: { Args: never; Returns: undefined }
+      replace_entry_parts: {
+        Args: { p_entry: string; p_items: Json; p_part: string }
+        Returns: undefined
+      }
       replace_portrait_items: {
         Args: {
           p_collection: string
@@ -1897,6 +1928,10 @@ export type Database = {
       send_back_entry: {
         Args: { p_entry: string; p_note: string }
         Returns: undefined
+      }
+      short_items: {
+        Args: { p_items: number; p_len: number; p_values: string[] }
+        Returns: boolean
       }
       submit_entry: { Args: { p_entry: string }; Returns: undefined }
       unpublish_entry: { Args: { p_entry: string }; Returns: undefined }

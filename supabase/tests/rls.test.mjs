@@ -1206,3 +1206,170 @@ test("náhled: odkaz vytvoří jen redakce článku, otevře ho kdokoli s tokene
   );
   assert.ok(removed.length >= 1);
 });
+
+test("heslo: kapitoly a zdroje uloží jen redakce hesla, celé v jedné transakci", async () => {
+  const entry = await newEntry(id.pubA, "encyclopedia-draft", ["BRA"]);
+  const chapters = JSON.stringify([
+    { title: "Roots", summary_points: ["One", "Two", "Three"], body_html: "<p>A</p>" },
+    {
+      title: "Today",
+      summary_points: ["Four"],
+      body_html: "<p>B</p>",
+      illustration_url: "https://img.example/b.webp",
+      illustration_credit: "Photo: X",
+    },
+  ]);
+  const call = "select replace_entry_parts($1, 'chapters', $2::jsonb)";
+
+  // Cizí publisher, čtenář ani anonym kapitoly nezmění — ani prázdným seznamem.
+  await as(id.pubB, () => refused(q(call, [entry, "[]"]), /may not edit/));
+  await as(id.reader, () => refused(q(call, [entry, chapters])));
+  await as(null, () => refused(q(call, [entry, chapters])));
+
+  await as(id.pubA, () => q(call, [entry, chapters]));
+  const rows = await q(
+    "select position, title, summary_points from entry_chapters where entry_id = $1 order by position",
+    [entry],
+  );
+  assert.deepEqual(rows, [
+    { position: 0, title: "Roots", summary_points: ["One", "Two", "Three"] },
+    { position: 1, title: "Today", summary_points: ["Four"] },
+  ]);
+
+  // Šest odrážek nebo ilustrace bez https vrátí celé volání — kapitoly zůstanou.
+  await as(id.pubA, () =>
+    refused(
+      q(call, [
+        entry,
+        JSON.stringify([{ title: "Too many", summary_points: ["1", "2", "3", "4", "5", "6"] }]),
+      ]),
+    ),
+  );
+  await as(id.pubA, () =>
+    refused(q(call, [entry, JSON.stringify([{ title: "X", illustration_url: "http://bad" }])])),
+  );
+  await as(id.pubA, () =>
+    refused(q(call, [entry, JSON.stringify(Array.from({ length: 9 }, () => ({ title: "C" })))])),
+  );
+  assert.equal(
+    (await one("select count(*)::int n from entry_chapters where entry_id = $1", [entry])).n,
+    2,
+  );
+
+  // Zdroje hesla: stejná pravidla, neznámá část neprojde.
+  const resources = JSON.stringify([
+    { kind: "Lectures & Debates", title: "Talk", url: "https://talk.example" },
+  ]);
+  await as(id.pubA, () =>
+    q("select replace_entry_parts($1, 'resources', $2::jsonb)", [entry, resources]),
+  );
+  await as(id.pubA, () =>
+    refused(q("select replace_entry_parts($1, 'timeline', '[]'::jsonb)", [entry]), /Unknown/),
+  );
+
+  // Anonym kapitoly ani zdroje konceptu nevidí.
+  await as(null, async () => {
+    assert.equal((await q("select 1 from entry_chapters where entry_id = $1", [entry])).length, 0);
+    assert.equal((await q("select 1 from resources where entry_id = $1", [entry])).length, 0);
+  });
+});
+
+test("heslo: odrážky shrnutí a zvuk jen v limitu, anonym je čte u zveřejněného", async () => {
+  const entry = await newEntry(id.pubA, "encyclopedia-header");
+  await as(id.pubA, () =>
+    q(
+      "update entries set kind = 'entry', summary_points = $2, audio_url = 'https://cdn.example/a.mp3' where id = $1",
+      [entry, ["A", "B", "C"]],
+    ),
+  );
+  await as(id.pubA, () =>
+    refused(q("update entries set audio_url = 'http://cdn.example/a.mp3' where id = $1", [entry])),
+  );
+  await as(id.pubA, () =>
+    refused(q("update entries set summary_points = $2 where id = $1", [entry, ["x".repeat(301)]])),
+  );
+  // Sloupcová práva: anonym smí vyjmenovat nové sloupce (koncept ale nevidí).
+  await as(null, () => q("select summary_points, audio_url from entries where false"));
+});
+
+test("heslo: plánovaná hesla vidí každý, ale jen titulek a zařazení", async () => {
+  const entry = await newEntry(id.pubA, "planned-entry", ["BRA"], "planned");
+  await q("update entries set kind = 'entry', body_html = '<p>secret</p>' where id = $1", [entry]);
+  await newEntry(id.pubA, "planned-news", [], "planned"); // novinka se nepočítá
+
+  const rows = await as(null, () => q("select * from planned_entries()"));
+  const mine = rows.filter((row) => row.title === "planned-entry");
+  assert.equal(mine.length, 1);
+  assert.deepEqual(Object.keys(mine[0]).sort(), [
+    "category",
+    "countries",
+    "region_slug",
+    "special_slug",
+    "title",
+  ]);
+  assert.deepEqual(mine[0].countries, ["BRA"]);
+  assert.equal(rows.filter((row) => row.title === "planned-news").length, 0);
+  // Samotný řádek anonym dál nevidí.
+  await as(null, async () =>
+    assert.equal((await q("select 1 from entries where id = $1", [entry])).length, 0),
+  );
+});
+
+test("heslo: zvuk nahraje jen ten, kdo smí psát, jen do vlastní složky", async () => {
+  const bucket = await one(
+    "select allowed_mime_types from storage.buckets where id = 'entry-audio'",
+  );
+  for (const mime of ["audio/mpeg", "audio/mp4", "audio/ogg", "audio/wav", "audio/flac"]) {
+    assert.ok(bucket.allowed_mime_types.includes(mime), mime);
+  }
+  await as(id.pubA, () =>
+    q("insert into storage.objects (bucket_id, name) values ('entry-audio', $1)", [
+      `${id.pubA}/a.mp3`,
+    ]),
+  );
+  await as(id.pubA, () =>
+    refused(
+      q("insert into storage.objects (bucket_id, name) values ('entry-audio', $1)", [
+        `${id.pubB}/a.mp3`,
+      ]),
+    ),
+  );
+  await as(id.reader, () =>
+    refused(
+      q("insert into storage.objects (bucket_id, name) values ('entry-audio', $1)", [
+        `${id.reader}/a.mp3`,
+      ]),
+    ),
+  );
+});
+
+test("heslo: náhled přes odkaz vrátí i kapitoly, autora a zdroje", async () => {
+  const entry = await newEntry(id.pubA, "preview-encyclopedia");
+  const author = await one(
+    "insert into authors (name, positionality) values ('Ana', 'I grew up there.') returning id",
+  );
+  await q("update entries set kind = 'entry', author_id = $2, summary_points = $3 where id = $1", [
+    entry,
+    author.id,
+    ["Point"],
+  ]);
+  await as(id.pubA, () =>
+    q("select replace_entry_parts($1, 'chapters', $2::jsonb)", [
+      entry,
+      JSON.stringify([{ title: "One", body_html: "<p>x</p>" }]),
+    ]),
+  );
+  const { token } = await as(id.pubA, () =>
+    one("select create_preview_link($1, 24) as token", [entry]),
+  );
+  const parts = await as(null, () => one("select * from entry_preview_parts($1)", [token]));
+  assert.equal(parts.kind, "entry");
+  assert.deepEqual(parts.summary_points, ["Point"]);
+  assert.equal(parts.author.positionality, "I grew up there.");
+  assert.equal(parts.chapters[0].title, "One");
+  assert.deepEqual(parts.resources, []);
+  assert.equal(
+    (await as(null, () => q("select 1 from entry_preview_parts($1)", ["0".repeat(64)]))).length,
+    0,
+  );
+});
