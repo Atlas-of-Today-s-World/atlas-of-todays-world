@@ -6,6 +6,18 @@ updates:
       interval: weekly
       day: monday
     open-pull-requests-limit: 5
+    # Major verze těchto balíčků vyžadují migraci (plán: A9 MapLibre 6, Next 16 + TS 7).
+    ignore:
+      - dependency-name: "maplibre-gl"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "eslint-config-next"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
     groups:
       # Drobné aktualizace v jednom PR, ať se v nich neutopíme.
       minor-and-patch:

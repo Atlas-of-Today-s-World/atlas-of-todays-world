@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { search } from "@/lib/search";
+import { buttonVariants } from "@/components/ui/button";
 
 /**
  * Serverová stránka výsledků. Existuje kvůli SearchAction ve strukturovaných
@@ -35,14 +36,13 @@ export default async function SearchPage({
       <form action="/search" method="get" className="mt-6 flex gap-2">
         <input
           name="q"
+          type="search"
+          aria-label="Search the Atlas"
           defaultValue={query}
           placeholder="Try “political situation in Russia”"
           className="w-full rounded-full border border-[var(--color-line)] px-4 py-2.5 text-[14px] text-[var(--color-ink)] focus:border-[var(--color-accent)] focus:outline-none"
         />
-        <button
-          type="submit"
-          className="shrink-0 rounded-full bg-[var(--color-accent)] px-6 py-2.5 text-[14px] font-medium text-white"
-        >
+        <button type="submit" className={buttonVariants({ className: "shrink-0" })}>
           Search
         </button>
       </form>

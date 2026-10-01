@@ -1,0 +1,99 @@
+{
+  "ci": {
+    "collect": {
+      "url": [
+        "http://localhost:3000/",
+        "http://localhost:3000/country/ukraine",
+        "http://localhost:3000/region/eastern-europe-central-asia",
+        "http://localhost:3000/news"
+      ],
+      "numberOfRuns": 2,
+      "settings": {
+        "preset": "desktop",
+        "chromeFlags": "--headless=new --no-sandbox"
+      }
+    },
+    "assert": {
+      "assertMatrix": [
+        {
+          "matchingUrlPattern": "^(?!.*/region/).*$",
+          "assertions": {
+            "largest-contentful-paint": [
+              "error",
+              {
+                "maxNumericValue": 2500,
+                "aggregationMethod": "optimistic"
+              }
+            ],
+            "resource-summary:script:size": [
+              "error",
+              {
+                "maxNumericValue": 512000
+              }
+            ],
+            "categories:accessibility": [
+              "error",
+              {
+                "minScore": 0.9
+              }
+            ],
+            "categories:seo": [
+              "error",
+              {
+                "minScore": 0.9
+              }
+            ],
+            "categories:performance": [
+              "warn",
+              {
+                "minScore": 0.85,
+                "aggregationMethod": "optimistic"
+              }
+            ]
+          }
+        },
+        {
+          "matchingUrlPattern": ".*/region/.*",
+          "assertions": {
+            "largest-contentful-paint": [
+              "warn",
+              {
+                "maxNumericValue": 2500,
+                "aggregationMethod": "optimistic"
+              }
+            ],
+            "resource-summary:script:size": [
+              "error",
+              {
+                "maxNumericValue": 512000
+              }
+            ],
+            "categories:accessibility": [
+              "error",
+              {
+                "minScore": 0.9
+              }
+            ],
+            "categories:seo": [
+              "error",
+              {
+                "minScore": 0.9
+              }
+            ],
+            "categories:performance": [
+              "warn",
+              {
+                "minScore": 0.85,
+                "aggregationMethod": "optimistic"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": ".lighthouseci"
+    }
+  }
+}

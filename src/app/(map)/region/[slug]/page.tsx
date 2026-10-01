@@ -1,19 +1,23 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ContentRail from "@/components/ContentRail";
-import RegionPortrait from "@/components/RegionPortrait";
+import Portrait, { newsCards } from "@/components/portrait/Portrait";
 import MapFocus from "@/components/map/MapFocus";
-import { REGIONS, REGION_BY_SLUG } from "@/data/regions";
-import { countriesOfRegion } from "@/lib/countries";
-import { newsOfRegion, regionDossier } from "@/lib/content";
-import { population, regionStats } from "@/lib/region-stats";
+import { entriesOfRegion, getEntries } from "@/features/entries/queries";
+import { countriesOf } from "@/features/geography/model";
+import { getAtlas } from "@/features/geography/queries";
+import { getPortrait } from "@/features/portraits/queries";
+import { groupStats, population } from "@/lib/region-stats";
 import { absoluteUrl, alternates, breadcrumbJsonLd, geoCoordinates, geoMeta } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
 
-export const dynamicParams = false;
+// true: s false vrací Next po revalidateTag (zápis v administraci) 404 i pro
+// existující stránky (NoFallbackError). Neznámý slug skončí přes notFound().
+export const dynamicParams = true;
 
-export function generateStaticParams() {
-  return REGIONS.map((region) => ({ slug: region.slug }));
+export async function generateStaticParams() {
+  const { regions } = await getAtlas();
+  return regions.map((region) => ({ slug: region.slug }));
 }
 
 export async function generateMetadata({
@@ -22,7 +26,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const region = REGION_BY_SLUG[slug];
+  const region = (await getAtlas()).regionBySlug.get(slug);
   if (!region) return {};
   return {
     title: region.name,
@@ -32,7 +36,6 @@ export async function generateMetadata({
       title: `${region.name} — Atlas of Today's World`,
       description: region.summary.slice(0, 180),
       url: absoluteUrl(`/region/${region.slug}`),
-      images: region.hero ? [region.hero] : undefined,
     },
     other: geoMeta({
       lat: region.center[1],
@@ -48,14 +51,13 @@ export async function generateMetadata({
  */
 export default async function RegionPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const region = REGION_BY_SLUG[slug];
+  const atlas = await getAtlas();
+  const region = atlas.regionBySlug.get(slug);
   if (!region) notFound();
 
-  const countries = countriesOfRegion(region);
-  const [newsItems, dossier] = await Promise.all([
-    newsOfRegion(region.slug),
-    regionDossier(region.slug),
-  ]);
+  const countries = countriesOf(atlas, region.countries);
+  const [entries, dossier] = await Promise.all([getEntries(), getPortrait("region", region.slug)]);
+  const newsItems = entriesOfRegion(entries, region.slug);
 
   return (
     <>
@@ -66,13 +68,18 @@ export default async function RegionPage({ params }: { params: Promise<{ slug: s
         regionStroke={region.stroke}
       />
       <ContentRail wide>
-        <RegionPortrait
-          region={region}
-          newsItems={newsItems}
+        <Portrait
+          subject={{
+            kind: "region",
+            name: region.name,
+            summary: region.summary,
+            hero: region.hero,
+            countries: countries.map(({ slug, name }) => ({ slug, name })),
+            population: population(countries),
+          }}
+          news={newsCards(newsItems)}
           dossier={dossier}
-          stats={regionStats(region)}
-          countryCount={countries.length}
-          population={population(countries)}
+          stats={groupStats(countries, atlas.indicatorById)}
         />
       </ContentRail>
 
@@ -85,7 +92,7 @@ export default async function RegionPage({ params }: { params: Promise<{ slug: s
             name: region.name,
             description: region.summary,
             url: absoluteUrl(`/region/${region.slug}`),
-            image: region.hero,
+            image: region.hero ?? undefined,
             hasMap: absoluteUrl(`/region/${region.slug}`),
             geo: geoCoordinates(region.center[1], region.center[0]),
             containsPlace: countries.map((country) => ({

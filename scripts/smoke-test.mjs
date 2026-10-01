@@ -198,11 +198,10 @@ async function main() {
     assert(headers.get("x-frame-options") === "DENY", "chybí X-Frame-Options");
   });
 
-  await check("administrace je zamčená, když má heslo", async () => {
-    const { status } = await get("/admin");
-    const locked = status === 307 || status === 404;
-    const open = status === 200 && !process.env.ADMIN_TOKEN;
-    assert(locked || open, `s nastaveným ADMIN_TOKEN čekám přesměrování, dostal jsem ${status}`);
+  await check("administrace bez přihlášení vede na /login", async () => {
+    const { status, headers } = await get("/admin");
+    assert(status === 307 || status === 302, `/admin vrátil ${status}`);
+    assert(headers.get("location")?.includes("/login"), `špatný cíl: ${headers.get("location")}`);
   });
 
   await check("zápis do obsahu chce přihlášení", async () => {
@@ -211,9 +210,13 @@ async function main() {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ title: "x" }),
     });
-    const guarded = status === 401 || status === 404;
-    const openDev = status === 400 && !process.env.ADMIN_TOKEN;
-    assert(guarded || openDev, `nečekaný status ${status}`);
+    assert(status === 401, `nečekaný status ${status}`);
+  });
+
+  await check("přihlašovací stránka se nevrací do indexu", async () => {
+    const { status, body } = await get("/login");
+    assert(status === 200, `/login vrátil ${status}`);
+    assert(/noindex/.test(body), "chybí noindex");
   });
 
   // Produkční build = CI nebo nasazený web (ne lokální `next dev`).
@@ -248,6 +251,20 @@ async function main() {
   await check("security.txt je dostupný", async () => {
     const { status } = await get("/.well-known/security.txt");
     assert(status === 200, `security.txt vrátil ${status}`);
+  });
+
+  await check("/api/health: databáze odpovídá a nic se necachuje", async () => {
+    const { status, body, headers } = await get("/api/health");
+    assert(status === 200, `/api/health vrátil ${status}`);
+    const health = JSON.parse(body);
+    assert(health.status === "ok" && health.db === "ok", `stav ${body}`);
+    assert(/no-store/.test(headers.get("cache-control") ?? ""), "health se nesmí cachovat");
+  });
+
+  await check("neexistující stránka vrátí 404 s návratem na globus", async () => {
+    const { status, body } = await get("/country/atlantis");
+    assert(status === 404, `status ${status}`);
+    assert(/Back to the globe/.test(body), "chybí cesta zpět");
   });
 
   process.stdout.write(`\n${passed} v pořádku, ${failures.length} chyb\n`);

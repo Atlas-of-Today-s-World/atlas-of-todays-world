@@ -633,6 +633,7 @@ noc:  zašifrovaná záloha DB · npm audit · CodeQL
 | ADR-011 | Rate limiting v Postgres (`rate_limits` + funkce) | žádná další služba; sdílené mezi instancemi | Upstash Redis Free |
 | ADR-012 | CSP bez nonce: `script-src 'self' 'unsafe-inline'`, v produkci bez `unsafe-eval` | nonce vyžaduje dynamické renderování každé stránky → konec statických/ISR stránek; XSS řeší sanitizace (8.3) a zákaz `dangerouslySetInnerHTML` mimo `SafeHtml` | nonce + dynamické renderování; SRI hash (experimentální v Next 15) — přehodnotit s Next 16 |
 | ADR-013 | Zůstat na MapLibre 5 s výjimkou v auditu (GHSA-jrc7-96c5-q579) | zranitelnost je v `DOM.sanitize`, kterou v5 volá jen pro náš pevný atribuční text; MapLibre 6 v bundleru Next nenačte web worker (hranice zemí se nevykreslí) | MapLibre 6 s vlastním načítáním workeru (úkol A9) |
+| ADR-014 | *Návrh (čeká na schválení vlastníka):* rozpočet JS 500 kB (přenos, gzip) místo 200 kB; LCP < 2,5 s beze změny | MapLibre GL má ~267 kB gzip a je jádrem produktu (3D globus); načítá se asynchronně a LCP neblokuje (lokálně 0,1–0,5 s); `lighthouserc.json` hlídá, aby JS nerostl | 200 kB s líným načtením globusu až po interakci — horší první dojem z mapy |
 
 Nové rozhodnutí = nový řádek (další číslo), nikdy přepsání starého; zrušené označit „nahrazeno ADR-xxx“.
 

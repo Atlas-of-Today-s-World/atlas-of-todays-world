@@ -9,9 +9,11 @@ import {
   type MapMouseEvent,
   type MapSourceDataEvent,
 } from "maplibre-gl";
-import { buildStyle, LAYERS } from "./mapStyle";
+import { Minus, Plus } from "lucide-react";
+import { buildStyle, LAYERS, type RegionLabel, type StyleOptions } from "./mapStyle";
 import { EUROPE_CENTER, globeFillZoom } from "@/lib/home-location";
 import { useMapState } from "./MapContext";
+import { DESKTOP_MIN_PX, railKind, railWidthPx } from "@/config/layout";
 
 interface GlobeColorSets {
   /** ISO3 -> barva pro každou vrstvu, předpočítané na serveru. */
@@ -32,18 +34,22 @@ interface Props {
   regions: RegionLookup;
   /** Global Issues redakce; prázdné, když žádné nejsou. */
   issue: RegionLookup;
+  /** Popisky regionů nad globusem. */
+  regionLabels: RegionLabel[];
+  /** Vzhled a vlastní plochy z administrace. */
+  styleOptions: StyleOptions;
 }
 
 const NEUTRAL = "#7d8aa8";
 
 /**
- * Odsazení výřezu tak, aby zemi nezakryl pravý panel s obsahem.
- * Šířka panelu je stejná jako v ContentRail (min(38vw, 27rem)).
+ * Odsazení výřezu tak, aby zemi nezakryl pravý panel s obsahem — široký
+ * i úzký, podle cesty, na kterou se právě jde (tokeny z config/layout.ts).
  */
 function railPadding() {
   if (typeof window === "undefined") return 60;
-  const isDesktop = window.innerWidth >= 768;
-  const rail = isDesktop ? Math.min(window.innerWidth * 0.38, 432) : 0;
+  const isDesktop = window.innerWidth >= DESKTOP_MIN_PX;
+  const rail = railWidthPx(railKind(window.location.pathname), window.innerWidth);
   return {
     top: 110,
     bottom: isDesktop ? 90 : window.innerHeight * 0.5,
@@ -91,7 +97,14 @@ function matchExpression(colors: Record<string, string>): ExpressionSpecificatio
   return ["match", ["get", "iso3"], ...stops, NEUTRAL] as unknown as ExpressionSpecification;
 }
 
-export default function AtlasGlobe({ colorSets, slugs, regions, issue }: Props) {
+export default function AtlasGlobe({
+  colorSets,
+  slugs,
+  regions,
+  issue,
+  regionLabels,
+  styleOptions,
+}: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const hoveredRef = useRef<string | null>(null);
@@ -127,7 +140,7 @@ export default function AtlasGlobe({ colorSets, slugs, regions, issue }: Props) 
 
     const map = new MapLibreMap({
       container: containerRef.current,
-      style: buildStyle(),
+      style: buildStyle(regionLabels, styleOptions),
       // První snímek rovnou ve výchozí vzdálenosti, ať se mapa nezobrazí
       // nejdřív jako malá kulička a teprve pak nepřiletí.
       center: EUROPE_CENTER,
@@ -358,17 +371,17 @@ export default function AtlasGlobe({ colorSets, slugs, regions, issue }: Props) 
           type="button"
           aria-label="Zoom in"
           onClick={() => mapRef.current?.zoomIn({ duration: 300 })}
-          className="glass glass-hover pointer-events-auto flex h-9 w-9 items-center justify-center rounded-[10px] text-lg leading-none text-white/90 transition"
+          className="glass glass-hover pointer-events-auto flex size-(--touch-min) items-center justify-center rounded-[10px] text-white/90 transition focus-visible:ring-2 focus-visible:ring-white/70"
         >
-          +
+          <Plus size={18} aria-hidden />
         </button>
         <button
           type="button"
           aria-label="Zoom out"
           onClick={() => mapRef.current?.zoomOut({ duration: 300 })}
-          className="glass glass-hover pointer-events-auto flex h-9 w-9 items-center justify-center rounded-[10px] text-lg leading-none text-white/90 transition"
+          className="glass glass-hover pointer-events-auto flex size-(--touch-min) items-center justify-center rounded-[10px] text-white/90 transition focus-visible:ring-2 focus-visible:ring-white/70"
         >
-          −
+          <Minus size={18} aria-hidden />
         </button>
       </div>
 

@@ -1,47 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { useActionState } from "react";
+import { ActionForm } from "@/components/ui/action-form";
+import { subscribe } from "@/features/newsletter/actions";
+import type { ActionState } from "@/lib/actions";
 
 /**
- * Přihlášení k odběru novinek.
- *
- * Adresa jde na vlastní serverovou routu, ne rovnou do Mailchimpu – klíč
- * k jejich API nesmí do prohlížeče. Souhlas je vědomý (zaškrtávátko), potvrzení
- * dvojité (Mailchimp pošle ověřovací e-mail), a `website` je past na roboty:
- * lidé to pole nevidí, vyplní ho jen skript.
+ * Přihlášení k odběru novinek (Server Action `subscribe`). Souhlas je vědomý
+ * (zaškrtávátko s odkazem na zásady), potvrzení dvojité (Mailchimp pošle
+ * ověřovací e-mail) a `website` je past na roboty: lidé to pole nevidí.
  */
 export default function NewsletterForm() {
-  const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
-  const [message, setMessage] = useState("");
-
-  async function submit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    setState("sending");
-
-    try {
-      const res = await fetch("/api/newsletter", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: form.get("email"),
-          consent: form.get("consent") === "on",
-          website: form.get("website"),
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Sign-up failed.");
-      setState("done");
-      setMessage(data.message ?? "Check your inbox to confirm.");
-      (event.target as HTMLFormElement).reset();
-    } catch (cause) {
-      setState("error");
-      setMessage(cause instanceof Error ? cause.message : "Sign-up failed.");
-    }
-  }
+  const [state, action, pending] = useActionState<ActionState, FormData>(subscribe, {
+    ok: false,
+  });
+  const message = state.error ?? state.message;
 
   return (
-    <form onSubmit={submit} className="text-[13px]">
+    <ActionForm action={action} className="text-[13px]">
       <label htmlFor="newsletter-email" className="block font-medium">
         New Atlas content in your inbox
       </label>
@@ -58,17 +35,21 @@ export default function NewsletterForm() {
         />
         <button
           type="submit"
-          disabled={state === "sending"}
+          disabled={pending}
           className="min-h-11 rounded-lg bg-white px-4 text-[13px] font-medium text-[#0d1324] transition hover:bg-white/85 disabled:opacity-60"
         >
-          {state === "sending" ? "…" : "Sign up"}
+          {pending ? "…" : "Sign up"}
         </button>
       </div>
 
       <label className="mt-2.5 flex items-start gap-2 text-[11.5px] leading-relaxed text-white/60">
         <input type="checkbox" name="consent" required className="mt-0.5 h-4 w-4 shrink-0" />
         <span>
-          Send me occasional emails about new Atlas entries. I can unsubscribe at any time.
+          Send me occasional emails about new Atlas entries. I can unsubscribe at any time. See our{" "}
+          <Link href="/privacy" className="underline">
+            privacy policy
+          </Link>
+          .
         </span>
       </label>
 
@@ -82,16 +63,14 @@ export default function NewsletterForm() {
         className="hidden"
       />
 
-      {state !== "idle" && message ? (
+      {message ? (
         <p
           role="status"
-          className={`mt-2.5 text-[12px] ${
-            state === "error" ? "text-red-300" : "text-emerald-300"
-          }`}
+          className={`mt-2.5 text-[12px] ${state.error ? "text-red-300" : "text-emerald-300"}`}
         >
           {message}
         </p>
       ) : null}
-    </form>
+    </ActionForm>
   );
 }

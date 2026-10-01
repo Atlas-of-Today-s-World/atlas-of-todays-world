@@ -1,6 +1,5 @@
 # Na Vercel se nahrává jen to, co potřebuje build aplikace (limit nahrávání
 # na Hobby tarifu, viz .github/workflows/deploy.yml).
-# Pozor: src/content/**/*.md build potřebuje — ignorovat jen .md v kořeni.
 /demo/
 /docs/
 /tests/

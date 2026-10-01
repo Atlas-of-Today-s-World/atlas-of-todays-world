@@ -15,7 +15,9 @@ export default defineConfig({
   testDir: "./tests",
   // tests/unit patří Vitestu.
   testMatch: "**/*.spec.ts",
-  timeout: 45_000,
+  timeout: 60_000,
+  // CI běží globus na softwarovém WebGL; jeden pomalý průchod nemá shodit build.
+  retries: process.env.CI ? 2 : 0,
   expect: { timeout: 10_000 },
   // Každý test si otevírá globus na WebGL; víc běhů najednou slabší stroj
   // nezvládá a testy pak padají na čekání, ne na chybu.

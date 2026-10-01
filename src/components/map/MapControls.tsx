@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import EncyclopediaDock from "@/components/EncyclopediaDock";
+import { RAIL_OFFSET, railKind } from "@/config/layout";
 import ModeSwitch from "./ModeSwitch";
 import ViewSwitcher, { type ViewOption } from "./ViewSwitcher";
 
@@ -18,14 +19,9 @@ export default function MapControls({
   hasIssues: boolean;
 }) {
   const pathname = usePathname();
-  const wideRail = /^\/(news|region|global-issue)\//.test(pathname);
-  const railOpen = pathname !== "/";
-
-  const offset = wideRail
-    ? "right-5 md:right-[calc(min(52vw,46rem)+1.25rem)]"
-    : railOpen
-      ? "right-5 md:right-[calc(min(38vw,27rem)+1.25rem)]"
-      : "right-5";
+  const rail = railKind(pathname);
+  // Bez panelu drží lišta stejný okraj na mobilu i desktopu.
+  const offset = rail === "none" ? "right-5" : `right-5 ${RAIL_OFFSET[rail]}`;
 
   return (
     <div

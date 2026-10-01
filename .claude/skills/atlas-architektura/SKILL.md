@@ -83,7 +83,11 @@ po dokončení zaškrtni úkol a doplň odkaz na PR.
   **index na každý FK**.
 - Funkce: `set search_path = public, pg_temp`; definer jen když nutné; `revoke execute … from public, anon`.
 - **Guard triggery čtoucí RLS tabulky musí být `SECURITY DEFINER`** (jinak se kontrola tiše přeskočí).
-- Interní sloupce (`owner_id`, `review_note`, `approved_by`, `profile_id`) neukazuj anon — veřejná view / column granty.
+- Interní sloupce (`owner_id`, `review_note`, `approved_by`, `profile_id`) anon nevidí — **sloupcová práva**;
+  veřejný web se proto ptá na vyjmenované sloupce, **nikdy `select *` přes anon klienta**.
+- Ochranné triggery obchází jen servisní klíč (`auth.uid()` null) nebo security definer funkce přes
+  `internal_profile_grants` (povolení na jednu transakci). **Nikdy** přes `set_config`/JWT příznaky — klient je umí podstrčit.
+- Pozvánky: `invitations` + `claim_invitation()`; role se přiděluje jen pro ověřený e-mail (`email_confirmed_at`).
 - Po migraci: `supabase gen types typescript --linked > src/lib/db/types.gen.ts`.
 - Každá změna oprávnění = úprava `supabase/tests/authz-matrix.json` + DB test (anon / s právem / bez práva).
 

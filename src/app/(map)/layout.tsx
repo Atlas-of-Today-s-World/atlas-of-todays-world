@@ -3,13 +3,17 @@ import AtlasGlobe, { type RegionLookup } from "@/components/map/AtlasGlobe";
 import MapControls from "@/components/map/MapControls";
 import { MapProvider } from "@/components/map/MapContext";
 import { MapLegend, type ViewOption } from "@/components/map/ViewSwitcher";
-import { REGIONS } from "@/data/regions";
-import { indexableCountries, regionColorMap } from "@/lib/countries";
-import { INDICATORS, colorMapFor, legendFor } from "@/lib/indicators";
-import { issueColorMap, issueLookup } from "@/lib/global-issues";
+import ContentRail from "@/components/ContentRail";
+import { ErrorState } from "@/components/atlas/ErrorState";
+import { getFlags } from "@/features/flags/queries";
+import { regionColorMap } from "@/features/geography/model";
+import { getAtlas } from "@/features/geography/queries";
+import type { GlobalIssue, Indicator, Region } from "@/features/geography/types";
+import { saturate, saturateMap } from "@/lib/color";
+import { colorMapFor, legendFor } from "@/lib/indicators";
 
 /** Volby pro přepínač vrstev – generují se z importovaných indikátorů. */
-function buildViewOptions(): ViewOption[] {
+function buildViewOptions(indicators: Indicator[], saturation: number): ViewOption[] {
   return [
     {
       id: "encyclopedia",
@@ -18,14 +22,17 @@ function buildViewOptions(): ViewOption[] {
       caption: "World regions of the Atlas · click any country to open its profile",
       swatches: [],
     },
-    ...INDICATORS.map((indicator) => {
+    ...indicators.map((indicator) => {
       const legend = legendFor(indicator);
       return {
         id: indicator.id,
         label: indicator.label,
         shortLabel: `${indicator.shortLabel} view`,
         caption: legend.caption,
-        swatches: legend.swatches,
+        swatches: legend.swatches.map((swatch) => ({
+          ...swatch,
+          color: saturate(swatch.color, saturation),
+        })),
       };
     }),
   ];
@@ -36,39 +43,79 @@ function buildViewOptions(): ViewOption[] {
  * regionem, zemí a encyklopedickým heslem neznamená nové načtení mapy –
  * uživatel s ní nikdy neztratí kontakt.
  */
+/** ISO3 → hodnota prvního celku, ve kterém země je (země může být ve více global issues). */
+function firstByCountry<T>(
+  groups: (Region | GlobalIssue)[],
+  pick: (group: Region | GlobalIssue) => T,
+) {
+  const out: Record<string, T> = {};
+  for (const group of groups) for (const iso3 of group.countries) out[iso3] ??= pick(group);
+  return out;
+}
+
+/** Region nebo global issue → podklad pro zvýraznění celku na globusu. */
+function lookup(groups: (Region | GlobalIssue)[]): RegionLookup {
+  return {
+    slugByCountry: firstByCountry(groups, (group) => group.slug),
+    bySlug: Object.fromEntries(
+      groups.map((group) => [group.slug, { name: group.name, countries: group.countries }]),
+    ),
+  };
+}
+
 export default async function MapLayout({ children }: { children: React.ReactNode }) {
-  const slugs = Object.fromEntries(
-    indexableCountries().map((country) => [country.iso3, country.slug]),
-  );
+  const [atlas, flags] = await Promise.all([getAtlas(), getFlags()]);
+  const slugs = Object.fromEntries(atlas.countries.map((country) => [country.iso3, country.slug]));
 
   const colorSets: Record<string, Record<string, string>> = {
-    encyclopedia: regionColorMap(),
+    encyclopedia: regionColorMap(atlas.regions),
+    issue: firstByCountry(atlas.issues, (issue) => issue.fill),
   };
-  for (const indicator of INDICATORS) {
-    colorSets[indicator.id] = colorMapFor(indicator.id);
+  for (const indicator of atlas.indicators) colorSets[indicator.id] = colorMapFor(indicator);
+  // Sytost barev ze vzhledu webu (administrace → Vzhled mapy).
+  for (const key of Object.keys(colorSets)) {
+    colorSets[key] = saturateMap(colorSets[key], atlas.theme.saturation);
   }
 
-  const regionLookup: RegionLookup = {
-    slugByCountry: Object.fromEntries(
-      REGIONS.flatMap((region) => region.countries.map((iso3) => [iso3, region.slug])),
-    ),
-    bySlug: Object.fromEntries(
-      REGIONS.map((region) => [region.slug, { name: region.name, countries: region.countries }]),
-    ),
-  };
-
-  const viewOptions = buildViewOptions();
-  const [issue, issueColors] = await Promise.all([issueLookup(), issueColorMap()]);
-  colorSets.issue = issueColors;
+  const regionLookup = lookup(atlas.regions);
+  const issue = lookup(atlas.issues);
+  const viewOptions = buildViewOptions(atlas.indicators, atlas.theme.saturation);
+  const regionLabels = atlas.regions.map(({ slug, name, center }) => ({ slug, name, center }));
 
   return (
     <MapProvider>
       <main className="relative h-dvh w-full overflow-hidden bg-[var(--color-space-deep)]">
-        <AtlasGlobe colorSets={colorSets} slugs={slugs} regions={regionLookup} issue={issue} />
-        <Header />
+        <AtlasGlobe
+          colorSets={colorSets}
+          slugs={slugs}
+          regions={regionLookup}
+          issue={issue}
+          regionLabels={regionLabels}
+          styleOptions={{
+            border: atlas.theme.border,
+            areas: atlas.areas.map(({ slug, label, name, fill, stroke, geometry }) => ({
+              slug,
+              label: label || name,
+              fill,
+              stroke,
+              geometry,
+            })),
+          }}
+        />
+        <Header newsletter={flags.newsletter} />
         <MapControls options={viewOptions} hasIssues={Object.keys(issue.bySlug).length > 0} />
         <MapLegend options={viewOptions} />
-        {children}
+        {flags.maintenance ? (
+          <ContentRail>
+            <ErrorState
+              code="Maintenance"
+              title="The Atlas is being updated"
+              lead="We are working on the site right now. Please come back in a little while."
+            />
+          </ContentRail>
+        ) : (
+          children
+        )}
       </main>
     </MapProvider>
   );

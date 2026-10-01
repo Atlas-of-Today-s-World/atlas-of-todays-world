@@ -27,6 +27,22 @@
 
 :root {
   color-scheme: dark;
+  /* Rozměry layoutu — musí odpovídat src/config/layout.ts (hlídá layout.test.ts). */
+  --rail-width: min(38vw, 27rem);
+  --rail-width-wide: min(52vw, 46rem);
+  --touch-min: 44px;
+}
+
+/* Kdo si nepřeje animace, nedostane je (přechody panelu, karusely, kurzor). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 html,
@@ -69,8 +85,14 @@ body {
   color: rgba(255, 255, 255, 0.75) !important;
 }
 
+/* Globus jde ovládat i klávesnicí (šipky, +/−) — pak musí být vidět, že má fokus. */
 .maplibregl-canvas:focus {
   outline: none;
+}
+
+.maplibregl-canvas:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.85);
+  outline-offset: -3px;
 }
 
 /* Panely obsahu: jemný scrollbar, ať nekrájí design. */

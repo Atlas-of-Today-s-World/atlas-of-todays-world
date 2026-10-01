@@ -1,0 +1,137 @@
+import "server-only";
+import { createServerClient } from "@/lib/supabase/server";
+import type { EntryStatus } from "./schema";
+
+/**
+ * Čtení pro redakci — pod session uživatele, takže RLS ukáže jen to, na co
+ * role dosáhne (vlastní koncepty, frontu ke schválení…). Bez cache.
+ */
+
+export interface EditorialRow {
+  id: string;
+  slug: string;
+  title: string;
+  status: EntryStatus;
+  category: string;
+  region_slug: string | null;
+  owner_id: string | null;
+  author_name: string | null;
+  updated_at: string;
+  review_note: string | null;
+}
+
+const LIST_COLUMNS =
+  "id, slug, title, status, category, region_slug, owner_id, author_name, updated_at, review_note";
+
+export async function listEntries({
+  status,
+  q,
+  mine,
+  userId,
+}: {
+  status?: EntryStatus;
+  q?: string;
+  mine?: boolean;
+  userId: string;
+}): Promise<EditorialRow[]> {
+  const supabase = await createServerClient();
+  let query = supabase
+    .from("entries")
+    .select(LIST_COLUMNS)
+    .order("updated_at", { ascending: false })
+    .limit(200);
+  if (status) query = query.eq("status", status);
+  if (mine) query = query.eq("owner_id", userId);
+  if (q?.trim()) query = query.ilike("title", `%${q.trim().replace(/[%_]/g, "")}%`);
+  const { data, error } = await query;
+  if (error) throw new Error(`[entries] ${error.message}`);
+  return data as EditorialRow[];
+}
+
+export interface EditableEntry extends EditorialRow {
+  kind: "news" | "entry";
+  summary: string;
+  special_slug: string | null;
+  cover_url: string | null;
+  cover_credit: string | null;
+  reading_minutes: number | null;
+  body_html: string;
+  published_on: string | null;
+  countries: string[];
+}
+
+export async function getEditableEntry(id: string): Promise<EditableEntry | null> {
+  const supabase = await createServerClient();
+  const { data, error } = await supabase
+    .from("entries")
+    .select(
+      `${LIST_COLUMNS}, kind, summary, special_slug, cover_url, cover_credit, reading_minutes, body_html, published_on, entry_countries(country_iso3)`,
+    )
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(`[entries] ${error.message}`);
+  if (!data) return null;
+  const { entry_countries, ...rest } = data as typeof data & {
+    entry_countries: { country_iso3: string }[];
+  };
+  return {
+    ...(rest as unknown as EditableEntry),
+    countries: entry_countries.map((c) => c.country_iso3),
+  };
+}
+
+export interface Revision {
+  id: number;
+  saved_at: string;
+  title: string;
+}
+
+export async function listRevisions(entryId: string): Promise<Revision[]> {
+  const supabase = await createServerClient();
+  const { data, error } = await supabase
+    .from("entry_revisions")
+    .select("id, saved_at, snapshot")
+    .eq("entry_id", entryId)
+    .order("saved_at", { ascending: false })
+    .limit(30);
+  if (error) throw new Error(`[revisions] ${error.message}`);
+  return data.map((row) => ({
+    id: row.id,
+    saved_at: row.saved_at,
+    title: (row.snapshot as { title?: string }).title ?? "",
+  }));
+}
+
+/** Fronta ke schválení: čekající články, které smí tento člověk schválit. */
+export async function approvalQueue(): Promise<(EditorialRow & { canApprove: boolean })[]> {
+  const supabase = await createServerClient();
+  const { data, error } = await supabase
+    .from("entries")
+    .select(LIST_COLUMNS)
+    .eq("status", "pending")
+    .order("updated_at", { ascending: true })
+    .limit(200);
+  if (error) throw new Error(`[approvals] ${error.message}`);
+  const rows = data as EditorialRow[];
+  const checks = await Promise.all(
+    rows.map((row) => supabase.rpc("can_approve_entry", { p_entry: row.id })),
+  );
+  return rows.map((row, index) => ({ ...row, canApprove: checks[index].data === true }));
+}
+
+/** Zveřejněná podoba (poslední schválená revize) pro porovnání v detailu schvalování. */
+export async function publishedVersion(entryId: string) {
+  const supabase = await createServerClient();
+  const { data } = await supabase
+    .from("entry_revisions")
+    .select("saved_at, snapshot")
+    .eq("entry_id", entryId)
+    .order("saved_at", { ascending: false })
+    .limit(50);
+  const published = (data ?? []).find(
+    (row) => (row.snapshot as { status?: string }).status === "published",
+  );
+  return published
+    ? (published.snapshot as { title: string; summary: string; body_html: string })
+    : null;
+}

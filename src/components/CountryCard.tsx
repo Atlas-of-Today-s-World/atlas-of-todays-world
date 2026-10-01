@@ -1,8 +1,8 @@
 import Link from "next/link";
-import type { Country } from "@/lib/countries";
-import { formatPopulation } from "@/lib/countries";
-import type { CountryProfile, NewsItem } from "@/lib/content";
-import { MetricCards, StatIcon } from "./atlas-ui";
+import type { EntrySummary } from "@/features/entries/queries";
+import type { Country, CountryProfile } from "@/features/geography/types";
+import { formatPopulation } from "@/lib/format";
+import { MetricCards, SourceLink, StatGrid, StatIcon, StatItem } from "./atlas/ui";
 
 /**
  * Karta země po kliknutí na globus (Figma: "Country View").
@@ -25,7 +25,7 @@ export default function CountryCard({
   profile,
 }: {
   country: Country;
-  newsItems: NewsItem[];
+  newsItems: EntrySummary[];
   description: string;
   profile?: CountryProfile | null;
 }) {
@@ -75,34 +75,21 @@ export default function CountryCard({
 
       <p className="mt-3 text-[13px] leading-relaxed text-[var(--color-ink-soft)]">{description}</p>
 
-      <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-6">
+      <StatGrid className="mt-5">
         {highlights.map((stat) => (
-          <div key={stat.id}>
-            <div className="flex items-center gap-2 text-[var(--color-ink)]">
-              <StatIcon id={stat.id} />
-              <span className="font-display text-[22px] leading-none font-semibold">
-                {stat.value}
-              </span>
-            </div>
-            <dt className="mt-1.5 text-[13px] leading-snug font-medium text-[var(--color-ink)]">
-              {stat.label}
-            </dt>
-            <dd className="mt-1 text-[11px] leading-snug text-[var(--color-ink-muted)]">
-              {stat.rank ? `Ranked ${stat.rank} of ${stat.rankOf} · ` : ""}
-              {stat.year}
-              <br />
-              <a
-                href={stat.sourceUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="text-[var(--color-link)] hover:underline"
-              >
-                {stat.source}
-              </a>
-            </dd>
-          </div>
+          <StatItem
+            key={stat.id}
+            label={stat.label}
+            value={stat.value}
+            icon={<StatIcon id={stat.id} />}
+          >
+            {stat.rank ? `Ranked ${stat.rank} of ${stat.rankOf} · ` : ""}
+            {stat.year}
+            <br />
+            <SourceLink href={stat.sourceUrl}>{stat.source}</SourceLink>
+          </StatItem>
         ))}
-      </dl>
+      </StatGrid>
 
       {metrics.length ? (
         <section className="mt-7 border-t border-[var(--color-line)] pt-5">

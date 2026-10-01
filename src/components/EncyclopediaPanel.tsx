@@ -1,5 +1,6 @@
 "use client";
 
+import { BookOpen, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { SearchHit } from "@/lib/search";
@@ -47,12 +48,12 @@ export default function EncyclopediaPanel() {
   return (
     <section className="glass pointer-events-auto w-[min(92vw,22rem)] rounded-[var(--radius-panel)] p-4 shadow-2xl shadow-black/40">
       <h2 className="font-display flex items-center gap-2 text-[15px] font-semibold text-white">
-        <BookIcon />
+        <BookOpen size={17} strokeWidth={1.5} aria-hidden />
         Global Encyclopedia
       </h2>
 
       <label className="mt-3 flex items-center gap-2 rounded-full border border-white/15 bg-black/25 px-3.5 py-2">
-        <SearchIcon />
+        <Search size={15} strokeWidth={1.7} className="text-white/60" aria-hidden />
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
@@ -96,27 +97,5 @@ export default function EncyclopediaPanel() {
         </p>
       )}
     </section>
-  );
-}
-
-function BookIcon() {
-  return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M3 5.5A1.5 1.5 0 0 1 4.5 4H9a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H3V5.5ZM21 5.5A1.5 1.5 0 0 0 19.5 4H15a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5H21V5.5Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function SearchIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <circle cx="11" cy="11" r="6.5" stroke="rgba(255,255,255,0.6)" strokeWidth="1.7" />
-      <path d="m16 16 4 4" stroke="rgba(255,255,255,0.6)" strokeWidth="1.7" strokeLinecap="round" />
-    </svg>
   );
 }

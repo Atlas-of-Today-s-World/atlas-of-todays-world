@@ -59,6 +59,37 @@ test("anonymní čtenář dostane novinky i s napojenými zeměmi", async () => 
   assert.ok(rows.some((r) => r.countries > 0));
 });
 
+test("anonym dostane celý portrét jedním voláním portrait()", async () => {
+  await db.exec("set role anon");
+  const region = (await db.query("select portrait('region', 'eastern-europe-central-asia') as p"))
+    .rows[0].p;
+  const mena = (await db.query("select portrait('region', 'middle-east-north-africa') as p"))
+    .rows[0].p;
+  const issue = (await db.query("select portrait('issue', 'russia-ukraine-war') as p")).rows[0].p;
+  const missing = (await db.query("select portrait('region', 'atlantis') as p")).rows[0].p;
+  await db.exec("reset role");
+
+  assert.ok(region.timeline.length > 0);
+  assert.ok(region.timeline.every((t) => t.date && t.title));
+  assert.ok(mena.intro.length > 0);
+  assert.ok(mena.metrics.length > 0);
+  assert.ok(mena.metrics.every((m) => m.source));
+  assert.ok(Array.isArray(issue.faq));
+  assert.equal(missing, null);
+});
+
+test("seed přenese fotky regionů, obálky novinek a profily zemí", async () => {
+  const noHero = (await db.query("select slug from regions where hero_url is null")).rows;
+  assert.deepEqual(noHero, []);
+  const covers = Number(
+    (await db.query("select count(*) n from entries where cover_url is not null")).rows[0].n,
+  );
+  assert.ok(covers > 0);
+  const ukraine = (await db.query("select profile_html from countries where iso3 = 'UKR'")).rows[0];
+  assert.match(ukraine.profile_html, /<p>/);
+  assert.doesNotMatch(ukraine.profile_html, /<script/i);
+});
+
 test("HTML novinek je vyčištěné", async () => {
   const bad = (
     await db.query(`select slug from entries where body_html ~* '<script|onerror=|javascript:'`)

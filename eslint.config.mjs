@@ -18,6 +18,7 @@ const config = [
       "playwright-report/**",
       "coverage/**",
       "next-env.d.ts",
+      "src/lib/db/types.gen.ts",
     ],
   },
   ...compat.extends("next/core-web-vitals", "next/typescript"),

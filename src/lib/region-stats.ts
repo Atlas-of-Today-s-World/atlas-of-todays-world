@@ -1,6 +1,5 @@
-import type { Region } from "@/data/regions";
-import { countriesOfRegion, type Country } from "@/lib/countries";
-import { getIndicator, formatValue } from "@/lib/indicators";
+import type { Country, Indicator } from "@/features/geography/types";
+import { formatValue } from "@/lib/indicators";
 
 /**
  * Klíčové ukazatele portrétu regionu i global issue.
@@ -52,12 +51,12 @@ function mostCommon(values: number[]): number {
   return [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0];
 }
 
-/** Ukazatele spočítané nad libovolnou skupinou zemí. */
-function statsForCountries(countries: Country[]): RegionStat[] {
+/** Ukazatele spočítané nad libovolnou skupinou zemí (region, global issue). */
+export function groupStats(countries: Country[], indicators: Map<string, Indicator>): RegionStat[] {
   const out: RegionStat[] = [];
 
   for (const id of CARD_INDICATORS) {
-    const indicator = getIndicator(id);
+    const indicator = indicators.get(id);
     if (!indicator) continue;
 
     // Zemi a její hodnotu držíme spolu – po odfiltrování zemí bez dat by
@@ -92,17 +91,7 @@ function statsForCountries(countries: Country[]): RegionStat[] {
   return out;
 }
 
-export function regionStats(region: Region): RegionStat[] {
-  return statsForCountries(countriesOfRegion(region));
-}
-
 /** Souhrn, který se vypisuje nad kartami. */
 export function population(countries: Country[]): number {
   return countries.reduce((sum, country) => sum + (country.population ?? 0), 0);
-}
-
-export function formatPopulation(value: number): string {
-  if (value >= 1e9) return `${(value / 1e9).toFixed(2)} bn`;
-  if (value >= 1e6) return `${Math.round(value / 1e6)} m`;
-  return value.toLocaleString("en-GB");
 }

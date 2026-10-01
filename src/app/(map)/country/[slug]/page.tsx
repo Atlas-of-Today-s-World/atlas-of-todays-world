@@ -3,16 +3,21 @@ import { notFound } from "next/navigation";
 import ContentRail from "@/components/ContentRail";
 import CountryCard from "@/components/CountryCard";
 import MapFocus from "@/components/map/MapFocus";
-import { countryBySlug, formatPopulation, indexableCountries, type Country } from "@/lib/countries";
-import { countryProfile, newsOfCountry } from "@/lib/content";
+import { entriesOfCountry, getEntries } from "@/features/entries/queries";
+import { getAtlas } from "@/features/geography/queries";
+import type { Country } from "@/features/geography/types";
+import { formatPopulation } from "@/lib/format";
 import { absoluteUrl, alternates, breadcrumbJsonLd, geoCoordinates, geoMeta } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
 
-export const dynamicParams = false;
+// true: s false vrací Next po revalidateTag (zápis v administraci) 404 i pro
+// existující stránky (NoFallbackError). Neznámý slug skončí přes notFound().
+export const dynamicParams = true;
 
-export function generateStaticParams() {
-  return indexableCountries().map((country) => ({ slug: country.slug }));
+export async function generateStaticParams() {
+  const { countries } = await getAtlas();
+  return countries.map((country) => ({ slug: country.slug }));
 }
 
 /** Popis pro země bez redakčního textu – složený z importovaných dat. */
@@ -45,11 +50,10 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const country = countryBySlug(slug);
+  const country = (await getAtlas()).countryBySlug.get(slug);
   if (!country) return {};
 
-  const profile = await countryProfile(slug);
-  const description = profile?.summary || fallbackDescription(country);
+  const description = country.profile.summary || fallbackDescription(country);
 
   return {
     title: `${country.name} — country profile`,
@@ -68,7 +72,6 @@ export async function generateMetadata({
       title: `${country.name} — Atlas of Today's World`,
       description: description.slice(0, 180),
       url: absoluteUrl(`/country/${country.slug}`),
-      images: country.region ? [country.region.hero] : undefined,
     },
     other: geoMeta({
       lat: country.labelLat,
@@ -81,15 +84,12 @@ export async function generateMetadata({
 
 export default async function CountryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const country = countryBySlug(slug);
+  const country = (await getAtlas()).countryBySlug.get(slug);
   if (!country) notFound();
 
-  const [profile, newsItems] = await Promise.all([
-    countryProfile(slug),
-    newsOfCountry(country.iso3),
-  ]);
-
-  const description = profile?.summary || fallbackDescription(country);
+  const newsItems = entriesOfCountry(await getEntries(), country.iso3);
+  const profile = country.profile;
+  const description = profile.summary || fallbackDescription(country);
   const region = country.region;
 
   return (
@@ -114,7 +114,7 @@ export default async function CountryPage({ params }: { params: Promise<{ slug: 
           description={description}
           profile={profile}
         />
-        {profile?.html ? <SafeHtml className="prose-atlas px-6 pb-10" html={profile.html} /> : null}
+        {profile.html ? <SafeHtml className="prose-atlas px-6 pb-10" html={profile.html} /> : null}
       </ContentRail>
 
       <JsonLd

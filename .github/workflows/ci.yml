@@ -40,6 +40,10 @@ jobs:
   build:
     name: Build, smoke a e2e
     runs-on: ubuntu-latest
+    # Veřejné hodnoty dev projektu (atlas-dev) — build a e2e nikdy nesahají na produkci.
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL_DEV }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY_DEV }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -59,6 +63,16 @@ jobs:
           npx playwright test
         env:
           BASE_URL: http://localhost:3000
+          # Jen pro testovací účty v atlas-dev (tests/auth.spec.ts); bez něj se sada přeskočí.
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY_DEV }}
+      - name: Lighthouse (rozpočty výkonu a přístupnosti, lighthouserc.json)
+        run: npx --yes @lhci/cli@0.14 autorun
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse
+          path: .lighthouseci/
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

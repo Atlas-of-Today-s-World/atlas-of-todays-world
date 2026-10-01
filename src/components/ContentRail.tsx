@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 /**
  * Panel s obsahem vedle mapy. Nese profil regionu, kartu země i celé
@@ -28,9 +29,15 @@ export default function ContentRail({
   const panel = useRef<HTMLElement>(null);
 
   // Panel se zavírá i klávesou Esc – jinak by se z něj klávesnicí nešlo dostat.
+  // Esc v poli formuláře (hledání, newsletter) patří tomu poli, ne panelu.
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") router.push(closeHref);
+      if (event.key !== "Escape" || event.defaultPrevented) return;
+      const target = event.target as HTMLElement | null;
+      if (target?.closest("input, textarea, select, [contenteditable='true'], [role='dialog']")) {
+        return;
+      }
+      router.push(closeHref);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -45,10 +52,11 @@ export default function ContentRail({
   return (
     <aside
       ref={panel}
+      id="content"
       tabIndex={-1}
       aria-label="Content panel"
       className={`pointer-events-auto absolute inset-x-0 bottom-0 z-20 max-h-[72dvh] overflow-hidden rounded-t-3xl bg-white text-[var(--color-ink)] shadow-[0_-8px_40px_rgba(0,0,0,0.45)] transition-transform duration-300 outline-none md:inset-x-auto md:inset-y-0 md:right-0 md:left-auto md:max-h-none md:rounded-none md:shadow-[0_0_60px_rgba(0,0,0,0.45)] ${
-        wide ? "md:w-[min(52vw,46rem)]" : "md:w-[min(38vw,27rem)]"
+        wide ? "md:w-(--rail-width-wide)" : "md:w-(--rail-width)"
       } ${collapsed ? "md:translate-x-full" : "md:translate-x-0"}`}
     >
       {/* Úchyt sheetu na mobilu */}
@@ -63,7 +71,7 @@ export default function ContentRail({
         onClick={() => setCollapsed((value) => !value)}
         className="absolute top-1/2 -left-7 hidden h-14 w-7 -translate-y-1/2 items-center justify-center rounded-l-lg bg-[#1b2233] text-white/80 transition hover:bg-[#283148] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] md:flex"
       >
-        <span aria-hidden>{collapsed ? "‹" : "›"}</span>
+        {collapsed ? <ChevronLeft size={16} aria-hidden /> : <ChevronRight size={16} aria-hidden />}
       </button>
 
       <button
@@ -72,14 +80,7 @@ export default function ContentRail({
         onClick={() => router.push(closeHref)}
         className="absolute top-2 right-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/85 text-[var(--color-ink-soft)] backdrop-blur transition hover:bg-[var(--color-line)] hover:text-[var(--color-ink)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] active:scale-95 md:top-3"
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-          <path
-            d="m6 6 12 12M18 6 6 18"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-          />
-        </svg>
+        <X size={18} strokeWidth={1.8} aria-hidden />
       </button>
 
       <div className="panel-scroll max-h-[calc(72dvh-1.75rem)] overflow-y-auto overscroll-contain pb-6 md:h-full md:max-h-none md:pb-0">

@@ -26,3 +26,5 @@ docs/
 # Výstupy testů
 coverage/
 
+.lighthouseci
+.claude/worktrees/

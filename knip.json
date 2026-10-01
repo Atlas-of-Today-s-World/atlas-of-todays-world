@@ -2,5 +2,6 @@
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "entry": ["scripts/**/*.mjs", "supabase/tests/**/*.mjs", "tests/**/*.ts"],
   "project": ["src/**/*.{ts,tsx}", "scripts/**/*.mjs"],
-  "ignoreDependencies": ["eslint-config-next", "topojson-client", "tailwindcss"]
+  "ignoreDependencies": ["eslint-config-next", "topojson-client", "tailwindcss"],
+  "ignore": ["src/lib/db/types.gen.ts"]
 }

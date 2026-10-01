@@ -17,6 +17,8 @@ const schema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: optional(z.url()),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: optional(z.string().min(20)),
   NEXT_PUBLIC_MAPTILER_KEY: optional(z.string().min(8)),
+  // Kontakt provozovatele pro zásady ochrany soukromí a přístupnost.
+  NEXT_PUBLIC_CONTACT_EMAIL: optional(z.email()),
 });
 
 export const publicEnv = schema.parse({
@@ -24,4 +26,5 @@ export const publicEnv = schema.parse({
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   NEXT_PUBLIC_MAPTILER_KEY: process.env.NEXT_PUBLIC_MAPTILER_KEY,
+  NEXT_PUBLIC_CONTACT_EMAIL: process.env.NEXT_PUBLIC_CONTACT_EMAIL,
 });
