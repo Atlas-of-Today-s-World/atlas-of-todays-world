@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { getEncyclopediaEntries, getEntries } from "@/features/entries/queries";
 import { getAtlas } from "@/features/geography/queries";
 import { LEGAL_NAV } from "@/config/navigation";
-import { LOCALES, localePath } from "@/features/i18n/config";
+import { LOCALES, localePath, type Locale } from "@/features/i18n/config";
 import { SITE_URL } from "@/lib/site";
 
 /**
@@ -10,6 +10,12 @@ import { SITE_URL } from "@/lib/site";
  * vrstva, novinka i heslo má URL. Přesměrované adresy (/support) sem nepatří.
  * `changeFrequency` říká robotům, jak často se sem vracet.
  */
+const languagesOf = (path: string, locales: readonly Locale[]) => ({
+  languages: Object.fromEntries(
+    locales.map((locale) => [locale, `${SITE_URL}${localePath(locale, path)}`]),
+  ),
+});
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const [atlas, entries, encyclopedia] = await Promise.all([
@@ -50,14 +56,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...atlas.issues.map((issue) => page(`/global-issue/${issue.slug}`, "weekly", 0.8)),
     ...atlas.countries.map((country) => page(`/country/${country.slug}`, "monthly", 0.8)),
     ...atlas.indicators.map((indicator) => page(`/view/${indicator.id}`, "yearly", 0.7)),
+    // Novinky a hesla: hreflang jen pro jazyky se zveřejněnou verzí (G5.3).
     ...entries.map((item) =>
       page(`/news/${item.slug}`, "monthly", 0.9, {
+        alternates: languagesOf(`/news/${item.slug}`, item.languages),
         lastModified: new Date(item.updated ?? item.published ?? now),
         images: item.hero ? [item.hero] : undefined,
       }),
     ),
     ...encyclopedia.map((item) =>
       page(`/entry/${item.slug}`, "monthly", 1, {
+        alternates: languagesOf(`/entry/${item.slug}`, item.languages),
         lastModified: new Date(item.updated ?? item.published ?? now),
         images: item.hero ? [item.hero] : undefined,
       }),

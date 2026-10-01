@@ -101,6 +101,16 @@ export default async function EntriesPage({
               </Link>
             ),
           },
+          {
+            key: "locale",
+            header: "Jazyk",
+            // Překlad (G5.3) je vidět hned v seznamu; originál bez značky.
+            cell: (row) => (
+              <span className="text-[11px] font-medium uppercase">
+                {row.translation_of ? row.locale : ""}
+              </span>
+            ),
+          },
           { key: "status", header: "Stav", cell: (row) => <StatusBadge status={row.status} /> },
           { key: "category", header: "Kategorie", cell: (row) => row.category, wide: true },
           {

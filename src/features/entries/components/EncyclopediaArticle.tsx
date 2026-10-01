@@ -33,7 +33,13 @@ export function EncyclopediaArticle({
   banner?: React.ReactNode;
 }) {
   return (
-    <ArticleFrame item={item} atlas={atlas} banner={banner} heroCaption={item.heroCredit}>
+    <ArticleFrame
+      item={item}
+      atlas={atlas}
+      banner={banner}
+      heroCaption={item.heroCredit}
+      lang={item.locale}
+    >
       <EntryHeader item={item} atlas={atlas} />
 
       {item.html ? <SafeHtml className="prose-atlas mt-7" html={item.html} /> : null}

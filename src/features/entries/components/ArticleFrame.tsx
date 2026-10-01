@@ -16,6 +16,7 @@ export function ArticleFrame({
   atlas,
   banner,
   heroCaption,
+  lang,
   children,
 }: {
   item: EntrySummary;
@@ -24,6 +25,8 @@ export function ArticleFrame({
   banner?: React.ReactNode;
   /** Kredit k titulní fotce (heslo ho podle zadání ukazuje). */
   heroCaption?: string;
+  /** Jazyk textu, když se liší od stránky (originál bez překladu) — kvůli čtečkám. */
+  lang?: string;
   children: React.ReactNode;
 }) {
   const region = item.region ? atlas.regionBySlug.get(item.region) : undefined;
@@ -41,7 +44,7 @@ export function ArticleFrame({
 
       <ContentRail wide>
         {banner}
-        <article>
+        <article lang={lang}>
           {hero ? (
             <figure className="m-0">
               <div

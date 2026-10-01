@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { EncyclopediaArticle } from "@/features/entries/components/EncyclopediaArticle";
+import { NotTranslated } from "@/features/entries/components/NotTranslated";
 import { getEncyclopediaEntries, getEncyclopediaEntry } from "@/features/entries/queries";
 import { redirectOrNotFound } from "@/features/redirects/queries";
 import { countriesOf } from "@/features/geography/model";
@@ -22,12 +23,14 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const item = await getEncyclopediaEntry(slug);
+  const locale = await localeFrom(params);
+  const item = await getEncyclopediaEntry(slug, locale);
   if (!item) return {};
   return {
     title: item.title,
     description: item.summary,
-    alternates: alternates(`/entry/${item.slug}`, await localeFrom(params)),
+    // Bez překladu je /cs kopie originálu — kanonická je adresa originálu.
+    alternates: alternates(`/entry/${item.slug}`, item.locale, item.languages),
     openGraph: {
       type: "article",
       title: `${item.title} — Atlas of Today's World`,
@@ -47,12 +50,10 @@ export default async function EntryPage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { slug } = await params;
-  const [item, atlas] = await Promise.all([
-    getEncyclopediaEntry(slug),
-    getAtlas(await localeFrom(params)),
-  ]);
+  const locale = await localeFrom(params);
+  const [item, atlas] = await Promise.all([getEncyclopediaEntry(slug, locale), getAtlas(locale)]);
   // Neznámá adresa: přesměrování (změněný slug), jinak 404.
-  if (!item) return redirectOrNotFound(`/entry/${slug}`, await localeFrom(params));
+  if (!item) return redirectOrNotFound(`/entry/${slug}`, locale);
 
   const region = item.region ? atlas.regionBySlug.get(item.region) : undefined;
   const words = [item.html, ...item.chapters.map((chapter) => chapter.html)]
@@ -63,7 +64,11 @@ export default async function EntryPage({
 
   return (
     <>
-      <EncyclopediaArticle item={item} atlas={atlas} />
+      <EncyclopediaArticle
+        item={item}
+        atlas={atlas}
+        banner={<NotTranslated page={locale} text={item.locale} />}
+      />
 
       <JsonLd
         data={[
@@ -78,7 +83,7 @@ export default async function EntryPage({
             datePublished: item.published,
             dateModified: item.updated ?? item.published,
             wordCount: words,
-            inLanguage: "en",
+            inLanguage: item.locale,
             isAccessibleForFree: true,
             author: item.author
               ? { "@type": "Person", name: item.author, description: item.authorProfile?.bio }

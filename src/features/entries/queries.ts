@@ -1,5 +1,6 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
+import { DEFAULT_LOCALE, isLocale, LOCALES, type Locale } from "@/features/i18n/config";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import type { NewsCategory, ResourceItem } from "@/lib/content-types";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
@@ -22,19 +23,26 @@ export interface EntrySummary {
   published?: string;
   updated?: string;
   readingMinutes?: number;
+  /** Jazyky, ve kterých je zveřejněná (originál + překlady) — pro hreflang. */
+  languages: Locale[];
+  /** Titulek a perex jsou z překladu do jazyka stránky (G5.3). */
+  translated?: boolean;
 }
 
 export interface Entry extends EntrySummary {
   /** Vyčištěné HTML (sanitizace při uložení i tady při čtení). */
   html: string;
+  /** Jazyk zobrazeného textu — liší se od stránky, když překlad chybí. */
+  locale: Locale;
 }
 
 // Anon smí jen vyjmenované sloupce (DB-08) — nikdy select *.
 const COLUMNS =
-  "slug, title, summary, category, region_slug, special_slug, cover_url, cover_credit, author_name, published_on, updated_at, reading_minutes, entry_countries(country_iso3)";
+  "slug, locale, title, summary, category, region_slug, special_slug, cover_url, cover_credit, author_name, published_on, updated_at, reading_minutes, entry_countries(country_iso3)";
 
 interface Row {
   slug: string;
+  locale: string;
   title: string;
   summary: string;
   category: string;
@@ -49,8 +57,9 @@ interface Row {
   entry_countries: { country_iso3: string }[];
 }
 
-function toSummary(row: Row): EntrySummary {
+function toSummary(row: Row, languages: Locale[] = [DEFAULT_LOCALE]): EntrySummary {
   return {
+    languages,
     slug: row.slug,
     title: row.title,
     summary: row.summary,
@@ -70,6 +79,25 @@ function toSummary(row: Row): EntrySummary {
 /** Novinka (`/news`), nebo encyklopedické heslo (`/entry`, P9). */
 type Kind = "news" | "entry";
 
+const toLocale = (value: string): Locale => (isLocale(value) ? value : DEFAULT_LOCALE);
+
+/** Zveřejněné překlady (jen titulek a perex) — pro seznamy a hreflang. */
+const getPublishedTranslations = unstable_cache(
+  async () => {
+    const { data, error } = await createPublicClient()
+      .from("entries")
+      .select("slug, kind, locale, title, summary")
+      .eq("status", "published")
+      .not("translation_of", "is", null)
+      .limit(5000);
+    if (error) throw new Error(`[entries] ${error.message}`);
+    return data;
+  },
+  ["entry-translations"],
+  { tags: [tags.entries], revalidate: PUBLIC_REVALIDATE_SECONDS },
+);
+
+/** Originály daného druhu (překlady jsou v seznamech jen jako titulek, ne dvakrát). */
 function listPublished(kind: Kind) {
   return unstable_cache(
     async (): Promise<EntrySummary[]> => {
@@ -78,41 +106,85 @@ function listPublished(kind: Kind) {
         .select(COLUMNS)
         .eq("status", "published")
         .eq("kind", kind)
+        .is("translation_of", null)
         .order("published_on", { ascending: false, nullsFirst: false })
         .limit(1000);
       if (error) throw new Error(`[entries] ${error.message}`);
-      return (data as Row[]).map(toSummary);
+      return (data as Row[]).map((row) => toSummary(row, [toLocale(row.locale)]));
     },
     [kind === "news" ? "entries" : "encyclopedia"],
     { tags: [tags.entries], revalidate: PUBLIC_REVALIDATE_SECONDS },
   );
 }
 
-/** Všechny zveřejněné novinky, od nejnovější. */
-export const getEntries = listPublished("news");
+/**
+ * Seznam originálů v jazyce stránky: kde existuje zveřejněný překlad, má
+ * přeložený titulek a perex (`translated`); `languages` slouží hreflangu.
+ */
+function localized(kind: Kind) {
+  const originals = listPublished(kind);
+  return async (locale: Locale = DEFAULT_LOCALE): Promise<EntrySummary[]> => {
+    const [list, translations] = await Promise.all([originals(), getPublishedTranslations()]);
+    const mine = translations.filter((row) => row.kind === kind);
+    return list.map((item) => {
+      const versions = mine.filter((row) => row.slug === item.slug);
+      const languages = LOCALES.filter(
+        (code) => item.languages.includes(code) || versions.some((row) => row.locale === code),
+      );
+      const own =
+        locale === item.languages[0] ? null : versions.find((row) => row.locale === locale);
+      return own
+        ? { ...item, languages, title: own.title, summary: own.summary, translated: true }
+        : { ...item, languages };
+    });
+  };
+}
 
-/** Všechna zveřejněná encyklopedická hesla, od nejnovějšího. */
-export const getEncyclopediaEntries = listPublished("entry");
+/** Zveřejněné novinky (originály), od nejnovější; titulky v jazyce stránky. */
+export const getEntries = localized("news");
 
-/** Jedna zveřejněná novinka i s textem; null, když neexistuje. */
-export function getEntry(slug: string): Promise<Entry | null> {
-  return unstable_cache(
-    async (): Promise<Entry | null> => {
+/** Zveřejněná encyklopedická hesla (originály), od nejnovějšího. */
+export const getEncyclopediaEntries = localized("entry");
+
+/**
+ * Ze zveřejněných jazykových verzí téhož slugu vybere tu v jazyce stránky,
+ * jinak originál. Vrací i seznam dostupných jazyků.
+ */
+function pickVersion<R extends Row & { translation_of: string | null }>(rows: R[], locale: Locale) {
+  const original = rows.find((row) => row.translation_of === null);
+  const row = rows.find((item) => item.locale === locale) ?? original ?? rows[0];
+  if (!row) return null;
+  const languages = LOCALES.filter((code) => rows.some((item) => item.locale === code));
+  return { row, languages, locale: toLocale(row.locale) };
+}
+
+/** Jedna zveřejněná novinka i s textem (v jazyce stránky, jinak originál); null, když neexistuje. */
+export async function getEntry(
+  slug: string,
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<Entry | null> {
+  const rows = await unstable_cache(
+    async () => {
       const { data, error } = await createPublicClient()
         .from("entries")
-        .select(`${COLUMNS}, body_html`)
+        .select(`${COLUMNS}, body_html, translation_of`)
         .eq("status", "published")
         .eq("kind", "news")
-        .eq("slug", slug)
-        .maybeSingle();
+        .eq("slug", slug);
       if (error) throw new Error(`[entries] ${error.message}`);
-      if (!data) return null;
-      const row = data as Row & { body_html: string };
-      return { ...toSummary(row), html: sanitizeRichHtml(row.body_html) };
+      return data as (Row & { body_html: string; translation_of: string | null })[];
     },
     ["entry", slug],
     { tags: [tags.entries, tags.entry(slug)], revalidate: PUBLIC_REVALIDATE_SECONDS },
   )();
+  const version = pickVersion(rows, locale);
+  if (!version) return null;
+  return {
+    ...toSummary(version.row, version.languages),
+    html: sanitizeRichHtml(version.row.body_html),
+    locale: version.locale,
+    translated: version.locale !== DEFAULT_LOCALE,
+  };
 }
 
 /** Kam článek patří — společné pro novinky, hesla i plánovaná hesla. */
@@ -156,9 +228,15 @@ export async function getPreview(token: string): Promise<Preview | null> {
   if (extra.error) throw new Error(`[preview] ${extra.error.message}`);
   if (!base.data || !extra.data) return null;
   const { countries, body_html, status, expires_at, ...row } = base.data;
+  // Jazyk náhledu RPC nevrací; náhled je mimo index, hreflang ani poznámku nepotřebuje.
   const item: Entry = {
-    ...toSummary({ ...row, entry_countries: countries.map((iso3) => ({ country_iso3: iso3 })) }),
+    ...toSummary({
+      ...row,
+      locale: DEFAULT_LOCALE,
+      entry_countries: countries.map((iso3) => ({ country_iso3: iso3 })),
+    }),
     html: sanitizeRichHtml(body_html),
+    locale: DEFAULT_LOCALE,
   };
   const meta = { status, expiresAt: expires_at };
   if (extra.data.kind !== "entry") return { ...meta, kind: "news", item };
@@ -280,39 +358,52 @@ const ENCYCLOPEDIA_COLUMNS = `${COLUMNS}, body_html, summary_points,
   entry_chapters(position, title, summary_points, body_html, illustration_url, illustration_credit, audio_url),
   resources(position, kind, title, source, url, image_url)`;
 
-/** Jedno zveřejněné heslo se vším, co stránka ukazuje; null, když neexistuje. */
-export function getEncyclopediaEntry(slug: string): Promise<Encyclopedia | null> {
-  return unstable_cache(
-    async (): Promise<Encyclopedia | null> => {
+/**
+ * Jedno zveřejněné heslo se vším, co stránka ukazuje — v jazyce stránky,
+ * jinak originál; null, když neexistuje.
+ */
+export async function getEncyclopediaEntry(
+  slug: string,
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<Encyclopedia | null> {
+  const rows = await unstable_cache(
+    async () => {
       const { data, error } = await createPublicClient()
         .from("entries")
-        .select(ENCYCLOPEDIA_COLUMNS)
+        .select(`${ENCYCLOPEDIA_COLUMNS}, translation_of`)
         .eq("status", "published")
         .eq("kind", "entry")
-        .eq("slug", slug)
-        .maybeSingle();
+        .eq("slug", slug);
       if (error) throw new Error(`[encyclopedia] ${error.message}`);
-      if (!data) return null;
-      const row = data as unknown as Row & {
+      return data as unknown as (Row & {
         body_html: string;
         summary_points: string[];
+        translation_of: string | null;
         authors: AuthorRow | null;
         entry_chapters: ChapterRow[];
         resources: ResourceRow[];
-      };
-      return toEncyclopedia(
-        { ...toSummary(row), html: sanitizeRichHtml(row.body_html) },
-        {
-          summary_points: row.summary_points,
-          author: row.authors,
-          chapters: row.entry_chapters,
-          resources: row.resources,
-        },
-      );
+      })[];
     },
     ["encyclopedia", slug],
     { tags: [tags.entries, tags.entry(slug)], revalidate: PUBLIC_REVALIDATE_SECONDS },
   )();
+  const version = pickVersion(rows, locale);
+  if (!version) return null;
+  const { row } = version;
+  return toEncyclopedia(
+    {
+      ...toSummary(row, version.languages),
+      html: sanitizeRichHtml(row.body_html),
+      locale: version.locale,
+      translated: version.locale !== DEFAULT_LOCALE,
+    },
+    {
+      summary_points: row.summary_points,
+      author: row.authors,
+      chapters: row.entry_chapters,
+      resources: row.resources,
+    },
+  );
 }
 
 /** Plánované, ještě nenapsané heslo — na portrétu šedivě a bez odkazu. */

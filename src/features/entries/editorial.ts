@@ -19,10 +19,13 @@ export interface EditorialRow {
   updated_at: string;
   review_note: string | null;
   publish_at: string | null;
+  /** Jazyk textu; překlad má navíc `translation_of` (G5.3). */
+  locale: string;
+  translation_of: string | null;
 }
 
 const LIST_COLUMNS =
-  "id, slug, title, status, category, region_slug, owner_id, author_name, updated_at, review_note, publish_at";
+  "id, slug, title, status, category, region_slug, owner_id, author_name, updated_at, review_note, publish_at, locale, translation_of";
 
 export async function listEntries({
   status,
@@ -81,6 +84,25 @@ export async function getEditableEntry(id: string): Promise<EditableEntry | null
     ...(rest as unknown as EditableEntry),
     countries: entry_countries.map((c) => c.country_iso3),
   };
+}
+
+/** Jazykové verze článku pro administraci: originál a všechny jeho překlady. */
+export async function listLanguageVersions(entry: { id: string; translation_of: string | null }) {
+  const supabase = await createServerClient();
+  const original = entry.translation_of ?? entry.id;
+  const { data, error } = await supabase
+    .from("entries")
+    .select("id, locale, title, status, translation_of")
+    .or(`id.eq.${original},translation_of.eq.${original}`)
+    .order("locale");
+  if (error) throw new Error(`[entries] ${error.message}`);
+  return data as {
+    id: string;
+    locale: string;
+    title: string;
+    status: EntryStatus;
+    translation_of: string | null;
+  }[];
 }
 
 /** Kapitola v editoru (pořadí = pozice). */

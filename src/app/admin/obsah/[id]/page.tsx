@@ -7,6 +7,8 @@ import { can, sectionAccess } from "@/features/auth/access";
 import { listAuthors } from "@/features/authors/editorial";
 import { saveEntryResources } from "@/features/entries/actions";
 import { ChaptersEditor } from "@/features/entries/components/ChaptersEditor";
+import { LanguageVersions } from "@/features/entries/components/LanguageVersions";
+import { DEFAULT_LOCALE, isLocale, localePath } from "@/features/i18n/config";
 import { EntryForm } from "@/features/entries/components/EntryForm";
 import { EntryWorkflow, RevisionList } from "@/features/entries/components/EntryWorkflow";
 import { PreviewShare } from "@/features/entries/components/PreviewShare";
@@ -15,6 +17,7 @@ import { VersionDiff } from "@/features/entries/components/VersionDiff";
 import {
   getEditableEntry,
   getEntryParts,
+  listLanguageVersions,
   listRevisions,
   publishedVersion,
 } from "@/features/entries/editorial";
@@ -30,7 +33,7 @@ export default async function EditEntryPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ ulozeno?: string }>;
+  searchParams: Promise<{ ulozeno?: string; preklad?: string }>;
 }) {
   const access = await sectionAccess("news");
   if (!access) return <NoAccess />;
@@ -42,19 +45,21 @@ export default async function EditEntryPage({
 
   const supabase = await createServerClient();
   const isEntry = entry.kind === "entry";
-  const [options, revisions, approve, edit, published, authors, parts] = await Promise.all([
-    getPickerOptions(),
-    listRevisions(id),
-    supabase.rpc("can_approve_entry", { p_entry: id }),
-    // Seedované články vlastníka nemají — pak rozhoduje rozsah role (news_scope).
-    supabase.rpc("can_edit_entry", { p_owner: entry.owner_id as string }),
-    entry.status === "pending" ? publishedVersion(id) : Promise.resolve(null),
-    listAuthors(),
-    isEntry ? getEntryParts(id) : Promise.resolve(null),
-  ]);
+  const [options, revisions, approve, edit, published, authors, parts, versions] =
+    await Promise.all([
+      getPickerOptions(),
+      listRevisions(id),
+      supabase.rpc("can_approve_entry", { p_entry: id }),
+      // Seedované články vlastníka nemají — pak rozhoduje rozsah role (news_scope).
+      supabase.rpc("can_edit_entry", { p_owner: entry.owner_id as string }),
+      entry.status === "pending" ? publishedVersion(id) : Promise.resolve(null),
+      listAuthors(),
+      isEntry ? getEntryParts(id) : Promise.resolve(null),
+      listLanguageVersions(entry),
+    ]);
   const canApprove = approve.data === true;
   const canEdit = edit.data === true && (entry.status !== "published" || canApprove);
-  const { ulozeno } = await searchParams;
+  const { ulozeno, preklad } = await searchParams;
 
   return (
     <>
@@ -65,13 +70,21 @@ export default async function EditEntryPage({
             <StatusBadge status={entry.status} />
             {entry.status === "published" ? (
               <Link
-                href={`/${isEntry ? "entry" : "news"}/${entry.slug}`}
+                href={localePath(
+                  isLocale(entry.locale) ? entry.locale : DEFAULT_LOCALE,
+                  `/${isEntry ? "entry" : "news"}/${entry.slug}`,
+                )}
                 className="text-[var(--color-link)] underline"
               >
                 Zobrazit na webu
               </Link>
             ) : null}
             {ulozeno ? <span role="status">Koncept vytvořen.</span> : null}
+            {preklad ? (
+              <span role="alert" className="text-red-700">
+                Překlad se nepodařilo vytvořit (nemáte právo psát, nebo už existuje).
+              </span>
+            ) : null}
           </span>
         }
       />
@@ -112,6 +125,14 @@ export default async function EditEntryPage({
               canDelete={canEdit && can(access.permissions, "news", "d")}
               reviewNote={entry.review_note}
               publishAt={entry.publish_at}
+            />
+          </section>
+          <section>
+            <h2 className="font-display mb-3 text-[16px] font-bold">Jazykové verze</h2>
+            <LanguageVersions
+              currentId={entry.id}
+              versions={versions}
+              canCreate={can(access.permissions, "news", "c")}
             />
           </section>
           {canEdit || canApprove ? (

@@ -16,7 +16,7 @@ export default async function EntryLayout({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { slug } = await params;
-  if (!(await getEncyclopediaEntry(slug)))
+  if (!(await getEncyclopediaEntry(slug, await localeFrom(params))))
     return redirectOrNotFound(`/entry/${slug}`, await localeFrom(params));
   return children;
 }

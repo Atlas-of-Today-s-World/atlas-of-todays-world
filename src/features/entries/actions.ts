@@ -14,6 +14,7 @@ import {
 } from "@/lib/actions";
 import { tags } from "@/lib/cache/tags";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
+import { DEFAULT_LOCALE, isLocale } from "@/features/i18n/config";
 import { uuid } from "@/lib/validation/common";
 import { COLLECTIONS } from "@/features/portraits/schema";
 import {
@@ -65,12 +66,18 @@ export async function saveEntry(_prev: ActionState, formData: FormData): Promise
   if (entryId) {
     const { data: current, error: readError } = await supabase
       .from("entries")
-      .select("status, slug")
+      .select("status, slug, kind, translation_of")
       .eq("id", entryId)
       .single();
     if (readError) return failed(readError);
-    // Zveřejněný článek nemění adresu — odkazy na něj už kolují.
-    const update = current.status === "published" ? { ...row, slug: current.slug } : { ...row };
+    // Zveřejněný článek nemění adresu — odkazy na něj už kolují. Překlad má
+    // adresu i druh vždy po originálu (hlídá i trigger v DB).
+    const update =
+      current.translation_of !== null
+        ? { ...row, slug: current.slug, kind: current.kind }
+        : current.status === "published"
+          ? { ...row, slug: current.slug }
+          : { ...row };
     const nextStatus =
       current.status === "draft" || current.status === "planned"
         ? planned
@@ -304,6 +311,26 @@ export async function unscheduleEntry(id: string): Promise<ActionState> {
   const { error } = await session.supabase.rpc("unschedule_entry", { p_entry: id });
   if (error) return failed(error);
   return { ok: true, message: "Plán zrušen, článek dál čeká na schválení." };
+}
+
+/**
+ * Nová jazyková verze článku (G5.3): DB funkce zkopíruje originál jako
+ * koncept volajícího v cílovém jazyce; dál jde stejným schvalováním.
+ */
+export async function createTranslation(formData: FormData): Promise<void> {
+  const entryId = String(formData.get("entry_id") ?? "");
+  const locale = String(formData.get("locale") ?? "");
+  if (!uuid.safeParse(entryId).success || !isLocale(locale) || locale === DEFAULT_LOCALE) {
+    redirect("/admin/obsah");
+  }
+  const session = await signedIn();
+  if (!session) redirect(`/login?next=/admin/obsah/${entryId}`);
+  const { data, error } = await session.supabase.rpc("create_entry_translation", {
+    p_entry: entryId,
+    p_locale: locale,
+  });
+  if (error) redirect(`/admin/obsah/${entryId}?preklad=chyba`);
+  redirect(`/admin/obsah/${data}?ulozeno=1`);
 }
 
 export async function deleteEntry(id: string): Promise<ActionState> {

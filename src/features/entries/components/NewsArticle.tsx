@@ -19,7 +19,7 @@ export function NewsArticle({
   banner?: React.ReactNode;
 }) {
   return (
-    <ArticleFrame item={item} atlas={atlas} banner={banner}>
+    <ArticleFrame item={item} atlas={atlas} banner={banner} lang={item.locale}>
       <p className={META_LINE}>
         <PlaceLinks item={item} atlas={atlas} />
         {item.author ? <span>By {item.author}</span> : null}

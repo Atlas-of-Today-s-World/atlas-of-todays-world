@@ -51,6 +51,8 @@ export function EntryForm({
   const isEntry = kind === "entry";
   const errors = state.fieldErrors ?? {};
   const published = entry?.status === "published";
+  // Překlad má adresu i druh po originálu (G5.3).
+  const translation = Boolean(entry?.translation_of);
   const field = (id: string, hint?: string) => describedBy(id, { hint, errors: errors[id] });
   const { clear } = backup;
 
@@ -109,9 +111,11 @@ export function EntryForm({
         label="Adresa (slug)"
         required
         hint={
-          published
-            ? "Zveřejněný článek adresu nemění — odkazy na něj už kolují."
-            : `atlasoftodaysworld.org/${isEntry ? "entry" : "news"}/${slug || "…"}`
+          translation
+            ? "Překlad má stejnou adresu jako originál, jen s jazykovou předponou."
+            : published
+              ? "Zveřejněný článek adresu nemění — odkazy na něj už kolují."
+              : `atlasoftodaysworld.org/${isEntry ? "entry" : "news"}/${slug || "…"}`
         }
         errors={errors.slug}
       >
@@ -121,7 +125,7 @@ export function EntryForm({
           required
           maxLength={120}
           value={slug}
-          readOnly={published}
+          readOnly={published || translation}
           onChange={(event) => {
             setSlugTouched(true);
             setSlug(event.target.value);
@@ -146,6 +150,7 @@ export function EntryForm({
             id="kind"
             name="kind"
             value={kind}
+            disabled={translation}
             onChange={(event) => setKind(event.target.value as "news" | "entry")}
           >
             <option value="news">Novinka</option>

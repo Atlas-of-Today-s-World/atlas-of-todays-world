@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { NewsArticle } from "@/features/entries/components/NewsArticle";
+import { NotTranslated } from "@/features/entries/components/NotTranslated";
 import { redirectOrNotFound } from "@/features/redirects/queries";
 import { getEntries, getEntry } from "@/features/entries/queries";
 import { countriesOf } from "@/features/geography/model";
@@ -22,13 +23,15 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const [item, atlas] = await Promise.all([getEntry(slug), getAtlas(await localeFrom(params))]);
+  const locale = await localeFrom(params);
+  const [item, atlas] = await Promise.all([getEntry(slug, locale), getAtlas(locale)]);
   if (!item) return {};
   const region = item.region ? atlas.regionBySlug.get(item.region) : undefined;
   return {
     title: item.title,
     description: item.summary,
-    alternates: alternates(`/news/${item.slug}`, await localeFrom(params)),
+    // Bez překladu je /cs kopie originálu — kanonická je adresa originálu.
+    alternates: alternates(`/news/${item.slug}`, item.locale, item.languages),
     openGraph: {
       type: "article",
       title: `${item.title} — Atlas of Today's World`,
@@ -52,9 +55,10 @@ export default async function NewsPage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { slug } = await params;
-  const [item, atlas] = await Promise.all([getEntry(slug), getAtlas(await localeFrom(params))]);
+  const locale = await localeFrom(params);
+  const [item, atlas] = await Promise.all([getEntry(slug, locale), getAtlas(locale)]);
   // Neznámá adresa: přesměrování (změněný slug), jinak 404.
-  if (!item) return redirectOrNotFound(`/news/${slug}`, await localeFrom(params));
+  if (!item) return redirectOrNotFound(`/news/${slug}`, locale);
 
   const region = item.region ? atlas.regionBySlug.get(item.region) : undefined;
   const issue = item.issue ? atlas.issueBySlug.get(item.issue) : undefined;
@@ -62,7 +66,11 @@ export default async function NewsPage({
 
   return (
     <>
-      <NewsArticle item={item} atlas={atlas} />
+      <NewsArticle
+        item={item}
+        atlas={atlas}
+        banner={<NotTranslated page={locale} text={item.locale} />}
+      />
 
       <JsonLd
         data={[
@@ -79,7 +87,7 @@ export default async function NewsPage({
               .replace(/<[^>]+>/g, " ")
               .split(/\s+/)
               .filter(Boolean).length,
-            inLanguage: "en",
+            inLanguage: item.locale,
             isAccessibleForFree: true,
             author: item.author
               ? { "@type": "Person", name: item.author }

@@ -16,6 +16,7 @@ export default async function NewsLayout({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { slug } = await params;
-  if (!(await getEntry(slug))) return redirectOrNotFound(`/news/${slug}`, await localeFrom(params));
+  if (!(await getEntry(slug, await localeFrom(params))))
+    return redirectOrNotFound(`/news/${slug}`, await localeFrom(params));
   return children;
 }
