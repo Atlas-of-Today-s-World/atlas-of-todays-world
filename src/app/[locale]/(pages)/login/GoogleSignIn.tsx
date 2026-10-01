@@ -4,9 +4,11 @@ import { useState } from "react";
 import { createBrowserClient } from "@/lib/supabase/browser";
 import { safeRedirect } from "@/lib/security/redirect";
 import { Button } from "@/components/ui/button";
+import { useMessages } from "@/components/i18n/LocaleProvider";
 
 /** Přesměruje na Google (PKCE); návrat zpracuje /auth/callback. */
 export default function GoogleSignIn({ next }: { next: string }) {
+  const t = useMessages().auth.google;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -20,7 +22,7 @@ export default function GoogleSignIn({ next }: { next: string }) {
       options: { redirectTo: callback.toString() },
     });
     if (failure) {
-      setError("Could not reach Google. Please try again.");
+      setError(t.unreachable);
       setBusy(false);
     }
   }
@@ -29,7 +31,7 @@ export default function GoogleSignIn({ next }: { next: string }) {
     <div>
       <Button variant="outline" block onClick={signIn} disabled={busy} className="gap-3">
         <GoogleMark />
-        {busy ? "Redirecting to Google…" : "Continue with Google"}
+        {busy ? t.redirecting : t.continue}
       </Button>
       {error ? (
         <p role="alert" className="mt-3 text-[13px] text-red-700">

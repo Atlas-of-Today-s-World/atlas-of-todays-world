@@ -5,7 +5,7 @@ import { emailAddress } from "@/lib/validation/common";
 export const EMAIL_CODE_LENGTH = 6;
 
 /** Jazyk e-mailu (šablony v supabase/templates čtou `.Data.locale`). */
-export const EMAIL_LOCALES = ["en", "cs"] as const;
+const EMAIL_LOCALES = ["en", "cs"] as const;
 
 /** Kam po přihlášení — cestu ověří až `safeRedirect`, tady jen délka. */
 const next = z.string().max(500).optional();
@@ -33,7 +33,7 @@ export const EmailCodeVerify = z.object({
  * Výsledek akcí přihlášení e-mailem. Chyby jsou kódy, ne věty — texty pro
  * čtenáře patří do překladů (src/messages), formulář si je vybere sám.
  */
-export type EmailAuthError =
+type EmailAuthError =
   | "disabled"
   | "invalid_email"
   | "invalid_code"

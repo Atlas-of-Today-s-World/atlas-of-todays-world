@@ -1,5 +1,6 @@
 import "server-only";
 import { NextResponse } from "next/server";
+import { splitLocale } from "@/features/i18n/config";
 import { safeRedirect } from "@/lib/security/redirect";
 import type { createServerClient } from "@/lib/supabase/server";
 
@@ -24,7 +25,8 @@ export async function signInDestination(supabase: Client, next: string | null) {
   const target = safeRedirect(next, DEFAULT_AFTER_SIGN_IN);
   await supabase.rpc("claim_invitation");
 
-  if (target === DEFAULT_AFTER_SIGN_IN) {
+  // Výchozí cíl v kterémkoli jazyce (/ucet, /cs/ucet) = člen týmu nemá kam jinam.
+  if (splitLocale(target).path === DEFAULT_AFTER_SIGN_IN) {
     const { data: role } = await supabase.rpc("my_role");
     if (role && role.id !== "reader") return "/admin";
   }

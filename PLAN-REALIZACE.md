@@ -130,6 +130,11 @@ Dělá se **před** napojením na DB, aby se komponenty přepisovaly jen jednou.
 
 - [ ] **G1** Vlastní SMTP (Resend) + ověřená doména; zapnout e-mailovou registraci čtenářů (feature flag),
       e-mailové pozvánky přes `inviteUserByEmail`, šablony e-mailů EN/CS, Turnstile. *(závisí na U5)*
+      *Kód připravený a vypnutý přepínačem `email_auth` (migrace 20261002000010): přihlášení šestimístným
+      kódem na /login (EN/CS, rate limit, Turnstile jen s `NEXT_PUBLIC_TURNSTILE_SITE_KEY`), pozvánky e-mailem,
+      šablony `supabase/templates/*`, Resend SMTP a captcha zakomentované v `config.toml`.
+      **Po U5:** nastavit SMTP Resend a captcha v obou projektech (`supabase config push` nebo dashboard),
+      `NEXT_PUBLIC_TURNSTILE_SITE_KEY` ve Vercelu, pak zapnout `email_auth` v administraci (Role a práva).*
 - [x] **G2** Náhled nepublikovaného obsahu + sdílitelný náhled s expirací (`/preview/[token]`, ADR-016); autosave editoru do prohlížeče.
 - [x] **G3** Plánované publikování (`publish_at` + pg_cron každých 5 min, `schedule_entry`/`unschedule_entry`, migrace 13),
       správa přesměrování (`redirects`, sekce news, uplatní se jen místo 404, migrace 14), týdenní kontrola odkazů

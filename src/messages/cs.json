@@ -26,5 +26,40 @@
     "close": "Zavřít",
     "backToGlobe": "Zpět na glóbus",
     "notTranslated": "Tento text zatím není přeložený — zobrazuje se anglický originál."
+  },
+  "auth": {
+    "title": "Přihlášení",
+    "lead": "Čtenáři si účet založí jedním kliknutím. Členové týmu Atlasu použijí stejný e-mail, na který dostali pozvánku.",
+    "errors": {
+      "callback": "Přihlášení se nedokončilo. Zkuste to prosím znovu.",
+      "config": "Přihlášení na tomto nasazení zatím nefunguje."
+    },
+    "google": {
+      "continue": "Pokračovat přes Google",
+      "redirecting": "Přesměrovávám na Google…",
+      "unreachable": "Google se nepodařilo zastihnout. Zkuste to prosím znovu."
+    },
+    "or": "nebo",
+    "email": {
+      "label": "E-mailová adresa",
+      "send": "Poslat přihlašovací kód",
+      "sending": "Odesílám…",
+      "sentTo": "Na {email} jsme poslali {length}místný kód.",
+      "codeLabel": "Kód z e-mailu",
+      "verify": "Přihlásit se",
+      "verifying": "Přihlašuji…",
+      "otherEmail": "Použít jiný e-mail",
+      "errors": {
+        "disabled": "Přihlášení e-mailem zatím není k dispozici.",
+        "invalid_email": "Zadejte platnou e-mailovou adresu.",
+        "invalid_code": "Kód má {length} číslic.",
+        "rate_limited": "Příliš mnoho pokusů. Počkejte prosím pár minut.",
+        "captcha": "Dokončete prosím bezpečnostní kontrolu.",
+        "send_failed": "E-mail se nepodařilo odeslat. Zkuste to prosím později.",
+        "wrong_code": "Kód je špatně, nebo už vypršel."
+      }
+    },
+    "privacy": "Jméno a e-mail používáme jen ke správě vašeho účtu.",
+    "emailSoon": "Přihlášení kódem z e-mailu bude brzy k dispozici."
   }
 }

@@ -975,8 +975,10 @@ test("přepínače: čte je každý, mění jen správa oprávnění", async () 
   const flags = await as(null, () => q("select key, enabled from feature_flags order by key"));
   assert.deepEqual(
     flags.map((f) => f.key),
-    ["maintenance", "newsletter"],
+    ["email_auth", "maintenance", "newsletter"],
   );
+  // Přihlášení a pozvánky e-mailem (G1) jsou vypnuté, dokud není vlastní SMTP (U5).
+  assert.equal(flags.find((f) => f.key === "email_auth").enabled, false);
   await as(null, () =>
     refused(q("update feature_flags set enabled = true where key = 'maintenance'")),
   );
