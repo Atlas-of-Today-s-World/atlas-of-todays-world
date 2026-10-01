@@ -25,6 +25,16 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // MapLibre z public/maplibre/<verze>/ (ADR-017): verze je v cestě, takže se
+  // soubor nikdy nezmění — prohlížeč ho může držet natrvalo.
+  async headers() {
+    return [
+      {
+        source: "/maplibre/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
+    ];
+  },
   // next/image se nepoužívá; optimizer vypnutý, aby /_next/image nebyl
   // otevřený proxy pro libovolný host.
   images: { unoptimized: true },

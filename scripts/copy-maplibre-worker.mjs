@@ -16,7 +16,9 @@ const { version } = JSON.parse(
 );
 const target = join(root, "public", "maplibre", version);
 mkdirSync(target, { recursive: true });
-for (const file of ["maplibre-gl-worker.mjs", "maplibre-gl-shared.mjs"]) {
+// Hlavní modul se načítá taky odsud (src/components/map/maplibre.ts), ať
+// hlavní vlákno i worker sdílejí jeden maplibre-gl-shared.mjs.
+for (const file of ["maplibre-gl.mjs", "maplibre-gl-worker.mjs", "maplibre-gl-shared.mjs"]) {
   copyFileSync(join(dist, file), join(target, file));
 }
 console.log(`maplibre worker ${version} → public/maplibre/${version}/`);

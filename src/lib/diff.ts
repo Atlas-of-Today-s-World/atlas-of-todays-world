@@ -5,15 +5,21 @@ export interface DiffPart {
 
 /** HTML článku → odstavce prostého textu (pro porovnání verzí). */
 export function paragraphs(html: string): string[] {
-  return html
-    .replace(/<\/(p|h[2-4]|li|blockquote|figcaption)>/gi, "\n")
-    .replace(/<[^>]+>/g, "")
+  let text = html.replace(/<\/(p|h[2-4]|li|blockquote|figcaption)>/gi, "\n");
+  // Opakovaně, dokud se něco mění — jinak by z „<<b>i>" zbyla značka.
+  for (let previous = ""; previous !== text;) {
+    previous = text;
+    text = text.replace(/<[^>]*>/g, "");
+  }
+  // Výstup je prostý text pro porovnání (React ho escapuje); &amp; až nakonec,
+  // ať se „&amp;lt;" nedekóduje dvakrát.
+  return text
     .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, "&")
     .split("\n")
     .map((line) => line.trim())
     .filter(Boolean);

@@ -2,16 +2,15 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useLocalizedRouter } from "@/components/i18n/useLocalizedRouter";
-import {
-  getVersion,
+import type {
   Map as MapLibreMap,
-  setWorkerUrl,
-  type ErrorEvent,
-  type ExpressionSpecification,
-  type MapMouseEvent,
-  type MapSourceDataEvent,
+  ErrorEvent,
+  ExpressionSpecification,
+  MapMouseEvent,
+  MapSourceDataEvent,
 } from "maplibre-gl";
 import { Minus, Plus } from "lucide-react";
+import { loadMapLibre } from "./maplibre";
 import { buildStyle, LAYERS, type RegionLabel, type StyleOptions } from "./mapStyle";
 import { EUROPE_CENTER, globeFillZoom } from "@/lib/home-location";
 import { useMapState } from "./MapContext";
@@ -142,127 +141,135 @@ export default function AtlasGlobe({
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
-    // Worker leží v public/ (scripts/copy-maplibre-worker.mjs) — bundler ho neveze.
-    setWorkerUrl(`/maplibre/${getVersion()}/maplibre-gl-worker.mjs`);
-    const map = new MapLibreMap({
-      container: containerRef.current,
-      style: buildStyle(regionLabels, styleOptions),
-      // První snímek rovnou ve výchozí vzdálenosti, ať se mapa nezobrazí
-      // nejdřív jako malá kulička a teprve pak nepřiletí.
-      center: EUROPE_CENTER,
-      zoom: globeFillZoom(),
-      minZoom: 0.8,
-      maxZoom: 9,
-      attributionControl: { compact: true },
-      dragRotate: true,
-      maxPitch: 0,
-    });
-    mapRef.current = map;
+    let cancelled = false;
+    let cleanup: (() => void) | undefined;
+    // MapLibre i jeho worker z public/ (loadMapLibre, ADR-017).
+    void loadMapLibre().then(({ Map: MapLibreMap }) => {
+      if (cancelled || !containerRef.current) return;
+      const map = new MapLibreMap({
+        container: containerRef.current,
+        style: buildStyle(regionLabels, styleOptions),
+        // První snímek rovnou ve výchozí vzdálenosti, ať se mapa nezobrazí
+        // nejdřív jako malá kulička a teprve pak nepřiletí.
+        center: EUROPE_CENTER,
+        zoom: globeFillZoom(),
+        minZoom: 0.8,
+        maxZoom: 9,
+        attributionControl: { compact: true },
+        dragRotate: true,
+        maxPitch: 0,
+      });
+      mapRef.current = map;
 
-    map.on("error", (event: ErrorEvent) => {
-      console.error("[atlas-globe]", event.error?.message ?? event);
-    });
+      map.on("error", (event: ErrorEvent) => {
+        console.error("[atlas-globe]", event.error?.message ?? event);
+      });
 
-    map.on("load", () => {
-      readyRef.current = true;
-      setReady(true);
-    });
+      map.on("load", () => {
+        readyRef.current = true;
+        setReady(true);
+      });
 
-    // Stav pro e2e testy a diagnostiku: hranice zemí jsou načtené a vykreslené.
-    // "idle" nestačí — při animaci kamery nemusí přijít; sourcedata přijde vždy.
-    const markCountriesLoaded = (event: MapSourceDataEvent) => {
-      if (event.sourceId !== "countries" || !map.isSourceLoaded("countries")) return;
-      containerRef.current?.setAttribute("data-countries", "loaded");
-      map.off("sourcedata", markCountriesLoaded);
-    };
-    map.on("sourcedata", markCountriesLoaded);
+      // Stav pro e2e testy a diagnostiku: hranice zemí jsou načtené a vykreslené.
+      // "idle" nestačí — při animaci kamery nemusí přijít; sourcedata přijde vždy.
+      const markCountriesLoaded = (event: MapSourceDataEvent) => {
+        if (event.sourceId !== "countries" || !map.isSourceLoaded("countries")) return;
+        containerRef.current?.setAttribute("data-countries", "loaded");
+        map.off("sourcedata", markCountriesLoaded);
+      };
+      map.on("sourcedata", markCountriesLoaded);
 
-    /** Co je pod kurzorem: ISO3 země, její název a cílová URL podle režimu. */
-    const targetAt = (point: MapMouseEvent["point"]) => {
-      const feature = map.queryRenderedFeatures(point, {
-        layers: [LAYERS.fill],
-      })[0];
-      const iso3 = (feature?.properties?.iso3 as string | undefined) ?? null;
-      if (!iso3) return null;
+      /** Co je pod kurzorem: ISO3 země, její název a cílová URL podle režimu. */
+      const targetAt = (point: MapMouseEvent["point"]) => {
+        const feature = map.queryRenderedFeatures(point, {
+          layers: [LAYERS.fill],
+        })[0];
+        const iso3 = (feature?.properties?.iso3 as string | undefined) ?? null;
+        if (!iso3) return null;
 
-      // Skupinové režimy: kliknutí otevře celý celek, ne jednu zemi.
-      if (modeRef.current === "regions" || modeRef.current === "issue") {
-        const isIssue = modeRef.current === "issue";
-        const lookup = isIssue ? issueRef.current : regionsRef.current;
-        const slug = lookup.slugByCountry[iso3];
-        const group = slug ? lookup.bySlug[slug] : undefined;
-        if (!group) return null;
+        // Skupinové režimy: kliknutí otevře celý celek, ne jednu zemi.
+        if (modeRef.current === "regions" || modeRef.current === "issue") {
+          const isIssue = modeRef.current === "issue";
+          const lookup = isIssue ? issueRef.current : regionsRef.current;
+          const slug = lookup.slugByCountry[iso3];
+          const group = slug ? lookup.bySlug[slug] : undefined;
+          if (!group) return null;
+          return {
+            iso3,
+            label: group.name,
+            href: isIssue ? `/global-issue/${slug}` : `/region/${slug}`,
+            countries: group.countries,
+          };
+        }
+
+        const slug = slugsRef.current[iso3];
+        if (!slug) return null;
         return {
           iso3,
-          label: group.name,
-          href: isIssue ? `/global-issue/${slug}` : `/region/${slug}`,
-          countries: group.countries,
+          label: (feature?.properties?.name as string) ?? iso3,
+          href: `/country/${slug}`,
+          countries: [iso3],
         };
-      }
-
-      const slug = slugsRef.current[iso3];
-      if (!slug) return null;
-      return {
-        iso3,
-        label: (feature?.properties?.name as string) ?? iso3,
-        href: `/country/${slug}`,
-        countries: [iso3],
       };
-    };
 
-    /** Přepočítá zvýraznění pro daný bod na plátně. */
-    const applyHover = (point: MapMouseEvent["point"] | null) => {
-      const target = point ? targetAt(point) : null;
-      const key = target?.href ?? null;
-      if (key === hoveredRef.current) return;
-      hoveredRef.current = key;
+      /** Přepočítá zvýraznění pro daný bod na plátně. */
+      const applyHover = (point: MapMouseEvent["point"] | null) => {
+        const target = point ? targetAt(point) : null;
+        const key = target?.href ?? null;
+        if (key === hoveredRef.current) return;
+        hoveredRef.current = key;
 
-      // Zvýrazněné země držíme ve feature-state. Je to jen příznak na už
-      // nahrané geometrii, takže mapa nic nepřetesává a nebliká.
-      setHoverState(map, hoveredIsoRef, target ? target.countries : []);
+        // Zvýrazněné země držíme ve feature-state. Je to jen příznak na už
+        // nahrané geometrii, takže mapa nic nepřetesává a nebliká.
+        setHoverState(map, hoveredIsoRef, target ? target.countries : []);
 
-      setHoverLabel(target?.label ?? null);
-      map.getCanvas().style.cursor = target ? "pointer" : "grab";
+        setHoverLabel(target?.label ?? null);
+        map.getCanvas().style.cursor = target ? "pointer" : "grab";
 
-      // Obsah panelu stáhneme už při najetí, ať je klik okamžitý.
-      if (target && !prefetchedRef.current.has(target.href)) {
-        prefetchedRef.current.add(target.href);
-        router.prefetch(target.href);
-      }
-    };
+        // Obsah panelu stáhneme už při najetí, ať je klik okamžitý.
+        if (target && !prefetchedRef.current.has(target.href)) {
+          prefetchedRef.current.add(target.href);
+          router.prefetch(target.href);
+        }
+      };
 
-    const onMove = (event: MapMouseEvent) => {
-      cursorRef.current = event.point;
-      applyHover(event.point);
-    };
+      const onMove = (event: MapMouseEvent) => {
+        cursorRef.current = event.point;
+        applyHover(event.point);
+      };
 
-    const onClick = (event: MapMouseEvent) => {
-      const target = targetAt(event.point);
-      if (!target) return;
-      setPending({ iso3: target.iso3, since: activeRef.current });
-      router.push(target.href);
-    };
+      const onClick = (event: MapMouseEvent) => {
+        const target = targetAt(event.point);
+        if (!target) return;
+        setPending({ iso3: target.iso3, since: activeRef.current });
+        router.push(target.href);
+      };
 
-    // Během přeletu kamery se pod nehybným kurzorem vystřídají různé země.
-    // Zvýraznění proto na začátku pohybu zhasneme a po dojezdu přepočítáme,
-    // jinak by na mapě zůstala viset náhodná země z půlky animace.
-    const onMoveStart = () => {
-      hoveredRef.current = null;
-      setHoverState(map, hoveredIsoRef, []);
-      setHoverLabel(null);
-    };
-    const onMoveEnd = () => applyHover(cursorRef.current);
+      // Během přeletu kamery se pod nehybným kurzorem vystřídají různé země.
+      // Zvýraznění proto na začátku pohybu zhasneme a po dojezdu přepočítáme,
+      // jinak by na mapě zůstala viset náhodná země z půlky animace.
+      const onMoveStart = () => {
+        hoveredRef.current = null;
+        setHoverState(map, hoveredIsoRef, []);
+        setHoverLabel(null);
+      };
+      const onMoveEnd = () => applyHover(cursorRef.current);
 
-    map.on("mousemove", onMove);
-    map.on("click", onClick);
-    map.on("movestart", onMoveStart);
-    map.on("moveend", onMoveEnd);
-    map.on("mouseout", () => applyHover(null));
+      map.on("mousemove", onMove);
+      map.on("click", onClick);
+      map.on("movestart", onMoveStart);
+      map.on("moveend", onMoveEnd);
+      map.on("mouseout", () => applyHover(null));
 
+      cleanup = () => {
+        map.remove();
+        mapRef.current = null;
+        readyRef.current = false;
+      };
+    });
     return () => {
-      map.remove();
-      mapRef.current = null;
-      readyRef.current = false;
+      cancelled = true;
+      cleanup?.();
     };
     // Mapa se schválně nevytváří znovu – závislosti čte přes ref/router.
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -30,7 +30,8 @@ export function UploadField({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const preview = kind === "image" ? cssBackgroundImage(url) : undefined;
-  const audio = kind === "audio" ? safeUrl(url) : null;
+  // Přehrávač jen pro https adresu (safeUrl zahodí i javascript: a data:).
+  const audio = kind === "audio" && /^https:\/\//.test(url) ? safeUrl(url) : null;
 
   return (
     <div className="grid gap-2">
