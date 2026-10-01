@@ -29,8 +29,9 @@ export function buildCsp({ dev, supabaseUrl }: { dev: boolean; supabaseUrl?: str
       supabaseHttp,
       supabaseWs,
     ],
-    // Zvukové verze hesel (P9) leží ve Storage Supabase (bucket entry-audio).
-    "media-src": ["'self'", supabaseHttp],
+    // Zvukové verze hesel (P9): Storage Supabase, nebo https adresa vložená v editoru
+    // (stejně jako obrázky). Zvuk nespustí skript, proto stačí https.
+    "media-src": ["'self'", "https:"],
     "frame-src": [
       "https://flo.uri.sh",
       "https://public.flourish.studio",
