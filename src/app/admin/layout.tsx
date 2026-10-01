@@ -90,5 +90,5 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 }
 
 function Shell({ children }: { children: React.ReactNode }) {
-  return <div className="min-h-dvh bg-white text-[var(--color-ink)]">{children}</div>;
+  return <div className="min-h-dvh bg-white text-[var(--color-ink)] scheme-light">{children}</div>;
 }

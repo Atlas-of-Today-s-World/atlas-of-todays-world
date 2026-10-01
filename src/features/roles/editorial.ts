@@ -38,21 +38,27 @@ export interface AuditRow {
   detail: unknown;
 }
 
-export async function auditLog({
-  action,
-  target,
-}: {
-  action?: string;
-  target?: string;
-}): Promise<AuditRow[]> {
+/**
+ * Posledních 1000 změn; `q` hledá v akci, cíli i e-mailu autora změny v DB
+ * (tabulka pak dohledává jen v načtených řádcích).
+ */
+export async function auditLog(q?: string): Promise<AuditRow[]> {
   const supabase = await createServerClient();
   let query = supabase
     .from("audit_log")
     .select("id, at, actor_email, action, target, detail")
     .order("at", { ascending: false })
-    .limit(300);
-  if (action?.trim()) query = query.ilike("action", `%${action.trim().replace(/[%_]/g, "")}%`);
-  if (target?.trim()) query = query.ilike("target", `%${target.trim().replace(/[%_]/g, "")}%`);
+    .limit(1000);
+  // Hodnota ve filtru .or() v uvozovkách, bez znaků, které by filtr rozbily (jako u účtů).
+  const needle = q
+    ?.trim()
+    .replace(/[%_,()"\\]/g, "")
+    .slice(0, 100);
+  if (needle) {
+    query = query.or(
+      `action.ilike."%${needle}%",target.ilike."%${needle}%",actor_email.ilike."%${needle}%"`,
+    );
+  }
   const { data, error } = await query;
   if (error) throw new Error(`[audit] ${error.message}`);
   return data as AuditRow[];

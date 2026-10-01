@@ -1,21 +1,13 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useActionState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
-import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { FormField, Select } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
-import { grantMembership, revokeMembership } from "../actions";
+import { grantMembership } from "../actions";
+import { PLAN_LABEL } from "../labels";
 import { ActionForm } from "@/components/ui/action-form";
-
-export const PLAN_LABEL: Record<string, string> = {
-  none: "—",
-  patron: "Patron",
-  founding: "Founding patron",
-  institution: "Institution",
-};
 
 export function GrantForm({ accounts }: { accounts: { id: string; label: string }[] }) {
   const [state, action] = useActionState<ActionState, FormData>(grantMembership, { ok: false });
@@ -51,22 +43,5 @@ export function GrantForm({ accounts }: { accounts: { id: string; label: string 
         <ActionStatus state={state} />
       </div>
     </ActionForm>
-  );
-}
-
-export function RevokeMembership({ userId, label }: { userId: string; label: string }) {
-  const router = useRouter();
-  return (
-    <ConfirmButton
-      label="Revoke"
-      variant="danger"
-      title={`Revoke complimentary membership – ${label}?`}
-      body="The account will no longer be an Atlas Patron."
-      confirm="Revoke"
-      action={() => revokeMembership(userId)}
-      onDone={(state) => {
-        if (state.ok) router.refresh();
-      }}
-    />
   );
 }

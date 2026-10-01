@@ -220,9 +220,9 @@ test.describe("ruční hodnota ukazatele", () => {
     page.locator("form").filter({ has: page.getByRole("button", { name: "Save value" }) });
 
   async function fillValue(page: Page, source: string) {
-    await page.getByLabel("Country").selectOption(country);
+    await page.getByLabel(/^Country( \*)?$/).selectOption(country);
     await page.getByLabel(/^Value( \*)?$/).fill("12.5");
-    await page.getByLabel("Year").fill("2025");
+    await page.getByLabel(/^Year( \*)?$/).fill("2025");
     await page.getByLabel("Value source").fill(source);
     await page.getByRole("button", { name: "Save value" }).click();
   }
@@ -247,9 +247,9 @@ test.describe("ruční hodnota ukazatele", () => {
     await expect(valueForm(page).getByRole("alert")).toHaveText(
       "Please check the highlighted fields.",
     );
-    await expect(page.getByLabel("Country")).toHaveValue(country);
+    await expect(page.getByLabel(/^Country( \*)?$/)).toHaveValue(country);
     await expect(page.getByLabel(/^Value( \*)?$/)).toHaveValue("12.5");
-    await expect(page.getByLabel("Year")).toHaveValue("2025");
+    await expect(page.getByLabel(/^Year( \*)?$/)).toHaveValue("2025");
   });
 
   test("data-editor se zdrojem hodnotu uloží", async ({ page }) => {
@@ -257,7 +257,9 @@ test.describe("ruční hodnota ukazatele", () => {
     const source = `e2e zdroj ${run}`;
     await fillValue(page, source);
     await expect(valueForm(page).getByRole("status")).toHaveText("Value saved.");
-    await expect(page.getByText(`Manual: ${source}`)).toBeVisible();
+    // Tabulka hodnot je stránkovaná — ruční hodnotu najde hledání v liště tabulky.
+    await page.getByRole("searchbox", { name: /^Search Values of/ }).fill(source);
+    await expect(page.getByRole("cell", { name: source })).toBeVisible();
     const { data } = await service
       .from("indicator_values")
       .select("value, year, is_manual, source_note")
@@ -306,6 +308,8 @@ test.describe("mapové oblasti", () => {
   test("role s právem ploch plochu založí a smaže", async ({ page }) => {
     await signInAs(page, areasRole, "/admin/areas");
     await page.getByRole("link", { name: "New area" }).click();
+    // Seznam má v hlavičce tabulky ovládání se jmény sloupců („Filter Name") — počkat na formulář.
+    await expect(page).toHaveURL((url) => url.pathname === "/admin/areas/new");
     await page.getByLabel("Name").fill(`E2E plocha ${run}`);
     await page.getByLabel("Identifier").fill(slug);
     await page.getByLabel("Shape (GeoJSON Polygon)").fill(polygon);

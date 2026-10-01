@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { DataTable } from "@/components/admin/DataTable";
 import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
-import { cn } from "@/lib/cn";
+import { DataTable } from "@/components/data-table/DataTable";
+import { RowActions } from "@/components/data-table/RowActions";
+import { editAction } from "@/components/data-table/row-actions";
+import { optionStats } from "@/components/data-table/stats";
+import { ToolbarLink } from "@/components/data-table/ToolbarLink";
+import { navIcon } from "@/config/admin-nav";
 import { can, getAccess } from "@/features/auth/access";
 import { LOCALE_NAMES, type Locale } from "@/features/i18n/config";
 import { listTranslations } from "@/features/i18n/editorial";
@@ -16,13 +19,11 @@ import {
 
 export const metadata: Metadata = { title: "Translations" };
 
-const tab = (active: boolean) =>
-  cn(
-    "inline-flex min-h-(--touch-min) items-center rounded-full border px-4 text-[13px]",
-    active
-      ? "border-[var(--color-accent)] bg-[var(--color-accent)] text-white"
-      : "border-[var(--color-line)] hover:border-[var(--color-accent)]",
-  );
+const STATE = [
+  { value: "done", label: "Translated", tone: "success" as const },
+  { value: "partial", label: "In progress", tone: "warning" as const },
+  { value: "missing", label: "Missing", tone: "neutral" as const },
+];
 
 export default async function TranslationsPage({
   searchParams,
@@ -51,65 +52,98 @@ export default async function TranslationsPage({
   return (
     <>
       <PageHeader
+        icon={navIcon("/admin/translations")}
         title="Translations"
         lead={`Atlas texts in other languages. Anything untranslated is shown in English. Done: ${done} of ${items.length}.`}
       />
-      <nav aria-label="Content type" className="mb-3 flex flex-wrap gap-2">
-        {entities.map((item) => (
-          <Link
-            key={item}
-            href={query({ kind: item })}
-            className={tab(item === entity)}
-            aria-current={item === entity ? "page" : undefined}
-          >
-            {ENTITY_LABELS[item]}
-          </Link>
-        ))}
-      </nav>
-      {TARGET_LOCALES.length > 1 ? (
-        <nav aria-label="Language" className="mb-5 flex flex-wrap gap-2">
-          {TARGET_LOCALES.map((item) => (
-            <Link
-              key={item}
-              href={query({ locale: item })}
-              className={tab(item === locale)}
-              aria-current={item === locale ? "page" : undefined}
-            >
-              {LOCALE_NAMES[item]}
-            </Link>
-          ))}
-        </nav>
-      ) : null}
       <DataTable
+        key={`${entity}-${locale}`}
+        tableKey={`admin-translations-${entity}`}
         caption={`${ENTITY_LABELS[entity]} – ${LOCALE_NAMES[locale]}`}
-        rows={items}
-        rowKey={(item) => item.key}
+        emptyTitle="Nothing to translate"
+        initialSort={{ key: "name", dir: "asc" }}
+        stats={optionStats("state", STATE)}
+        toolbar={
+          <>
+            {entities.map((item) => (
+              <ToolbarLink
+                key={item}
+                kind="tab"
+                href={query({ kind: item })}
+                active={item === entity}
+              >
+                {ENTITY_LABELS[item]}
+              </ToolbarLink>
+            ))}
+            {TARGET_LOCALES.length > 1
+              ? TARGET_LOCALES.map((item) => (
+                  <ToolbarLink
+                    key={item}
+                    kind="tab"
+                    href={query({ locale: item })}
+                    active={item === locale}
+                  >
+                    {LOCALE_NAMES[item]}
+                  </ToolbarLink>
+                ))
+              : null}
+          </>
+        }
+        actionsWidth="48px"
         columns={[
           {
             key: "name",
-            header: "Original",
-            cell: (item) => (
-              <Link
-                href={`/admin/translations/${entity}/${encodeURIComponent(item.key)}?locale=${locale}`}
-                className="font-medium hover:underline"
-              >
-                {item.name}
-              </Link>
-            ),
+            label: "Original",
+            link: true,
+            sortable: true,
+            filter: "text",
+            width: "minmax(200px, 2fr)",
           },
           {
             key: "translated",
-            header: LOCALE_NAMES[locale],
-            cell: (item) => item.translatedName ?? "—",
-            wide: true,
+            label: LOCALE_NAMES[locale],
+            sortable: true,
+            filter: "text",
+            width: "minmax(200px, 2fr)",
           },
           {
-            key: "done",
-            header: "Translated",
-            cell: (item) => `${item.done} / ${item.total}`,
-            end: true,
+            key: "state",
+            label: "State",
+            kind: "badge",
+            options: STATE,
+            sortable: true,
+            filter: "select",
+            width: "120px",
+          },
+          {
+            key: "progress",
+            label: "Fields",
+            kind: "number",
+            align: "right",
+            sortable: true,
+            width: "96px",
           },
         ]}
+        rows={items.map((item) => {
+          const href = `/admin/translations/${entity}/${encodeURIComponent(item.key)}?locale=${locale}`;
+          return {
+            id: item.key,
+            href,
+            values: {
+              name: item.name,
+              translated: item.translatedName,
+              state:
+                item.total > 0 && item.done === item.total
+                  ? "done"
+                  : item.done > 0
+                    ? "partial"
+                    : "missing",
+              progress: item.total ? item.done / item.total : 0,
+            },
+            cells: { progress: `${item.done} / ${item.total}` },
+            actions: <RowActions actions={[editAction(href, "Translate")]} />,
+          };
+        })}
       />
     </>
   );

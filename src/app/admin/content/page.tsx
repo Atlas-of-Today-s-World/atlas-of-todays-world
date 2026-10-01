@@ -1,19 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { DataTable } from "@/components/admin/DataTable";
+import { UserRound } from "lucide-react";
 import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
+import { DataTable } from "@/components/data-table/DataTable";
+import { RowActions } from "@/components/data-table/RowActions";
+import { editAction, openAction } from "@/components/data-table/row-actions";
+import { optionStats } from "@/components/data-table/stats";
+import { ToolbarLink } from "@/components/data-table/ToolbarLink";
 import { buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/field";
+import { navIcon } from "@/config/admin-nav";
 import { can, sectionAccess } from "@/features/auth/access";
-import { StatusBadge } from "@/features/entries/components/StatusBadge";
-import { listEntries, type EditorialRow } from "@/features/entries/editorial";
-import { ENTRY_STATUSES, STATUS_LABEL, type EntryStatus } from "@/features/entries/schema";
-import { cn } from "@/lib/cn";
+import { STATUS_OPTIONS } from "@/features/entries/components/StatusBadge";
+import { listEntries } from "@/features/entries/editorial";
+import { ENTRY_STATUSES, type EntryStatus } from "@/features/entries/schema";
 
 export const metadata: Metadata = { title: "News & entries" };
-
-const dateFormat = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium" });
 
 export default async function EntriesPage({
   searchParams,
@@ -27,105 +29,100 @@ export default async function EntriesPage({
     ? (params.status as EntryStatus)
     : undefined;
   const mine = params.mine === "1";
-  const rows = await listEntries({ status, q: params.q, mine, userId: access.userId });
-
-  const filterHref = (next: { status?: string; mine?: boolean }) => {
-    const search = new URLSearchParams();
-    if (next.status) search.set("status", next.status);
-    if (next.mine ?? mine) search.set("mine", "1");
-    if (params.q) search.set("q", params.q);
-    const query = search.toString();
-    return query ? `/admin/content?${query}` : "/admin/content";
-  };
+  // Status is filtered in the table (KPI chips); the server narrows by title and owner.
+  const rows = await listEntries({ q: params.q, mine, userId: access.userId });
+  const mineHref = `/admin/content?${new URLSearchParams({
+    ...(mine ? {} : { mine: "1" }),
+    ...(params.q ? { q: params.q } : {}),
+  })}`;
 
   return (
     <>
       <PageHeader
+        icon={navIcon("/admin/content")}
         title="News & entries"
         lead="Drafts, articles pending approval and published content. Publishing always goes through approval."
         actions={
           can(access.permissions, "news", "c") ? (
-            <Link href="/admin/content/new" className={buttonVariants()}>
+            <Link href="/admin/content/new" className={buttonVariants({ size: "sm" })}>
               New article
             </Link>
           ) : null
         }
       />
-
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        {[undefined, ...ENTRY_STATUSES].map((value) => (
-          <Link
-            key={value ?? "all"}
-            href={filterHref({ status: value })}
-            aria-current={status === value ? "page" : undefined}
-            className={cn(
-              buttonVariants({ variant: "outline", size: "sm" }),
-              status === value && "border-[var(--color-accent)] text-[var(--color-accent)]",
-            )}
-          >
-            {value ? STATUS_LABEL[value] : "All"}
-          </Link>
-        ))}
-        <Link
-          href={filterHref({ status, mine: !mine })}
-          aria-pressed={mine}
-          className={cn(
-            buttonVariants({ variant: "ghost", size: "sm" }),
-            mine && "font-semibold text-[var(--color-accent)]",
-          )}
-        >
-          {mine ? "✓ Only mine" : "Only mine"}
-        </Link>
-        <form className="ml-auto flex gap-2" action="/admin/content">
-          {status ? <input type="hidden" name="status" value={status} /> : null}
-          {mine ? <input type="hidden" name="mine" value="1" /> : null}
-          <label htmlFor="q" className="sr-only">
-            Search titles
-          </label>
-          <Input id="q" name="q" type="search" placeholder="Search…" defaultValue={params.q} />
-        </form>
-      </div>
-
-      <DataTable<EditorialRow>
+      <DataTable
+        tableKey="admin-entries"
         caption="Articles"
-        rows={rows}
-        rowKey={(row) => row.id}
-        empty="No articles match the filter."
+        searchParam="q"
+        searchPlaceholder="Search articles…"
+        seedFilters={status ? { status: [status] } : undefined}
+        initialSort={{ key: "updated", dir: "desc" }}
+        emptyTitle="No articles yet"
+        stats={optionStats("status", STATUS_OPTIONS)}
+        toolbar={
+          <ToolbarLink href={mineHref} active={mine}>
+            <UserRound aria-hidden className="size-3.5" /> Only mine
+          </ToolbarLink>
+        }
+        actionsWidth="64px"
         columns={[
           {
             key: "title",
-            header: "Title",
-            cell: (row) => (
-              <Link href={`/admin/content/${row.id}`} className="font-medium hover:underline">
-                {row.title}
-              </Link>
-            ),
+            label: "Title",
+            link: true,
+            sortable: true,
+            filter: "text",
+            width: "minmax(240px, 3fr)",
           },
           {
             key: "locale",
-            header: "Language",
-            // Překlad (G5.3) je vidět hned v seznamu; originál bez značky.
-            cell: (row) => (
-              <span className="text-[11px] font-medium uppercase">
-                {row.translation_of ? row.locale : ""}
-              </span>
-            ),
+            label: "Language",
+            sortable: true,
+            filter: "select",
+            width: "120px",
           },
-          { key: "status", header: "Status", cell: (row) => <StatusBadge status={row.status} /> },
-          { key: "category", header: "Category", cell: (row) => row.category, wide: true },
           {
-            key: "author",
-            header: "Author",
-            cell: (row) => row.author_name ?? "—",
-            wide: true,
+            key: "status",
+            label: "Status",
+            kind: "badge",
+            options: STATUS_OPTIONS,
+            sortable: true,
+            filter: "select",
+            width: "150px",
           },
+          { key: "category", label: "Category", sortable: true, filter: "select" },
+          { key: "author", label: "Author", sortable: true, filter: "select" },
           {
             key: "updated",
-            header: "Updated",
-            cell: (row) => dateFormat.format(new Date(row.updated_at)),
-            end: true,
+            label: "Updated",
+            kind: "date",
+            sortable: true,
+            width: "128px",
           },
         ]}
+        rows={rows.map((row) => ({
+          id: row.id,
+          href: `/admin/content/${row.id}`,
+          values: {
+            title: row.title,
+            // Translations (G5.3) show their language; the original stays blank.
+            locale: row.translation_of ? row.locale.toUpperCase() : null,
+            status: row.status,
+            category: row.category,
+            author: row.author_name,
+            updated: row.updated_at,
+          },
+          actions: (
+            <RowActions
+              actions={[
+                editAction(`/admin/content/${row.id}`),
+                ...(row.status === "published" && !row.translation_of
+                  ? [openAction(`/${row.kind}/${row.slug}`)]
+                  : []),
+              ]}
+            />
+          ),
+        }))}
       />
     </>
   );

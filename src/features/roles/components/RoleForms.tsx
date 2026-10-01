@@ -1,92 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useActionState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
-import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { Checkbox, FormField, Input, Select, Textarea } from "@/components/ui/field";
-import { SECTIONS } from "@/features/auth/sections";
 import type { ActionState } from "@/lib/actions";
-import { deleteRole, saveMatrix, saveRole, saveSecurity } from "../actions";
-import { ACTION_LABEL, SECTION_LABEL } from "../labels";
+import { saveRole, saveSecurity } from "../actions";
 import { ActionForm } from "@/components/ui/action-form";
-
-const ACTIONS = ["v", "c", "e", "d"] as const;
-
-/**
- * Oprávnění jedné role: tabulka sekce × akce. Bez „zobrazit" ostatní akce
- * nic neznamenají — DB je uloží jen spolu s „v".
- */
-export function MatrixForm({
-  roleId,
-  roleName,
-  granted,
-  readOnly,
-}: {
-  roleId: string;
-  roleName: string;
-  granted: Record<string, string>;
-  readOnly: boolean;
-}) {
-  const [state, action] = useActionState<ActionState, FormData>(saveMatrix, { ok: false });
-  return (
-    <ActionForm action={action} className="grid gap-3">
-      <input type="hidden" name="role_id" value={roleId} />
-      <div className="overflow-x-auto rounded-xl border border-[var(--color-line)]">
-        <table className="w-full text-[13px]">
-          <caption className="sr-only">Permissions of role {roleName}</caption>
-          <thead className="bg-[var(--color-line)]/30 text-[12px] text-[var(--color-ink-muted)]">
-            <tr>
-              <th scope="col" className="px-3 py-2 text-left font-medium">
-                Section
-              </th>
-              {ACTIONS.map((a) => (
-                <th key={a} scope="col" className="px-2 py-2 font-medium">
-                  {ACTION_LABEL[a]}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {SECTIONS.map((section) => (
-              <tr key={section} className="border-t border-[var(--color-line)]">
-                <th scope="row" className="px-3 py-1 text-left font-normal">
-                  {SECTION_LABEL[section]}
-                </th>
-                {ACTIONS.map((a) => (
-                  <td key={a} className="px-2 text-center">
-                    <input
-                      type="checkbox"
-                      name={`perm:${section}`}
-                      value={a}
-                      defaultChecked={readOnly || (granted[section] ?? "").includes(a)}
-                      disabled={readOnly}
-                      aria-label={`${SECTION_LABEL[section]}: ${ACTION_LABEL[a]}`}
-                      className="size-5 accent-[var(--color-accent)]"
-                    />
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {readOnly ? (
-        <p className="text-[12.5px] text-[var(--color-ink-muted)]">
-          Admin always has full access; its permissions can’t be restricted.
-        </p>
-      ) : (
-        <>
-          <ActionStatus state={state} />
-          <div>
-            <SubmitButton size="sm">Save permissions</SubmitButton>
-          </div>
-        </>
-      )}
-    </ActionForm>
-  );
-}
 
 export interface RoleValues {
   id: string;
@@ -167,23 +87,6 @@ export function RoleForm({ role }: { role: RoleValues | null }) {
         <SubmitButton size="sm">{role ? "Save role" : "Create role"}</SubmitButton>
       </div>
     </ActionForm>
-  );
-}
-
-export function DeleteRole({ id, name }: { id: string; name: string }) {
-  const router = useRouter();
-  return (
-    <ConfirmButton
-      label="Delete role"
-      variant="danger"
-      title={`Delete role ${name}?`}
-      body="Only possible for a role nobody has. Move the accounts to another role first."
-      confirm="Delete"
-      action={() => deleteRole(id)}
-      onDone={(state) => {
-        if (state.ok) router.refresh();
-      }}
-    />
   );
 }
 

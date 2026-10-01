@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useActionState, useState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
+import { DataTable } from "@/components/data-table/DataTable";
+import { RowActions } from "@/components/data-table/RowActions";
 import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { FormField, Input, Textarea } from "@/components/ui/field";
@@ -215,36 +217,38 @@ function SendBack({ id, onDone }: { id: string; onDone: (state: ActionState) => 
   );
 }
 
+/** Uložené verze článku (posledních 30) s obnovou — kompaktní DataTable. */
 export function RevisionList({ entryId, revisions }: { entryId: string; revisions: Revision[] }) {
-  const router = useRouter();
-  const [result, setResult] = useState<ActionState>({ ok: false });
-  if (!revisions.length) {
-    return <p className="text-[13px] text-[var(--color-ink-muted)]">No earlier versions yet.</p>;
-  }
   return (
-    <div className="grid gap-2">
-      <ActionStatus state={result} />
-      <ul className="grid gap-1 text-[13px]">
-        {revisions.map((revision) => (
-          <li key={revision.id} className="flex items-center justify-between gap-3">
-            <span>
-              {dateFormat.format(new Date(revision.saved_at))}
-              <span className="text-[var(--color-ink-muted)]"> · {revision.title}</span>
-            </span>
-            <ConfirmButton
-              label="Restore"
-              title="Restore this version?"
-              body="The title, summary, image and text will revert to this version. The current version stays in the history."
-              confirm="Restore"
-              action={() => restoreRevision(entryId, revision.id)}
-              onDone={(state) => {
-                setResult(state);
-                if (state.ok) router.refresh();
-              }}
-            />
-          </li>
-        ))}
-      </ul>
-    </div>
+    <DataTable
+      compact
+      tableKey="admin-entry-revisions"
+      caption="Earlier versions"
+      emptyTitle="No earlier versions yet"
+      actionsWidth="48px"
+      columns={[
+        { key: "saved", label: "Saved", kind: "datetime", width: "150px" },
+        { key: "title", label: "Title", width: "minmax(160px, 1fr)" },
+      ]}
+      rows={revisions.map((revision) => ({
+        id: String(revision.id),
+        values: { saved: revision.saved_at, title: revision.title },
+        actions: (
+          <RowActions
+            actions={[
+              {
+                kind: "action",
+                icon: "restore",
+                label: "Restore",
+                action: () => restoreRevision(entryId, revision.id),
+                confirmTitle: "Restore this version?",
+                confirmBody:
+                  "The title, summary, image and text will revert to this version. The current version stays in the history.",
+              },
+            ]}
+          />
+        ),
+      }))}
+    />
   );
 }

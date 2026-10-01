@@ -1,70 +1,60 @@
 import type { Metadata } from "next";
-import { DataTable } from "@/components/admin/DataTable";
 import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/field";
+import { DataTable } from "@/components/data-table/DataTable";
+import { navIcon } from "@/config/admin-nav";
 import { sectionAccess } from "@/features/auth/access";
 import { auditLog } from "@/features/roles/editorial";
 
 export const metadata: Metadata = { title: "Audit log" };
 
-const dateFormat = new Intl.DateTimeFormat("en-GB", { dateStyle: "short", timeStyle: "medium" });
-
 /** Záznam změn (audit_log): kdo, kdy, co — bez osobních údajů v detailu (DB-14). */
 export default async function AuditPage({
   searchParams,
 }: {
-  searchParams: Promise<{ action?: string; target?: string }>;
+  searchParams: Promise<{ q?: string }>;
 }) {
   if (!(await sectionAccess("permissions"))) return <NoAccess />;
-  const { action, target } = await searchParams;
-  const rows = await auditLog({ action, target });
+  const { q } = await searchParams;
+  const rows = await auditLog(q);
 
   return (
     <>
       <PageHeader
+        icon={navIcon("/admin/roles")}
         title="Audit log"
-        lead="The last 300 changes to permissions, roles, accounts and article statuses. Kept for 12 months."
+        lead="The last 1,000 changes to permissions, roles, accounts and article statuses. Kept for 12 months."
       />
-      <form action="/admin/roles/audit" className="mb-4 flex flex-wrap items-end gap-2">
-        <div>
-          <label htmlFor="action" className="text-[12px] text-[var(--color-ink-muted)]">
-            Action
-          </label>
-          <Input id="action" name="action" defaultValue={action} placeholder="e.g. entries" />
-        </div>
-        <div>
-          <label htmlFor="target" className="text-[12px] text-[var(--color-ink-muted)]">
-            Target
-          </label>
-          <Input id="target" name="target" defaultValue={target} placeholder="slug, id…" />
-        </div>
-        <Button type="submit" variant="outline" size="sm">
-          Filter
-        </Button>
-      </form>
       <DataTable
+        tableKey="admin-audit"
         caption="Audit log"
-        rows={rows}
-        rowKey={(row) => String(row.id)}
-        empty="No records."
+        searchParam="q"
+        searchPlaceholder="Action, target or email…"
+        emptyTitle="No records"
+        initialSort={{ key: "at", dir: "desc" }}
         columns={[
-          { key: "at", header: "When", cell: (row) => dateFormat.format(new Date(row.at)) },
-          { key: "who", header: "Who", cell: (row) => row.actor_email ?? "system" },
-          { key: "action", header: "Action", cell: (row) => <code>{row.action}</code> },
-          { key: "target", header: "Target", cell: (row) => row.target ?? "—", wide: true },
+          { key: "at", label: "When", kind: "datetime", sortable: true, width: "168px" },
+          { key: "who", label: "Who", sortable: true, filter: "select" },
+          { key: "action", label: "Action", kind: "code", sortable: true, filter: "select" },
+          { key: "target", label: "Target", sortable: true, filter: "text" },
           {
             key: "detail",
-            header: "Change",
-            wide: true,
-            cell: (row) => (
-              <code className="line-clamp-2 max-w-md text-[11.5px] break-all">
-                {JSON.stringify(row.detail)}
-              </code>
-            ),
+            label: "Change",
+            kind: "code",
+            filter: "text",
+            width: "minmax(240px, 3fr)",
           },
         ]}
+        rows={rows.map((row) => ({
+          id: String(row.id),
+          values: {
+            at: row.at,
+            who: row.actor_email ?? "system",
+            action: row.action,
+            target: row.target,
+            detail: JSON.stringify(row.detail),
+          },
+        }))}
       />
     </>
   );

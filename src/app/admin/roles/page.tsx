@@ -2,14 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
+import { DataTable } from "@/components/data-table/DataTable";
 import { buttonVariants } from "@/components/ui/button";
+import { navIcon } from "@/config/admin-nav";
 import { can, sectionAccess } from "@/features/auth/access";
-import {
-  DeleteRole,
-  MatrixForm,
-  RoleForm,
-  SecurityForm,
-} from "@/features/roles/components/RoleForms";
+import { PermissionMatrix } from "@/features/roles/components/PermissionMatrix";
+import { SecurityForm } from "@/features/roles/components/RoleForms";
 import { FlagToggle } from "@/features/flags/components/FlagToggle";
 import { rolesOverview } from "@/features/roles/editorial";
 import { createServerClient } from "@/lib/supabase/server";
@@ -28,91 +26,68 @@ export default async function RolesPage() {
   const canEdit = can(access.permissions, "permissions", "e");
   const canCreate = can(access.permissions, "permissions", "c");
   const canDelete = can(access.permissions, "permissions", "d");
-  const granted = (roleId: string) =>
-    Object.fromEntries(
-      permissions.filter((p) => p.role_id === roleId).map((p) => [p.section, p.actions]),
-    );
+  const granted: Record<string, Record<string, string>> = {};
+  for (const row of permissions) (granted[row.role_id] ??= {})[row.section] = row.actions;
 
   return (
     <>
       <PageHeader
+        icon={navIcon("/admin/roles")}
         title="Roles & permissions"
         lead="Who can do what in the administration. The database enforces everything — this is just where it's configured. You can't change your own role, and only an admin can grant account or permission management."
         actions={
-          <Link href="/admin/roles/audit" className={buttonVariants({ variant: "outline" })}>
+          <Link
+            href="/admin/roles/audit"
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+          >
             Audit log
           </Link>
         }
       />
 
-      <div className="grid gap-6">
-        {roles
-          .filter((role) => role.id !== "reader")
-          .map((role) => (
-            <details
-              key={role.id}
-              className="rounded-2xl border border-[var(--color-line)] p-5 open:pb-6"
-            >
-              <summary className="flex min-h-(--touch-min) cursor-pointer flex-wrap items-center gap-x-3">
-                <span className="font-display text-[17px] font-bold">{role.name}</span>
-                <span className="text-[12.5px] text-[var(--color-ink-muted)]">
-                  {role.holders} {role.holders === 1 ? "account" : "accounts"}
-                  {role.locked ? " · locked" : ""}
-                </span>
-              </summary>
-              <p className="mt-2 text-[13px] text-[var(--color-ink-soft)]">{role.note}</p>
-              <div className="mt-5 grid gap-8 xl:grid-cols-2">
-                <MatrixForm
-                  roleId={role.id}
-                  roleName={role.name}
-                  granted={granted(role.id)}
-                  readOnly={role.locked || !canEdit || role.id === access.roleId}
-                />
-                {canEdit && !role.locked ? <RoleForm role={role} /> : null}
-              </div>
-              {canDelete && !role.locked && role.holders === 0 ? (
-                <div className="mt-4">
-                  <DeleteRole id={role.id} name={role.name} />
-                </div>
-              ) : null}
-            </details>
-          ))}
-      </div>
+      <PermissionMatrix
+        roles={roles.filter((role) => role.id !== "reader")}
+        granted={granted}
+        ownRoleId={access.roleId}
+        canEdit={canEdit}
+        canCreate={canCreate}
+        canDelete={canDelete}
+      />
 
-      {canCreate ? (
-        <section className="mt-12 max-w-2xl rounded-2xl border border-[var(--color-line)] p-5">
-          <h2 className="font-display mb-4 text-[18px] font-bold">New role</h2>
-          <RoleForm role={null} />
-        </section>
-      ) : null}
-
-      <section className="mt-12">
-        <h2 className="font-display mb-4 text-[18px] font-bold">Operations & feature flags</h2>
-        <ul className="grid max-w-2xl gap-3">
-          {(flags ?? []).map((flag) => (
-            <li
-              key={flag.key}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--color-line)] p-4"
-            >
-              <span>
-                <code className="text-[13px] font-medium">{flag.key}</code>{" "}
-                <span className={flag.enabled ? "text-green-800" : "text-[var(--color-ink-muted)]"}>
-                  {flag.enabled ? "on" : "off"}
-                </span>
-                <span className="mt-1 block text-[12.5px] text-[var(--color-ink-muted)]">
-                  {flag.note}
-                </span>
-              </span>
-              {canEdit ? (
-                <FlagToggle flagKey={flag.key} enabled={flag.enabled} label={flag.key} />
-              ) : null}
-            </li>
-          ))}
-        </ul>
+      <section className="mt-10">
+        <h2 className="font-display mb-3 text-[18px] font-bold">Operations & feature flags</h2>
+        <DataTable
+          compact
+          tableKey="admin-flags"
+          caption="Feature flags"
+          emptyTitle="No feature flags"
+          actionsWidth="112px"
+          columns={[
+            { key: "key", label: "Flag", kind: "code", sortable: true, width: "220px" },
+            {
+              key: "state",
+              label: "State",
+              kind: "badge",
+              options: [
+                { value: "on", label: "On", tone: "success" },
+                { value: "off", label: "Off", tone: "neutral" },
+              ],
+              width: "96px",
+            },
+            { key: "note", label: "Note", width: "minmax(240px, 3fr)" },
+          ]}
+          rows={(flags ?? []).map((flag) => ({
+            id: flag.key,
+            values: { key: flag.key, state: flag.enabled ? "on" : "off", note: flag.note },
+            actions: canEdit ? (
+              <FlagToggle flagKey={flag.key} enabled={flag.enabled} label={flag.key} />
+            ) : undefined,
+          }))}
+        />
       </section>
 
       {security ? (
-        <section className="mt-12">
+        <section className="mt-10">
           <h2 className="font-display mb-4 text-[18px] font-bold">Security</h2>
           {canEdit ? (
             <SecurityForm
