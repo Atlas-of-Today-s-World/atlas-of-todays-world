@@ -26,7 +26,7 @@ const PROTECTED_PATHS = ["/admin", "/api/admin", "/ucet"];
 const matches = (pathname: string, prefixes: string[]) =>
   prefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const response = NextResponse.next({ request });
 

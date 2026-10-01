@@ -182,7 +182,7 @@ src/
 │  ├─ security/                  # sanitize.ts, urls.ts, redirect.ts, rate-limit.ts, csp.ts
 │  ├─ cache/tags.ts              # jediný zdroj názvů cache tagů
 │  └─ …                          # čisté utility (formatValue, seo…)
-└─ middleware.ts                 # hlavičky, CSP s nonce, obnova session, ochrana /admin
+└─ proxy.ts                      # (dříve middleware) hlavičky, CSP, obnova session, ochrana /admin
 ```
 
 Pravidla vrstev:

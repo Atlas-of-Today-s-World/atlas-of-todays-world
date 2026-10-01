@@ -1,6 +1,6 @@
 /**
  * Jediný zdroj názvů cache tagů (ARCHITEKTURA 4.2). Dotaz veřejného webu se
- * označí tagem, Server Action po zápisu zavolá `revalidateTag` se stejným.
+ * označí tagem, Server Action po zápisu zavolá `updateTag` se stejným (Next 16: hned neplatné, autor vidí svou změnu).
  */
 export const tags = {
   /** Regiony, země, ukazatele, global issues — celý snapshot mapy. */

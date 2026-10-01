@@ -1,9 +1,6 @@
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { FlatCompat } from "@eslint/eslintrc";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
 import security from "eslint-plugin-security";
-
-const compat = new FlatCompat({ baseDirectory: dirname(fileURLToPath(import.meta.url)) });
 
 // Pravidla vychází z ARCHITEKTURA.md kap. 8 (bezpečnost) a 15 (deduplikace).
 const config = [
@@ -22,13 +19,21 @@ const config = [
       "src/lib/db/types.gen.ts",
     ],
   },
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...nextVitals,
+  ...nextTs,
   security.configs.recommended,
   {
     rules: {
       // Dynamický přístup k objektům je v datovém kódu běžný a bezpečný (klíče
       // jsou ISO kódy a slugy z vlastních dat); pravidlo dává hlavně šum.
       "security/detect-object-injection": "off",
+      // Pravidla pro React Compiler (eslint-config-next 16). Stávající kód je
+      // porušuje ve vzorech, které dnes fungují (ref s poslední hodnotou v
+      // globusu, setState v efektu po načtení, Date.now v serverové stránce);
+      // přepis je samostatný úkol A11 v PLAN-REALIZACE.md, do té doby varování.
+      "react-hooks/set-state-in-effect": "warn",
+      "react-hooks/refs": "warn",
+      "react-hooks/purity": "warn",
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },

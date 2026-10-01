@@ -1,7 +1,7 @@
 "use server";
 
 import "server-only";
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import {
@@ -17,7 +17,7 @@ import { iso3, slug } from "@/lib/validation/common";
 import { CategoryInput, IndicatorInput, ValueInput } from "./schema";
 
 /** Ukazatele jsou součástí snapshotu mapy — každá změna ho obnoví. */
-const refresh = () => revalidateTag(tags.atlas);
+const refresh = () => updateTag(tags.atlas);
 
 /**
  * Založení vlastního ukazatele nebo úprava popisu a škály. Druh (sekvenční /

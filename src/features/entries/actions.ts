@@ -1,7 +1,7 @@
 "use server";
 
 import "server-only";
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import {
   failed,
@@ -18,10 +18,10 @@ import { EntryInput, PREVIEW_HOURS, ScheduleInput, SendBackInput } from "./schem
 
 /** Po změně zveřejněného obsahu obnovit seznamy, detail i portréty. */
 function refresh(slug?: string | null, region?: string | null, issue?: string | null) {
-  revalidateTag(tags.entries);
-  if (slug) revalidateTag(tags.entry(slug));
-  if (region) revalidateTag(tags.portrait("region", region));
-  if (issue) revalidateTag(tags.portrait("issue", issue));
+  updateTag(tags.entries);
+  if (slug) updateTag(tags.entry(slug));
+  if (region) updateTag(tags.portrait("region", region));
+  if (issue) updateTag(tags.portrait("issue", issue));
 }
 
 /**

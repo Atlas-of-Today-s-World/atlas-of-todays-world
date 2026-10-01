@@ -19,7 +19,7 @@ export async function createServerClient() {
         try {
           for (const { name, value, options } of toSet) cookieStore.set(name, value, options);
         } catch {
-          // Server Component cookies zapsat nesmí; session obnovuje middleware.
+          // Server Component cookies zapsat nesmí; session obnovuje proxy (src/proxy.ts).
         }
       },
     },

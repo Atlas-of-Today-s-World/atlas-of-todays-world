@@ -69,7 +69,8 @@
       `/api/export-demo` → 401/404.
 - [x] **A8b** E2E test, že globus opravdu načte hranice zemí (`data-countries="loaded"`) — dosavadní testy rozbitý globus neodhalily.
 - [x] **A8c** Zranitelné závislosti: postcss (přes `overrides`), audit v CI přes `audit-ci` se zdokumentovanými výjimkami.
-- [ ] **A10** Next 16 + TypeScript 7 (major migrace; Dependabot major verze ignoruje).
+- [x] **A10** Next 16 (updateTag v Server Actions, `proxy.ts`, ESLint flat config z `eslint-config-next`). TypeScript 7 zvlášť, až ho podpoří `typescript-eslint` a Next.
+- [ ] **A11** Kód podle pravidel React Compileru (`react-hooks/refs`, `set-state-in-effect`, `purity` — dnes varování, pak chyba); zvážit zapnutí React Compileru.
 - [x] **A9** MapLibre 6.11 (oprava GHSA-jrc7-96c5-q579): worker a sdílený modul se při `dev`/`build` kopírují do `public/maplibre/<verze>/` a globus je nastaví přes `setWorkerUrl` (ADR-017); výjimka v `audit-ci.jsonc` zrušena.
 - **Hotovo, když:** CI zelené, smoke test prochází proti produkci, `lib/security` pokrytí 100 %.
 

@@ -1,7 +1,7 @@
 "use server";
 
 import "server-only";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import {
   failed,
   formObject,
@@ -21,7 +21,7 @@ export async function addRedirect(_prev: ActionState, formData: FormData): Promi
   if (!session) return NOT_SIGNED_IN;
   const { error } = await session.supabase.from("redirects").insert(parsed.data);
   if (error) return failed(error);
-  revalidateTag(tags.redirects);
+  updateTag(tags.redirects);
   revalidatePath("/admin/presmerovani");
   return { ok: true, message: `Přesměrováno: ${parsed.data.from_path} → ${parsed.data.to_path}` };
 }
@@ -38,7 +38,7 @@ export async function deleteRedirect(id: string): Promise<ActionState> {
     .select("id");
   if (error) return failed(error);
   if (!data.length) return { ok: false, error: "Přesměrování nejde smazat (nemáte právo)." };
-  revalidateTag(tags.redirects);
+  updateTag(tags.redirects);
   revalidatePath("/admin/presmerovani");
   return { ok: true, message: "Smazáno." };
 }
