@@ -6,3 +6,12 @@ export function formatPopulation(value: number | null): string {
   if (value >= 1_000) return `${(value / 1_000).toFixed(0)} k`;
   return String(value);
 }
+
+/** Datum v článku („3 October 2026"), vždy anglicky jako zbytek veřejného webu. */
+export function formatLongDate(isoDate: string): string {
+  return new Date(isoDate).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}

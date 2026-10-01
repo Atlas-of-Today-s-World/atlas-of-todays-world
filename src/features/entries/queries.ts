@@ -1,7 +1,7 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
-import type { NewsCategory } from "@/lib/content-types";
+import type { NewsCategory, ResourceItem } from "@/lib/content-types";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { createPublicClient } from "@/lib/supabase/public";
 
@@ -67,22 +67,32 @@ function toSummary(row: Row): EntrySummary {
   };
 }
 
+/** Novinka (`/news`), nebo encyklopedické heslo (`/entry`, P9). */
+type Kind = "news" | "entry";
+
+function listPublished(kind: Kind) {
+  return unstable_cache(
+    async (): Promise<EntrySummary[]> => {
+      const { data, error } = await createPublicClient()
+        .from("entries")
+        .select(COLUMNS)
+        .eq("status", "published")
+        .eq("kind", kind)
+        .order("published_on", { ascending: false, nullsFirst: false })
+        .limit(1000);
+      if (error) throw new Error(`[entries] ${error.message}`);
+      return (data as Row[]).map(toSummary);
+    },
+    [kind === "news" ? "entries" : "encyclopedia"],
+    { tags: [tags.entries], revalidate: PUBLIC_REVALIDATE_SECONDS },
+  );
+}
+
 /** Všechny zveřejněné novinky, od nejnovější. */
-export const getEntries = unstable_cache(
-  async (): Promise<EntrySummary[]> => {
-    const { data, error } = await createPublicClient()
-      .from("entries")
-      .select(COLUMNS)
-      .eq("status", "published")
-      .eq("kind", "news")
-      .order("published_on", { ascending: false, nullsFirst: false })
-      .limit(1000);
-    if (error) throw new Error(`[entries] ${error.message}`);
-    return (data as Row[]).map(toSummary);
-  },
-  ["entries"],
-  { tags: [tags.entries], revalidate: PUBLIC_REVALIDATE_SECONDS },
-);
+export const getEntries = listPublished("news");
+
+/** Všechna zveřejněná encyklopedická hesla, od nejnovějšího. */
+export const getEncyclopediaEntries = listPublished("entry");
 
 /** Jedna zveřejněná novinka i s textem; null, když neexistuje. */
 export function getEntry(slug: string): Promise<Entry | null> {
@@ -92,6 +102,7 @@ export function getEntry(slug: string): Promise<Entry | null> {
         .from("entries")
         .select(`${COLUMNS}, body_html`)
         .eq("status", "published")
+        .eq("kind", "news")
         .eq("slug", slug)
         .maybeSingle();
       if (error) throw new Error(`[entries] ${error.message}`);
@@ -104,14 +115,21 @@ export function getEntry(slug: string): Promise<Entry | null> {
   )();
 }
 
-export const entriesOfRegion = (entries: EntrySummary[], region: string) =>
+/** Kam článek patří — společné pro novinky, hesla i plánovaná hesla. */
+interface Placed {
+  region: string | null;
+  issue: string | null;
+  countries: string[];
+}
+
+export const entriesOfRegion = <T extends Placed>(entries: T[], region: string) =>
   entries.filter((entry) => entry.region === region);
 
-export const entriesOfCountry = (entries: EntrySummary[], iso3: string) =>
+export const entriesOfCountry = <T extends Placed>(entries: T[], iso3: string) =>
   entries.filter((entry) => entry.countries.includes(iso3));
 
-/** Novinky přiřazené přímo ke global issue, za nimi ty, které zasáhly některou z jeho zemí. */
-export function entriesOfIssue(entries: EntrySummary[], issue: string, countries: string[]) {
+/** Články přiřazené přímo ke global issue, za nimi ty, které zasáhly některou z jeho zemí. */
+export function entriesOfIssue<T extends Placed>(entries: T[], issue: string, countries: string[]) {
   const members = new Set(countries);
   const tagged = entries.filter((entry) => entry.issue === issue);
   const related = entries.filter(
@@ -120,22 +138,211 @@ export function entriesOfIssue(entries: EntrySummary[], issue: string, countries
   return [...tagged, ...related];
 }
 
-/** Článek pro náhled podle tokenu z odkazu (jakýkoli stav); null = neplatný nebo prošlý. */
-export async function getPreview(
-  token: string,
-): Promise<(Entry & { status: string; expiresAt: string }) | null> {
+/** Náhled podle tokenu z odkazu (jakýkoli stav): novinka, nebo heslo i s kapitolami. */
+export type Preview = { status: string; expiresAt: string } & (
+  { kind: "news"; item: Entry } | { kind: "entry"; item: Encyclopedia }
+);
+
+/** null = neplatný nebo prošlý odkaz. */
+export async function getPreview(token: string): Promise<Preview | null> {
   if (!/^[0-9a-f]{64}$/.test(token)) return null;
   // Bez cache: odkaz může být zrušený nebo prošlý a text se v konceptu mění.
-  const { data, error } = await createPublicClient()
-    .rpc("entry_preview", { p_token: token })
-    .maybeSingle();
-  if (error) throw new Error(`[preview] ${error.message}`);
-  if (!data) return null;
-  const { countries, body_html, status, expires_at, ...row } = data;
-  return {
+  const client = createPublicClient();
+  const [base, extra] = await Promise.all([
+    client.rpc("entry_preview", { p_token: token }).maybeSingle(),
+    client.rpc("entry_preview_parts", { p_token: token }).maybeSingle(),
+  ]);
+  if (base.error) throw new Error(`[preview] ${base.error.message}`);
+  if (extra.error) throw new Error(`[preview] ${extra.error.message}`);
+  if (!base.data || !extra.data) return null;
+  const { countries, body_html, status, expires_at, ...row } = base.data;
+  const item: Entry = {
     ...toSummary({ ...row, entry_countries: countries.map((iso3) => ({ country_iso3: iso3 })) }),
     html: sanitizeRichHtml(body_html),
-    status,
-    expiresAt: expires_at,
   };
+  const meta = { status, expiresAt: expires_at };
+  if (extra.data.kind !== "entry") return { ...meta, kind: "news", item };
+  return {
+    ...meta,
+    kind: "entry",
+    item: toEncyclopedia(item, {
+      summary_points: extra.data.summary_points,
+      audio_url: extra.data.audio_url,
+      author: extra.data.author as AuthorRow | null,
+      chapters: extra.data.chapters as unknown as ChapterRow[],
+      resources: extra.data.resources as unknown as ResourceRow[],
+    }),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Encyklopedická hesla (P9)
+// ---------------------------------------------------------------------------
+
+export interface EntryChapter {
+  title: string;
+  /** 3–5 odrážek, kterými se kapitola otevírá. */
+  summaryPoints: string[];
+  /** Vyčištěné HTML celé kapitoly. */
+  html: string;
+  illustration?: string;
+  illustrationCredit?: string;
+}
+
+export interface EntryAuthor {
+  name: string;
+  photo?: string;
+  bio: string;
+  positionality: string;
+}
+
+export interface Encyclopedia extends Entry {
+  summaryPoints: string[];
+  audio?: string;
+  authorProfile?: EntryAuthor;
+  chapters: EntryChapter[];
+  resources: ResourceItem[];
+}
+
+interface AuthorRow {
+  name: string;
+  photo_url: string | null;
+  bio: string;
+  positionality: string;
+}
+
+interface ChapterRow {
+  position: number;
+  title: string;
+  summary_points: string[];
+  body_html: string;
+  illustration_url: string | null;
+  illustration_credit: string | null;
+}
+
+interface ResourceRow {
+  position?: number;
+  kind: string;
+  title: string;
+  source: string;
+  url: string;
+  image_url: string | null;
+}
+
+interface EncyclopediaParts {
+  summary_points: string[];
+  audio_url: string | null;
+  author: AuthorRow | null;
+  chapters: ChapterRow[];
+  resources: ResourceRow[];
+}
+
+const byPosition = (a: { position?: number }, b: { position?: number }) =>
+  (a.position ?? 0) - (b.position ?? 0);
+
+/** Jedna podoba hesla pro veřejnou stránku i náhled (řádky z DB → typ pro komponenty). */
+function toEncyclopedia(item: Entry, parts: EncyclopediaParts): Encyclopedia {
+  const author = parts.author;
+  return {
+    ...item,
+    // Jméno autora z profilu má přednost před volným textem u článku.
+    author: author?.name ?? item.author,
+    summaryPoints: parts.summary_points,
+    audio: parts.audio_url ?? undefined,
+    authorProfile: author
+      ? {
+          name: author.name,
+          photo: author.photo_url ?? undefined,
+          bio: author.bio,
+          positionality: author.positionality,
+        }
+      : undefined,
+    chapters: [...parts.chapters].sort(byPosition).map((chapter) => ({
+      title: chapter.title,
+      summaryPoints: chapter.summary_points,
+      html: sanitizeRichHtml(chapter.body_html),
+      illustration: chapter.illustration_url ?? undefined,
+      illustrationCredit: chapter.illustration_credit ?? undefined,
+    })),
+    resources: [...parts.resources].sort(byPosition).map((resource) => ({
+      title: resource.title,
+      source: resource.source,
+      url: resource.url,
+      image: resource.image_url ?? undefined,
+      kind: resource.kind,
+    })),
+  };
+}
+
+// Anon smí jen vyjmenované sloupce (DB-08) — i u vnořených tabulek.
+const ENCYCLOPEDIA_COLUMNS = `${COLUMNS}, body_html, summary_points, audio_url,
+  authors(name, photo_url, bio, positionality),
+  entry_chapters(position, title, summary_points, body_html, illustration_url, illustration_credit),
+  resources(position, kind, title, source, url, image_url)`;
+
+/** Jedno zveřejněné heslo se vším, co stránka ukazuje; null, když neexistuje. */
+export function getEncyclopediaEntry(slug: string): Promise<Encyclopedia | null> {
+  return unstable_cache(
+    async (): Promise<Encyclopedia | null> => {
+      const { data, error } = await createPublicClient()
+        .from("entries")
+        .select(ENCYCLOPEDIA_COLUMNS)
+        .eq("status", "published")
+        .eq("kind", "entry")
+        .eq("slug", slug)
+        .maybeSingle();
+      if (error) throw new Error(`[encyclopedia] ${error.message}`);
+      if (!data) return null;
+      const row = data as unknown as Row & {
+        body_html: string;
+        summary_points: string[];
+        audio_url: string | null;
+        authors: AuthorRow | null;
+        entry_chapters: ChapterRow[];
+        resources: ResourceRow[];
+      };
+      return toEncyclopedia(
+        { ...toSummary(row), html: sanitizeRichHtml(row.body_html) },
+        {
+          summary_points: row.summary_points,
+          audio_url: row.audio_url,
+          author: row.authors,
+          chapters: row.entry_chapters,
+          resources: row.resources,
+        },
+      );
+    },
+    ["encyclopedia", slug],
+    { tags: [tags.entries, tags.entry(slug)], revalidate: PUBLIC_REVALIDATE_SECONDS },
+  )();
+}
+
+/** Plánované, ještě nenapsané heslo — na portrétu šedivě a bez odkazu. */
+export interface UpcomingEntry extends Placed {
+  title: string;
+  category: NewsCategory;
+}
+
+export const getPlannedEntries = unstable_cache(
+  async (): Promise<UpcomingEntry[]> => {
+    const { data, error } = await createPublicClient().rpc("planned_entries");
+    if (error) throw new Error(`[encyclopedia] ${error.message}`);
+    return data.map((row) => ({
+      title: row.title,
+      category: row.category as NewsCategory,
+      region: row.region_slug,
+      issue: row.special_slug,
+      countries: row.countries,
+    }));
+  },
+  ["planned-entries"],
+  { tags: [tags.entries], revalidate: PUBLIC_REVALIDATE_SECONDS },
+);
+
+/** Hesla do sekce portrétu: zveřejněná s odkazem, plánovaná bez něj (šedivě). */
+export function thematicEntries(published: EntrySummary[], upcoming: UpcomingEntry[]) {
+  return [
+    ...published.map(({ title, category, slug }) => ({ title, category, slug })),
+    ...upcoming.map(({ title, category }) => ({ title, category, slug: null })),
+  ];
 }

@@ -49,11 +49,14 @@ const WORDING = {
 export default function Portrait({
   subject,
   news,
+  entries,
   dossier,
   stats,
 }: {
   subject: PortraitSubject;
   news: NewsCard[];
+  /** Encyklopedická hesla (P9): zveřejněná s odkazem, plánovaná se `slug: null`. */
+  entries: PlannedEntry[];
   dossier: RegionDossier;
   stats: RegionStat[];
 }) {
@@ -133,7 +136,7 @@ export default function Portrait({
         />
       )}
 
-      <ThematicEntries entries={plannedEntries(subject.name, news)} />
+      <ThematicEntries entries={plannedEntries(subject.name, entries)} />
 
       {dossier.visuals?.length ? (
         <VisualCarousel visuals={dossier.visuals} />
@@ -212,12 +215,14 @@ export function newsCards(
   }));
 }
 
-/** Dokud redakce nenapíše hesla, ukazujeme aspoň plánovaná témata – šedivě. */
-function plannedEntries(name: string, news: NewsCard[]): PlannedEntry[] {
-  const planned: PlannedEntry[] = news.map((item) => ({
-    title: item.title,
-    category: entryCategory(item.category),
-    slug: item.slug,
+/**
+ * Hesla podle čtyř témat. Kde redakce zatím žádné heslo nenapsala ani
+ * nenaplánovala, ukazujeme aspoň obecná témata – šedivě.
+ */
+function plannedEntries(name: string, entries: PlannedEntry[]): PlannedEntry[] {
+  const planned: PlannedEntry[] = entries.map((entry) => ({
+    ...entry,
+    category: entryCategory(entry.category),
   }));
   for (const category of ENTRY_CATEGORIES) {
     const have = planned.filter((entry) => entry.category === category).length;

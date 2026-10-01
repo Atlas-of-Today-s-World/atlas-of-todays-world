@@ -3,7 +3,13 @@ import { notFound } from "next/navigation";
 import ContentRail from "@/components/ContentRail";
 import Portrait, { newsCards } from "@/components/portrait/Portrait";
 import MapFocus from "@/components/map/MapFocus";
-import { entriesOfRegion, getEntries } from "@/features/entries/queries";
+import {
+  entriesOfRegion,
+  getEncyclopediaEntries,
+  getEntries,
+  getPlannedEntries,
+  thematicEntries,
+} from "@/features/entries/queries";
 import { countriesOf } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
 import { getPortrait } from "@/features/portraits/queries";
@@ -56,7 +62,12 @@ export default async function RegionPage({ params }: { params: Promise<{ slug: s
   if (!region) notFound();
 
   const countries = countriesOf(atlas, region.countries);
-  const [entries, dossier] = await Promise.all([getEntries(), getPortrait("region", region.slug)]);
+  const [entries, encyclopedia, upcoming, dossier] = await Promise.all([
+    getEntries(),
+    getEncyclopediaEntries(),
+    getPlannedEntries(),
+    getPortrait("region", region.slug),
+  ]);
   const newsItems = entriesOfRegion(entries, region.slug);
 
   return (
@@ -78,6 +89,10 @@ export default async function RegionPage({ params }: { params: Promise<{ slug: s
             population: population(countries),
           }}
           news={newsCards(newsItems)}
+          entries={thematicEntries(
+            entriesOfRegion(encyclopedia, region.slug),
+            entriesOfRegion(upcoming, region.slug),
+          )}
           dossier={dossier}
           stats={groupStats(countries, atlas.indicatorById)}
         />

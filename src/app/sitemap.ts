@@ -1,17 +1,21 @@
 import type { MetadataRoute } from "next";
-import { getEntries } from "@/features/entries/queries";
+import { getEncyclopediaEntries, getEntries } from "@/features/entries/queries";
 import { getAtlas } from "@/features/geography/queries";
 import { LEGAL_NAV } from "@/config/navigation";
 import { SITE_URL } from "@/lib/site";
 
 /**
  * Kompletní mapa webu z databáze – každý region, země, global issue, datová
- * vrstva i novinka má URL. Přesměrované adresy (/support) sem nepatří.
+ * vrstva, novinka i heslo má URL. Přesměrované adresy (/support) sem nepatří.
  * `changeFrequency` říká robotům, jak často se sem vracet.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
-  const [atlas, entries] = await Promise.all([getAtlas(), getEntries()]);
+  const [atlas, entries, encyclopedia] = await Promise.all([
+    getAtlas(),
+    getEntries(),
+    getEncyclopediaEntries(),
+  ]);
   const page = (
     path: string,
     changeFrequency: NonNullable<MetadataRoute.Sitemap[number]["changeFrequency"]>,
@@ -35,6 +39,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...atlas.indicators.map((indicator) => page(`/view/${indicator.id}`, "yearly", 0.7)),
     ...entries.map((item) =>
       page(`/news/${item.slug}`, "monthly", 0.9, {
+        lastModified: new Date(item.updated ?? item.published ?? now),
+        images: item.hero ? [item.hero] : undefined,
+      }),
+    ),
+    ...encyclopedia.map((item) =>
+      page(`/entry/${item.slug}`, "monthly", 1, {
         lastModified: new Date(item.updated ?? item.published ?? now),
         images: item.hero ? [item.hero] : undefined,
       }),

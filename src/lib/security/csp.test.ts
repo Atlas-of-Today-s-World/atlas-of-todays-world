@@ -27,6 +27,10 @@ describe("buildCsp", () => {
     expect(directive(prod, "form-action")).toContain("https://abc.supabase.co");
   });
 
+  it("zvuk hesel jen z vlastního webu a ze Storage Supabase", () => {
+    expect(directive(prod, "media-src")).toBe("media-src 'self' https://abc.supabase.co");
+  });
+
   it("bez Supabase URL nevloží prázdné položky", () => {
     const csp = buildCsp({ dev: false });
     expect(csp).not.toMatch(/ {2}|\s;/);

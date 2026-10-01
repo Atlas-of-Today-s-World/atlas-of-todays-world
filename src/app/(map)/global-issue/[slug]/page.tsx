@@ -5,7 +5,13 @@ import MapFocus from "@/components/map/MapFocus";
 import MapModeSetter from "@/components/map/MapModeSetter";
 import Portrait, { newsCards } from "@/components/portrait/Portrait";
 import { groupStats, population } from "@/lib/region-stats";
-import { entriesOfIssue, getEntries } from "@/features/entries/queries";
+import {
+  entriesOfIssue,
+  getEncyclopediaEntries,
+  getEntries,
+  getPlannedEntries,
+  thematicEntries,
+} from "@/features/entries/queries";
 import { countriesOf } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
 import { getPortrait } from "@/features/portraits/queries";
@@ -55,7 +61,12 @@ export default async function GlobalIssuePage({ params }: { params: Promise<{ sl
   if (!region) return redirectOrNotFound(`/global-issue/${slug}`);
 
   const countries = countriesOf(atlas, region.countries);
-  const [entries, dossier] = await Promise.all([getEntries(), getPortrait("issue", region.slug)]);
+  const [entries, encyclopedia, upcoming, dossier] = await Promise.all([
+    getEntries(),
+    getEncyclopediaEntries(),
+    getPlannedEntries(),
+    getPortrait("issue", region.slug),
+  ]);
   const related = entriesOfIssue(entries, region.slug, region.countries);
 
   return (
@@ -81,6 +92,10 @@ export default async function GlobalIssuePage({ params }: { params: Promise<{ sl
             population: population(countries),
           }}
           news={newsCards(related)}
+          entries={thematicEntries(
+            entriesOfIssue(encyclopedia, region.slug, region.countries),
+            entriesOfIssue(upcoming, region.slug, region.countries),
+          )}
           dossier={dossier}
           stats={groupStats(countries, atlas.indicatorById)}
         />
