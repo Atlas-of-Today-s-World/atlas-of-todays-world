@@ -5,7 +5,7 @@ import type { RegionStat } from "@/lib/region-stats";
 import { formatPopulation } from "@/lib/format";
 import { cssBackgroundImage } from "@/lib/security/urls";
 import { format, type Messages } from "@/features/i18n/messages";
-import { getT } from "@/features/i18n/request";
+import { getRequestLocale, getT } from "@/features/i18n/request";
 import NewsTabs, { type NewsCard } from "./NewsTabs";
 import {
   EmptySection,
@@ -125,7 +125,7 @@ export default function Portrait({
           <div>
             <dt className="text-[var(--color-ink-muted)]">{t.portrait.people}</dt>
             <dd className="font-medium text-[var(--color-ink)]">
-              {formatPopulation(subject.population)}
+              {formatPopulation(subject.population, getRequestLocale())}
             </dd>
           </div>
         </dl>

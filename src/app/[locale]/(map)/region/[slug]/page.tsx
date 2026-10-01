@@ -12,7 +12,7 @@ import {
 } from "@/features/entries/queries";
 import { countriesOf } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
-import { localeFrom } from "@/features/i18n/request";
+import { getRequestLocale, localeFrom } from "@/features/i18n/request";
 import { getPortrait } from "@/features/portraits/queries";
 import { groupStats, population } from "@/lib/region-stats";
 import { absoluteUrl, alternates, breadcrumbJsonLd, geoCoordinates, geoMeta } from "@/lib/seo";
@@ -99,7 +99,7 @@ export default async function RegionPage({
             entriesOfRegion(upcoming, region.slug),
           )}
           dossier={dossier}
-          stats={groupStats(countries, atlas.indicatorById)}
+          stats={groupStats(countries, atlas.indicatorById, getRequestLocale())}
         />
       </ContentRail>
 

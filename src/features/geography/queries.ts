@@ -170,7 +170,7 @@ const loadTranslations = unstable_cache(
 export const getAtlas = cache(async (locale: Locale = DEFAULT_LOCALE): Promise<Atlas> => {
   const snapshot = await loadSnapshot();
   if (locale === DEFAULT_LOCALE) return buildAtlas(snapshot, GEO);
-  return buildAtlas(localizeSnapshot(snapshot, await loadTranslations(locale)), GEO);
+  return buildAtlas(localizeSnapshot(snapshot, await loadTranslations(locale)), GEO, locale);
 });
 
 /** Volby pro výběry v administraci (regiony, global issues, země podle abecedy). */

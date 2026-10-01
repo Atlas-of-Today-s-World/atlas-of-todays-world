@@ -1,4 +1,5 @@
 import type { Country, Indicator } from "@/features/geography/types";
+import type { Locale } from "@/features/i18n/config";
 import { formatValue } from "@/lib/indicators";
 
 /**
@@ -52,7 +53,11 @@ function mostCommon(values: number[]): number {
 }
 
 /** Ukazatele spočítané nad libovolnou skupinou zemí (region, global issue). */
-export function groupStats(countries: Country[], indicators: Map<string, Indicator>): RegionStat[] {
+export function groupStats(
+  countries: Country[],
+  indicators: Map<string, Indicator>,
+  locale: Locale = "en",
+): RegionStat[] {
   const out: RegionStat[] = [];
 
   for (const id of CARD_INDICATORS) {
@@ -80,7 +85,7 @@ export function groupStats(countries: Country[], indicators: Map<string, Indicat
       id,
       label: indicator.label,
       shortLabel: indicator.shortLabel,
-      value: formatValue(indicator, raw),
+      value: formatValue(indicator, raw, locale),
       coverage: { have: rows.length, total: countries.length },
       year: Math.max(...rows.map((row) => row.stat.year)),
       source: indicator.source,

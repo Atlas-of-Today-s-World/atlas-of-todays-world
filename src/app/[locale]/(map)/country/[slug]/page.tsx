@@ -6,7 +6,7 @@ import MapFocus from "@/components/map/MapFocus";
 import { entriesOfCountry, getEntries } from "@/features/entries/queries";
 import { getAtlas } from "@/features/geography/queries";
 import { format, type Messages } from "@/features/i18n/messages";
-import { getT, localeFrom } from "@/features/i18n/request";
+import { getRequestLocale, getT, localeFrom } from "@/features/i18n/request";
 import type { Country } from "@/features/geography/types";
 import { formatPopulation } from "@/lib/format";
 import { absoluteUrl, alternates, breadcrumbJsonLd, geoCoordinates, geoMeta } from "@/lib/seo";
@@ -32,7 +32,11 @@ function fallbackDescription(country: Country, t: Messages["countryText"]): stri
     }),
   ];
   if (country.population) {
-    parts.push(format(t.population, { population: formatPopulation(country.population) }));
+    parts.push(
+      format(t.population, {
+        population: formatPopulation(country.population, getRequestLocale()),
+      }),
+    );
   }
   const hdi = country.stats.find((stat) => stat.id === "hdi");
   if (hdi?.rank) {

@@ -1,7 +1,7 @@
 import Link from "@/components/i18n/Link";
 import type { EntrySummary } from "@/features/entries/queries";
 import type { Country, CountryProfile } from "@/features/geography/types";
-import { getT } from "@/features/i18n/request";
+import { getRequestLocale, getT } from "@/features/i18n/request";
 import { formatPopulation } from "@/lib/format";
 import { MetricCards, SourceLink, StatGrid, StatIcon, StatItem } from "./atlas/ui";
 
@@ -136,7 +136,7 @@ export default function CountryCard({
         <div>
           <span className="block text-[var(--color-ink-muted)]">Population</span>
           <span className="font-medium text-[var(--color-ink)]">
-            {formatPopulation(country.population)}
+            {formatPopulation(country.population, getRequestLocale())}
           </span>
         </div>
         <div>

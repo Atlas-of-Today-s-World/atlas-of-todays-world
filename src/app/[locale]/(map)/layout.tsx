@@ -9,7 +9,7 @@ import { getFlags } from "@/features/flags/queries";
 import { regionColorMap } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
 import { format, type Messages } from "@/features/i18n/messages";
-import { getT, localeFrom } from "@/features/i18n/request";
+import { getRequestLocale, getT, localeFrom } from "@/features/i18n/request";
 import type { GlobalIssue, Indicator, Region } from "@/features/geography/types";
 import { saturate, saturateMap } from "@/lib/color";
 import { colorMapFor, legendFor } from "@/lib/indicators";
@@ -25,7 +25,7 @@ function buildViewOptions(indicators: Indicator[], saturation: number, t: Messag
       swatches: [],
     },
     ...indicators.map((indicator) => {
-      const legend = legendFor(indicator);
+      const legend = legendFor(indicator, getRequestLocale());
       return {
         id: indicator.id,
         label: indicator.label,

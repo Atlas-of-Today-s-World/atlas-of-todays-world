@@ -6,7 +6,7 @@ import MapFocus from "@/components/map/MapFocus";
 import MapViewSetter from "@/components/map/MapViewSetter";
 import { SectionLabel } from "@/components/atlas/ui";
 import { getAtlas } from "@/features/geography/queries";
-import { getT, localeFrom } from "@/features/i18n/request";
+import { getRequestLocale, getT, localeFrom } from "@/features/i18n/request";
 import { formatValue } from "@/lib/indicators";
 import { absoluteUrl, alternates, breadcrumbJsonLd } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
@@ -90,7 +90,7 @@ export default async function IndicatorViewPage({
                   {row.country.name}
                 </Link>
                 <span className="text-[13px] font-medium text-[var(--color-ink)] tabular-nums">
-                  {formatValue(indicator, row.value)}
+                  {formatValue(indicator, row.value, getRequestLocale())}
                 </span>
               </li>
             ))}
