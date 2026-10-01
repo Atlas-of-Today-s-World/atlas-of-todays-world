@@ -36,6 +36,12 @@ describe("buildCsp", () => {
     expect(csp).not.toMatch(/ {2}|\s;/);
   });
 
+  it("Turnstile smí skript a iframe jen z challenges.cloudflare.com", () => {
+    expect(directive(prod, "script-src")).toContain("https://challenges.cloudflare.com");
+    expect(directive(prod, "frame-src")).toContain("https://challenges.cloudflare.com");
+    expect(directive(prod, "script-src")).not.toMatch(/https:(\s|$)/);
+  });
+
   it("zakáže vložení do rámu a pluginy", () => {
     expect(directive(prod, "frame-ancestors")).toBe("frame-ancestors 'none'");
     expect(directive(prod, "object-src")).toBe("object-src 'none'");

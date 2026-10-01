@@ -16,15 +16,19 @@ const DEFAULT_AFTER_SIGN_IN = "/ucet";
  * jde rovnou do administrace.
  */
 export async function finishSignIn(supabase: Client, next: string | null, origin: string) {
+  return NextResponse.redirect(new URL(await signInDestination(supabase, next), origin));
+}
+
+/** Kam po přihlášení — pro route handler (finishSignIn) i Server Action s kódem z e-mailu. */
+export async function signInDestination(supabase: Client, next: string | null) {
   const target = safeRedirect(next, DEFAULT_AFTER_SIGN_IN);
   await supabase.rpc("claim_invitation");
 
-  let destination = target;
   if (target === DEFAULT_AFTER_SIGN_IN) {
     const { data: role } = await supabase.rpc("my_role");
-    if (role && role.id !== "reader") destination = "/admin";
+    if (role && role.id !== "reader") return "/admin";
   }
-  return NextResponse.redirect(new URL(destination, origin));
+  return target;
 }
 
 export function signInFailed(origin: string) {

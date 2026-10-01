@@ -10,6 +10,10 @@ import {
   signedIn,
   type ActionState,
 } from "@/lib/actions";
+import { getFlags } from "@/features/flags/queries";
+import { serverEnv } from "@/lib/env.server";
+import { SITE_URL } from "@/lib/site";
+import { createServiceClient } from "@/lib/supabase/service";
 import { InvitationId, InvitationInput } from "./schema";
 
 const PAGE = "/admin/ucty/pozvanky";
@@ -39,10 +43,32 @@ export async function createInvitation(
   if (error) return failed(error);
 
   revalidatePath(PAGE);
-  return {
-    ok: true,
-    message: "Pozvánka je vytvořená. Pošlete pozvanému odkaz na stránku /pozvanka.",
-  };
+  return { ok: true, message: await sendInvitationEmail(email) };
+}
+
+const SHARE_LINK = "Pošlete pozvanému odkaz na stránku /pozvanka.";
+
+/**
+ * E-mail s pozvánkou (G1) — jen se zapnutým přepínačem `email_auth` (vlastní
+ * SMTP, U5). Odkaz vede na /auth/confirm: ověří e-mail a trigger
+ * `handle_user_updated` pozvánku přijme. Kdo už účet má (čtenář), e-mail
+ * nedostane — pozvánka se uplatní při jeho dalším přihlášení.
+ */
+async function sendInvitationEmail(email: string): Promise<string> {
+  const created = "Pozvánka je vytvořená.";
+  if (!(await getFlags()).emailAuth || !serverEnv.SUPABASE_SERVICE_ROLE_KEY) {
+    return `${created} ${SHARE_LINK}`;
+  }
+  const { error } = await createServiceClient().auth.admin.inviteUserByEmail(email, {
+    redirectTo: `${SITE_URL}/auth/confirm?next=/admin`,
+    data: { locale: "en" },
+  });
+  if (!error) return `${created} Pozvaný dostal e-mail s odkazem.`;
+  if (error.code === "email_exists") {
+    return `${created} Účet s tímto e-mailem už existuje — pozvánka se uplatní při jeho dalším přihlášení.`;
+  }
+  console.error("[invite-email]", error.code ?? error.message);
+  return `${created} E-mail se nepodařilo odeslat. ${SHARE_LINK}`;
 }
 
 export async function revokeInvitation(id: string): Promise<ActionState> {
