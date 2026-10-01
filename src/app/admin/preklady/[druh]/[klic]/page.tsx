@@ -8,7 +8,7 @@ import { can, getAccess } from "@/features/auth/access";
 import { LOCALE_NAMES, type Locale } from "@/features/i18n/config";
 import { TranslationForm } from "@/features/i18n/components/TranslationForm";
 import { translationForEdit } from "@/features/i18n/editorial";
-import { ENTITY_LABELS, TARGET_LOCALES } from "@/features/i18n/schema";
+import { ENTITY_LABELS, TARGET_LOCALES } from "@/features/i18n/labels";
 import {
   ENTITY_SECTION,
   TRANSLATABLE_ENTITIES,

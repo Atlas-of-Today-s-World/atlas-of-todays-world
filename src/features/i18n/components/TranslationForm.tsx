@@ -7,7 +7,7 @@ import { ActionForm } from "@/components/ui/action-form";
 import { FormField, Input, Textarea } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
 import { saveTranslations } from "../actions";
-import { FIELD_LABELS } from "../schema";
+import { FIELD_LABELS } from "../labels";
 
 /** Pole, která jsou v originálu dlouhý text (víceřádkový vstup). */
 const LONG = new Set(["summary", "blurb", "profile_html", "description"]);
