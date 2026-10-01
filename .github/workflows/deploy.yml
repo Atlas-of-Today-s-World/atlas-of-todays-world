@@ -56,10 +56,14 @@ jobs:
       - uses: supabase/setup-cli@v1
         with:
           version: latest
+      # --include-seed: supabase/seed.sql (zmrazený snímek výchozího obsahu) se
+      # do prázdné produkce nahraje jednou. CLI si pamatuje hash v
+      # supabase_migrations.seed_files a už nahraný seed znovu nespustí, takže
+      # nepřepíše, co redakce mezitím změnila v administraci.
       - name: Migrace do produkce
         run: |
           supabase link --project-ref "${{ vars.SUPABASE_PROJECT_REF }}" --password "$SUPABASE_DB_PASSWORD"
-          supabase db push --password "$SUPABASE_DB_PASSWORD" --yes
+          supabase db push --include-seed --password "$SUPABASE_DB_PASSWORD" --yes
 
   deploy:
     needs: migrate
