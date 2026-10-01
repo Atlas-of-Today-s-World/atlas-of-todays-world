@@ -14,3 +14,5 @@ supabase/.temp
 package-lock.json
 *.md
 src/lib/db/types.gen.ts
+# E-mailové šablony Supabase Auth (Go templates) — posílají se, jak jsou.
+supabase/templates
