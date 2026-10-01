@@ -1391,7 +1391,8 @@ test("heslo: náhled přes odkaz vrátí i kapitoly, autora a zdroje", async () 
 });
 
 test("překlady: čte je každý, píše jen sekce celku", async () => {
-  const row = ["country", "BRA", "name", "cs", "Brazílie"];
+  // blurb: v migraci s českými názvy států není, test si ho založí sám.
+  const row = ["country", "BRA", "blurb", "cs", "Brazílie"];
   const insert =
     "insert into translations (entity, entity_key, field, locale, value) values ($1, $2, $3, $4, $5)";
   await as(null, () => refused(q(insert, row)));
@@ -1407,16 +1408,22 @@ test("překlady: čte je každý, píše jen sekce celku", async () => {
   );
 
   const seen = await as(null, () =>
-    q("select value from translations where entity = 'country' and entity_key = 'BRA'"),
+    q(
+      "select value from translations where entity = 'country' and entity_key = 'BRA' and field = 'blurb'",
+    ),
   );
   assert.deepEqual(seen, [{ value: "Brazílie" }]);
   await as(null, () => refused(q("select updated_by from translations")));
 
   const byPublisher = await as(id.pubA, () =>
-    q("update translations set value = 'X' where entity_key = 'BRA' returning value"),
+    q(
+      "update translations set value = 'X' where entity_key = 'BRA' and field = 'blurb' returning value",
+    ),
   );
   assert.equal(byPublisher.length, 0);
-  await as(id.admin, () => q("delete from translations where entity_key = 'BRA'"));
+  await as(id.admin, () =>
+    q("delete from translations where entity_key = 'BRA' and field = 'blurb'"),
+  );
 });
 
 test("překlad: založí ho, kdo smí psát, jako vlastní koncept s kopií obsahu", async () => {
