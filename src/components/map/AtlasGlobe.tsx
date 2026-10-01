@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  getVersion,
   Map as MapLibreMap,
+  setWorkerUrl,
   type ErrorEvent,
   type ExpressionSpecification,
   type MapMouseEvent,
@@ -138,6 +140,8 @@ export default function AtlasGlobe({
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
+    // Worker leží v public/ (scripts/copy-maplibre-worker.mjs) — bundler ho neveze.
+    setWorkerUrl(`/maplibre/${getVersion()}/maplibre-gl-worker.mjs`);
     const map = new MapLibreMap({
       container: containerRef.current,
       style: buildStyle(regionLabels, styleOptions),

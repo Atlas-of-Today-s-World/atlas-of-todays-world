@@ -28,7 +28,12 @@ test.describe("globus", () => {
         errors.push(message.text());
       }
     });
+    // MapLibre 6: worker se bere z public/maplibre/<verze>/ (scripts/copy-maplibre-worker.mjs).
+    const worker = page.waitForResponse((r) =>
+      /\/maplibre\/[\d.]+\/maplibre-gl-worker\.mjs$/.test(r.url()),
+    );
     await page.goto("/");
+    expect((await worker).status()).toBe(200);
     // Atribut nastavuje AtlasGlobe, až je zdroj "countries" načtený (vyžaduje
     // funkční web worker MapLibre).
     await expect(page.locator('[data-countries="loaded"]')).toBeAttached({ timeout: 30_000 });

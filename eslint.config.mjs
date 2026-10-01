@@ -14,6 +14,7 @@ const config = [
       ".next-dev/**",
       "node_modules/**",
       "demo/**",
+      "public/maplibre/**",
       "test-results/**",
       "playwright-report/**",
       "coverage/**",
