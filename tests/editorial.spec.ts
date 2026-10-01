@@ -85,3 +85,20 @@ test("publisher cannot approve own article, editor can and it goes live", async 
   await expect(approver.getByRole("heading", { name: title })).toBeVisible();
   await expect(approver.getByText("První odstavec napsaný v e2e testu.")).toBeVisible();
 });
+
+test("row icons in Articles: editor unpublishes, then deletes the draft", async ({ page }) => {
+  await signIn(page, editor, "/admin");
+  await page.goto("/admin/content?q=" + encodeURIComponent(slug));
+  const row = page.getByRole("row", { name: title });
+
+  await row.getByRole("button", { name: "Unpublish" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Unpublish" }).click();
+  await expect(row.getByText("Draft", { exact: true })).toBeVisible();
+
+  await row.getByRole("button", { name: "Delete" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Delete" }).click();
+  await expect(page.getByRole("row", { name: title })).toHaveCount(0);
+
+  const gone = await page.goto(`/news/${slug}`);
+  expect(gone?.status()).toBe(404);
+});

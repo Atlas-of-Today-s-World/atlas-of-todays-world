@@ -3,9 +3,11 @@ import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
+import { confirmAction } from "@/components/data-table/row-actions";
 import { optionStats } from "@/components/data-table/stats";
 import { navIcon } from "@/config/admin-nav";
-import { sectionAccess } from "@/features/auth/access";
+import { can, sectionAccess } from "@/features/auth/access";
+import { approveEntry } from "@/features/entries/actions";
 import { approvalQueue } from "@/features/entries/editorial";
 
 export const metadata: Metadata = { title: "Article approvals" };
@@ -21,7 +23,9 @@ const WHO = [
  * assigned countries or authors; nobody but an admin approves their own article.
  */
 export default async function ApprovalsPage() {
-  if (!(await sectionAccess("approvals"))) return <NoAccess />;
+  const access = await sectionAccess("approvals");
+  if (!access) return <NoAccess />;
+  const canApprove = can(access.permissions, "approvals", "e");
   const queue = await approvalQueue();
 
   return (
@@ -81,6 +85,17 @@ export default async function ApprovalsPage() {
                   label: "Review article",
                   href: `/admin/content/${row.id}`,
                 },
+                ...(canApprove
+                  ? [
+                      confirmAction(
+                        "approve",
+                        "Approve and publish",
+                        approveEntry.bind(null, row.id),
+                        `Publish ${row.title}?`,
+                        "The article goes live on the site (or at its scheduled time). To ask for changes, open it and send it back with a note.",
+                      ),
+                    ]
+                  : []),
               ]}
             />
           ),
