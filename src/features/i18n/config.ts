@@ -19,3 +19,15 @@ export function localePath(locale: Locale, path: string): string {
   if (locale === DEFAULT_LOCALE) return clean;
   return clean === "/" ? `/${locale}` : `/${locale}${clean}`;
 }
+
+/**
+ * Jazyk a cesta bez jazykové předpony z adresy v prohlížeči
+ * (`/cs/country/x` → cs, `/country/x`; `/country/x` → en, beze změny).
+ */
+export function splitLocale(pathname: string): { locale: Locale; path: string } {
+  const [, first, ...rest] = pathname.split("/");
+  if (first !== DEFAULT_LOCALE && isLocale(first)) {
+    return { locale: first, path: `/${rest.join("/")}` };
+  }
+  return { locale: DEFAULT_LOCALE, path: pathname || "/" };
+}

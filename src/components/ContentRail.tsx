@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
+import { useLocalizedRouter } from "@/components/i18n/useLocalizedRouter";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 /**
@@ -25,7 +25,7 @@ export default function ContentRail({
   wide?: boolean;
 }) {
   const [collapsed, setCollapsed] = useState(false);
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const panel = useRef<HTMLElement>(null);
 
   // Panel se zavírá i klávesou Esc – jinak by se z něj klávesnicí nešlo dostat.

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/i18n/Link";
 import { NewsBadge, SectionLabel } from "@/components/atlas/ui";
 import type { RegionDossier } from "@/lib/content-types";
 import type { RegionStat } from "@/lib/region-stats";

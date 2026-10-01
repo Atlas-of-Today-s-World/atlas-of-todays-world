@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/i18n/Link";
 import type { EntrySummary } from "@/features/entries/queries";
 import type { Country, CountryProfile } from "@/features/geography/types";
 import { formatPopulation } from "@/lib/format";

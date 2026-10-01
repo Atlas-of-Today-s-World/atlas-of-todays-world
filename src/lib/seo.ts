@@ -1,3 +1,4 @@
+import { DEFAULT_LOCALE, LOCALES, localePath, type Locale } from "@/features/i18n/config";
 import type { Metadata } from "next";
 import { SITE_URL } from "./site";
 
@@ -30,10 +31,13 @@ export function geoMeta(input: {
 }
 
 /** Jazykové varianty. Zatím jen angličtina, ale hreflang je připravený. */
-export function alternates(path: string): Metadata["alternates"] {
+export function alternates(path: string, locale: Locale = DEFAULT_LOCALE): Metadata["alternates"] {
   return {
-    canonical: path,
-    languages: { en: path, "x-default": path },
+    canonical: localePath(locale, path),
+    languages: {
+      ...Object.fromEntries(LOCALES.map((item) => [item, localePath(item, path)])),
+      "x-default": path,
+    },
   };
 }
 

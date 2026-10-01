@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/i18n/Link";
 import ContentRail from "@/components/ContentRail";
 import MapFocus from "@/components/map/MapFocus";
 import { SectionLabel } from "@/components/atlas/ui";

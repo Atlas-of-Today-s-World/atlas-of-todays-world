@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { getEncyclopediaEntries, getEntries } from "@/features/entries/queries";
 import { getAtlas } from "@/features/geography/queries";
 import { LEGAL_NAV } from "@/config/navigation";
+import { LOCALES, localePath } from "@/features/i18n/config";
 import { SITE_URL } from "@/lib/site";
 
 /**
@@ -21,7 +22,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: NonNullable<MetadataRoute.Sitemap[number]["changeFrequency"]>,
     priority: number,
     extra: Partial<MetadataRoute.Sitemap[number]> = {},
-  ) => ({ url: `${SITE_URL}${path}`, lastModified: now, changeFrequency, priority, ...extra });
+  ) => ({
+    url: `${SITE_URL}${path}`,
+    lastModified: now,
+    changeFrequency,
+    priority,
+    // Jazykové verze téže stránky (hreflang v sitemapě, G5).
+    alternates: {
+      languages: Object.fromEntries(
+        LOCALES.map((locale) => [locale, `${SITE_URL}${localePath(locale, path || "/")}`]),
+      ),
+    },
+    ...extra,
+  });
 
   return [
     page("", "daily", 1),

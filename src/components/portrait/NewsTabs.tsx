@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import Link from "@/components/i18n/Link";
 import { Rail } from "@/components/atlas/Rail";
 import { NEWS_CATEGORIES, type NewsCategory } from "@/lib/content-types";
 import { cssBackgroundImage } from "@/lib/security/urls";

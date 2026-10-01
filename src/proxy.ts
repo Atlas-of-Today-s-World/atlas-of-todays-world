@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { publicEnv } from "@/lib/env";
 import { buildCsp, securityHeaderEntries } from "@/lib/security/csp";
+import { DEFAULT_LOCALE, localePath, splitLocale } from "@/features/i18n/config";
 import { refreshSession } from "@/lib/supabase/middleware";
 
 /**
@@ -26,19 +27,46 @@ const PROTECTED_PATHS = ["/admin", "/api/admin", "/ucet"];
 const matches = (pathname: string, prefixes: string[]) =>
   prefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 
+/** Cesty bez jazykových verzí: administrace, API, callbacky a soubory (robots.txt…). */
+const UNLOCALIZED = ["/admin", "/api", "/auth", "/_next", "/.well-known"];
+const isFile = (pathname: string) => /\.[a-z0-9]+$/i.test(pathname);
+
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
-  const response = NextResponse.next({ request });
+  const localized = !matches(pathname, UNLOCALIZED) && !isFile(pathname);
+  const { locale, path } = localized
+    ? splitLocale(pathname)
+    : { locale: DEFAULT_LOCALE, path: pathname };
 
-  if (!matches(pathname, SESSION_PATHS)) return securityHeaders(response);
+  // /en/… je jen jiný zápis výchozí verze — kanonická adresa je bez předpony.
+  if (
+    localized &&
+    (pathname === `/${DEFAULT_LOCALE}` || pathname.startsWith(`/${DEFAULT_LOCALE}/`))
+  ) {
+    const canonical = new URL(
+      `${pathname.slice(DEFAULT_LOCALE.length + 1) || "/"}${search}`,
+      request.url,
+    );
+    return securityHeaders(NextResponse.redirect(canonical, 308));
+  }
+
+  // Angličtina bez předpony → routa [locale]=en (adresa v prohlížeči se nemění).
+  const response =
+    localized && locale === DEFAULT_LOCALE
+      ? NextResponse.rewrite(new URL(`/${DEFAULT_LOCALE}${pathname}${search}`, request.url), {
+          request,
+        })
+      : NextResponse.next({ request });
+
+  if (!matches(path, SESSION_PATHS)) return securityHeaders(response);
 
   const user = await refreshSession(request, response);
-  if (user || !matches(pathname, PROTECTED_PATHS)) return securityHeaders(response);
+  if (user || !matches(path, PROTECTED_PATHS)) return securityHeaders(response);
 
-  if (pathname.startsWith("/api/")) {
+  if (path.startsWith("/api/")) {
     return securityHeaders(NextResponse.json({ error: "Sign in first." }, { status: 401 }));
   }
-  const login = new URL("/login", request.url);
+  const login = new URL(localized ? localePath(locale, "/login") : "/login", request.url);
   login.searchParams.set("next", `${pathname}${search}`);
   return securityHeaders(NextResponse.redirect(login));
 }

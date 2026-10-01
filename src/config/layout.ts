@@ -4,6 +4,8 @@
  * odpovídat — hlídá to layout.test.ts.
  */
 
+import { splitLocale } from "@/features/i18n/config";
+
 /** Pravý panel s obsahem: min(vw, rem). */
 export const RAIL = { vw: 38, rem: 27 } as const;
 /** Široký panel (portrét regionu, global issue, novinka). */
@@ -21,8 +23,10 @@ export type RailKind = "none" | "normal" | "wide";
 
 /** Jaký panel je na dané cestě otevřený. */
 export function railKind(pathname: string): RailKind {
-  if (pathname === "/") return "none";
-  return WIDE_RAIL.test(pathname) ? "wide" : "normal";
+  // Jazyková předpona (/cs/…) na šířku panelu nemá vliv.
+  const { path } = splitLocale(pathname);
+  if (path === "/") return "none";
+  return WIDE_RAIL.test(path) ? "wide" : "normal";
 }
 
 /** Šířka panelu v px pro dané okno (0 na mobilu nebo bez panelu). */

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useLocalizedRouter } from "@/components/i18n/useLocalizedRouter";
 import {
   getVersion,
   Map as MapLibreMap,
@@ -112,7 +112,7 @@ export default function AtlasGlobe({
   const mapRef = useRef<MapLibreMap | null>(null);
   const hoveredRef = useRef<string | null>(null);
   const readyRef = useRef(false);
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const { focus, view, mode } = useMapState();
   const [hoverLabel, setHoverLabel] = useState<string | null>(null);
   const [ready, setReady] = useState(false);

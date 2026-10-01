@@ -139,7 +139,11 @@ Dělá se **před** napojením na DB, aby se komponenty přepisovaly jen jednou.
       (bucket `entry-audio`: MP3, M4A/AAC, Ogg/Opus, WAV, FLAC do 50 MB — rozhodnutí vlastníka 2026-10-01;
       syntéza hlasu R4 až po výběru služby), plánovaná hesla šedivě na portrétu.*
       Navíc: stránka 404 s kvízem obrysů 50 států (jen EN, větev `feat/404-quiz`).
-- [ ] **G5** Jazykové mutace P15 (`[locale]`, `translations`, `messages/*.json`).
+- [x] **G5** Jazykové mutace P15: routy pod `[locale]` (angličtina bez předpony přes proxy, `/cs/…`), přepínač jazyka,
+      hreflang/canonical a sitemap s jazykovými verzemi, `translations` + administrace Překlady (regiony, země, témata,
+      ukazatele), `messages/{en,cs}.json` pro hlavičku a navigaci (ADR-018).
+- [ ] **G5.2** Zbylé texty UI do `messages/*.json` (sekce portrétu, panely, formuláře veřejné části) a české verze
+      novinek/hesel (`entries.locale` + vazba na originál).
 - [ ] **G6** Platby P10 (Stripe, webhook → `memberships`) — po přechodu na Vercel Pro (komerční použití).
 - [ ] **G7** Webflow import P16 a přesměrování starých URL; přechod koncept → produkce (ARCHITEKTURA 13.5).
       *Připraveno: `scripts/import-webflow.mjs` (CSV z CMS Exportu i JSON z Data API v2, nanečisto bez `--apply`,

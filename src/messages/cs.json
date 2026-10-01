@@ -1,0 +1,30 @@
+{
+  "nav": {
+    "map": "Mapa",
+    "news": "Novinky",
+    "about": "O Atlasu",
+    "patrons": "Podporovatelé Atlasu",
+    "signIn": "Přihlásit se",
+    "privacy": "Soukromí",
+    "terms": "Podmínky",
+    "accessibility": "Přístupnost"
+  },
+  "header": {
+    "home": "Atlas of Today's World — úvod",
+    "main": "Hlavní",
+    "legal": "Právní informace",
+    "menu": "Menu",
+    "openMenu": "Otevřít menu",
+    "closeMenu": "Zavřít menu",
+    "account": "Přihlásit se nebo otevřít účet",
+    "accountTitle": "Přihlášení / váš účet",
+    "language": "Jazyk",
+    "switchTo": "Přepnout na {language}"
+  },
+  "common": {
+    "skipToContent": "Přeskočit na obsah",
+    "close": "Zavřít",
+    "backToGlobe": "Zpět na glóbus",
+    "notTranslated": "Tento text zatím není přeložený — zobrazuje se anglický originál."
+  }
+}

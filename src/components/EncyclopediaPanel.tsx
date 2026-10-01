@@ -2,7 +2,7 @@
 
 import { BookOpen, Search } from "lucide-react";
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/i18n/Link";
 import type { SearchHit } from "@/lib/search";
 
 const KIND_LABEL: Record<string, string> = {

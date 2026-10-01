@@ -1,0 +1,30 @@
+{
+  "nav": {
+    "map": "Map",
+    "news": "News",
+    "about": "About",
+    "patrons": "Atlas Patrons",
+    "signIn": "Sign in",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "accessibility": "Accessibility"
+  },
+  "header": {
+    "home": "Atlas of Today's World — home",
+    "main": "Main",
+    "legal": "Legal",
+    "menu": "Menu",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "account": "Sign in or open your account",
+    "accountTitle": "Sign in / your account",
+    "language": "Language",
+    "switchTo": "Switch to {language}"
+  },
+  "common": {
+    "skipToContent": "Skip to content",
+    "close": "Close",
+    "backToGlobe": "Back to the globe",
+    "notTranslated": "This text is not translated yet — showing the English original."
+  }
+}

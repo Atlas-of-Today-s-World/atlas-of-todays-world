@@ -1,6 +1,7 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { notFound, permanentRedirect, redirect } from "next/navigation";
+import { DEFAULT_LOCALE, localePath, type Locale } from "@/features/i18n/config";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import { safeRedirect } from "@/lib/security/redirect";
 import { createPublicClient } from "@/lib/supabase/public";
@@ -31,11 +32,18 @@ const getRedirectMap = unstable_cache(
  * Místo 404: je-li pro cestu přesměrování, pošle tam (308/307), jinak 404.
  * Platí jen pro neexistující stránky — živou adresu přesměrování nepřebije.
  */
-export async function redirectOrNotFound(pathname: string): Promise<never> {
+export async function redirectOrNotFound(
+  pathname: string,
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<never> {
   const rule = matchRedirect(await getRedirectMap(), pathname);
   if (rule) {
     // DB už cíl omezuje na cestu na tomto webu; safeRedirect je druhá pojistka.
-    const target = safeRedirect(rule.to, "");
+    // Cíl ve stejném jazyce, v jakém návštěvník přišel (/cs/stará → /cs/nová).
+    const target = safeRedirect(
+      rule.to.startsWith("/") ? localePath(locale, rule.to) : rule.to,
+      "",
+    );
     if (target) {
       if (rule.permanent) permanentRedirect(target);
       redirect(target);
