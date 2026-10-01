@@ -10,6 +10,8 @@ export const tags = {
   portrait: (kind: "region" | "issue", slug: string) => `portrait:${kind}:${slug}`,
   /** Přepínače funkcí a režim údržby. */
   flags: "flags",
+  /** Přesměrování starých adres (tabulka redirects). */
+  redirects: "redirects",
 } as const;
 
 /** Záchranná síť: i bez invalidace se veřejná data obnoví nejpozději za hodinu. */

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { redirectOrNotFound } from "@/features/redirects/queries";
 import ContentRail from "@/components/ContentRail";
 import MapFocus from "@/components/map/MapFocus";
 import MapModeSetter from "@/components/map/MapModeSetter";
@@ -51,7 +51,8 @@ export default async function GlobalIssuePage({ params }: { params: Promise<{ sl
   const { slug } = await params;
   const atlas = await getAtlas();
   const region = atlas.issueBySlug.get(slug);
-  if (!region) notFound();
+  // Neznámá adresa: přesměrování (změněný slug), jinak 404.
+  if (!region) return redirectOrNotFound(`/global-issue/${slug}`);
 
   const countries = countriesOf(atlas, region.countries);
   const [entries, dossier] = await Promise.all([getEntries(), getPortrait("issue", region.slug)]);

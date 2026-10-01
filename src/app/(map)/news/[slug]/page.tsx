@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { redirectOrNotFound } from "@/features/redirects/queries";
 import ContentRail from "@/components/ContentRail";
 import MapFocus from "@/components/map/MapFocus";
 import { SectionLabel } from "@/components/atlas/ui";
@@ -53,7 +53,8 @@ export async function generateMetadata({
 export default async function NewsPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const [item, atlas] = await Promise.all([getEntry(slug), getAtlas()]);
-  if (!item) notFound();
+  // Neznámá adresa: přesměrování (změněný slug), jinak 404.
+  if (!item) return redirectOrNotFound(`/news/${slug}`);
 
   const region = item.region ? atlas.regionBySlug.get(item.region) : undefined;
   const issue = item.issue ? atlas.issueBySlug.get(item.issue) : undefined;
