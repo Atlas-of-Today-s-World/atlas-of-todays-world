@@ -9,6 +9,7 @@
  * Použití: npm run dev (v jiném okně) a pak `npm run test:smoke`
  *          nebo `BASE_URL=https://… npm run test:smoke` proti nasazené verzi.
  */
+import { htmlToText } from "./lib/html.mjs";
 const BASE = process.env.BASE_URL || "http://localhost:3000";
 
 let passed = 0;
@@ -45,12 +46,8 @@ async function get(path, options = {}) {
  * navíc rozděluje text komentáři `<!-- -->`, proto se vyhazují taky.
  */
 function visible(html) {
-  return html
-    .replace(/<script[\s\S]*?<\/script>/g, " ")
-    .replace(/<!--[\s\S]*?-->/g, "")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&#x27;|&rsquo;/g, "'")
+  return htmlToText(html)
+    .replace(/\u2019/g, "'")
     .replace(/\s+/g, " ");
 }
 

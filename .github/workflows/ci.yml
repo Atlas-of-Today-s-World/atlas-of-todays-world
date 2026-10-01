@@ -27,6 +27,8 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint
+      - name: Storybook se sestaví (katalog sdílených komponent)
+        run: npm run build-storybook
       - run: npm run format:check
       - run: npm run test:coverage
       - run: npm run test:db
@@ -72,6 +74,8 @@ jobs:
         with:
           name: lighthouse
           path: .lighthouseci/
+          # Složka začíná tečkou — bez tohohle ji upload-artifact@v4 vynechá.
+          include-hidden-files: true
           retention-days: 7
       - uses: actions/upload-artifact@v4
         if: failure()

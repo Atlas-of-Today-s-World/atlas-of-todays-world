@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/admin/PageHeader";
 import { sectionAccess } from "@/features/auth/access";
 import { getAtlas } from "@/features/geography/queries";
 import { CollectionEditor } from "@/features/portraits/components/CollectionEditor";
+import { savePortraitSection } from "@/features/portraits/actions";
 import { CountryForm } from "@/features/portraits/components/HeaderForms";
 import { countryForEdit, portraitItems, portraitRights } from "@/features/portraits/editorial";
 
@@ -53,8 +54,8 @@ export default async function CountryEditPage({ params }: { params: Promise<{ sl
           reason="Ukazatele se zdrojem upravuje role s právem upravovat regiony."
         >
           <CollectionEditor
-            kind="country"
-            slug={country.iso3}
+            save={savePortraitSection}
+            target={{ kind: "country", slug: country.iso3 }}
             collection="metrics"
             initial={items.metrics ?? []}
           />

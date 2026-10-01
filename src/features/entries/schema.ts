@@ -11,6 +11,21 @@ import {
   uuid,
 } from "@/lib/validation/common";
 
+/** Text s jednou položkou na řádek → seznam neprázdných řádků (CR odstraní trim). */
+const lines = (value: unknown) =>
+  typeof value === "string"
+    ? value
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean)
+    : value;
+
+/** Odrážky shrnutí hesla i kapitoly: nejvýš 5 po 300 znacích (DB `short_items`). */
+const summaryPoints = z.preprocess(
+  lines,
+  z.array(text(300)).max(5, "Nejvýš 5 odrážek, jedna na řádek."),
+);
+
 /** Vstup editoru novinky/hesla — limity shodné s tabulkou `entries`. */
 export const EntryInput = z.object({
   id: z.preprocess(blankToUndefined, uuid.optional()),
@@ -30,12 +45,53 @@ export const EntryInput = z.object({
   body_html: z.string().max(400_000, "Text je příliš dlouhý."),
   countries: z.array(iso3).max(60, "Nejvýš 60 zemí."),
   planned: z.preprocess((value) => value === "on", z.boolean()),
+  // Jen u encyklopedického hesla (P9); u novinky zůstanou prázdné.
+  summary_points: summaryPoints.default([]),
+  author_id: z.preprocess(blankToUndefined, uuid.optional()),
 });
 export type EntryInput = z.infer<typeof EntryInput>;
+
+/** Kapitola hesla — limity shodné s tabulkou `entry_chapters`. */
+export const ChapterInput = z.object({
+  title: requiredText(200),
+  summary_points: summaryPoints,
+  body_html: z.string().max(200_000, "Text kapitoly je příliš dlouhý."),
+  illustration_url: optionalHttpsUrl,
+  illustration_credit: text(300).default(""),
+  // Zvuková verze kapitoly (R4) — po kapitolách, ať se soubor vejde do 50 MB.
+  audio_url: optionalHttpsUrl,
+});
+export type ChapterInput = z.infer<typeof ChapterInput>;
+
+export const CHAPTER_FIELD_LABEL: Record<string, string> = {
+  title: "titulek",
+  summary_points: "shrnutí",
+  body_html: "text",
+  illustration_url: "ilustrace",
+  illustration_credit: "kredit ilustrace",
+  audio_url: "zvuk",
+};
 
 export const SendBackInput = z.object({
   id: uuid,
   note: requiredText(2000),
+});
+
+/** Nejdřív a nejpozději lze zveřejnění naplánovat (shodné se schedule_entry v DB). */
+const SCHEDULE_MIN_MINUTES = 5;
+const SCHEDULE_MAX_DAYS = 365;
+
+/**
+ * Plánované zveřejnění: čas jako ISO s posunem (prohlížeč převede místní čas
+ * z pole datetime-local). Okno 5 minut až rok hlídá i DB funkce.
+ */
+export const ScheduleInput = z.object({
+  id: uuid,
+  publish_at: z.iso.datetime({ offset: true, message: "Zadejte datum a čas." }).refine((value) => {
+    const at = Date.parse(value);
+    const now = Date.now();
+    return at >= now + SCHEDULE_MIN_MINUTES * 60_000 && at <= now + SCHEDULE_MAX_DAYS * 86_400_000;
+  }, `Čas musí být aspoň ${SCHEDULE_MIN_MINUTES} minut dopředu a nejvýš za rok.`),
 });
 
 export const ENTRY_STATUSES = ["draft", "pending", "published", "planned"] as const;

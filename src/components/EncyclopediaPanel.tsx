@@ -2,27 +2,22 @@
 
 import { BookOpen, Search } from "lucide-react";
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/i18n/Link";
 import type { SearchHit } from "@/lib/search";
+import { useMessages } from "@/components/i18n/LocaleProvider";
 
-const KIND_LABEL: Record<string, string> = {
-  region: "Region",
-  country: "Country",
-  news: "News",
-};
+const KIND_KEY = { region: "kindRegion", country: "kindCountry", news: "kindNews" } as const;
 
 /** "Global Encyclopedia" z Figmy: fulltext nad celým Atlasem. */
 export default function EncyclopediaPanel() {
+  const t = useMessages();
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<SearchHit[]>([]);
   const [searching, setSearching] = useState(false);
 
   useEffect(() => {
     const trimmed = query.trim();
-    if (trimmed.length < 2) {
-      setHits([]);
-      return;
-    }
+    if (trimmed.length < 2) return;
     const controller = new AbortController();
     const timer = setTimeout(async () => {
       setSearching(true);
@@ -57,7 +52,7 @@ export default function EncyclopediaPanel() {
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search places, regions, news…"
+          placeholder={t.search.placeholder}
           className="w-full bg-transparent text-[13px] text-white placeholder:text-white/45 focus:outline-none"
         />
       </label>
@@ -66,7 +61,7 @@ export default function EncyclopediaPanel() {
         <div className="panel-scroll mt-3 max-h-[min(50vh,22rem)] overflow-y-auto">
           {hits.length === 0 ? (
             <p className="px-1 py-3 text-[12.5px] text-white/55">
-              {searching ? "Searching…" : "Nothing found in the Atlas yet."}
+              {searching ? t.search.searching : t.search.nothing}
             </p>
           ) : (
             <ul className="space-y-1">
@@ -79,7 +74,9 @@ export default function EncyclopediaPanel() {
                   >
                     <span className="flex items-center gap-2">
                       <span className="rounded-full bg-white/12 px-1.5 py-0.5 text-[9.5px] tracking-wide text-white/70 uppercase">
-                        {KIND_LABEL[hit.kind] ?? hit.kind}
+                        {hit.kind in KIND_KEY
+                          ? t.search[KIND_KEY[hit.kind as keyof typeof KIND_KEY]]
+                          : hit.kind}
                       </span>
                       <span className="text-[13.5px] font-medium text-white">{hit.title}</span>
                     </span>

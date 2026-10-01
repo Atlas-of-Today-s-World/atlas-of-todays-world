@@ -1,6 +1,7 @@
 import { ErrorState } from "@/components/atlas/ErrorState";
+import { CountryQuiz } from "@/features/quiz/CountryQuiz";
 
-/** 404 mimo mapu (stránky bez globusu, neznámé adresy). */
+/** 404 mimo mapu (stránky bez globusu, neznámé adresy) — s kvízem obrysů jako útěchou. */
 export default function NotFound() {
   return (
     <div className="min-h-dvh bg-white text-[var(--color-ink)]">
@@ -10,6 +11,7 @@ export default function NotFound() {
           title="Page not found"
           lead="The page may have moved, or the address has a typo."
         />
+        <CountryQuiz />
       </main>
     </div>
   );

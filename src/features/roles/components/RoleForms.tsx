@@ -9,7 +9,7 @@ import { Checkbox, FormField, Input, Select, Textarea } from "@/components/ui/fi
 import { SECTIONS } from "@/features/auth/sections";
 import type { ActionState } from "@/lib/actions";
 import { deleteRole, saveMatrix, saveRole, saveSecurity } from "../actions";
-import { ACTION_LABEL, SECTION_LABEL } from "../schema";
+import { ACTION_LABEL, SECTION_LABEL } from "../labels";
 import { ActionForm } from "@/components/ui/action-form";
 
 const ACTIONS = ["v", "c", "e", "d"] as const;

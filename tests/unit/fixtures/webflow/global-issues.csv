@@ -1,0 +1,4 @@
+Name,Slug,Collection ID,Item ID,Created On,Updated On,Published On,Draft,Archived,Summary,Category,Main Image,Image Credit,Author,Post Body
+"Sahel coups, explained",sahel-coups-explained,c1,i1,2025-03-01,2025-03-02,Wed Mar 05 2025 10:00:00 GMT+0000 (Coordinated Universal Time),false,false,"Why ""coup belt"" is back.",Politics,https://cdn.prod.website-files.com/abc/123_sahel.jpg,Photo: Reuters,Ana Example,"<p>First line,
+second line.</p><iframe src=""https://www.youtube.com/embed/dQw4w9WgXcQ""></iframe><script>alert(1)</script>"
+Draft article,draft-article,c1,i2,2025-03-01,2025-03-02,,true,false,Not yet,Society,,,,<p>draft</p>

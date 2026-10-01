@@ -6,6 +6,9 @@
  * by znamenal dynamické renderování každé stránky, což by zrušilo statické/ISR
  * stránky (ADR-012). 'unsafe-eval' je jen ve vývoji (React dev overlay).
  */
+/** Cloudflare Turnstile (skript i iframe s výzvou) u přihlášení kódem z e-mailu. */
+const TURNSTILE = "https://challenges.cloudflare.com";
+
 export function buildCsp({ dev, supabaseUrl }: { dev: boolean; supabaseUrl?: string }): string {
   const supabase = supabaseUrl ? new URL(supabaseUrl) : null;
   const supabaseHttp = supabase ? supabase.origin : "";
@@ -13,8 +16,14 @@ export function buildCsp({ dev, supabaseUrl }: { dev: boolean; supabaseUrl?: str
 
   const directives: Record<string, string[]> = {
     "default-src": ["'self'"],
-    // blob: potřebuje MapLibre pro web workery.
-    "script-src": ["'self'", "'unsafe-inline'", "blob:", ...(dev ? ["'unsafe-eval'"] : [])],
+    // blob: potřebuje MapLibre pro web workery; Turnstile chrání přihlášení e-mailem (G1).
+    "script-src": [
+      "'self'",
+      "'unsafe-inline'",
+      "blob:",
+      TURNSTILE,
+      ...(dev ? ["'unsafe-eval'"] : []),
+    ],
     "worker-src": ["'self'", "blob:"],
     "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
     "font-src": ["'self'", "https://fonts.gstatic.com", "data:"],
@@ -29,12 +38,16 @@ export function buildCsp({ dev, supabaseUrl }: { dev: boolean; supabaseUrl?: str
       supabaseHttp,
       supabaseWs,
     ],
+    // Zvukové verze hesel (P9): Storage Supabase, nebo https adresa vložená v editoru
+    // (stejně jako obrázky). Zvuk nespustí skript, proto stačí https.
+    "media-src": ["'self'", "https:"],
     "frame-src": [
       "https://flo.uri.sh",
       "https://public.flourish.studio",
       "https://*.worldbank.org",
       "https://www.youtube-nocookie.com",
       "https://www.youtube.com",
+      TURNSTILE,
     ],
     "frame-ancestors": ["'none'"],
     "object-src": ["'none'"],

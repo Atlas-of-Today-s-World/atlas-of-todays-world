@@ -19,9 +19,9 @@ export function useFocusTrap(ref: RefObject<HTMLElement | null>, active: boolean
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Tab") return;
       const items = [...root.querySelectorAll<HTMLElement>(FOCUSABLE)];
-      if (!items.length) return;
       const first = items[0];
-      const last = items[items.length - 1];
+      const last = items.at(-1);
+      if (!first || !last) return;
       if (event.shiftKey && document.activeElement === first) {
         event.preventDefault();
         last.focus();

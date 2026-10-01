@@ -1,0 +1,28 @@
+# Týdenní kontrola mrtvých odkazů (PLAN G3). Projde stránky ze sitemap.xml
+# nasazeného webu a ověří každý odkaz a obrázek. Nic nezapisuje — výsledek je
+# jen ve výstupu a souhrnu jobu; nefunkční odkaz = neúspěšný běh (e-mail z Actions).
+name: Kontrola odkazů
+
+on:
+  schedule:
+    - cron: "41 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Odkazy ve zveřejněném obsahu
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: |
+          test -n "$SITE_URL" || { echo "Chybí proměnná repozitáře SITE_URL"; exit 1; }
+          node scripts/check-links.mjs

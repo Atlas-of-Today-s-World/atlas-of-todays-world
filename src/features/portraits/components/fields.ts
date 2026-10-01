@@ -1,4 +1,5 @@
-import { RESOURCE_KINDS, type Collection } from "../schema";
+import { RESOURCE_KINDS } from "../constants";
+import type { Collection } from "../schema";
 
 export interface ItemField {
   name: string;

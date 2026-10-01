@@ -1,0 +1,15 @@
+<!-- Pozvánka do redakčního týmu (G1). Po potvrzení ji přijme trigger handle_user_updated. -->
+<div style="font-family:Arial,Helvetica,sans-serif;max-width:480px;margin:0 auto;color:#16192b">
+  <p style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#6b7189">Atlas of Today's World</p>
+  {{ if eq .Data.locale "cs" }}
+  <h1 style="font-size:22px">Pozvánka do týmu Atlasu</h1>
+  <p>Byli jste pozváni do redakce Atlas of Today's World. Pozvánku přijmete potvrzením e-mailu:</p>
+  <p><a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=invite&amp;next=/admin" style="display:inline-block;background:#3b4ce0;color:#fff;padding:12px 24px;border-radius:999px;text-decoration:none">Přijmout pozvánku</a></p>
+  <p style="font-size:12px;color:#6b7189">Pozvánka platí 5 dní. Pokud ji nečekáte, e-mail ignorujte.</p>
+  {{ else }}
+  <h1 style="font-size:22px">You're invited to the Atlas team</h1>
+  <p>You have been invited to the editorial team of Atlas of Today's World. Confirm your e-mail to accept:</p>
+  <p><a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=invite&amp;next=/admin" style="display:inline-block;background:#3b4ce0;color:#fff;padding:12px 24px;border-radius:999px;text-decoration:none">Accept the invitation</a></p>
+  <p style="font-size:12px;color:#6b7189">The invitation is valid for 5 days. If you were not expecting it, ignore this e-mail.</p>
+  {{ end }}
+</div>

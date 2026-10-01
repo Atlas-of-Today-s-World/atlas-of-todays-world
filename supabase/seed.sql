@@ -2512,7 +2512,7 @@ construction.</p>
 Frontline oblasts and the rest of the country now differ more from each other
 than Ukraine as a whole differs from its neighbours.</p>
 ', 'Atlas editorial team', 'published', '2026-01-22', 7)
-on conflict (slug) do nothing;
+on conflict (slug, locale) do nothing;
 
 insert into public.entry_countries (entry_id, country_iso3) values
   (md5('entry:andes-mining-economy')::uuid, 'CHL'),

@@ -26,7 +26,7 @@ describe("allowRequest", () => {
   it("klíč obsahuje rozsah a hash první adresy, ne adresu samotnou", async () => {
     rpc.mockResolvedValue({ data: true, error: null });
     expect(await allowRequest("search", headers("1.2.3.4, 10.0.0.1"), opts)).toBe(true);
-    const args = rpc.mock.calls[0][1];
+    const args = rpc.mock.calls[0]?.[1];
     expect(rpc).toHaveBeenCalledWith("hit_rate_limit", expect.any(Object));
     expect(args.p_key).toMatch(/^search:[0-9a-f]{32}$/);
     expect(args.p_key).not.toContain("1.2.3.4");
@@ -38,7 +38,7 @@ describe("allowRequest", () => {
     expect(await allowRequest("search", headers(), opts)).toBe(false);
     rpc.mockResolvedValue({ data: false, error: null });
     await allowRequest("search", headers(), opts);
-    expect(rpc.mock.calls[0][1].p_key).toBe(rpc.mock.calls[1][1].p_key);
+    expect(rpc.mock.calls[0]?.[1].p_key).toBe(rpc.mock.calls[1]?.[1].p_key);
   });
 
   it("výpadek databáze požadavek nezablokuje", async () => {

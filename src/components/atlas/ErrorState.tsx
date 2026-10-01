@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/i18n/Link";
 import type { ReactNode } from "react";
 import { buttonVariants } from "@/components/ui/button";
 
@@ -11,11 +11,14 @@ export function ErrorState({
   title,
   lead,
   action,
+  backLabel = "Back to the globe",
 }: {
   code?: string;
   title: string;
   lead: string;
   action?: ReactNode;
+  /** Text odkazu zpět na glóbus v jazyce stránky. */
+  backLabel?: string;
 }) {
   return (
     <div className="px-6 pt-10 pb-12" role="alert" aria-live="polite">
@@ -33,7 +36,7 @@ export function ErrorState({
       <div className="mt-6 flex flex-wrap gap-2">
         {action}
         <Link href="/" className={buttonVariants({ variant: action ? "outline" : "primary" })}>
-          Back to the globe
+          {backLabel}
         </Link>
       </div>
     </div>

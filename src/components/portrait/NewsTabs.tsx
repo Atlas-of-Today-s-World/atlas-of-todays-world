@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import Link from "@/components/i18n/Link";
 import { Rail } from "@/components/atlas/Rail";
 import { NEWS_CATEGORIES, type NewsCategory } from "@/lib/content-types";
 import { cssBackgroundImage } from "@/lib/security/urls";
+import { useMessages } from "@/components/i18n/LocaleProvider";
 
 const FALLBACK_HERO = "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&q=60";
 
@@ -18,6 +19,7 @@ export interface NewsCard {
 
 /** Sekce "Our News" – tmavý pruh se záložkami kategorií a řadou karet. */
 export default function NewsTabs({ newsItems }: { newsItems: NewsCard[] }) {
+  const t = useMessages();
   const available = NEWS_CATEGORIES.filter((category) =>
     newsItems.some((item) => item.category === category),
   );
@@ -50,7 +52,7 @@ export default function NewsTabs({ newsItems }: { newsItems: NewsCard[] }) {
       ) : null}
 
       {visible.length ? (
-        <Rail label="News" tone="dark">
+        <Rail label={t.portrait.news} tone="dark">
           {visible.map((item) => (
             <Link
               key={item.slug}

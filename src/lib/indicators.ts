@@ -1,3 +1,5 @@
+import type { Locale } from "@/features/i18n/config";
+import { formatNumber } from "@/lib/format";
 import type { Indicator } from "@/features/geography/types";
 
 /**
@@ -21,7 +23,7 @@ function colorForValue(indicator: Indicator, value: number): string {
   const scaled = t * (ramp.length - 1);
   const lower = Math.floor(scaled);
   const upper = Math.min(lower + 1, ramp.length - 1);
-  return mixHex(ramp[lower], ramp[upper], scaled - lower);
+  return mixHex(ramp[lower] ?? "#C9CED8", ramp[upper] ?? "#C9CED8", scaled - lower);
 }
 
 function normalise(value: number, min: number, max: number, scale?: "log"): number {
@@ -41,7 +43,7 @@ function clamp01(value: number): number {
 function mixHex(a: string, b: string, t: number): string {
   const ca = hexToRgb(a);
   const cb = hexToRgb(b);
-  const mix = ca.map((channel, i) => Math.round(channel + (cb[i] - channel) * t));
+  const mix = ca.map((channel, i) => Math.round(channel + ((cb[i] ?? channel) - channel) * t));
   return `#${mix.map((n) => n.toString(16).padStart(2, "0")).join("")}`;
 }
 
@@ -55,15 +57,15 @@ function hexToRgb(hex: string): [number, number, number] {
 }
 
 /** Naformátuje hodnotu pro kartu země a legendu. */
-export function formatValue(indicator: Indicator, value: number): string {
+export function formatValue(indicator: Indicator, value: number, locale: Locale = "en"): string {
   if (indicator.type === "categorical") {
     const match = indicator.categories?.find((c) => c.value === Math.round(value));
     return match?.label ?? "—";
   }
   if (indicator.id === "gdp-per-capita") {
-    return `${Math.round(value).toLocaleString("en-US")}${indicator.unit}`;
+    return `${formatNumber(Math.round(value), 0, locale)}${indicator.unit}`;
   }
-  return `${value.toFixed(indicator.decimals)}${indicator.unit}`;
+  return `${formatNumber(value, indicator.decimals, locale)}${indicator.unit}`;
 }
 
 /**
@@ -79,7 +81,10 @@ export function colorMapFor(indicator: Indicator): Record<string, string> {
 }
 
 /** Podklad pro legendu pod globusem. */
-export function legendFor(indicator: Indicator): {
+export function legendFor(
+  indicator: Indicator,
+  locale: Locale = "en",
+): {
   swatches: { color: string; label: string }[];
   caption: string;
 } {
@@ -103,7 +108,7 @@ export function legendFor(indicator: Indicator): {
     const value = min + ((max - min) * i) / (steps - 1);
     return {
       color: colorForValue(indicator, value),
-      label: formatValue(indicator, value),
+      label: formatValue(indicator, value, locale),
     };
   });
   return { swatches, caption };

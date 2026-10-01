@@ -5,15 +5,17 @@ import { useActionState, useState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { SubmitButton } from "@/components/admin/SubmitButton";
-import { FormField, Textarea } from "@/components/ui/field";
+import { FormField, Input, Textarea } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
 import {
   approveEntry,
   deleteEntry,
   restoreRevision,
+  scheduleEntry,
   sendBackEntry,
   submitEntry,
   unpublishEntry,
+  unscheduleEntry,
 } from "../actions";
 import type { Revision } from "../editorial";
 import type { EntryStatus } from "../schema";
@@ -31,12 +33,14 @@ export function EntryWorkflow({
   canApprove,
   canDelete,
   reviewNote,
+  publishAt,
 }: {
   id: string;
   status: EntryStatus;
   canApprove: boolean;
   canDelete: boolean;
   reviewNote: string | null;
+  publishAt: string | null;
 }) {
   const router = useRouter();
   const [result, setResult] = useState<ActionState>({ ok: false });
@@ -106,8 +110,76 @@ export function EntryWorkflow({
 
       <ActionStatus state={result} />
 
+      {status === "pending" && publishAt ? (
+        <div className="grid gap-3 rounded-xl border border-[var(--color-line)] p-4 text-[13.5px]">
+          <p>
+            <span className="font-medium">
+              Naplánováno na {/* Server formátuje v UTC, prohlížeč v místním čase. */}
+              <time dateTime={publishAt} suppressHydrationWarning>
+                {dateFormat.format(new Date(publishAt))}
+              </time>
+              .
+            </span>{" "}
+            Na webu se objeví nejpozději hodinu po tomto čase. Když článek mezitím upraví někdo
+            jiný, plán se zruší.
+          </p>
+          {canApprove ? (
+            <div>
+              <ConfirmButton
+                label="Zrušit plán"
+                title="Zrušit plánované zveřejnění?"
+                body="Článek zůstane ve frontě ke schválení."
+                confirm="Zrušit plán"
+                action={() => unscheduleEntry(id)}
+                onDone={done}
+              />
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+      {status === "pending" && canApprove && !publishAt ? <Schedule id={id} onDone={done} /> : null}
       {status === "pending" && canApprove ? <SendBack id={id} onDone={done} /> : null}
     </div>
+  );
+}
+
+/**
+ * „Publikovat v čase…": místní čas z pole datetime-local převede prohlížeč na
+ * ISO s posunem (server běží v UTC a časové pásmo redaktora nezná).
+ */
+function Schedule({ id, onDone }: { id: string; onDone: (state: ActionState) => void }) {
+  const [state, action] = useActionState<ActionState, FormData>(
+    async (prev, data) => {
+      const local = String(data.get("publish_at_local") ?? "");
+      const at = new Date(local);
+      data.set("publish_at", local && !Number.isNaN(at.getTime()) ? at.toISOString() : "");
+      data.delete("publish_at_local");
+      const next = await scheduleEntry(prev, data);
+      onDone(next);
+      return next;
+    },
+    { ok: false },
+  );
+  return (
+    <ActionForm
+      action={action}
+      className="grid gap-3 rounded-xl border border-[var(--color-line)] p-4"
+    >
+      <input type="hidden" name="id" value={id} />
+      <FormField
+        id="publish_at_local"
+        label="Publikovat v čase…"
+        hint="Místo okamžitého zveřejnění. Na webu se článek objeví nejpozději hodinu po zvoleném čase."
+        errors={state.fieldErrors?.publish_at}
+      >
+        <Input id="publish_at_local" name="publish_at_local" type="datetime-local" required />
+      </FormField>
+      <div>
+        <SubmitButton variant="outline" pending="Plánuji…">
+          Naplánovat zveřejnění
+        </SubmitButton>
+      </div>
+    </ActionForm>
   );
 }
 

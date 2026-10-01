@@ -1,3 +1,4 @@
+import type { Locale } from "@/features/i18n/config";
 import { formatValue } from "@/lib/indicators";
 import type {
   Atlas,
@@ -167,6 +168,7 @@ function statsFor(
   iso3: string,
   indicators: Indicator[],
   ranks: Map<string, Map<string, number>>,
+  locale: Locale,
 ): CountryStat[] {
   const stats: CountryStat[] = [];
   for (const indicator of indicators) {
@@ -177,7 +179,7 @@ function statsFor(
       id: indicator.id,
       label: indicator.label,
       shortLabel: indicator.shortLabel,
-      value: formatValue(indicator, item.value),
+      value: formatValue(indicator, item.value, locale),
       raw: item.value,
       year: item.year,
       source: indicator.source,
@@ -192,7 +194,7 @@ function statsFor(
 const byPopulation = (a: { population: number | null }, b: { population: number | null }) =>
   (b.population ?? 0) - (a.population ?? 0);
 
-export function buildAtlas(snapshot: AtlasSnapshot, geo: GeoFacts[]): Atlas {
+export function buildAtlas(snapshot: AtlasSnapshot, geo: GeoFacts[], locale: Locale = "en"): Atlas {
   const indicators = buildIndicators(snapshot);
   const ranks = rankings(indicators);
   const facts = new Map(geo.map((item) => [item.iso3, item]));
@@ -238,7 +240,7 @@ export function buildAtlas(snapshot: AtlasSnapshot, geo: GeoFacts[]): Atlas {
         bbox,
         territoryNote: fact?.territoryNote ?? null,
         region: regionBySlug.get(row.region_slug ?? "") ?? null,
-        stats: statsFor(row.iso3, indicators, ranks),
+        stats: statsFor(row.iso3, indicators, ranks, locale),
         profile: {
           summary: row.blurb ?? "",
           tagline: row.tagline,

@@ -1,0 +1,17 @@
+<!-- Přihlášení kódem (G1). .Data.locale = "cs" → česky, jinak anglicky. -->
+<div style="font-family:Arial,Helvetica,sans-serif;max-width:480px;margin:0 auto;color:#16192b">
+  <p style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#6b7189">Atlas of Today's World</p>
+  {{ if eq .Data.locale "cs" }}
+  <h1 style="font-size:22px">Váš přihlašovací kód</h1>
+  <p>Zadejte tento kód na stránce přihlášení:</p>
+  <p style="font-size:32px;font-weight:bold;letter-spacing:.3em">{{ .Token }}</p>
+  <p>Nebo se přihlaste odkazem: <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=magiclink" style="color:#1f4fd8">přihlásit se</a>.</p>
+  <p style="font-size:12px;color:#6b7189">Kód platí hodinu. Pokud jste o přihlášení nežádali, e-mail ignorujte.</p>
+  {{ else }}
+  <h1 style="font-size:22px">Your sign-in code</h1>
+  <p>Enter this code on the sign-in page:</p>
+  <p style="font-size:32px;font-weight:bold;letter-spacing:.3em">{{ .Token }}</p>
+  <p>Or sign in with this link: <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=magiclink" style="color:#1f4fd8">sign in</a>.</p>
+  <p style="font-size:12px;color:#6b7189">The code is valid for one hour. If you did not ask to sign in, ignore this e-mail.</p>
+  {{ end }}
+</div>

@@ -182,7 +182,7 @@ src/
 │  ├─ security/                  # sanitize.ts, urls.ts, redirect.ts, rate-limit.ts, csp.ts
 │  ├─ cache/tags.ts              # jediný zdroj názvů cache tagů
 │  └─ …                          # čisté utility (formatValue, seo…)
-└─ middleware.ts                 # hlavičky, CSP s nonce, obnova session, ochrana /admin
+└─ proxy.ts                      # (dříve middleware) hlavičky, CSP, obnova session, ochrana /admin
 ```
 
 Pravidla vrstev:
@@ -632,8 +632,12 @@ noc:  zašifrovaná záloha DB · npm audit · CodeQL
 | ADR-010 | TipTap + sanitizace na serveru při uložení i vykreslení | bezpečný WYSIWYG, strukturovaný výstup | Markdown editor |
 | ADR-011 | Rate limiting v Postgres (`rate_limits` + funkce) | žádná další služba; sdílené mezi instancemi | Upstash Redis Free |
 | ADR-012 | CSP bez nonce: `script-src 'self' 'unsafe-inline'`, v produkci bez `unsafe-eval` | nonce vyžaduje dynamické renderování každé stránky → konec statických/ISR stránek; XSS řeší sanitizace (8.3) a zákaz `dangerouslySetInnerHTML` mimo `SafeHtml` | nonce + dynamické renderování; SRI hash (experimentální v Next 15) — přehodnotit s Next 16 |
-| ADR-013 | Zůstat na MapLibre 5 s výjimkou v auditu (GHSA-jrc7-96c5-q579) | zranitelnost je v `DOM.sanitize`, kterou v5 volá jen pro náš pevný atribuční text; MapLibre 6 v bundleru Next nenačte web worker (hranice zemí se nevykreslí) | MapLibre 6 s vlastním načítáním workeru (úkol A9) |
-| ADR-014 | *Návrh (čeká na schválení vlastníka):* rozpočet JS 500 kB (přenos, gzip) místo 200 kB; LCP < 2,5 s beze změny | MapLibre GL má ~267 kB gzip a je jádrem produktu (3D globus); načítá se asynchronně a LCP neblokuje (lokálně 0,1–0,5 s); `lighthouserc.json` hlídá, aby JS nerostl | 200 kB s líným načtením globusu až po interakci — horší první dojem z mapy |
+| ADR-013 | *(nahrazeno ADR-017)* Zůstat na MapLibre 5 s výjimkou v auditu (GHSA-jrc7-96c5-q579) | zranitelnost je v `DOM.sanitize`, kterou v5 volá jen pro náš pevný atribuční text; MapLibre 6 v bundleru Next nenačte web worker (hranice zemí se nevykreslí) | MapLibre 6 s vlastním načítáním workeru (úkol A9) |
+| ADR-014 | *Návrh (čeká na schválení vlastníka):* rozpočet JS 550 kB (přenos, gzip, včetně workeru MapLibre) místo 200 kB; LCP < 2,5 s beze změny | MapLibre 6 má ~300 kB gzip (hlavní modul + sdílený modul + worker, načítá se za běhu z `public/` a sdílený modul jen jednou — ADR-017), aplikace ~220 kB; globus je jádro produktu a LCP neblokuje; `lighthouserc.json` hlídá, aby JS nerostl | 200 kB s líným načtením globusu až po interakci — horší první dojem z mapy |
+| ADR-015 | Plánované publikování přes pg_cron v DB (`publish_due_entries()` každých 5 min), ne přes Vercel Cron | Vercel Hobby pouští cron jen 1× denně; route by potřebovala servisní klíč a `CRON_SECRET`; v DB stav mění jen security definer funkce se stejným pravidlem jako `approve_entry` | Vercel Cron `/api/cron/publish` s `CRON_SECRET` + `revalidateTag` (přesnější obnovení cache, ale denní interval na Hobby) |
+| ADR-016 | Náhled nezveřejněného článku přes odkaz s tokenem (`preview_links`, RPC `entry_preview`), ne přes `draftMode` | jedna cesta pro redakci i lidi bez účtu; veřejné stránky zůstávají čistě ISR (žádná cookie draftMode nepřepíná cache); v DB jen SHA-256 tokenu, platnost 1–30 dní, vytvořit smí jen kdo článek upravuje/schvaluje. Autosave editoru jen do prohlížeče (localStorage) — každé uložení do DB je revize | `draftMode` + `/api/draft` (jen pro přihlášené, sdílení by stejně chtělo token); autosave na server (zahltil by historii revizí) |
+| ADR-017 | MapLibre 6 s workerem ze statického souboru (`public/maplibre/<verze>/`, `setWorkerUrl`); nahrazuje ADR-013 | MapLibre 6 hledá worker vedle svého modulu (`import.meta.url`), což bundler Next rozbije; kopie při `predev`/`prebuild` je jednoduchá, verze v cestě dovolí dlouhou cache; e2e hlídá, že se worker stáhne a hranice zemí načtou | zůstat na v5 s výjimkou v auditu; vlastní webpack pravidlo pro worker (křehké mezi verzemi Next) |
+| ADR-018 | Jazyky: veřejné routy pod `[locale]`, angličtina bez předpony (proxy přepíše na `/en/…`, `/en/…` přesměruje 308), další jazyky s předponou; překlady polí v tabulce `translations` s fallbackem na angličtinu; texty UI v `messages/*.json` bez knihovny (typová kontrola klíčů) | stávající URL a SEO beze změny; ISR po jazycích; žádná nová závislost; `<html lang>` zůstává společné, jazyk obsahu nese obal `lang` | `next-intl` (zbytečně velké pro dva jazyky a vlastní routing); jazyk z cookie bez předpony (nejde cachovat ani indexovat) |
 
 Nové rozhodnutí = nový řádek (další číslo), nikdy přepsání starého; zrušené označit „nahrazeno ADR-xxx“.
 
@@ -834,56 +838,56 @@ Doplňky, které má mít produkční webová aplikace. Stav: ✅ máme · 🟡 
 |---|---|
 | ✅ | TypeScript `strict` |
 | ⬜ | `noUncheckedIndexedAccess`, Next `typedRoutes` (typově kontrolované odkazy) |
-| ⬜ | ESLint + Prettier + `lint-staged`/`husky` pre-commit |
-| ⬜ | `.nvmrc` / `engines` — jedna verze Node (22 LTS) lokálně i v CI |
+| ✅ | ESLint + Prettier + `lint-staged`/`husky` pre-commit |
+| ✅ | `.nvmrc` / `engines` — jedna verze Node lokálně i v CI |
 | ⬜ | Conventional Commits + automatický CHANGELOG (release-please) |
-| ⬜ | PR šablona (co / proč / jak testováno / Security impact) a CODEOWNERS |
-| ⬜ | Dependabot nebo Renovate (seskupené aktualizace, týdně) |
-| ⬜ | Bundle analyzer v CI (hlídá rozpočet 200 kB JS) |
+| ✅ | PR šablona (co / proč / jak testováno / Security impact) a CODEOWNERS |
+| ✅ | Dependabot nebo Renovate (seskupené aktualizace, týdně) |
+| 🟡 | Rozpočet JS v CI (Lighthouse `resource-summary:script:size`, ADR-014); analyzer zvlášť |
 
 ### 16.2 Uživatelské minimum
 
 | Stav | Standard |
 |---|---|
-| 🟡 | Vlastní `not-found.tsx`, `error.tsx`, `global-error.tsx` s cestou zpět na mapu |
+| ✅ | Vlastní `not-found.tsx`, `error.tsx`, `global-error.tsx` s cestou zpět na mapu (skutečná 404 i pod `loading.tsx`) |
 | 🟡 | `loading.tsx` / skeletony na každé datové stránce (zatím jen část rout) |
-| ⬜ | Režim údržby (feature flag → statická stránka) |
-| ⬜ | Právní stránky: Privacy policy, Terms; cookie-less analytika = bez cookie lišty |
-| ⬜ | GDPR: export a smazání vlastního účtu (čtenář v profilu), retence dat |
-| ⬜ | E-mailové šablony Auth (pozvánka, přihlášení) ve vizuálu Atlasu, EN/CS |
-| ⬜ | Přístupnost: skip-link, focus trap v dialozích, axe v CI, prohlášení o přístupnosti |
-| 🟡 | SEO: OG obrázky přes `next/og`, hreflang, sitemap z DB s `lastmod` |
-| ⬜ | Tisková verze hesel (`@media print`) |
+| ✅ | Režim údržby (feature flag `maintenance`) |
+| ✅ | Právní stránky: Privacy policy, Terms, Accessibility; cookie-less analytika = bez cookie lišty |
+| 🟡 | GDPR: export (`/api/account/export`) a smazání vlastního účtu na stránce účtu; retence dat zbývá popsat |
+| 🟡 | E-mailové šablony Auth EN/CS připravené (`supabase/templates`, G1), zapnou se se SMTP (U5) |
+| ✅ | Přístupnost: skip-link, focus trap v dialozích, axe v CI, prohlášení o přístupnosti, `lang` jazykových verzí |
+| ✅ | SEO: OG obrázky přes `next/og`, hreflang (en/cs), sitemap z DB s jazykovými verzemi |
+| ✅ | Tisková verze (`@media print`: jen obsah panelu, u odkazů adresa) |
 
 ### 16.3 Redakce a obsah
 
 | Stav | Standard |
 |---|---|
-| ⬜ | Náhled nepublikovaného obsahu (`draftMode`) a sdílitelný náhled s expirací |
-| ⬜ | Plánované publikování (`publish_at` + cron) |
-| ⬜ | Automatické ukládání konceptu v editoru + varování při odchodu z neuložené stránky |
-| ⬜ | Správa přesměrování (tabulka `redirects` → middleware) při změně slugu |
-| ⬜ | Kontrola odkazů (noční job hlásí mrtvé externí odkazy ve zdrojích) |
+| ✅ | Sdílitelný náhled nepublikovaného obsahu s expirací (ADR-016) |
+| ✅ | Plánované publikování (`publish_at` + pg_cron, ADR-015) |
+| ✅ | Automatické ukládání konceptu v editoru + varování při odchodu z neuložené stránky |
+| ✅ | Správa přesměrování (tabulka `redirects` → uplatní se místo stránky 404) při změně slugu |
+| ✅ | Kontrola odkazů (týdenní job `links.yml` hlásí mrtvé odkazy na stránkách ze sitemap) |
 | ⬜ | Povinné alt texty a kredity u každého obrázku |
 
 ### 16.4 Provoz a spolehlivost
 
 | Stav | Standard |
 |---|---|
-| ⬜ | Health endpoint `/api/health` (DB dostupná, verze buildu) |
-| ⬜ | Error tracking (Sentry Free) se source mapami, bez osobních údajů |
-| ⬜ | Cookie-less analytika (Vercel Web Analytics nebo Plausible) |
-| ⬜ | Uptime monitor (UptimeRobot Free) na web a health endpoint |
-| ⬜ | Feature flagy v DB (`feature_flags`) — zapínání funkcí bez nasazení (např. e-mailová registrace po SMTP) |
-| ⬜ | Runbook incidentů (únik klíče, výpadek Supabase, zneužití účtu) v `docs/` |
-| ⬜ | Test obnovy ze zálohy 1× za čtvrtletí |
+| ✅ | Health endpoint `/api/health` (DB dostupná, verze buildu) |
+| ⬜ | Error tracking (Sentry Free) se source mapami, bez osobních údajů — čeká na účet (U7) |
+| ✅ | Cookie-less analytika (Vercel Web Analytics) |
+| ⬜ | Uptime monitor (UptimeRobot Free) na web a health endpoint — vlastník (U6) |
+| ✅ | Feature flagy v DB (`feature_flags`: maintenance, newsletter, email_auth) |
+| ✅ | Runbook incidentů (únik klíče, výpadek Supabase, zneužití účtu) v `docs/` |
+| 🟡 | Šifrovaná záloha DB denně (`backup.yml`); test obnovy 1× za čtvrtletí podle runbooku |
 
 ### 16.5 Bezpečnost nad rámec kapitoly 8
 
 | Stav | Standard |
 |---|---|
-| ⬜ | `SECURITY.md` + `/.well-known/security.txt` |
-| ⬜ | GitHub: ochrana `main`, povinné review, secret scanning + push protection, CodeQL |
-| ⬜ | Žádné skripty z cizích CDN (self-hosting), případně Subresource Integrity |
-| ⬜ | Rotace klíčů (servisní klíč, Vercel token) 1× ročně a při odchodu člena týmu |
+| ✅ | `SECURITY.md` + `/.well-known/security.txt` |
+| 🟡 | GitHub: ochrana `main` (povinné CI, lineární historie), CodeQL (výchozí nastavení GitHubu); povinné review a secret scanning nastavuje vlastník |
+| ✅ | Žádné skripty z cizích CDN (fonty přes `next/font`, worker MapLibre z `public/`) |
+| 🟡 | Rotace klíčů (servisní klíč, Vercel token) — postup v runbooku, provádí vlastník |
 | ⬜ | Čtvrtletní revize přístupů (kdo má jakou roli) v sekci Účty |

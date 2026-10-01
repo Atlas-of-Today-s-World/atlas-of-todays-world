@@ -6,9 +6,11 @@ import { createPublicClient } from "@/lib/supabase/public";
 export interface Flags {
   maintenance: boolean;
   newsletter: boolean;
+  /** Přihlášení kódem z e-mailu a pozvánky e-mailem (G1) — až s vlastním SMTP. */
+  emailAuth: boolean;
 }
 
-const DEFAULTS: Flags = { maintenance: false, newsletter: true };
+const DEFAULTS: Flags = { maintenance: false, newsletter: true, emailAuth: false };
 
 /**
  * Přepínače funkcí (feature_flags, F6) — v cache s tagem, přepnutí v
@@ -26,6 +28,7 @@ export const getFlags = unstable_cache(
     return {
       maintenance: map.get("maintenance") ?? DEFAULTS.maintenance,
       newsletter: map.get("newsletter") ?? DEFAULTS.newsletter,
+      emailAuth: map.get("email_auth") ?? DEFAULTS.emailAuth,
     };
   },
   ["feature-flags"],

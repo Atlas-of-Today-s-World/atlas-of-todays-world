@@ -40,7 +40,7 @@ export default function ViewSwitcher({ options }: { options: ViewOption[] }) {
         aria-expanded={open}
         className="glass glass-hover flex items-center gap-2 rounded-full px-4 py-2 text-[13px] whitespace-nowrap text-white/90 transition"
       >
-        {active.shortLabel}
+        {active?.shortLabel}
         <span aria-hidden className={open ? "rotate-180 transition" : "transition"}>
           ⌄
         </span>
@@ -90,6 +90,7 @@ export default function ViewSwitcher({ options }: { options: ViewOption[] }) {
 export function MapLegend({ options }: { options: ViewOption[] }) {
   const { view } = useMapState();
   const option = options.find((item) => item.id === view) ?? options[0];
+  if (!option) return null;
 
   if (!option.swatches.length) {
     return (

@@ -975,8 +975,10 @@ test("přepínače: čte je každý, mění jen správa oprávnění", async () 
   const flags = await as(null, () => q("select key, enabled from feature_flags order by key"));
   assert.deepEqual(
     flags.map((f) => f.key),
-    ["maintenance", "newsletter"],
+    ["email_auth", "maintenance", "newsletter"],
   );
+  // Přihlášení a pozvánky e-mailem (G1) jsou vypnuté, dokud není vlastní SMTP (U5).
+  assert.equal(flags.find((f) => f.key === "email_auth").enabled, false);
   await as(null, () =>
     refused(q("update feature_flags set enabled = true where key = 'maintenance'")),
   );
@@ -988,4 +990,553 @@ test("přepínače: čte je každý, mění jen správa oprávnění", async () 
   const flag = await one("select enabled, updated_by from feature_flags where key = 'maintenance'");
   assert.deepEqual(flag, { enabled: true, updated_by: id.admin });
   await q("update feature_flags set enabled = false where key = 'maintenance'");
+});
+
+test("plánované zveřejnění: naplánuje jen schvalovatel, zveřejní ho cron", async () => {
+  const entry = await newEntry(id.pubA, "scheduled-ok", ["BRA"], "pending");
+  const tomorrow = "now() + interval '1 day'";
+
+  await as(null, () => refused(q(`select schedule_entry($1, ${tomorrow})`, [entry])));
+  await as(id.pubA, () =>
+    refused(q(`select schedule_entry($1, ${tomorrow})`, [entry]), /outside what you may approve/),
+  );
+  await as(id.dataEditor, () =>
+    refused(q(`select schedule_entry($1, ${tomorrow})`, [entry]), /outside/),
+  );
+  await as(id.approverLatam, () =>
+    refused(q("select schedule_entry($1, now() + interval '1 minute')", [entry]), /5 minutes/),
+  );
+  await as(id.approverLatam, () => q(`select schedule_entry($1, ${tomorrow})`, [entry]));
+  const planned = await one("select status, publish_at, scheduled_by from entries where id = $1", [
+    entry,
+  ]);
+  assert.equal(planned.status, "pending");
+  assert.ok(planned.publish_at > new Date());
+  assert.equal(planned.scheduled_by, id.approverLatam);
+
+  // Plán se nedá podstrčit přímým zápisem ani spustit z aplikace.
+  await as(id.pubA, () =>
+    refused(q("update entries set publish_at = now() where id = $1", [entry]), /schedule_entry/),
+  );
+  await as(id.editor, () =>
+    refused(
+      q("update entries set scheduled_by = $2 where id = $1", [entry, id.editor]),
+      /schedule_entry/,
+    ),
+  );
+  await as(id.approverLatam, () => refused(q("select publish_due_entries()"), /permission denied/));
+
+  // Ještě není čas → nic.
+  assert.equal((await one("select publish_due_entries() n")).n, 0);
+  // Čas nastal (jako cron: bez session).
+  await q("update entries set publish_at = now() - interval '1 minute' where id = $1", [entry]);
+  assert.equal((await one("select publish_due_entries() n")).n, 1);
+  const live = await one(
+    "select status, approved_by, publish_at, scheduled_by from entries where id = $1",
+    [entry],
+  );
+  assert.deepEqual(live, {
+    status: "published",
+    approved_by: id.approverLatam,
+    publish_at: null,
+    scheduled_by: null,
+  });
+  const seen = await as(null, () => q("select slug from entries where slug = 'scheduled-ok'"));
+  assert.equal(seen.length, 1);
+});
+
+test("plánované zveřejnění: plán zaniká po cizí úpravě, vrácení a ztrátě práva", async () => {
+  const schedule = (entry) =>
+    as(id.approverLatam, () => q("select schedule_entry($1, now() + interval '1 day')", [entry]));
+  const planOf = (entry) =>
+    one("select status, publish_at, scheduled_by from entries where id = $1", [entry]);
+
+  // Autor po naplánování změní text → schválená podoba neplatí, plán pryč.
+  const edited = await newEntry(id.pubA, "scheduled-edited", ["BRA"], "pending");
+  await schedule(edited);
+  await as(id.pubA, () => q("update entries set body_html = '<p>new</p>' where id = $1", [edited]));
+  assert.equal((await planOf(edited)).publish_at, null);
+
+  // Vrácení autorovi plán zruší.
+  const sentBack = await newEntry(id.pubA, "scheduled-sent-back", ["BRA"], "pending");
+  await schedule(sentBack);
+  await as(id.approverLatam, () => q("select send_back_entry($1, 'Not yet.')", [sentBack]));
+  assert.equal((await planOf(sentBack)).publish_at, null);
+
+  // Zrušit plán smí jen schvalovatel.
+  const cancelled = await newEntry(id.pubA, "scheduled-cancelled", ["BRA"], "pending");
+  await schedule(cancelled);
+  await as(id.pubA, () => refused(q("select unschedule_entry($1)", [cancelled]), /outside/));
+  await as(id.approverLatam, () => q("select unschedule_entry($1)", [cancelled]));
+  assert.deepEqual(await planOf(cancelled), {
+    status: "pending",
+    publish_at: null,
+    scheduled_by: null,
+  });
+
+  // Kdo plánoval, byl mezitím zablokován → v čase se nezveřejní, plán zanikne.
+  const orphan = await newEntry(id.pubA, "scheduled-orphan", ["BRA"], "pending");
+  await schedule(orphan);
+  await q("update entries set publish_at = now() - interval '1 minute' where id = $1", [orphan]);
+  await q("update profiles set status = 'blocked' where id = $1", [id.approverLatam]);
+  try {
+    assert.equal((await one("select publish_due_entries() n")).n, 0);
+  } finally {
+    await q("update profiles set status = 'active' where id = $1", [id.approverLatam]);
+  }
+  assert.deepEqual(await planOf(orphan), {
+    status: "pending",
+    publish_at: null,
+    scheduled_by: null,
+  });
+  const dropped = await one(
+    "select count(*)::int n from audit_log where action = 'entries.schedule_dropped' and target = 'scheduled-orphan'",
+  );
+  assert.equal(dropped.n, 1);
+});
+
+test("přesměrování: čte každý, přidá redakce s „c“, smaže jen s „d“", async () => {
+  await as(id.pubA, () =>
+    q("insert into redirects (from_path, to_path) values ('/news/old-slug', '/news/new-slug')"),
+  );
+  const row = await one(
+    "select created_by, permanent from redirects where from_path = '/news/old-slug'",
+  );
+  assert.deepEqual(row, { created_by: id.pubA, permanent: true });
+
+  // Anonym vidí jen veřejné sloupce a nic nezapíše.
+  const pub = await as(null, () => q("select from_path, to_path, permanent from redirects"));
+  assert.equal(pub.length, 1);
+  await as(null, () => refused(q("select created_by from redirects"), /permission denied/));
+  await as(null, () =>
+    refused(q("insert into redirects (from_path, to_path) values ('/x', '/y')"), /permission/),
+  );
+
+  // Schvalovatel (news jen „v") nepřidá; publisher (bez „d") nesmaže.
+  await as(id.approverLatam, () =>
+    refused(q("insert into redirects (from_path, to_path) values ('/x', '/y')"), /row-level/),
+  );
+  const notDeleted = await as(id.pubA, () =>
+    q("delete from redirects where from_path = '/news/old-slug' returning id"),
+  );
+  assert.equal(notDeleted.length, 0);
+  // Autora nejde podstrčit.
+  await as(id.editor, () =>
+    refused(
+      q("insert into redirects (from_path, to_path, created_by) values ('/x', '/y', $1)", [
+        id.pubA,
+      ]),
+      /permission denied/,
+    ),
+  );
+  const deleted = await as(id.editor, () =>
+    q("delete from redirects where from_path = '/news/old-slug' returning id"),
+  );
+  assert.equal(deleted.length, 1);
+});
+
+test("přesměrování: jen cesta na vlastním webu a bez smyček", async () => {
+  await as(id.editor, async () => {
+    for (const [from, to] of [
+      ["/old", "https://evil.example"],
+      ["/old", "//evil.example"],
+      ["/old", "javascript:alert(1)"],
+      ["/", "/news"],
+      ["/old/", "/news"],
+      ["/same", "/same"],
+    ]) {
+      await refused(
+        q("insert into redirects (from_path, to_path) values ($1, $2)", [from, to]),
+        /check constraint|loop back/,
+      );
+    }
+    await q("insert into redirects (from_path, to_path) values ('/loop-a', '/loop-b')");
+    await q("insert into redirects (from_path, to_path) values ('/loop-b', '/loop-c?x=1')");
+    await refused(
+      q("insert into redirects (from_path, to_path) values ('/loop-c', '/loop-a')"),
+      /loop/,
+    );
+    await q("delete from redirects where from_path like '/loop-%'");
+  });
+});
+
+test("náhled: odkaz vytvoří jen redakce článku, otevře ho kdokoli s tokenem do vypršení", async () => {
+  const entry = await newEntry(id.pubA, "preview-draft", ["BRA"]);
+  // Bez práva k článku: čtenář, anonym, cizí publisher.
+  await as(id.reader, () => refused(q("select create_preview_link($1, 24)", [entry]), /sdílet/));
+  await as(null, () => refused(q("select create_preview_link($1, 24)", [entry])));
+  await as(id.pubB, () => refused(q("select create_preview_link($1, 24)", [entry]), /sdílet/));
+  await as(id.pubA, () => refused(q("select create_preview_link($1, 0)", [entry]), /1 až 720/));
+
+  const { token } = await as(id.pubA, () =>
+    one("select create_preview_link($1, 24) as token", [entry]),
+  );
+  assert.match(token, /^[0-9a-f]{64}$/);
+  const stored = await one("select token_hash from preview_links where entry_id = $1", [entry]);
+  assert.notEqual(stored.token_hash, token); // v DB jen hash
+
+  const preview = await as(null, () =>
+    one("select slug, status, countries from entry_preview($1)", [token]),
+  );
+  assert.deepEqual(preview, { slug: "preview-draft", status: "draft", countries: ["BRA"] });
+  assert.equal(
+    (await as(null, () => q("select 1 from entry_preview($1)", ["0".repeat(64)]))).length,
+    0,
+  );
+  assert.equal((await as(null, () => q("select 1 from entry_preview('nesmysl')"))).length, 0);
+
+  // Přímý zápis nikdo; anonym tabulku nevidí; schvalovatel regionu vytvořit smí.
+  await as(id.pubA, () =>
+    refused(
+      q(
+        "insert into preview_links (entry_id, token_hash, expires_at) values ($1, $2, now() + interval '1 hour')",
+        [entry, "a".repeat(64)],
+      ),
+    ),
+  );
+  await as(null, () => refused(q("select id from preview_links")));
+  await as(id.approverLatam, () => one("select create_preview_link($1, 1)", [entry]));
+
+  // Vypršelý odkaz už článek nevrátí; zrušit smí autor odkazu.
+  await q(
+    "update preview_links set created_at = now() - interval '2 days', expires_at = now() - interval '1 second' where entry_id = $1",
+    [entry],
+  );
+  assert.equal((await as(null, () => q("select 1 from entry_preview($1)", [token]))).length, 0);
+  const removed = await as(id.pubA, () =>
+    q("delete from preview_links where entry_id = $1 returning id", [entry]),
+  );
+  assert.ok(removed.length >= 1);
+});
+
+test("heslo: kapitoly a zdroje uloží jen redakce hesla, celé v jedné transakci", async () => {
+  const entry = await newEntry(id.pubA, "encyclopedia-draft", ["BRA"]);
+  const chapters = JSON.stringify([
+    { title: "Roots", summary_points: ["One", "Two", "Three"], body_html: "<p>A</p>" },
+    {
+      title: "Today",
+      summary_points: ["Four"],
+      body_html: "<p>B</p>",
+      illustration_url: "https://img.example/b.webp",
+      illustration_credit: "Photo: X",
+    },
+  ]);
+  const call = "select replace_entry_parts($1, 'chapters', $2::jsonb)";
+
+  // Cizí publisher, čtenář ani anonym kapitoly nezmění — ani prázdným seznamem.
+  await as(id.pubB, () => refused(q(call, [entry, "[]"]), /may not edit/));
+  await as(id.reader, () => refused(q(call, [entry, chapters])));
+  await as(null, () => refused(q(call, [entry, chapters])));
+
+  await as(id.pubA, () => q(call, [entry, chapters]));
+  const rows = await q(
+    "select position, title, summary_points from entry_chapters where entry_id = $1 order by position",
+    [entry],
+  );
+  assert.deepEqual(rows, [
+    { position: 0, title: "Roots", summary_points: ["One", "Two", "Three"] },
+    { position: 1, title: "Today", summary_points: ["Four"] },
+  ]);
+
+  // Šest odrážek nebo ilustrace bez https vrátí celé volání — kapitoly zůstanou.
+  await as(id.pubA, () =>
+    refused(
+      q(call, [
+        entry,
+        JSON.stringify([{ title: "Too many", summary_points: ["1", "2", "3", "4", "5", "6"] }]),
+      ]),
+    ),
+  );
+  await as(id.pubA, () =>
+    refused(q(call, [entry, JSON.stringify([{ title: "X", illustration_url: "http://bad" }])])),
+  );
+  await as(id.pubA, () =>
+    refused(q(call, [entry, JSON.stringify(Array.from({ length: 9 }, () => ({ title: "C" })))])),
+  );
+  assert.equal(
+    (await one("select count(*)::int n from entry_chapters where entry_id = $1", [entry])).n,
+    2,
+  );
+
+  // Zdroje hesla: stejná pravidla, neznámá část neprojde.
+  const resources = JSON.stringify([
+    { kind: "Lectures & Debates", title: "Talk", url: "https://talk.example" },
+  ]);
+  await as(id.pubA, () =>
+    q("select replace_entry_parts($1, 'resources', $2::jsonb)", [entry, resources]),
+  );
+  await as(id.pubA, () =>
+    refused(q("select replace_entry_parts($1, 'timeline', '[]'::jsonb)", [entry]), /Unknown/),
+  );
+
+  // Anonym kapitoly ani zdroje konceptu nevidí.
+  await as(null, async () => {
+    assert.equal((await q("select 1 from entry_chapters where entry_id = $1", [entry])).length, 0);
+    assert.equal((await q("select 1 from resources where entry_id = $1", [entry])).length, 0);
+  });
+});
+
+test("heslo: odrážky shrnutí a zvuk kapitol jen v limitu, anonym smí vyjmenovat sloupce", async () => {
+  const entry = await newEntry(id.pubA, "encyclopedia-header");
+  await as(id.pubA, () =>
+    q("update entries set kind = 'entry', summary_points = $2 where id = $1", [
+      entry,
+      ["A", "B", "C"],
+    ]),
+  );
+  await as(id.pubA, () =>
+    refused(q("update entries set summary_points = $2 where id = $1", [entry, ["x".repeat(301)]])),
+  );
+
+  // Zvuk patří kapitole: https projde, http vrátí celé uložení.
+  const call = "select replace_entry_parts($1, 'chapters', $2::jsonb)";
+  await as(id.pubA, () =>
+    q(call, [entry, JSON.stringify([{ title: "One", audio_url: "https://cdn.example/1.mp3" }])]),
+  );
+  await as(id.pubA, () =>
+    refused(
+      q(call, [entry, JSON.stringify([{ title: "One", audio_url: "http://cdn.example/1.mp3" }])]),
+    ),
+  );
+  assert.equal(
+    (await one("select audio_url from entry_chapters where entry_id = $1", [entry])).audio_url,
+    "https://cdn.example/1.mp3",
+  );
+
+  // Sloupcová práva: anonym smí vyjmenovat nové sloupce (koncept ale nevidí).
+  await as(null, () => q("select summary_points from entries where false"));
+  await as(null, () => q("select audio_url from entry_chapters where false"));
+});
+
+test("heslo: plánovaná hesla vidí každý, ale jen titulek a zařazení", async () => {
+  const entry = await newEntry(id.pubA, "planned-entry", ["BRA"], "planned");
+  await q("update entries set kind = 'entry', body_html = '<p>secret</p>' where id = $1", [entry]);
+  await newEntry(id.pubA, "planned-news", [], "planned"); // novinka se nepočítá
+
+  const rows = await as(null, () => q("select * from planned_entries()"));
+  const mine = rows.filter((row) => row.title === "planned-entry");
+  assert.equal(mine.length, 1);
+  assert.deepEqual(Object.keys(mine[0]).sort(), [
+    "category",
+    "countries",
+    "region_slug",
+    "special_slug",
+    "title",
+  ]);
+  assert.deepEqual(mine[0].countries, ["BRA"]);
+  assert.equal(rows.filter((row) => row.title === "planned-news").length, 0);
+  // Samotný řádek anonym dál nevidí.
+  await as(null, async () =>
+    assert.equal((await q("select 1 from entries where id = $1", [entry])).length, 0),
+  );
+});
+
+test("heslo: zvuk nahraje jen ten, kdo smí psát, jen do vlastní složky", async () => {
+  const bucket = await one(
+    "select allowed_mime_types from storage.buckets where id = 'entry-audio'",
+  );
+  for (const mime of ["audio/mpeg", "audio/mp4", "audio/ogg", "audio/wav", "audio/flac"]) {
+    assert.ok(bucket.allowed_mime_types.includes(mime), mime);
+  }
+  await as(id.pubA, () =>
+    q("insert into storage.objects (bucket_id, name) values ('entry-audio', $1)", [
+      `${id.pubA}/a.mp3`,
+    ]),
+  );
+  await as(id.pubA, () =>
+    refused(
+      q("insert into storage.objects (bucket_id, name) values ('entry-audio', $1)", [
+        `${id.pubB}/a.mp3`,
+      ]),
+    ),
+  );
+  await as(id.reader, () =>
+    refused(
+      q("insert into storage.objects (bucket_id, name) values ('entry-audio', $1)", [
+        `${id.reader}/a.mp3`,
+      ]),
+    ),
+  );
+});
+
+test("heslo: náhled přes odkaz vrátí i kapitoly, autora a zdroje", async () => {
+  const entry = await newEntry(id.pubA, "preview-encyclopedia");
+  const author = await one(
+    "insert into authors (name, positionality) values ('Ana', 'I grew up there.') returning id",
+  );
+  await q("update entries set kind = 'entry', author_id = $2, summary_points = $3 where id = $1", [
+    entry,
+    author.id,
+    ["Point"],
+  ]);
+  await as(id.pubA, () =>
+    q("select replace_entry_parts($1, 'chapters', $2::jsonb)", [
+      entry,
+      JSON.stringify([{ title: "One", body_html: "<p>x</p>" }]),
+    ]),
+  );
+  const { token } = await as(id.pubA, () =>
+    one("select create_preview_link($1, 24) as token", [entry]),
+  );
+  const parts = await as(null, () => one("select * from entry_preview_parts($1)", [token]));
+  assert.equal(parts.kind, "entry");
+  assert.deepEqual(parts.summary_points, ["Point"]);
+  assert.equal(parts.author.positionality, "I grew up there.");
+  assert.equal(parts.chapters[0].title, "One");
+  assert.deepEqual(parts.resources, []);
+  assert.equal(
+    (await as(null, () => q("select 1 from entry_preview_parts($1)", ["0".repeat(64)]))).length,
+    0,
+  );
+});
+
+test("překlady: čte je každý, píše jen sekce celku", async () => {
+  // blurb: v migraci s českými názvy států není, test si ho založí sám.
+  const row = ["country", "BRA", "blurb", "cs", "Brazílie"];
+  const insert =
+    "insert into translations (entity, entity_key, field, locale, value) values ($1, $2, $3, $4, $5)";
+  await as(null, () => refused(q(insert, row)));
+  await as(id.reader, () => refused(q(insert, row)));
+  // publisher nemá sekci regions; data-editor ukazatele (layers), ne země
+  await as(id.pubA, () => refused(q(insert, row)));
+  await as(id.admin, () => q(insert, row));
+  await as(id.admin, () =>
+    refused(q(insert, ["country", "BRA", "name", "en", "Brazil"]), /check constraint/),
+  );
+  await as(id.admin, () =>
+    refused(q(insert, ["planet", "X", "name", "cs", "X"]), /check constraint/),
+  );
+
+  const seen = await as(null, () =>
+    q(
+      "select value from translations where entity = 'country' and entity_key = 'BRA' and field = 'blurb'",
+    ),
+  );
+  assert.deepEqual(seen, [{ value: "Brazílie" }]);
+  await as(null, () => refused(q("select updated_by from translations")));
+
+  const byPublisher = await as(id.pubA, () =>
+    q(
+      "update translations set value = 'X' where entity_key = 'BRA' and field = 'blurb' returning value",
+    ),
+  );
+  assert.equal(byPublisher.length, 0);
+  await as(id.admin, () =>
+    q("delete from translations where entity_key = 'BRA' and field = 'blurb'"),
+  );
+});
+
+test("překlad: založí ho, kdo smí psát, jako vlastní koncept s kopií obsahu", async () => {
+  const original = await newEntry(id.pubB, "translated-original", ["BRA"]);
+  await q("update entries set kind = 'entry', summary_points = $2 where id = $1", [
+    original,
+    ["Point"],
+  ]);
+  await q(
+    "insert into entry_chapters (entry_id, position, title, body_html, audio_url) values ($1, 0, 'One', '<p>x</p>', 'https://cdn.example/1.mp3')",
+    [original],
+  );
+  await q("update entries set status = 'published' where id = $1", [original]);
+
+  // Čtenář nepíše, anonym funkci nespustí.
+  await as(id.reader, () => refused(q("select create_entry_translation($1, 'cs')", [original])));
+  await as(null, () => refused(q("select create_entry_translation($1, 'cs')", [original])));
+
+  const { id: translation } = await as(id.pubA, () =>
+    one("select create_entry_translation($1, 'cs') as id", [original]),
+  );
+  const row = await one(
+    "select slug, kind, locale, status, owner_id, translation_of, summary_points from entries where id = $1",
+    [translation],
+  );
+  assert.deepEqual(row, {
+    slug: "translated-original",
+    kind: "entry",
+    locale: "cs",
+    status: "draft",
+    owner_id: id.pubA,
+    translation_of: original,
+    summary_points: ["Point"],
+  });
+  const chapter = await one("select title, audio_url from entry_chapters where entry_id = $1", [
+    translation,
+  ]);
+  assert.deepEqual(chapter, { title: "One", audio_url: null }); // zvuk je v jazyce originálu
+  assert.deepEqual(
+    (await q("select country_iso3 from entry_countries where entry_id = $1", [translation])).map(
+      (r) => r.country_iso3,
+    ),
+    ["BRA"],
+  );
+
+  // Druhý český překlad téhož originálu ne; překlad překladu ne.
+  await as(id.pubA, () =>
+    refused(q("select create_entry_translation($1, 'cs')", [original]), /duplicate|unique/i),
+  );
+  await as(id.pubA, () =>
+    refused(q("select create_entry_translation($1, 'de')", [translation]), /original/i),
+  );
+});
+
+test("překlad: slug a druh sedí s originálem, originál se nepřehodí, slug se propíše", async () => {
+  const original = await newEntry(id.pubA, "slug-original");
+  const other = await newEntry(id.pubA, "slug-other");
+  const { id: translation } = await as(id.pubA, () =>
+    one("select create_entry_translation($1, 'cs') as id", [original]),
+  );
+
+  await refused(
+    q(
+      `insert into entries (slug, locale, title, category, status, translation_of)
+       values ('different-slug', 'de', 'X', 'Society', 'draft', $1)`,
+      [original],
+    ),
+    /slug and kind/,
+  );
+  await refused(
+    q(
+      `insert into entries (slug, locale, title, category, status, translation_of)
+       values ('slug-original', 'en', 'X', 'Society', 'draft', $1)`,
+      [original],
+    ),
+  );
+  await as(id.pubA, () =>
+    refused(q("update entries set translation_of = $2 where id = $1", [translation, other])),
+  );
+  await as(id.pubA, () =>
+    refused(q("update entries set slug = 'own-slug' where id = $1", [translation])),
+  );
+
+  // Přejmenovaný koncept originálu vezme překlad s sebou.
+  await as(id.pubA, () => q("update entries set slug = 'slug-renamed' where id = $1", [original]));
+  assert.equal(
+    (await one("select slug from entries where id = $1", [translation])).slug,
+    "slug-renamed",
+  );
+  // Stejný slug v jiném jazyce je v pořádku, ve stejném ne.
+  await refused(newEntry(id.pubA, "slug-renamed"), /duplicate|unique/i);
+});
+
+test("překlad: vyhledávání vrací jen originál, heslo vede na /entry", async () => {
+  const original = await newEntry(id.pubA, "searchable-hydrology", [], "draft");
+  await q(
+    "update entries set kind = 'entry', title = 'Hydrology of the Andes', status = 'published' where id = $1",
+    [original],
+  );
+  const { id: translation } = await as(id.pubA, () =>
+    one("select create_entry_translation($1, 'cs') as id", [original]),
+  );
+  await q("update entries set title = 'Hydrologie And', status = 'published' where id = $1", [
+    translation,
+  ]);
+
+  const hits = await as(null, () =>
+    q("select url from search('hydrology hydrologie', 20) where kind = 'news'"),
+  );
+  assert.deepEqual(
+    hits.map((hit) => hit.url),
+    ["/entry/searchable-hydrology"],
+  );
+  // Anonym smí vyjmenovat translation_of (sloupcová práva).
+  await as(null, () => q("select translation_of from entries where false"));
 });

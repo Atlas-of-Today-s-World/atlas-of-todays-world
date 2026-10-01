@@ -1,27 +1,38 @@
 "use server";
 
 import "server-only";
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
+import { z } from "zod";
 import {
   failed,
   formObject,
   invalid,
+  listItemError,
   NOT_SIGNED_IN,
   signedIn,
   type ActionState,
 } from "@/lib/actions";
 import { tags } from "@/lib/cache/tags";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
+import { DEFAULT_LOCALE, isLocale } from "@/features/i18n/config";
 import { uuid } from "@/lib/validation/common";
-import { EntryInput, SendBackInput } from "./schema";
+import { COLLECTIONS } from "@/features/portraits/schema";
+import {
+  CHAPTER_FIELD_LABEL,
+  ChapterInput,
+  EntryInput,
+  ScheduleInput,
+  SendBackInput,
+} from "./schema";
+import { MAX_CHAPTERS, PREVIEW_HOURS } from "./constants";
 
 /** Po změně zveřejněného obsahu obnovit seznamy, detail i portréty. */
 function refresh(slug?: string | null, region?: string | null, issue?: string | null) {
-  revalidateTag(tags.entries);
-  if (slug) revalidateTag(tags.entry(slug));
-  if (region) revalidateTag(tags.portrait("region", region));
-  if (issue) revalidateTag(tags.portrait("issue", issue));
+  updateTag(tags.entries);
+  if (slug) updateTag(tags.entry(slug));
+  if (region) updateTag(tags.portrait("region", region));
+  if (issue) updateTag(tags.portrait("issue", issue));
 }
 
 /**
@@ -47,6 +58,7 @@ export async function saveEntry(_prev: ActionState, formData: FormData): Promise
     author_name: fields.author_name || null,
     reading_minutes: fields.reading_minutes ?? null,
     body_html: sanitizeRichHtml(fields.body_html),
+    author_id: fields.author_id ?? null,
   };
 
   let entryId = id;
@@ -54,12 +66,18 @@ export async function saveEntry(_prev: ActionState, formData: FormData): Promise
   if (entryId) {
     const { data: current, error: readError } = await supabase
       .from("entries")
-      .select("status, slug")
+      .select("status, slug, kind, translation_of")
       .eq("id", entryId)
       .single();
     if (readError) return failed(readError);
-    // Zveřejněný článek nemění adresu — odkazy na něj už kolují.
-    const update = current.status === "published" ? { ...row, slug: current.slug } : { ...row };
+    // Zveřejněný článek nemění adresu — odkazy na něj už kolují. Překlad má
+    // adresu i druh vždy po originálu (hlídá i trigger v DB).
+    const update =
+      current.translation_of !== null
+        ? { ...row, slug: current.slug, kind: current.kind }
+        : current.status === "published"
+          ? { ...row, slug: current.slug }
+          : { ...row };
     const nextStatus =
       current.status === "draft" || current.status === "planned"
         ? planned
@@ -92,7 +110,7 @@ export async function saveEntry(_prev: ActionState, formData: FormData): Promise
 }
 
 async function syncCountries(
-  supabase: NonNullable<Awaited<ReturnType<typeof signedIn>>>["supabase"],
+  supabase: Client,
   entryId: string,
   countries: string[],
 ): Promise<ActionState | null> {
@@ -138,15 +156,96 @@ async function transition(fn: Transition, id: string): Promise<ActionState> {
   const { supabase } = session;
   const { error } = await supabase.rpc(fn, { p_entry: id });
   if (error) return failed(error);
-  if (fn !== "submit_entry") {
-    const { data } = await supabase
-      .from("entries")
-      .select("slug, region_slug, special_slug")
-      .eq("id", id)
-      .maybeSingle();
-    refresh(data?.slug, data?.region_slug, data?.special_slug);
-  }
+  if (fn !== "submit_entry") await refreshEntry(supabase, id);
   return { ok: true, message: DONE[fn] };
+}
+
+/** Obnoví cache článku podle jeho zařazení (`onlyPublished`: jen když je na webu). */
+async function refreshEntry(supabase: Client, id: string, onlyPublished = false) {
+  const { data } = await supabase
+    .from("entries")
+    .select("slug, status, region_slug, special_slug")
+    .eq("id", id)
+    .maybeSingle();
+  if (onlyPublished && data?.status !== "published") return;
+  refresh(data?.slug, data?.region_slug, data?.special_slug);
+}
+
+type Client = NonNullable<Awaited<ReturnType<typeof signedIn>>>["supabase"];
+
+/**
+ * Kapitoly hesla (P9) — formulář posílá pole každé kapitoly pod stejnými
+ * jmény v pořadí na stránce. Uloží se všechny najednou v jedné transakci
+ * (DB `replace_entry_parts`); kdo smí, rozhoduje RLS jako u článku.
+ */
+export async function saveChapters(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const entryId = String(formData.get("entry_id") ?? "");
+  if (!uuid.safeParse(entryId).success) return { ok: false, error: "Neplatné heslo." };
+  const column = (name: string) => formData.getAll(name).map(String);
+  const titles = column("title");
+  const [points, bodies, illustrations, credits, audio] = [
+    column("summary_points"),
+    column("body_html"),
+    column("illustration_url"),
+    column("illustration_credit"),
+    column("audio_url"),
+  ];
+  const parsed = z
+    .array(ChapterInput)
+    .max(MAX_CHAPTERS, `Nejvýš ${MAX_CHAPTERS} kapitol.`)
+    .safeParse(
+      titles.map((title, index) => ({
+        title,
+        summary_points: points[index],
+        body_html: bodies[index],
+        illustration_url: illustrations[index],
+        illustration_credit: credits[index],
+        audio_url: audio[index],
+      })),
+    );
+  if (!parsed.success) return listItemError(parsed.error, "Kapitola", CHAPTER_FIELD_LABEL);
+
+  const session = await signedIn();
+  if (!session) return NOT_SIGNED_IN;
+  const { error } = await session.supabase.rpc("replace_entry_parts", {
+    p_entry: entryId,
+    p_part: "chapters",
+    p_items: parsed.data.map((chapter) => ({
+      ...chapter,
+      body_html: sanitizeRichHtml(chapter.body_html),
+    })),
+  });
+  if (error) return failed(error);
+  await refreshEntry(session.supabase, entryId, true);
+  return { ok: true, message: "Kapitoly uloženy." };
+}
+
+/** Zdroje hesla — stejné položky jako zdroje portrétu, ukládá je editor sekcí. */
+export async function saveEntryResources(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const entryId = String(formData.get("entry_id") ?? "");
+  if (!uuid.safeParse(entryId).success) return { ok: false, error: "Neplatné heslo." };
+  let raw: unknown;
+  try {
+    raw = JSON.parse(String(formData.get("items") ?? "[]"));
+  } catch {
+    return { ok: false, error: "Neplatná data sekce." };
+  }
+  const parsed = z.array(COLLECTIONS.resources).max(50).safeParse(raw);
+  if (!parsed.success) return listItemError(parsed.error, "Zdroj", {});
+
+  const session = await signedIn();
+  if (!session) return NOT_SIGNED_IN;
+  const { error } = await session.supabase.rpc("replace_entry_parts", {
+    p_entry: entryId,
+    p_part: "resources",
+    p_items: parsed.data,
+  });
+  if (error) return failed(error);
+  await refreshEntry(session.supabase, entryId, true);
+  return { ok: true, message: "Zdroje uloženy." };
 }
 
 export async function submitEntry(id: string) {
@@ -174,6 +273,53 @@ export async function sendBackEntry(_prev: ActionState, formData: FormData): Pro
   return { ok: true, message: "Vráceno autorovi s poznámkou." };
 }
 
+/**
+ * Naplánuje zveřejnění čekajícího článku (DB `schedule_entry` — smí jen ten,
+ * kdo smí článek schválit). V daný čas ho zveřejní pg_cron; web se obnoví
+ * nejpozději po PUBLIC_REVALIDATE_SECONDS, proto tady se cache nemaže.
+ */
+export async function scheduleEntry(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const parsed = ScheduleInput.safeParse(formObject(formData));
+  if (!parsed.success) return invalid(parsed.error);
+  const session = await signedIn();
+  if (!session) return NOT_SIGNED_IN;
+  const { error } = await session.supabase.rpc("schedule_entry", {
+    p_entry: parsed.data.id,
+    p_at: parsed.data.publish_at,
+  });
+  if (error) return failed(error);
+  return { ok: true, message: "Zveřejnění naplánováno." };
+}
+
+export async function unscheduleEntry(id: string): Promise<ActionState> {
+  if (!uuid.safeParse(id).success) return { ok: false, error: "Neplatný článek." };
+  const session = await signedIn();
+  if (!session) return NOT_SIGNED_IN;
+  const { error } = await session.supabase.rpc("unschedule_entry", { p_entry: id });
+  if (error) return failed(error);
+  return { ok: true, message: "Plán zrušen, článek dál čeká na schválení." };
+}
+
+/**
+ * Nová jazyková verze článku (G5.3): DB funkce zkopíruje originál jako
+ * koncept volajícího v cílovém jazyce; dál jde stejným schvalováním.
+ */
+export async function createTranslation(formData: FormData): Promise<void> {
+  const entryId = String(formData.get("entry_id") ?? "");
+  const locale = String(formData.get("locale") ?? "");
+  if (!uuid.safeParse(entryId).success || !isLocale(locale) || locale === DEFAULT_LOCALE) {
+    redirect("/admin/obsah");
+  }
+  const session = await signedIn();
+  if (!session) redirect(`/login?next=/admin/obsah/${entryId}`);
+  const { data, error } = await session.supabase.rpc("create_entry_translation", {
+    p_entry: entryId,
+    p_locale: locale,
+  });
+  if (error) redirect(`/admin/obsah/${entryId}?preklad=chyba`);
+  redirect(`/admin/obsah/${data}?ulozeno=1`);
+}
+
 export async function deleteEntry(id: string): Promise<ActionState> {
   if (!uuid.safeParse(id).success) return { ok: false, error: "Neplatný článek." };
   const session = await signedIn();
@@ -186,8 +332,9 @@ export async function deleteEntry(id: string): Promise<ActionState> {
   if (error) return failed(error);
   if (!data.length)
     return { ok: false, error: "Článek nejde smazat (nemáte právo nebo už neexistuje)." };
-  if (data[0].status === "published")
-    refresh(data[0].slug, data[0].region_slug, data[0].special_slug);
+  const [removed] = data;
+  if (removed?.status === "published")
+    refresh(removed.slug, removed.region_slug, removed.special_slug);
   return { ok: true, message: "Smazáno." };
 }
 
@@ -228,4 +375,26 @@ export async function restoreRevision(entryId: string, revisionId: number): Prom
     refresh(updated.slug, updated.region_slug, updated.special_slug);
   }
   return { ok: true, message: "Obnoveno z historie." };
+}
+
+/**
+ * Sdílitelný odkaz na náhled článku (G2). Smí ho vytvořit jen ten, kdo článek
+ * upravuje nebo schvaluje (rozhoduje create_preview_link). Token se vrací jen
+ * teď, v databázi je pouze jeho hash.
+ */
+export async function createPreviewLink(
+  entryId: string,
+  hours: number,
+): Promise<ActionState & { token?: string }> {
+  if (!uuid.safeParse(entryId).success || !PREVIEW_HOURS.includes(hours as never)) {
+    return { ok: false, error: "Neplatný požadavek." };
+  }
+  const session = await signedIn();
+  if (!session) return NOT_SIGNED_IN;
+  const { data, error } = await session.supabase.rpc("create_preview_link", {
+    p_entry: entryId,
+    p_hours: hours,
+  });
+  if (error) return failed(error);
+  return { ok: true, token: data };
 }

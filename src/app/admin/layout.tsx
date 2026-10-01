@@ -3,8 +3,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { Button } from "@/components/ui/button";
-import { ADMIN_NAV } from "@/config/admin-nav";
-import { can, getAccess, isStaff } from "@/features/auth/access";
+import { ADMIN_NAV, navVisible } from "@/config/admin-nav";
+import { getAccess, isStaff } from "@/features/auth/access";
 import { MfaGate } from "@/features/auth/components/MfaGate";
 import { mfaGate } from "@/features/auth/mfa";
 
@@ -54,9 +54,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     );
   }
 
-  const allowed = ADMIN_NAV.filter(
-    (item) => item.section === null || can(access.permissions, item.section, "v"),
-  ).map((item) => item.href);
+  const allowed = ADMIN_NAV.filter((item) => navVisible(item, access.permissions)).map(
+    (item) => item.href,
+  );
 
   return (
     <Shell>

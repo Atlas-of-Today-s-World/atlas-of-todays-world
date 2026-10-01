@@ -2,22 +2,6 @@ import { z } from "zod";
 import { SECTIONS } from "@/features/auth/sections";
 import { checkbox, requiredText, slug, text } from "@/lib/validation/common";
 
-/** Popisky sekcí oprávnění (role_permissions.section) pro matici. */
-export const SECTION_LABEL: Record<(typeof SECTIONS)[number], string> = {
-  news: "Novinky a hesla",
-  approvals: "Schvalování",
-  regions: "Regiony a země",
-  specials: "Global Issues",
-  layers: "Datové vrstvy",
-  areas: "Mapové oblasti",
-  appearance: "Vzhled mapy",
-  users: "Účty",
-  permissions: "Role a práva",
-  members: "Členové",
-};
-
-export const ACTION_LABEL = { v: "zobrazit", c: "přidat", e: "upravit", d: "smazat" } as const;
-
 /** Akce jedné sekce ve tvaru DB: „v", „vc", „vced"… (bez „v" nic dalšího). */
 const actions = z
   .array(z.enum(["v", "c", "e", "d"]))
