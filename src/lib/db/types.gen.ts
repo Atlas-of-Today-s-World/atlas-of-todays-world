@@ -1878,6 +1878,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      schedule_entry: {
+        Args: { p_at: string; p_entry: string }
+        Returns: undefined
+      }
       search: {
         Args: { p_limit?: number; p_text: string }
         Returns: {
@@ -1890,17 +1894,13 @@ export type Database = {
         }[]
       }
       search_query: { Args: { p_text: string }; Returns: unknown }
-      schedule_entry: {
-        Args: { p_at: string; p_entry: string }
-        Returns: undefined
-      }
       send_back_entry: {
         Args: { p_entry: string; p_note: string }
         Returns: undefined
       }
       submit_entry: { Args: { p_entry: string }; Returns: undefined }
-      unschedule_entry: { Args: { p_entry: string }; Returns: undefined }
       unpublish_entry: { Args: { p_entry: string }; Returns: undefined }
+      unschedule_entry: { Args: { p_entry: string }; Returns: undefined }
       write_audit: {
         Args: { p_action: string; p_detail?: Json; p_target: string }
         Returns: undefined

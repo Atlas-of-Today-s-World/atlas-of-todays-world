@@ -1156,6 +1156,7 @@ test("přesměrování: jen cesta na vlastním webu a bez smyček", async () => 
     );
     await q("delete from redirects where from_path like '/loop-%'");
   });
+});
 
 test("náhled: odkaz vytvoří jen redakce článku, otevře ho kdokoli s tokenem do vypršení", async () => {
   const entry = await newEntry(id.pubA, "preview-draft", ["BRA"]);
