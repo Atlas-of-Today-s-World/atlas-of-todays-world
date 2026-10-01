@@ -37,6 +37,14 @@ export const hexColor = z
 
 export const iso3 = z.string().regex(/^[A-Z]{3}$/);
 
+/** E-mail ve stejném tvaru jako CHECK v DB (invitations); bez vnořených kvantifikátorů (žádný ReDoS). */
+export const emailAddress = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .max(254)
+  .regex(/^[^@\s]+@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/, "Zadejte platný e-mail.");
+
 export const uuid = z.string().uuid();
 
 /** Číslo z formuláře (prázdné = undefined). */

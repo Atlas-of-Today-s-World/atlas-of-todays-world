@@ -1,10 +1,11 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/i18n/Link";
 import { useActionState } from "react";
 import { ActionForm } from "@/components/ui/action-form";
 import { subscribe } from "@/features/newsletter/actions";
 import type { ActionState } from "@/lib/actions";
+import { useMessages } from "@/components/i18n/LocaleProvider";
 
 /**
  * Přihlášení k odběru novinek (Server Action `subscribe`). Souhlas je vědomý
@@ -12,6 +13,7 @@ import type { ActionState } from "@/lib/actions";
  * ověřovací e-mail) a `website` je past na roboty: lidé to pole nevidí.
  */
 export default function NewsletterForm() {
+  const t = useMessages();
   const [state, action, pending] = useActionState<ActionState, FormData>(subscribe, {
     ok: false,
   });
@@ -38,7 +40,7 @@ export default function NewsletterForm() {
           disabled={pending}
           className="min-h-11 rounded-lg bg-white px-4 text-[13px] font-medium text-[#0d1324] transition hover:bg-white/85 disabled:opacity-60"
         >
-          {pending ? "…" : "Sign up"}
+          {pending ? "…" : t.newsletter.signUp}
         </button>
       </div>
 

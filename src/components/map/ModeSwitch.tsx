@@ -1,9 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useHydrated } from "@/lib/use-hydrated";
 import { useMapState, type SelectionMode } from "./MapContext";
+import { useMessages } from "@/components/i18n/LocaleProvider";
 
 const SEEN_KEY = "atlas.modeSwitchSeen";
+
+function seenBefore() {
+  try {
+    return localStorage.getItem(SEEN_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Co se na globusu vybírá: státy, regiony Atlasu, nebo global issues.
@@ -16,27 +26,23 @@ export default function ModeSwitch({
   /** Volbu „Issue" schováme, když redakce žádný global issue nemá. */
   hasIssues: boolean;
 }) {
+  const t = useMessages();
   const { mode, setMode } = useMapState();
-  const [hinting, setHinting] = useState(false);
+  // Až po připojení (localStorage zná jen prohlížeč), ať server a klient
+  // vykreslí stejné HTML.
+  const hydrated = useHydrated();
+  const [dismissed, setDismissed] = useState(false);
+  const hinting = hydrated && !dismissed && !seenBefore();
 
   const options: { id: SelectionMode; label: string }[] = [
-    { id: "countries", label: "Countries" },
-    { id: "regions", label: "Regions" },
-    ...(hasIssues ? [{ id: "issue" as const, label: "Global Issues" }] : []),
+    { id: "countries", label: t.map.modeCountries },
+    { id: "regions", label: t.map.modeRegions },
+    ...(hasIssues ? [{ id: "issue" as const, label: t.map.modeIssues }] : []),
   ];
-
-  // Až po připojení, aby se server a klient neshodly na jiném HTML.
-  useEffect(() => {
-    try {
-      setHinting(localStorage.getItem(SEEN_KEY) !== "1");
-    } catch {
-      setHinting(true);
-    }
-  }, []);
 
   function choose(next: SelectionMode) {
     setMode(next);
-    setHinting(false);
+    setDismissed(true);
     try {
       localStorage.setItem(SEEN_KEY, "1");
     } catch {
@@ -55,7 +61,7 @@ export default function ModeSwitch({
 
       <div
         role="radiogroup"
-        aria-label="Map selection mode"
+        aria-label={t.map.modes}
         className={`glass pointer-events-auto flex rounded-full p-0.5 text-[12.5px] transition ${
           hinting ? "ring-1 ring-[#7f97ff]/50" : ""
         }`}

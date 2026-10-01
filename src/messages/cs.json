@@ -1,0 +1,233 @@
+{
+  "nav": {
+    "map": "Mapa",
+    "news": "Novinky",
+    "about": "O Atlasu",
+    "patrons": "Podporovatelé Atlasu",
+    "signIn": "Přihlásit se",
+    "privacy": "Soukromí",
+    "terms": "Podmínky",
+    "accessibility": "Přístupnost"
+  },
+  "header": {
+    "home": "Atlas of Today's World — úvod",
+    "main": "Hlavní",
+    "legal": "Právní informace",
+    "menu": "Menu",
+    "openMenu": "Otevřít menu",
+    "closeMenu": "Zavřít menu",
+    "account": "Přihlásit se nebo otevřít účet",
+    "accountTitle": "Přihlášení / váš účet",
+    "language": "Jazyk",
+    "switchTo": "Přepnout na {language}"
+  },
+  "common": {
+    "skipToContent": "Přeskočit na obsah",
+    "close": "Zavřít",
+    "backToGlobe": "Zpět na glóbus",
+    "notTranslated": "Tento text zatím není přeložený — zobrazuje se anglický originál."
+  },
+  "auth": {
+    "title": "Přihlášení",
+    "lead": "Čtenáři si účet založí jedním kliknutím. Členové týmu Atlasu použijí stejný e-mail, na který dostali pozvánku.",
+    "errors": {
+      "callback": "Přihlášení se nedokončilo. Zkuste to prosím znovu.",
+      "config": "Přihlášení na tomto nasazení zatím nefunguje."
+    },
+    "google": {
+      "continue": "Pokračovat přes Google",
+      "redirecting": "Přesměrovávám na Google…",
+      "unreachable": "Google se nepodařilo zastihnout. Zkuste to prosím znovu."
+    },
+    "or": "nebo",
+    "email": {
+      "label": "E-mailová adresa",
+      "send": "Poslat přihlašovací kód",
+      "sending": "Odesílám…",
+      "sentTo": "Na {email} jsme poslali {length}místný kód.",
+      "codeLabel": "Kód z e-mailu",
+      "verify": "Přihlásit se",
+      "verifying": "Přihlašuji…",
+      "otherEmail": "Použít jiný e-mail",
+      "errors": {
+        "disabled": "Přihlášení e-mailem zatím není k dispozici.",
+        "invalid_email": "Zadejte platnou e-mailovou adresu.",
+        "invalid_code": "Kód má {length} číslic.",
+        "rate_limited": "Příliš mnoho pokusů. Počkejte prosím pár minut.",
+        "captcha": "Dokončete prosím bezpečnostní kontrolu.",
+        "send_failed": "E-mail se nepodařilo odeslat. Zkuste to prosím později.",
+        "wrong_code": "Kód je špatně, nebo už vypršel."
+      }
+    },
+    "privacy": "Jméno a e-mail používáme jen ke správě vašeho účtu.",
+    "emailSoon": "Přihlášení kódem z e-mailu bude brzy k dispozici."
+  },
+  "portrait": {
+    "globalIssue": "Globální téma",
+    "countriesInRegion": "Země tohoto regionu",
+    "countriesInGroup": "Země této skupiny",
+    "countries": "Země",
+    "people": "Obyvatel",
+    "keyIndicators": "Klíčové ukazatele",
+    "keyIndicatorsManual": "Vybral tým Atlasu, u každého je uvedený zdroj.",
+    "keyIndicatorsComputed": "Váženo počtem obyvatel zemí ve skupině. U kategorií se ukazuje nejčastější hodnota.",
+    "coverage": "{have} z {total} zemí · {year}",
+    "timeline": "Jak vznikla dnešní situace",
+    "timelineLead": "Události, které formovaly současný stav.",
+    "timelineEmptyRegion": "Interaktivní časová osa událostí, které vedly k dnešní situaci regionu.",
+    "timelineEmptyGroup": "Interaktivní časová osa událostí, které vedly k dnešní situaci skupiny.",
+    "entries": "Encyklopedická hesla",
+    "entriesLead": "Delší hesla ve čtyřech tématech. Šedé názvy jsou naplánované, ale zatím nenapsané.",
+    "notWrittenYet": "Zatím nenapsáno",
+    "nothingPlanned": "Zatím tu nic není naplánováno.",
+    "plannedTitle": "{category} – {place} ({index})",
+    "maps": "Mapy a grafy",
+    "mapsLead": "Vybrané vizualizace organizací, které tuto část světa sledují.",
+    "mapsEmptyRegion": "Karusel interaktivních infografik a map tohoto regionu.",
+    "mapsEmptyGroup": "Karusel interaktivních infografik a map této skupiny.",
+    "learnMore": "Kde se dozvědět víc",
+    "learnMoreLead": "Dokumenty, přednášky, zprávy a databáze vybrané týmem Atlasu.",
+    "learnMoreEmpty": "Videa a dokumenty, přednášky a debaty, články, zprávy a knihy, vzdělávací materiály, statistiky a databáze.",
+    "furtherReading": "Další čtení",
+    "faq": "Časté otázky",
+    "faqEmptyRegion": "Pět otázek, které se o tomto regionu kladou nejčastěji.",
+    "faqEmptyGroup": "Pět otázek, které se o této skupině kladou nejčastěji.",
+    "news": "Novinky",
+    "patronsCta": "Pomozte nám ho dokončit jako podporovatel Atlasu",
+    "patronsCompleteTitle": "Společně můžeme vytvořit novou encyklopedii",
+    "patronsCompleteText": "Podporovatelé Atlasu financují psaní, práci s daty a nezávislost této encyklopedie.",
+    "patronsTodoTitle": "Tento portrét ještě není hotový",
+    "patronsTodoText": "Sekce výše čekají na autory. Podporovatelé Atlasu platí výzkum a psaní, které je zaplní."
+  },
+  "categories": {
+    "Living Conditions": "Životní podmínky",
+    "Society": "Společnost",
+    "Politics & International Relations": "Politika a mezinárodní vztahy",
+    "Historical Roots": "Historické kořeny",
+    "Political System": "Politický systém",
+    "International Relations": "Mezinárodní vztahy"
+  },
+  "map": {
+    "encyclopediaView": "Encyklopedický pohled",
+    "encyclopediaCaption": "Světové regiony Atlasu · kliknutím na zemi otevřete její profil",
+    "layerView": "{label} – vrstva",
+    "modes": "Co se na mapě vybírá",
+    "modeCountries": "Země",
+    "modeRegions": "Regiony",
+    "modeIssues": "Globální témata",
+    "zoomIn": "Přiblížit",
+    "zoomOut": "Oddálit",
+    "dataLayer": "Datová vrstva",
+    "maintenance": "Údržba",
+    "maintenanceTitle": "Atlas se právě aktualizuje",
+    "maintenanceText": "Na webu teď pracujeme. Vraťte se prosím za chvíli."
+  },
+  "panel": {
+    "content": "Panel s obsahem",
+    "show": "Zobrazit panel",
+    "hide": "Skrýt panel",
+    "error": "Chyba",
+    "errorTitle": "Panel se nenačetl",
+    "errorText": "Na naší straně se něco pokazilo. Zkuste to za chvíli znovu; glóbus funguje dál.",
+    "tryAgain": "Zkusit znovu",
+    "notFoundTitle": "Tohle místo na naší mapě není",
+    "notFoundText": "Stránka se mohla přesunout nebo je v adrese překlep. Zkuste hledání nebo vyberte zemi na glóbu."
+  },
+  "search": {
+    "open": "Hledat v Atlasu",
+    "close": "Zavřít hledání",
+    "placeholder": "Hledat místa, regiony, novinky…",
+    "searching": "Hledám…",
+    "nothing": "V Atlasu zatím nic nenalezeno.",
+    "kindRegion": "Region",
+    "kindCountry": "Země",
+    "kindNews": "Novinka"
+  },
+  "country": {
+    "disputed": "Sporné území.",
+    "nonSelfGoverning": "Nesamosprávné území podle OSN.",
+    "occupied": "Území pod cizí správou.",
+    "whereStands": "Kde země stojí",
+    "region": "Region",
+    "exploreRegion": "Prozkoumat region →"
+  },
+  "newsletter": {
+    "signUp": "Přihlásit odběr"
+  },
+  "about": {
+    "title": "O Atlasu",
+    "description": "Atlas of Today’s World je nezávislá encyklopedie současnosti postavená kolem interaktivního 3D glóbu.",
+    "intro": "Atlas of Today’s World je nezávislá encyklopedie současnosti. Místo abecedního seznamu začíná u satelitního glóbu: otočíte ho, kliknete na zemi a Atlas otevře její profil spolu s portrétem světového regionu, do kterého patří. Novinky se otevírají ve stejné mapě, takže zeměpisné souvislosti nikdy nezmizí.",
+    "dataTitle": "Odkud jsou data",
+    "dataText": "Hranice a názvy zemí pocházejí z Natural Earth. Datové vrstvy se hromadně importují z Our World in Data a obnovují jediným příkazem, takže roční aktualizace trvá minuty, ne ruční přepisování:",
+    "editorialTitle": "Redakční obsah",
+    "editorialText": "Portréty regionů, profily zemí a novinky píše tým Atlasu ve vlastním redakčním systému, kde každá změna před zveřejněním prochází kontrolou."
+  },
+  "patrons": {
+    "title": "Podpořte Atlas",
+    "description": "Přidejte se ke komunitě členů a pomozte budovat nezávislou encyklopedii současnosti.",
+    "heading": "Společně můžeme vytvořit novou encyklopedii",
+    "intro": "Členstvím podpoříte vývoj Atlasu a postupně zajistíte jeho nezávislé financování. Na vývoji se můžete i přímo podílet.",
+    "card1Title": "Pomozte nám budovat Atlas",
+    "card1Text": "Pomozte vytvořit encyklopedii a zajistit její dlouhodobou, nezávislou budoucnost díky silné komunitě členů.",
+    "card2Title": "Podílejte se na vývoji",
+    "card2Text": "Tvořte obsah. Budujte silná partnerství. Měňte svět.",
+    "card3Title": "Přidejte se ke komunitě",
+    "card3Text": "Seznamte se s naším týmem, členy, budoucími autory a partnery.",
+    "paymentsSoon": "Platby členství brzy spustíme."
+  },
+  "newsIndex": {
+    "title": "Všechny novinky",
+    "heading": "Novinky",
+    "description": "Všechny zveřejněné novinky Atlas of Today’s World podle regionů a témat.",
+    "intro": "Každá novinka se otevře přímo v mapě světa, takže nikdy neztratíte zeměpisné souvislosti.",
+    "count": "Zatím zveřejněno: {count}.",
+    "byRegion": "Procházet podle regionu"
+  },
+  "searchPage": {
+    "title": "Hledat v Atlasu",
+    "description": "Hledejte ve všech regionech, zemích a heslech Atlasu.",
+    "placeholder": "Zkuste „politická situace v Rusku“",
+    "submit": "Hledat",
+    "resultsOne": "1 výsledek pro „{query}“",
+    "resultsMany": "Výsledků pro „{query}“: {count}",
+    "nothing": "V Atlasu zatím nic neodpovídá."
+  },
+  "legal": {
+    "englishOnly": "Tento text je zatím jen v angličtině. Český překlad právních textů připravujeme."
+  },
+  "countryText": {
+    "intro": "{name} je země v oblasti {area}; Atlas ji řadí do regionu {region}.",
+    "world": "svět",
+    "population": "Žije zde přibližně {population} obyvatel.",
+    "hdi": "Index lidského rozvoje {value} ji řadí na {rank}. místo ze {of} zemí ({year}).",
+    "regime": "Její politický systém je klasifikován jako: {regime}."
+  },
+  "article": {
+    "by": "Autor: {author}",
+    "minRead": "{minutes} min čtení",
+    "published": "Zveřejněno",
+    "updated": "Aktualizováno",
+    "summary": "Shrnutí",
+    "chapters": "Kapitoly",
+    "inThisEntry": "V tomto hesle",
+    "chapter": "Kapitola {number}",
+    "readChapter": "Číst celou kapitolu",
+    "closeChapter": "Zavřít kapitolu",
+    "listen": "Poslechněte si kapitolu",
+    "audioLabel": "Zvuková verze: {title}",
+    "downloadAudio": "Stáhnout zvukovou verzi",
+    "transcript": "Přepisem je celý text kapitoly níže.",
+    "aboutAuthor": "O autorovi: {name}",
+    "photoOf": "Fotografie: {name}",
+    "positionality": "Positionality statement"
+  },
+  "og": {
+    "site": "Atlas of Today's World",
+    "country": "Profil země",
+    "region": "Světový region",
+    "issue": "Globální téma",
+    "news": "Novinky",
+    "entry": "Encyklopedické heslo"
+  }
+}

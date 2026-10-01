@@ -1,7 +1,7 @@
 "use server";
 
 import "server-only";
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import {
   failed,
@@ -28,7 +28,7 @@ export async function saveTheme(_prev: ActionState, formData: FormData): Promise
     .select("id");
   if (error) return failed(error);
   if (!data.length) return { ok: false, error: "Vzhled nemůžete měnit." };
-  revalidateTag(tags.atlas);
+  updateTag(tags.atlas);
   return { ok: true, message: "Vzhled uložen. Mapa se obnoví při dalším načtení." };
 }
 
@@ -45,7 +45,7 @@ export async function saveArea(_prev: ActionState, formData: FormData): Promise<
     ? await supabase.from("map_areas").update(row).eq("slug", original_slug)
     : await supabase.from("map_areas").insert({ ...row, created_by: user.id });
   if (error) return failed(error);
-  revalidateTag(tags.atlas);
+  updateTag(tags.atlas);
   if (original_slug !== fields.slug) redirect(`/admin/oblasti/${fields.slug}`);
   return { ok: true, message: "Plocha uložena." };
 }
@@ -61,6 +61,6 @@ export async function deleteArea(areaSlug: string): Promise<ActionState> {
     .select("slug");
   if (error) return failed(error);
   if (!data.length) return { ok: false, error: "Plochu nemůžete smazat." };
-  revalidateTag(tags.atlas);
+  updateTag(tags.atlas);
   return { ok: true, message: "Plocha smazána." };
 }

@@ -3,7 +3,7 @@
 import "server-only";
 import { headers } from "next/headers";
 import { z } from "zod";
-import type { ActionState } from "@/lib/actions";
+import { firstIssue, type ActionState } from "@/lib/actions";
 import { serverEnv } from "@/lib/env.server";
 import { allowRequest } from "@/lib/security/rate-limit";
 
@@ -34,7 +34,7 @@ export async function subscribe(_prev: ActionState, formData: FormData): Promise
     email: formData.get("email"),
     consent: formData.get("consent"),
   });
-  if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+  if (!parsed.success) return { ok: false, error: firstIssue(parsed.error) };
 
   const key = serverEnv.MAILCHIMP_API_KEY;
   const list = serverEnv.MAILCHIMP_LIST_ID;

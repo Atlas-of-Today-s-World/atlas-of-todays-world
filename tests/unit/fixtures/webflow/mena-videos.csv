@@ -1,0 +1,3 @@
+Name,Slug,Item ID,Draft,Archived,Video Link
+Explainer,explainer,v1,false,false,https://youtu.be/aqz-KE-bpKQ
+Same video twice,twice,v2,false,false,"https://www.youtube.com/watch?v=aqz-KE-bpKQ and https://www.youtube.com/shorts/aqz-KE-bpKQ"

@@ -85,4 +85,18 @@ test.describe("účty a pozvánky", () => {
     await page.goto("/ucet");
     await expect(page).toHaveURL(/\/login\?next=%2Fucet/);
   });
+
+  test("čtenář si stáhne svá data (GDPR), anonym ne", async ({ page, request }) => {
+    expect((await request.get("/api/account/export")).status()).toBe(401);
+    const email = testEmail("export");
+    await createUser(email);
+    await signIn(page, email);
+    await expect(page.getByRole("link", { name: "Download my data" })).toBeVisible();
+    const response = await page.request.get("/api/account/export");
+    expect(response.status()).toBe(200);
+    expect(response.headers()["content-disposition"]).toMatch(/attachment/);
+    const data = await response.json();
+    expect(data.account.email).toBe(email);
+    expect(data.profile).toMatchObject({ email, kind: "reader" });
+  });
 });

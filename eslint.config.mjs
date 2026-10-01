@@ -1,9 +1,6 @@
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { FlatCompat } from "@eslint/eslintrc";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
 import security from "eslint-plugin-security";
-
-const compat = new FlatCompat({ baseDirectory: dirname(fileURLToPath(import.meta.url)) });
 
 // Pravidla vychází z ARCHITEKTURA.md kap. 8 (bezpečnost) a 15 (deduplikace).
 const config = [
@@ -14,6 +11,8 @@ const config = [
       ".next-dev/**",
       "node_modules/**",
       "demo/**",
+      "public/maplibre/**",
+      "storybook-static/**",
       "test-results/**",
       "playwright-report/**",
       "coverage/**",
@@ -21,13 +20,15 @@ const config = [
       "src/lib/db/types.gen.ts",
     ],
   },
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...nextVitals,
+  ...nextTs,
   security.configs.recommended,
   {
     rules: {
       // Dynamický přístup k objektům je v datovém kódu běžný a bezpečný (klíče
       // jsou ISO kódy a slugy z vlastních dat); pravidlo dává hlavně šum.
       "security/detect-object-injection": "off",
+      // Pravidla React Compileru (eslint-config-next 16) platí naplno (A11).
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },

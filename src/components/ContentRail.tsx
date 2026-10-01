@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
+import { useLocalizedRouter } from "@/components/i18n/useLocalizedRouter";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { useMessages } from "@/components/i18n/LocaleProvider";
 
 /**
  * Panel s obsahem vedle mapy. Nese profil regionu, kartu země i celé
@@ -24,8 +25,9 @@ export default function ContentRail({
   closeHref?: string;
   wide?: boolean;
 }) {
+  const t = useMessages();
   const [collapsed, setCollapsed] = useState(false);
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const panel = useRef<HTMLElement>(null);
 
   // Panel se zavírá i klávesou Esc – jinak by se z něj klávesnicí nešlo dostat.
@@ -53,8 +55,9 @@ export default function ContentRail({
     <aside
       ref={panel}
       id="content"
+      data-print="content"
       tabIndex={-1}
-      aria-label="Content panel"
+      aria-label={t.panel.content}
       className={`pointer-events-auto absolute inset-x-0 bottom-0 z-20 max-h-[72dvh] overflow-hidden rounded-t-3xl bg-white text-[var(--color-ink)] shadow-[0_-8px_40px_rgba(0,0,0,0.45)] transition-transform duration-300 outline-none md:inset-x-auto md:inset-y-0 md:right-0 md:left-auto md:max-h-none md:rounded-none md:shadow-[0_0_60px_rgba(0,0,0,0.45)] ${
         wide ? "md:w-(--rail-width-wide)" : "md:w-(--rail-width)"
       } ${collapsed ? "md:translate-x-full" : "md:translate-x-0"}`}
@@ -67,7 +70,7 @@ export default function ContentRail({
       {/* Sbalení panelu na desktopu */}
       <button
         type="button"
-        aria-label={collapsed ? "Show panel" : "Hide panel"}
+        aria-label={collapsed ? t.panel.show : t.panel.hide}
         onClick={() => setCollapsed((value) => !value)}
         className="absolute top-1/2 -left-7 hidden h-14 w-7 -translate-y-1/2 items-center justify-center rounded-l-lg bg-[#1b2233] text-white/80 transition hover:bg-[#283148] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] md:flex"
       >
@@ -76,7 +79,7 @@ export default function ContentRail({
 
       <button
         type="button"
-        aria-label="Close"
+        aria-label={t.common.close}
         onClick={() => router.push(closeHref)}
         className="absolute top-2 right-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/85 text-[var(--color-ink-soft)] backdrop-blur transition hover:bg-[var(--color-line)] hover:text-[var(--color-ink)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] active:scale-95 md:top-3"
       >

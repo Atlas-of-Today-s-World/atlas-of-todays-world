@@ -1,7 +1,7 @@
 "use server";
 
 import "server-only";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
 import { failed, NOT_SIGNED_IN, signedIn, type ActionState } from "@/lib/actions";
 import { tags } from "@/lib/cache/tags";
@@ -23,7 +23,7 @@ export async function setFlag(key: string, enabled: boolean): Promise<ActionStat
     .select("key");
   if (error) return failed(error);
   if (!data.length) return { ok: false, error: "Přepínač nemůžete měnit." };
-  revalidateTag(tags.flags);
+  updateTag(tags.flags);
   revalidatePath("/admin/role");
   return { ok: true, message: enabled ? "Zapnuto." : "Vypnuto." };
 }

@@ -37,7 +37,7 @@ export async function search(query: string, limit = 12): Promise<SearchHit[]> {
   const entryBySlug = new Map(entries.map((entry) => [entry.slug, entry]));
 
   return (data ?? []).map((row) => {
-    const [, key] = row.id.split(":");
+    const key = row.id.split(":")[1] ?? "";
     const hit: SearchHit = {
       id: row.id,
       kind: row.kind as SearchKind,

@@ -287,16 +287,20 @@ export type Database = {
           kind: string
           locale: string
           owner_id: string | null
+          publish_at: string | null
           published_on: string | null
           reading_minutes: number | null
           region_slug: string | null
           review_note: string | null
+          scheduled_by: string | null
           search: unknown
           slug: string
           special_slug: string | null
           status: string
           summary: string
+          summary_points: string[]
           title: string
+          translation_of: string | null
           updated_at: string
         }
         Insert: {
@@ -314,16 +318,20 @@ export type Database = {
           kind?: string
           locale?: string
           owner_id?: string | null
+          publish_at?: string | null
           published_on?: string | null
           reading_minutes?: number | null
           region_slug?: string | null
           review_note?: string | null
+          scheduled_by?: string | null
           search?: unknown
           slug: string
           special_slug?: string | null
           status?: string
           summary?: string
+          summary_points?: string[]
           title: string
+          translation_of?: string | null
           updated_at?: string
         }
         Update: {
@@ -341,16 +349,20 @@ export type Database = {
           kind?: string
           locale?: string
           owner_id?: string | null
+          publish_at?: string | null
           published_on?: string | null
           reading_minutes?: number | null
           region_slug?: string | null
           review_note?: string | null
+          scheduled_by?: string | null
           search?: unknown
           slug?: string
           special_slug?: string | null
           status?: string
           summary?: string
+          summary_points?: string[]
           title?: string
+          translation_of?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -404,16 +416,38 @@ export type Database = {
             referencedColumns: ["slug"]
           },
           {
+            foreignKeyName: "entries_scheduled_by_fkey"
+            columns: ["scheduled_by"]
+            isOneToOne: false
+            referencedRelation: "members_overview"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "entries_scheduled_by_fkey"
+            columns: ["scheduled_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "entries_special_slug_fkey"
             columns: ["special_slug"]
             isOneToOne: false
             referencedRelation: "special_regions"
             referencedColumns: ["slug"]
           },
+          {
+            foreignKeyName: "entries_translation_of_fkey"
+            columns: ["translation_of"]
+            isOneToOne: false
+            referencedRelation: "entries"
+            referencedColumns: ["id"]
+          },
         ]
       }
       entry_chapters: {
         Row: {
+          audio_url: string | null
           body_html: string
           entry_id: string
           id: string
@@ -424,6 +458,7 @@ export type Database = {
           title: string
         }
         Insert: {
+          audio_url?: string | null
           body_html?: string
           entry_id: string
           id?: string
@@ -434,6 +469,7 @@ export type Database = {
           title: string
         }
         Update: {
+          audio_url?: string | null
           body_html?: string
           entry_id?: string
           id?: string
@@ -1146,6 +1182,55 @@ export type Database = {
           },
         ]
       }
+      preview_links: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          entry_id: string
+          expires_at: string
+          id: string
+          token_hash: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          entry_id: string
+          expires_at: string
+          id?: string
+          token_hash: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          entry_id?: string
+          expires_at?: string
+          id?: string
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "preview_links_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "members_overview"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "preview_links_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "preview_links_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           approval_global: boolean
@@ -1216,6 +1301,48 @@ export type Database = {
           window_start?: string
         }
         Relationships: []
+      }
+      redirects: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          from_path: string
+          id: string
+          permanent: boolean
+          to_path: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          from_path: string
+          id?: string
+          permanent?: boolean
+          to_path: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          from_path?: string
+          id?: string
+          permanent?: boolean
+          to_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "redirects_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "members_overview"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "redirects_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       regions: {
         Row: {
@@ -1601,6 +1728,51 @@ export type Database = {
           },
         ]
       }
+      translations: {
+        Row: {
+          entity: string
+          entity_key: string
+          field: string
+          locale: string
+          updated_at: string
+          updated_by: string | null
+          value: string
+        }
+        Insert: {
+          entity: string
+          entity_key: string
+          field: string
+          locale: string
+          updated_at?: string
+          updated_by?: string | null
+          value: string
+        }
+        Update: {
+          entity?: string
+          entity_key?: string
+          field?: string
+          locale?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "translations_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "members_overview"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "translations_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       visual_embeds: {
         Row: {
           caption: string
@@ -1686,6 +1858,45 @@ export type Database = {
       can_edit_entry: { Args: { p_owner: string }; Returns: boolean }
       can_read_unpublished: { Args: { p_owner: string }; Returns: boolean }
       claim_invitation: { Args: never; Returns: string }
+      create_entry_translation: {
+        Args: { p_entry: string; p_locale: string }
+        Returns: string
+      }
+      create_preview_link: {
+        Args: { p_entry: string; p_hours: number }
+        Returns: string
+      }
+      entry_preview: {
+        Args: { p_token: string }
+        Returns: {
+          author_name: string
+          body_html: string
+          category: string
+          countries: string[]
+          cover_credit: string
+          cover_url: string
+          expires_at: string
+          published_on: string
+          reading_minutes: number
+          region_slug: string
+          slug: string
+          special_slug: string
+          status: string
+          summary: string
+          title: string
+          updated_at: string
+        }[]
+      }
+      entry_preview_parts: {
+        Args: { p_token: string }
+        Returns: {
+          author: Json
+          chapters: Json
+          kind: string
+          resources: Json
+          summary_points: string[]
+        }[]
+      }
       has_perm: {
         Args: { p_action: string; p_section: string }
         Returns: boolean
@@ -1697,6 +1908,10 @@ export type Database = {
       is_active: { Args: never; Returns: boolean }
       is_admin: { Args: never; Returns: boolean }
       is_polygon: { Args: { g: Json }; Returns: boolean }
+      may_approve_entry_as: {
+        Args: { p_entry: string; p_user: string }
+        Returns: boolean
+      }
       mfa_ok: { Args: never; Returns: boolean }
       mfa_status: { Args: never; Returns: Json }
       my_permissions: {
@@ -1725,9 +1940,24 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      planned_entries: {
+        Args: never
+        Returns: {
+          category: string
+          countries: string[]
+          region_slug: string
+          special_slug: string
+          title: string
+        }[]
+      }
       portrait: { Args: { p_kind: string; p_slug: string }; Returns: Json }
+      publish_due_entries: { Args: never; Returns: number }
       purge_audit_log: { Args: never; Returns: number }
       record_page_view: { Args: never; Returns: undefined }
+      replace_entry_parts: {
+        Args: { p_entry: string; p_items: Json; p_part: string }
+        Returns: undefined
+      }
       replace_portrait_items: {
         Args: {
           p_collection: string
@@ -1735,6 +1965,10 @@ export type Database = {
           p_kind: string
           p_slug: string
         }
+        Returns: undefined
+      }
+      schedule_entry: {
+        Args: { p_at: string; p_entry: string }
         Returns: undefined
       }
       search: {
@@ -1753,8 +1987,14 @@ export type Database = {
         Args: { p_entry: string; p_note: string }
         Returns: undefined
       }
+      short_items: {
+        Args: { p_items: number; p_len: number; p_values: string[] }
+        Returns: boolean
+      }
       submit_entry: { Args: { p_entry: string }; Returns: undefined }
+      translation_section: { Args: { p_entity: string }; Returns: string }
       unpublish_entry: { Args: { p_entry: string }; Returns: undefined }
+      unschedule_entry: { Args: { p_entry: string }; Returns: undefined }
       write_audit: {
         Args: { p_action: string; p_detail?: Json; p_target: string }
         Returns: undefined

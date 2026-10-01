@@ -1,7 +1,7 @@
 "use server";
 
 import "server-only";
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import {
@@ -11,6 +11,7 @@ import {
   NOT_SIGNED_IN,
   signedIn,
   type ActionState,
+  listItemError,
 } from "@/lib/actions";
 import { tags } from "@/lib/cache/tags";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
@@ -38,8 +39,8 @@ const FIELD_LABEL: Record<string, string> = {
 
 /** Po změně portrétu: jeho sekce a u zemí/hlaviček i snapshot mapy. */
 function refresh(kind: PortraitKind, slug: string) {
-  if (kind === "country") revalidateTag(tags.atlas);
-  else revalidateTag(tags.portrait(kind, slug));
+  if (kind === "country") updateTag(tags.atlas);
+  else updateTag(tags.portrait(kind, slug));
 }
 
 /**
@@ -67,17 +68,7 @@ export async function savePortraitSection(
     return { ok: false, error: "Neplatná data sekce." };
   }
   const items = z.array(COLLECTIONS[collection]).max(50).safeParse(raw);
-  if (!items.success) {
-    const issue = items.error.issues[0];
-    const [index, field] = issue.path;
-    return {
-      ok: false,
-      error:
-        typeof index === "number"
-          ? `Položka ${index + 1}, ${FIELD_LABEL[String(field)] ?? field}: ${issue.message}`
-          : issue.message,
-    };
-  }
+  if (!items.success) return listItemError(items.error, "Položka", FIELD_LABEL);
 
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
@@ -110,8 +101,8 @@ export async function saveRegion(_prev: ActionState, formData: FormData): Promis
     .select("slug");
   if (error) return failed(error);
   if (!data.length) return { ok: false, error: "Region nemůžete upravit." };
-  revalidateTag(tags.atlas);
-  revalidateTag(tags.portrait("region", slug));
+  updateTag(tags.atlas);
+  updateTag(tags.portrait("region", slug));
   return { ok: true, message: "Region uložen." };
 }
 
@@ -159,9 +150,9 @@ export async function saveIssue(_prev: ActionState, formData: FormData): Promise
     if (addError) return failed(addError);
   }
 
-  revalidateTag(tags.atlas);
-  revalidateTag(tags.portrait("issue", fields.slug));
-  revalidateTag(tags.entries);
+  updateTag(tags.atlas);
+  updateTag(tags.portrait("issue", fields.slug));
+  updateTag(tags.entries);
   if (!original_slug || original_slug !== fields.slug) {
     redirect(`/admin/global-issues/${fields.slug}`);
   }
@@ -179,8 +170,8 @@ export async function deleteIssue(slug: string): Promise<ActionState> {
     .select("slug");
   if (error) return failed(error);
   if (!data.length) return { ok: false, error: "Celek nejde smazat (nemáte právo)." };
-  revalidateTag(tags.atlas);
-  revalidateTag(tags.entries);
+  updateTag(tags.atlas);
+  updateTag(tags.entries);
   return { ok: true, message: "Smazáno." };
 }
 
@@ -202,6 +193,6 @@ export async function saveCountry(_prev: ActionState, formData: FormData): Promi
     .select("iso3");
   if (error) return failed(error);
   if (!data.length) return { ok: false, error: "Zemi nemůžete upravit." };
-  revalidateTag(tags.atlas);
+  updateTag(tags.atlas);
   return { ok: true, message: "Profil země uložen." };
 }

@@ -5,7 +5,7 @@ import { ActionStatus } from "@/components/admin/ActionStatus";
 import { CountryPicker, type CountryOption } from "@/components/admin/CountryPicker";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { Checkbox, FormField, Input, Select, Textarea } from "@/components/ui/field";
-import { ImageField } from "@/features/entries/components/ImageField";
+import { UploadField } from "@/features/entries/components/UploadField";
 import { RichTextEditor } from "@/features/entries/components/RichTextEditor";
 import type { ActionState } from "@/lib/actions";
 import { slugify } from "@/lib/validation/common";
@@ -67,7 +67,7 @@ function PortraitHead({
         <Textarea id="intro" name="intro" maxLength={5000} rows={6} defaultValue={values.intro} />
       </FormField>
       <FormField id="hero_url" label="Fotka v hlavičce" errors={errors.hero_url}>
-        <ImageField id="hero_url" name="hero_url" defaultValue={values.hero_url ?? ""} />
+        <UploadField id="hero_url" name="hero_url" defaultValue={values.hero_url ?? ""} />
       </FormField>
       <FormField id="hero_credit" label="Autor fotky" errors={errors.hero_credit}>
         <Input

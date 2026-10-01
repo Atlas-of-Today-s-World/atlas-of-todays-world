@@ -46,9 +46,9 @@ test("publisher napíše koncept a odešle ho ke schválení", async ({ page }) 
   await page.getByRole("button", { name: "Vytvořit koncept" }).click();
 
   await expect(page).toHaveURL(/\/admin\/obsah\/[0-9a-f-]{36}/);
-  await expect(page.getByText("Koncept", { exact: true })).toBeVisible();
+  await expect(page.getByText("Koncept", { exact: true }).first()).toBeVisible();
   await confirm(page, "Odeslat ke schválení", "Odeslat");
-  await expect(page.getByText("Čeká na schválení", { exact: true })).toBeVisible();
+  await expect(page.getByText("Čeká na schválení", { exact: true }).first()).toBeVisible();
 });
 
 test("editor ho vrátí s poznámkou a autor ji uvidí", async ({ page, browser }) => {
@@ -64,7 +64,7 @@ test("editor ho vrátí s poznámkou a autor ji uvidí", async ({ page, browser 
   await expect(author.getByText("Doplňte prosím zdroje.")).toBeVisible();
   await openEntry(author);
   await confirm(author, "Odeslat ke schválení", "Odeslat");
-  await expect(author.getByText("Čeká na schválení", { exact: true })).toBeVisible();
+  await expect(author.getByText("Čeká na schválení", { exact: true }).first()).toBeVisible();
 });
 
 test("publisher svůj článek neschválí, editor ano a článek je na webu", async ({
@@ -79,7 +79,7 @@ test("publisher svůj článek neschválí, editor ano a článek je na webu", a
   await signIn(approver, editor, "/admin");
   await openEntry(approver);
   await confirm(approver, "Schválit a zveřejnit", "Zveřejnit");
-  await expect(approver.getByText("Zveřejněno", { exact: true })).toBeVisible();
+  await expect(approver.getByText("Zveřejněno", { exact: true }).first()).toBeVisible();
 
   await approver.goto(`/news/${slug}`);
   await expect(approver.getByRole("heading", { name: title })).toBeVisible();

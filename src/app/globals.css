@@ -164,3 +164,35 @@ body {
   color: var(--color-ink);
   font-style: italic;
 }
+
+/* Tisk (ARCHITEKTURA 16): jen obsah panelu na celou šířku, bez glóbu a ovládání. */
+@media print {
+  [data-print="hide"],
+  [data-print="content"] > button,
+  [data-print="content"] > div:first-child {
+    display: none !important;
+  }
+  main:has([data-print="content"]) {
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+  [data-print="content"] {
+    position: static !important;
+    width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+  [data-print="content"] * {
+    overflow: visible !important;
+  }
+  /* U vnějších odkazů vytisknout i adresu. */
+  [data-print="content"] a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.75em;
+    word-break: break-all;
+  }
+}

@@ -212,10 +212,12 @@ token_verifications = 30
 web3 = 30
 
 # Configure one of the supported captcha providers: `hcaptcha`, `turnstile`.
+# Cloudflare Turnstile u přihlášení kódem z e-mailu (G1). Zapnout spolu s
+# NEXT_PUBLIC_TURNSTILE_SITE_KEY v aplikaci; tajný klíč jen v prostředí.
 # [auth.captcha]
 # enabled = true
-# provider = "hcaptcha"
-# secret = ""
+# provider = "turnstile"
+# secret = "env(TURNSTILE_SECRET_KEY)"
 
 [auth.email]
 # Allow/disallow new user signups via email to your project.
@@ -236,19 +238,29 @@ otp_length = 6
 otp_expiry = 3600
 
 # Use a production-ready SMTP server
+# Vlastní SMTP přes Resend (G1) — až bude ověřená doména (U5).
 # [auth.email.smtp]
 # enabled = true
-# host = "smtp.sendgrid.net"
-# port = 587
-# user = "apikey"
-# pass = "env(SENDGRID_API_KEY)"
-# admin_email = "admin@email.com"
-# sender_name = "Admin"
+# host = "smtp.resend.com"
+# port = 465
+# user = "resend"
+# pass = "env(RESEND_API_KEY)"
+# admin_email = "noreply@atlasoftodaysworld.org"
+# sender_name = "Atlas of Today's World"
 
 # Uncomment to customize email template
-# [auth.email.template.invite]
-# subject = "You have been invited"
-# content_path = "./supabase/templates/invite.html"
+# Šablony EN/CS (G1, supabase/templates/README.md); jazyk podle user_metadata.locale.
+[auth.email.template.invite]
+subject = "Invitation to the Atlas of Today's World team"
+content_path = "./supabase/templates/invite.html"
+
+[auth.email.template.magic_link]
+subject = "Your Atlas sign-in code"
+content_path = "./supabase/templates/magic_link.html"
+
+[auth.email.template.confirmation]
+subject = "Welcome to the Atlas — your sign-in code"
+content_path = "./supabase/templates/confirmation.html"
 
 # Uncomment to customize notification email template
 # [auth.email.notification.password_changed]

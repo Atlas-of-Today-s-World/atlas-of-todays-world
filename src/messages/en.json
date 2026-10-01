@@ -1,0 +1,233 @@
+{
+  "nav": {
+    "map": "Map",
+    "news": "News",
+    "about": "About",
+    "patrons": "Atlas Patrons",
+    "signIn": "Sign in",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "accessibility": "Accessibility"
+  },
+  "header": {
+    "home": "Atlas of Today's World — home",
+    "main": "Main",
+    "legal": "Legal",
+    "menu": "Menu",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "account": "Sign in or open your account",
+    "accountTitle": "Sign in / your account",
+    "language": "Language",
+    "switchTo": "Switch to {language}"
+  },
+  "common": {
+    "skipToContent": "Skip to content",
+    "close": "Close",
+    "backToGlobe": "Back to the globe",
+    "notTranslated": "This text is not translated yet — showing the English original."
+  },
+  "auth": {
+    "title": "Sign in",
+    "lead": "Readers can create an account in one click. Members of the Atlas team use the same e-mail address their invitation was sent to.",
+    "errors": {
+      "callback": "Sign-in did not finish. Please try again.",
+      "config": "Sign-in is not available on this deployment yet."
+    },
+    "google": {
+      "continue": "Continue with Google",
+      "redirecting": "Redirecting to Google…",
+      "unreachable": "Could not reach Google. Please try again."
+    },
+    "or": "or",
+    "email": {
+      "label": "E-mail address",
+      "send": "Send me a sign-in code",
+      "sending": "Sending…",
+      "sentTo": "We sent a {length}-digit code to {email}.",
+      "codeLabel": "Code from the e-mail",
+      "verify": "Sign in",
+      "verifying": "Signing in…",
+      "otherEmail": "Use a different e-mail",
+      "errors": {
+        "disabled": "Signing in by e-mail is not available yet.",
+        "invalid_email": "Enter a valid e-mail address.",
+        "invalid_code": "The code has {length} digits.",
+        "rate_limited": "Too many attempts. Please wait a few minutes.",
+        "captcha": "Please complete the security check.",
+        "send_failed": "We could not send the e-mail. Please try again later.",
+        "wrong_code": "The code is wrong or has expired."
+      }
+    },
+    "privacy": "We only use your name and e-mail address to run your account.",
+    "emailSoon": "Signing in with an e-mail code will be available soon."
+  },
+  "portrait": {
+    "globalIssue": "Global Issue",
+    "countriesInRegion": "Countries in this region",
+    "countriesInGroup": "Countries in this group",
+    "countries": "Countries",
+    "people": "People",
+    "keyIndicators": "Key indicators",
+    "keyIndicatorsManual": "Picked by the Atlas team, each with the source it comes from.",
+    "keyIndicatorsComputed": "Population-weighted across the countries in this group. Categorical layers show the most common value.",
+    "coverage": "{have} of {total} countries · {year}",
+    "timeline": "How the present came about",
+    "timelineLead": "The events that shaped the current situation.",
+    "timelineEmptyRegion": "An interactive timeline of the events behind the region’s current situation.",
+    "timelineEmptyGroup": "An interactive timeline of the events behind the group’s current situation.",
+    "entries": "Encyclopedic entries",
+    "entriesLead": "Long-form entries in four themes. Grey titles are planned but not written yet.",
+    "notWrittenYet": "Not written yet",
+    "nothingPlanned": "Nothing planned here yet.",
+    "plannedTitle": "{category} in {place} ({index})",
+    "maps": "Maps & charts",
+    "mapsLead": "Selected visualisations from organisations that track this part of the world.",
+    "mapsEmptyRegion": "A carousel of interactive infographics and maps for this region.",
+    "mapsEmptyGroup": "A carousel of interactive infographics and maps for this group.",
+    "learnMore": "Learn more elsewhere",
+    "learnMoreLead": "Documentaries, lectures, reports and databases picked by the Atlas team.",
+    "learnMoreEmpty": "Videos & documentaries, lectures & debates, articles, reports & books, educational resources, statistics & databases.",
+    "furtherReading": "Further reading",
+    "faq": "Common questions",
+    "faqEmptyRegion": "The five questions people ask most often about this region.",
+    "faqEmptyGroup": "The five questions people ask most often about this group.",
+    "news": "News",
+    "patronsCta": "Help Us Complete It By Joining Atlas Patrons",
+    "patronsCompleteTitle": "Together We Can Build a New Encyclopedia",
+    "patronsCompleteText": "Atlas Patrons fund the writing, the data work and the independence of this encyclopedia.",
+    "patronsTodoTitle": "This portrait is not finished",
+    "patronsTodoText": "The sections above are waiting for authors. Atlas Patrons pay for the research and the writing that fills them in."
+  },
+  "categories": {
+    "Living Conditions": "Living Conditions",
+    "Society": "Society",
+    "Politics & International Relations": "Politics & International Relations",
+    "Historical Roots": "Historical Roots",
+    "Political System": "Political System",
+    "International Relations": "International Relations"
+  },
+  "map": {
+    "encyclopediaView": "Encyclopedia view",
+    "encyclopediaCaption": "World regions of the Atlas · click any country to open its profile",
+    "layerView": "{label} view",
+    "modes": "Map selection mode",
+    "modeCountries": "Countries",
+    "modeRegions": "Regions",
+    "modeIssues": "Global Issues",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "dataLayer": "Data layer",
+    "maintenance": "Maintenance",
+    "maintenanceTitle": "The Atlas is being updated",
+    "maintenanceText": "We are working on the site right now. Please come back in a little while."
+  },
+  "panel": {
+    "content": "Content panel",
+    "show": "Show panel",
+    "hide": "Hide panel",
+    "error": "Error",
+    "errorTitle": "This panel did not load",
+    "errorText": "Something went wrong on our side. Try again in a moment; the globe still works.",
+    "tryAgain": "Try again",
+    "notFoundTitle": "This place is not on our map",
+    "notFoundText": "The page may have moved, or the address has a typo. Search the Atlas or pick a country on the globe."
+  },
+  "search": {
+    "open": "Search the Atlas",
+    "close": "Close search",
+    "placeholder": "Search places, regions, news…",
+    "searching": "Searching…",
+    "nothing": "Nothing found in the Atlas yet.",
+    "kindRegion": "Region",
+    "kindCountry": "Country",
+    "kindNews": "News"
+  },
+  "country": {
+    "disputed": "Disputed territory.",
+    "nonSelfGoverning": "UN Non-Self-Governing Territory.",
+    "occupied": "Territory under foreign administration.",
+    "whereStands": "Where the country stands",
+    "region": "Region",
+    "exploreRegion": "Explore the region →"
+  },
+  "newsletter": {
+    "signUp": "Sign up"
+  },
+  "about": {
+    "title": "About the Atlas",
+    "description": "Atlas of Today’s World is an independent encyclopedia of the present, built around an interactive 3D globe.",
+    "intro": "Atlas of Today’s World is an independent encyclopedia of the present. Instead of an A–Z list, it starts from a satellite globe: you spin it, click a country, and the Atlas opens that country’s profile together with the portrait of the world region it belongs to. News opens inside the same map, so the geographic context never disappears.",
+    "dataTitle": "Where the data comes from",
+    "dataText": "Country borders and names come from Natural Earth. The data layers are imported in bulk from Our World in Data and refreshed with a single command, so a yearly update takes minutes rather than manual editing:",
+    "editorialTitle": "Editorial content",
+    "editorialText": "Region portraits, country profiles and news are written by the Atlas team in the Atlas’s own editorial system, where every change goes through review before it is published."
+  },
+  "patrons": {
+    "title": "Support the Atlas",
+    "description": "Join the membership community and help build an independent encyclopedia of the present.",
+    "heading": "Together We Can Build a New Encyclopedia",
+    "intro": "By joining our membership community, you support Atlas development and gradually secure its independent funding. And you can directly participate in the development.",
+    "card1Title": "Help Us Build Atlas",
+    "card1Text": "Help build the encyclopedia and power its long-term, independent future through a strong membership community.",
+    "card2Title": "Participate on Its Development",
+    "card2Text": "Create content. Build powerful partnerships. Drive global impact.",
+    "card3Title": "Join Our Community",
+    "card3Text": "Connect with our team, members, and future authors and partners.",
+    "paymentsSoon": "Membership payments are coming soon."
+  },
+  "newsIndex": {
+    "title": "All news",
+    "heading": "News",
+    "description": "Every published item of Atlas of Today’s World, by region and by theme.",
+    "intro": "Each news item opens inside the world map, so you never lose the geographic context.",
+    "count": "{count} published so far.",
+    "byRegion": "Browse by region"
+  },
+  "searchPage": {
+    "title": "Search the Atlas",
+    "description": "Search every region, country and encyclopedia item of the Atlas.",
+    "placeholder": "Try “political situation in Russia”",
+    "submit": "Search",
+    "resultsOne": "1 result for “{query}”",
+    "resultsMany": "{count} results for “{query}”",
+    "nothing": "Nothing in the Atlas matches that yet."
+  },
+  "legal": {
+    "englishOnly": ""
+  },
+  "countryText": {
+    "intro": "{name} is a country in {area}, covered by the Atlas as part of {region}.",
+    "world": "the world",
+    "population": "It is home to about {population} people.",
+    "hdi": "Its Human Development Index of {value} ranks it {rank} of {of} countries ({year}).",
+    "regime": "Its political system is classified as {regime}."
+  },
+  "article": {
+    "by": "By {author}",
+    "minRead": "{minutes} min read",
+    "published": "Published",
+    "updated": "Last updated",
+    "summary": "Summary",
+    "chapters": "Chapters",
+    "inThisEntry": "In this entry",
+    "chapter": "Chapter {number}",
+    "readChapter": "Read the full chapter",
+    "closeChapter": "Close the chapter",
+    "listen": "Listen to this chapter",
+    "audioLabel": "Audio version: {title}",
+    "downloadAudio": "Download the audio version",
+    "transcript": "The transcript is the full chapter text below.",
+    "aboutAuthor": "About the author: {name}",
+    "photoOf": "Photo of {name}",
+    "positionality": "Positionality statement"
+  },
+  "og": {
+    "site": "Atlas of Today's World",
+    "country": "Country profile",
+    "region": "World region",
+    "issue": "Global issue",
+    "news": "News",
+    "entry": "Encyclopedic entry"
+  }
+}

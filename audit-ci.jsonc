@@ -3,12 +3,6 @@
   // CI selže na zranitelnosti high a vyšší v produkčních závislostech.
   "high": true,
   "skip-dev": true,
-  "allowlist": [
-    // maplibre-gl ≤ 6.4.0: XSS v DOM.sanitize(). MapLibre 5 ho volá jen pro
-    // atribuční text mapy, který je u nás pevný řetězec v mapStyle.ts, takže
-    // útočník do něj nemá jak vložit HTML. MapLibre 6 zatím nejde nasadit
-    // (web worker se v bundleru nenačte) — úkol A9 v PLAN-REALIZACE.md.
-    // Přezkoumat nejpozději 2026-12-31.
-    "GHSA-jrc7-96c5-q579",
-  ],
+  // MapLibre 6.11 (A9) opravuje GHSA-jrc7-96c5-q579; výjimka už není potřeba.
+  "allowlist": [],
 }

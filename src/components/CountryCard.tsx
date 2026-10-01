@@ -1,6 +1,7 @@
-import Link from "next/link";
+import Link from "@/components/i18n/Link";
 import type { EntrySummary } from "@/features/entries/queries";
 import type { Country, CountryProfile } from "@/features/geography/types";
+import { getRequestLocale, getT } from "@/features/i18n/request";
 import { formatPopulation } from "@/lib/format";
 import { MetricCards, SourceLink, StatGrid, StatIcon, StatItem } from "./atlas/ui";
 
@@ -11,12 +12,12 @@ import { MetricCards, SourceLink, StatGrid, StatIcon, StatItem } from "./atlas/u
  * jen textový odkaz kdesi dole – dostal vlastní kartu s obrázkem a tlačítkem,
  * protože z profilu země je to nejčastější cesta dál.
  */
-/** Jak se status pojmenuje v profilu země. */
-const TERRITORY_STATUS_LABEL: Record<string, string> = {
-  disputed: "Disputed territory.",
-  "non-self-governing": "UN Non-Self-Governing Territory.",
-  occupied: "Territory under foreign administration.",
-};
+/** Jak se status pojmenuje v profilu země (klíč textu v messages → country). */
+const TERRITORY_STATUS_KEY = {
+  disputed: "disputed",
+  "non-self-governing": "nonSelfGoverning",
+  occupied: "occupied",
+} as const;
 
 export default function CountryCard({
   country,
@@ -29,6 +30,7 @@ export default function CountryCard({
   description: string;
   profile?: CountryProfile | null;
 }) {
+  const t = getT();
   const region = country.region;
 
   /**
@@ -94,7 +96,7 @@ export default function CountryCard({
       {metrics.length ? (
         <section className="mt-7 border-t border-[var(--color-line)] pt-5">
           <h2 className="text-[11px] font-medium tracking-[0.1em] text-[var(--color-ink-muted)] uppercase">
-            Where the country stands
+            {t.country.whereStands}
           </h2>
           <MetricCards metrics={metrics} className="mt-4" />
         </section>
@@ -115,7 +117,7 @@ export default function CountryCard({
           />
           <span className="block p-4">
             <span className="text-[10.5px] tracking-[0.1em] text-[var(--color-ink-muted)] uppercase">
-              Region
+              {t.country.region}
             </span>
             <span className="font-display mt-1 block text-[16px] font-bold text-[var(--color-ink)] group-hover:text-[var(--color-accent)]">
               {region.name}
@@ -124,7 +126,7 @@ export default function CountryCard({
               {region.summary.split(". ")[0]}.
             </span>
             <span className="mt-3 inline-flex min-h-11 items-center text-[12.5px] font-medium text-[var(--color-link)]">
-              Explore the region →
+              {t.country.exploreRegion}
             </span>
           </span>
         </Link>
@@ -134,7 +136,7 @@ export default function CountryCard({
         <div>
           <span className="block text-[var(--color-ink-muted)]">Population</span>
           <span className="font-medium text-[var(--color-ink)]">
-            {formatPopulation(country.population)}
+            {formatPopulation(country.population, getRequestLocale())}
           </span>
         </div>
         <div>
@@ -162,7 +164,13 @@ export default function CountryCard({
         // čte jako tvrzení Atlasu.
         <p className="mt-5 rounded-xl border border-[var(--color-line)] bg-[var(--color-paper-soft,#f6f7fb)] px-4 py-3 text-[12px] leading-relaxed text-[var(--color-ink-soft)]">
           <span className="font-medium text-[var(--color-ink)]">
-            {TERRITORY_STATUS_LABEL[country.territoryNote.status]}
+            {
+              t.country[
+                TERRITORY_STATUS_KEY[
+                  country.territoryNote.status as keyof typeof TERRITORY_STATUS_KEY
+                ]
+              ]
+            }
           </span>{" "}
           {country.territoryNote.note}{" "}
           <span className="text-[var(--color-ink-muted)]">({country.territoryNote.basis})</span>

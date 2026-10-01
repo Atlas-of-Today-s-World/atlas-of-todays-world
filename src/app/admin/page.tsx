@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { buttonVariants } from "@/components/ui/button";
-import { ADMIN_NAV } from "@/config/admin-nav";
+import { ADMIN_NAV, navVisible } from "@/config/admin-nav";
 import { can, getAccess } from "@/features/auth/access";
 import { approvalQueue, listEntries } from "@/features/entries/editorial";
 
@@ -23,7 +23,7 @@ export default async function AdminHome() {
   const drafts = mine.filter((entry) => entry.status === "draft");
   const forMe = queue.filter((entry) => entry.canApprove);
   const sections = ADMIN_NAV.filter(
-    (item) => item.section && can(access.permissions, item.section, "v"),
+    (item) => item.section !== null && navVisible(item, access.permissions),
   );
 
   return (

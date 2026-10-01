@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useTransition, type FormHTMLAttributes } from "react";
+import { createContext, useContext, useTransition, type FormHTMLAttributes, type Ref } from "react";
 
 const Pending = createContext(false);
 
@@ -20,6 +20,7 @@ export function ActionForm({
   ...props
 }: Omit<FormHTMLAttributes<HTMLFormElement>, "action" | "onSubmit"> & {
   action: (formData: FormData) => void;
+  ref?: Ref<HTMLFormElement>;
 }) {
   const [pending, start] = useTransition();
   return (

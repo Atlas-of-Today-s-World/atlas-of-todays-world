@@ -2,6 +2,8 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
 import generated from "@/data/countries.generated.json";
+import { DEFAULT_LOCALE, type Locale } from "@/features/i18n/config";
+import { localizeSnapshot, type TranslationRow } from "@/features/i18n/translatable";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import { createPublicClient } from "@/lib/supabase/public";
 import { buildAtlas, type AtlasSnapshot, type GeoFacts } from "./model";
@@ -142,8 +144,34 @@ const GEO: GeoFacts[] = (generated as GeneratedCountry[]).map(
   ({ iso3, iso2, continent, territoryNote }) => ({ iso3, iso2, continent, territoryNote }),
 );
 
-/** Model Atlasu pro jeden request (snapshot je v cache, skládání jen jednou). */
-export const getAtlas = cache(async (): Promise<Atlas> => buildAtlas(await loadSnapshot(), GEO));
+/** Překlady textů do jednoho jazyka (G5); obnovují se se stejným tagem jako Atlas. */
+const loadTranslations = unstable_cache(
+  async (locale: string): Promise<TranslationRow[]> => {
+    const db = createPublicClient();
+    return all("translations", (a, b) =>
+      db
+        .from("translations")
+        .select("entity, entity_key, field, value")
+        .eq("locale", locale)
+        .order("entity")
+        .order("entity_key")
+        .order("field")
+        .range(a, b),
+    );
+  },
+  ["atlas-translations"],
+  { tags: [tags.atlas], revalidate: PUBLIC_REVALIDATE_SECONDS },
+);
+
+/**
+ * Model Atlasu pro jeden request a jazyk (snapshot je v cache, skládání jen
+ * jednou). Nepřeložené texty zůstávají anglicky.
+ */
+export const getAtlas = cache(async (locale: Locale = DEFAULT_LOCALE): Promise<Atlas> => {
+  const snapshot = await loadSnapshot();
+  if (locale === DEFAULT_LOCALE) return buildAtlas(snapshot, GEO);
+  return buildAtlas(localizeSnapshot(snapshot, await loadTranslations(locale)), GEO, locale);
+});
 
 /** Volby pro výběry v administraci (regiony, global issues, země podle abecedy). */
 export async function getPickerOptions() {

@@ -8,33 +8,33 @@ import { Button } from "@/components/ui/button";
 import { FormField, Input, Select, Textarea } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
 import { cn } from "@/lib/cn";
-import { savePortraitSection } from "../actions";
-import type { Collection, PortraitKind } from "../schema";
+import type { Collection } from "../schema";
 import { COLLECTION_UI } from "./fields";
 import { ActionForm } from "@/components/ui/action-form";
+import { swap } from "@/lib/array";
 
 type Item = Record<string, string>;
 
 /**
- * Editor jedné sekce portrétu: položky přidat, odebrat, posunout (tlačítky,
- * ať to jde i z klávesnice). Uloží se celá sekce najednou — v jedné transakci.
+ * Editor jedné sekce portrétu (nebo zdrojů hesla): položky přidat, odebrat,
+ * posunout (tlačítky, ať to jde i z klávesnice). Uloží se celá sekce najednou
+ * — v jedné transakci — Server Action `save`; `target` říká, kam patří
+ * (u portrétu kind + slug, u hesla entry_id).
  */
 export function CollectionEditor({
-  kind,
-  slug,
+  save,
+  target,
   collection,
   initial,
 }: {
-  kind: PortraitKind;
-  slug: string;
+  save: (prev: ActionState, formData: FormData) => Promise<ActionState>;
+  target: Record<string, string>;
   collection: Collection;
   initial: Item[];
 }) {
   const ui = COLLECTION_UI[collection];
   const [items, setItems] = useState<Item[]>(initial);
-  const [state, action] = useActionState<ActionState, FormData>(savePortraitSection, {
-    ok: false,
-  });
+  const [state, action] = useActionState<ActionState, FormData>(save, { ok: false });
   const blank = () => Object.fromEntries(ui.fields.map((f) => [f.name, f.options?.[0] ?? ""]));
 
   const update = (index: number, name: string, value: string) =>
@@ -42,11 +42,7 @@ export function CollectionEditor({
       current.map((item, i) => (i === index ? { ...item, [name]: value } : item)),
     );
   const move = (index: number, by: -1 | 1) =>
-    setItems((current) => {
-      const next = [...current];
-      [next[index], next[index + by]] = [next[index + by], next[index]];
-      return next;
-    });
+    setItems((current) => swap(current, index, index + by));
 
   return (
     <section
@@ -59,8 +55,9 @@ export function CollectionEditor({
       <p className="mt-1 text-[13px] text-[var(--color-ink-muted)]">{ui.lead}</p>
 
       <ActionForm action={action} className="mt-5 grid gap-4">
-        <input type="hidden" name="kind" value={kind} />
-        <input type="hidden" name="slug" value={slug} />
+        {Object.entries(target).map(([name, value]) => (
+          <input key={name} type="hidden" name={name} value={value} />
+        ))}
         <input type="hidden" name="collection" value={collection} />
         <input type="hidden" name="items" value={JSON.stringify(items)} />
 
@@ -165,7 +162,7 @@ export function CollectionEditor({
   );
 }
 
-function IconAction({
+export function IconAction({
   label,
   icon,
   onClick,

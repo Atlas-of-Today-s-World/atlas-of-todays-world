@@ -27,9 +27,19 @@ describe("buildCsp", () => {
     expect(directive(prod, "form-action")).toContain("https://abc.supabase.co");
   });
 
+  it("zvuk hesel jen z vlastního webu a přes https", () => {
+    expect(directive(prod, "media-src")).toBe("media-src 'self' https:");
+  });
+
   it("bez Supabase URL nevloží prázdné položky", () => {
     const csp = buildCsp({ dev: false });
     expect(csp).not.toMatch(/ {2}|\s;/);
+  });
+
+  it("Turnstile smí skript a iframe jen z challenges.cloudflare.com", () => {
+    expect(directive(prod, "script-src")).toContain("https://challenges.cloudflare.com");
+    expect(directive(prod, "frame-src")).toContain("https://challenges.cloudflare.com");
+    expect(directive(prod, "script-src")).not.toMatch(/https:(\s|$)/);
   });
 
   it("zakáže vložení do rámu a pluginy", () => {

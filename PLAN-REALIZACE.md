@@ -37,6 +37,7 @@
 | U7 | Sentry účet + DSN | F3 | ⬜ |
 | U8 | `age` klíč pro zálohy (`BACKUP_AGE_RECIPIENT`), soukromá část mimo GitHub | F4 | ⬜ |
 | U9 | Nahrát `supabase/seed.sql` do produkční DB před nasazením fáze D; schválit ADR-014 | D | ⬜ |
+| U10 | Export kolekcí z Webflow CMS (CSV „Export“ u každé kolekce, nebo API token pro Data API v2) | G7 | ⬜ |
 
 ---
 
@@ -69,8 +70,9 @@
       `/api/export-demo` → 401/404.
 - [x] **A8b** E2E test, že globus opravdu načte hranice zemí (`data-countries="loaded"`) — dosavadní testy rozbitý globus neodhalily.
 - [x] **A8c** Zranitelné závislosti: postcss (přes `overrides`), audit v CI přes `audit-ci` se zdokumentovanými výjimkami.
-- [ ] **A10** Next 16 + TypeScript 7 (major migrace; Dependabot major verze ignoruje).
-- [ ] **A9** MapLibre 6 (oprava GHSA-jrc7-96c5-q579): vyřešit načítání web workeru v bundleru Next (samostatný ES modul `maplibre-gl-worker.mjs`); v izolovaném testu se mapa nedokončí ani mimo Next — prověřit s verzí > 6.11.2. Do té doby výjimka v `audit-ci.jsonc` (ADR-013), přezkum do 2026-12-31.
+- [x] **A10** Next 16 (updateTag v Server Actions, `proxy.ts`, ESLint flat config z `eslint-config-next`). TypeScript 7 zvlášť, až ho podpoří `typescript-eslint` a Next.
+- [x] **A11** Kód podle pravidel React Compileru (`react-hooks/refs`, `set-state-in-effect`, `purity` — chyba; `useLatest`, `useHydrated` místo ref v renderu a setState v efektu); zapnutí React Compileru zvlášť.
+- [x] **A9** MapLibre 6.11 (oprava GHSA-jrc7-96c5-q579): worker a sdílený modul se při `dev`/`build` kopírují do `public/maplibre/<verze>/` a globus je nastaví přes `setWorkerUrl` (ADR-017); výjimka v `audit-ci.jsonc` zrušena.
 - **Hotovo, když:** CI zelené, smoke test prochází proti produkci, `lib/security` pokrytí 100 %.
 
 ## Fáze A2 — Sjednocení komponent (≈ 3 čd) → M1
@@ -86,75 +88,7 @@ Dělá se **před** napojením na DB, aby se komponenty přepisovaly jen jednou.
 - [x] **A2.4** `components/portrait/Portrait` pro region i global issue; stránka global issue ho použije (**D3**).
 - [x] **A2.5** `config/navigation.ts` jako jediný zdroj menu (desktop, mobil, `(pages)` layout) (**D4**).
 - [x] **A2.6** `SafeHtml` komponenta; ESLint zákaz `dangerouslySetInnerHTML` jinde.
-- [ ] **A2.7** Storybook (nebo Ladle) se stories pro `ui/*`, `atlas/*`, `portrait/*`. *(Odloženo na konec fáze E —
-      katalog dává smysl, až budou hotové i admin díly `FormField`/`DataTable`.)*
-- [x] **A2.8** UX opravy navázané na sjednocení: Esc v inputu nezavírá panel, zoom tlačítka 44 px,
-      `prefers-reduced-motion`, focus trap v mobilním menu.
-- **Hotovo, když:** `jscpd` < 1 %, D1–D5 odstraněné, Playwright testy zelené, vizuálně beze změny (screenshot porovnání).
-
-## Fáze B — Databáze připravená pro aplikaci (≈ 2,5 čd) → M2
-
-- [x] **B1** Migrace `…_security_fixes.sql`: DB-01 (guardy `SECURITY DEFINER`), DB-03 (politiky zvlášť pro
-      každý příkaz), DB-04, DB-05, DB-06 (URL CHECK), DB-08 (veřejná view bez interních sloupců, `unpublish_entry`),
-      DB-09 (přechody jen přes RPC, zákaz self-approval), DB-10, DB-13, DB-15, DB-16 (Storage `owner_id` + prefix).
-- [x] **B2** Migrace `…_fk_indexes_rate_limits.sql`: DB-12.
-- [x] **B3** Migrace `…_invitations.sql`: tabulka `invitations`, RLS, trigger pravidel (kdo koho smí pozvat),
-      `claim_invitation()`, úprava `handle_new_user`, audit. *(závisí na U4)*
-- [x] **B4** Migrace (spolu s B2): tabulka + funkce `hit_rate_limit(key, limit, window)` (SEC-06).
-- [x] **B5** Migrace `…_search*.sql`: `tsvector` + GIN (konfigurace `simple`, bez `unaccent`), RPC `search(q, limit)`
-      — kterékoli slovo ≥ 3 znaky, shoda i přes země článku. Funkce `portrait()` přesunuta do D1 (vznikne s dotazy webu).
-- [x] **B6** Audit bez PII (jen změněná pole, cíl = id), `purge_audit_log()` pro retenci 12 měsíců (DB-14; plánování v F).
-      TOTP MFA zapnuté v obou projektech; **vynucení `aal2` v `has_perm` až s obrazovkou MFA ve fázi E** (jinak by se admini
-      odřízli) — úkol E10.
-- [~] **B7** `supabase/tests/authz-matrix.json` + parametrický test; testy pro všechny DB-xx a pozvánky
-      (včetně „neověřený e-mail pozvánku nepřijme“, „permission-admin nepozve admina“).
-      *Hotovo: 17 nových DB testů (každé DB-xx + pozvánky + search + rate limit), celkem 45. Parametrická matice zbývá.*
-- [x] **B8** Auth konfigurace v obou projektech *(hotovo 2026-09-30: Google provider, `site_url`, konkrétní redirect URL bez wildcardu `*.vercel.app`, potvrzování e-mailu; zbývá Turnstile, JWT/refresh, `config.toml` a typy)*: `enable_confirmations = true`, redirect URL bez wildcardu (DB-02),
-      Turnstile připravené, JWT/refresh nastavení; `supabase gen types` → `src/lib/db/types.gen.ts`. *(dev projekt závisí na U2)*
-- [x] **B9** CI: `supabase db push` do produkce v `deploy.yml` před nasazením aplikace (GitHub Secrets
-      `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, variable `SUPABASE_PROJECT_REF`).
-- **Hotovo, když:** `npm run test:db` pokrývá matici rolí a všechna DB-xx; migrace se aplikují z CI.
-
-## Fáze C — Přihlášení a pozvánky (≈ 2,5 čd) → M2
-
-- [x] **C1** `@supabase/ssr`: `lib/supabase/{server,service,browser,middleware,config}.ts` s `server-only`;
-      ESLint zákaz přímého `@supabase/supabase-js` jinde. *(`public.ts` vznikne v D1 s prvním veřejným dotazem — knip.)*
-- [x] **C2** Google OAuth: provider v Supabase, `/login` (tlačítko Google; e-mailová varianta skrytá za feature
-      flagem), `/auth/callback` (PKCE, `safeRedirect`, volání `claim_invitation()`), odhlášení. *(závisí na U1)*
-- [x] **C3** Middleware: obnova session; `/admin/**` bez session → `/login?next=…`; odstranit `ADMIN_TOKEN`,
-      cookie `atlas_admin`, `/api/admin/session`, 404 gate (SEC-03).
-- [x] **C4** Layout administrace: `getUser()` + `my_permissions()`; čtenář bez týmové role → stránka 403
-      „Nemáte přístup“; menu z oprávnění.
-- [x] **C5** Skript `npm run db:make-admin -- <email>` (servisní klíč, jen lokálně); nastavit prvního admina. *(závisí na U3)*
-- [x] **C6** Minimální sekce **Účty → Pozvánky**: vytvořit (e-mail, role), zkopírovat odkaz,
-      odvolat; stránka `/pozvanka` s instrukcí přihlášení. *(Schvalovací přiřazení v pozvánce až v E6.)*
-- [x] **C7** Profil čtenáře `/ucet`: jméno, odhlášení, smazání účtu (GDPR).
-- [x] **C8** E2E (`tests/auth.spec.ts`, přihlášení magic linkem z Auth Admin API přes `/auth/confirm`): čtenář nemá přístup;
-      pozvaný publisher vidí jen své sekce; pozvánka pro jiný e-mail se nepřijme; odhlášení. V CI potřebuje secret
-      `SUPABASE_SERVICE_ROLE_KEY_DEV`, jinak se sada přeskočí.
-- **Hotovo, když:** v produkci se lze přihlásit přes Google, admin pozve člena týmu a ten po přihlášení
-  dostane správnou roli.
-
-## Fáze D — Veřejný web čte z databáze (≈ 4 čd) → M3
-
-- [x] **D1** `lib/cache/tags.ts`; `features/{geography,indicators,portraits,entries,issues}/queries.ts`
-      (anon klient, `unstable_cache` s tagy).
-- [x] **D2** Layout `(map)`: barvy vrstev a issues z DB. *(Líné barevné mapy jen pro aktivní vrstvu zatím ne — payload je malý, viz ADR-014.)*
-- [x] **D3** Stránky země, regionu, global issue, novinky/hesla, view, about, news index z DB;
-      `generateStaticParams` z DB; `dynamicParams = true` pro redakční obsah.
-- [x] **D4** Fulltext přes RPC `search()` (`/api/search`, `/search`, `EncyclopediaPanel`); odebrat MiniSearch.
-- [x] **D5** Sitemap z DB (vč. global issues, `lastmod`, bez přesměrovaných URL). *(OG obrázky `next/og` přesunuty do F.)*
-- [x] **D6** Seed ověřen DB testy a **smazáno `src/content/**`, `global-issues.json`, `lib/content.ts`, `api/export-demo`**
-      (SEC-10), `scripts/db/build-seed.mjs` (seed.sql je teď snímek). Se čtením ze souborů zmizela i stará admin API (část E8).
-      ⚠ **Před nasazením:** v produkční DB musí být nahraný `supabase/seed.sql` (jinak bude web prázdný) — ověří vlastník.
-- [~] **D7** Lighthouse CI s rozpočty (`lighthouserc.json`, krok v `ci.yml`). LCP lokálně 0,1–0,5 s; JS ~420 kB kvůli MapLibre →
-      návrh ADR-014 (rozpočet 500 kB) čeká na schválení vlastníka.
-- **Hotovo, když:** `src/content` neexistuje, smoke + e2e zelené, rozpočty splněné.
-
-## Fáze E — Administrace ukládá do databáze (≈ 10 čd) → M4
-
-- [x] **E1** Admin shell: `app/admin/layout.tsx`, postranní menu z oprávnění, `DataTable` (serverová, bez TanStack —
-      filtry přes URL), `FormField` + `ActionForm` (useActionState bez resetu polí), `mapDbError`, `ConfirmButton` (`<dialog>`) (**D7**).
+- [x] **A2.7** Storybook 10 (`@storybook/nextjs-vite`, `npm run storybook`) se stories pro `ui/*`, `atlas/*`, `portrait/*` a `admin/DataTable`; CI ověřuje, že se katalog sestaví.
 - [x] **E2** Hesla/novinky: seznam s filtry stavu, editor TipTap (allowlist rozšíření), upload obrázků do Storage
       (`{user_id}/{uuid}`), země, kategorie, autor; Server Actions `saveEntry`, `submitEntry`; revize s obnovou. *(Autosave → G2.)*
 - [x] **E3** Schvalování: fronta dle `can_approve_entry`, diff proti publikované verzi, schválit / vrátit
@@ -196,12 +130,32 @@ Dělá se **před** napojením na DB, aby se komponenty přepisovaly jen jednou.
 
 - [ ] **G1** Vlastní SMTP (Resend) + ověřená doména; zapnout e-mailovou registraci čtenářů (feature flag),
       e-mailové pozvánky přes `inviteUserByEmail`, šablony e-mailů EN/CS, Turnstile. *(závisí na U5)*
-- [ ] **G2** Náhled nepublikovaného obsahu (`draftMode`) + sdílitelný náhled s expirací; autosave editoru.
-- [ ] **G3** Plánované publikování (`publish_at` + cron), správa přesměrování (`redirects`), kontrola mrtvých odkazů.
-- [ ] **G4** Encyklopedická hesla P9 (`/entry/[slug]`, kapitoly, autor s positionality, audio R4).
-- [ ] **G5** Jazykové mutace P15 (`[locale]`, `translations`, `messages/*.json`).
+      *Kód připravený a vypnutý přepínačem `email_auth` (migrace 20261002000010): přihlášení šestimístným
+      kódem na /login (EN/CS, rate limit, Turnstile jen s `NEXT_PUBLIC_TURNSTILE_SITE_KEY`), pozvánky e-mailem,
+      šablony `supabase/templates/*`, Resend SMTP a captcha zakomentované v `config.toml`.
+      **Po U5:** nastavit SMTP Resend a captcha v obou projektech (`supabase config push` nebo dashboard),
+      `NEXT_PUBLIC_TURNSTILE_SITE_KEY` ve Vercelu, pak zapnout `email_auth` v administraci (Role a práva).*
+- [x] **G2** Náhled nepublikovaného obsahu + sdílitelný náhled s expirací (`/preview/[token]`, ADR-016); autosave editoru do prohlížeče.
+- [x] **G3** Plánované publikování (`publish_at` + pg_cron každých 5 min, `schedule_entry`/`unschedule_entry`, migrace 13),
+      správa přesměrování (`redirects`, sekce news, uplatní se jen místo 404, migrace 14), týdenní kontrola odkazů
+      (`links.yml`, `npm run check:links`). *Vlastník: ověřit pg_cron na dev projektu před nasazením.*
+- [x] **G4** Encyklopedická hesla P9 (`/entry/[slug]`, kapitoly, autor s positionality, audio R4).
+      *Hotovo: migrace 20261002000001–02, správa Autoři, editor kapitol a zdrojů, zvuk po kapitolách
+      (bucket `entry-audio`: MP3, M4A/AAC, Ogg/Opus, WAV, FLAC do 50 MB — rozhodnutí vlastníka 2026-10-01;
+      syntéza hlasu R4 až po výběru služby), plánovaná hesla šedivě na portrétu.*
+      Navíc: stránka 404 s kvízem obrysů 50 států (jen EN, větev `feat/404-quiz`).
+- [x] **G5** Jazykové mutace P15: routy pod `[locale]` (angličtina bez předpony přes proxy, `/cs/…`), přepínač jazyka,
+      hreflang/canonical a sitemap s jazykovými verzemi, `translations` + administrace Překlady (regiony, země, témata,
+      ukazatele), `messages/{en,cs}.json` pro hlavičku a navigaci (ADR-018).
+- [ ] **G5.2** Zbylé texty UI do `messages/*.json` (sekce portrétu, panely, formuláře veřejné části) a české verze
+      novinek/hesel (`entries.locale` + vazba na originál).
 - [ ] **G6** Platby P10 (Stripe, webhook → `memberships`) — po přechodu na Vercel Pro (komerční použití).
 - [ ] **G7** Webflow import P16 a přesměrování starých URL; přechod koncept → produkce (ARCHITEKTURA 13.5).
+      *Připraveno: `scripts/import-webflow.mjs` (CSV z CMS Exportu i JSON z Data API v2, nanečisto bez `--apply`,
+      zápis jen do projektu z `--project`, opakovatelný, obrázky z Webflow CDN do Storage, YouTube → zdroje),
+      mapování `scripts/webflow/mapping.config.mjs` a 6 přesměrování starých stránek. Ověřeno na atlas-dev.
+      **Vlastník (U10): dodat export kolekcí z Webflow CMS** — pak upravit názvy polí v konfiguraci a spustit
+      nanečisto → `--apply --project dev` → kontrola → `--project prod`. Checklist 13.5 zůstává na vlastníkovi.*
 
 ---
 

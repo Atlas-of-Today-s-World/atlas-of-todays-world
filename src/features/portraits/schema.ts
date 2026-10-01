@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { RESOURCE_KINDS } from "./constants";
 import {
   blankToUndefined,
   hexColor,
@@ -14,13 +15,6 @@ import {
  * (timeline_events, faq_items, resources, visual_embeds, portrait_metrics);
  * ukládá je DB funkce `replace_portrait_items` v jedné transakci.
  */
-export const RESOURCE_KINDS = [
-  "Videos & Documentaries",
-  "Lectures & Debates",
-  "Articles, Reports & Books",
-  "Educational Resources",
-  "Statistics & Infographics",
-] as const;
 
 const optionalText = (max: number) => z.preprocess(blankToUndefined, text(max).optional());
 

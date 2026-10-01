@@ -1,11 +1,12 @@
 "use server";
 
 import "server-only";
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import {
   failed,
+  firstIssue,
   formObject,
   invalid,
   NOT_SIGNED_IN,
@@ -17,7 +18,7 @@ import { iso3, slug } from "@/lib/validation/common";
 import { CategoryInput, IndicatorInput, ValueInput } from "./schema";
 
 /** Ukazatele jsou součástí snapshotu mapy — každá změna ho obnoví. */
-const refresh = () => revalidateTag(tags.atlas);
+const refresh = () => updateTag(tags.atlas);
 
 /**
  * Založení vlastního ukazatele nebo úprava popisu a škály. Druh (sekvenční /
@@ -119,7 +120,7 @@ export async function saveCategories(_prev: ActionState, formData: FormData): Pr
       message: "Každá hodnota smí být v číselníku jen jednou.",
     })
     .safeParse(raw);
-  if (!items.success) return { ok: false, error: items.error.issues[0].message };
+  if (!items.success) return { ok: false, error: firstIssue(items.error) };
 
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;

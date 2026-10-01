@@ -25,6 +25,7 @@ export default function MapControls({
 
   return (
     <div
+      data-print="hide"
       className={`pointer-events-none absolute top-16 left-4 z-30 flex flex-col items-end gap-2.5 sm:top-20 sm:left-auto ${offset}`}
     >
       <div className="flex flex-wrap items-start justify-end gap-2.5">

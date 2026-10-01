@@ -28,7 +28,7 @@
             "resource-summary:script:size": [
               "error",
               {
-                "maxNumericValue": 512000
+                "maxNumericValue": 550000
               }
             ],
             "categories:accessibility": [
@@ -65,7 +65,7 @@
             "resource-summary:script:size": [
               "error",
               {
-                "maxNumericValue": 512000
+                "maxNumericValue": 550000
               }
             ],
             "categories:accessibility": [
