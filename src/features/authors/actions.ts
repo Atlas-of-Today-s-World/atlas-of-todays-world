@@ -1,7 +1,7 @@
 "use server";
 
 import "server-only";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import {
   failed,
@@ -46,7 +46,7 @@ export async function saveAuthor(_prev: ActionState, formData: FormData): Promis
     .select("id");
   if (error) return failed(error);
   if (!data.length) return { ok: false, error: "Autora nemůžete upravit (nemáte právo)." };
-  revalidateTag(tags.entries);
+  updateTag(tags.entries);
   revalidatePath("/admin/autori");
   return { ok: true, message: "Uloženo." };
 }
@@ -59,7 +59,7 @@ export async function deleteAuthor(id: string): Promise<ActionState> {
   const { data, error } = await session.supabase.from("authors").delete().eq("id", id).select("id");
   if (error) return failed(error);
   if (!data.length) return { ok: false, error: "Autora nejde smazat (nemáte právo)." };
-  revalidateTag(tags.entries);
+  updateTag(tags.entries);
   revalidatePath("/admin/autori");
   return { ok: true, message: "Smazáno." };
 }
