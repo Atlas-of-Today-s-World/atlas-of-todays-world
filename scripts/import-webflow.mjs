@@ -183,7 +183,7 @@ for (const { countries = [], ...row } of plan.entries) {
   const entry = relink({ ...row, body_html: sanitizeRichHtml(row.body_html ?? "") });
   const { data, error } = await db
     .from("entries")
-    .upsert(entry, { onConflict: "slug" })
+    .upsert({ locale: "en", ...entry }, { onConflict: "slug,locale" })
     .select("id")
     .single();
   if (error) throw new Error(`článek ${row.slug}: ${error.message}`);

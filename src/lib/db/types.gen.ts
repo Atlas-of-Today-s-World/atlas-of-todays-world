@@ -300,6 +300,7 @@ export type Database = {
           summary: string
           summary_points: string[]
           title: string
+          translation_of: string | null
           updated_at: string
         }
         Insert: {
@@ -330,6 +331,7 @@ export type Database = {
           summary?: string
           summary_points?: string[]
           title: string
+          translation_of?: string | null
           updated_at?: string
         }
         Update: {
@@ -360,6 +362,7 @@ export type Database = {
           summary?: string
           summary_points?: string[]
           title?: string
+          translation_of?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -432,6 +435,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "special_regions"
             referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "entries_translation_of_fkey"
+            columns: ["translation_of"]
+            isOneToOne: false
+            referencedRelation: "entries"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1848,6 +1858,10 @@ export type Database = {
       can_edit_entry: { Args: { p_owner: string }; Returns: boolean }
       can_read_unpublished: { Args: { p_owner: string }; Returns: boolean }
       claim_invitation: { Args: never; Returns: string }
+      create_entry_translation: {
+        Args: { p_entry: string; p_locale: string }
+        Returns: string
+      }
       create_preview_link: {
         Args: { p_entry: string; p_hours: number }
         Returns: string

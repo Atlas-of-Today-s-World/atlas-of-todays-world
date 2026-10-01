@@ -1418,3 +1418,118 @@ test("překlady: čte je každý, píše jen sekce celku", async () => {
   assert.equal(byPublisher.length, 0);
   await as(id.admin, () => q("delete from translations where entity_key = 'BRA'"));
 });
+
+test("překlad: založí ho, kdo smí psát, jako vlastní koncept s kopií obsahu", async () => {
+  const original = await newEntry(id.pubB, "translated-original", ["BRA"]);
+  await q("update entries set kind = 'entry', summary_points = $2 where id = $1", [
+    original,
+    ["Point"],
+  ]);
+  await q(
+    "insert into entry_chapters (entry_id, position, title, body_html, audio_url) values ($1, 0, 'One', '<p>x</p>', 'https://cdn.example/1.mp3')",
+    [original],
+  );
+  await q("update entries set status = 'published' where id = $1", [original]);
+
+  // Čtenář nepíše, anonym funkci nespustí.
+  await as(id.reader, () => refused(q("select create_entry_translation($1, 'cs')", [original])));
+  await as(null, () => refused(q("select create_entry_translation($1, 'cs')", [original])));
+
+  const { id: translation } = await as(id.pubA, () =>
+    one("select create_entry_translation($1, 'cs') as id", [original]),
+  );
+  const row = await one(
+    "select slug, kind, locale, status, owner_id, translation_of, summary_points from entries where id = $1",
+    [translation],
+  );
+  assert.deepEqual(row, {
+    slug: "translated-original",
+    kind: "entry",
+    locale: "cs",
+    status: "draft",
+    owner_id: id.pubA,
+    translation_of: original,
+    summary_points: ["Point"],
+  });
+  const chapter = await one("select title, audio_url from entry_chapters where entry_id = $1", [
+    translation,
+  ]);
+  assert.deepEqual(chapter, { title: "One", audio_url: null }); // zvuk je v jazyce originálu
+  assert.deepEqual(
+    (await q("select country_iso3 from entry_countries where entry_id = $1", [translation])).map(
+      (r) => r.country_iso3,
+    ),
+    ["BRA"],
+  );
+
+  // Druhý český překlad téhož originálu ne; překlad překladu ne.
+  await as(id.pubA, () =>
+    refused(q("select create_entry_translation($1, 'cs')", [original]), /duplicate|unique/i),
+  );
+  await as(id.pubA, () =>
+    refused(q("select create_entry_translation($1, 'de')", [translation]), /original/i),
+  );
+});
+
+test("překlad: slug a druh sedí s originálem, originál se nepřehodí, slug se propíše", async () => {
+  const original = await newEntry(id.pubA, "slug-original");
+  const other = await newEntry(id.pubA, "slug-other");
+  const { id: translation } = await as(id.pubA, () =>
+    one("select create_entry_translation($1, 'cs') as id", [original]),
+  );
+
+  await refused(
+    q(
+      `insert into entries (slug, locale, title, category, status, translation_of)
+       values ('different-slug', 'de', 'X', 'Society', 'draft', $1)`,
+      [original],
+    ),
+    /slug and kind/,
+  );
+  await refused(
+    q(
+      `insert into entries (slug, locale, title, category, status, translation_of)
+       values ('slug-original', 'en', 'X', 'Society', 'draft', $1)`,
+      [original],
+    ),
+  );
+  await as(id.pubA, () =>
+    refused(q("update entries set translation_of = $2 where id = $1", [translation, other])),
+  );
+  await as(id.pubA, () =>
+    refused(q("update entries set slug = 'own-slug' where id = $1", [translation])),
+  );
+
+  // Přejmenovaný koncept originálu vezme překlad s sebou.
+  await as(id.pubA, () => q("update entries set slug = 'slug-renamed' where id = $1", [original]));
+  assert.equal(
+    (await one("select slug from entries where id = $1", [translation])).slug,
+    "slug-renamed",
+  );
+  // Stejný slug v jiném jazyce je v pořádku, ve stejném ne.
+  await refused(newEntry(id.pubA, "slug-renamed"), /duplicate|unique/i);
+});
+
+test("překlad: vyhledávání vrací jen originál, heslo vede na /entry", async () => {
+  const original = await newEntry(id.pubA, "searchable-hydrology", [], "draft");
+  await q(
+    "update entries set kind = 'entry', title = 'Hydrology of the Andes', status = 'published' where id = $1",
+    [original],
+  );
+  const { id: translation } = await as(id.pubA, () =>
+    one("select create_entry_translation($1, 'cs') as id", [original]),
+  );
+  await q("update entries set title = 'Hydrologie And', status = 'published' where id = $1", [
+    translation,
+  ]);
+
+  const hits = await as(null, () =>
+    q("select url from search('hydrology hydrologie', 20) where kind = 'news'"),
+  );
+  assert.deepEqual(
+    hits.map((hit) => hit.url),
+    ["/entry/searchable-hydrology"],
+  );
+  // Anonym smí vyjmenovat translation_of (sloupcová práva).
+  await as(null, () => q("select translation_of from entries where false"));
+});
