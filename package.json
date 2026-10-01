@@ -31,6 +31,7 @@
     "check:unused": "knip",
     "prepare": "husky",
     "check:audit": "audit-ci --config audit-ci.jsonc",
+    "check:links": "node scripts/check-links.mjs",
     "db:types": "npx --yes supabase@2 gen types typescript --project-id $SUPABASE_DEV_PROJECT_REF --schema public > src/lib/db/types.gen.ts",
     "db:make-admin": "node scripts/db/make-admin.mjs"
   },
