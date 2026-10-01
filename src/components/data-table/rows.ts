@@ -43,7 +43,7 @@ export function activeFilterCount(filters: Record<string, FilterValue>): number 
 }
 
 /** Full-text search over all columns (raw value and its label), case-insensitive. */
-export function matchesSearch(row: DataTableRow, columns: readonly ColumnDef[], search: string) {
+function matchesSearch(row: DataTableRow, columns: readonly ColumnDef[], search: string) {
   const needle = search.trim().toLowerCase();
   if (!needle) return true;
   return columns.some((column) => {
@@ -53,7 +53,7 @@ export function matchesSearch(row: DataTableRow, columns: readonly ColumnDef[], 
   });
 }
 
-export function matchesFilter(row: DataTableRow, column: ColumnDef, filter: FilterValue): boolean {
+function matchesFilter(row: DataTableRow, column: ColumnDef, filter: FilterValue): boolean {
   if (!isActiveFilter(filter)) return true;
   const value = row.values[column.key];
   if (Array.isArray(filter)) {

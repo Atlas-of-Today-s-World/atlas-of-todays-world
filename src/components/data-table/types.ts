@@ -16,7 +16,7 @@ export type { Tone };
 export type CellValue = string | number | boolean | null | undefined | readonly string[];
 
 /** How a value is rendered when the row brings no pre-rendered cell. */
-export type CellKind =
+type CellKind =
   "text" | "number" | "date" | "datetime" | "badge" | "tags" | "code" | "boolean" | "color";
 
 export interface FilterOption {
@@ -26,7 +26,7 @@ export interface FilterOption {
 }
 
 /** `text` = contains; `select` = one of the options. Options default to distinct values. */
-export type FilterKind = "text" | "select" | "none";
+type FilterKind = "text" | "select" | "none";
 
 /** Filter of one column. `null` = no filter. */
 export type FilterValue = string | string[] | null;

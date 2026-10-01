@@ -29,7 +29,7 @@ const ICONS = {
   delete: Trash2,
 } satisfies Record<string, LucideIcon>;
 
-export type RowActionIcon = keyof typeof ICONS;
+type RowActionIcon = keyof typeof ICONS;
 
 export type RowAction =
   | { kind: "link"; icon: RowActionIcon; label: string; href: string; newTab?: boolean }
