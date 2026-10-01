@@ -35,7 +35,6 @@ export function EncyclopediaArticle({
   return (
     <ArticleFrame item={item} atlas={atlas} banner={banner} heroCaption={item.heroCredit}>
       <EntryHeader item={item} atlas={atlas} />
-      <EntryAudio src={item.audio} />
 
       {item.html ? <SafeHtml className="prose-atlas mt-7" html={item.html} /> : null}
 
@@ -142,20 +141,26 @@ function EntryHeader({ item, atlas }: { item: Encyclopedia; atlas: Atlas }) {
 }
 
 /**
- * Zvuková verze, jen když stopa existuje. Nehraje sama (preload none) a
- * textovou alternativou je samotné heslo pod přehrávačem.
+ * Zvuková verze kapitoly, jen když stopa existuje. Nehraje sama (preload none)
+ * a textovou alternativou je plný text kapitoly pod přehrávačem.
  */
-function EntryAudio({ src }: { src?: string }) {
+function EntryAudio({ src, title }: { src?: string; title: string }) {
   const url = safeUrl(src);
   if (!url) return null;
   return (
-    <figure className="mt-6">
-      <figcaption className={LABEL}>Listen to this entry</figcaption>
-      <audio controls preload="none" src={url} className="mt-2 w-full">
+    <figure className="mt-4">
+      <figcaption className={LABEL}>Listen to this chapter</figcaption>
+      <audio
+        controls
+        preload="none"
+        src={url}
+        aria-label={`Audio version: ${title}`}
+        className="mt-2 w-full"
+      >
         <a href={url}>Download the audio version</a>
       </audio>
       <p className="mt-1 text-[11px] text-[var(--color-ink-muted)]">
-        The transcript is the entry itself, below.
+        The transcript is the full chapter text below.
       </p>
     </figure>
   );
@@ -199,6 +204,7 @@ function EntryChapter({ chapter, index }: { chapter: Chapter; index: number }) {
           ))}
         </ul>
       ) : null}
+      <EntryAudio src={chapter.audio} title={chapter.title} />
       {chapter.html ? (
         <details id={id} data-hash className="group mt-3 scroll-mt-4">
           <summary className={SUMMARY}>

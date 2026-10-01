@@ -220,37 +220,21 @@ export function EntryForm({
               {...field("summary_points", "hint")}
             />
           </FormField>
-          <div className="grid gap-5 sm:grid-cols-2">
-            <FormField
-              id="author_id"
-              label="Autor (profil)"
-              hint="Fotka, životopis a positionality se berou z profilu (sekce Autoři)."
-              errors={errors.author_id}
-            >
-              <Select id="author_id" name="author_id" defaultValue={values?.author_id ?? ""}>
-                <option value="">— bez profilu —</option>
-                {authors.map((author) => (
-                  <option key={author.id} value={author.id}>
-                    {author.name}
-                  </option>
-                ))}
-              </Select>
-            </FormField>
-            <FormField
-              id="audio_url"
-              label="Zvuková verze"
-              hint="MP3, M4A/AAC, Ogg/Opus, WAV nebo FLAC do 50 MB. Na webu se přehrávač ukáže jen se stopou."
-              errors={errors.audio_url}
-            >
-              <UploadField
-                id="audio_url"
-                name="audio_url"
-                kind="audio"
-                defaultValue={values?.audio_url ?? ""}
-                invalid={Boolean(errors.audio_url)}
-              />
-            </FormField>
-          </div>
+          <FormField
+            id="author_id"
+            label="Autor (profil)"
+            hint="Fotka, životopis a positionality se berou z profilu (sekce Autoři). Zvuk se nahrává u kapitol."
+            errors={errors.author_id}
+          >
+            <Select id="author_id" name="author_id" defaultValue={values?.author_id ?? ""}>
+              <option value="">— bez profilu —</option>
+              {authors.map((author) => (
+                <option key={author.id} value={author.id}>
+                  {author.name}
+                </option>
+              ))}
+            </Select>
+          </FormField>
         </>
       ) : null}
 

@@ -1274,22 +1274,36 @@ test("heslo: kapitoly a zdroje uloží jen redakce hesla, celé v jedné transak
   });
 });
 
-test("heslo: odrážky shrnutí a zvuk jen v limitu, anonym je čte u zveřejněného", async () => {
+test("heslo: odrážky shrnutí a zvuk kapitol jen v limitu, anonym smí vyjmenovat sloupce", async () => {
   const entry = await newEntry(id.pubA, "encyclopedia-header");
   await as(id.pubA, () =>
-    q(
-      "update entries set kind = 'entry', summary_points = $2, audio_url = 'https://cdn.example/a.mp3' where id = $1",
-      [entry, ["A", "B", "C"]],
-    ),
-  );
-  await as(id.pubA, () =>
-    refused(q("update entries set audio_url = 'http://cdn.example/a.mp3' where id = $1", [entry])),
+    q("update entries set kind = 'entry', summary_points = $2 where id = $1", [
+      entry,
+      ["A", "B", "C"],
+    ]),
   );
   await as(id.pubA, () =>
     refused(q("update entries set summary_points = $2 where id = $1", [entry, ["x".repeat(301)]])),
   );
+
+  // Zvuk patří kapitole: https projde, http vrátí celé uložení.
+  const call = "select replace_entry_parts($1, 'chapters', $2::jsonb)";
+  await as(id.pubA, () =>
+    q(call, [entry, JSON.stringify([{ title: "One", audio_url: "https://cdn.example/1.mp3" }])]),
+  );
+  await as(id.pubA, () =>
+    refused(
+      q(call, [entry, JSON.stringify([{ title: "One", audio_url: "http://cdn.example/1.mp3" }])]),
+    ),
+  );
+  assert.equal(
+    (await one("select audio_url from entry_chapters where entry_id = $1", [entry])).audio_url,
+    "https://cdn.example/1.mp3",
+  );
+
   // Sloupcová práva: anonym smí vyjmenovat nové sloupce (koncept ale nevidí).
-  await as(null, () => q("select summary_points, audio_url from entries where false"));
+  await as(null, () => q("select summary_points from entries where false"));
+  await as(null, () => q("select audio_url from entry_chapters where false"));
 });
 
 test("heslo: plánovaná hesla vidí každý, ale jen titulek a zařazení", async () => {

@@ -276,7 +276,6 @@ export type Database = {
           approved_at: string | null
           approved_by: string | null
           area_id: string | null
-          audio_url: string | null
           author_id: string | null
           author_name: string | null
           body_html: string
@@ -307,7 +306,6 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           area_id?: string | null
-          audio_url?: string | null
           author_id?: string | null
           author_name?: string | null
           body_html?: string
@@ -338,7 +336,6 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           area_id?: string | null
-          audio_url?: string | null
           author_id?: string | null
           author_name?: string | null
           body_html?: string
@@ -440,6 +437,7 @@ export type Database = {
       }
       entry_chapters: {
         Row: {
+          audio_url: string | null
           body_html: string
           entry_id: string
           id: string
@@ -450,6 +448,7 @@ export type Database = {
           title: string
         }
         Insert: {
+          audio_url?: string | null
           body_html?: string
           entry_id: string
           id?: string
@@ -460,6 +459,7 @@ export type Database = {
           title: string
         }
         Update: {
+          audio_url?: string | null
           body_html?: string
           entry_id?: string
           id?: string
@@ -1831,7 +1831,6 @@ export type Database = {
       entry_preview_parts: {
         Args: { p_token: string }
         Returns: {
-          audio_url: string
           author: Json
           chapters: Json
           kind: string

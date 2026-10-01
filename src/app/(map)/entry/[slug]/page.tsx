@@ -81,13 +81,13 @@ export default async function EntryPage({ params }: { params: Promise<{ slug: st
               url: absoluteUrl("/"),
             },
             mainEntityOfPage: absoluteUrl(`/entry/${item.slug}`),
-            audio: item.audio
-              ? { "@type": "AudioObject", contentUrl: item.audio, transcript: item.summary }
-              : undefined,
             hasPart: item.chapters.map((chapter, index) => ({
               "@type": "WebPageElement",
               name: chapter.title,
               url: absoluteUrl(`/entry/${item.slug}#chapter-${index + 1}`),
+              audio: chapter.audio
+                ? { "@type": "AudioObject", contentUrl: chapter.audio, name: chapter.title }
+                : undefined,
             })),
             about: countriesOf(atlas, item.countries).map((country) => ({
               "@type": "Country",

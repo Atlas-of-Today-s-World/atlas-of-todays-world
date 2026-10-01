@@ -57,7 +57,6 @@ export async function saveEntry(_prev: ActionState, formData: FormData): Promise
     author_name: fields.author_name || null,
     reading_minutes: fields.reading_minutes ?? null,
     body_html: sanitizeRichHtml(fields.body_html),
-    audio_url: fields.audio_url ?? null,
     author_id: fields.author_id ?? null,
   };
 
@@ -190,11 +189,12 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
   if (!uuid.safeParse(entryId).success) return { ok: false, error: "Neplatné heslo." };
   const column = (name: string) => formData.getAll(name).map(String);
   const titles = column("title");
-  const [points, bodies, illustrations, credits] = [
+  const [points, bodies, illustrations, credits, audio] = [
     column("summary_points"),
     column("body_html"),
     column("illustration_url"),
     column("illustration_credit"),
+    column("audio_url"),
   ];
   const parsed = z
     .array(ChapterInput)
@@ -206,6 +206,7 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
         body_html: bodies[index],
         illustration_url: illustrations[index],
         illustration_credit: credits[index],
+        audio_url: audio[index],
       })),
     );
   if (!parsed.success) return itemError(parsed.error, "Kapitola", CHAPTER_FIELD_LABEL);

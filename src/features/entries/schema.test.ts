@@ -27,13 +27,15 @@ describe("ChapterInput", () => {
     const parsed = ChapterInput.parse({ ...chapter, summary_points: "One\r\n\n  Two  \nThree" });
     expect(parsed.summary_points).toEqual(["One", "Two", "Three"]);
     expect(parsed.illustration_url).toBeUndefined();
+    expect(parsed.audio_url).toBeUndefined();
   });
 
-  it("odmítne víc než 5 odrážek, dlouhou odrážku, ilustraci bez https a prázdný titulek", () => {
+  it("odmítne víc než 5 odrážek, dlouhou odrážku, URL bez https a prázdný titulek", () => {
     const invalid = [
       { ...chapter, summary_points: "1\n2\n3\n4\n5\n6" },
       { ...chapter, summary_points: "x".repeat(301) },
       { ...chapter, summary_points: "", illustration_url: "http://x" },
+      { ...chapter, summary_points: "", audio_url: "http://cdn.example/1.mp3" },
       { ...chapter, title: " ", summary_points: "" },
     ];
     for (const input of invalid) expect(ChapterInput.safeParse(input).success).toBe(false);
@@ -53,16 +55,9 @@ describe("EntryInput — heslo", () => {
     countries: [],
   };
 
-  it("zvuk jen přes https, autor jako uuid, prázdné hodnoty jsou volitelné", () => {
-    const parsed = EntryInput.parse({ ...base, audio_url: "", author_id: "", summary_points: "" });
-    expect(parsed).toMatchObject({
-      audio_url: undefined,
-      author_id: undefined,
-      summary_points: [],
-    });
-    expect(EntryInput.safeParse({ ...base, audio_url: "http://cdn.example/a.mp3" }).success).toBe(
-      false,
-    );
+  it("autor jako uuid, prázdné hodnoty jsou volitelné", () => {
+    const parsed = EntryInput.parse({ ...base, author_id: "", summary_points: "" });
+    expect(parsed).toMatchObject({ author_id: undefined, summary_points: [] });
     expect(EntryInput.safeParse({ ...base, author_id: "nesmysl" }).success).toBe(false);
   });
 });

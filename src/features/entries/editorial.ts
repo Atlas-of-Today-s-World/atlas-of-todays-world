@@ -60,7 +60,6 @@ export interface EditableEntry extends EditorialRow {
   published_on: string | null;
   countries: string[];
   summary_points: string[];
-  audio_url: string | null;
   author_id: string | null;
 }
 
@@ -69,7 +68,7 @@ export async function getEditableEntry(id: string): Promise<EditableEntry | null
   const { data, error } = await supabase
     .from("entries")
     .select(
-      `${LIST_COLUMNS}, kind, summary, special_slug, cover_url, cover_credit, reading_minutes, body_html, published_on, summary_points, audio_url, author_id, entry_countries(country_iso3)`,
+      `${LIST_COLUMNS}, kind, summary, special_slug, cover_url, cover_credit, reading_minutes, body_html, published_on, summary_points, author_id, entry_countries(country_iso3)`,
     )
     .eq("id", id)
     .maybeSingle();
@@ -91,6 +90,7 @@ export interface EditableChapter {
   body_html: string;
   illustration_url: string | null;
   illustration_credit: string | null;
+  audio_url: string | null;
 }
 
 /** Kapitoly a zdroje hesla pro editor (P9). */
@@ -99,7 +99,7 @@ export async function getEntryParts(id: string) {
   const [chapters, resources] = await Promise.all([
     supabase
       .from("entry_chapters")
-      .select("title, summary_points, body_html, illustration_url, illustration_credit")
+      .select("title, summary_points, body_html, illustration_url, illustration_credit, audio_url")
       .eq("entry_id", id)
       .order("position"),
     supabase

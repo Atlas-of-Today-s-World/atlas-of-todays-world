@@ -47,7 +47,6 @@ export const EntryInput = z.object({
   planned: z.preprocess((value) => value === "on", z.boolean()),
   // Jen u encyklopedického hesla (P9); u novinky zůstanou prázdné.
   summary_points: summaryPoints.default([]),
-  audio_url: optionalHttpsUrl,
   author_id: z.preprocess(blankToUndefined, uuid.optional()),
 });
 export type EntryInput = z.infer<typeof EntryInput>;
@@ -62,6 +61,8 @@ export const ChapterInput = z.object({
   body_html: z.string().max(200_000, "Text kapitoly je příliš dlouhý."),
   illustration_url: optionalHttpsUrl,
   illustration_credit: text(300).default(""),
+  // Zvuková verze kapitoly (R4) — po kapitolách, ať se soubor vejde do 50 MB.
+  audio_url: optionalHttpsUrl,
 });
 export type ChapterInput = z.infer<typeof ChapterInput>;
 
@@ -71,6 +72,7 @@ export const CHAPTER_FIELD_LABEL: Record<string, string> = {
   body_html: "text",
   illustration_url: "ilustrace",
   illustration_credit: "kredit ilustrace",
+  audio_url: "zvuk",
 };
 
 export const SendBackInput = z.object({

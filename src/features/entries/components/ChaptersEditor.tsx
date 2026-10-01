@@ -24,11 +24,12 @@ const blank = (): Chapter => ({
   body_html: "",
   illustration_url: null,
   illustration_credit: null,
+  audio_url: null,
 });
 
 /**
  * Kapitoly encyklopedického hesla (P9): každá má titulek, 3–5 odrážek
- * shrnutí, ilustraci a plný text. Pole jsou nekontrolovaná a pojmenovaná
+ * shrnutí, ilustraci, zvuk a plný text. Pole jsou nekontrolovaná a pojmenovaná
  * stejně u každé kapitoly — Server Action je přečte v pořadí na stránce.
  * Klíč kapitoly drží rozepsaný text i při posunu nahoru/dolů.
  */
@@ -139,6 +140,18 @@ export function ChaptersEditor({
                   />
                 </FormField>
               </div>
+              <FormField
+                id={id("audio")}
+                label="Zvuková verze kapitoly"
+                hint="MP3, M4A/AAC, Ogg/Opus, WAV nebo FLAC do 50 MB. Kapitola v MP3 (64 kbps) má asi 7–10 MB; WAV a FLAC jsou 5–10× větší."
+              >
+                <UploadField
+                  id={id("audio")}
+                  name="audio_url"
+                  kind="audio"
+                  defaultValue={chapter.audio_url ?? ""}
+                />
+              </FormField>
               <div className="grid gap-1.5">
                 <span className="text-[12.5px] font-medium text-[var(--color-ink-soft)]">
                   Plný text

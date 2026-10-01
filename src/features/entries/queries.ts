@@ -167,7 +167,6 @@ export async function getPreview(token: string): Promise<Preview | null> {
     kind: "entry",
     item: toEncyclopedia(item, {
       summary_points: extra.data.summary_points,
-      audio_url: extra.data.audio_url,
       author: extra.data.author as AuthorRow | null,
       chapters: extra.data.chapters as unknown as ChapterRow[],
       resources: extra.data.resources as unknown as ResourceRow[],
@@ -187,6 +186,8 @@ export interface EntryChapter {
   html: string;
   illustration?: string;
   illustrationCredit?: string;
+  /** Zvuková verze kapitoly — přehrávač se ukáže, jen když existuje. */
+  audio?: string;
 }
 
 export interface EntryAuthor {
@@ -198,7 +199,6 @@ export interface EntryAuthor {
 
 export interface Encyclopedia extends Entry {
   summaryPoints: string[];
-  audio?: string;
   authorProfile?: EntryAuthor;
   chapters: EntryChapter[];
   resources: ResourceItem[];
@@ -218,6 +218,7 @@ interface ChapterRow {
   body_html: string;
   illustration_url: string | null;
   illustration_credit: string | null;
+  audio_url: string | null;
 }
 
 interface ResourceRow {
@@ -231,7 +232,6 @@ interface ResourceRow {
 
 interface EncyclopediaParts {
   summary_points: string[];
-  audio_url: string | null;
   author: AuthorRow | null;
   chapters: ChapterRow[];
   resources: ResourceRow[];
@@ -248,7 +248,6 @@ function toEncyclopedia(item: Entry, parts: EncyclopediaParts): Encyclopedia {
     // Jméno autora z profilu má přednost před volným textem u článku.
     author: author?.name ?? item.author,
     summaryPoints: parts.summary_points,
-    audio: parts.audio_url ?? undefined,
     authorProfile: author
       ? {
           name: author.name,
@@ -263,6 +262,7 @@ function toEncyclopedia(item: Entry, parts: EncyclopediaParts): Encyclopedia {
       html: sanitizeRichHtml(chapter.body_html),
       illustration: chapter.illustration_url ?? undefined,
       illustrationCredit: chapter.illustration_credit ?? undefined,
+      audio: chapter.audio_url ?? undefined,
     })),
     resources: [...parts.resources].sort(byPosition).map((resource) => ({
       title: resource.title,
@@ -275,9 +275,9 @@ function toEncyclopedia(item: Entry, parts: EncyclopediaParts): Encyclopedia {
 }
 
 // Anon smí jen vyjmenované sloupce (DB-08) — i u vnořených tabulek.
-const ENCYCLOPEDIA_COLUMNS = `${COLUMNS}, body_html, summary_points, audio_url,
+const ENCYCLOPEDIA_COLUMNS = `${COLUMNS}, body_html, summary_points,
   authors(name, photo_url, bio, positionality),
-  entry_chapters(position, title, summary_points, body_html, illustration_url, illustration_credit),
+  entry_chapters(position, title, summary_points, body_html, illustration_url, illustration_credit, audio_url),
   resources(position, kind, title, source, url, image_url)`;
 
 /** Jedno zveřejněné heslo se vším, co stránka ukazuje; null, když neexistuje. */
@@ -296,7 +296,6 @@ export function getEncyclopediaEntry(slug: string): Promise<Encyclopedia | null>
       const row = data as unknown as Row & {
         body_html: string;
         summary_points: string[];
-        audio_url: string | null;
         authors: AuthorRow | null;
         entry_chapters: ChapterRow[];
         resources: ResourceRow[];
@@ -305,7 +304,6 @@ export function getEncyclopediaEntry(slug: string): Promise<Encyclopedia | null>
         { ...toSummary(row), html: sanitizeRichHtml(row.body_html) },
         {
           summary_points: row.summary_points,
-          audio_url: row.audio_url,
           author: row.authors,
           chapters: row.entry_chapters,
           resources: row.resources,
