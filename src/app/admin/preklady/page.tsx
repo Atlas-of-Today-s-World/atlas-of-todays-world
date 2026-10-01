@@ -33,12 +33,13 @@ export default async function TranslationsPage({
   const entities = TRANSLATABLE_ENTITIES.filter(
     (entity) => access && can(access.permissions, ENTITY_SECTION[entity], "v"),
   );
-  if (!access || !entities.length) return <NoAccess />;
+  const [firstEntity] = entities;
+  if (!access || !firstEntity) return <NoAccess />;
 
   const params = await searchParams;
   const entity = (entities as string[]).includes(params.druh ?? "")
     ? (params.druh as TranslatableEntity)
-    : entities[0];
+    : firstEntity;
   const locale = (TARGET_LOCALES as string[]).includes(params.jazyk ?? "")
     ? (params.jazyk as Locale)
     : TARGET_LOCALES[0];

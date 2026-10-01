@@ -23,7 +23,7 @@ function colorForValue(indicator: Indicator, value: number): string {
   const scaled = t * (ramp.length - 1);
   const lower = Math.floor(scaled);
   const upper = Math.min(lower + 1, ramp.length - 1);
-  return mixHex(ramp[lower], ramp[upper], scaled - lower);
+  return mixHex(ramp[lower] ?? "#C9CED8", ramp[upper] ?? "#C9CED8", scaled - lower);
 }
 
 function normalise(value: number, min: number, max: number, scale?: "log"): number {
@@ -43,7 +43,7 @@ function clamp01(value: number): number {
 function mixHex(a: string, b: string, t: number): string {
   const ca = hexToRgb(a);
   const cb = hexToRgb(b);
-  const mix = ca.map((channel, i) => Math.round(channel + (cb[i] - channel) * t));
+  const mix = ca.map((channel, i) => Math.round(channel + ((cb[i] ?? channel) - channel) * t));
   return `#${mix.map((n) => n.toString(16).padStart(2, "0")).join("")}`;
 }
 

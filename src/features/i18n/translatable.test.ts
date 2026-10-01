@@ -20,7 +20,7 @@ describe("localizeSnapshot", () => {
     ]);
     expect(out.countries[0]).toMatchObject({ name: "Brazílie", population: 1 });
     expect(out.regions[0]).toMatchObject({ name: "East Asia", summary: "Shrnutí" });
-    expect(out.indicators[0].label).toBe("HDI");
+    expect(out.indicators[0]?.label).toBe("HDI");
   });
 
   it("bez překladů vrátí tentýž snímek", () => {

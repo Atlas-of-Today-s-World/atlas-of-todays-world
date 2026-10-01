@@ -11,6 +11,7 @@ import {
   NOT_SIGNED_IN,
   signedIn,
   type ActionState,
+  listItemError,
 } from "@/lib/actions";
 import { tags } from "@/lib/cache/tags";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
@@ -67,17 +68,7 @@ export async function savePortraitSection(
     return { ok: false, error: "Neplatná data sekce." };
   }
   const items = z.array(COLLECTIONS[collection]).max(50).safeParse(raw);
-  if (!items.success) {
-    const issue = items.error.issues[0];
-    const [index, field] = issue.path;
-    return {
-      ok: false,
-      error:
-        typeof index === "number"
-          ? `Položka ${index + 1}, ${FIELD_LABEL[String(field)] ?? field}: ${issue.message}`
-          : issue.message,
-    };
-  }
+  if (!items.success) return listItemError(items.error, "Položka", FIELD_LABEL);
 
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;

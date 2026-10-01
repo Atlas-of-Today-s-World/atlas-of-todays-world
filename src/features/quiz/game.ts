@@ -3,6 +3,8 @@
  * ať se dá otestovat se zadaným generátorem náhody.
  */
 
+import { swap } from "@/lib/array";
+
 export interface CountryShape {
   iso3: string;
   name: string;
@@ -24,10 +26,10 @@ type Random = () => number;
 
 /** Fisher–Yates; vrací novou kopii. */
 export function shuffle<T>(items: readonly T[], random: Random = Math.random): T[] {
-  const copy = [...items];
+  let copy = [...items];
   for (let i = copy.length - 1; i > 0; i--) {
     const j = Math.floor(random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
+    copy = swap(copy, i, j);
   }
   return copy;
 }

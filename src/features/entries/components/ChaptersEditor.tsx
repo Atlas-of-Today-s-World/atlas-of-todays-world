@@ -14,6 +14,7 @@ import type { EditableChapter } from "../editorial";
 import { MAX_CHAPTERS } from "../schema";
 import { RichTextEditor } from "./RichTextEditor";
 import { UploadField } from "./UploadField";
+import { swap } from "@/lib/array";
 
 type Chapter = EditableChapter & { key: string };
 
@@ -46,11 +47,7 @@ export function ChaptersEditor({
   );
   const [state, action] = useActionState<ActionState, FormData>(saveChapters, { ok: false });
   const move = (index: number, by: -1 | 1) =>
-    setChapters((current) => {
-      const next = [...current];
-      [next[index], next[index + by]] = [next[index + by], next[index]];
-      return next;
-    });
+    setChapters((current) => swap(current, index, index + by));
 
   return (
     <section

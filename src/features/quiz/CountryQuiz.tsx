@@ -55,7 +55,7 @@ export function CountryQuiz() {
   const answer = (iso3: string) => {
     if (picked) return;
     setPicked(iso3);
-    if (iso3 === game[index].answer.iso3) setScore((current) => current + 1);
+    if (iso3 === game[index]?.answer.iso3) setScore((current) => current + 1);
     timer.current = setTimeout(next, NEXT_AFTER_MS);
   };
 
@@ -94,6 +94,7 @@ export function CountryQuiz() {
   }
 
   const question = game[index];
+  if (!question) return null;
   const correct = picked === question.answer.iso3;
   return (
     <Panel>

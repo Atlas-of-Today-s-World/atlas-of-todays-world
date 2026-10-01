@@ -35,7 +35,7 @@ test("redakce přidá přesměrování a návštěvník skončí na nové adrese
   for (const [from, to] of [
     [oldCountry, "/country/ukraine"],
     [oldPath, "/about"],
-  ]) {
+  ] as const) {
     await page.getByLabel("Stará cesta").fill(from);
     await page.getByLabel("Nová cesta").fill(to);
     await page.getByRole("button", { name: "Přidat přesměrování" }).click();

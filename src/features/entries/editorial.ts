@@ -177,7 +177,7 @@ export async function approvalQueue(): Promise<(EditorialRow & { canApprove: boo
   const checks = await Promise.all(
     rows.map((row) => supabase.rpc("can_approve_entry", { p_entry: row.id })),
   );
-  return rows.map((row, index) => ({ ...row, canApprove: checks[index].data === true }));
+  return rows.map((row, index) => ({ ...row, canApprove: checks[index]?.data === true }));
 }
 
 /** Zveřejněná podoba (poslední schválená revize) pro porovnání v detailu schvalování. */

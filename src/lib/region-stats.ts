@@ -49,7 +49,7 @@ function weightedMean(rows: { value: number; weight: number }[]): number {
 function mostCommon(values: number[]): number {
   const counts = new Map<number, number>();
   for (const value of values) counts.set(value, (counts.get(value) ?? 0) + 1);
-  return [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0];
+  return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? 0;
 }
 
 /** Ukazatele spočítané nad libovolnou skupinou zemí (region, global issue). */

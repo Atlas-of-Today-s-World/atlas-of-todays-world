@@ -51,3 +51,28 @@ export function formObject(formData: FormData, arrays: string[] = []): Record<st
   for (const key of arrays) out[key] ??= [];
   return out;
 }
+
+/**
+ * První chyba seznamu položek jako „Kapitola 2, Titulek: …" (formuláře, které
+ * posílají pole položek — kapitoly, zdroje, sekce portrétu).
+ */
+export function listItemError(
+  error: ZodError,
+  item: string,
+  labels: Record<string, string>,
+): ActionState {
+  const issue = error.issues[0];
+  if (!issue) return { ok: false, error: "Zkontrolujte zvýrazněná pole." };
+  const [index, field] = issue.path;
+  return {
+    ok: false,
+    error:
+      typeof index === "number"
+        ? `${item} ${index + 1}, ${labels[String(field)] ?? String(field)}: ${issue.message}`
+        : issue.message,
+  };
+}
+
+/** Text první chyby validace (krátké formuláře s jedním polem). */
+export const firstIssue = (error: ZodError) =>
+  error.issues[0]?.message ?? "Zkontrolujte zvýrazněná pole.";

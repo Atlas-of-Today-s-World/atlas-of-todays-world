@@ -81,8 +81,8 @@ export default async function MapLayout({
   };
   for (const indicator of atlas.indicators) colorSets[indicator.id] = colorMapFor(indicator);
   // Sytost barev ze vzhledu webu (administrace → Vzhled mapy).
-  for (const key of Object.keys(colorSets)) {
-    colorSets[key] = saturateMap(colorSets[key], atlas.theme.saturation);
+  for (const [key, colors] of Object.entries(colorSets)) {
+    colorSets[key] = saturateMap(colors, atlas.theme.saturation);
   }
 
   const regionLookup = lookup(atlas.regions);

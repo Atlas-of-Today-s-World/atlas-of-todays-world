@@ -42,8 +42,9 @@ test.beforeAll(async () => {
     .insert({ role_id: areasRole, section: "areas", actions: "vced" });
   if (permError) throw permError;
   for (const role of ROLES) {
-    users[role] = testEmail(role.startsWith("e2e-") ? "areas" : role);
-    await createUser(users[role], role);
+    const email = testEmail(role.startsWith("e2e-") ? "areas" : role);
+    users[role] = email;
+    await createUser(email, role);
   }
 });
 
@@ -66,7 +67,9 @@ async function signInAs(page: Page, role: (typeof ROLES)[number], next = "/admin
     await page.context().addCookies(cookies);
     await page.goto(next);
   } else {
-    await signIn(page, users[role], next);
+    const email = users[role];
+    if (!email) throw new Error(`Účet pro roli ${role} nevznikl`);
+    await signIn(page, email, next);
   }
   await expect(page).toHaveURL((url) => url.pathname === next);
   if (!cookies) sessions.set(role, await page.context().cookies());
@@ -78,19 +81,38 @@ const forbidden = (page: Page) => expect(page.getByTestId("section-forbidden")).
 // 1) Menu ukáže jen sekce s právem „v"
 // ---------------------------------------------------------------------------
 
+// Sekce news přináší i Autoři a Přesměrování; regions/specials/layers i Překlady.
 const MENU: Record<Exclude<(typeof ROLES)[number], "reader">, string[]> = {
   "content-editor": [
     "Přehled",
     "Novinky a hesla",
+    "Autoři",
     "Schvalování",
+    "Přesměrování",
     "Regiony a země",
     "Global Issues",
     "Datové vrstvy",
+    "Překlady",
   ],
-  "content-approver": ["Přehled", "Novinky a hesla", "Schvalování"],
-  publisher: ["Přehled", "Novinky a hesla", "Regiony a země", "Datové vrstvy"],
-  "data-editor": ["Přehled", "Regiony a země", "Global Issues", "Datové vrstvy", "Vzhled mapy"],
-  observer: ["Přehled", "Novinky a hesla"],
+  "content-approver": ["Přehled", "Novinky a hesla", "Autoři", "Schvalování", "Přesměrování"],
+  publisher: [
+    "Přehled",
+    "Novinky a hesla",
+    "Autoři",
+    "Přesměrování",
+    "Regiony a země",
+    "Datové vrstvy",
+    "Překlady",
+  ],
+  "data-editor": [
+    "Přehled",
+    "Regiony a země",
+    "Global Issues",
+    "Datové vrstvy",
+    "Překlady",
+    "Vzhled mapy",
+  ],
+  observer: ["Přehled", "Novinky a hesla", "Autoři", "Přesměrování"],
   [areasRole]: ["Přehled", "Mapové oblasti"],
 };
 

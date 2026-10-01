@@ -887,7 +887,7 @@ Doplňky, které má mít produkční webová aplikace. Stav: ✅ máme · 🟡 
 | Stav | Standard |
 |---|---|
 | ✅ | `SECURITY.md` + `/.well-known/security.txt` |
-| 🟡 | GitHub: ochrana `main` (povinné CI, lineární historie), CodeQL (`codeql.yml`); povinné review a secret scanning nastavuje vlastník |
+| 🟡 | GitHub: ochrana `main` (povinné CI, lineární historie), CodeQL (výchozí nastavení GitHubu); povinné review a secret scanning nastavuje vlastník |
 | ✅ | Žádné skripty z cizích CDN (fonty přes `next/font`, worker MapLibre z `public/`) |
 | 🟡 | Rotace klíčů (servisní klíč, Vercel token) — postup v runbooku, provádí vlastník |
 | ⬜ | Čtvrtletní revize přístupů (kdo má jakou roli) v sekci Účty |

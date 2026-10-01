@@ -214,7 +214,7 @@ export function IndicatorForm({ indicator }: { indicator: IndicatorValues | null
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setRamp((current) => [...current, current[current.length - 1]])}
+                  onClick={() => setRamp((current) => [...current, current.at(-1) ?? "#888888"])}
                 >
                   <Plus size={15} aria-hidden /> Barva
                 </Button>

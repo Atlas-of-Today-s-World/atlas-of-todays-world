@@ -11,6 +11,7 @@ import { cn } from "@/lib/cn";
 import type { Collection } from "../schema";
 import { COLLECTION_UI } from "./fields";
 import { ActionForm } from "@/components/ui/action-form";
+import { swap } from "@/lib/array";
 
 type Item = Record<string, string>;
 
@@ -41,11 +42,7 @@ export function CollectionEditor({
       current.map((item, i) => (i === index ? { ...item, [name]: value } : item)),
     );
   const move = (index: number, by: -1 | 1) =>
-    setItems((current) => {
-      const next = [...current];
-      [next[index], next[index + by]] = [next[index + by], next[index]];
-      return next;
-    });
+    setItems((current) => swap(current, index, index + by));
 
   return (
     <section

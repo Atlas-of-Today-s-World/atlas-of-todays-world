@@ -65,5 +65,6 @@ export function matchRedirect(
   map: Record<string, RedirectRule>,
   pathname: string,
 ): RedirectRule | null {
-  return Object.hasOwn(map, normalizePath(pathname)) ? map[normalizePath(pathname)] : null;
+  const key = normalizePath(pathname);
+  return Object.hasOwn(map, key) ? (map[key] ?? null) : null;
 }

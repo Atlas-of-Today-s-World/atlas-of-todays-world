@@ -1,9 +1,10 @@
 import { z } from "zod";
-import { LOCALES } from "./config";
+import { LOCALES, type Locale } from "./config";
 import { TRANSLATABLE_ENTITIES } from "./translatable";
 
 /** Jazyky, do kterých se překládá (angličtina je originál). */
-export const TARGET_LOCALES = LOCALES.filter((locale) => locale !== "en");
+// Aspoň jeden cílový jazyk existuje vždy (LOCALES má víc než angličtinu).
+export const TARGET_LOCALES = LOCALES.filter((locale) => locale !== "en") as [Locale, ...Locale[]];
 
 /** Popisky polí v administraci. */
 export const FIELD_LABELS: Record<string, string> = {

@@ -87,13 +87,14 @@ export async function translationForEdit(entity: TranslatableEntity, key: string
     originals(entity, key),
     translations(entity, locale, key),
   ]);
-  if (!rows[0]) return null;
+  const [original] = rows;
+  if (!original) return null;
   const translated = Object.fromEntries(done.map((row) => [row.field, row.value]));
   return {
-    original: rows[0],
+    original,
     fields: TRANSLATABLE[entity].map((field) => ({
       field,
-      original: rows[0][field] ?? "",
+      original: original[field] ?? "",
       value: (translated[field] as string | undefined) ?? "",
     })),
   };

@@ -8,6 +8,7 @@ import {
   failed,
   formObject,
   invalid,
+  listItemError,
   NOT_SIGNED_IN,
   signedIn,
   type ActionState,
@@ -173,19 +174,6 @@ async function refreshEntry(supabase: Client, id: string, onlyPublished = false)
 
 type Client = NonNullable<Awaited<ReturnType<typeof signedIn>>>["supabase"];
 
-/** První chyba seznamu položek jako „Kapitola 2, titulek: …". */
-function itemError(error: z.ZodError, item: string, labels: Record<string, string>): ActionState {
-  const issue = error.issues[0];
-  const [index, field] = issue.path;
-  return {
-    ok: false,
-    error:
-      typeof index === "number"
-        ? `${item} ${index + 1}, ${labels[String(field)] ?? String(field)}: ${issue.message}`
-        : issue.message,
-  };
-}
-
 /**
  * Kapitoly hesla (P9) — formulář posílá pole každé kapitoly pod stejnými
  * jmény v pořadí na stránce. Uloží se všechny najednou v jedné transakci
@@ -216,7 +204,7 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
         audio_url: audio[index],
       })),
     );
-  if (!parsed.success) return itemError(parsed.error, "Kapitola", CHAPTER_FIELD_LABEL);
+  if (!parsed.success) return listItemError(parsed.error, "Kapitola", CHAPTER_FIELD_LABEL);
 
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
@@ -247,7 +235,7 @@ export async function saveEntryResources(
     return { ok: false, error: "Neplatná data sekce." };
   }
   const parsed = z.array(COLLECTIONS.resources).max(50).safeParse(raw);
-  if (!parsed.success) return itemError(parsed.error, "Zdroj", {});
+  if (!parsed.success) return listItemError(parsed.error, "Zdroj", {});
 
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
@@ -345,8 +333,9 @@ export async function deleteEntry(id: string): Promise<ActionState> {
   if (error) return failed(error);
   if (!data.length)
     return { ok: false, error: "Článek nejde smazat (nemáte právo nebo už neexistuje)." };
-  if (data[0].status === "published")
-    refresh(data[0].slug, data[0].region_slug, data[0].special_slug);
+  const [removed] = data;
+  if (removed?.status === "published")
+    refresh(removed.slug, removed.region_slug, removed.special_slug);
   return { ok: true, message: "Smazáno." };
 }
 

@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import {
   failed,
+  firstIssue,
   formObject,
   invalid,
   NOT_SIGNED_IN,
@@ -119,7 +120,7 @@ export async function saveCategories(_prev: ActionState, formData: FormData): Pr
       message: "Každá hodnota smí být v číselníku jen jednou.",
     })
     .safeParse(raw);
-  if (!items.success) return { ok: false, error: items.error.issues[0].message };
+  if (!items.success) return { ok: false, error: firstIssue(items.error) };
 
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
