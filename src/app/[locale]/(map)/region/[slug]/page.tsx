@@ -68,8 +68,8 @@ export default async function RegionPage({
 
   const countries = countriesOf(atlas, region.countries);
   const [entries, encyclopedia, upcoming, dossier] = await Promise.all([
-    getEntries(),
-    getEncyclopediaEntries(),
+    getEntries(getRequestLocale()),
+    getEncyclopediaEntries(getRequestLocale()),
     getPlannedEntries(),
     getPortrait("region", region.slug),
   ]);

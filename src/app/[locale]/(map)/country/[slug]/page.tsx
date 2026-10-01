@@ -101,7 +101,7 @@ export default async function CountryPage({
   const country = (await getAtlas(await localeFrom(params))).countryBySlug.get(slug);
   if (!country) notFound();
 
-  const newsItems = entriesOfCountry(await getEntries(), country.iso3);
+  const newsItems = entriesOfCountry(await getEntries(getRequestLocale()), country.iso3);
   const profile = country.profile;
   const description = profile.summary || fallbackDescription(country, getT().countryText);
   const region = country.region;
