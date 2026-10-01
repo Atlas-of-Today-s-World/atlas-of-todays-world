@@ -287,10 +287,12 @@ export type Database = {
           kind: string
           locale: string
           owner_id: string | null
+          publish_at: string | null
           published_on: string | null
           reading_minutes: number | null
           region_slug: string | null
           review_note: string | null
+          scheduled_by: string | null
           search: unknown
           slug: string
           special_slug: string | null
@@ -314,10 +316,12 @@ export type Database = {
           kind?: string
           locale?: string
           owner_id?: string | null
+          publish_at?: string | null
           published_on?: string | null
           reading_minutes?: number | null
           region_slug?: string | null
           review_note?: string | null
+          scheduled_by?: string | null
           search?: unknown
           slug: string
           special_slug?: string | null
@@ -341,10 +345,12 @@ export type Database = {
           kind?: string
           locale?: string
           owner_id?: string | null
+          publish_at?: string | null
           published_on?: string | null
           reading_minutes?: number | null
           region_slug?: string | null
           review_note?: string | null
+          scheduled_by?: string | null
           search?: unknown
           slug?: string
           special_slug?: string | null
@@ -402,6 +408,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "regions"
             referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "entries_scheduled_by_fkey"
+            columns: ["scheduled_by"]
+            isOneToOne: false
+            referencedRelation: "members_overview"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "entries_scheduled_by_fkey"
+            columns: ["scheduled_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "entries_special_slug_fkey"
@@ -1217,6 +1237,48 @@ export type Database = {
         }
         Relationships: []
       }
+      redirects: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          from_path: string
+          id: string
+          permanent: boolean
+          to_path: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          from_path: string
+          id?: string
+          permanent?: boolean
+          to_path: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          from_path?: string
+          id?: string
+          permanent?: boolean
+          to_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "redirects_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "members_overview"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "redirects_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       regions: {
         Row: {
           center_lat: number
@@ -1697,6 +1759,10 @@ export type Database = {
       is_active: { Args: never; Returns: boolean }
       is_admin: { Args: never; Returns: boolean }
       is_polygon: { Args: { g: Json }; Returns: boolean }
+      may_approve_entry_as: {
+        Args: { p_entry: string; p_user: string }
+        Returns: boolean
+      }
       mfa_ok: { Args: never; Returns: boolean }
       mfa_status: { Args: never; Returns: Json }
       my_permissions: {
@@ -1726,6 +1792,7 @@ export type Database = {
         }
       }
       portrait: { Args: { p_kind: string; p_slug: string }; Returns: Json }
+      publish_due_entries: { Args: never; Returns: number }
       purge_audit_log: { Args: never; Returns: number }
       record_page_view: { Args: never; Returns: undefined }
       replace_portrait_items: {
@@ -1749,11 +1816,16 @@ export type Database = {
         }[]
       }
       search_query: { Args: { p_text: string }; Returns: unknown }
+      schedule_entry: {
+        Args: { p_at: string; p_entry: string }
+        Returns: undefined
+      }
       send_back_entry: {
         Args: { p_entry: string; p_note: string }
         Returns: undefined
       }
       submit_entry: { Args: { p_entry: string }; Returns: undefined }
+      unschedule_entry: { Args: { p_entry: string }; Returns: undefined }
       unpublish_entry: { Args: { p_entry: string }; Returns: undefined }
       write_audit: {
         Args: { p_action: string; p_detail?: Json; p_target: string }

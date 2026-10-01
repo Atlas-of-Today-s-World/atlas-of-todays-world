@@ -989,3 +989,171 @@ test("přepínače: čte je každý, mění jen správa oprávnění", async () 
   assert.deepEqual(flag, { enabled: true, updated_by: id.admin });
   await q("update feature_flags set enabled = false where key = 'maintenance'");
 });
+
+test("plánované zveřejnění: naplánuje jen schvalovatel, zveřejní ho cron", async () => {
+  const entry = await newEntry(id.pubA, "scheduled-ok", ["BRA"], "pending");
+  const tomorrow = "now() + interval '1 day'";
+
+  await as(null, () => refused(q(`select schedule_entry($1, ${tomorrow})`, [entry])));
+  await as(id.pubA, () =>
+    refused(q(`select schedule_entry($1, ${tomorrow})`, [entry]), /outside what you may approve/),
+  );
+  await as(id.dataEditor, () =>
+    refused(q(`select schedule_entry($1, ${tomorrow})`, [entry]), /outside/),
+  );
+  await as(id.approverLatam, () =>
+    refused(q("select schedule_entry($1, now() + interval '1 minute')", [entry]), /5 minutes/),
+  );
+  await as(id.approverLatam, () => q(`select schedule_entry($1, ${tomorrow})`, [entry]));
+  const planned = await one("select status, publish_at, scheduled_by from entries where id = $1", [
+    entry,
+  ]);
+  assert.equal(planned.status, "pending");
+  assert.ok(planned.publish_at > new Date());
+  assert.equal(planned.scheduled_by, id.approverLatam);
+
+  // Plán se nedá podstrčit přímým zápisem ani spustit z aplikace.
+  await as(id.pubA, () =>
+    refused(q("update entries set publish_at = now() where id = $1", [entry]), /schedule_entry/),
+  );
+  await as(id.editor, () =>
+    refused(
+      q("update entries set scheduled_by = $2 where id = $1", [entry, id.editor]),
+      /schedule_entry/,
+    ),
+  );
+  await as(id.approverLatam, () => refused(q("select publish_due_entries()"), /permission denied/));
+
+  // Ještě není čas → nic.
+  assert.equal((await one("select publish_due_entries() n")).n, 0);
+  // Čas nastal (jako cron: bez session).
+  await q("update entries set publish_at = now() - interval '1 minute' where id = $1", [entry]);
+  assert.equal((await one("select publish_due_entries() n")).n, 1);
+  const live = await one(
+    "select status, approved_by, publish_at, scheduled_by from entries where id = $1",
+    [entry],
+  );
+  assert.deepEqual(live, {
+    status: "published",
+    approved_by: id.approverLatam,
+    publish_at: null,
+    scheduled_by: null,
+  });
+  const seen = await as(null, () => q("select slug from entries where slug = 'scheduled-ok'"));
+  assert.equal(seen.length, 1);
+});
+
+test("plánované zveřejnění: plán zaniká po cizí úpravě, vrácení a ztrátě práva", async () => {
+  const schedule = (entry) =>
+    as(id.approverLatam, () => q("select schedule_entry($1, now() + interval '1 day')", [entry]));
+  const planOf = (entry) =>
+    one("select status, publish_at, scheduled_by from entries where id = $1", [entry]);
+
+  // Autor po naplánování změní text → schválená podoba neplatí, plán pryč.
+  const edited = await newEntry(id.pubA, "scheduled-edited", ["BRA"], "pending");
+  await schedule(edited);
+  await as(id.pubA, () => q("update entries set body_html = '<p>new</p>' where id = $1", [edited]));
+  assert.equal((await planOf(edited)).publish_at, null);
+
+  // Vrácení autorovi plán zruší.
+  const sentBack = await newEntry(id.pubA, "scheduled-sent-back", ["BRA"], "pending");
+  await schedule(sentBack);
+  await as(id.approverLatam, () => q("select send_back_entry($1, 'Not yet.')", [sentBack]));
+  assert.equal((await planOf(sentBack)).publish_at, null);
+
+  // Zrušit plán smí jen schvalovatel.
+  const cancelled = await newEntry(id.pubA, "scheduled-cancelled", ["BRA"], "pending");
+  await schedule(cancelled);
+  await as(id.pubA, () => refused(q("select unschedule_entry($1)", [cancelled]), /outside/));
+  await as(id.approverLatam, () => q("select unschedule_entry($1)", [cancelled]));
+  assert.deepEqual(await planOf(cancelled), {
+    status: "pending",
+    publish_at: null,
+    scheduled_by: null,
+  });
+
+  // Kdo plánoval, byl mezitím zablokován → v čase se nezveřejní, plán zanikne.
+  const orphan = await newEntry(id.pubA, "scheduled-orphan", ["BRA"], "pending");
+  await schedule(orphan);
+  await q("update entries set publish_at = now() - interval '1 minute' where id = $1", [orphan]);
+  await q("update profiles set status = 'blocked' where id = $1", [id.approverLatam]);
+  try {
+    assert.equal((await one("select publish_due_entries() n")).n, 0);
+  } finally {
+    await q("update profiles set status = 'active' where id = $1", [id.approverLatam]);
+  }
+  assert.deepEqual(await planOf(orphan), {
+    status: "pending",
+    publish_at: null,
+    scheduled_by: null,
+  });
+  const dropped = await one(
+    "select count(*)::int n from audit_log where action = 'entries.schedule_dropped' and target = 'scheduled-orphan'",
+  );
+  assert.equal(dropped.n, 1);
+});
+
+test("přesměrování: čte každý, přidá redakce s „c“, smaže jen s „d“", async () => {
+  await as(id.pubA, () =>
+    q("insert into redirects (from_path, to_path) values ('/news/old-slug', '/news/new-slug')"),
+  );
+  const row = await one(
+    "select created_by, permanent from redirects where from_path = '/news/old-slug'",
+  );
+  assert.deepEqual(row, { created_by: id.pubA, permanent: true });
+
+  // Anonym vidí jen veřejné sloupce a nic nezapíše.
+  const pub = await as(null, () => q("select from_path, to_path, permanent from redirects"));
+  assert.equal(pub.length, 1);
+  await as(null, () => refused(q("select created_by from redirects"), /permission denied/));
+  await as(null, () =>
+    refused(q("insert into redirects (from_path, to_path) values ('/x', '/y')"), /permission/),
+  );
+
+  // Schvalovatel (news jen „v") nepřidá; publisher (bez „d") nesmaže.
+  await as(id.approverLatam, () =>
+    refused(q("insert into redirects (from_path, to_path) values ('/x', '/y')"), /row-level/),
+  );
+  const notDeleted = await as(id.pubA, () =>
+    q("delete from redirects where from_path = '/news/old-slug' returning id"),
+  );
+  assert.equal(notDeleted.length, 0);
+  // Autora nejde podstrčit.
+  await as(id.editor, () =>
+    refused(
+      q("insert into redirects (from_path, to_path, created_by) values ('/x', '/y', $1)", [
+        id.pubA,
+      ]),
+      /permission denied/,
+    ),
+  );
+  const deleted = await as(id.editor, () =>
+    q("delete from redirects where from_path = '/news/old-slug' returning id"),
+  );
+  assert.equal(deleted.length, 1);
+});
+
+test("přesměrování: jen cesta na vlastním webu a bez smyček", async () => {
+  await as(id.editor, async () => {
+    for (const [from, to] of [
+      ["/old", "https://evil.example"],
+      ["/old", "//evil.example"],
+      ["/old", "javascript:alert(1)"],
+      ["/", "/news"],
+      ["/old/", "/news"],
+      ["/same", "/same"],
+    ]) {
+      await refused(
+        q("insert into redirects (from_path, to_path) values ($1, $2)", [from, to]),
+        /check constraint|loop back/,
+      );
+    }
+    await q("insert into redirects (from_path, to_path) values ('/loop-a', '/loop-b')");
+    await q("insert into redirects (from_path, to_path) values ('/loop-b', '/loop-c?x=1')");
+    await refused(
+      q("insert into redirects (from_path, to_path) values ('/loop-c', '/loop-a')"),
+      /loop/,
+    );
+    await q("delete from redirects where from_path like '/loop-%'");
+  });
+});
