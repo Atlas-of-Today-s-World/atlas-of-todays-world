@@ -1,4 +1,5 @@
 import type { Messages } from "@/features/i18n/messages";
+import { MEMBERSHIP_PATH } from "@/features/membership/config";
 
 /**
  * Single definition of the menu (ARCHITEKTURA 15.1, D4) — the header above the map
@@ -18,7 +19,7 @@ export const MAIN_NAV: readonly NavItem[] = [
   { href: "/", key: "map" },
   { href: "/news", key: "news", compactHidden: true },
   { href: "/about", key: "about" },
-  { href: "/patrons", key: "patrons", primary: true },
+  { href: MEMBERSHIP_PATH, key: "patrons", primary: true },
 ];
 
 export const ACCOUNT_NAV: NavItem = { href: "/login", key: "signIn" };

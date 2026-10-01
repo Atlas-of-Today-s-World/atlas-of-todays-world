@@ -425,6 +425,38 @@ test("nobody writes a paid membership from the app, only admin a complimentary o
   );
 });
 
+test("patron_stats: anon sees only the aggregate, never individual memberships", async () => {
+  // Service key (webhook) writes a paid membership with its monthly amount.
+  await q(
+    `insert into memberships (user_id, plan, stripe_subscription_id, monthly_amount_cents)
+     values ($1, 'patron', 'sub_stats', 1500)
+     on conflict (user_id) do update set plan = 'patron', status = 'active',
+       stripe_subscription_id = 'sub_stats', monthly_amount_cents = 1500`,
+    [id.pubB],
+  );
+  const expected = await one(
+    `select count(*)::int patrons, coalesce(sum(monthly_amount_cents), 0)::bigint cents
+     from memberships where status = 'active' and plan <> 'none'`,
+  );
+  assert.ok(expected.patrons >= 1);
+
+  const stats = await as(null, () => one("select * from patron_stats()"));
+  assert.equal(stats.patrons, expected.patrons);
+  assert.equal(Number(stats.monthly_cents), Number(expected.cents));
+
+  // The aggregate must not open the table itself to anonymous readers.
+  await as(null, () => refused(q("select user_id, monthly_amount_cents from memberships")));
+  // A complimentary membership cannot carry an amount.
+  await refused(
+    q(
+      "update memberships set complimentary = true, stripe_subscription_id = null where user_id = $1",
+      [id.pubB],
+    ),
+    /memberships_complimentary_no_amount/,
+  );
+  await q("delete from memberships where user_id = $1", [id.pubB]);
+});
+
 test("page views count only towards yourself", async () => {
   await as(id.reader, async () => {
     await q("select record_page_view()");

@@ -20,6 +20,15 @@
   --color-accent-strong: #2c3bc4;
   --color-accent-soft: #eaedfd;
   --color-link: #1f4fd8;
+  /*
+   * Atlas Patrons blue (modelled on the original membership page). White text
+   * stays >= 4.5:1 on --color-patron and --color-patron-strong; the bright
+   * tone is for headings on the dark --color-space band.
+   */
+  --color-patron: #2563eb;
+  --color-patron-strong: #1d4ed8;
+  --color-patron-bright: #60a5fa;
+  --color-patron-soft: #eff4ff;
   --color-live: #22c55e;
   /* Status tones (badges, KPIs, errors) — single source instead of amber/green/red classes. */
   --color-success: #166534;

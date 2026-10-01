@@ -44,8 +44,13 @@ const nextConfig: NextConfig = {
         destination: "/global-issue/:slug",
         permanent: true,
       },
-      // The support page is called Atlas Patrons, as the site and the brief know it.
-      { source: "/support", destination: "/patrons", permanent: true },
+      // Atlas Patrons live at /membership, the address of the original site.
+      { source: "/:old(support|patrons)", destination: "/membership", permanent: true },
+      {
+        source: "/:locale(cs)/:old(support|patrons)",
+        destination: "/:locale/membership",
+        permanent: true,
+      },
       // There is only one region portrait; the former "full" version points to it.
       {
         source: "/region/:slug/full",

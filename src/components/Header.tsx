@@ -8,6 +8,7 @@ import { RAIL_OFFSET, railKind } from "@/config/layout";
 import { ACCOUNT_NAV, LEGAL_NAV, MAIN_NAV, SOCIALS } from "@/config/navigation";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 import NewsletterForm from "./NewsletterForm";
+import { BrandLogo } from "./atlas/BrandLogo";
 import { LanguageSwitcher } from "./i18n/LanguageSwitcher";
 import { useMessages } from "./i18n/LocaleProvider";
 
@@ -57,12 +58,13 @@ export default function Header({ newsletter = true }: { newsletter?: boolean }) 
     >
       <Link
         href="/"
-        className="font-display pointer-events-auto inline-block rounded-[6px] border border-white/70 bg-white px-2.5 py-1 text-[10px] font-extrabold tracking-[0.12em] text-[#0d1324] uppercase shadow-lg shadow-black/30 sm:px-3.5 sm:py-2 sm:text-[13px]"
+        className="pointer-events-auto inline-flex min-h-11 items-center"
         aria-label={t.header.home}
       >
-        {/* On mobile just the mark: the full name took half the screen width. */}
-        <span className="sm:hidden">Atlas</span>
-        <span className="hidden sm:inline">Atlas of Today&rsquo;s World</span>
+        <BrandLogo
+          tone="light"
+          className="h-[18px] drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)] sm:h-7"
+        />
       </Link>
 
       {/* Desktop */}
@@ -78,7 +80,7 @@ export default function Header({ newsletter = true }: { newsletter?: boolean }) 
             href={item.href}
             className={
               item.primary
-                ? "rounded-md border border-white/70 px-3.5 py-1.5 transition hover:bg-white hover:text-[#0d1324]"
+                ? "rounded-md bg-[var(--color-patron)] px-3.5 py-1.5 font-medium text-white transition hover:bg-[var(--color-patron-strong)]"
                 : "transition hover:text-white"
             }
           >
@@ -132,9 +134,7 @@ export default function Header({ newsletter = true }: { newsletter?: boolean }) 
           className="pointer-events-auto fixed inset-0 z-50 flex flex-col bg-[#0b101f]/97 px-6 py-5 text-white backdrop-blur"
         >
           <div className="flex items-center justify-between">
-            <span className="font-display text-[11px] font-extrabold tracking-[0.14em] uppercase">
-              Atlas of Today&rsquo;s World
-            </span>
+            <BrandLogo tone="light" className="h-5" />
             <button
               type="button"
               onClick={() => setMenuOpen(false)}

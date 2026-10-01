@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminNav } from "@/components/admin/AdminNav";
+import { BrandLogo } from "@/components/atlas/BrandLogo";
 import { Button } from "@/components/ui/button";
 import { ADMIN_NAV, navVisible } from "@/config/admin-nav";
 import { getAccess, isStaff } from "@/features/auth/access";
@@ -61,11 +62,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <Shell>
       <header className="flex flex-wrap items-center gap-3 border-b border-[var(--color-line)] px-4 py-3 md:px-6">
-        <Link
-          href="/"
-          className="font-display rounded-[6px] border border-[#0d1324] px-2.5 py-1 text-[10.5px] font-extrabold tracking-[0.14em] uppercase"
-        >
-          Atlas
+        <Link href="/" className="flex min-h-11 items-center">
+          <BrandLogo className="h-5" />
         </Link>
         <span className="text-[13px] font-medium">Administration</span>
         <span className="ml-auto text-[12.5px] text-[var(--color-ink-muted)]">

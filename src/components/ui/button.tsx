@@ -15,6 +15,10 @@ export const buttonVariants = cva(
         outline:
           "border border-[var(--color-line)] bg-white text-[var(--color-ink)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]",
         danger: "bg-red-700 text-white hover:bg-red-800",
+        /** Atlas Patrons call to action (nav highlight, membership page). */
+        patron: "bg-[var(--color-patron)] text-white hover:bg-[var(--color-patron-strong)]",
+        /** Dark button on the blue donation card ("Donate & Join"). */
+        ink: "bg-[var(--color-ink)] text-white hover:bg-black",
         ghost: "text-[var(--color-ink-soft)] underline-offset-2 hover:underline",
         /** Icon and tool actions in tables — no border, tinted on hover. */
         quiet:

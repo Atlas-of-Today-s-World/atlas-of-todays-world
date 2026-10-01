@@ -1,7 +1,7 @@
 "use server";
 
 import "server-only";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
 import {
   failed,
@@ -11,6 +11,7 @@ import {
   signedIn,
   type ActionState,
 } from "@/lib/actions";
+import { tags } from "@/lib/cache/tags";
 import { uuid } from "@/lib/validation/common";
 
 const GrantInput = z.object({
@@ -38,6 +39,7 @@ export async function grantMembership(
   });
   if (error) return failed(error);
   revalidatePath("/admin/members");
+  updateTag(tags.patrons);
   return { ok: true, message: "Complimentary membership granted." };
 }
 
@@ -54,5 +56,6 @@ export async function revokeMembership(userId: string): Promise<ActionState> {
   if (error) return failed(error);
   if (!data.length) return { ok: false, error: "Only complimentary memberships can be revoked." };
   revalidatePath("/admin/members");
+  updateTag(tags.patrons);
   return { ok: true, message: "Membership revoked." };
 }
