@@ -95,7 +95,7 @@ const loadSnapshot = unstable_cache(
         db
           .from("special_regions")
           .select(
-            "slug, name, subtitle, summary, fill, stroke, center_lon, center_lat, zoom, hero_url",
+            "slug, name, subtitle, summary, fill, stroke, center_lon, center_lat, zoom, hero_url, kind",
           )
           .order("name")
           .range(a, b),

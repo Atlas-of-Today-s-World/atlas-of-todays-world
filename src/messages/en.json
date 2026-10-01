@@ -97,7 +97,8 @@
     "patronsCompleteTitle": "Together We Can Build a New Encyclopedia",
     "patronsCompleteText": "Atlas Patrons fund the writing, the data work and the independence of this encyclopedia.",
     "patronsTodoTitle": "This portrait is not finished",
-    "patronsTodoText": "The sections above are waiting for authors. Atlas Patrons pay for the research and the writing that fills them in."
+    "patronsTodoText": "The sections above are waiting for authors. Atlas Patrons pay for the research and the writing that fills them in.",
+    "customRegion": "Region"
   },
   "categories": {
     "Living Conditions": "Living Conditions",

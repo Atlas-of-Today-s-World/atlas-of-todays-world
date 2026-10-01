@@ -88,6 +88,7 @@ export default async function GlobalIssuePage({
         <Portrait
           subject={{
             kind: "issue",
+            groupKind: region.kind,
             name: region.name,
             subtitle: region.subtitle,
             summary: region.summary,

@@ -1617,6 +1617,7 @@ export type Database = {
           hero_credit: string
           hero_url: string | null
           intro: string
+          kind: string
           name: string
           slug: string
           stroke: string
@@ -1635,6 +1636,7 @@ export type Database = {
           hero_credit?: string
           hero_url?: string | null
           intro?: string
+          kind?: string
           name: string
           slug: string
           stroke: string
@@ -1653,6 +1655,7 @@ export type Database = {
           hero_credit?: string
           hero_url?: string | null
           intro?: string
+          kind?: string
           name?: string
           slug?: string
           stroke?: string
@@ -1856,6 +1859,10 @@ export type Database = {
       approve_entry: { Args: { p_entry: string }; Returns: undefined }
       can_approve_entry: { Args: { p_entry: string }; Returns: boolean }
       can_edit_entry: { Args: { p_owner: string }; Returns: boolean }
+      can_edit_portrait_metric: {
+        Args: { p_special: string }
+        Returns: boolean
+      }
       can_read_unpublished: { Args: { p_owner: string }; Returns: boolean }
       claim_invitation: { Args: never; Returns: string }
       create_entry_translation: {
