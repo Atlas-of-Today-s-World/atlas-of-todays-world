@@ -45,3 +45,60 @@ test.describe("jazykové verze", () => {
     );
   });
 });
+
+/**
+ * G5.3–G5.6: veřejná část v češtině — portrét, článek bez překladu, seznam,
+ * hledání a stránka 404. Data jsou ze seedu (atlas-dev).
+ */
+test.describe("česká veřejná část", () => {
+  test("portrét regionu: český název, sekce a odkazy na země s předponou", async ({ page }) => {
+    await page.goto("/cs/region/east-asia");
+    await expect(page.getByRole("heading", { level: 1, name: "Východní Asie" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Encyklopedická hesla" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Země tohoto regionu" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Japonsko", exact: true })).toHaveAttribute(
+      "href",
+      "/cs/country/japan",
+    );
+  });
+
+  test("novinka bez překladu: originál s poznámkou, lang en, kanonická adresa originálu", async ({
+    page,
+  }) => {
+    await page.goto("/cs/news/nordic-model-under-strain");
+    await expect(page.getByRole("note")).toContainText("Tento text zatím není přeložený");
+    await expect(page.locator('article[lang="en"]')).toBeAttached();
+    await expect(page.getByText(/\d+ min čtení/).first()).toBeVisible();
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      "href",
+      /\/news\/nordic-model-under-strain$/,
+    );
+    // hreflang jen pro jazyky, ve kterých článek opravdu je.
+    await expect(page.locator('link[hreflang="cs"]')).toHaveCount(0);
+    await expect(page.locator('link[hreflang="en"]')).toHaveCount(1);
+  });
+
+  test("seznam novinek vede na české adresy článků", async ({ page }) => {
+    await page.goto("/cs/news");
+    const article = page.locator('a[href^="/cs/news/"]').first();
+    await expect(article).toBeVisible();
+    await expect(page.locator('main a[href^="/news/"]')).toHaveCount(0);
+  });
+
+  test("hledání vrací odkazy v jazyce stránky", async ({ page }) => {
+    await page.goto("/cs/search?q=Japan");
+    await expect(page.locator('main a[href="/cs/country/japan"]').first()).toBeVisible();
+  });
+
+  test("neexistující heslo vrátí 404", async ({ request }) => {
+    const response = await request.get("/cs/entry/tohle-heslo-neexistuje");
+    expect(response.status()).toBe(404);
+  });
+
+  test("404 nabízí kvíz obrysů (zatím jen anglicky)", async ({ page }) => {
+    await page.goto("/cs/news/tohle-neexistuje");
+    await page.getByRole("button", { name: "Play the outline quiz" }).click();
+    await expect(page.getByRole("heading", { name: "Which country is this?" })).toBeFocused();
+    await expect(page.getByRole("group", { name: "Choices" }).getByRole("button")).toHaveCount(4);
+  });
+});
