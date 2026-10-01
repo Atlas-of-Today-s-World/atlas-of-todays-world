@@ -113,10 +113,68 @@ export interface EditableChapter {
   audio_url: string | null;
 }
 
-/** Entry chapters and sources for the editor (P9). */
+/** A learn-more tile in the admin (default when `entry_id` is null). */
+export interface EditableTile {
+  id: string;
+  entry_id: string | null;
+  slug: string;
+  label: string;
+  description: string;
+  icon: string;
+  image_url: string | null;
+  image_credit: string | null;
+  position: number;
+  legacy_kind: string | null;
+}
+
+const TILE_COLUMNS =
+  "id, entry_id, slug, label, description, icon, image_url, image_credit, position, legacy_kind";
+
+/** Default tiles (shown on every dossier), in order. */
+export async function listDefaultTiles(): Promise<EditableTile[]> {
+  const supabase = await createServerClient();
+  const { data, error } = await supabase
+    .from("learn_more_tiles")
+    .select(TILE_COLUMNS)
+    .is("entry_id", null)
+    .order("position");
+  if (error) throw new Error(`[tiles] ${error.message}`);
+  return data;
+}
+
+export async function getTile(id: string): Promise<EditableTile | null> {
+  const supabase = await createServerClient();
+  const { data, error } = await supabase
+    .from("learn_more_tiles")
+    .select(TILE_COLUMNS)
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(`[tiles] ${error.message}`);
+  return data;
+}
+
+/** A link of a tile in the editor; text fields, null as an empty string. */
+export interface EditableLink {
+  title: string;
+  source: string;
+  description: string;
+  url: string;
+  image_url: string;
+}
+
+export interface EditableSeo {
+  seo_title: string;
+  seo_description: string;
+  og_image_url: string;
+  seo_keywords: string[];
+  geo_summary: string;
+  noindex: boolean;
+}
+
+/** Everything of a dossier below the article form: topics, learn more, FAQ, SEO & GEO. */
 export async function getEntryParts(id: string) {
   const supabase = await createServerClient();
-  const [chapters, resources] = await Promise.all([
+  const [chapters, resources, tiles, notes, faq, seo] = await Promise.all([
     supabase
       .from("entry_chapters")
       .select("title, summary_points, body_html, illustration_url, illustration_credit, audio_url")
@@ -124,18 +182,55 @@ export async function getEntryParts(id: string) {
       .order("position"),
     supabase
       .from("resources")
-      .select("kind, title, source, description, url, image_url")
+      .select("tile_id, title, source, description, url, image_url")
       .eq("entry_id", id)
       .order("position"),
+    supabase
+      .from("learn_more_tiles")
+      .select(TILE_COLUMNS)
+      .or(`entry_id.is.null,entry_id.eq.${id}`)
+      .order("position"),
+    supabase.from("entry_tile_notes").select("tile_id, body_html").eq("entry_id", id),
+    supabase.from("entry_faq").select("question, answer").eq("entry_id", id).order("position"),
+    supabase
+      .from("entries")
+      .select("seo_title, seo_description, og_image_url, seo_keywords, geo_summary, noindex")
+      .eq("id", id)
+      .single(),
   ]);
-  if (chapters.error) throw new Error(`[chapters] ${chapters.error.message}`);
-  if (resources.error) throw new Error(`[resources] ${resources.error.message}`);
+  for (const [name, result] of Object.entries({ chapters, resources, tiles, notes, faq, seo })) {
+    if (result.error) throw new Error(`[${name}] ${result.error.message}`);
+  }
+  // Defaults first, then the dossier's own tiles.
+  const allTiles = [...(tiles.data ?? [])].sort(
+    (a, b) => Number(a.entry_id !== null) - Number(b.entry_id !== null) || a.position - b.position,
+  );
+  const links: Record<string, EditableLink[]> = {};
+  for (const row of resources.data ?? []) {
+    if (!row.tile_id) continue;
+    (links[row.tile_id] ??= []).push({
+      title: row.title,
+      source: row.source,
+      description: row.description,
+      url: row.url,
+      image_url: row.image_url ?? "",
+    });
+  }
+  const row = seo.data;
   return {
-    chapters: chapters.data as EditableChapter[],
-    // The section editor works with text fields — null as an empty string.
-    resources: resources.data.map((row) =>
-      Object.fromEntries(Object.entries(row).map(([key, value]) => [key, value ?? ""])),
-    ),
+    chapters: (chapters.data ?? []) as EditableChapter[],
+    tiles: allTiles,
+    links,
+    notes: Object.fromEntries((notes.data ?? []).map((note) => [note.tile_id, note.body_html])),
+    faq: (faq.data ?? []).map((item) => ({ question: item.question, answer: item.answer })),
+    seo: {
+      seo_title: row?.seo_title ?? "",
+      seo_description: row?.seo_description ?? "",
+      og_image_url: row?.og_image_url ?? "",
+      seo_keywords: row?.seo_keywords ?? [],
+      geo_summary: row?.geo_summary ?? "",
+      noindex: row?.noindex ?? false,
+    } satisfies EditableSeo,
   };
 }
 

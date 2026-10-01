@@ -16,14 +16,17 @@ import {
 import { tags } from "@/lib/cache/tags";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { DEFAULT_LOCALE, isLocale } from "@/features/i18n/config";
-import { slug as slugSchema, uuid } from "@/lib/validation/common";
+import { requiredText, slug as slugSchema, slugify, uuid } from "@/lib/validation/common";
 import { COLLECTIONS } from "@/features/portraits/schema";
 import {
   CHAPTER_FIELD_LABEL,
   ChapterInput,
   EntryInput,
+  LearnMoreInput,
   ScheduleInput,
   SendBackInput,
+  SeoInput,
+  TileInput,
 } from "./schema";
 import { MAX_CHAPTERS, PREVIEW_HOURS } from "./constants";
 
@@ -192,7 +195,7 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
   ];
   const parsed = z
     .array(ChapterInput)
-    .max(MAX_CHAPTERS, `At most ${MAX_CHAPTERS} chapters.`)
+    .max(MAX_CHAPTERS, `At most ${MAX_CHAPTERS} topics.`)
     .safeParse(
       titles.map((title, index) => ({
         title,
@@ -203,7 +206,7 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
         audio_url: audio[index],
       })),
     );
-  if (!parsed.success) return listItemError(parsed.error, "Chapter", CHAPTER_FIELD_LABEL);
+  if (!parsed.success) return listItemError(parsed.error, "Topic", CHAPTER_FIELD_LABEL);
 
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
@@ -217,35 +220,151 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
   });
   if (error) return failed(error);
   await refreshEntry(session.supabase, entryId, true);
-  return { ok: true, message: "Chapters saved." };
+  return { ok: true, message: "Topics saved." };
 }
 
-/** Entry sources — same items as portrait sources, saved by the section editor. */
-export async function saveEntryResources(
-  _prev: ActionState,
-  formData: FormData,
-): Promise<ActionState> {
+/** Reads a JSON list posted in a hidden field; null when it isn't valid JSON. */
+function jsonField(formData: FormData, name: string): unknown {
+  try {
+    return JSON.parse(String(formData.get(name) ?? "[]"));
+  } catch {
+    return null;
+  }
+}
+
+/** Dossier FAQ — shown on the page and as FAQPage structured data. */
+export async function saveEntryFaq(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const entryId = String(formData.get("entry_id") ?? "");
   if (!uuid.safeParse(entryId).success) return { ok: false, error: "Invalid entry." };
-  let raw: unknown;
-  try {
-    raw = JSON.parse(String(formData.get("items") ?? "[]"));
-  } catch {
-    return { ok: false, error: "Invalid section data." };
-  }
-  const parsed = z.array(COLLECTIONS.resources).max(50).safeParse(raw);
-  if (!parsed.success) return listItemError(parsed.error, "Source", {});
+  // A dossier answer is capped at 2,000 characters (`entry_faq`), shorter than a portrait one.
+  const parsed = z
+    .array(COLLECTIONS.faq.extend({ answer: requiredText(2000) }))
+    .max(20)
+    .safeParse(jsonField(formData, "items"));
+  if (!parsed.success) return listItemError(parsed.error, "Question", {});
 
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
   const { error } = await session.supabase.rpc("replace_entry_parts", {
     p_entry: entryId,
-    p_part: "resources",
+    p_part: "faq",
     p_items: parsed.data,
   });
   if (error) return failed(error);
   await refreshEntry(session.supabase, entryId, true);
-  return { ok: true, message: "Sources saved." };
+  return { ok: true, message: "Questions saved." };
+}
+
+/**
+ * "Learn more" of a dossier: links per tile (JSON field `tiles`) and the rich
+ * text of each tile (fields `notes:<tile id>`). Links and notes are each
+ * replaced in one transaction; RLS decides who may, as for the article.
+ */
+export async function saveLearnMore(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const entryId = String(formData.get("entry_id") ?? "");
+  if (!uuid.safeParse(entryId).success) return { ok: false, error: "Invalid entry." };
+  const parsed = LearnMoreInput.safeParse(jsonField(formData, "tiles"));
+  if (!parsed.success) return listItemError(parsed.error, "Tile", {});
+  const notes = parsed.data.map((tile) => ({
+    tile_id: tile.tile_id,
+    body_html: sanitizeRichHtml(String(formData.get(`notes:${tile.tile_id}`) ?? "")),
+  }));
+  if (notes.some((note) => note.body_html.length > 100_000)) {
+    return { ok: false, error: "A tile's text is too long." };
+  }
+
+  const session = await signedIn();
+  if (!session) return NOT_SIGNED_IN;
+  const links = parsed.data.flatMap((tile) =>
+    tile.links.map((link) => ({ ...link, tile_id: tile.tile_id })),
+  );
+  const saved = await session.supabase.rpc("replace_entry_parts", {
+    p_entry: entryId,
+    p_part: "resources",
+    p_items: links,
+  });
+  if (saved.error) return failed(saved.error);
+  const noted = await session.supabase.rpc("replace_entry_parts", {
+    p_entry: entryId,
+    p_part: "tile_notes",
+    p_items: notes,
+  });
+  if (noted.error) return failed(noted.error);
+  await refreshEntry(session.supabase, entryId, true);
+  return { ok: true, message: "Learn more saved." };
+}
+
+/** SEO & GEO overrides; an empty field means the default derived from the article. */
+export async function saveEntrySeo(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const parsed = SeoInput.safeParse(formObject(formData));
+  if (!parsed.success) return invalid(parsed.error);
+  const session = await signedIn();
+  if (!session) return NOT_SIGNED_IN;
+  const { entry_id, ...fields } = parsed.data;
+  const { data, error } = await session.supabase
+    .from("entries")
+    .update({
+      seo_title: fields.seo_title || null,
+      seo_description: fields.seo_description || null,
+      og_image_url: fields.og_image_url ?? null,
+      seo_keywords: fields.seo_keywords,
+      geo_summary: fields.geo_summary || null,
+      noindex: fields.noindex,
+    })
+    .eq("id", entry_id)
+    .select("id");
+  if (error) return failed(error);
+  if (!data.length) return { ok: false, error: "You can't edit this article." };
+  await refreshEntry(session.supabase, entry_id, true);
+  return { ok: true, message: "SEO & GEO saved." };
+}
+
+/**
+ * Creates or changes a learn-more tile: a default one (no `entry_id`, appears
+ * on every dossier) or one dossier's own. The slug comes from the label.
+ */
+export async function saveTile(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const parsed = TileInput.safeParse(formObject(formData));
+  if (!parsed.success) return invalid(parsed.error);
+  const session = await signedIn();
+  if (!session) return NOT_SIGNED_IN;
+  const { id, entry_id, ...fields } = parsed.data;
+  const row = {
+    ...fields,
+    slug: fields.slug ?? slugify(fields.label).slice(0, 60),
+    image_url: fields.image_url ?? null,
+    image_credit: fields.image_credit || null,
+    position: fields.position ?? 0,
+  };
+  const { data, error } = id
+    ? await session.supabase.from("learn_more_tiles").update(row).eq("id", id).select("id")
+    : await session.supabase
+        .from("learn_more_tiles")
+        .insert({ ...row, entry_id: entry_id ?? null })
+        .select("id");
+  if (error) return failed(error);
+  if (!data.length) return { ok: false, error: "You can't change this tile." };
+  if (entry_id) await refreshEntry(session.supabase, entry_id, true);
+  else updateTag(tags.entries);
+  return { ok: true, message: id ? "Tile saved." : "Tile added." };
+}
+
+/** Deletes a tile with its links and notes (the five original default tiles stay). */
+export async function deleteTile(id: string): Promise<ActionState> {
+  if (!uuid.safeParse(id).success) return { ok: false, error: "Invalid tile." };
+  const session = await signedIn();
+  if (!session) return NOT_SIGNED_IN;
+  const { data, error } = await session.supabase
+    .from("learn_more_tiles")
+    .delete()
+    .eq("id", id)
+    .select("entry_id");
+  if (error) return failed(error);
+  const [removed] = data;
+  if (!removed) return { ok: false, error: "This tile can't be deleted." };
+  if (removed.entry_id) await refreshEntry(session.supabase, removed.entry_id, true);
+  else updateTag(tags.entries);
+  return { ok: true, message: "Tile deleted." };
 }
 
 export async function submitEntry(id: string) {
