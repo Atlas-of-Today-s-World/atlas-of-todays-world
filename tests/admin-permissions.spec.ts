@@ -241,6 +241,12 @@ test.describe("ruční hodnota ukazatele", () => {
       .eq("country_iso3", country)
       .single();
     expect(data).toMatchObject({ value: 12.5, year: 2025, is_manual: true, source_note: source });
+
+    // Zápis obnoví cache Atlasu; veřejné stránky z ní musí dál jít (dříve 404
+    // u stránek s dynamicParams = false — NoFallbackError v Next).
+    for (const path of ["/country/ukraine", "/region/eastern-europe-central-asia", "/view/hdi"]) {
+      expect((await page.request.get(path)).status(), path).toBe(200);
+    }
   });
 });
 
