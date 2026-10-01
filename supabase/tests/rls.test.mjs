@@ -1283,7 +1283,7 @@ test("entry: only the entry's editors save chapters and resources, in one transa
     refused(q(call, [entry, JSON.stringify([{ title: "X", illustration_url: "http://bad" }])])),
   );
   await as(id.pubA, () =>
-    refused(q(call, [entry, JSON.stringify(Array.from({ length: 9 }, () => ({ title: "C" })))])),
+    refused(q(call, [entry, JSON.stringify(Array.from({ length: 13 }, () => ({ title: "C" })))])),
   );
   assert.equal(
     (await one("select count(*)::int n from entry_chapters where entry_id = $1", [entry])).n,
@@ -1629,6 +1629,155 @@ test("custom region: country group with a kind and metrics under the specials pe
   await as(id.pubA, () =>
     refused(
       q("select replace_portrait_items('issue', 'visegrad', 'metrics', $1::jsonb)", [metrics]),
+    ),
+  );
+});
+
+test("dossier: learn-more tiles, tile notes, FAQ and SEO follow the dossier's rights", async () => {
+  const entry = await newEntry(id.pubA, "dossier-tiles");
+  const other = await newEntry(id.pubB, "dossier-other");
+  const call = "select replace_entry_parts($1, $2, $3::jsonb)";
+
+  // The five original resource kinds are seeded as default tiles.
+  const defaults = await as(null, () =>
+    q("select slug, legacy_kind from learn_more_tiles where entry_id is null order by position"),
+  );
+  assert.equal(defaults.length, 5);
+  const videos = defaults.find((tile) => tile.slug === "videos");
+  assert.equal(videos.legacy_kind, "Videos & Documentaries");
+
+  // Default tiles: only someone with the right over all articles.
+  await as(id.pubA, () =>
+    refused(q("insert into learn_more_tiles (slug, label) values ('notes', 'Notes')")),
+  );
+  const notes = await as(id.admin, () =>
+    one(
+      "insert into learn_more_tiles (slug, label, icon) values ('notes', 'Hand-written notes', 'pen') returning id",
+    ),
+  );
+  // Seeded tiles cannot be deleted (their links would go with them).
+  await as(id.admin, () =>
+    q("delete from learn_more_tiles where slug = 'videos' and entry_id is null"),
+  );
+  assert.equal(
+    (await one("select count(*)::int n from learn_more_tiles where slug = 'videos'")).n,
+    1,
+  );
+
+  // A custom tile of one dossier: its writer yes, another publisher no.
+  const custom = await as(id.pubA, () =>
+    one(
+      "insert into learn_more_tiles (entry_id, slug, label) values ($1, 'podcasts', 'Podcasts') returning id",
+      [entry],
+    ),
+  );
+  await as(id.pubB, () =>
+    refused(
+      q("insert into learn_more_tiles (entry_id, slug, label) values ($1, 'x', 'X')", [entry]),
+    ),
+  );
+  // The draft's tile is not public.
+  assert.equal(
+    (await as(null, () => q("select 1 from learn_more_tiles where id = $1", [custom.id]))).length,
+    0,
+  );
+
+  // Resources: legacy kind gets its tile, a tile gets its kind, a foreign tile is refused.
+  await as(id.pubA, () =>
+    q(call, [
+      entry,
+      "resources",
+      JSON.stringify([
+        { kind: "Videos & Documentaries", title: "Doc", url: "https://example.org/a" },
+        { tile_id: custom.id, title: "Pod", url: "https://example.org/b" },
+      ]),
+    ]),
+  );
+  const links = await q(
+    "select r.kind, t.slug from resources r join learn_more_tiles t on t.id = r.tile_id where r.entry_id = $1 order by r.position",
+    [entry],
+  );
+  assert.deepEqual(links, [
+    { kind: "Videos & Documentaries", slug: "videos" },
+    { kind: null, slug: "podcasts" },
+  ]);
+  await as(id.pubB, () =>
+    refused(
+      q(call, [
+        other,
+        "resources",
+        JSON.stringify([{ tile_id: custom.id, title: "X", url: "https://example.org" }]),
+      ]),
+      /another dossier/,
+    ),
+  );
+
+  // Tile notes: on a default or own tile; empty notes are dropped.
+  await as(id.pubA, () =>
+    q(call, [
+      entry,
+      "tile_notes",
+      JSON.stringify([
+        { tile_id: notes.id, body_html: "<p>Field notes</p>" },
+        { tile_id: custom.id, body_html: " " },
+      ]),
+    ]),
+  );
+  assert.equal(
+    (await one("select count(*)::int n from entry_tile_notes where entry_id = $1", [entry])).n,
+    1,
+  );
+  await as(id.pubB, () =>
+    refused(
+      q(call, [
+        other,
+        "tile_notes",
+        JSON.stringify([{ tile_id: custom.id, body_html: "<p>x</p>" }]),
+      ]),
+    ),
+  );
+
+  // FAQ: the dossier's writer; limits from the schema.
+  await as(id.pubA, () =>
+    q(call, [entry, "faq", JSON.stringify([{ question: "What is it?", answer: "A crime." }])]),
+  );
+  await as(id.pubA, () =>
+    refused(q(call, [entry, "faq", JSON.stringify([{ question: "", answer: "x" }])])),
+  );
+  await as(id.pubB, () =>
+    refused(
+      q(call, [entry, "faq", JSON.stringify([{ question: "Q", answer: "A" }])]),
+      /may not edit/,
+    ),
+  );
+
+  // SEO & GEO: optional overrides with the limits search engines use.
+  await as(id.pubA, () =>
+    q("update entries set seo_title = $2, seo_keywords = $3 where id = $1", [
+      entry,
+      "Migrant smuggling — routes, actors, policy",
+      ["migration", "smuggling"],
+    ]),
+  );
+  await as(id.pubA, () =>
+    refused(q("update entries set seo_description = $2 where id = $1", [entry, "x".repeat(171)])),
+  );
+
+  // Published: anon reads the parts; anon never writes them.
+  await q("update entries set status = 'published' where id = $1", [entry]);
+  assert.equal(
+    (await as(null, () => q("select 1 from entry_faq where entry_id = $1", [entry]))).length,
+    1,
+  );
+  assert.equal(
+    (await as(null, () => q("select 1 from learn_more_tiles where id = $1", [custom.id]))).length,
+    1,
+  );
+  await as(null, () =>
+    refused(
+      q("insert into entry_faq (entry_id, position, question, answer) values ($1, 5, 'Q', 'A')", [
+        entry,
+      ]),
     ),
   );
 });
