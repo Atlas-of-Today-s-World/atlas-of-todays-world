@@ -31,3 +31,6 @@ coverage/
 
 # Worker MapLibre (kopíruje scripts/copy-maplibre-worker.mjs při dev/build)
 /public/maplibre/
+
+# Storybook build
+/storybook-static/

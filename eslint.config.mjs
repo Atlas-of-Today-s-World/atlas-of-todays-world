@@ -12,6 +12,7 @@ const config = [
       "node_modules/**",
       "demo/**",
       "public/maplibre/**",
+      "storybook-static/**",
       "test-results/**",
       "playwright-report/**",
       "coverage/**",

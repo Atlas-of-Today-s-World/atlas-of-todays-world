@@ -27,6 +27,8 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint
+      - name: Storybook se sestaví (katalog sdílených komponent)
+        run: npm run build-storybook
       - run: npm run format:check
       - run: npm run test:coverage
       - run: npm run test:db

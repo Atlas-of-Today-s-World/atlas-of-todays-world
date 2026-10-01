@@ -8,6 +8,8 @@
     "dev": "next dev -p 3000",
     "prebuild": "node scripts/copy-maplibre-worker.mjs",
     "build": "next build",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build --quiet",
     "start": "next start -p 3000",
     "data:geo": "node scripts/fetch-geodata.mjs",
     "data:indicators": "node scripts/import-indicators.mjs",
@@ -64,6 +66,7 @@
     "@axe-core/playwright": "^4.13.0",
     "@electric-sql/pglite": "^0.5.8",
     "@playwright/test": "^1.63.0",
+    "@storybook/nextjs-vite": "^10.6.1",
     "@tailwindcss/postcss": "^4.1.14",
     "@types/node": "^22.18.0",
     "@types/react": "^19.2.0",
@@ -81,9 +84,11 @@
     "prettier": "^3.9.9",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "sharp": "^0.35.4",
+    "storybook": "^10.6.1",
     "tailwindcss": "^4.1.14",
     "topojson-client": "^3.1.0",
     "typescript": "^5.9.3",
+    "vite": "^7.3.6",
     "vitest": "^5.0.3"
   },
   "engines": {
