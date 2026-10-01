@@ -7,15 +7,15 @@ export function absoluteUrl(path: string): string {
 }
 
 /**
- * Geo meta tagy. Starší standard (geo.position / ICBM / geo.region), který
- * čtou lokální vyhledávače a agregátory; moderní roboti berou JSON-LD níž,
- * ale tohle nic nestojí a rozšiřuje záběr.
+ * Geo meta tags. An older standard (geo.position / ICBM / geo.region) read by
+ * local search engines and aggregators; modern bots use the JSON-LD below,
+ * but this costs nothing and broadens reach.
  */
 export function geoMeta(input: {
   lat: number | null;
   lon: number | null;
   placename: string;
-  /** ISO 3166-1 alpha-2, případně alpha-2 s regionem. */
+  /** ISO 3166-1 alpha-2, optionally alpha-2 with a region. */
   regionCode?: string | null;
 }): Record<string, string> {
   const out: Record<string, string> = { "geo.placename": input.placename };
@@ -30,13 +30,13 @@ export function geoMeta(input: {
   return out;
 }
 
-/** Jazykové varianty. Zatím jen angličtina, ale hreflang je připravený. */
+/** Language variants. English only for now, but hreflang is ready. */
 export function alternates(
   path: string,
   locale: Locale = DEFAULT_LOCALE,
   /**
-   * Jazyky, ve kterých stránka opravdu existuje (novinka a heslo jen tam,
-   * kde je zveřejněný překlad, G5.3). Bez něj všechny jazyky webu.
+   * Languages the page actually exists in (news items and entries only where
+   * a translation is published, G5.3). Without it, all site languages.
    */
   available: readonly Locale[] = LOCALES,
 ): Metadata["alternates"] {
@@ -54,7 +54,7 @@ export interface Crumb {
   path: string;
 }
 
-/** Drobečková navigace pro roboty – Google z ní staví cestu ve výsledcích. */
+/** Breadcrumbs for bots – Google builds the result path from them. */
 export function breadcrumbJsonLd(crumbs: Crumb[]) {
   return {
     "@context": "https://schema.org",
@@ -68,7 +68,7 @@ export function breadcrumbJsonLd(crumbs: Crumb[]) {
   };
 }
 
-/** Souřadnice ve tvaru, kterému rozumí schema.org. */
+/** Coordinates in the shape schema.org understands. */
 export function geoCoordinates(lat: number | null, lon: number | null) {
   if (lat === null || lon === null) return undefined;
   return {
@@ -79,8 +79,8 @@ export function geoCoordinates(lat: number | null, lon: number | null) {
 }
 
 /**
- * Vykreslí JSON-LD. Escapuje `<`, aby obsah nemohl uzavřít <script> –
- * texty novinek píše redakce, ale i ta se občas splete.
+ * Renders JSON-LD. Escapes `<` so the content can't close the <script> –
+ * news texts are written by the editors, and even they slip up sometimes.
  */
 export function jsonLdHtml(data: unknown): string {
   return JSON.stringify(data).replace(/</g, "\\u003c");

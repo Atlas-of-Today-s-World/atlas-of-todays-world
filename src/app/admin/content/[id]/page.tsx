@@ -50,7 +50,7 @@ export default async function EditEntryPage({
       getPickerOptions(),
       listRevisions(id),
       supabase.rpc("can_approve_entry", { p_entry: id }),
-      // Seedované články vlastníka nemají — pak rozhoduje rozsah role (news_scope).
+      // Seeded articles have no owner — then the role scope decides (news_scope).
       supabase.rpc("can_edit_entry", { p_owner: entry.owner_id as string }),
       entry.status === "pending" ? publishedVersion(id) : Promise.resolve(null),
       listAuthors(),

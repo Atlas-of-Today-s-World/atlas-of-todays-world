@@ -21,14 +21,14 @@ export function can(permissions: Permissions, section: Section, action: Action):
   return permissions[section]?.includes(action) ?? false;
 }
 
-/** Smí vůbec do administrace (aspoň jedna sekce k zobrazení)? */
+/** May they access the admin at all (at least one section to show)? */
 export function isStaff(permissions: Permissions): boolean {
   return SECTIONS.some((section) => can(permissions, section, "v"));
 }
 
 /**
- * Přihlášený uživatel a jeho oprávnění z DB (`my_permissions()`, ARCHITEKTURA 7.2).
- * Slouží UI (menu, tlačítka); o zápisu rozhoduje vždy RLS.
+ * The signed-in user and their permissions from the DB (`my_permissions()`, ARCHITEKTURA 7.2).
+ * Serves the UI (menu, buttons); writes are always decided by RLS.
  */
 export const getAccess = cache(async function getAccess(): Promise<Access | null> {
   const supabase = await createServerClient();
@@ -57,8 +57,8 @@ export const getAccess = cache(async function getAccess(): Promise<Access | null
 });
 
 /**
- * Pro stránku sekce administrace: přístup, pokud má uživatel v sekci danou
- * akci, jinak null (stránka ukáže „Nemáte oprávnění"). Jen UX — data chrání RLS.
+ * For an admin section page: access if the user has the given action in the
+ * section, otherwise null (the page shows "You don't have permission"). UX only — RLS protects the data.
  */
 export async function sectionAccess(section: Section, action: Action = "v") {
   const access = await getAccess();

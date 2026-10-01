@@ -22,9 +22,9 @@ interface Option {
 }
 
 /**
- * Editor novinky/hesla: metadata, země, obálka a text (Server Action `saveEntry`).
- * Encyklopedické heslo (P9) má navíc odrážky shrnutí, zvuk a autora z profilu;
- * kapitoly a zdroje mají vlastní editory pod formulářem.
+ * News/entry editor: metadata, countries, cover and text (Server Action `saveEntry`).
+ * An encyclopedia entry (P9) also has summary bullets, audio and an author from a profile;
+ * chapters and sources have their own editors below the form.
  */
 export function EntryForm({
   entry,
@@ -42,7 +42,7 @@ export function EntryForm({
   const [state, action] = useActionState<ActionState, FormData>(saveEntry, { ok: false });
   const formRef = useRef<HTMLFormElement>(null);
   const backup = useDraftBackup(formRef, entry?.id ?? "new", entry?.updated_at ?? null);
-  // Výchozí hodnoty polí: z databáze, nebo z obnovené zálohy (pak se pole přemontují).
+  // Default field values: from the database, or from a restored backup (then the fields remount).
   const [values, setValues] = useState<Partial<EditableEntry> | null>(entry);
   const [generation, setGeneration] = useState(0);
   const [slug, setSlug] = useState(entry?.slug ?? "");
@@ -51,7 +51,7 @@ export function EntryForm({
   const isEntry = kind === "entry";
   const errors = state.fieldErrors ?? {};
   const published = entry?.status === "published";
-  // Překlad má adresu i druh po originálu (G5.3).
+  // A translation takes its address and kind from the original (G5.3).
   const translation = Boolean(entry?.translation_of);
   const field = (id: string, hint?: string) => describedBy(id, { hint, errors: errors[id] });
   const { clear } = backup;

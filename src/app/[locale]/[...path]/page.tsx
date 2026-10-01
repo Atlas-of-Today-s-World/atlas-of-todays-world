@@ -2,12 +2,12 @@ import { localeFrom } from "@/features/i18n/request";
 import { redirectOrNotFound } from "@/features/redirects/queries";
 
 /**
- * Adresy, které na webu neexistují (staré URL, přejmenované stránky): podle
- * tabulky `redirects` přesměruje, jinak vykreslí běžnou stránku 404.
+ * URLs that don't exist on the site (old URLs, renamed pages): redirects per
+ * the `redirects` table, otherwise renders the regular 404 page.
  *
- * Konkrétní routy mají vždy přednost, sem padá jen to, co by bylo 404.
- * Renderuje se na požádání (ne ISR), aby se každá náhodná adresa od robotů
- * neukládala do cache; přesměrování se čtou z `unstable_cache`, ne z DB.
+ * Specific routes always take precedence; only what would be a 404 lands here.
+ * Rendered on demand (not ISR) so that every random URL from robots isn't
+ * cached; redirects are read from `unstable_cache`, not from the DB.
  */
 export const dynamic = "force-dynamic";
 

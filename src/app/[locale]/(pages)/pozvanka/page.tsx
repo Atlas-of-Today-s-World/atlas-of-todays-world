@@ -16,8 +16,8 @@ export async function generateMetadata({
 }
 
 /**
- * Stránka, na kterou vede odkaz z pozvánky. Nenese žádné tajemství — role se
- * přidělí podle ověřeného e-mailu při přihlášení (ARCHITEKTURA 7.3).
+ * The page an invitation link leads to. It carries no secret — the role is
+ * assigned by the verified e-mail at sign-in (ARCHITEKTURA 7.3).
  */
 export default async function InvitationPage({ params }: { params: Promise<{ locale: string }> }) {
   const t = getMessages(await localeFrom(params)).invite;

@@ -31,12 +31,12 @@ const LEGACY_ADMIN_REDIRECTS = LEGACY_ADMIN_PATHS.map(([source, destination]) =>
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  // Produkční build si umí sáhnout do jiné složky než běžící `next dev`.
-  // Bez toho build přepíše .next pod rukama vývojovému serveru a ten spadne.
-  // Použití: NEXT_DIST_DIR=.next-build npx next build
+  // The production build can write to a different folder than a running `next dev`.
+  // Without this the build overwrites .next under the dev server, which crashes.
+  // Usage: NEXT_DIST_DIR=.next-build npx next build
   distDir: process.env.NEXT_DIST_DIR || ".next",
-  // Vlastní celky se přejmenovaly na Global Issues. Staré adresy jsou venku
-  // (ve sdílené ukázce i v odkazech), takže musí přesměrovat, ne mizet.
+  // Custom units were renamed to Global Issues. The old URLs are out there
+  // (in the shared demo and in links), so they must redirect, not vanish.
   async redirects() {
     return [
       {
@@ -44,9 +44,9 @@ const nextConfig: NextConfig = {
         destination: "/global-issue/:slug",
         permanent: true,
       },
-      // Stránka podpory se jmenuje Atlas Patrons, jak ji zná web i zadání.
+      // The support page is called Atlas Patrons, as the site and the brief know it.
       { source: "/support", destination: "/patrons", permanent: true },
-      // Portrét regionu je jen jeden; dosavadní „full" verze na něj ukazuje.
+      // There is only one region portrait; the former "full" version points to it.
       {
         source: "/region/:slug/full",
         destination: "/region/:slug",
@@ -55,8 +55,8 @@ const nextConfig: NextConfig = {
       ...LEGACY_ADMIN_REDIRECTS,
     ];
   },
-  // MapLibre z public/maplibre/<verze>/ (ADR-017): verze je v cestě, takže se
-  // soubor nikdy nezmění — prohlížeč ho může držet natrvalo.
+  // MapLibre from public/maplibre/<version>/ (ADR-017): the version is in the path,
+  // so the file never changes — the browser may cache it forever.
   async headers() {
     return [
       {
@@ -65,8 +65,8 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  // next/image se nepoužívá; optimizer vypnutý, aby /_next/image nebyl
-  // otevřený proxy pro libovolný host.
+  // next/image is not used; the optimizer is off so /_next/image isn't
+  // an open proxy for any host.
   images: { unoptimized: true },
 };
 

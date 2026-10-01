@@ -1,8 +1,8 @@
 import type { AtlasSnapshot } from "@/features/geography/model";
 
 /**
- * Která pole celků jdou přeložit (jediný seznam pro web i administraci).
- * Klíč celku: region a issue → slug, country → iso3, indicator → id.
+ * Which unit fields can be translated (single list for the site and the admin).
+ * Unit key: region and issue → slug, country → iso3, indicator → id.
  */
 export const TRANSLATABLE = {
   region: ["name", "tagline", "summary"],
@@ -14,7 +14,7 @@ export const TRANSLATABLE = {
 export type TranslatableEntity = keyof typeof TRANSLATABLE;
 export const TRANSLATABLE_ENTITIES = Object.keys(TRANSLATABLE) as TranslatableEntity[];
 
-/** Sekce oprávnění celku — stejné jako translation_section() v DB. */
+/** Permission section of a unit — same as translation_section() in the DB. */
 export const ENTITY_SECTION = {
   region: "regions",
   country: "regions",
@@ -22,7 +22,7 @@ export const ENTITY_SECTION = {
   indicator: "layers",
 } as const satisfies Record<TranslatableEntity, string>;
 
-/** Pole s HTML (při uložení projde sanitizací). */
+/** Fields with HTML (sanitized on save). */
 export const HTML_FIELDS: ReadonlySet<string> = new Set(["profile_html"]);
 
 export interface TranslationRow {
@@ -55,9 +55,9 @@ function apply<T>(items: T[], key: (item: T) => string, map: Overrides): T[] {
 }
 
 /**
- * Snímek Atlasu s přeloženými texty. Co přeložené není, zůstane anglicky;
- * čísla, barvy a vazby se nemění. HTML profilu projde stejnou sanitizací
- * jako originál (při skládání modelu).
+ * Atlas snapshot with translated texts. Whatever isn't translated stays English;
+ * numbers, colours and relations don't change. Profile HTML goes through the same
+ * sanitization as the original (when the model is assembled).
  */
 export function localizeSnapshot(snapshot: AtlasSnapshot, rows: TranslationRow[]): AtlasSnapshot {
   if (!rows.length) return snapshot;

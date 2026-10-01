@@ -12,7 +12,7 @@ import type { ActionState } from "@/lib/actions";
 import { deleteAuthor, saveAuthor } from "../actions";
 import type { AuthorRow } from "../editorial";
 
-/** Profil autora hesel: jméno, fotka, životopis a positionality statement (P9). */
+/** Entry author profile: name, photo, bio and positionality statement (P9). */
 export function AuthorForm({ author }: { author: AuthorRow | null }) {
   const [state, action] = useActionState<ActionState, FormData>(saveAuthor, { ok: false });
   const errors = state.fieldErrors ?? {};

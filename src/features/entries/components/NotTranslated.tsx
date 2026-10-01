@@ -2,8 +2,8 @@ import type { Locale } from "@/features/i18n/config";
 import { getMessages } from "@/features/i18n/messages";
 
 /**
- * Pruh nad článkem, když překlad do jazyka stránky chybí a čtenář vidí
- * originál (G5.3). Jinak nic.
+ * Bar above the article when a translation into the page language is missing
+ * and the reader sees the original (G5.3). Otherwise nothing.
  */
 export function NotTranslated({ page, text }: { page: Locale; text: Locale }) {
   if (page === text) return null;

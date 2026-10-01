@@ -4,8 +4,8 @@ import { useEffect } from "react";
 import { useMapState, type SelectionMode } from "./MapContext";
 
 /**
- * Přepne globus do daného režimu výběru. Používá to routa global issue,
- * aby po otevření odkazu zvenčí seděl i přepínač nad mapou.
+ * Switches the globe to the given selection mode. Used by the global issue route
+ * so that the switcher above the map matches when a link is opened from outside.
  */
 export default function MapModeSetter({ mode }: { mode: SelectionMode }) {
   const { setMode } = useMapState();

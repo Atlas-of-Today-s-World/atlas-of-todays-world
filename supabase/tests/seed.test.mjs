@@ -6,8 +6,8 @@ import { fileURLToPath } from "node:url";
 import { PGlite } from "@electric-sql/pglite";
 
 /**
- * Seed z dnešního obsahu: projde schématem, jde pustit znovu a nepřepíše,
- * co redakce mezitím změnila. Předpoklad: `npm run db:seed` už seed vyrobil.
+ * Seed from today's content: it passes the schema, can be rerun and doesn't
+ * overwrite editors' later changes. Assumes `npm run db:seed` has built the seed.
  */
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -27,7 +27,7 @@ before(async () => {
   await db.exec(seed);
 });
 
-test("seed naplní všechno, z čeho se kreslí Atlas", async () => {
+test("seed fills everything the Atlas is drawn from", async () => {
   assert.equal(await count("regions"), 9);
   assert.ok((await count("countries")) >= 228);
   assert.equal(await count("indicators"), 9);
@@ -39,14 +39,14 @@ test("seed naplní všechno, z čeho se kreslí Atlas", async () => {
   assert.ok((await count("portrait_metrics")) >= 1);
 });
 
-test("sporná území nesou poznámku a Kosovo je XKX", async () => {
+test("disputed territories carry a note and Kosovo is XKX", async () => {
   const kosovo = (await db.query("select slug, territory_note from countries where iso3 = 'XKX'"))
     .rows[0];
   assert.equal(kosovo.slug, "kosovo");
   assert.match(kosovo.territory_note, /1244/);
 });
 
-test("anonymní čtenář dostane novinky i s napojenými zeměmi", async () => {
+test("anonymous reader gets news along with linked countries", async () => {
   await db.exec("set role anon");
   const rows = (
     await db.query(`
@@ -59,7 +59,7 @@ test("anonymní čtenář dostane novinky i s napojenými zeměmi", async () => 
   assert.ok(rows.some((r) => r.countries > 0));
 });
 
-test("anonym dostane celý portrét jedním voláním portrait()", async () => {
+test("anonymous user gets the whole portrait in one portrait() call", async () => {
   await db.exec("set role anon");
   const region = (await db.query("select portrait('region', 'eastern-europe-central-asia') as p"))
     .rows[0].p;
@@ -78,7 +78,7 @@ test("anonym dostane celý portrét jedním voláním portrait()", async () => {
   assert.equal(missing, null);
 });
 
-test("seed přenese fotky regionů, obálky novinek a profily zemí", async () => {
+test("seed carries over region photos, news covers and country profiles", async () => {
   const noHero = (await db.query("select slug from regions where hero_url is null")).rows;
   assert.deepEqual(noHero, []);
   const covers = Number(
@@ -90,14 +90,14 @@ test("seed přenese fotky regionů, obálky novinek a profily zemí", async () =
   assert.doesNotMatch(ukraine.profile_html, /<script/i);
 });
 
-test("HTML novinek je vyčištěné", async () => {
+test("news HTML is sanitized", async () => {
   const bad = (
     await db.query(`select slug from entries where body_html ~* '<script|onerror=|javascript:'`)
   ).rows;
   assert.deepEqual(bad, []);
 });
 
-test("druhé spuštění nic nezdvojí a ruční práci nepřepíše", async () => {
+test("second run duplicates nothing and keeps manual edits", async () => {
   const before = {
     values: await count("indicator_values"),
     entries: await count("entries"),
@@ -122,12 +122,12 @@ test("druhé spuštění nic nezdvojí a ruční práci nepřepíše", async () 
       "select value from indicator_values where indicator_id = 'hdi' and country_iso3 = 'CZE'",
     )
   ).rows[0];
-  assert.equal(Number(value.value), 0.123, "ruční hodnota zůstala");
+  assert.equal(Number(value.value), 0.123, "manual value kept");
   const entry = (await db.query("select title from entries where slug = 'sahel-coup-belt'"))
     .rows[0];
-  assert.equal(entry.title, "Edited by the newsroom", "upravený článek zůstal");
+  assert.equal(entry.title, "Edited by the newsroom", "edited article kept");
   const region = (
     await db.query("select intro from regions where slug = 'middle-east-north-africa'")
   ).rows[0];
-  assert.equal(region.intro, "Written in the admin", "úvod z administrace zůstal");
+  assert.equal(region.intro, "Written in the admin", "intro from the admin kept");
 });

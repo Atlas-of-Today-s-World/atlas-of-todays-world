@@ -21,23 +21,23 @@ import {
   type PlannedEntry,
 } from "./sections";
 
-/** Co portrét zobrazuje — region Atlasu, nebo global issue redakce. */
+/** What the portrait shows — an Atlas region, or an editorial global issue. */
 export interface PortraitSubject {
   kind: "region" | "issue";
   name: string;
   subtitle?: string;
-  /** Shrnutí z dat Atlasu; nahradí ho úvod redakce (`dossier.intro`). */
+  /** Summary from Atlas data; replaced by the editorial intro (`dossier.intro`). */
   summary: string;
   hero?: string | null;
-  /** Barva celku na mapě (proužek pod nadpisem u global issue). */
+  /** Color of the group on the map (stripe under the heading for a global issue). */
   accent?: string;
-  /** U skupiny zemí: globální téma, nebo vlastní region (jiný štítek). */
+  /** For a group of countries: a global topic, or a custom region (different label). */
   groupKind?: "issue" | "region";
   countries: { slug: string; name: string }[];
   population: number;
 }
 
-/** Texty, které se liší pro region a pro skupinu zemí (global issue). */
+/** Texts that differ for a region and for a group of countries (global issue). */
 function wordingFor(kind: "region" | "issue", t: Messages, groupKind?: "issue" | "region") {
   const region = kind === "region";
   return {
@@ -54,12 +54,12 @@ function wordingFor(kind: "region" | "issue", t: Messages, groupKind?: "issue" |
 }
 
 /**
- * Portrét regionu i global issue (ARCHITEKTURA 15.1, D3). Podle zadání
- * existuje jen jeden – žádná krátká a dlouhá verze – a otevírá se rovnou celý.
+ * Portrait of a region or a global issue (ARCHITEKTURA 15.1, D3). Per the brief
+ * there is only one – no short and long version – and it opens in full right away.
  *
- * Sekce, ke kterým redakce zatím nic nenapsala, se nevynechávají: kreslí se
- * šedivé a nekliknutelné, s výzvou k podpoře. Klíčové ukazatele mají data
- * všude, protože se počítají z importovaných dat, ne z redakčního textu.
+ * Sections the editors haven't written anything for yet aren't skipped: they're drawn
+ * grey and non-clickable, with a call for support. Key indicators have data
+ * everywhere, because they're computed from imported data, not editorial text.
  */
 export default function Portrait({
   subject,
@@ -70,7 +70,7 @@ export default function Portrait({
 }: {
   subject: PortraitSubject;
   news: NewsCard[];
-  /** Encyklopedická hesla (P9): zveřejněná s odkazem, plánovaná se `slug: null`. */
+  /** Encyclopedia entries (P9): published ones with a link, planned ones with `slug: null`. */
   entries: PlannedEntry[];
   dossier: RegionDossier;
   stats: RegionStat[];
@@ -114,7 +114,7 @@ export default function Portrait({
             aria-hidden
           />
         ) : null}
-        {/* Úvodní odstavec píše redakce; bez něj zůstává shrnutí z dat Atlasu. */}
+        {/* The intro paragraph is written by the editors; without it the Atlas data summary stays. */}
         <p className="mt-3 text-[13.5px] leading-relaxed whitespace-pre-line text-[var(--color-ink-soft)]">
           {dossier.intro?.trim() || subject.summary}
         </p>
@@ -197,7 +197,7 @@ export default function Portrait({
   );
 }
 
-/** Novinka → karta portrétu (klientské komponentě jen to, co potřebuje). */
+/** News item → portrait card (only what the client component needs). */
 export function newsCards(
   items: {
     slug: string;
@@ -217,8 +217,8 @@ export function newsCards(
 }
 
 /**
- * Hesla podle čtyř témat. Kde redakce zatím žádné heslo nenapsala ani
- * nenaplánovala, ukazujeme aspoň obecná témata – šedivě.
+ * Entries by four topics. Where the editors haven't written or planned any entry
+ * yet, we show at least the generic topics – greyed out.
  */
 function plannedEntries(name: string, entries: PlannedEntry[], t: Messages): PlannedEntry[] {
   const planned: PlannedEntry[] = entries.map((entry) => ({
@@ -242,7 +242,7 @@ function plannedEntries(name: string, entries: PlannedEntry[], t: Messages): Pla
   return planned;
 }
 
-/** Kategorie novinek Atlasu na čtyři tematické skupiny ze zadání. */
+/** Atlas news categories mapped to the four topic groups from the brief. */
 function entryCategory(category: string): string {
   switch (category) {
     case "Living Conditions":

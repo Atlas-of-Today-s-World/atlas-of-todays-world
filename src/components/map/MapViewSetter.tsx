@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useMapState } from "./MapContext";
 
-/** Přepne globus na konkrétní datovou vrstvu (routa /view/<indikátor>). */
+/** Switches the globe to a specific data layer (route /view/<indicator>). */
 export default function MapViewSetter({ view }: { view: string }) {
   const { setView } = useMapState();
   useEffect(() => {

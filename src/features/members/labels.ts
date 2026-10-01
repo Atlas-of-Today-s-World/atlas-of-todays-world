@@ -1,4 +1,4 @@
-// Popisky členství bez Reactu — čte je serverová stránka i klientský formulář.
+// Membership labels without React — read by the server page and the client form.
 export const PLAN_LABEL: Record<string, string> = {
   none: "—",
   patron: "Patron",

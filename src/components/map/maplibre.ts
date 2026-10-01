@@ -4,10 +4,10 @@ import type * as MapLibre from "maplibre-gl";
 import { version } from "maplibre-gl/package.json";
 
 /**
- * MapLibre 6 se načítá za běhu z public/maplibre/<verze>/ (ADR-017), ne z
- * bundlu: hlavní modul i worker pak sdílejí jeden `maplibre-gl-shared.mjs`
- * (prohlížeč ho stáhne jednou). V bundlu by sdílený kód byl dvakrát
- * (~150 kB gzip navíc na každé stránce s glóbem).
+ * MapLibre 6 is loaded at runtime from public/maplibre/<version>/ (ADR-017), not from
+ * the bundle: the main module and the worker then share one `maplibre-gl-shared.mjs`
+ * (the browser downloads it once). In the bundle the shared code would be there twice
+ * (~150 kB gzip extra on every page with the globe).
  */
 const BASE = `/maplibre/${version}`;
 

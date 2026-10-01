@@ -16,10 +16,10 @@ import { swap } from "@/lib/array";
 type Item = Record<string, string>;
 
 /**
- * Editor jedné sekce portrétu (nebo zdrojů hesla): položky přidat, odebrat,
- * posunout (tlačítky, ať to jde i z klávesnice). Uloží se celá sekce najednou
- * — v jedné transakci — Server Action `save`; `target` říká, kam patří
- * (u portrétu kind + slug, u hesla entry_id).
+ * Editor of one portrait section (or entry sources): add, remove and move
+ * items (with buttons, so it works from the keyboard too). The whole section is
+ * saved at once — in one transaction — via the Server Action `save`; `target`
+ * says where it belongs (kind + slug for a portrait, entry_id for an entry).
  */
 export function CollectionEditor({
   save,

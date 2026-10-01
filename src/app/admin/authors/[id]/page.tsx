@@ -9,7 +9,7 @@ import { uuid } from "@/lib/validation/common";
 
 export const metadata: Metadata = { title: "Author profile" };
 
-/** Nový autor (`/admin/authors/new`), nebo úprava existujícího. */
+/** New author (`/admin/authors/new`), or editing an existing one. */
 export default async function AuthorPage({
   params,
   searchParams,

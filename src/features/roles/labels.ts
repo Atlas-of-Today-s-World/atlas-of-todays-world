@@ -1,7 +1,7 @@
-// Popisky matice oprávnění bez Zodu (importuje je i klientská PermissionMatrix).
+// Permission matrix labels without Zod (the client PermissionMatrix imports them too).
 import type { SECTIONS } from "@/features/auth/sections";
 
-/** Popisky sekcí oprávnění (role_permissions.section) pro matici. */
+/** Labels of permission sections (role_permissions.section) for the matrix. */
 export const SECTION_LABEL: Record<(typeof SECTIONS)[number], string> = {
   news: "Articles",
   approvals: "Article approvals",

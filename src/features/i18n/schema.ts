@@ -2,7 +2,7 @@ import { z } from "zod";
 import { TARGET_LOCALES } from "./labels";
 import { TRANSLATABLE_ENTITIES } from "./translatable";
 
-/** Uložení překladů jednoho celku; prázdné pole = překlad smazat (web ukáže angličtinu). */
+/** Saving translations of one unit; empty field = delete the translation (the site shows English). */
 export const TranslationInput = z.object({
   entity: z.enum(TRANSLATABLE_ENTITIES as [string, ...string[]]),
   key: z.string().trim().min(1).max(120),

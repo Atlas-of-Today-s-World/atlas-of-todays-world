@@ -48,7 +48,7 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
             {t.openAdmin}
           </Link>
         ) : null}
-        {/* Stažení vlastních dat (GDPR čl. 15 a 20); obyčejný odkaz, žádný JavaScript. */}
+        {/* Download of own data (GDPR Art. 15 and 20); a plain link, no JavaScript. */}
         <a href="/api/account/export" download className={buttonVariants({ variant: "outline" })}>
           {t.download}
         </a>

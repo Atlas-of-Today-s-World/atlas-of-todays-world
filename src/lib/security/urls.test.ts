@@ -7,7 +7,7 @@ describe("safeUrl", () => {
     ["https://example.org/a.png", "https://example.org/a.png"],
     ["  https://example.org  ", "https://example.org/"],
     ["/region/mena", "/region/mena"],
-  ])("povolí %s", (input, expected) => {
+  ])("allows %s", (input, expected) => {
     expect(safeUrl(input)).toBe(expected);
   });
 
@@ -27,34 +27,34 @@ describe("safeUrl", () => {
     null,
     undefined,
     42,
-  ])("odmítne %s", (input) => {
+  ])("rejects %s", (input) => {
     expect(safeUrl(input)).toBeNull();
   });
 
-  it("mailto jen na vyžádání", () => {
+  it("mailto only on request", () => {
     expect(safeUrl("mailto:a@b.cz", { allowMailto: true })).toBe("mailto:a@b.cz");
   });
 });
 
 describe("cssBackgroundImage", () => {
-  it("obalí bezpečnou URL", () => {
+  it("wraps a safe URL", () => {
     expect(cssBackgroundImage("https://x.org/a.jpg")).toBe('url("https://x.org/a.jpg")');
   });
 
-  it("escapuje znaky, kterými by šlo z url() utéct", () => {
+  it("escapes characters that could break out of url()", () => {
     const value = cssBackgroundImage('https://x.org/a.jpg?q=")");color:red;(') ?? "";
-    // Uvnitř url("…") nesmí zůstat uvozovka ani závorka, kterou by šlo řetězec ukončit.
+    // Inside url("…") there must be no quote or parenthesis that could end the string.
     expect(value.startsWith('url("') && value.endsWith('")')).toBe(true);
     expect(value.slice(5, -2)).not.toMatch(/["()]/);
   });
 
-  it("nebezpečnou URL nevrátí", () => {
+  it("doesn't return an unsafe URL", () => {
     expect(cssBackgroundImage("javascript:alert(1)")).toBeUndefined();
   });
 });
 
 describe("safeRedirect", () => {
-  it.each(["/admin", "/admin/entries?id=1", "/"])("povolí %s", (target) => {
+  it.each(["/admin", "/admin/entries?id=1", "/"])("allows %s", (target) => {
     expect(safeRedirect(target)).toBe(target);
   });
 
@@ -69,11 +69,11 @@ describe("safeRedirect", () => {
     "",
     null,
     undefined,
-  ])("odmítne %s", (target) => {
+  ])("rejects %s", (target) => {
     expect(safeRedirect(target, "/fallback")).toBe("/fallback");
   });
 
-  it("ořízne mezery kolem", () => {
+  it("trims surrounding whitespace", () => {
     expect(safeRedirect("  /admin  ")).toBe("/admin");
   });
 });

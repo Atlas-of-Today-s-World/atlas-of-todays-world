@@ -2,9 +2,9 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
 /**
- * Automatická kontrola přístupnosti (F8, WCAG 2.1 AA) na hlavních typech
- * stránek. Plátno globusu (WebGL) axe neumí posoudit — vynechává se; jeho
- * obsah je dostupný i jinak (hledání, tabulky vrstev, seznam pro čtečky).
+ * Automated accessibility check (F8, WCAG 2.1 AA) on the main page types.
+ * axe cannot assess the globe canvas (WebGL), so it is excluded; its content
+ * is available in other ways too (search, layer tables, screen-reader list).
  */
 const PAGES = [
   "/",
@@ -19,7 +19,7 @@ const PAGES = [
   "/login",
   "/news/nordic-model-under-strain",
   "/search?q=Japan",
-  // Česká verze (G5): jiné texty i jiná délka popisků — vlastní kontrola.
+  // Czech version (G5): different texts and label lengths — checked separately.
   "/cs",
   "/cs/country/ukraine",
   "/cs/region/east-asia",
@@ -29,12 +29,12 @@ const PAGES = [
   "/cs/about",
   "/cs/search?q=Japan",
   "/cs/login",
-  // Stránka 404 v mapě i mimo ni.
+  // The 404 page both inside and outside the map.
   "/news/this-does-not-exist",
   "/this-page-does-not-exist",
 ];
 
-/** Vážná a kritická porušení WCAG 2.1 AA (plátno globusu axe neumí posoudit). */
+/** Serious and critical WCAG 2.1 AA violations (axe cannot assess the globe canvas). */
 async function seriousViolations(page: Page) {
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
@@ -51,7 +51,7 @@ async function seriousViolations(page: Page) {
     );
 }
 
-test("přístupnost: kvíz na stránce 404 během hry", async ({ page }) => {
+test("accessibility: quiz on the 404 page during a game", async ({ page }) => {
   await page.goto("/cs/news/tohle-neexistuje");
   await page.getByRole("button", { name: "Play the outline quiz" }).click();
   await expect(page.getByRole("heading", { name: "Which country is this?" })).toBeVisible();
@@ -60,17 +60,17 @@ test("přístupnost: kvíz na stránce 404 během hry", async ({ page }) => {
 });
 
 for (const path of PAGES) {
-  test(`přístupnost: ${path}`, async ({ page }) => {
+  test(`accessibility: ${path}`, async ({ page }) => {
     await page.goto(path);
     await page.waitForLoadState("networkidle");
     expect(await seriousViolations(page)).toEqual([]);
   });
 }
 
-// Na mapových stránkách si fokus bere rovnou panel s obsahem; skip-link je
-// pro stránky, kde je nejdřív menu.
+// On map pages the content panel takes focus directly; the skip link is for
+// pages where the menu comes first.
 test("skip-link vede k obsahu", async ({ page, isMobile }) => {
-  test.skip(isMobile, "klávesnice");
+  test.skip(isMobile, "keyboard");
   await page.goto("/about");
   await page.keyboard.press("Tab");
   const skip = page.getByRole("link", { name: "Skip to content" });

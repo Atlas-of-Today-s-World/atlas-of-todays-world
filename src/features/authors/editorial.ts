@@ -1,7 +1,7 @@
 import "server-only";
 import { createServerClient } from "@/lib/supabase/server";
 
-/** Čtení autorů pro redakci — pod session uživatele, bez cache. */
+/** Reading authors for editors — under the user's session, no cache. */
 
 export interface AuthorRow {
   id: string;

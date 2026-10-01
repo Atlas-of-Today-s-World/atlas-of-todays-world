@@ -29,10 +29,10 @@ const blank = (): Chapter => ({
 });
 
 /**
- * Kapitoly encyklopedického hesla (P9): každá má titulek, 3–5 odrážek
- * shrnutí, ilustraci, zvuk a plný text. Pole jsou nekontrolovaná a pojmenovaná
- * stejně u každé kapitoly — Server Action je přečte v pořadí na stránce.
- * Klíč kapitoly drží rozepsaný text i při posunu nahoru/dolů.
+ * Encyclopedia entry chapters (P9): each has a title, 3–5 summary bullets,
+ * an illustration, audio and full text. Fields are uncontrolled and named
+ * the same in every chapter — the Server Action reads them in page order.
+ * The chapter key keeps unsaved text when moving up/down.
  */
 export function ChaptersEditor({
   entryId,
@@ -41,7 +41,7 @@ export function ChaptersEditor({
   entryId: string;
   initial: EditableChapter[];
 }) {
-  // Klíče uložených kapitol podle pořadí — stejné na serveru i v prohlížeči (hydratace).
+  // Keys of saved chapters by order — same on the server and in the browser (hydration).
   const [chapters, setChapters] = useState<Chapter[]>(() =>
     initial.map((chapter, index) => ({ ...chapter, key: `saved-${index}` })),
   );

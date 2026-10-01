@@ -3,7 +3,7 @@ import { ErrorState } from "@/components/atlas/ErrorState";
 import { CountryQuiz } from "@/features/quiz/CountryQuiz";
 import { getT } from "@/features/i18n/request";
 
-/** 404 na mapových stránkách — v panelu, globus zůstává; pod hláškou kvíz obrysů. */
+/** 404 on map pages — in the panel, the globe stays; the outline quiz below the message. */
 export default function NotFound() {
   const t = getT();
   return (

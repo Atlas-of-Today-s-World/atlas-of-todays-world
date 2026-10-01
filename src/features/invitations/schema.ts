@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { checkbox, emailAddress, iso3, slug, text } from "@/lib/validation/common";
 
-/** Vstup formuláře pozvánky — limity shodné s DB (invitations). */
+/** Invitation form input — limits matching the DB (invitations). */
 export const InvitationInput = z.object({
   email: emailAddress,
   roleId: slug(40),

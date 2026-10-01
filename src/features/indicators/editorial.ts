@@ -1,7 +1,7 @@
 import "server-only";
 import { createServerClient } from "@/lib/supabase/server";
 
-/** Ukazatel se vším, co potřebuje editor (pod session uživatele, bez cache). */
+/** Indicator with everything the editor needs (under the user's session, no cache). */
 export async function indicatorForEdit(id: string) {
   const supabase = await createServerClient();
   const [indicator, categories, values] = await Promise.all([

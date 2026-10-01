@@ -3,9 +3,9 @@
 import { useLayoutEffect, useRef } from "react";
 
 /**
- * Ref s poslední hodnotou pro obsluhy událostí, které vznikají jednou (např.
- * v efektu, který vytváří mapu). Zápis až po vykreslení — React Compiler
- * nedovolí sahat na ref během renderu.
+ * Ref holding the latest value for event handlers created once (e.g. in an
+ * effect that creates the map). Written only after render — React Compiler
+ * doesn't allow touching a ref during render.
  */
 export function useLatest<T>(value: T) {
   const ref = useRef(value);

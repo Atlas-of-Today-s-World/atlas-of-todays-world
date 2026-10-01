@@ -10,19 +10,19 @@ export interface SearchHit {
   kind: SearchKind;
   title: string;
   subtitle: string;
-  /** Úryvek pod výsledkem. */
+  /** Snippet below the result. */
   body: string;
   url: string;
-  /** Kam otočit globus, když uživatel výsledek otevře. */
+  /** Where to rotate the globe when the user opens the result. */
   center?: [number, number];
   zoom?: number;
   score: number;
 }
 
 /**
- * Fulltext nad celým Atlasem přes RPC `search()` v Postgresu (ADR-005):
- * index je vždy aktuální a sdílený všemi instancemi. Úryvek a střed mapy
- * se doplní z modelu, který už je v cache.
+ * Full-text search across the whole Atlas via the Postgres RPC `search()` (ADR-005):
+ * the index is always current and shared by all instances. The snippet and map
+ * center are filled in from the model, which is already cached.
  */
 export async function search(query: string, limit = 12): Promise<SearchHit[]> {
   const trimmed = query.trim().slice(0, 200);

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Produkční build do .next-build, aby nesestřelil běžící `npm run dev`.
- * Windows nemá `VAR=x cmd`, proto je to skript a ne jednořádkový npm script.
+ * Production build into .next-build so it does not break a running `npm run dev`.
+ * Windows has no `VAR=x cmd`, hence a script rather than a one-line npm script.
  */
 import { spawn } from "node:child_process";
 

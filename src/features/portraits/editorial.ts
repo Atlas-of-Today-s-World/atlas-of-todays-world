@@ -4,8 +4,8 @@ import { createServerClient } from "@/lib/supabase/server";
 import type { Collection } from "./schema";
 
 /**
- * Čtení portrétů pro úpravy (pod session uživatele, bez cache). Položky
- * kolekcí se vrací v pořadí a v tvaru, v jakém je editor pošle zpátky.
+ * Reading portraits for editing (under the user's session, no cache). Collection
+ * items are returned in order and in the shape the editor sends them back.
  */
 
 type Owner = { region: string } | { issue: string } | { country: string };
@@ -47,7 +47,7 @@ export async function portraitItems(owner: Owner, collections: Collection[]) {
       const { data, error } = await query.order("position");
       if (error) throw new Error(`[portrait] ${collection}: ${error.message}`);
       const rows = (data ?? []) as unknown as Record<string, unknown>[];
-      // Formuláře pracují s řetězci; null → "".
+      // Forms work with strings; null → "".
       return [
         collection,
         rows.map((row) =>
@@ -99,10 +99,10 @@ export async function countryForEdit(slug: string) {
 }
 
 /**
- * Co smí přihlášený v portrétu uložit — stejná pravidla jako RLS:
- * hlavička = sekce regions/specials „e", texty sekcí (osa, FAQ, zdroje,
- * vizuály) = redakce článků s rozsahem na všechny články, ruční karty =
- * regions „e". Stránka podle toho ukáže editor, nebo jen náhled.
+ * What the signed-in user may save in a portrait — the same rules as RLS:
+ * header = section regions/specials "e", section texts (timeline, FAQ, sources,
+ * visuals) = article editors with scope over all articles, manual cards =
+ * regions "e". The page shows the editor accordingly, or just a preview.
  */
 export async function portraitRights(
   permissions: Permissions,
@@ -115,7 +115,7 @@ export async function portraitRights(
   return {
     head: can(permissions, kind === "issue" ? "specials" : "regions", "e"),
     text: can(permissions, "news", "e") && allNews === true,
-    // Karty metrik skupiny hlídá právo na skupiny (RLS portrait_metrics, migrace 30).
+    // Group metric cards are governed by the groups right (RLS portrait_metrics, migration 30).
     metrics: can(permissions, kind === "issue" ? "specials" : "regions", "e"),
   };
 }

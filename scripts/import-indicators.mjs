@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
- * Hromadný import datových vrstev pro mapu.
+ * Bulk import of the map's data layers.
  *
- * Zdroj: Our World in Data (CC-BY). Pro každou vrstvu vezme poslední rok,
- * ve kterém má daná země hodnotu, a uloží ji do src/data/indicators.generated.json.
+ * Source: Our World in Data (CC-BY). For each layer it takes the latest year
+ * in which a country has a value and saves it to src/data/indicators.generated.json.
  *
- * Spouštěj jednou za rok (nebo po vydání nových dat): `npm run data:indicators`
- * Když jeden zdroj selže, ostatní se doimportují a skript to vypíše na konci.
+ * Run once a year (or after new data is released): `npm run data:indicators`
+ * If one source fails, the rest are still imported and the script reports it at the end.
  */
 import { writeFile, readFile } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
@@ -15,7 +15,7 @@ import { INDICATORS } from "./indicators.config.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
-/** Kosovo má v OWID vlastní kód, Natural Earth ho vede jako XKX. */
+/** Kosovo has its own code in OWID; Natural Earth lists it as XKX. */
 const CODE_ALIASES = { OWID_KOS: "XKX" };
 
 function parseCsv(text) {
@@ -60,17 +60,17 @@ function parseCsv(text) {
 async function importIndicator(indicator) {
   const url = `https://ourworldindata.org/grapher/${indicator.owidSlug}.csv?v=1&csvType=full&useColumnShortNames=true`;
   const res = await fetch(url, { headers: { "User-Agent": "atlas-of-todays-world/0.1" } });
-  if (!res.ok) throw new Error(`HTTP ${res.status} pro ${indicator.owidSlug}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${indicator.owidSlug}`);
 
   const rows = parseCsv(await res.text());
   const header = rows.shift();
-  if (!header) throw new Error(`Prázdné CSV pro ${indicator.owidSlug}`);
+  if (!header) throw new Error(`Empty CSV for ${indicator.owidSlug}`);
 
   const codeIdx = header.indexOf("code");
   const yearIdx = header.indexOf("year");
   const valueIdx = indicator.valueColumn ? header.indexOf(indicator.valueColumn) : 3;
   if (codeIdx < 0 || yearIdx < 0 || valueIdx < 0) {
-    throw new Error(`Neznámá struktura CSV u ${indicator.owidSlug}: ${header.join(",")}`);
+    throw new Error(`Unknown CSV structure for ${indicator.owidSlug}: ${header.join(",")}`);
   }
 
   /** @type {Record<string, { value: number; year: number }>} */
@@ -78,7 +78,7 @@ async function importIndicator(indicator) {
   for (const row of rows) {
     const rawCode = row[codeIdx];
     if (!rawCode) continue;
-    // Agregáty (World, Europe, ...) nemají ISO3 kód, jen OWID_*.
+    // Aggregates (World, Europe, ...) have no ISO3 code, only OWID_*.
     if (rawCode.startsWith("OWID_") && !CODE_ALIASES[rawCode]) continue;
     const code = CODE_ALIASES[rawCode] ?? rawCode;
     if (code.length !== 3) continue;
@@ -114,29 +114,29 @@ async function main() {
     try {
       const data = await importIndicator(indicator);
       out[indicator.id] = data;
-      process.stdout.write(`${data.countryCount} zemí, poslední rok ${data.latestYear}\n`);
+      process.stdout.write(`${data.countryCount} countries, latest year ${data.latestYear}\n`);
     } catch (error) {
       failures.push(`${indicator.id}: ${error.message}`);
-      process.stdout.write(`CHYBA\n`);
+      process.stdout.write(`ERROR\n`);
     }
   }
 
   const target = resolve(ROOT, "src/data/indicators.generated.json");
-  // Když jeden zdroj spadne, nepřepisujeme ho prázdnou hodnotou – necháme starou.
+  // If one source fails, do not overwrite it with an empty value – keep the old one.
   try {
     const previous = JSON.parse(await readFile(target, "utf8"));
     for (const [key, value] of Object.entries(previous)) {
       if (!out[key]) out[key] = value;
     }
   } catch {
-    /* první běh, žádná předchozí data */
+    /* first run, no previous data */
   }
 
   await writeFile(target, `${JSON.stringify(out, null, 0)}\n`);
-  process.stdout.write(`\nUloženo do ${target}\n`);
+  process.stdout.write(`\nSaved to ${target}\n`);
 
   if (failures.length) {
-    process.stdout.write(`\nNepodařilo se:\n${failures.map((f) => `  - ${f}`).join("\n")}\n`);
+    process.stdout.write(`\nFailed:\n${failures.map((f) => `  - ${f}`).join("\n")}\n`);
     process.exitCode = 1;
   }
 }

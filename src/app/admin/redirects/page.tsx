@@ -19,8 +19,8 @@ const KIND = [
 ];
 
 /**
- * Správa přesměrování (G3). Přesměrování se uplatní jen místo stránky 404 —
- * existující stránku nepřebije. Kdo smí přidat a smazat, hlídá RLS (sekce news).
+ * Redirect management (G3). A redirect only applies instead of a 404 page —
+ * it never overrides an existing page. Who may add and delete is guarded by RLS (news section).
  */
 export default async function RedirectsPage({
   searchParams,

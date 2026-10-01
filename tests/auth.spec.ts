@@ -9,12 +9,12 @@ import {
   testEmail,
 } from "./support/accounts";
 
-/** Přihlášení a pozvánky se skutečnými účty (PLAN C8) — jen proti atlas-dev. */
+/** Sign-in and invitations with real accounts (PLAN C8) — against atlas-dev only. */
 requireDevAccounts();
 test.afterAll(cleanUp);
 
-test.describe("účty a pozvánky", () => {
-  test("čtenář se přihlásí, ale do administrace nesmí", async ({ page }) => {
+test.describe("accounts and invitations", () => {
+  test("reader signs in but may not enter the admin", async ({ page }) => {
     const email = testEmail("reader");
     await createUser(email);
     await signIn(page, email);
@@ -28,22 +28,22 @@ test.describe("účty a pozvánky", () => {
     await expect(page.getByTestId("admin-forbidden")).toBeVisible();
   });
 
-  test("pozvaný publisher dostane roli a vidí jen své sekce", async ({ page }) => {
+  test("invited publisher gets the role and sees only its sections", async ({ page }) => {
     const email = testEmail("publisher");
     await invite(email, "publisher");
     await createUser(email);
     await signIn(page, email);
 
-    // Přijatá pozvánka posílá rovnou do administrace.
+    // An accepted invitation sends the user straight to the admin.
     await expect(page).toHaveURL(/\/admin$/);
     const nav = page.getByRole("navigation", { name: "Administration" });
     await expect(page.getByText(`${email} · Article writer`)).toBeVisible();
-    // Menu jen ze sekcí, na které role má právo „v".
+    // The menu lists only sections the role has the "v" (view) right for.
     await expect(nav.getByRole("link", { name: "Articles" })).toBeVisible();
     await expect(nav.getByRole("link", { name: "Accounts & invitations" })).toHaveCount(0);
     await expect(nav.getByRole("link", { name: "Roles & permissions" })).toHaveCount(0);
 
-    // Sekce je chráněná i mimo menu.
+    // The section is protected outside the menu too.
     await page.goto("/admin/accounts/invitations");
     await expect(page.getByTestId("section-forbidden")).toBeVisible();
 
@@ -55,7 +55,7 @@ test.describe("účty a pozvánky", () => {
     expect(invitation?.accepted_at).not.toBeNull();
   });
 
-  test("pozvánku na jiný e-mail nejde přijmout", async ({ page }) => {
+  test("invitation for a different e-mail cannot be accepted", async ({ page }) => {
     const invited = testEmail("invited");
     const intruder = testEmail("intruder");
     await invite(invited, "publisher");
@@ -74,7 +74,7 @@ test.describe("účty a pozvánky", () => {
     expect(invitation?.accepted_at).toBeNull();
   });
 
-  test("odhlášení ukončí session", async ({ page }) => {
+  test("sign-out ends the session", async ({ page }) => {
     const email = testEmail("signout");
     await createUser(email);
     await signIn(page, email);
@@ -86,7 +86,7 @@ test.describe("účty a pozvánky", () => {
     await expect(page).toHaveURL(/\/login\?next=%2Fucet/);
   });
 
-  test("čtenář si stáhne svá data (GDPR), anonym ne", async ({ page, request }) => {
+  test("reader downloads own data (GDPR), anonymous cannot", async ({ page, request }) => {
     expect((await request.get("/api/account/export")).status()).toBe(401);
     const email = testEmail("export");
     await createUser(email);

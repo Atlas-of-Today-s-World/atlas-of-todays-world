@@ -4,9 +4,9 @@ import type { Database } from "@/lib/db/types.gen";
 import { requireSupabaseConfig } from "./config";
 
 /**
- * Anonymní klient bez cookies pro veřejné čtení (ARCHITEKTURA 4.2). RLS mu
- * ukáže jen publikovaný obsah; výsledky jdou do `unstable_cache`, proto
- * nesmí záviset na tom, kdo se dívá.
+ * Anonymous cookie-less client for public reads (ARCHITEKTURA 4.2). RLS shows
+ * it only published content; results go into `unstable_cache`, so they
+ * must not depend on who is viewing.
  */
 export function createPublicClient() {
   const { url, anonKey } = requireSupabaseConfig();

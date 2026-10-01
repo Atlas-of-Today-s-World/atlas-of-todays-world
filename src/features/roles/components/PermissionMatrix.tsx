@@ -53,9 +53,9 @@ export function PermissionMatrix({
 }) {
   const router = useRouter();
   const sections = matrixSections();
-  // Kliknutí platí hned (optimisticky), dokud ze serveru nepřijdou nová data.
-  // Pak rozhoduje `granted` — matice ukazuje, co DB opravdu uložila, i když
-  // změnu odmítla nebo ji RLS tiše neprovedla.
+  // A click applies immediately (optimistically) until new data comes from the server.
+  // Then `granted` decides — the matrix shows what the DB actually saved, even if
+  // it rejected the change or RLS silently skipped it.
   const [overrides, setOverrides] = useState<
     Record<string, { grants: RoleGrants; saving: boolean }>
   >({});

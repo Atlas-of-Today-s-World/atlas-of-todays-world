@@ -19,8 +19,8 @@ const GrantInput = z.object({
 });
 
 /**
- * Členství zdarma (jen admin, guard_memberships). Placená členství řídí
- * výhradně Stripe webhook — z aplikace je nikdo nezmění ani nesmaže.
+ * Free membership (admin only, guard_memberships). Paid memberships are managed
+ * exclusively by the Stripe webhook — nobody can change or delete them from the app.
  */
 export async function grantMembership(
   _prev: ActionState,

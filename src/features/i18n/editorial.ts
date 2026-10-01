@@ -2,7 +2,7 @@ import "server-only";
 import { createServerClient } from "@/lib/supabase/server";
 import { TRANSLATABLE, type TranslatableEntity } from "./translatable";
 
-/** Tabulka a klíčový sloupec originálu (anglický text). */
+/** Table and key column of the original (English text). */
 const SOURCE = {
   region: { table: "regions", key: "slug", order: "position" },
   country: { table: "countries", key: "iso3", order: "name" },
@@ -22,7 +22,7 @@ async function originals(entity: TranslatableEntity, key?: string): Promise<Row[
   const { table, key: keyColumn, order } = SOURCE[entity];
   const columns = [keyColumn, ...TRANSLATABLE[entity]].join(", ");
   const supabase = await createServerClient();
-  // Tabulka se vybírá podle druhu celku, typy DB to staticky nevyjádří.
+  // The table is chosen by unit kind; DB types can't express that statically.
   const base = supabase.from(table).select(columns) as unknown as Filterable;
   const query = base.order(order).limit(1000);
   const { data, error } = await (key ? query.eq(keyColumn, key) : query);
@@ -52,7 +52,7 @@ export interface TranslationListItem {
   total: number;
 }
 
-/** Celky jednoho druhu s počtem přeložených polí (seznam v administraci). */
+/** Units of one kind with the number of translated fields (admin list). */
 export async function listTranslations(
   entity: TranslatableEntity,
   locale: string,
@@ -66,7 +66,7 @@ export async function listTranslations(
     fields.set(row.field, row.value);
     byKey.set(row.entity_key, fields);
   }
-  // Pole, která v originálu nejsou vyplněná, se nepočítají (není co překládat).
+  // Fields that are empty in the original don't count (nothing to translate).
   return rows.map((row) => {
     const key = row[keyColumn] as string;
     const fields = byKey.get(key);
@@ -81,7 +81,7 @@ export async function listTranslations(
   });
 }
 
-/** Originál a překlad jednoho celku pro formulář. */
+/** Original and translation of one unit for the form. */
 export async function translationForEdit(entity: TranslatableEntity, key: string, locale: string) {
   const [rows, done] = await Promise.all([
     originals(entity, key),

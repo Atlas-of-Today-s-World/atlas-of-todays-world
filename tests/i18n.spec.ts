@@ -1,11 +1,11 @@
 import { expect, test } from "@playwright/test";
 
 /**
- * G5: jazykové verze. Angličtina bez předpony, čeština pod /cs, přepínač vede
- * na stejnou stránku v druhém jazyce a odkazy zůstávají v jazyce stránky.
+ * G5: language versions. English without a prefix, Czech under /cs, the switcher
+ * leads to the same page in the other language and links stay in the page language.
  */
-test.describe("jazykové verze", () => {
-  test("česká verze má české menu, lang a odkazy s předponou", async ({ page }) => {
+test.describe("language versions", () => {
+  test("Czech version has Czech menu, lang and prefixed links", async ({ page }) => {
     await page.goto("/cs/about");
     await expect(page.locator('[lang="cs"]').first()).toBeAttached();
     const nav = page.getByRole("navigation", { name: "Hlavní" });
@@ -13,8 +13,8 @@ test.describe("jazykové verze", () => {
     await expect(nav.getByRole("link", { name: "Novinky" })).toHaveAttribute("href", "/cs/news");
   });
 
-  test("přepínač jazyka vede na tutéž stránku", async ({ page, isMobile }) => {
-    // Na mobilu je přepínač v menu za hamburgerem.
+  test("language switcher leads to the same page", async ({ page, isMobile }) => {
+    // On mobile the switcher is in the menu behind the hamburger.
     const openMenu = async (label: string) => {
       if (isMobile) await page.getByRole("button", { name: label }).click();
     };
@@ -27,13 +27,13 @@ test.describe("jazykové verze", () => {
     await expect(page).toHaveURL(/\/country\/ukraine$/);
   });
 
-  test("/en/… přesměruje na kanonickou adresu bez předpony", async ({ request }) => {
+  test("/en/… redirects to the canonical URL without a prefix", async ({ request }) => {
     const response = await request.get("/en/about", { maxRedirects: 0 });
     expect(response.status()).toBe(308);
     expect(response.headers().location).toMatch(/\/about$/);
   });
 
-  test("stránka nese hreflang pro obě verze", async ({ page }) => {
+  test("page carries hreflang for both versions", async ({ page }) => {
     await page.goto("/cs/country/ukraine");
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       "href",
@@ -47,11 +47,11 @@ test.describe("jazykové verze", () => {
 });
 
 /**
- * G5.3–G5.6: veřejná část v češtině — portrét, článek bez překladu, seznam,
- * hledání a stránka 404. Data jsou ze seedu (atlas-dev).
+ * G5.3–G5.6: the public site in Czech — portrait, untranslated article, list,
+ * search and the 404 page. Data come from the seed (atlas-dev).
  */
-test.describe("česká veřejná část", () => {
-  test("portrét regionu: český název, sekce a odkazy na země s předponou", async ({ page }) => {
+test.describe("Czech public site", () => {
+  test("region portrait: Czech name, sections and prefixed country links", async ({ page }) => {
     await page.goto("/cs/region/east-asia");
     await expect(page.getByRole("heading", { level: 1, name: "Východní Asie" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Encyklopedická hesla" })).toBeVisible();
@@ -62,7 +62,7 @@ test.describe("česká veřejná část", () => {
     );
   });
 
-  test("novinka bez překladu: originál s poznámkou, lang en, kanonická adresa originálu", async ({
+  test("untranslated news: original with a note, lang en, canonical URL of the original", async ({
     page,
   }) => {
     await page.goto("/cs/news/nordic-model-under-strain");
@@ -73,29 +73,29 @@ test.describe("česká veřejná část", () => {
       "href",
       /\/news\/nordic-model-under-strain$/,
     );
-    // hreflang jen pro jazyky, ve kterých článek opravdu je.
+    // hreflang only for languages the article actually exists in.
     await expect(page.locator('link[hreflang="cs"]')).toHaveCount(0);
     await expect(page.locator('link[hreflang="en"]')).toHaveCount(1);
   });
 
-  test("seznam novinek vede na české adresy článků", async ({ page }) => {
+  test("news list links to Czech article URLs", async ({ page }) => {
     await page.goto("/cs/news");
     const article = page.locator('a[href^="/cs/news/"]').first();
     await expect(article).toBeVisible();
     await expect(page.locator('main a[href^="/news/"]')).toHaveCount(0);
   });
 
-  test("hledání vrací odkazy v jazyce stránky", async ({ page }) => {
+  test("search returns links in the page language", async ({ page }) => {
     await page.goto("/cs/search?q=Japan");
     await expect(page.locator('main a[href="/cs/country/japan"]').first()).toBeVisible();
   });
 
-  test("neexistující heslo vrátí 404", async ({ request }) => {
+  test("non-existent entry returns 404", async ({ request }) => {
     const response = await request.get("/cs/entry/tohle-heslo-neexistuje");
     expect(response.status()).toBe(404);
   });
 
-  test("404 nabízí kvíz obrysů (zatím jen anglicky)", async ({ page }) => {
+  test("404 offers the outline quiz (English only for now)", async ({ page }) => {
     await page.goto("/cs/news/tohle-neexistuje");
     await page.getByRole("button", { name: "Play the outline quiz" }).click();
     await expect(page.getByRole("heading", { name: "Which country is this?" })).toBeFocused();

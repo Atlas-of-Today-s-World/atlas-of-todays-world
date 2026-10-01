@@ -1,28 +1,28 @@
 /**
- * Mapování kolekcí Webflow CMS na model Atlasu (PLAN G7, brief P16).
+ * Mapping of Webflow CMS collections onto the Atlas model (PLAN G7, brief P16).
  *
- * ⚠ Názvy souborů a polí jsou ODHAD podle stávajícího webu — export z Webflow
- * zatím nemáme. Až přijde, spusť importér nanečisto (bez --apply): vypíše,
- * které soubory chybí a která pole jsou prázdná, a podle toho uprav `file`
- * a klíče v `fields` níž. Klíče polí jsou ve tvaru slugu: sloupec „Main Image"
- * z CSV i pole `main-image` z API jsou obojí `fields["main-image"]`.
+ * ⚠ File and field names are a GUESS based on the current site — we do not have
+ * the Webflow export yet. When it arrives, run the importer as a dry run (without
+ * --apply): it lists which files are missing and which fields are empty; adjust
+ * `file` and the keys in `fields` below accordingly. Field keys are slug-shaped:
+ * the CSV column "Main Image" and the API field `main-image` are both `fields["main-image"]`.
  *
- * Každá kolekce:
- *   name     — jméno pro výpis a přesměrování
- *   file     — soubor v adresáři exportu (`.csv` z CMS Export, nebo `.json` z API v2)
- *   target   — kam se ukládá:
+ * Each collection:
+ *   name     — name for output and redirects
+ *   file     — file in the export directory (`.csv` from CMS Export, or `.json` from API v2)
+ *   target   — where it is stored:
  *              { type: "portrait", kind: "region" | "issue" | "country", slug, collection }
- *                (collection: timeline | faq | resources | visuals | metrics — nahradí se celá)
- *              { type: "entries" }                     (upsert podle slugu)
- *              { type: "region", slug }                (hlavička portrétu regionu)
- *   map      — (item, h) => řádek | řádky | null;  `h` = pomocníci z core.mjs
- *   oldPath / newPath — volitelně vzor staré a nové adresy pro přesměrování ({slug})
+ *                (collection: timeline | faq | resources | visuals | metrics — replaced whole)
+ *              { type: "entries" }                     (upsert by slug)
+ *              { type: "region", slug }                (region portrait header)
+ *   map      — (item, h) => row | rows | null;  `h` = helpers from core.mjs
+ *   oldPath / newPath — optional old and new URL patterns for redirects ({slug})
  */
 
 const MENA = { type: "portrait", kind: "region", slug: "middle-east-north-africa" };
 const UKRAINE = { type: "portrait", kind: "issue", slug: "russia-ukraine-war" };
 
-/** Zdroj (dokument, kniha, databáze) — stejné pole pro MENA i Ukrajinu. */
+/** Resource (document, book, database) — same fields for MENA and Ukraine. */
 const resource = (item, h) => {
   const url = h.text(item.fields.link ?? item.fields.url);
   if (!url.startsWith("https://")) return null;
@@ -36,7 +36,7 @@ const resource = (item, h) => {
   };
 };
 
-/** Kategorie zdrojů z Webflow → pět kategorií Atlasu. */
+/** Resource categories from Webflow → the five Atlas categories. */
 const KIND = {
   Videos: "Videos & Documentaries",
   Documentaries: "Videos & Documentaries",
@@ -61,7 +61,7 @@ const timeline = (item, h) => ({
   image_url: h.text(item.fields.image) || null,
 });
 
-/** Videa z YouTube (40 vložení na webu) → zdroje „Videos & Documentaries". */
+/** YouTube videos (40 embeds on the site) → "Videos & Documentaries" resources. */
 const videos = (item, h) =>
   h
     .youtubeIds(
@@ -71,7 +71,7 @@ const videos = (item, h) =>
 
 const config = {
   collections: [
-    // --- MENA (34 seznamů, 148 položek) ------------------------------------
+    // --- MENA (34 lists, 148 items) ----------------------------------------
     {
       name: "mena-intro",
       file: "mena-portrait.csv",
@@ -93,7 +93,7 @@ const config = {
       name: "mena-indicators",
       file: "mena-indicators.csv",
       target: { ...MENA, collection: "metrics" },
-      // Bez citace se karta nepublikuje (P1) — položka bez zdroje se přeskočí.
+      // A card without a citation is not published (P1) — items without a source are skipped.
       map: (item, h) =>
         h.text(item.fields.source)
           ? {
@@ -128,7 +128,7 @@ const config = {
       }),
     },
 
-    // --- A Decade of War in Ukraine → první global issue (P8) -------------
+    // --- A Decade of War in Ukraine → the first global issue (P8) ---------
     {
       name: "ukraine-timeline",
       file: "ukraine-timeline.csv",
@@ -148,7 +148,7 @@ const config = {
       map: videos,
     },
 
-    // --- Rusko (16 seznamů, 73 položek) → redakční karty země ------------
+    // --- Russia (16 lists, 73 items) → editorial country cards -----------
     {
       name: "russia-indicators",
       file: "russia-indicators.csv",
@@ -166,7 +166,7 @@ const config = {
           : null,
     },
 
-    // --- Global Issues (6 seznamů, 56 položek) → plánovaná témata --------
+    // --- Global Issues (6 lists, 56 items) → planned topics --------------
     {
       name: "global-issues-topics",
       file: "global-issues.csv",
@@ -189,9 +189,9 @@ const config = {
   ],
 
   /**
-   * Stránky starého webu (všech 7 z briefu P16, ověřeno na www.atlasoftodaysworld.org
-   * 2026-10-01; stránky položek CMS starý web nemá). Úvod „/" zůstává.
-   * Global Issues nemá v Atlasu vlastní seznam — vede na globus.
+   * Pages of the old site (all 7 from brief P16, verified on www.atlasoftodaysworld.org
+   * 2026-10-01; the old site has no CMS item pages). The home page "/" stays.
+   * Global Issues has no list of its own in the Atlas — it leads to the globe.
    */
   redirects: [
     { from: "/about-us", to: "/about" },
@@ -205,7 +205,7 @@ const config = {
 
 export default config;
 
-/** Kategorie z Webflow → pět kategorií Atlasu (CHECK v entries.category). */
+/** Categories from Webflow → the five Atlas categories (CHECK on entries.category). */
 const CATEGORY = {
   "Living Conditions": "Living Conditions",
   Economy: "Living Conditions",

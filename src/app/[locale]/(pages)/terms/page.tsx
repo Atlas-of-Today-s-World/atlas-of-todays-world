@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: "The rules for using Atlas of Today's World.",
 };
 
-/** Podmínky použití (F5). */
+/** Terms of use (F5). */
 export default async function TermsPage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = await localeFrom(params);
   return (

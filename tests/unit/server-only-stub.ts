@@ -1,2 +1,2 @@
-// Náhrada balíčku "server-only" pro Vitest (viz vitest.config.ts).
+// Stand-in for the "server-only" package in Vitest (see vitest.config.ts).
 export {};

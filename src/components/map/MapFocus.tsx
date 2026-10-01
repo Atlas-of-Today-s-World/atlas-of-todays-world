@@ -6,7 +6,7 @@ import { useMapState } from "./MapContext";
 interface Props {
   center?: [number, number] | null;
   zoom?: number | null;
-  /** Výřez země/regionu; má přednost před center + zoom. */
+  /** Country/region bounds; take precedence over center + zoom. */
   bbox?: [number, number, number, number] | null;
   activeIso3?: string | null;
   regionCountries?: string[];
@@ -14,8 +14,8 @@ interface Props {
 }
 
 /**
- * Serverová stránka jen vyrenderuje <MapFocus …/> a globus v layoutu se sám
- * otočí na správné místo. Díky tomu zůstává mapa namontovaná napříč routami.
+ * The server page just renders <MapFocus …/> and the globe in the layout rotates
+ * to the right place by itself. Thanks to that the map stays mounted across routes.
  */
 export default function MapFocus({
   center = null,
@@ -27,8 +27,8 @@ export default function MapFocus({
 }: Props) {
   const { setFocus } = useMapState();
 
-  // Bez úklidu na unmount: při přechodu mezi routami si focus vždy nastaví
-  // nová stránka, takže by reset jen způsobil bliknutí zvýraznění.
+  // No cleanup on unmount: when moving between routes the new page always sets
+  // the focus, so a reset would only cause the highlight to flicker.
   useEffect(() => {
     setFocus({ center, zoom, bbox, activeIso3, regionCountries, regionStroke });
   }, [

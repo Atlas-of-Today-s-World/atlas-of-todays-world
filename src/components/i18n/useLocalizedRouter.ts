@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { localePath } from "@/features/i18n/config";
 import { useLocale } from "./LocaleProvider";
 
-/** `useRouter` pro veřejný web: push/prefetch s jazykovou předponou stránky. */
+/** `useRouter` for the public site: push/prefetch with the page's language prefix. */
 export function useLocalizedRouter() {
   const router = useRouter();
   const locale = useLocale();

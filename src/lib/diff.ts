@@ -3,16 +3,16 @@ export interface DiffPart {
   text: string;
 }
 
-/** HTML článku → odstavce prostého textu (pro porovnání verzí). */
+/** Article HTML → plain-text paragraphs (for comparing versions). */
 export function paragraphs(html: string): string[] {
   let text = html.replace(/<\/(p|h[2-4]|li|blockquote|figcaption)>/gi, "\n");
-  // Opakovaně, dokud se něco mění — jinak by z „<<b>i>" zbyla značka.
+  // Repeat while something changes — otherwise "<<b>i>" would leave a tag behind.
   for (let previous = ""; previous !== text;) {
     previous = text;
     text = text.replace(/<[^>]*>/g, "");
   }
-  // Výstup je prostý text pro porovnání (React ho escapuje); &amp; až nakonec,
-  // ať se „&amp;lt;" nedekóduje dvakrát.
+  // The output is plain text for comparison (React escapes it); &amp; goes last
+  // so that "&amp;lt;" is not decoded twice.
   return text
     .replace(/&nbsp;/g, " ")
     .replace(/&lt;/g, "<")
@@ -26,8 +26,8 @@ export function paragraphs(html: string): string[] {
 }
 
 /**
- * Rozdíl dvou seznamů odstavců (nejdelší společná podposloupnost). Stačí na
- * články o stovkách odstavců; schvalovatel uvidí, co přibylo a co zmizelo.
+ * Difference of two paragraph lists (longest common subsequence). Good enough for
+ * articles of hundreds of paragraphs; the approver sees what was added and removed.
  */
 export function diffParagraphs(before: string[], after: string[]): DiffPart[] {
   const rows = before.length;

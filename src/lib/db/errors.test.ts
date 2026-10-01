@@ -2,13 +2,13 @@ import { describe, expect, it, vi } from "vitest";
 import { mapDbError } from "./errors";
 
 describe("mapDbError", () => {
-  it("ukáže vlastní hlášku z triggeru", () => {
+  it("shows a custom message from a trigger", () => {
     expect(mapDbError({ code: "42501", message: "Only an admin can invite an admin." })).toBe(
       "Only an admin can invite an admin.",
     );
   });
 
-  it("technickou hlášku RLS nahradí srozumitelnou", () => {
+  it("replaces the technical RLS message with a readable one", () => {
     expect(
       mapDbError({
         code: "42501",
@@ -17,7 +17,7 @@ describe("mapDbError", () => {
     ).toBe("You don't have permission for this action.");
   });
 
-  it("duplicitu a porušení pravidla přeloží", () => {
+  it("translates a duplicate and a constraint violation", () => {
     expect(
       mapDbError({ code: "23505", message: 'duplicate key value violates unique constraint "k"' }),
     ).toBe("This record already exists.");
@@ -26,7 +26,7 @@ describe("mapDbError", () => {
     );
   });
 
-  it("neznámou chybu jen zaloguje, uživateli neprozradí detail", () => {
+  it("only logs an unknown error and doesn't reveal details to the user", () => {
     const log = vi.spyOn(console, "error").mockImplementation(() => {});
     expect(mapDbError({ code: "XX000", message: "internal detail: table secret_x" })).toBe(
       "Saving failed. Please try again.",

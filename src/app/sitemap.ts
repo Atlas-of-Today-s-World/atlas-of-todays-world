@@ -6,9 +6,9 @@ import { LOCALES, localePath, type Locale } from "@/features/i18n/config";
 import { SITE_URL } from "@/lib/site";
 
 /**
- * Kompletní mapa webu z databáze – každý region, země, global issue, datová
- * vrstva, novinka i heslo má URL. Přesměrované adresy (/support) sem nepatří.
- * `changeFrequency` říká robotům, jak často se sem vracet.
+ * Complete sitemap from the database – every region, country, global issue, data
+ * layer, news item and entry has a URL. Redirected URLs (/support) don't belong here.
+ * `changeFrequency` tells robots how often to come back.
  */
 const languagesOf = (path: string, locales: readonly Locale[]) => ({
   languages: Object.fromEntries(
@@ -33,7 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: now,
     changeFrequency,
     priority,
-    // Jazykové verze téže stránky (hreflang v sitemapě, G5).
+    // Language versions of the same page (hreflang in the sitemap, G5).
     alternates: {
       languages: Object.fromEntries(
         LOCALES.map((locale) => [locale, `${SITE_URL}${localePath(locale, path || "/")}`]),
@@ -56,7 +56,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...atlas.issues.map((issue) => page(`/global-issue/${issue.slug}`, "weekly", 0.8)),
     ...atlas.countries.map((country) => page(`/country/${country.slug}`, "monthly", 0.8)),
     ...atlas.indicators.map((indicator) => page(`/view/${indicator.id}`, "yearly", 0.7)),
-    // Novinky a hesla: hreflang jen pro jazyky se zveřejněnou verzí (G5.3).
+    // News and entries: hreflang only for languages with a published version (G5.3).
     ...entries.map((item) =>
       page(`/news/${item.slug}`, "monthly", 0.9, {
         alternates: languagesOf(`/news/${item.slug}`, item.languages),

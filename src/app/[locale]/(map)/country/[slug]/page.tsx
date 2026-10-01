@@ -13,8 +13,8 @@ import { absoluteUrl, alternates, breadcrumbJsonLd, geoCoordinates, geoMeta } fr
 import { JsonLd } from "@/components/JsonLd";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
 
-// true: s false vrací Next po revalidateTag (zápis v administraci) 404 i pro
-// existující stránky (NoFallbackError). Neznámý slug skončí přes notFound().
+// true: with false, Next returns 404 after revalidateTag (an admin write) even for
+// existing pages (NoFallbackError). An unknown slug ends up in notFound().
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
@@ -22,7 +22,7 @@ export async function generateStaticParams() {
   return countries.map((country) => ({ slug: country.slug }));
 }
 
-/** Popis pro země bez redakčního textu – složený z importovaných dat. */
+/** Description for countries without editorial text – composed from imported data. */
 function fallbackDescription(country: Country, t: Messages["countryText"]): string {
   const parts: string[] = [
     format(t.intro, {
@@ -162,7 +162,7 @@ export default async function CountryPage({
                   url: absoluteUrl(`/region/${region.slug}`),
                 }
               : undefined,
-            // Ukazatele jako strojově čitelné hodnoty i se zdrojem a rokem.
+            // Indicators as machine-readable values, with source and year.
             additionalProperty: country.stats.map((stat) => ({
               "@type": "PropertyValue",
               name: stat.label,

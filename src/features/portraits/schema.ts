@@ -11,9 +11,9 @@ import {
 } from "@/lib/validation/common";
 
 /**
- * Sekce portrétu jako seznamy položek. Tvary i limity odpovídají tabulkám
+ * Portrait sections as lists of items. Shapes and limits match the tables
  * (timeline_events, faq_items, resources, visual_embeds, portrait_metrics);
- * ukládá je DB funkce `replace_portrait_items` v jedné transakci.
+ * the DB function `replace_portrait_items` saves them in one transaction.
  */
 
 const optionalText = (max: number) => z.preprocess(blankToUndefined, text(max).optional());
@@ -43,7 +43,7 @@ export const COLLECTIONS = {
     caption: text(500).default(""),
     url: httpsUrl,
   }),
-  // Bez citace se karta nepublikuje (P1) — zdroj je povinný.
+  // A card without a citation isn't published (P1) — the source is required.
   metrics: z.object({
     value: requiredText(30),
     label: requiredText(80),
@@ -60,7 +60,7 @@ export const COLLECTION_NAMES = Object.keys(COLLECTIONS) as Collection[];
 export const PortraitKind = z.enum(["region", "issue", "country"]);
 export type PortraitKind = z.infer<typeof PortraitKind>;
 
-/** Hlavička portrétu regionu (tabulka regions). */
+/** Region portrait header (regions table). */
 export const RegionInput = z.object({
   slug: slug(120),
   name: requiredText(120),
@@ -75,10 +75,10 @@ export const RegionInput = z.object({
   timeline_subtitle: text(300),
 });
 
-/** Global issue (special_regions + jeho země). */
+/** Global issue (special_regions + its countries). */
 export const IssueInput = z.object({
   original_slug: z.preprocess(blankToUndefined, slug(120).optional()),
-  // Globální téma, nebo vlastní region ze zemí (special_regions.kind).
+  // Global issue, or a custom region made of countries (special_regions.kind).
   kind: z.enum(["issue", "region"]).default("issue"),
   slug: slug(120),
   name: requiredText(120),
@@ -97,7 +97,7 @@ export const IssueInput = z.object({
   countries: z.array(z.string().regex(/^[A-Z]{3}$/)).max(250),
 });
 
-/** Redakční profil země. */
+/** Editorial country profile. */
 export const CountryInput = z.object({
   iso3: z.string().regex(/^[A-Z]{3}$/),
   blurb: text(1000),

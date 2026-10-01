@@ -1,18 +1,18 @@
 import { test, expect, type Page } from "@playwright/test";
 
 /**
- * Průchod Atlasem očima návštěvníka.
+ * A walk through the Atlas through a visitor's eyes.
  *
- * Testy se drží toho, co zadání slibuje: z mapy do profilu země, odtud do
- * regionu, panel jde zavřít křížkem i klávesou, na mobilu funguje hamburger
- * a vyhledávání je schované do ikony. K tomu hlídají velikost dotykových cílů,
- * protože to je požadavek, který se nejsnáz ztratí při přebarvování.
+ * The tests stick to what the brief promises: from the map to a country profile,
+ * from there to the region, the panel closes with the X and a key, on mobile the
+ * hamburger works and search is tucked into an icon. They also guard touch target
+ * size, since that requirement is the easiest to lose during a restyle.
  */
 
-/** Ověří, že se na prvek dá pohodlně klepnout (minimum ze zadání je 44 px). */
+/** Checks that the element is comfortable to tap (the brief's minimum is 44 px). */
 async function hasTouchTarget(page: Page, selector: string) {
   const target = page.locator(selector).first();
-  // boundingBox() nečeká; panel se vysouvá až po hydrataci.
+  // boundingBox() does not wait; the panel slides out only after hydration.
   await expect(target).toBeVisible();
   const box = await target.boundingBox();
   expect(box, `${selector} není vidět`).not.toBeNull();
@@ -21,7 +21,7 @@ async function hasTouchTarget(page: Page, selector: string) {
 }
 
 test.describe("globus", () => {
-  test("načte hranice zemí bez chyb", async ({ page }) => {
+  test("loads country borders without errors", async ({ page }) => {
     const errors: string[] = [];
     page.on("console", (message) => {
       if (message.type() === "error" && message.text().includes("atlas-globe")) {
@@ -34,18 +34,18 @@ test.describe("globus", () => {
     );
     await page.goto("/");
     expect((await worker).status()).toBe(200);
-    // Atribut nastavuje AtlasGlobe, až je zdroj "countries" načtený (vyžaduje
-    // funkční web worker MapLibre).
+    // AtlasGlobe sets the attribute once the "countries" source is loaded
+    // (requires a working MapLibre web worker).
     await expect(page.locator('[data-countries="loaded"]')).toBeAttached({ timeout: 30_000 });
     expect(errors, "globus hlásí chyby").toEqual([]);
   });
 });
 
 test.describe("panel s obsahem", () => {
-  test("z profilu země se dá přejít do regionu a zpět na mapu", async ({ page }) => {
+  test("country profile leads to the region and back to the map", async ({ page }) => {
     await page.goto("/country/ukraine");
 
-    // Drobečková navigace vede do regionu.
+    // The breadcrumb leads to the region.
     await expect(
       page.getByRole("link", { name: "Eastern Europe & Central Asia" }).first(),
     ).toBeVisible();
@@ -57,7 +57,7 @@ test.describe("panel s obsahem", () => {
     ).toBeVisible();
   });
 
-  test("křížek má pohodlný dotykový cíl a zavírá panel", async ({ page }) => {
+  test("close button has a comfortable touch target and closes the panel", async ({ page }) => {
     await page.goto("/country/ukraine");
     await hasTouchTarget(page, 'a[aria-label="Close"]');
 
@@ -65,14 +65,14 @@ test.describe("panel s obsahem", () => {
     await expect(page).toHaveURL(/\/$/);
   });
 
-  test("panel se zavře klávesou Esc", async ({ page }) => {
+  test("panel closes with the Esc key", async ({ page }) => {
     await page.goto("/country/ukraine");
-    // Klávesu obsluhuje až připojený React, takže počkáme, než panel ožije,
-    // a klikneme do stránky – jinak klávesa nemá kam dorazit.
+    // Only hydrated React handles the key, so wait for the panel to come alive
+    // and click into the page — otherwise the key has nowhere to go.
     await expect(page.getByRole("link", { name: "Close" })).toBeVisible();
 
-    // Obsluha klávesy začne fungovat až po připojení Reactu. Kdy přesně to je,
-    // se zvenčí spolehlivě poznat nedá, takže stisk opakujeme.
+    // The key handler works only after React hydrates. When exactly that happens
+    // cannot be reliably detected from outside, so we retry the key press.
     await expect(async () => {
       await page.keyboard.press("Escape");
       await expect(page).toHaveURL(/\/$/, { timeout: 2_000 });
@@ -80,8 +80,8 @@ test.describe("panel s obsahem", () => {
   });
 });
 
-test.describe("portrét regionu", () => {
-  test("otevírá se rovnou celý a nenabízí druhou verzi", async ({ page }) => {
+test.describe("region portrait", () => {
+  test("opens in full right away and offers no second version", async ({ page }) => {
     await page.goto("/region/middle-east-north-africa");
 
     await expect(page.getByRole("heading", { name: "Key indicators" })).toBeVisible();
@@ -89,13 +89,13 @@ test.describe("portrét regionu", () => {
     await expect(page.getByText(/news items? published/)).toHaveCount(0);
   });
 
-  test("nenapsané sekce jsou šedivé, nekliknutelné a zvou k podpoře", async ({ page }) => {
+  test("unwritten sections are grey, not clickable and invite support", async ({ page }) => {
     await page.goto("/region/east-asia");
 
     await expect(page.getByText("Not written yet").first()).toBeVisible();
     await expect(page.getByRole("link", { name: /Help Us Complete It/ }).first()).toBeVisible();
 
-    // Plánovaná hesla nesmí vést nikam.
+    // Planned entries must not link anywhere.
     const planned = page.locator('[aria-disabled="true"]').first();
     await expect(planned).toBeVisible();
     await expect(planned).not.toHaveAttribute("href", /./);
@@ -103,7 +103,7 @@ test.describe("portrét regionu", () => {
 });
 
 test.describe("global issues", () => {
-  test("třetí poloha přepínače otevře portrét tématu", async ({ page }) => {
+  test("third switch position opens the topic portrait", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("radio", { name: "Global Issues" })).toBeVisible();
 
@@ -114,9 +114,9 @@ test.describe("global issues", () => {
 });
 
 test.describe("mobil", () => {
-  test.skip(({ isMobile }) => !isMobile, "jen pro mobilní projekt");
+  test.skip(({ isMobile }) => !isMobile, "mobile project only");
 
-  test("hamburger otevře menu a dá se zavřít klávesou", async ({ page }) => {
+  test("hamburger opens the menu and it closes with a key", async ({ page }) => {
     await page.goto("/");
 
     await hasTouchTarget(page, 'button[aria-label="Open menu"]');
@@ -131,7 +131,7 @@ test.describe("mobil", () => {
     await expect(menu).toBeHidden();
   });
 
-  test("vyhledávání je schované do ikony", async ({ page }) => {
+  test("search is tucked into an icon", async ({ page }) => {
     await page.goto("/");
 
     const search = page.getByRole("button", { name: "Search the Atlas" });
@@ -143,23 +143,23 @@ test.describe("mobil", () => {
   });
 });
 
-test.describe("přihlášení", () => {
-  test("administrace bez přihlášení vede na přihlášení přes Google", async ({ page }) => {
+test.describe("sign-in", () => {
+  test("admin without sign-in leads to Google sign-in", async ({ page }) => {
     await page.goto("/admin");
     await expect(page).toHaveURL(/\/login\?next=%2Fadmin/);
     await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
-    // Bez Supabase v prostředí (lokální build) stránka jen oznámí, že přihlášení není.
+    // Without Supabase in the environment (local build) the page only says sign-in is unavailable.
     const google = page.getByRole("button", { name: "Continue with Google" });
     const unavailable = page.getByText("Sign-in is not available");
     await expect(google.or(unavailable)).toBeVisible();
   });
 
-  test("účet bez přihlášení vede na přihlášení", async ({ page }) => {
+  test("account page without sign-in leads to sign-in", async ({ page }) => {
     await page.goto("/ucet");
     await expect(page).toHaveURL(/\/login\?next=%2Fucet/);
   });
 
-  test("stránka pozvánky vysvětlí, jak se přihlásit (v jazyce stránky)", async ({ page }) => {
+  test("invitation page explains how to sign in (in the page language)", async ({ page }) => {
     await page.goto("/pozvanka");
     await expect(page.getByRole("heading", { name: "Invitation to the Atlas team" })).toBeVisible();
     await page.goto("/cs/pozvanka");

@@ -11,7 +11,7 @@ import {
   text,
 } from "@/lib/validation/common";
 
-/** Popis a škála ukazatele — limity podle tabulky `indicators`. */
+/** Indicator description and scale — limits per the `indicators` table. */
 export const IndicatorInput = z
   .object({
     id: slug(60),
@@ -57,7 +57,7 @@ export const IndicatorInput = z
     }
   });
 
-/** Ručně zadaná hodnota — bez zdroje ji DB nepustí (každé číslo má původ). */
+/** Manually entered value — the DB rejects it without a source (every number has an origin). */
 export const ValueInput = z.object({
   indicator_id: slug(60),
   country_iso3: iso3,

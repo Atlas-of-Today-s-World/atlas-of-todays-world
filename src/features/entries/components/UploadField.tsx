@@ -12,7 +12,7 @@ const ACCEPT: Record<UploadKind, string> = { image: ACCEPT_IMAGES, audio: ACCEPT
 
 const STORAGE_PUBLIC = `${publicEnv.NEXT_PUBLIC_SUPABASE_URL ?? ""}/storage/v1/object/public/`;
 
-/** Veřejná adresa souboru v našem Supabase Storage, nebo null. */
+/** Public URL of a file in our Supabase Storage, or null. */
 function storageAudioUrl(value: string): string | null {
   if (!publicEnv.NEXT_PUBLIC_SUPABASE_URL || !value.startsWith(STORAGE_PUBLIC)) return null;
   const path = value
@@ -22,7 +22,7 @@ function storageAudioUrl(value: string): string | null {
       try {
         return encodeURIComponent(decodeURIComponent(part));
       } catch {
-        return encodeURIComponent(part); // zkomolené %xx v adrese
+        return encodeURIComponent(part); // malformed %xx in the URL
       }
     })
     .join("/");
@@ -30,8 +30,8 @@ function storageAudioUrl(value: string): string | null {
 }
 
 /**
- * Pole s adresou souboru: vložit https adresu, nebo nahrát soubor do Storage.
- * Obrázek ukáže náhled, zvuk přehrávač.
+ * File URL field: paste an https URL, or upload a file to Storage.
+ * An image shows a preview, audio a player.
  */
 export function UploadField({
   id,
@@ -50,8 +50,8 @@ export function UploadField({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const preview = kind === "image" ? cssBackgroundImage(url) : undefined;
-  // Přehrávač jen pro soubor z našeho úložiště: adresa se skládá z pevné
-  // předpony a cesty souboru, ne z toho, co kdo napíše do pole.
+  // Player only for a file from our storage: the URL is built from a fixed
+  // prefix and the file path, not from whatever someone types into the field.
   const audio = kind === "audio" ? storageAudioUrl(url) : null;
 
   return (

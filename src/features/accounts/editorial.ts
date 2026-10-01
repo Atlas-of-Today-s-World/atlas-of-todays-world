@@ -14,7 +14,7 @@ export interface AccountRow {
 
 const COLUMNS = "id, email, name, role_id, kind, status, created_at, last_seen_at";
 
-/** Účty podle druhu (tým / čtenáři) — RLS ukáže jen správcům účtů. */
+/** Accounts by kind (team / readers) — RLS shows them only to account managers. */
 export async function listAccounts(kind: "staff" | "reader", q?: string): Promise<AccountRow[]> {
   const supabase = await createServerClient();
   let query = supabase
@@ -24,7 +24,7 @@ export async function listAccounts(kind: "staff" | "reader", q?: string): Promis
     .is("deleted_at", null)
     .order("email")
     .limit(500);
-  // Hodnota ve filtru .or() v uvozovkách, bez znaků, které by filtr rozbily nebo změnily.
+  // Value in the .or() filter is quoted, without characters that would break or alter the filter.
   const needle = q
     ?.trim()
     .replace(/[%_,()"\\]/g, "")

@@ -22,8 +22,8 @@ const FIXTURES = resolve(__dirname, "fixtures/webflow");
 const fixture = (name: string) => readFileSync(resolve(FIXTURES, name), "utf8");
 const collection = (name: string) => config.collections.find((c) => c.name === name)!;
 
-describe("čtení exportu", () => {
-  it("CSV: uvozovky, zdvojené uvozovky, nový řádek v poli, BOM", () => {
+describe("reading the export", () => {
+  it("CSV: quotes, doubled quotes, newline in a field, BOM", () => {
     const rows = parseCsv('﻿Name,Note\r\n"A, b","say ""hi""\nthere"\r\nC,\r\n');
     expect(rows).toEqual([
       { Name: "A, b", Note: 'say "hi"\nthere' },
@@ -31,14 +31,14 @@ describe("čtení exportu", () => {
     ]);
   });
 
-  it("CSV export vynechá koncepty a pole převede na klíče ve tvaru slugu", () => {
+  it("CSV export skips drafts and converts fields to slug-shaped keys", () => {
     const items = readItems(fixture("global-issues.csv"), "csv");
     expect(items.map((item: { slug: string }) => item.slug)).toEqual(["sahel-coups-explained"]);
     expect(items[0].fields["main-image"]).toContain("website-files.com");
     expect(items[0].fields["post-body"]).toContain("second line");
   });
 
-  it("JSON z API v2 vynechá koncepty a rozbalí fieldData", () => {
+  it("JSON from API v2 skips drafts and unwraps fieldData", () => {
     const items = readItems(fixture("mena-timeline.json"), "json");
     expect(items.map((item: { slug: string }) => item.slug)).toEqual([
       "arab-spring",
@@ -51,8 +51,8 @@ describe("čtení exportu", () => {
   });
 });
 
-describe("pomocníci", () => {
-  it("prostý text, zkrácení, datum", () => {
+describe("helpers", () => {
+  it("plain text, truncation, date", () => {
     expect(plain("<p>A &amp; B</p><p>C</p>")).toBe("A & B\nC");
     expect(clip("one two three four", 10)).toBe("one two…");
     expect(clip("short", 10)).toBe("short");
@@ -60,7 +60,7 @@ describe("pomocníci", () => {
     expect(isoDate("nesmysl")).toBeNull();
   });
 
-  it("YouTube: všechny tvary odkazu, každé video jednou", () => {
+  it("YouTube: all link shapes, each video once", () => {
     expect(
       youtubeIds(
         "https://youtu.be/aqz-KE-bpKQ https://www.youtube.com/embed/dQw4w9WgXcQ https://www.youtube.com/watch?v=aqz-KE-bpKQ",
@@ -68,7 +68,7 @@ describe("pomocníci", () => {
     ).toEqual(["aqz-KE-bpKQ", "dQw4w9WgXcQ"]);
   });
 
-  it("soubory z Webflow CDN se najdou a přepíšou, cizí ne", () => {
+  it("files from the Webflow CDN are found and rewritten, foreign ones are not", () => {
     const html =
       '<img src="https://cdn.prod.website-files.com/a/b.jpg"><img src="https://example.org/c.jpg">';
     expect(webflowFiles(html)).toEqual(["https://cdn.prod.website-files.com/a/b.jpg"]);
@@ -81,14 +81,14 @@ describe("pomocníci", () => {
     ).toBe('<img src="https://s/x.jpg"><img src="https://example.org/c.jpg">');
   });
 
-  it("cesty přesměrování bez domény a koncového lomítka", () => {
+  it("redirect paths without domain and trailing slash", () => {
     expect(normalizePath("https://atlasoftodaysworld.org/post/abc/")).toBe("/post/abc");
     expect(normalizePath("adecadeofwarinukraine")).toBe("/adecadeofwarinukraine");
   });
 });
 
-describe("mapování podle konfigurace", () => {
-  it("Global Issues → plánovaná hesla: slug, kategorie, perex, bez textu", () => {
+describe("mapping by configuration", () => {
+  it("Global Issues → planned entries: slug, category, summary, no body", () => {
     const { rows } = mapCollection(
       readItems(fixture("global-issues.csv"), "csv"),
       collection("global-issues-topics"),
@@ -109,7 +109,7 @@ describe("mapování podle konfigurace", () => {
     ]);
   });
 
-  it("časová osa MENA z API: rok, popis jako prostý text, obrázek", () => {
+  it("MENA timeline from the API: year, description as plain text, image", () => {
     const { rows } = mapCollection(
       readItems(fixture("mena-timeline.json"), "json"),
       collection("mena-timeline"),
@@ -130,7 +130,7 @@ describe("mapování podle konfigurace", () => {
     ]);
   });
 
-  it("videa → zdroje „Videos & Documentaries“ s náhledem", () => {
+  it('videos → "Videos & Documentaries" sources with a thumbnail', () => {
     const { rows } = mapCollection(
       readItems(fixture("mena-videos.csv"), "csv"),
       collection("mena-videos"),
@@ -143,7 +143,7 @@ describe("mapování podle konfigurace", () => {
     });
   });
 
-  it("přesměrování: všech šest starých stránek vede na existující cesty Atlasu", () => {
+  it("redirects: all six old pages lead to existing Atlas paths", () => {
     const rows = buildRedirects(config, new Map());
     expect(rows.map((row) => row.from_path)).toEqual([
       "/about-us",
@@ -156,7 +156,7 @@ describe("mapování podle konfigurace", () => {
     expect(rows.every((row) => row.permanent && row.to_path.startsWith("/"))).toBe(true);
   });
 
-  it("přesměrování: vzor kolekce, bez duplicit a bez cesty samé na sebe", () => {
+  it("redirects: collection pattern, no duplicates and no self-redirects", () => {
     const items = new Map([["posts", readItems(fixture("global-issues.csv"), "csv")]]);
     const rows = buildRedirects(
       {
@@ -174,8 +174,8 @@ describe("mapování podle konfigurace", () => {
   });
 });
 
-describe("importér nanečisto", () => {
-  it("bez --apply nic nezapíše a ohlásí chybějící soubory", () => {
+describe("importer dry run", () => {
+  it("without --apply writes nothing and reports missing files", () => {
     const output = execFileSync(
       process.execPath,
       ["scripts/import-webflow.mjs", "--dir", FIXTURES],
@@ -186,7 +186,7 @@ describe("importér nanečisto", () => {
     expect(output).toContain("Nanečisto — nic se nezapsalo");
   });
 
-  it("--apply bez odpovídajícího --project odmítne zápis", () => {
+  it("--apply without a matching --project refuses to write", () => {
     expect(() =>
       execFileSync(
         process.execPath,
@@ -203,7 +203,7 @@ describe("importér nanečisto", () => {
         {
           encoding: "utf8",
           stdio: "pipe",
-          // Cizí projekt v adrese: --project prod k němu nesedí.
+          // Foreign project in the URL: --project prod does not match it.
           env: { ...process.env, NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co" },
         },
       ),

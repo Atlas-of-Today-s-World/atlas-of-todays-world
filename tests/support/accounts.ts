@@ -3,28 +3,28 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { test, type Page } from "@playwright/test";
 
 /**
- * Testovací účty pro e2e proti atlas-dev (nikdy produkce).
+ * Test accounts for e2e against atlas-dev (never production).
  *
- * Google se obchází: Auth Admin API vygeneruje magic link a prohlížeč projde
- * naší routou /auth/confirm, která stejně jako návrat z Google ověří session
- * a zavolá claim_invitation(). Bez servisního klíče dev projektu (fork,
- * Dependabot) se sada přeskočí.
+ * Google is bypassed: the Auth Admin API generates a magic link and the browser
+ * goes through our /auth/confirm route, which, like the return from Google,
+ * verifies the session and calls claim_invitation(). Without the dev project's
+ * service key (fork, Dependabot) the suite is skipped.
  */
 try {
   process.loadEnvFile(".env.local");
 } catch {
-  // v CI jdou hodnoty z prostředí
+  // in CI the values come from the environment
 }
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const PROD_REF = "ewbzkxialhtwuqlenjof";
 
-/** Přeskočí sadu bez dev projektu, v produkci a na mobilním projektu. */
+/** Skips the suite without a dev project, in production and on the mobile project. */
 export function requireDevAccounts() {
-  test.skip(!url || !serviceKey, "chybí Supabase dev projekt (URL + servisní klíč)");
-  test.skip(Boolean(url?.includes(PROD_REF)), "e2e účty se nikdy nezakládají v produkci");
-  // Toky nezávisí na velikosti okna; stačí jeden projekt.
+  test.skip(!url || !serviceKey, "missing Supabase dev project (URL + service key)");
+  test.skip(Boolean(url?.includes(PROD_REF)), "e2e accounts are never created in production");
+  // The flows do not depend on viewport size; one project is enough.
   test.skip(({ isMobile }) => isMobile, "jen desktop");
 }
 
@@ -41,7 +41,7 @@ export function testEmail(label: string) {
   return `e2e-${label}-${randomUUID().slice(0, 8)}@example.com`;
 }
 
-/** Ověřený účet, jako by se právě přihlásil přes Google; volitelně rovnou s rolí. */
+/** A verified account, as if just signed in via Google; optionally with a role. */
 export async function createUser(email: string, roleId?: string) {
   const { data, error } = await service.auth.admin.createUser({ email, email_confirm: true });
   if (error) throw error;
@@ -62,7 +62,7 @@ export async function invite(email: string, roleId: string) {
   invited.push(email);
 }
 
-/** Přihlášení přes jednorázový odkaz → /auth/confirm (stejná cesta jako e-mail). */
+/** Sign-in via a one-time link → /auth/confirm (same path as the e-mail). */
 export async function signIn(page: Page, email: string, next = "/ucet") {
   const { data, error } = await service.auth.admin.generateLink({ type: "magiclink", email });
   if (error) throw error;
@@ -75,9 +75,9 @@ export async function signIn(page: Page, email: string, next = "/ucet") {
 }
 
 /**
- * Úklid po sadě: jen to, co založila tahle sada (články jejích účtů, její
- * pozvánky, účty). Sady běží v CI souběžně ve více workerech — plošné mazání
- * podle předpony e2e- by smazalo rozpracovaná data jiné sady.
+ * Cleanup after the suite: only what this suite created (its accounts' articles,
+ * its invitations, accounts). Suites run concurrently in several CI workers —
+ * blanket deletion by the e2e- prefix would delete another suite's in-flight data.
  */
 export async function cleanUp() {
   const users = created.splice(0);

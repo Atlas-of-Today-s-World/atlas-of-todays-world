@@ -4,7 +4,7 @@ import { allowRequest } from "@/lib/security/rate-limit";
 
 export const dynamic = "force-dynamic";
 
-/** Fulltext nad celým Atlasem: regiony, země, global issues i novinky. */
+/** Full-text search across all of Atlas: regions, countries, global issues and news. */
 export async function GET(request: Request) {
   if (!(await allowRequest("search", request.headers, { limit: 60, windowSeconds: 60 }))) {
     return NextResponse.json(

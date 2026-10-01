@@ -8,7 +8,7 @@ import { useMessages } from "@/components/i18n/LocaleProvider";
 
 export default function DeleteAccount({ email }: { email: string }) {
   const t = useMessages().account;
-  // „{email}" v textu nahradí tučná adresa (věta se v jazycích liší pořadím).
+  // "{email}" in the text is replaced by the bold address (word order differs by language).
   const [before, after = ""] = t.deleteText.split("{email}");
   const [state, action, pending] = useActionState<ActionState, FormData>(deleteAccount, {
     ok: false,

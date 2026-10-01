@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 
 /**
- * Obal části administrace, kterou uživatel vidí, ale nesmí uložit (RLS by
- * zápis odmítl). `<fieldset disabled>` vypne všechna pole a tlačítka uvnitř
- * a nahoře řekne proč — lepší než editor, který pak při uložení selže.
+ * Wrapper for a part of the admin the user can see but not save (RLS would
+ * reject the write). `<fieldset disabled>` disables all fields and buttons inside
+ * and says why at the top — better than an editor that then fails on save.
  */
 export function ReadOnly({
   readOnly,

@@ -12,9 +12,9 @@ export interface ViewOption {
 }
 
 /**
- * Přepínač datových vrstev – ve Figmě tlačítko "Encyclopedia view".
- * Seznam voleb chodí ze serveru, takže přidání indikátoru do
- * scripts/indicators.config.mjs se tady projeví samo.
+ * Data layer switcher – the "Encyclopedia view" button in Figma.
+ * The option list comes from the server, so adding an indicator to
+ * scripts/indicators.config.mjs shows up here automatically.
  */
 export default function ViewSwitcher({ options }: { options: ViewOption[] }) {
   const { view, setView } = useMapState();
@@ -86,7 +86,7 @@ export default function ViewSwitcher({ options }: { options: ViewOption[] }) {
   );
 }
 
-/** Legenda vlevo dole. Sedí přímo v mapovém kontejneru, ne v liště ovládání. */
+/** Legend at the bottom left. Sits directly in the map container, not in the controls bar. */
 export function MapLegend({ options }: { options: ViewOption[] }) {
   const { view } = useMapState();
   const option = options.find((item) => item.id === view) ?? options[0];

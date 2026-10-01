@@ -2,7 +2,7 @@ import { ErrorState } from "@/components/atlas/ErrorState";
 import { CountryQuiz } from "@/features/quiz/CountryQuiz";
 import { getT } from "@/features/i18n/request";
 
-/** 404 mimo mapu (stránky bez globusu, neznámé adresy) — s kvízem obrysů jako útěchou. */
+/** 404 outside the map (pages without the globe, unknown URLs) — with the outline quiz as consolation. */
 export default function NotFound() {
   const t = getT();
   return (

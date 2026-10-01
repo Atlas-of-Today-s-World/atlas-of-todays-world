@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { setFlag } from "../actions";
 
-/** Přepínač funkce s potvrzením (režim údržby vypne veřejný web). */
+/** Feature flag toggle with confirmation (maintenance mode takes the public site down). */
 export function FlagToggle({
   flagKey,
   enabled,

@@ -3,7 +3,7 @@ import { createServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-/** Odhlášení jen POSTem z vlastního webu (formulář) — ne odkazem, který by šel podstrčit. */
+/** Sign-out only via POST from our own site (form) — not via a link that could be planted. */
 export async function POST(request: NextRequest) {
   const origin = request.headers.get("origin");
   if (origin && origin !== request.nextUrl.origin) {

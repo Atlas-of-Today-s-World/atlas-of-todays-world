@@ -3,8 +3,8 @@ import { expect, test } from "@playwright/test";
 import { cleanUp, createUser, requireDevAccounts, signIn, testEmail } from "./support/accounts";
 
 /**
- * G2: rozepsaný článek přežije zavření stránky (záloha v prohlížeči) a koncept
- * jde ukázat komukoli bez účtu přes odkaz na náhled.
+ * G2: an unsaved article survives closing the page (browser backup) and a draft
+ * can be shown to anyone without an account via a preview link.
  */
 requireDevAccounts();
 test.afterAll(cleanUp);
@@ -19,7 +19,7 @@ test.beforeAll(async () => {
   await createUser(publisher, "publisher");
 });
 
-test("rozepsaný koncept se po znovuotevření nabídne k obnovení a náhled ho ukáže anonymovi", async ({
+test("unsaved draft is offered for restore on reopen and the preview shows it to anonymous users", async ({
   page,
   browser,
 }) => {
@@ -31,7 +31,7 @@ test("rozepsaný koncept se po znovuotevření nabídne k obnovení a náhled ho
   await page.getByRole("button", { name: "Create draft" }).click();
   await expect(page).toHaveURL(/\/admin\/content\/[0-9a-f-]{36}/);
 
-  // Změna bez uložení → záloha (interval 5 s) → po znovunačtení nabídka.
+  // Unsaved change → backup (5 s interval) → restore offer after reload.
   await page.getByLabel(/^Summary( \*)?$/).fill("Neuložený perex z e2e.");
   await page.waitForTimeout(6_000);
   await page.reload();
@@ -41,7 +41,7 @@ test("rozepsaný koncept se po znovuotevření nabídne k obnovení a náhled ho
   await page.getByRole("button", { name: "Save changes" }).click();
   await expect(page.getByText(/You have an unsaved draft/)).toHaveCount(0);
 
-  // Odkaz na náhled otevře koncept i bez přihlášení.
+  // The preview link opens the draft even without signing in.
   await page.getByRole("button", { name: "Create preview" }).click();
   const link = page.getByLabel("Preview link");
   await expect(link).toHaveValue(/\/preview\/[0-9a-f]{64}$/);
@@ -52,8 +52,8 @@ test("rozepsaný koncept se po znovuotevření nabídne k obnovení a náhled ho
   await expect(anonymous.getByRole("heading", { name: title, level: 1 })).toBeVisible();
   await expect(anonymous.getByRole("note")).toContainText("not published yet");
 
-  // Zveřejněná adresa koncept neukáže a zkomolený token nic neprozradí. (Stránky
-  // s loading.tsx streamují, takže „nenalezeno" je 200 + obsah not-found, ne 404.)
+  // The public URL does not show the draft and a mangled token reveals nothing. (Pages
+  // with loading.tsx stream, so "not found" is 200 + not-found content, not 404.)
   for (const path of [`/news/${slug}`, url.replace(/.$/, (c) => (c === "0" ? "1" : "0"))]) {
     await anonymous.goto(path);
     await expect(anonymous.getByRole("heading", { name: title })).toHaveCount(0);

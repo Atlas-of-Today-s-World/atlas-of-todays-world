@@ -3,9 +3,9 @@ import { expect, test, type Page } from "@playwright/test";
 import { cleanUp, createUser, requireDevAccounts, signIn, testEmail } from "./support/accounts";
 
 /**
- * Hlavní redakční tok (PLAN E9) se skutečnými rolemi v atlas-dev:
- * publisher napíše a odešle → content editor vrátí s poznámkou → publisher
- * opraví a pošle znovu → editor schválí → článek je na webu.
+ * The main editorial flow (PLAN E9) with real roles in atlas-dev:
+ * publisher writes and submits → content editor returns it with a note →
+ * publisher fixes and resubmits → editor approves → the article is live.
  */
 requireDevAccounts();
 test.afterAll(cleanUp);
@@ -34,7 +34,7 @@ async function confirm(page: Page, open: string, button: string) {
   await page.getByRole("dialog").getByRole("button", { name: button }).click();
 }
 
-test("publisher napíše koncept a odešle ho ke schválení", async ({ page }) => {
+test("publisher writes a draft and submits it for approval", async ({ page }) => {
   await signIn(page, publisher, "/admin");
   await page.goto("/admin/content/new");
   await page.getByLabel("Title").fill(title);
@@ -51,7 +51,7 @@ test("publisher napíše koncept a odešle ho ke schválení", async ({ page }) 
   await expect(page.getByText("Pending approval", { exact: true }).first()).toBeVisible();
 });
 
-test("editor ho vrátí s poznámkou a autor ji uvidí", async ({ page, browser }) => {
+test("editor returns it with a note and the author sees it", async ({ page, browser }) => {
   await signIn(page, editor, "/admin");
   await page.goto("/admin/approvals");
   await page.getByRole("link", { name: title }).click();
@@ -67,7 +67,7 @@ test("editor ho vrátí s poznámkou a autor ji uvidí", async ({ page, browser 
   await expect(author.getByText("Pending approval", { exact: true }).first()).toBeVisible();
 });
 
-test("publisher svůj článek neschválí, editor ano a článek je na webu", async ({
+test("publisher cannot approve own article, editor can and it goes live", async ({
   page,
   browser,
 }) => {

@@ -5,15 +5,15 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { newGame, QUESTIONS_PER_GAME, verdict, type CountryShape, type Question } from "./game";
 
-/** Jak dlouho zůstane vidět, jestli odpověď byla správně, než přijde další otázka. */
+/** How long the right/wrong feedback stays visible before the next question. */
 const NEXT_AFTER_MS = 1600;
 
 type Phase = "idle" | "loading" | "playing" | "done";
 
 /**
- * Easter egg na stránce 404: poznej stát podle obrysu. Deset náhodných států
- * z padesáti, čtyři možnosti, na konci skóre. Obrysy (~25 kB gzip) se načtou
- * až po kliknutí na „Play“ — samotná 404 zůstane lehká.
+ * Easter egg on the 404 page: guess the country by its outline. Ten random countries
+ * out of fifty, four options, a score at the end. Outlines (~25 kB gzip) load
+ * only after clicking „Play“ — the 404 itself stays light.
  */
 export function CountryQuiz() {
   const [phase, setPhase] = useState<Phase>("idle");
@@ -27,8 +27,8 @@ export function CountryQuiz() {
 
   useEffect(() => () => clearTimeout(timer.current), []);
 
-  // Po přechodu na další otázku nebo výsledek přesunout fokus na nadpis,
-  // ať čtečka i klávesnice začínají u nové otázky.
+  // After moving to the next question or the result, move focus to the heading
+  // so screen readers and keyboard users start at the new question.
   useEffect(() => {
     if (phase === "playing" || phase === "done") heading.current?.focus();
   }, [phase, index]);

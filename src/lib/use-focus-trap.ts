@@ -6,8 +6,8 @@ const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /**
- * Drží Tab uvnitř otevřeného dialogu a po zavření vrátí ohnisko tam, kde bylo
- * (WCAG 2.4.3). Esc řeší volající — ví, co má zavřít.
+ * Keeps Tab inside an open dialog and on close returns focus to where it was
+ * (WCAG 2.4.3). Esc is handled by the caller — it knows what to close.
  */
 export function useFocusTrap(ref: RefObject<HTMLElement | null>, active: boolean) {
   useEffect(() => {

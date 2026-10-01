@@ -6,15 +6,15 @@ import type { NewsCategory, ResourceItem } from "@/lib/content-types";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { createPublicClient } from "@/lib/supabase/public";
 
-/** Zveřejněná novinka bez těla — pro seznamy, portréty, sitemapu. */
+/** Published news item without body — for lists, portraits, sitemap. */
 export interface EntrySummary {
   slug: string;
   title: string;
   summary: string;
   category: NewsCategory;
-  /** Slug regionu, pod který novinka patří. */
+  /** Slug of the region the news item belongs to. */
   region: string | null;
-  /** Slug global issue, pokud k němu novinka patří. */
+  /** Slug of the global issue, if the news item belongs to one. */
   issue: string | null;
   countries: string[];
   hero?: string;
@@ -23,20 +23,20 @@ export interface EntrySummary {
   published?: string;
   updated?: string;
   readingMinutes?: number;
-  /** Jazyky, ve kterých je zveřejněná (originál + překlady) — pro hreflang. */
+  /** Languages it is published in (original + translations) — for hreflang. */
   languages: Locale[];
-  /** Titulek a perex jsou z překladu do jazyka stránky (G5.3). */
+  /** Title and lead come from the translation into the page language (G5.3). */
   translated?: boolean;
 }
 
 export interface Entry extends EntrySummary {
-  /** Vyčištěné HTML (sanitizace při uložení i tady při čtení). */
+  /** Sanitized HTML (sanitized on save and again here on read). */
   html: string;
-  /** Jazyk zobrazeného textu — liší se od stránky, když překlad chybí. */
+  /** Language of the displayed text — differs from the page when a translation is missing. */
   locale: Locale;
 }
 
-// Anon smí jen vyjmenované sloupce (DB-08) — nikdy select *.
+// Anon may read only the listed columns (DB-08) — never select *.
 const COLUMNS =
   "slug, locale, title, summary, category, region_slug, special_slug, cover_url, cover_credit, author_name, published_on, updated_at, reading_minutes, entry_countries(country_iso3)";
 
@@ -76,12 +76,12 @@ function toSummary(row: Row, languages: Locale[] = [DEFAULT_LOCALE]): EntrySumma
   };
 }
 
-/** Novinka (`/news`), nebo encyklopedické heslo (`/entry`, P9). */
+/** News item (`/news`) or encyclopedia entry (`/entry`, P9). */
 type Kind = "news" | "entry";
 
 const toLocale = (value: string): Locale => (isLocale(value) ? value : DEFAULT_LOCALE);
 
-/** Zveřejněné překlady (jen titulek a perex) — pro seznamy a hreflang. */
+/** Published translations (title and lead only) — for lists and hreflang. */
 const getPublishedTranslations = unstable_cache(
   async () => {
     const { data, error } = await createPublicClient()
@@ -97,7 +97,7 @@ const getPublishedTranslations = unstable_cache(
   { tags: [tags.entries], revalidate: PUBLIC_REVALIDATE_SECONDS },
 );
 
-/** Originály daného druhu (překlady jsou v seznamech jen jako titulek, ne dvakrát). */
+/** Originals of the given kind (translations appear in lists only as a title, not twice). */
 function listPublished(kind: Kind) {
   return unstable_cache(
     async (): Promise<EntrySummary[]> => {
@@ -118,8 +118,8 @@ function listPublished(kind: Kind) {
 }
 
 /**
- * Seznam originálů v jazyce stránky: kde existuje zveřejněný překlad, má
- * přeložený titulek a perex (`translated`); `languages` slouží hreflangu.
+ * List of originals in the page language: where a published translation exists,
+ * it has the translated title and lead (`translated`); `languages` serves hreflang.
  */
 function localized(kind: Kind) {
   const originals = listPublished(kind);
@@ -140,15 +140,15 @@ function localized(kind: Kind) {
   };
 }
 
-/** Zveřejněné novinky (originály), od nejnovější; titulky v jazyce stránky. */
+/** Published news (originals), newest first; titles in the page language. */
 export const getEntries = localized("news");
 
-/** Zveřejněná encyklopedická hesla (originály), od nejnovějšího. */
+/** Published encyclopedia entries (originals), newest first. */
 export const getEncyclopediaEntries = localized("entry");
 
 /**
- * Ze zveřejněných jazykových verzí téhož slugu vybere tu v jazyce stránky,
- * jinak originál. Vrací i seznam dostupných jazyků.
+ * From the published language versions of the same slug, picks the one in the
+ * page language, otherwise the original. Also returns the list of available languages.
  */
 function pickVersion<R extends Row & { translation_of: string | null }>(rows: R[], locale: Locale) {
   const original = rows.find((row) => row.translation_of === null);
@@ -158,7 +158,7 @@ function pickVersion<R extends Row & { translation_of: string | null }>(rows: R[
   return { row, languages, locale: toLocale(row.locale) };
 }
 
-/** Jedna zveřejněná novinka i s textem (v jazyce stránky, jinak originál); null, když neexistuje. */
+/** A single published news item with text (in the page language, else the original); null if missing. */
 export async function getEntry(
   slug: string,
   locale: Locale = DEFAULT_LOCALE,
@@ -187,7 +187,7 @@ export async function getEntry(
   };
 }
 
-/** Kam článek patří — společné pro novinky, hesla i plánovaná hesla. */
+/** Where an article belongs — shared by news, entries and planned entries. */
 interface Placed {
   region: string | null;
   issue: string | null;
@@ -200,7 +200,7 @@ export const entriesOfRegion = <T extends Placed>(entries: T[], region: string) 
 export const entriesOfCountry = <T extends Placed>(entries: T[], iso3: string) =>
   entries.filter((entry) => entry.countries.includes(iso3));
 
-/** Články přiřazené přímo ke global issue, za nimi ty, které zasáhly některou z jeho zemí. */
+/** Articles assigned directly to a global issue, followed by those affecting any of its countries. */
 export function entriesOfIssue<T extends Placed>(entries: T[], issue: string, countries: string[]) {
   const members = new Set(countries);
   const tagged = entries.filter((entry) => entry.issue === issue);
@@ -210,15 +210,15 @@ export function entriesOfIssue<T extends Placed>(entries: T[], issue: string, co
   return [...tagged, ...related];
 }
 
-/** Náhled podle tokenu z odkazu (jakýkoli stav): novinka, nebo heslo i s kapitolami. */
+/** Preview by link token (any status): a news item, or an entry including chapters. */
 export type Preview = { status: string; expiresAt: string } & (
   { kind: "news"; item: Entry } | { kind: "entry"; item: Encyclopedia }
 );
 
-/** null = neplatný nebo prošlý odkaz. */
+/** null = invalid or expired link. */
 export async function getPreview(token: string): Promise<Preview | null> {
   if (!/^[0-9a-f]{64}$/.test(token)) return null;
-  // Bez cache: odkaz může být zrušený nebo prošlý a text se v konceptu mění.
+  // No cache: the link may be revoked or expired and draft text keeps changing.
   const client = createPublicClient();
   const [base, extra] = await Promise.all([
     client.rpc("entry_preview", { p_token: token }).maybeSingle(),
@@ -228,7 +228,7 @@ export async function getPreview(token: string): Promise<Preview | null> {
   if (extra.error) throw new Error(`[preview] ${extra.error.message}`);
   if (!base.data || !extra.data) return null;
   const { countries, body_html, status, expires_at, ...row } = base.data;
-  // Jazyk náhledu RPC nevrací; náhled je mimo index, hreflang ani poznámku nepotřebuje.
+  // The RPC doesn't return the preview language; previews aren't indexed and need no hreflang or note.
   const item: Entry = {
     ...toSummary({
       ...row,
@@ -253,18 +253,18 @@ export async function getPreview(token: string): Promise<Preview | null> {
 }
 
 // ---------------------------------------------------------------------------
-// Encyklopedická hesla (P9)
+// Encyclopedia entries (P9)
 // ---------------------------------------------------------------------------
 
 export interface EntryChapter {
   title: string;
-  /** 3–5 odrážek, kterými se kapitola otevírá. */
+  /** 3–5 bullet points that open the chapter. */
   summaryPoints: string[];
-  /** Vyčištěné HTML celé kapitoly. */
+  /** Sanitized HTML of the whole chapter. */
   html: string;
   illustration?: string;
   illustrationCredit?: string;
-  /** Zvuková verze kapitoly — přehrávač se ukáže, jen když existuje. */
+  /** Audio version of the chapter — the player shows only when it exists. */
   audio?: string;
 }
 
@@ -318,12 +318,12 @@ interface EncyclopediaParts {
 const byPosition = (a: { position?: number }, b: { position?: number }) =>
   (a.position ?? 0) - (b.position ?? 0);
 
-/** Jedna podoba hesla pro veřejnou stránku i náhled (řádky z DB → typ pro komponenty). */
+/** One shape of an entry for both the public page and preview (DB rows → component type). */
 function toEncyclopedia(item: Entry, parts: EncyclopediaParts): Encyclopedia {
   const author = parts.author;
   return {
     ...item,
-    // Jméno autora z profilu má přednost před volným textem u článku.
+    // The author's name from the profile takes precedence over the article's free text.
     author: author?.name ?? item.author,
     summaryPoints: parts.summary_points,
     authorProfile: author
@@ -352,15 +352,15 @@ function toEncyclopedia(item: Entry, parts: EncyclopediaParts): Encyclopedia {
   };
 }
 
-// Anon smí jen vyjmenované sloupce (DB-08) — i u vnořených tabulek.
+// Anon may read only the listed columns (DB-08) — nested tables included.
 const ENCYCLOPEDIA_COLUMNS = `${COLUMNS}, body_html, summary_points,
   authors(name, photo_url, bio, positionality),
   entry_chapters(position, title, summary_points, body_html, illustration_url, illustration_credit, audio_url),
   resources(position, kind, title, source, url, image_url)`;
 
 /**
- * Jedno zveřejněné heslo se vším, co stránka ukazuje — v jazyce stránky,
- * jinak originál; null, když neexistuje.
+ * A single published entry with everything the page shows — in the page
+ * language, otherwise the original; null if it doesn't exist.
  */
 export async function getEncyclopediaEntry(
   slug: string,
@@ -406,7 +406,7 @@ export async function getEncyclopediaEntry(
   );
 }
 
-/** Plánované, ještě nenapsané heslo — na portrétu šedivě a bez odkazu. */
+/** A planned, not yet written entry — shown greyed out and unlinked on the portrait. */
 export interface UpcomingEntry extends Placed {
   title: string;
   category: NewsCategory;
@@ -428,7 +428,7 @@ export const getPlannedEntries = unstable_cache(
   { tags: [tags.entries], revalidate: PUBLIC_REVALIDATE_SECONDS },
 );
 
-/** Hesla do sekce portrétu: zveřejněná s odkazem, plánovaná bez něj (šedivě). */
+/** Entries for the portrait section: published with a link, planned without (greyed out). */
 export function thematicEntries(published: EntrySummary[], upcoming: UpcomingEntry[]) {
   return [
     ...published.map(({ title, category, slug }) => ({ title, category, slug })),

@@ -14,7 +14,7 @@ const TYPES: EmailOtpType[] = [
   "email",
 ];
 
-/** Odkaz z e-mailu (registrace, pozvánka, magic link): ověří token_hash a přihlásí. */
+/** Link from an e-mail (sign-up, invitation, magic link): verifies token_hash and signs in. */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
   const tokenHash = searchParams.get("token_hash");

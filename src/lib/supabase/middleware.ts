@@ -4,9 +4,9 @@ import type { User } from "@supabase/supabase-js";
 import { supabaseConfig } from "./config";
 
 /**
- * Obnoví session v cookies a vrátí ověřeného uživatele (nebo null).
- * Volá se jen na cestách, kde na přihlášení záleží — veřejné stránky
- * zůstávají bez dotazu na Auth server.
+ * Refreshes the session in cookies and returns the verified user (or null).
+ * Called only on paths where sign-in matters — public pages make no
+ * Auth server queries.
  */
 export async function refreshSession(
   request: NextRequest,

@@ -1,7 +1,7 @@
 import "server-only";
 import { createServerClient } from "@/lib/supabase/server";
 
-/** Role, jejich oprávnění a bezpečnostní nastavení (pod RLS — jen sekce permissions). */
+/** Roles, their permissions and security settings (under RLS — permissions section only). */
 export async function rolesOverview() {
   const supabase = await createServerClient();
   const [roles, permissions, security, holders] = await Promise.all([
@@ -39,8 +39,8 @@ export interface AuditRow {
 }
 
 /**
- * Posledních 1000 změn; `q` hledá v akci, cíli i e-mailu autora změny v DB
- * (tabulka pak dohledává jen v načtených řádcích).
+ * Last 1000 changes; `q` searches the action, target and the change author's email
+ * in the DB (the table then filters only within the loaded rows).
  */
 export async function auditLog(q?: string): Promise<AuditRow[]> {
   const supabase = await createServerClient();
@@ -49,7 +49,7 @@ export async function auditLog(q?: string): Promise<AuditRow[]> {
     .select("id, at, actor_email, action, target, detail")
     .order("at", { ascending: false })
     .limit(1000);
-  // Hodnota ve filtru .or() v uvozovkách, bez znaků, které by filtr rozbily (jako u účtů).
+  // Value in the .or() filter is quoted, without characters that would break the filter (as for accounts).
   const needle = q
     ?.trim()
     .replace(/[%_,()"\\]/g, "")

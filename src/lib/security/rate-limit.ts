@@ -4,10 +4,10 @@ import { serverEnv } from "@/lib/env.server";
 import { createServiceClient } from "@/lib/supabase/service";
 
 /**
- * Rate limit ve sdíleném úložišti (Postgres `rate_limits`, ARCHITEKTURA 8.4) —
- * platí pro všechny instance najednou. Adresa se ukládá jen jako hash.
+ * Rate limit in shared storage (Postgres `rate_limits`, ARCHITEKTURA 8.4) —
+ * applies to all instances at once. The address is stored only as a hash.
  *
- * Bez servisního klíče (lokální vývoj) limit neplatí; v provozu klíč je.
+ * Without a service key (local development) there is no limit; in production the key is set.
  */
 export async function allowRequest(
   scope: string,
@@ -23,7 +23,7 @@ export async function allowRequest(
     p_window_seconds: windowSeconds,
   });
   if (error) {
-    // Výpadek limitu nesmí shodit hledání.
+    // A rate-limit outage must not break search.
     console.error("[rate-limit]", error.message);
     return true;
   }

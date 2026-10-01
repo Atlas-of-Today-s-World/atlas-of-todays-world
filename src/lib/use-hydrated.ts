@@ -5,9 +5,9 @@ import { useSyncExternalStore } from "react";
 const subscribe = () => () => {};
 
 /**
- * false při vykreslení na serveru a při hydrataci, pak true. Pro hodnoty, které
- * zná jen prohlížeč (localStorage, velikost okna, jazyk) — bez setState v
- * efektu a bez nesouladu HTML serveru a klienta.
+ * false during server rendering and hydration, then true. For values only the
+ * browser knows (localStorage, window size, language) — without setState in an
+ * effect and without a server/client HTML mismatch.
  */
 export const useHydrated = () =>
   useSyncExternalStore(

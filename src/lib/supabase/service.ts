@@ -5,9 +5,9 @@ import { serverEnv } from "@/lib/env.server";
 import { requireSupabaseConfig } from "./config";
 
 /**
- * Servisní klient — OBCHÁZÍ RLS (ARCHITEKTURA 2.4). Jen pro serverové úkony,
- * které nejdou pod právy uživatele: smazání vlastního účtu v Auth, webhooky,
- * rate limit. Nikdy ho nepředávej do klientské komponenty.
+ * Service client — BYPASSES RLS (ARCHITEKTURA 2.4). Only for server operations
+ * that can't run under the user's rights: deleting one's own Auth account,
+ * webhooks, rate limit. Never pass it to a client component.
  */
 export function createServiceClient() {
   const { url } = requireSupabaseConfig();

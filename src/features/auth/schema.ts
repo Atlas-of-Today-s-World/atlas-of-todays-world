@@ -2,15 +2,15 @@ import { z } from "zod";
 import { emailAddress } from "@/lib/validation/common";
 import { EMAIL_CODE_LENGTH, EMAIL_LOCALES } from "./constants";
 
-/** Kam po přihlášení — cestu ověří až `safeRedirect`, tady jen délka. */
+/** Where to go after sign-in — `safeRedirect` validates the path; here just the length. */
 const next = z.string().max(500).optional();
 
-/** Krok 1: e-mail, na který přijde kód (G1). */
+/** Step 1: the email the code is sent to (G1). */
 export const EmailCodeRequest = z.object({
   email: emailAddress,
   next,
   locale: z.enum(EMAIL_LOCALES).default("en"),
-  // Token z Cloudflare Turnstile; ověřuje ho Supabase Auth (captcha), když je zapnutá.
+  // Cloudflare Turnstile token; verified by Supabase Auth (captcha) when enabled.
   captchaToken: z.string().max(4000).optional(),
 });
 

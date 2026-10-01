@@ -13,7 +13,7 @@ const KIND_KEY = {
   news: "kindNews",
 } as const;
 
-/** "Global Encyclopedia" z Figmy: fulltext nad celým Atlasem. */
+/** "Global Encyclopedia" from Figma: full-text search across all of Atlas. */
 export default function EncyclopediaPanel() {
   const t = useMessages();
   const [query, setQuery] = useState("");
@@ -33,7 +33,7 @@ export default function EncyclopediaPanel() {
         const data = await res.json();
         setHits(data.results ?? []);
       } catch {
-        /* zrušený request při psaní */
+        /* request aborted while typing */
       } finally {
         setSearching(false);
       }

@@ -4,15 +4,15 @@ import { createContext, useContext, useTransition, type FormHTMLAttributes, type
 
 const Pending = createContext(false);
 
-/** Probíhá odeslání nejbližšího <ActionForm>? (pro SubmitButton) */
+/** Is the nearest <ActionForm> submitting? (for SubmitButton) */
 export const useActionPending = () => useContext(Pending);
 
 /**
- * Formulář pro Server Action přes `useActionState` (ARCHITEKTURA 15.1).
+ * Form for a Server Action via `useActionState` (ARCHITEKTURA 15.1).
  *
- * Proč ne `<form action={…}>`: React 19 po každé akci formulář resetuje —
- * i když validace neprošla, takže by uživatel přišel o vše, co napsal.
- * Tady se odesílá přes onSubmit v transition a pole zůstanou vyplněná.
+ * Why not `<form action={…}>`: React 19 resets the form after every action —
+ * even when validation failed, so the user would lose everything they typed.
+ * Here it's submitted via onSubmit in a transition and the fields stay filled.
  */
 export function ActionForm({
   action,

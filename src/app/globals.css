@@ -2,8 +2,8 @@
 @import "maplibre-gl/dist/maplibre-gl.css";
 
 /*
- * Design tokeny odvozené z Figmy "Atlas MVP Design".
- * Tmavá vrstva = mapa a její ovládání, světlá vrstva = obsahové panely.
+ * Design tokens derived from the Figma file "Atlas MVP Design".
+ * Dark layer = the map and its controls, light layer = content panels.
  */
 @theme {
   --color-space: #0a1020;
@@ -21,14 +21,14 @@
   --color-accent-soft: #eaedfd;
   --color-link: #1f4fd8;
   --color-live: #22c55e;
-  /* Stavové tóny (štítky, KPI, chyby) — jediný zdroj místo amber/green/red tříd. */
+  /* Status tones (badges, KPIs, errors) — single source instead of amber/green/red classes. */
   --color-success: #166534;
   --color-success-soft: #dcfce7;
   --color-warning: #92400e;
   --color-warning-soft: #fef3c7;
   --color-danger: #b91c1c;
   --color-danger-soft: #fee2e2;
-  /* Plochy tabulek administrace: hlavička/patička a řádek pod kurzorem (neprůhledné kvůli sticky sloupci). */
+  /* Admin table surfaces: header/footer and hovered row (opaque because of the sticky column). */
   --color-surface-muted: #f6f7fa;
   --color-surface-hover: #f4f5fc;
 
@@ -40,13 +40,13 @@
 
 :root {
   color-scheme: dark;
-  /* Rozměry layoutu — musí odpovídat src/config/layout.ts (hlídá layout.test.ts). */
+  /* Layout dimensions — must match src/config/layout.ts (checked by layout.test.ts). */
   --rail-width: min(38vw, 27rem);
   --rail-width-wide: min(52vw, 46rem);
   --touch-min: 44px;
 }
 
-/* Kdo si nepřeje animace, nedostane je (přechody panelu, karusely, kurzor). */
+/* Users who prefer reduced motion get no animations (panel transitions, carousels, cursor). */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -71,7 +71,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Skleněné ovládací prvky nad mapou (zoom, přepínač vrstev, panel hledání). */
+/* Glass controls over the map (zoom, layer switcher, search panel). */
 .glass {
   background: rgba(15, 21, 38, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.14);
@@ -83,7 +83,7 @@ body {
   border-color: rgba(255, 255, 255, 0.28);
 }
 
-/* MapLibre si jinak vykreslí vlastní bílé pozadí a světlé ovládání. */
+/* Otherwise MapLibre renders its own white background and light controls. */
 .maplibregl-map {
   font-family: var(--font-sans);
 }
@@ -98,7 +98,7 @@ body {
   color: rgba(255, 255, 255, 0.75) !important;
 }
 
-/* Globus jde ovládat i klávesnicí (šipky, +/−) — pak musí být vidět, že má fokus. */
+/* The globe is keyboard-operable too (arrows, +/−) — so focus must be visible. */
 .maplibregl-canvas:focus {
   outline: none;
 }
@@ -108,7 +108,7 @@ body {
   outline-offset: -3px;
 }
 
-/* Panely obsahu: jemný scrollbar, ať nekrájí design. */
+/* Content panels: subtle scrollbar so it doesn't cut into the design. */
 .panel-scroll {
   scrollbar-width: thin;
   scrollbar-color: rgba(120, 130, 160, 0.5) transparent;
@@ -123,7 +123,7 @@ body {
   border-radius: 999px;
 }
 
-/* Typografie encyklopedických hesel. */
+/* Typography of encyclopedia entries. */
 .prose-atlas {
   color: var(--color-ink-soft);
   font-size: 15px;
@@ -178,7 +178,7 @@ body {
   font-style: italic;
 }
 
-/* Tisk (ARCHITEKTURA 16): jen obsah panelu na celou šířku, bez glóbu a ovládání. */
+/* Print (ARCHITEKTURA 16): only the panel content at full width, no globe or controls. */
 @media print {
   [data-print="hide"],
   [data-print="content"] > button,
@@ -202,7 +202,7 @@ body {
   [data-print="content"] * {
     overflow: visible !important;
   }
-  /* U vnějších odkazů vytisknout i adresu. */
+  /* Print the URL of external links too. */
   [data-print="content"] a[href^="http"]::after {
     content: " (" attr(href) ")";
     font-size: 0.75em;

@@ -3,14 +3,14 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 
 export interface MapFocusState {
-  /** [lon, lat] kam otočit globus. null = nechat, kde je. */
+  /** [lon, lat] to rotate the globe to. null = leave it where it is. */
   center: [number, number] | null;
   zoom: number | null;
-  /** Výřez [minLon, minLat, maxLon, maxLat]; má přednost před center/zoom. */
+  /** Bounds [minLon, minLat, maxLon, maxLat]; take precedence over center/zoom. */
   bbox: [number, number, number, number] | null;
-  /** Země, kterou zvýraznit bílým obrysem. */
+  /** Country to highlight with a white outline. */
   activeIso3: string | null;
-  /** Země aktivního regionu – dostanou silnější obrys v barvě regionu. */
+  /** Countries of the active region – they get a stronger outline in the region's color. */
   regionCountries: string[];
   regionStroke: string | null;
 }
@@ -25,20 +25,20 @@ const EMPTY_FOCUS: MapFocusState = {
 };
 
 /**
- * Co se na globusu vybírá kliknutím: jednotlivé státy, regiony Atlasu,
- * nebo global issues složené redakcí.
+ * What a click on the globe selects: individual countries, Atlas regions,
+ * or global issues composed by the editors.
  */
 export type SelectionMode = "countries" | "regions" | "issue";
 
 interface MapContextValue {
   focus: MapFocusState;
   setFocus: (focus: MapFocusState) => void;
-  /** id vrstvy: "encyclopedia" nebo id indikátoru (hdi, gdp-per-capita, ...) */
+  /** layer id: "encyclopedia" or an indicator id (hdi, gdp-per-capita, ...) */
   view: string;
   setView: (view: string) => void;
   mode: SelectionMode;
   setMode: (mode: SelectionMode) => void;
-  /** Panel s obsahem je sbalený – mapa je přes celou plochu. */
+  /** The content panel is collapsed – the map covers the whole area. */
   panelCollapsed: boolean;
   setPanelCollapsed: (collapsed: boolean) => void;
 }
@@ -57,8 +57,8 @@ export function MapProvider({
   const [mode, setMode] = useState<SelectionMode>("countries");
   const [panelCollapsed, setPanelCollapsed] = useState(false);
 
-  // Stránky hlásí focus v effectu; bez porovnání by se globus přeletoval
-  // při každém renderu layoutu.
+  // Pages report focus in an effect; without the comparison the globe would re-fly
+  // on every layout render.
   const setFocus = useCallback((next: MapFocusState) => {
     setFocusState((current) =>
       current.activeIso3 === next.activeIso3 &&

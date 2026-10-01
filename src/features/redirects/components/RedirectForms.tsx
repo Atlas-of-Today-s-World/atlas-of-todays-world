@@ -8,7 +8,7 @@ import { Checkbox, FormField, Input } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
 import { addRedirect } from "../actions";
 
-/** Nové přesměrování staré cesty na novou (obě na tomto webu). */
+/** New redirect from an old path to a new one (both on this site). */
 export function RedirectForm() {
   const [state, action] = useActionState<ActionState, FormData>(addRedirect, { ok: false });
   const errors = state.fieldErrors ?? {};

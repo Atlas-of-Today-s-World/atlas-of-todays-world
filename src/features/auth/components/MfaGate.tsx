@@ -7,9 +7,9 @@ import { FormField, Input } from "@/components/ui/field";
 import { createBrowserClient } from "@/lib/supabase/browser";
 
 /**
- * Dvoufázové ověření (TOTP) pro role, které ho vyžadují (E10). Kdo ho ještě
- * nemá, naskenuje QR kód do aplikace (Google Authenticator, 1Password…);
- * kdo ho má, jen opíše šestimístný kód. Pak session přejde na aal2.
+ * Two-factor authentication (TOTP) for roles that require it (E10). Those who
+ * don't have it yet scan a QR code into an app (Google Authenticator, 1Password…);
+ * those who do just type the six-digit code. The session then moves to aal2.
  */
 export function MfaGate({ hasFactor }: { hasFactor: boolean }) {
   const router = useRouter();
@@ -28,7 +28,7 @@ export function MfaGate({ hasFactor }: { hasFactor: boolean }) {
         setFactorId(factors.totp.find((f) => f.status === "verified")?.id ?? null);
         return;
       }
-      // Nedokončené pokusy o registraci smazat, jinak nový nepůjde založit.
+      // Delete unfinished enrollment attempts, otherwise a new one can't be created.
       for (const factor of factors.all.filter((f) => f.status === "unverified")) {
         await supabase.auth.mfa.unenroll({ factorId: factor.id });
       }

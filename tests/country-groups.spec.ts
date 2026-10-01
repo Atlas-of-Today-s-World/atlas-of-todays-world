@@ -10,8 +10,8 @@ import {
 } from "./support/accounts";
 
 /**
- * Skupiny zemí v administraci: vlastní region složený z vybraných zemí
- * (vedle globálních témat). Data-editor má právo na skupiny i regiony.
+ * Country groups in the admin: a custom region made of selected countries
+ * (alongside global topics). Data-editor has rights to both groups and regions.
  */
 requireDevAccounts();
 test.describe.configure({ mode: "serial" });
@@ -32,7 +32,9 @@ test.afterAll(async () => {
   await cleanUp();
 });
 
-test("vlastní region: založení ze zemí, typ v seznamu a sekce článků", async ({ page }) => {
+test("custom region: created from countries, type in list and article sections", async ({
+  page,
+}) => {
   await signIn(page, email, "/admin/global-issues");
   await expect(page.getByRole("heading", { level: 1, name: "Country groups" })).toBeVisible();
 

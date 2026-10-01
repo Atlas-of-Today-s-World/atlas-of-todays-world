@@ -8,9 +8,9 @@ import type { ActionState } from "@/lib/actions";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 
 /**
- * Přihlášení k odběru novinek (Server Action `subscribe`). Souhlas je vědomý
- * (zaškrtávátko s odkazem na zásady), potvrzení dvojité (Mailchimp pošle
- * ověřovací e-mail) a `website` je past na roboty: lidé to pole nevidí.
+ * Newsletter subscription (Server Action `subscribe`). Consent is explicit
+ * (checkbox with a link to the policy), confirmation is double opt-in (Mailchimp sends
+ * a verification e-mail) and `website` is a honeypot for bots: humans don't see the field.
  */
 export default function NewsletterForm() {
   const t = useMessages();
@@ -19,7 +19,7 @@ export default function NewsletterForm() {
   });
   const code = state.error ?? state.message;
   const texts: Record<string, string> = t.newsletterForm.messages;
-  // Neznámý kód (např. obecná chyba validace) → „adresa nevypadá správně".
+  // Unknown code (e.g. a generic validation error) → "the address doesn't look right".
   const message = code ? (texts[code] ?? texts.invalidEmail) : null;
 
   return (
@@ -58,7 +58,7 @@ export default function NewsletterForm() {
         </span>
       </label>
 
-      {/* Past na roboty: pro lidi neviditelné pole. */}
+      {/* Honeypot for bots: a field invisible to humans. */}
       <input
         type="text"
         name="website"

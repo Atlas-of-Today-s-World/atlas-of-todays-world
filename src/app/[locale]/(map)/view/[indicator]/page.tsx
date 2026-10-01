@@ -12,8 +12,8 @@ import { formatValue } from "@/lib/indicators";
 import { absoluteUrl, alternates, breadcrumbJsonLd } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
 
-// true: s false vrací Next po revalidateTag (zápis v administraci) 404 i pro
-// existující stránky (NoFallbackError). Neznámý slug skončí přes notFound().
+// true: with false, Next returns 404 after revalidateTag (an admin write) even for
+// existing pages (NoFallbackError). An unknown slug ends up in notFound().
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
@@ -138,7 +138,7 @@ export default async function IndicatorViewPage({
             creator: { "@type": "Organization", name: indicator.source },
             isBasedOn: indicator.sourceUrl,
             temporalCoverage: String(indicator.latestYear ?? ""),
-            // Dataset pokrývá celou planetu – ať je to pro roboty explicitní.
+            // The dataset covers the whole planet – make that explicit for robots.
             spatialCoverage: { "@type": "Place", name: "World" },
             variableMeasured: {
               "@type": "PropertyValue",

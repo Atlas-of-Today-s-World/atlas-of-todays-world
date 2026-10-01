@@ -9,7 +9,7 @@ export interface RedirectRow {
   created_at: string;
 }
 
-/** Seznam přesměrování pro administraci (pod session, bez cache). */
+/** List of redirects for the admin (under the session, no cache). */
 export async function listRedirects(q?: string): Promise<RedirectRow[]> {
   const supabase = await createServerClient();
   let query = supabase
@@ -17,7 +17,7 @@ export async function listRedirects(q?: string): Promise<RedirectRow[]> {
     .select("id, from_path, to_path, permanent, created_at")
     .order("created_at", { ascending: false })
     .limit(500);
-  // Hodnota ve filtru .or() v uvozovkách a bez znaků, které by filtr rozbily (jako u účtů).
+  // Value in the .or() filter is quoted and without characters that would break the filter (as for accounts).
   const term = q
     ?.trim()
     .replace(/[%_,()"\\]/g, "")

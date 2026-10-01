@@ -13,9 +13,9 @@ import { publicEnv } from "@/lib/env";
 const TURNSTILE_KEY = publicEnv.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
 /**
- * Přihlášení kódem z e-mailu (G1): e-mail → šestimístný kód → přihlášení.
- * Druhý krok se ukáže, když akce vrátí adresu, na kterou kód odešel.
- * Turnstile (jen s klíčem v prostředí) přidá do formuláře `cf-turnstile-response`.
+ * Sign-in with an e-mailed code (G1): e-mail → six-digit code → signed in.
+ * The second step appears once the action returns the address the code was sent to.
+ * Turnstile (only with a key in the environment) adds `cf-turnstile-response` to the form.
  */
 export function EmailSignIn({ next }: { next: string }) {
   const t = useMessages().auth.email;
@@ -26,7 +26,7 @@ export function EmailSignIn({ next }: { next: string }) {
   const [checked, verify, verifying] = useActionState<EmailCodeState, FormData>(verifyEmailCode, {
     ok: false,
   });
-  // „Použít jiný e-mail" vrátí formulář do prvního kroku (bez nového dotazu na server).
+  // "Use a different e-mail" returns the form to the first step (no new server request).
   const [restarted, setRestarted] = useState<EmailCodeState | null>(null);
   const email = sent.ok && sent !== restarted ? sent.email : undefined;
   const error = (email ? checked.error : sent.error) ?? null;

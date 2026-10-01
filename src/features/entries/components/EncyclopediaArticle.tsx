@@ -13,16 +13,16 @@ import { OpenOnHash } from "./OpenOnHash";
 const AUTHOR_ID = "about-the-author";
 const chapterId = (index: number) => `chapter-${index + 1}`;
 
-/** Rozbalovací pruh `<summary>` (cíl 44 px); šipka se otočí podle stavu. */
+/** Collapsible `<summary>` bar (44 px target); the arrow rotates with the state. */
 const SUMMARY =
   "flex min-h-11 cursor-pointer list-none items-center gap-2 text-[13px] font-medium text-[var(--color-link)] [&::-webkit-details-marker]:hidden";
 const CHEVRON = "size-4 transition-transform group-open:rotate-180";
 const LABEL = "text-[11px] font-medium tracking-[0.1em] text-[var(--color-ink-muted)] uppercase";
 
 /**
- * Encyklopedické heslo (P9) pro veřejnou stránku i náhled: hlavička s autorem
- * a shrnutím, zvuková verze, kapitoly otevřené shrnutím a rozbalitelné do
- * plného textu, zdroje a životopis autora.
+ * Encyclopedia entry (P9) for the public page and preview: header with author
+ * and summary, audio version, chapters opened with their summary and expandable
+ * to full text, sources and the author's bio.
  */
 export function EncyclopediaArticle({
   item,
@@ -31,7 +31,7 @@ export function EncyclopediaArticle({
 }: {
   item: Encyclopedia;
   atlas: Atlas;
-  /** Pruh nad článkem (náhled: stav a platnost odkazu). */
+  /** Bar above the article (preview: status and link validity). */
   banner?: React.ReactNode;
 }) {
   const t = getT().article;
@@ -84,7 +84,7 @@ export function EncyclopediaArticle({
   );
 }
 
-/** Autor s fotkou (klik sroluje na životopis), data a odrážky shrnutí. */
+/** Author with photo (click scrolls to the bio), dates and summary bullets. */
 function EntryHeader({ item, atlas }: { item: Encyclopedia; atlas: Atlas }) {
   const t = getT().article;
   const locale = getRequestLocale();
@@ -156,8 +156,8 @@ function EntryHeader({ item, atlas }: { item: Encyclopedia; atlas: Atlas }) {
 }
 
 /**
- * Zvuková verze kapitoly, jen když stopa existuje. Nehraje sama (preload none)
- * a textovou alternativou je plný text kapitoly pod přehrávačem.
+ * Chapter audio version, only when the track exists. It doesn't autoplay (preload none)
+ * and the text alternative is the chapter's full text below the player.
  */
 function EntryAudio({ src, title }: { src?: string; title: string }) {
   const t = getT().article;
@@ -180,7 +180,7 @@ function EntryAudio({ src, title }: { src?: string; title: string }) {
   );
 }
 
-/** Kapitola: ilustrace, titulek a shrnutí vždy; plný text po rozbalení. */
+/** Chapter: illustration, title and summary always; full text when expanded. */
 function EntryChapter({ chapter, index }: { chapter: Chapter; index: number }) {
   const t = getT().article;
   const id = chapterId(index);
@@ -234,7 +234,7 @@ function EntryChapter({ chapter, index }: { chapter: Chapter; index: number }) {
   );
 }
 
-/** Životopis autora s positionality statement (rozbalovací, cíl odkazu z hlavičky). */
+/** Author bio with positionality statement (collapsible, target of the header link). */
 function AuthorBio({ author }: { author: EntryAuthor }) {
   const t = getT().article;
   const photo = cssBackgroundImage(author.photo);

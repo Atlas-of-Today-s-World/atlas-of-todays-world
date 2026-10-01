@@ -1,6 +1,6 @@
-# Supabase Free uspí projekt po týdnu bez provozu. Denní dotaz na /api/health
-# ho drží vzhůru a zároveň je to nejlevnější uptime kontrola (selhání = e-mail
-# z GitHub Actions). Plnohodnotný monitor (UptimeRobot) nastavuje vlastník.
+# Supabase Free pauses a project after a week without traffic. A daily request to
+# /api/health keeps it awake and doubles as the cheapest uptime check (failure =
+# e-mail from GitHub Actions). A full monitor (UptimeRobot) is set up by the owner.
 name: Keep-alive
 
 on:

@@ -8,16 +8,16 @@ import { createServiceClient } from "@/lib/supabase/service";
 
 export interface ActionState {
   ok: boolean;
-  /** Kód chyby — text v jazyce stránky vybere formulář (messages: account.errors). */
+  /** Error code — the form picks the text in the page language (messages: account.errors). */
   error?: "signIn" | "confirm" | "failed";
 }
 
 const DeleteInput = z.object({ confirm: z.string().trim().toLowerCase() });
 
 /**
- * Smazání vlastního účtu (GDPR, ARCHITEKTURA 16.2). Identitu ověří session,
- * samotné smazání v Auth umí jen servisní klíč. Profil zmizí kaskádou;
- * posledního admina chrání trigger v DB.
+ * Deleting one's own account (GDPR, ARCHITEKTURA 16.2). The session verifies identity;
+ * only the service key can delete the user in Auth. The profile goes by cascade;
+ * a DB trigger protects the last admin.
  */
 export async function deleteAccount(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = DeleteInput.safeParse({ confirm: formData.get("confirm") });

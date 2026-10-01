@@ -16,7 +16,7 @@ interface Role {
   approval_scope: string;
 }
 
-/** Role, blokace a přiřazení schvalovatele (země, autoři). */
+/** Role, block and approver assignments (countries, authors). */
 export function AccountForm({
   account,
   roles,

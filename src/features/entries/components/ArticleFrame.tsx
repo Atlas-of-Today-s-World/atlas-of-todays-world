@@ -8,9 +8,9 @@ import { cssBackgroundImage } from "@/lib/security/urls";
 import type { EntrySummary } from "../queries";
 
 /**
- * Společný rámec novinky i encyklopedického hesla: mapa zaostřená na region,
- * panel s titulní fotkou, kategorií, titulkem a perexem. Co je pod tím, dodá
- * konkrétní podoba článku (`children`).
+ * Shared frame for news items and encyclopedia entries: a map focused on the region,
+ * a panel with the cover photo, category, title and lead. What goes below is
+ * supplied by the specific article type (`children`).
  */
 export function ArticleFrame({
   item,
@@ -22,11 +22,11 @@ export function ArticleFrame({
 }: {
   item: EntrySummary;
   atlas: Atlas;
-  /** Pruh nad článkem (náhled: stav a platnost odkazu). */
+  /** Bar above the article (preview: status and link validity). */
   banner?: React.ReactNode;
-  /** Kredit k titulní fotce (heslo ho podle zadání ukazuje). */
+  /** Cover photo credit (entries show it per the brief). */
   heroCaption?: string;
-  /** Jazyk textu, když se liší od stránky (originál bez překladu) — kvůli čtečkám. */
+  /** Text language when it differs from the page (original without translation) — for screen readers. */
   lang?: string;
   children: React.ReactNode;
 }) {
@@ -81,7 +81,7 @@ export function ArticleFrame({
   );
 }
 
-/** Region a global issue článku jako odkazy v řádku s údaji. */
+/** The article's region and global issue as links in the details row. */
 export function PlaceLinks({ item, atlas }: { item: EntrySummary; atlas: Atlas }) {
   const region = item.region ? atlas.regionBySlug.get(item.region) : undefined;
   const issue = item.issue ? atlas.issueBySlug.get(item.issue) : undefined;
@@ -107,6 +107,6 @@ export function PlaceLinks({ item, atlas }: { item: EntrySummary; atlas: Atlas }
   );
 }
 
-/** Řádek drobných údajů pod perexem. */
+/** Row of small details below the lead. */
 export const META_LINE =
   "mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-[var(--color-ink-muted)]";

@@ -6,16 +6,16 @@ import { createPublicClient } from "@/lib/supabase/public";
 export interface Flags {
   maintenance: boolean;
   newsletter: boolean;
-  /** Přihlášení kódem z e-mailu a pozvánky e-mailem (G1) — až s vlastním SMTP. */
+  /** Sign-in with an email code and email invitations (G1) — only with our own SMTP. */
   emailAuth: boolean;
 }
 
 const DEFAULTS: Flags = { maintenance: false, newsletter: true, emailAuth: false };
 
 /**
- * Přepínače funkcí (feature_flags, F6) — v cache s tagem, přepnutí v
- * administraci je hned obnoví. Když DB neodpoví, platí výchozí hodnoty:
- * výpadek tabulky nesmí sám vypnout web do údržby.
+ * Feature flags (feature_flags, F6) — cached with a tag; toggling them in the
+ * admin refreshes it immediately. If the DB doesn't respond, defaults apply:
+ * a table outage must not put the site into maintenance on its own.
  */
 export const getFlags = unstable_cache(
   async (): Promise<Flags> => {

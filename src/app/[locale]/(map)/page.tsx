@@ -14,8 +14,8 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const t = getMessages(await localeFrom(params)).home;
   return {
-    // `absolute` obejde šablonu "%s — Atlas of Today's World" z root layoutu,
-    // jinak by se název webu v titulku úvodní stránky objevil dvakrát.
+    // `absolute` bypasses the "%s — Atlas of Today's World" template from the root layout,
+    // otherwise the site name would appear twice in the home page title.
     title: {
       absolute: t.title,
     },
@@ -38,7 +38,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const t = getMessages(locale).home;
   const { countries, regions, indicators } = await getAtlas(locale);
 
-  // ISO2 -> [lon, lat]: podle toho HomeFocus otočí globus nad zemi návštěvníka.
+  // ISO2 -> [lon, lat]: HomeFocus uses this to rotate the globe over the visitor's country.
   const homeCenters: Record<string, [number, number]> = {};
   for (const country of countries) {
     if (country.iso2 && country.labelLon !== null && country.labelLat !== null) {
@@ -46,8 +46,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     }
   }
 
-  // Strukturovaná data, aby vyhledávače pochopily, že mapa je rozcestník
-  // na profily regionů a zemí, a aby uměly nabídnout vyhledávání v Atlasu.
+  // Structured data so search engines understand the map is a hub
+  // for region and country profiles, and can offer search within Atlas.
   const jsonLd = [
     {
       "@context": "https://schema.org",
@@ -109,7 +109,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     <>
       <HomeFocus centers={homeCenters} />
 
-      {/* Text pro vyhledávače a čtečky – vizuálně skrytý, mapa je v layoutu. */}
+      {/* Text for search engines and screen readers – visually hidden, the map is in the layout. */}
       <div id="content" tabIndex={-1} className="sr-only">
         <h1>Atlas of Today&rsquo;s World</h1>
         <p>{t.intro}</p>

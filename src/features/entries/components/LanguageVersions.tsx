@@ -5,13 +5,13 @@ import { createTranslation } from "../actions";
 import type { listLanguageVersions } from "../editorial";
 import { StatusBadge } from "./StatusBadge";
 
-/** Jak se jmenuje tlačítko pro nový jazyk (administrace je česká). */
+/** Label of the button for creating a new language version, per target locale. */
 const CREATE_LABEL: Partial<Record<string, string>> = { cs: "Create Czech version" };
 
 /**
- * Jazykové verze článku (G5.3): originál a jeho překlady s odkazy a stavem;
- * u originálu tlačítko pro jazyk, který ještě chybí. Překlad je samostatný
- * koncept se stejným schvalováním.
+ * Language versions of an article (G5.3): the original and its translations with
+ * links and status; on the original, a button for each language still missing.
+ * A translation is a separate draft with the same approval.
  */
 export function LanguageVersions({
   currentId,

@@ -1,12 +1,12 @@
 import { defineConfig, devices } from "@playwright/test";
 
 /**
- * Testy sdílené ukázky (demo/atlas.html) — administrace, nastavení, role
- * a mobilní rozvržení. Běží proti sestavenému souboru, bez serveru:
- * `npm run test:demo` ho napřed sestaví.
+ * Tests of the shared demo (demo/atlas.html) — admin, settings, roles
+ * and mobile layout. They run against the built file, without a server:
+ * `npm run test:demo` builds it first.
  *
- * Každý test má čistý prohlížeč (vlastní localStorage), takže pořadí testů
- * na výsledku nezáleží.
+ * Every test gets a clean browser (its own localStorage), so test order
+ * doesn't affect the result.
  */
 export default defineConfig({
   testDir: "./demo/tests",

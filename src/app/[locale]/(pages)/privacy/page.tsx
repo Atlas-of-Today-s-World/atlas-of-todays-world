@@ -10,8 +10,8 @@ export const metadata: Metadata = {
 };
 
 /**
- * Zásady ochrany soukromí (F5, SEC-11). Popisují jen to, co aplikace
- * skutečně dělá — při změně zpracování (nová služba, analytika) upravit.
+ * Privacy policy (F5, SEC-11). Describes only what the app actually
+ * does — update it when data processing changes (new service, analytics).
  */
 export default async function PrivacyPage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = await localeFrom(params);

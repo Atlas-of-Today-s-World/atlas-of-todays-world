@@ -4,8 +4,8 @@ import { LocaleProvider } from "@/components/i18n/LocaleProvider";
 import { isLocale, LOCALES } from "@/features/i18n/config";
 
 /**
- * Jazyková verze veřejného webu (G5). Angličtina je na adresách bez předpony
- * (proxy je přepíše na /en/…), ostatní jazyky pod /cs/… a podobně.
+ * Language version of the public site (G5). English lives at URLs without a prefix
+ * (the proxy rewrites them to /en/…), other languages under /cs/… and so on.
  */
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
@@ -22,7 +22,7 @@ export default async function LocaleLayout({
   if (!isLocale(locale)) notFound();
   return (
     <LocaleProvider locale={locale}>
-      {/* <html lang> je společný kořen; jazyk obsahu nese tenhle obal (WCAG 3.1.2). */}
+      {/* <html lang> is the shared root; this wrapper carries the content language (WCAG 3.1.2). */}
       <div lang={locale} className="contents">
         {children}
       </div>

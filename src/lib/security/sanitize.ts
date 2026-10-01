@@ -2,9 +2,9 @@ import { marked } from "marked";
 import sanitizeHtml from "sanitize-html";
 
 /**
- * Jediná allowlist pro redakční HTML (ARCHITEKTURA 8.3). Používá se při uložení
- * i při vykreslení, takže i obsah, který se do DB dostal jinou cestou (PostgREST,
- * import), projde stejným sítem.
+ * The single allowlist for editorial HTML (ARCHITEKTURA 8.3). Used both on save
+ * and on render, so even content that reached the DB another way (PostgREST,
+ * import) goes through the same filter.
  */
 const OPTIONS: sanitizeHtml.IOptions = {
   allowedTags: [
@@ -36,7 +36,7 @@ const OPTIONS: sanitizeHtml.IOptions = {
     "sub",
   ],
   allowedAttributes: {
-    // rel přepíše transformTags na "noopener noreferrer" — bez povolení by ho filtr zahodil.
+    // transformTags rewrites rel to "noopener noreferrer" — unless allowed, the filter would drop it.
     a: ["href", "title", "rel"],
     img: ["src", "alt", "title", "width", "height", "loading"],
   },
@@ -44,7 +44,7 @@ const OPTIONS: sanitizeHtml.IOptions = {
   allowedSchemesByTag: { img: ["https"] },
   allowProtocolRelative: false,
   transformTags: {
-    // Odkazy ven nesmí dostat přístup k našemu oknu.
+    // Outbound links must not get access to our window.
     a: sanitizeHtml.simpleTransform("a", { rel: "noopener noreferrer" }),
     img: sanitizeHtml.simpleTransform("img", { loading: "lazy" }),
   },

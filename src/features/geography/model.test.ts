@@ -37,8 +37,8 @@ const snapshot: AtlasSnapshot = {
   countries: [
     country("CZE", "europe", 10),
     country("DEU", "europe", 80),
-    country("ATA", "europe", 0), // Antarktida profil nemá
-    country("XXX", null, 5), // bez regionu = bez profilu
+    country("ATA", "europe", 0), // Antarctica has no profile
+    country("XXX", null, 5), // no region = no profile
   ],
   countryMetrics: [
     {
@@ -119,23 +119,23 @@ const atlas = buildAtlas(snapshot, [
 ]);
 
 describe("buildAtlas", () => {
-  it("profil mají jen země v regionu a mimo vyřazená území, od nejlidnatější", () => {
+  it("only countries in a region and not excluded territories have a profile, most populous first", () => {
     expect(atlas.countries.map((c) => c.iso3)).toEqual(["DEU", "CZE"]);
     expect(atlas.regionBySlug.get("europe")?.countries).toEqual(["DEU", "CZE", "ATA"]);
   });
 
-  it("spočítá pořadí v sekvenční vrstvě a formátuje hodnoty", () => {
+  it("computes rank in a sequential layer and formats values", () => {
     const hdi = atlas.countryByIso3.get("CZE")?.stats.find((stat) => stat.id === "hdi");
     expect(hdi).toMatchObject({ value: "0.900", rank: 2, rankOf: 2, year: 2023 });
   });
 
-  it("kategoriální vrstva dá popisek kategorie, rok z ukazatele a žádné pořadí", () => {
+  it("categorical layer gives the category label, year from the indicator and no rank", () => {
     const regime = atlas.countryByIso3.get("CZE")?.stats.find((stat) => stat.id === "regime");
     expect(regime).toMatchObject({ value: "Liberal democracy", rank: null, year: 2024 });
     expect(atlas.indicatorById.get("regime")?.shortLabel).toBe("Political regime");
   });
 
-  it("doplní geografická fakta a redakční profil", () => {
+  it("adds geographic facts and the editorial profile", () => {
     const cze = atlas.countryBySlug.get("cze");
     expect(cze?.iso2).toBe("CZ");
     expect(cze?.bbox).toEqual([1, 2, 3, 4]);
@@ -144,9 +144,9 @@ describe("buildAtlas", () => {
     ]);
   });
 
-  it("složí global issues a pomocné výběry", () => {
+  it("assembles global issues and helper options", () => {
     expect(atlas.issueBySlug.get("central")?.countries).toEqual(["CZE"]);
-    // Vlastní region ze zemí si drží svůj typ (jiný štítek na webu).
+    // A custom region made of countries keeps its type (a different label on the site).
     expect(atlas.issueBySlug.get("central")?.kind).toBe("region");
     expect(countriesOf(atlas, ["CZE", "XXX", "DEU"]).map((c) => c.iso3)).toEqual(["DEU", "CZE"]);
     expect(regionColorMap(atlas.regions)).toMatchObject({ CZE: "#aabbcc", DEU: "#aabbcc" });

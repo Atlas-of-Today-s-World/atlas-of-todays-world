@@ -27,7 +27,7 @@ import {
 } from "./schema";
 import { MAX_CHAPTERS, PREVIEW_HOURS } from "./constants";
 
-/** Po změně zveřejněného obsahu obnovit seznamy, detail i portréty. */
+/** After published content changes, revalidate lists, detail and portraits. */
 function refresh(slug?: string | null, region?: string | null, issue?: string | null) {
   updateTag(tags.entries);
   if (slug) updateTag(tags.entry(slug));
@@ -36,9 +36,9 @@ function refresh(slug?: string | null, region?: string | null, issue?: string | 
 }
 
 /**
- * Uložení novinky/hesla (ARCHITEKTURA 4.3). Nový článek vzniká jako koncept
- * autora; kdo smí co upravit, rozhoduje RLS + guard_entries. Předchozí podobu
- * textu si uloží trigger do historie revizí.
+ * Saving a news item/entry (ARCHITEKTURA 4.3). A new article starts as the
+ * author's draft; who may edit what is decided by RLS + guard_entries. A trigger
+ * stores the previous version of the text in the revision history.
  */
 export async function saveEntry(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = EntryInput.safeParse(formObject(formData, ["countries"]));
@@ -70,8 +70,8 @@ export async function saveEntry(_prev: ActionState, formData: FormData): Promise
       .eq("id", entryId)
       .single();
     if (readError) return failed(readError);
-    // Zveřejněný článek nemění adresu — odkazy na něj už kolují. Překlad má
-    // adresu i druh vždy po originálu (hlídá i trigger v DB).
+    // A published article doesn't change its address — links to it are already out there.
+    // A translation always takes its address and kind from the original (a DB trigger enforces it too).
     const update =
       current.translation_of !== null
         ? { ...row, slug: current.slug, kind: current.kind }
@@ -148,7 +148,7 @@ const DONE: Record<Transition, string> = {
   unpublish_entry: "Unpublished; the article is a draft again.",
 };
 
-/** Přechod stavu jen přes RPC funkci v DB (ARCHITEKTURA 4.3) — nikdy přímý UPDATE. */
+/** Status transitions only through an RPC function in the DB (ARCHITEKTURA 4.3) — never a direct UPDATE. */
 async function transition(fn: Transition, id: string): Promise<ActionState> {
   if (!uuid.safeParse(id).success) return { ok: false, error: "Invalid article." };
   const session = await signedIn();
@@ -160,7 +160,7 @@ async function transition(fn: Transition, id: string): Promise<ActionState> {
   return { ok: true, message: DONE[fn] };
 }
 
-/** Obnoví cache článku podle jeho zařazení (`onlyPublished`: jen když je na webu). */
+/** Revalidates an article's cache by its placement (`onlyPublished`: only when it's live). */
 async function refreshEntry(supabase: Client, id: string, onlyPublished = false) {
   const { data } = await supabase
     .from("entries")
@@ -174,9 +174,9 @@ async function refreshEntry(supabase: Client, id: string, onlyPublished = false)
 type Client = NonNullable<Awaited<ReturnType<typeof signedIn>>>["supabase"];
 
 /**
- * Kapitoly hesla (P9) — formulář posílá pole každé kapitoly pod stejnými
- * jmény v pořadí na stránce. Uloží se všechny najednou v jedné transakci
- * (DB `replace_entry_parts`); kdo smí, rozhoduje RLS jako u článku.
+ * Entry chapters (P9) — the form sends each chapter's fields under the same
+ * names in page order. All are saved at once in a single transaction
+ * (DB `replace_entry_parts`); RLS decides who may, as for the article.
  */
 export async function saveChapters(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const entryId = String(formData.get("entry_id") ?? "");
@@ -220,7 +220,7 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
   return { ok: true, message: "Chapters saved." };
 }
 
-/** Zdroje hesla — stejné položky jako zdroje portrétu, ukládá je editor sekcí. */
+/** Entry sources — same items as portrait sources, saved by the section editor. */
 export async function saveEntryResources(
   _prev: ActionState,
   formData: FormData,
@@ -274,9 +274,9 @@ export async function sendBackEntry(_prev: ActionState, formData: FormData): Pro
 }
 
 /**
- * Naplánuje zveřejnění čekajícího článku (DB `schedule_entry` — smí jen ten,
- * kdo smí článek schválit). V daný čas ho zveřejní pg_cron; web se obnoví
- * nejpozději po PUBLIC_REVALIDATE_SECONDS, proto tady se cache nemaže.
+ * Schedules publication of a pending article (DB `schedule_entry` — only someone
+ * who may approve the article). pg_cron publishes it at the given time; the site
+ * refreshes within PUBLIC_REVALIDATE_SECONDS, so the cache isn't purged here.
  */
 export async function scheduleEntry(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = ScheduleInput.safeParse(formObject(formData));
@@ -301,8 +301,8 @@ export async function unscheduleEntry(id: string): Promise<ActionState> {
 }
 
 /**
- * Nová jazyková verze článku (G5.3): DB funkce zkopíruje originál jako
- * koncept volajícího v cílovém jazyce; dál jde stejným schvalováním.
+ * New language version of an article (G5.3): a DB function copies the original
+ * as the caller's draft in the target language; it then goes through the same approval.
  */
 export async function createTranslation(formData: FormData): Promise<void> {
   const entryId = String(formData.get("entry_id") ?? "");
@@ -321,9 +321,9 @@ export async function createTranslation(formData: FormData): Promise<void> {
 }
 
 /**
- * Přiřadí článek ke skupině zemí (globální téma nebo vlastní region), nebo ho
- * od ní odpojí (`slug` null) — ze stránky skupiny, ne jen z editoru článku.
- * Kdo smí článek měnit, rozhoduje RLS jako u uložení (zveřejněný jen schvalovatel).
+ * Assigns an article to a country group (global issue or custom region), or
+ * detaches it (`slug` null) — from the group page, not just the article editor.
+ * RLS decides who may change the article, as on save (published: approver only).
  */
 export async function setEntryGroup(entryId: string, slug: string | null): Promise<ActionState> {
   if (
@@ -348,7 +348,7 @@ export async function setEntryGroup(entryId: string, slug: string | null): Promi
   const row = data[0];
   if (!row) return { ok: false, error: "You can't change this article." };
   if (row.status === "published") {
-    // Obnovit portrét původní i nové skupiny.
+    // Revalidate the portrait of both the old and the new group.
     refresh(row.slug, row.region_slug, slug);
     if (before?.special_slug && before.special_slug !== slug) {
       updateTag(tags.portrait("issue", before.special_slug));
@@ -381,7 +381,7 @@ export async function deleteEntry(id: string): Promise<ActionState> {
   return { ok: true, message: "Deleted." };
 }
 
-/** Obnoví text z historie; současná podoba se tím sama uloží jako další revize. */
+/** Restores text from history; the current version is itself saved as another revision. */
 export async function restoreRevision(entryId: string, revisionId: number): Promise<ActionState> {
   if (!uuid.safeParse(entryId).success || !Number.isInteger(revisionId)) {
     return { ok: false, error: "Invalid revision." };
@@ -421,9 +421,9 @@ export async function restoreRevision(entryId: string, revisionId: number): Prom
 }
 
 /**
- * Sdílitelný odkaz na náhled článku (G2). Smí ho vytvořit jen ten, kdo článek
- * upravuje nebo schvaluje (rozhoduje create_preview_link). Token se vrací jen
- * teď, v databázi je pouze jeho hash.
+ * Shareable article preview link (G2). Only someone who edits or approves the
+ * article may create it (create_preview_link decides). The token is returned
+ * only now; the database stores just its hash.
  */
 export async function createPreviewLink(
   entryId: string,

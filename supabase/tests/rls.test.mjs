@@ -6,14 +6,14 @@ import { fileURLToPath } from "node:url";
 import { PGlite } from "@electric-sql/pglite";
 
 /**
- * Pravidla přístupu ověřená proti skutečnému Postgresu.
+ * Access rules verified against a real Postgres.
  *
- * Migrace se pustí do PGlite (Postgres ve WebAssembly), nad ně malá náhrada
- * za schémata `auth` a `storage` ze Supabase, a pak se za jednotlivé role
- * zkouší, co projde a co ne. Hlídá se to, co v ukázce jen „vypadalo" —
- * tady to musí vynutit databáze, ať aplikace pošle cokoli.
+ * Migrations run in PGlite (Postgres in WebAssembly) with a small stand-in
+ * for Supabase's `auth` and `storage` schemas on top, then each role is
+ * tried to see what passes and what doesn't. This guards what the demo only
+ * "looked like" — here the database must enforce it, whatever the app sends.
  *
- * Spuštění: npm run test:db
+ * Run: npm run test:db
  */
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -35,8 +35,8 @@ const id = {
 };
 
 /**
- * Spustí `fn` jako přihlášený uživatel (null = anonymní čtenář). Výchozí
- * session má druhý faktor (aal2); `{ aal: "aal1" }` simuluje přihlášení bez TOTP.
+ * Runs `fn` as a signed-in user (null = anonymous reader). The default
+ * session has a second factor (aal2); `{ aal: "aal1" }` simulates a sign-in without TOTP.
  */
 async function as(user, fn, { aal = "aal2" } = {}) {
   await db.exec(`reset role; select set_config('request.jwt.claim.sub', '${user ?? ""}', false);
@@ -53,7 +53,7 @@ async function as(user, fn, { aal = "aal2" } = {}) {
 const q = async (sql, params = []) => (await db.query(sql, params)).rows;
 const one = async (sql, params = []) => (await q(sql, params))[0];
 
-/** Očekávaná chyba z databáze; vrátí její text. */
+/** Expected database error; returns its message. */
 async function refused(promise, pattern) {
   try {
     await promise;
@@ -61,7 +61,7 @@ async function refused(promise, pattern) {
     if (pattern) assert.match(String(error.message), pattern);
     return error.message;
   }
-  assert.fail("čekal jsem odmítnutí, ale prošlo to");
+  assert.fail("expected a refusal, but it went through");
 }
 
 async function newEntry(owner, slug, countries = [], status = "draft") {
@@ -88,7 +88,7 @@ before(async () => {
     }
   }
 
-  // Minimální geografie pro testy.
+  // Minimal geography for the tests.
   await db.exec(`
     insert into regions (slug, name, fill, stroke, center_lon, center_lat) values
       ('latin-america-caribbean', 'Latin America & Caribbean', '#aaaaaa', '#555555', -60, -10),
@@ -99,7 +99,7 @@ before(async () => {
       ('USA', 'united-states', 'United States', null);
   `);
 
-  // Účty: registrace vytvoří čtenáře, role rozdá servisní klíč (auth.uid() je null).
+  // Accounts: sign-up creates a reader, roles are granted by the service key (auth.uid() is null).
   const people = [
     [id.admin, "admin@atlasoftodaysworld.org", "admin", "staff", "active"],
     [id.permAdmin, "perm@atlasoftodaysworld.org", "permission-admin", "staff", "active"],
@@ -129,14 +129,14 @@ before(async () => {
 
 // ---------------------------------------------------------------------------
 
-test("registrace založí profil čtenáře", async () => {
+test("sign-up creates a reader profile", async () => {
   const p = await one("select role_id, kind, status from profiles where id = $1", [id.newcomer]);
   assert.deepEqual(p, { role_id: "reader", kind: "reader", status: "active" });
 });
 
-test("anonymní čtenář vidí jen zveřejněné články", async () => {
+test("anonymous reader sees only published articles", async () => {
   await newEntry(id.pubA, "anon-draft");
-  await newEntry(id.pubA, "anon-published", [], "published"); // import servisním klíčem
+  await newEntry(id.pubA, "anon-published", [], "published"); // import with the service key
   const slugs = await as(null, () =>
     q("select slug from entries where slug like 'anon-%' order by slug"),
   );
@@ -146,7 +146,7 @@ test("anonymní čtenář vidí jen zveřejněné články", async () => {
   );
 });
 
-test("anonym nic nezapíše", async () => {
+test("anonymous user cannot write anything", async () => {
   await as(null, () =>
     refused(
       q("insert into entries (slug, title, category, owner_id) values ('x', 'x', 'Society', null)"),
@@ -155,14 +155,14 @@ test("anonym nic nezapíše", async () => {
   );
 });
 
-test("publisher píše vlastní koncepty, cizí ne", async () => {
+test("publisher writes own drafts, not others'", async () => {
   await as(id.pubA, async () => {
     const own = await one(
       `insert into entries (slug, title, category, owner_id) values ('pub-own', 'Own', 'Society', $1) returning id`,
       [id.pubA],
     );
     assert.ok(own.id);
-    // Odmítne to už trigger (před RLS) — s hláškou, které redaktor rozumí.
+    // The trigger refuses it already (before RLS) — with a message editors understand.
     await refused(
       q(
         `insert into entries (slug, title, category, owner_id) values ('pub-fake', 'Fake', 'Society', $1)`,
@@ -175,12 +175,12 @@ test("publisher píše vlastní koncepty, cizí ne", async () => {
   const changed = await as(id.pubA, () =>
     q("update entries set title = 'hijack' where id = $1 returning id", [foreign]),
   );
-  assert.equal(changed.length, 0, "cizí koncept se nesmí dát přepsat");
+  assert.equal(changed.length, 0, "another author's draft must not be overwritable");
   const other = await as(id.pubA, () => q("select id from entries where id = $1", [foreign]));
-  assert.equal(other.length, 0, "cizí koncept publisher ani nevidí");
+  assert.equal(other.length, 0, "publisher can't even see another author's draft");
 });
 
-test("publisher nezveřejní ani přímo, ani přes podstrčený příznak", async () => {
+test("publisher can't publish, neither directly nor via a forged flag", async () => {
   const own = await newEntry(id.pubA, "pub-publish-try");
   await as(id.pubA, async () => {
     await refused(
@@ -193,7 +193,7 @@ test("publisher nezveřejní ani přímo, ani přes podstrčený příznak", asy
          update entries set status = 'published' where id = $1`,
         [own],
       ).catch(async () => {
-        // PGlite nepustí dva příkazy s parametrem v jednom query — zkusíme po sobě.
+        // PGlite won't run two statements with a parameter in one query — try them in turn.
         await q("select set_config('atlas.approving', 'on', false)");
         return q("update entries set status = 'published' where id = $1", [own]);
       }),
@@ -203,13 +203,13 @@ test("publisher nezveřejní ani přímo, ani přes podstrčený příznak", asy
   });
 });
 
-test("publisher pošle ke schválení", async () => {
+test("publisher submits for approval", async () => {
   const own = await newEntry(id.pubA, "pub-submit");
   await as(id.pubA, () => q("select submit_entry($1)", [own]));
   assert.equal((await one("select status from entries where id = $1", [own])).status, "pending");
 });
 
-test("přidělený schvalovatel schválí jen své země a autory", async () => {
+test("assigned approver approves only their countries and authors", async () => {
   const brazil = await newEntry(id.pubA, "appr-brazil", ["BRA"], "pending");
   const japan = await newEntry(id.pubA, "appr-japan", ["JPN"], "pending");
   const byB = await newEntry(id.pubB, "appr-by-b", ["USA"], "pending");
@@ -218,7 +218,7 @@ test("přidělený schvalovatel schválí jen své země a autory", async () => 
   await as(id.approverLatam, () => refused(q("select approve_entry($1)", [japan]), /outside/));
 
   await as(id.approverLatam, () => q("select approve_entry($1)", [brazil]));
-  await as(id.approverLatam, () => q("select approve_entry($1)", [byB])); // přes autora
+  await as(id.approverLatam, () => q("select approve_entry($1)", [byB])); // via the author
   await as(id.approverAsia, () => q("select approve_entry($1)", [japan]));
 
   const rows = await q(
@@ -235,9 +235,9 @@ test("přidělený schvalovatel schválí jen své země a autory", async () => 
   assert.equal(rows[0].approved_by, id.approverLatam);
 });
 
-test("přidělený schvalovatel neschvaluje sám sebe", async () => {
+test("assigned approver doesn't approve their own work", async () => {
   await q("update profiles set role_id = 'content-approver' where id = $1", [id.pubB]);
-  // pubB je teď schvalovatel s přidělenou Brazílií
+  // pubB is now an approver assigned to Brazil
   await q("insert into approver_countries values ($1, 'BRA')", [id.pubB]);
   const own = await newEntry(id.pubB, "self-approve", ["BRA"], "pending");
   await as(id.pubB, () => refused(q("select approve_entry($1)", [own]), /outside/));
@@ -245,7 +245,7 @@ test("přidělený schvalovatel neschvaluje sám sebe", async () => {
   await q("update profiles set role_id = 'publisher' where id = $1", [id.pubB]);
 });
 
-test("vrácení autorovi chce vzkaz", async () => {
+test("sending back to the author requires a note", async () => {
   const entry = await newEntry(id.pubA, "send-back", ["BRA"], "pending");
   await as(id.approverLatam, () =>
     refused(q("select send_back_entry($1, '')", [entry]), /Say what needs to change/),
@@ -258,12 +258,12 @@ test("vrácení autorovi chce vzkaz", async () => {
   assert.match(row.review_note, /Sources/);
 });
 
-test("content editor upraví cizí koncept a zveřejní ho", async () => {
+test("content editor edits another author's draft and publishes it", async () => {
   const entry = await newEntry(id.pubB, "editor-fix");
   await as(id.editor, async () => {
     const done = await q("update entries set title = 'Fixed' where id = $1 returning id", [entry]);
     assert.equal(done.length, 1);
-    // Schvaluje se jen čekající článek (DB-09): nejdřív odeslat, pak schválit.
+    // Only a pending article can be approved (DB-09): submit first, then approve.
     await refused(q("select approve_entry($1)", [entry]), /waiting for approval/);
     await q("select submit_entry($1)", [entry]);
     await q("select approve_entry($1)", [entry]);
@@ -274,7 +274,7 @@ test("content editor upraví cizí koncept a zveřejní ho", async () => {
   );
 });
 
-test("autor bez práva schvalovat nepřepíše svůj zveřejněný článek", async () => {
+test("author without approval rights can't edit their published article", async () => {
   const entry = await newEntry(id.pubA, "live-own", [], "published");
   await as(id.pubA, () =>
     refused(
@@ -284,7 +284,7 @@ test("autor bez práva schvalovat nepřepíše svůj zveřejněný článek", as
   );
 });
 
-test("každá změna textu nechá předchozí verzi", async () => {
+test("every text change keeps the previous version", async () => {
   const entry = await newEntry(id.pubA, "revisions");
   await as(id.pubA, async () => {
     await q("update entries set body_html = '<p>one</p>' where id = $1", [entry]);
@@ -296,11 +296,11 @@ test("každá změna textu nechá předchozí verzi", async () => {
   assert.equal(count.n, 2);
 });
 
-test("permission admin spravuje oprávnění, ne obsah", async () => {
+test("permission admin manages permissions, not content", async () => {
   const entry = await newEntry(id.pubA, "perm-admin-try");
   await as(id.permAdmin, async () => {
     const changed = await q("update entries set title = 'x' where id = $1 returning id", [entry]);
-    assert.equal(changed.length, 0, "na obsah nedosáhne");
+    assert.equal(changed.length, 0, "cannot reach content");
     await q("insert into role_permissions values ('observer', 'regions', 'v')");
     await refused(
       q("insert into role_permissions values ('permission-admin', 'news', 'vced')"),
@@ -321,7 +321,7 @@ test("permission admin spravuje oprávnění, ne obsah", async () => {
   });
 });
 
-test("admin je zamčený a nesmí zmizet poslední", async () => {
+test("admin role is locked and the last admin can't disappear", async () => {
   await as(id.admin, async () => {
     await q("update profiles set approval_global = true where id = $1", [id.approverAsia]);
     await refused(q("delete from roles where id = 'admin'"), /cannot be removed/);
@@ -337,7 +337,7 @@ test("admin je zamčený a nesmí zmizet poslední", async () => {
   );
 });
 
-test("zablokovaný účet nesmí nic", async () => {
+test("blocked account can do nothing", async () => {
   await as(id.blocked, async () => {
     await refused(
       q(
@@ -351,7 +351,7 @@ test("zablokovaný účet nesmí nic", async () => {
   });
 });
 
-test("čtenář vidí jen svůj profil a do administrace nedosáhne", async () => {
+test("reader sees only their own profile and can't reach the admin", async () => {
   await as(id.reader, async () => {
     const profiles = await q("select id from profiles");
     assert.deepEqual(
@@ -366,19 +366,19 @@ test("čtenář vidí jen svůj profil a do administrace nedosáhne", async () =
   });
 });
 
-test("záznam změn zachytí oprávnění, role i schválení", async () => {
+test("audit log captures permissions, roles and approvals", async () => {
   const actions = (await q("select action from audit_log")).map((r) => r.action);
   for (const expected of ["role_permissions.insert", "profiles.update", "entries.update"]) {
-    assert.ok(actions.includes(expected), `v záznamu chybí ${expected}`);
+    assert.ok(actions.includes(expected), `audit log is missing ${expected}`);
   }
   const fromApp = await as(id.admin, () => q("select count(*)::int as n from audit_log"));
-  assert.ok(fromApp[0].n > 0, "admin záznam čte");
+  assert.ok(fromApp[0].n > 0, "admin reads the log");
   await as(id.admin, () => refused(q("delete from audit_log"), /permission denied/));
 });
 
-test("redakční účet jen z povolené adresy (je-li seznam vyplněný)", async () => {
+test("staff account only from an allowed address (if the list is set)", async () => {
   await as(id.permAdmin, async () => {
-    // Seznam omezuje tým na domény; prázdný seznam neomezuje (tým chrání pozvánky).
+    // The list limits staff to domains; an empty list doesn't (invitations protect staff).
     await q("insert into allowed_emails (value, note) values ('@atlasoftodaysworld.org', 'test')");
     await refused(
       q("update profiles set kind = 'staff' where id = $1", [id.newcomer]),
@@ -391,7 +391,7 @@ test("redakční účet jen z povolené adresy (je-li seznam vyplněný)", async
   });
 });
 
-test("placené členství nezapíše nikdo z aplikace, dárkové jen admin", async () => {
+test("nobody writes a paid membership from the app, only admin a complimentary one", async () => {
   await as(id.reader, () =>
     refused(
       q(
@@ -418,14 +418,14 @@ test("placené členství nezapíše nikdo z aplikace, dárkové jen admin", asy
       id.reader,
     ]);
   });
-  // webhook (servisní klíč) smí placené
+  // the webhook (service key) may write paid ones
   await q(
     "insert into memberships (user_id, plan, stripe_subscription_id, started_at) values ($1, 'founding', 'sub_1', now())",
     [id.pubA],
   );
 });
 
-test("návštěvnost se sčítá jen sobě", async () => {
+test("page views count only towards yourself", async () => {
   await as(id.reader, async () => {
     await q("select record_page_view()");
     await q("select record_page_view()");
@@ -439,7 +439,7 @@ test("návštěvnost se sčítá jen sobě", async () => {
   assert.equal(Number(overview.pages_read), 2);
 });
 
-test("plochy: jen platný obrazec a jen s právem na plochy", async () => {
+test("map areas: only a valid shape and only with the areas permission", async () => {
   const hawaii = JSON.stringify({
     type: "Polygon",
     coordinates: [
@@ -498,7 +498,7 @@ test("plochy: jen platný obrazec a jen s právem na plochy", async () => {
   );
 });
 
-test("ruční hodnota ukazatele musí mít zdroj", async () => {
+test("manual indicator value must have a source", async () => {
   await q(
     `insert into indicators (id, label, domain_min, domain_max) values ('hdi', 'HDI', 0.4, 0.96)`,
   );
@@ -521,7 +521,7 @@ test("ruční hodnota ukazatele musí mít zdroj", async () => {
     refused(
       q("update indicator_values set value = 0.1 where country_iso3 = 'BRA' returning 1").then(
         (rows) => {
-          if (rows.length === 0) throw new Error("row-level security: nic se nezměnilo");
+          if (rows.length === 0) throw new Error("row-level security: nothing changed");
           return rows;
         },
       ),
@@ -530,7 +530,7 @@ test("ruční hodnota ukazatele musí mít zdroj", async () => {
   );
 });
 
-test("obrázky nahraje jen ten, kdo smí psát, a jen do vlastní složky", async () => {
+test("images are uploaded only by writers and only into their own folder", async () => {
   await as(id.pubA, async () => {
     await q("insert into storage.objects (bucket_id, name) values ('entry-images', $1)", [
       `${id.pubA}/a.jpg`,
@@ -555,10 +555,10 @@ test("obrázky nahraje jen ten, kdo smí psát, a jen do vlastní složky", asyn
 });
 
 // ---------------------------------------------------------------------------
-// Bezpečnostní opravy (migrace 20260930000001) a pozvánky (…0002)
+// Security fixes (migration 20260930000001) and invitations (…0002)
 // ---------------------------------------------------------------------------
 
-/** Založí auth uživatele; `confirmed` = ověřený e-mail (Google jej má vždy). */
+/** Creates an auth user; `confirmed` = verified e-mail (Google always has it). */
 async function signUp(uid, email, confirmed = true) {
   await q("insert into auth.users (id, email, email_confirmed_at) values ($1, $2, $3)", [
     uid,
@@ -567,7 +567,7 @@ async function signUp(uid, email, confirmed = true) {
   ]);
 }
 
-test("DB-01: vlastní role bez práva na oprávnění neobejde seznam povolených e-mailů", async () => {
+test("DB-01: a custom role without the permissions right can't bypass allowed e-mails", async () => {
   await q(`insert into roles (id, name) values ('account-helper', 'Account helper')`);
   await q(
     `insert into role_permissions (role_id, section, actions) values ('account-helper', 'users', 've')`,
@@ -587,14 +587,14 @@ test("DB-01: vlastní role bez práva na oprávnění neobejde seznam povolenýc
   }
 });
 
-test("DB-03: mazání chce právo „d“, ne jen „e“", async () => {
+test('DB-03: deleting needs the "d" right, not just "e"', async () => {
   await q(
     `insert into indicators (id, label, domain_min, domain_max) values ('gini', 'Gini', 20, 60)`,
   );
   await q(
     `insert into indicator_values (indicator_id, country_iso3, value) values ('gini', 'BRA', 52)`,
   );
-  // data-editor má layers „vce“ — upraví, ale nesmaže.
+  // data-editor has layers "vce" — can edit but not delete.
   await as(id.dataEditor, async () => {
     const gone = await q("delete from indicator_values where indicator_id = 'gini' returning 1");
     assert.equal(gone.length, 0);
@@ -602,7 +602,7 @@ test("DB-03: mazání chce právo „d“, ne jen „e“", async () => {
   assert.equal((await q("select 1 from indicator_values where indicator_id = 'gini'")).length, 1);
 });
 
-test("DB-04: publisher nepřepíše cizí bio autora", async () => {
+test("DB-04: publisher can't overwrite another author's bio", async () => {
   const author = await one(
     `insert into authors (name, profile_id, bio) values ('B', $1, 'Original') returning id`,
     [id.pubB],
@@ -621,7 +621,7 @@ test("DB-04: publisher nepřepíše cizí bio autora", async () => {
   });
 });
 
-test("DB-05: anonym nevidí zdroje nezveřejněného hesla", async () => {
+test("DB-05: anonymous user can't see resources of an unpublished entry", async () => {
   const draft = await newEntry(id.pubA, "resource-draft");
   await q(
     `insert into resources (entry_id, kind, title, url) values ($1, 'Lectures & Debates', 'Secret', 'https://x.org')`,
@@ -632,7 +632,7 @@ test("DB-05: anonym nevidí zdroje nezveřejněného hesla", async () => {
   });
 });
 
-test("DB-06: URL obrázků a obálek jen https", async () => {
+test("DB-06: image and cover URLs are https only", async () => {
   const entry = await newEntry(id.pubA, "cover-js");
   await as(id.pubA, () =>
     refused(
@@ -642,7 +642,7 @@ test("DB-06: URL obrázků a obálek jen https", async () => {
   );
 });
 
-test("DB-08: anonym nevidí vlastníka ani poznámku recenzenta", async () => {
+test("DB-08: anonymous user can't see the owner or the reviewer note", async () => {
   await as(null, async () => {
     await refused(q("select owner_id from entries limit 1"), /permission denied/);
     await refused(q("select review_note from entries limit 1"), /permission denied/);
@@ -652,7 +652,7 @@ test("DB-08: anonym nevidí vlastníka ani poznámku recenzenta", async () => {
   });
 });
 
-test("DB-09: schvaluje se jen čekající článek a nikdo kromě admina sám sebe", async () => {
+test("DB-09: only pending articles are approved and nobody but admin self-approves", async () => {
   const own = await one(
     `insert into entries (slug, title, category, owner_id) values ('editor-own', 'Own', 'Society', $1) returning id`,
     [id.editor],
@@ -661,14 +661,14 @@ test("DB-09: schvaluje se jen čekající článek a nikdo kromě admina sám se
     await q("select submit_entry($1)", [own.id]);
     await refused(q("select approve_entry($1)", [own.id]), /outside what you may approve/);
   });
-  // Autor si stav „pending" nenastaví přímým zápisem.
+  // The author can't set "pending" by a direct write.
   const draft = await newEntry(id.pubA, "direct-pending");
   await as(id.pubA, () =>
     refused(q("update entries set status = 'pending' where id = $1", [draft]), /through submit/),
   );
 });
 
-test("DB-10: importovaný ukazatel nejde přepnout na vlastní", async () => {
+test("DB-10: an imported indicator can't be switched to custom", async () => {
   await q(
     `insert into indicators (id, label, domain_min, domain_max) values ('pop', 'Population', 1, 2)`,
   );
@@ -680,7 +680,7 @@ test("DB-10: importovaný ukazatel nejde přepnout na vlastní", async () => {
   );
 });
 
-test("DB-13: pomocné funkce oprávnění nejsou pro anonyma a prázdná akce neprojde", async () => {
+test("DB-13: permission helpers aren't for anonymous users and an empty action fails", async () => {
   await as(null, () => refused(q("select has_perm('news', 'v')"), /permission denied/));
   await as(id.admin, async () => {
     assert.equal((await one("select has_perm('news', '') as ok")).ok, false);
@@ -688,7 +688,7 @@ test("DB-13: pomocné funkce oprávnění nejsou pro anonyma a prázdná akce ne
   });
 });
 
-test("DB-14: záznam změn neobsahuje e-mail ani telefon", async () => {
+test("DB-14: audit log contains no e-mail or phone", async () => {
   await q("update profiles set role_id = 'observer' where id = $1", [id.newcomer]);
   await q("update profiles set role_id = 'reader' where id = $1", [id.newcomer]);
   const rows = await q(
@@ -701,7 +701,7 @@ test("DB-14: záznam změn neobsahuje e-mail ani telefon", async () => {
   }
 });
 
-test("DB-15: placené členství nesmaže ani admin", async () => {
+test("DB-15: not even admin can delete a paid membership", async () => {
   await q(
     `insert into memberships (user_id, plan, complimentary, stripe_customer_id, stripe_subscription_id)
      values ($1, 'patron', false, 'cus_db15', 'sub_db15')
@@ -715,7 +715,7 @@ test("DB-15: placené členství nesmaže ani admin", async () => {
   });
 });
 
-test("pozvánka: permission-admin pozve publishera, ne admina ani správce účtů", async () => {
+test("invitation: permission-admin invites a publisher, not an admin or account manager", async () => {
   await as(id.permAdmin, async () => {
     await q(
       "insert into invitations (email, role_id) values ('new.publisher@example.org', 'publisher')",
@@ -743,14 +743,14 @@ test("pozvánka: permission-admin pozve publishera, ne admina ani správce účt
   );
 });
 
-test("pozvánka: přijme ji jen ověřený e-mail z pozvánky", async () => {
+test("invitation: accepted only by the invited, verified e-mail", async () => {
   await as(id.admin, () =>
     q(
       `insert into invitations (email, role_id, approver_countries) values ('invited@example.org', 'content-approver', '{BRA}')`,
     ),
   );
 
-  // Jiný e-mail pozvánku nepřevezme.
+  // A different e-mail doesn't take over the invitation.
   const stranger = "00000000-0000-4000-8000-0000000000b1";
   await signUp(stranger, "stranger@example.org");
   assert.equal(
@@ -758,7 +758,7 @@ test("pozvánka: přijme ji jen ověřený e-mail z pozvánky", async () => {
     "reader",
   );
 
-  // Neověřený e-mail (registrace kódem, ještě nepotvrzená) roli nedostane…
+  // An unverified e-mail (code sign-up, not yet confirmed) gets no role…
   const invited = "00000000-0000-4000-8000-0000000000b2";
   await signUp(invited, "Invited@Example.org", false);
   let profile = await one("select role_id, kind from profiles where id = $1", [invited]);
@@ -767,7 +767,7 @@ test("pozvánka: přijme ji jen ověřený e-mail z pozvánky", async () => {
     assert.equal((await one("select claim_invitation() as role")).role, null);
   });
 
-  // …dokud ho neověří.
+  // …until it is verified.
   await q("update auth.users set email_confirmed_at = now() where id = $1", [invited]);
   profile = await one("select role_id, kind from profiles where id = $1", [invited]);
   assert.deepEqual(profile, { role_id: "content-approver", kind: "staff" });
@@ -782,7 +782,7 @@ test("pozvánka: přijme ji jen ověřený e-mail z pozvánky", async () => {
   assert.equal(invite.accepted_by, invited);
 });
 
-test("pozvánka: prošlá ani odvolaná se nepřijme, přijatou nejde měnit", async () => {
+test("invitation: expired or revoked isn't accepted, accepted can't be changed", async () => {
   await q(
     `insert into invitations (email, role_id, created_at, expires_at)
      values ('late@example.org', 'publisher', now() - interval '10 days', now() - interval '5 days')`,
@@ -810,8 +810,8 @@ test("pozvánka: prošlá ani odvolaná se nepřijme, přijatou nejde měnit", a
   );
 });
 
-test("pozvánka: existující čtenář ji přijme při dalším přihlášení", async () => {
-  // Čtenář má e-mail ověřený dávno; pozvánka přijde až potom.
+test("invitation: an existing reader accepts it on next sign-in", async () => {
+  // The reader verified their e-mail long ago; the invitation comes later.
   await q("update auth.users set email_confirmed_at = now() where id = $1", [id.reader]);
   await as(id.admin, () =>
     q("insert into invitations (email, role_id) values ('reader@example.org', 'observer')"),
@@ -822,7 +822,7 @@ test("pozvánka: existující čtenář ji přijme při dalším přihlášení"
   assert.equal((await one("select kind from profiles where id = $1", [id.reader])).kind, "staff");
 });
 
-test("vyhledávání najde zveřejněné, ne koncepty", async () => {
+test("search finds published items, not drafts", async () => {
   await newEntry(id.pubA, "brazil-secret-draft");
   await as(null, async () => {
     const hits = await q("select id, kind from search('brazil', 10)");
@@ -836,7 +836,7 @@ test("vyhledávání najde zveřejněné, ne koncepty", async () => {
   });
 });
 
-test("rate limit: v okně pustí jen daný počet a klient na něj nedosáhne", async () => {
+test("rate limit: allows only the set count per window and clients can't reach it", async () => {
   const results = [];
   for (let i = 0; i < 4; i += 1) {
     results.push((await one("select hit_rate_limit('test:1', 3, 600) as ok")).ok);
@@ -847,16 +847,16 @@ test("rate limit: v okně pustí jen daný počet a klient na něj nedosáhne", 
   );
 });
 
-test("portrét: kolekci nahradí v jedné transakci jen redakce s právem", async () => {
+test("portrait: only permitted editors replace a collection, in one transaction", async () => {
   const items = JSON.stringify([
     { date_label: "1990", title: "Start", body: "B" },
     { date_label: "2000", title: "Next", body: "C" },
   ]);
   const call = "select replace_portrait_items('region', 'east-asia', 'timeline', $1::jsonb)";
 
-  // Publisher píše jen své články — obsah portrétu mu nepatří.
+  // A publisher writes only their own articles — portrait content isn't theirs.
   await as(id.pubA, () => refused(q(call, [items])));
-  // Anonym funkci vůbec nespustí.
+  // An anonymous user can't run the function at all.
   await as(null, () => refused(q(call, [items])));
 
   await as(id.editor, () => q(call, [items]));
@@ -868,7 +868,7 @@ test("portrét: kolekci nahradí v jedné transakci jen redakce s právem", asyn
     ["Start", "Next"],
   );
 
-  // Neplatná položka (zdroj bez https) vrátí celé volání — původní obsah zůstane.
+  // An invalid item (source without https) rolls back the whole call — old content stays.
   await as(id.editor, () =>
     refused(
       q("select replace_portrait_items('region', 'east-asia', 'resources', $1::jsonb)", [
@@ -884,7 +884,7 @@ test("portrét: kolekci nahradí v jedné transakci jen redakce s právem", asyn
     0,
   );
 
-  // Ruční karty ukazatelů patří sekci regions — data-editor ano, publisher ne.
+  // Manual metric cards belong to the regions section — data-editor yes, publisher no.
   const metrics = JSON.stringify([{ value: "5", label: "Castles", source: "Atlas" }]);
   await as(id.dataEditor, () =>
     q("select replace_portrait_items('country', 'JPN', 'metrics', $1::jsonb)", [metrics]),
@@ -898,14 +898,14 @@ test("portrét: kolekci nahradí v jedné transakci jen redakce s právem", asyn
   );
 });
 
-test("změna role: správce oprávnění nepovýší nikoho na správu účtů, admin ano", async () => {
+test("role change: permission admin can't promote to account management, admin can", async () => {
   await as(id.permAdmin, () =>
     refused(
       q("update profiles set role_id = 'permission-admin' where id = $1", [id.pubB]),
       /Only an admin can give a role that manages/,
     ),
   );
-  // Obyčejnou redakční roli správce oprávnění dát smí.
+  // A permission admin may grant an ordinary editorial role.
   await as(id.permAdmin, () =>
     q("update profiles set role_id = 'content-editor' where id = $1", [id.pubB]),
   );
@@ -916,11 +916,11 @@ test("změna role: správce oprávnění nepovýší nikoho na správu účtů, 
     (await one("select role_id from profiles where id = $1", [id.pubB])).role_id,
     "permission-admin",
   );
-  // Vrátit, ať další testy počítají s původní rolí.
+  // Restore, so later tests get the original role.
   await q("update profiles set role_id = 'publisher' where id = $1", [id.pubB]);
 });
 
-test("matice práv: správu účtů a oprávnění přidá roli jen admin", async () => {
+test("permission matrix: only admin grants account and permission management", async () => {
   await as(id.permAdmin, () =>
     refused(
       q(
@@ -929,7 +929,7 @@ test("matice práv: správu účtů a oprávnění přidá roli jen admin", asyn
       /Only an admin can let a role manage/,
     ),
   );
-  // Obsahové sekce správce oprávnění nastavit smí.
+  // A permission admin may set content sections.
   await as(id.permAdmin, () =>
     q(
       "update role_permissions set actions = 'v' where role_id = 'publisher' and section = 'layers'",
@@ -941,8 +941,8 @@ test("matice práv: správu účtů a oprávnění přidá roli jen admin", asyn
   await q("delete from role_permissions where role_id = 'observer' and section = 'users'");
 });
 
-test("2FA: admin bez druhého faktoru nesmí nic, publisher ho nepotřebuje", async () => {
-  // Bez TOTP (aal1) je admin pro DB jako bez role.
+test("2FA: admin without a second factor can do nothing, publisher doesn't need it", async () => {
+  // Without TOTP (aal1) the admin is like roleless to the DB.
   const aal1 = await as(
     id.admin,
     () =>
@@ -952,7 +952,7 @@ test("2FA: admin bez druhého faktoru nesmí nic, publisher ho nepotřebuje", as
     { aal: "aal1" },
   );
   assert.deepEqual(aal1, { a: false, u: false, n: 0 });
-  // Zápis pod RLS bez práva nic nezmění (0 řádků).
+  // A write under RLS without permission changes nothing (0 rows).
   const changed = await as(
     id.admin,
     () => q("update security_settings set session_hours = 5 where id = 1 returning id"),
@@ -962,22 +962,22 @@ test("2FA: admin bez druhého faktoru nesmí nic, publisher ho nepotřebuje", as
   const status = await as(id.admin, () => one("select mfa_status() s"), { aal: "aal1" });
   assert.deepEqual(status.s, { required: true, aal: "aal1" });
 
-  // S TOTP (aal2) plná práva.
+  // With TOTP (aal2), full rights.
   const aal2 = await as(id.admin, () => one("select is_admin() a, has_perm('users', 'v') u"));
   assert.deepEqual(aal2, { a: true, u: true });
 
-  // Role mimo require_2fa_roles druhý faktor nepotřebuje.
+  // Roles outside require_2fa_roles don't need a second factor.
   const pub = await as(id.pubA, () => one("select has_perm('news', 'c') c"), { aal: "aal1" });
   assert.equal(pub.c, true);
 });
 
-test("přepínače: čte je každý, mění jen správa oprávnění", async () => {
+test("feature flags: everyone reads them, only permission management changes them", async () => {
   const flags = await as(null, () => q("select key, enabled from feature_flags order by key"));
   assert.deepEqual(
     flags.map((f) => f.key),
     ["email_auth", "maintenance", "newsletter"],
   );
-  // Přihlášení a pozvánky e-mailem (G1) jsou vypnuté, dokud není vlastní SMTP (U5).
+  // E-mail sign-in and invitations (G1) are off until we have our own SMTP (U5).
   assert.equal(flags.find((f) => f.key === "email_auth").enabled, false);
   await as(null, () =>
     refused(q("update feature_flags set enabled = true where key = 'maintenance'")),
@@ -992,7 +992,7 @@ test("přepínače: čte je každý, mění jen správa oprávnění", async () 
   await q("update feature_flags set enabled = false where key = 'maintenance'");
 });
 
-test("plánované zveřejnění: naplánuje jen schvalovatel, zveřejní ho cron", async () => {
+test("scheduled publishing: only an approver schedules, cron publishes", async () => {
   const entry = await newEntry(id.pubA, "scheduled-ok", ["BRA"], "pending");
   const tomorrow = "now() + interval '1 day'";
 
@@ -1014,7 +1014,7 @@ test("plánované zveřejnění: naplánuje jen schvalovatel, zveřejní ho cron
   assert.ok(planned.publish_at > new Date());
   assert.equal(planned.scheduled_by, id.approverLatam);
 
-  // Plán se nedá podstrčit přímým zápisem ani spustit z aplikace.
+  // A schedule can't be forged by a direct write or triggered from the app.
   await as(id.pubA, () =>
     refused(q("update entries set publish_at = now() where id = $1", [entry]), /schedule_entry/),
   );
@@ -1026,9 +1026,9 @@ test("plánované zveřejnění: naplánuje jen schvalovatel, zveřejní ho cron
   );
   await as(id.approverLatam, () => refused(q("select publish_due_entries()"), /permission denied/));
 
-  // Ještě není čas → nic.
+  // Not due yet → nothing.
   assert.equal((await one("select publish_due_entries() n")).n, 0);
-  // Čas nastal (jako cron: bez session).
+  // Now due (like cron: no session).
   await q("update entries set publish_at = now() - interval '1 minute' where id = $1", [entry]);
   assert.equal((await one("select publish_due_entries() n")).n, 1);
   const live = await one(
@@ -1045,25 +1045,25 @@ test("plánované zveřejnění: naplánuje jen schvalovatel, zveřejní ho cron
   assert.equal(seen.length, 1);
 });
 
-test("plánované zveřejnění: plán zaniká po cizí úpravě, vrácení a ztrátě práva", async () => {
+test("scheduled publishing: schedule lapses after an edit, send-back or lost rights", async () => {
   const schedule = (entry) =>
     as(id.approverLatam, () => q("select schedule_entry($1, now() + interval '1 day')", [entry]));
   const planOf = (entry) =>
     one("select status, publish_at, scheduled_by from entries where id = $1", [entry]);
 
-  // Autor po naplánování změní text → schválená podoba neplatí, plán pryč.
+  // Author edits text after scheduling → approved version is void, schedule gone.
   const edited = await newEntry(id.pubA, "scheduled-edited", ["BRA"], "pending");
   await schedule(edited);
   await as(id.pubA, () => q("update entries set body_html = '<p>new</p>' where id = $1", [edited]));
   assert.equal((await planOf(edited)).publish_at, null);
 
-  // Vrácení autorovi plán zruší.
+  // Sending back to the author cancels the schedule.
   const sentBack = await newEntry(id.pubA, "scheduled-sent-back", ["BRA"], "pending");
   await schedule(sentBack);
   await as(id.approverLatam, () => q("select send_back_entry($1, 'Not yet.')", [sentBack]));
   assert.equal((await planOf(sentBack)).publish_at, null);
 
-  // Zrušit plán smí jen schvalovatel.
+  // Only an approver may cancel the schedule.
   const cancelled = await newEntry(id.pubA, "scheduled-cancelled", ["BRA"], "pending");
   await schedule(cancelled);
   await as(id.pubA, () => refused(q("select unschedule_entry($1)", [cancelled]), /outside/));
@@ -1074,7 +1074,7 @@ test("plánované zveřejnění: plán zaniká po cizí úpravě, vrácení a zt
     scheduled_by: null,
   });
 
-  // Kdo plánoval, byl mezitím zablokován → v čase se nezveřejní, plán zanikne.
+  // The scheduler was blocked meanwhile → not published when due, schedule lapses.
   const orphan = await newEntry(id.pubA, "scheduled-orphan", ["BRA"], "pending");
   await schedule(orphan);
   await q("update entries set publish_at = now() - interval '1 minute' where id = $1", [orphan]);
@@ -1095,7 +1095,7 @@ test("plánované zveřejnění: plán zaniká po cizí úpravě, vrácení a zt
   assert.equal(dropped.n, 1);
 });
 
-test("přesměrování: čte každý, přidá redakce s „c“, smaže jen s „d“", async () => {
+test('redirects: everyone reads, editors with "c" add, only "d" deletes', async () => {
   await as(id.pubA, () =>
     q("insert into redirects (from_path, to_path) values ('/news/old-slug', '/news/new-slug')"),
   );
@@ -1104,7 +1104,7 @@ test("přesměrování: čte každý, přidá redakce s „c“, smaže jen s �
   );
   assert.deepEqual(row, { created_by: id.pubA, permanent: true });
 
-  // Anonym vidí jen veřejné sloupce a nic nezapíše.
+  // An anonymous user sees only public columns and writes nothing.
   const pub = await as(null, () => q("select from_path, to_path, permanent from redirects"));
   assert.equal(pub.length, 1);
   await as(null, () => refused(q("select created_by from redirects"), /permission denied/));
@@ -1112,7 +1112,7 @@ test("přesměrování: čte každý, přidá redakce s „c“, smaže jen s �
     refused(q("insert into redirects (from_path, to_path) values ('/x', '/y')"), /permission/),
   );
 
-  // Schvalovatel (news jen „v") nepřidá; publisher (bez „d") nesmaže.
+  // An approver (news only "v") can't add; a publisher (no "d") can't delete.
   await as(id.approverLatam, () =>
     refused(q("insert into redirects (from_path, to_path) values ('/x', '/y')"), /row-level/),
   );
@@ -1120,7 +1120,7 @@ test("přesměrování: čte každý, přidá redakce s „c“, smaže jen s �
     q("delete from redirects where from_path = '/news/old-slug' returning id"),
   );
   assert.equal(notDeleted.length, 0);
-  // Autora nejde podstrčit.
+  // The author can't be forged.
   await as(id.editor, () =>
     refused(
       q("insert into redirects (from_path, to_path, created_by) values ('/x', '/y', $1)", [
@@ -1135,7 +1135,7 @@ test("přesměrování: čte každý, přidá redakce s „c“, smaže jen s �
   assert.equal(deleted.length, 1);
 });
 
-test("přesměrování: jen cesta na vlastním webu a bez smyček", async () => {
+test("redirects: only paths on our own site and no loops", async () => {
   await as(id.editor, async () => {
     for (const [from, to] of [
       ["/old", "https://evil.example"],
@@ -1160,9 +1160,9 @@ test("přesměrování: jen cesta na vlastním webu a bez smyček", async () => 
   });
 });
 
-test("náhled: odkaz vytvoří jen redakce článku, otevře ho kdokoli s tokenem do vypršení", async () => {
+test("preview: only the article's editors create a link, anyone with the token opens it until expiry", async () => {
   const entry = await newEntry(id.pubA, "preview-draft", ["BRA"]);
-  // Bez práva k článku: čtenář, anonym, cizí publisher.
+  // No rights to the article: reader, anonymous, another publisher.
   await as(id.reader, () => refused(q("select create_preview_link($1, 24)", [entry]), /sdílet/));
   await as(null, () => refused(q("select create_preview_link($1, 24)", [entry])));
   await as(id.pubB, () => refused(q("select create_preview_link($1, 24)", [entry]), /sdílet/));
@@ -1173,7 +1173,7 @@ test("náhled: odkaz vytvoří jen redakce článku, otevře ho kdokoli s tokene
   );
   assert.match(token, /^[0-9a-f]{64}$/);
   const stored = await one("select token_hash from preview_links where entry_id = $1", [entry]);
-  assert.notEqual(stored.token_hash, token); // v DB jen hash
+  assert.notEqual(stored.token_hash, token); // only the hash in the DB
 
   const preview = await as(null, () =>
     one("select slug, status, countries from entry_preview($1)", [token]),
@@ -1185,7 +1185,7 @@ test("náhled: odkaz vytvoří jen redakce článku, otevře ho kdokoli s tokene
   );
   assert.equal((await as(null, () => q("select 1 from entry_preview('nesmysl')"))).length, 0);
 
-  // Přímý zápis nikdo; anonym tabulku nevidí; schvalovatel regionu vytvořit smí.
+  // No direct writes; anonymous can't see the table; the region's approver may create one.
   await as(id.pubA, () =>
     refused(
       q(
@@ -1197,7 +1197,7 @@ test("náhled: odkaz vytvoří jen redakce článku, otevře ho kdokoli s tokene
   await as(null, () => refused(q("select id from preview_links")));
   await as(id.approverLatam, () => one("select create_preview_link($1, 1)", [entry]));
 
-  // Vypršelý odkaz už článek nevrátí; zrušit smí autor odkazu.
+  // An expired link no longer returns the article; the link's creator may delete it.
   await q(
     "update preview_links set created_at = now() - interval '2 days', expires_at = now() - interval '1 second' where entry_id = $1",
     [entry],
@@ -1209,7 +1209,7 @@ test("náhled: odkaz vytvoří jen redakce článku, otevře ho kdokoli s tokene
   assert.ok(removed.length >= 1);
 });
 
-test("heslo: kapitoly a zdroje uloží jen redakce hesla, celé v jedné transakci", async () => {
+test("entry: only the entry's editors save chapters and resources, in one transaction", async () => {
   const entry = await newEntry(id.pubA, "encyclopedia-draft", ["BRA"]);
   const chapters = JSON.stringify([
     { title: "Roots", summary_points: ["One", "Two", "Three"], body_html: "<p>A</p>" },
@@ -1223,7 +1223,7 @@ test("heslo: kapitoly a zdroje uloží jen redakce hesla, celé v jedné transak
   ]);
   const call = "select replace_entry_parts($1, 'chapters', $2::jsonb)";
 
-  // Cizí publisher, čtenář ani anonym kapitoly nezmění — ani prázdným seznamem.
+  // Another publisher, a reader or anonymous can't change chapters — not even with an empty list.
   await as(id.pubB, () => refused(q(call, [entry, "[]"]), /may not edit/));
   await as(id.reader, () => refused(q(call, [entry, chapters])));
   await as(null, () => refused(q(call, [entry, chapters])));
@@ -1238,7 +1238,7 @@ test("heslo: kapitoly a zdroje uloží jen redakce hesla, celé v jedné transak
     { position: 1, title: "Today", summary_points: ["Four"] },
   ]);
 
-  // Šest odrážek nebo ilustrace bez https vrátí celé volání — kapitoly zůstanou.
+  // Six bullets or a non-https illustration roll back the whole call — chapters stay.
   await as(id.pubA, () =>
     refused(
       q(call, [
@@ -1258,7 +1258,7 @@ test("heslo: kapitoly a zdroje uloží jen redakce hesla, celé v jedné transak
     2,
   );
 
-  // Zdroje hesla: stejná pravidla, neznámá část neprojde.
+  // Entry resources: same rules, an unknown part fails.
   const resources = JSON.stringify([
     { kind: "Lectures & Debates", title: "Talk", url: "https://talk.example" },
   ]);
@@ -1269,14 +1269,14 @@ test("heslo: kapitoly a zdroje uloží jen redakce hesla, celé v jedné transak
     refused(q("select replace_entry_parts($1, 'timeline', '[]'::jsonb)", [entry]), /Unknown/),
   );
 
-  // Anonym kapitoly ani zdroje konceptu nevidí.
+  // An anonymous user sees neither chapters nor resources of a draft.
   await as(null, async () => {
     assert.equal((await q("select 1 from entry_chapters where entry_id = $1", [entry])).length, 0);
     assert.equal((await q("select 1 from resources where entry_id = $1", [entry])).length, 0);
   });
 });
 
-test("heslo: odrážky shrnutí a zvuk kapitol jen v limitu, anonym smí vyjmenovat sloupce", async () => {
+test("entry: summary bullets and chapter audio within limits, anonymous may list columns", async () => {
   const entry = await newEntry(id.pubA, "encyclopedia-header");
   await as(id.pubA, () =>
     q("update entries set kind = 'entry', summary_points = $2 where id = $1", [
@@ -1288,7 +1288,7 @@ test("heslo: odrážky shrnutí a zvuk kapitol jen v limitu, anonym smí vyjmeno
     refused(q("update entries set summary_points = $2 where id = $1", [entry, ["x".repeat(301)]])),
   );
 
-  // Zvuk patří kapitole: https projde, http vrátí celé uložení.
+  // Audio belongs to a chapter: https passes, http rolls back the whole save.
   const call = "select replace_entry_parts($1, 'chapters', $2::jsonb)";
   await as(id.pubA, () =>
     q(call, [entry, JSON.stringify([{ title: "One", audio_url: "https://cdn.example/1.mp3" }])]),
@@ -1303,15 +1303,15 @@ test("heslo: odrážky shrnutí a zvuk kapitol jen v limitu, anonym smí vyjmeno
     "https://cdn.example/1.mp3",
   );
 
-  // Sloupcová práva: anonym smí vyjmenovat nové sloupce (koncept ale nevidí).
+  // Column grants: anonymous may name the new columns (but can't see the draft).
   await as(null, () => q("select summary_points from entries where false"));
   await as(null, () => q("select audio_url from entry_chapters where false"));
 });
 
-test("heslo: plánovaná hesla vidí každý, ale jen titulek a zařazení", async () => {
+test("entry: everyone sees planned entries, but only title and classification", async () => {
   const entry = await newEntry(id.pubA, "planned-entry", ["BRA"], "planned");
   await q("update entries set kind = 'entry', body_html = '<p>secret</p>' where id = $1", [entry]);
-  await newEntry(id.pubA, "planned-news", [], "planned"); // novinka se nepočítá
+  await newEntry(id.pubA, "planned-news", [], "planned"); // news items don't count
 
   const rows = await as(null, () => q("select * from planned_entries()"));
   const mine = rows.filter((row) => row.title === "planned-entry");
@@ -1325,13 +1325,13 @@ test("heslo: plánovaná hesla vidí každý, ale jen titulek a zařazení", asy
   ]);
   assert.deepEqual(mine[0].countries, ["BRA"]);
   assert.equal(rows.filter((row) => row.title === "planned-news").length, 0);
-  // Samotný řádek anonym dál nevidí.
+  // Anonymous still can't see the row itself.
   await as(null, async () =>
     assert.equal((await q("select 1 from entries where id = $1", [entry])).length, 0),
   );
 });
 
-test("heslo: zvuk nahraje jen ten, kdo smí psát, jen do vlastní složky", async () => {
+test("entry: audio is uploaded only by writers, only into their own folder", async () => {
   const bucket = await one(
     "select allowed_mime_types from storage.buckets where id = 'entry-audio'",
   );
@@ -1359,7 +1359,7 @@ test("heslo: zvuk nahraje jen ten, kdo smí psát, jen do vlastní složky", asy
   );
 });
 
-test("heslo: náhled přes odkaz vrátí i kapitoly, autora a zdroje", async () => {
+test("entry: preview via link also returns chapters, author and resources", async () => {
   const entry = await newEntry(id.pubA, "preview-encyclopedia");
   const author = await one(
     "insert into authors (name, positionality) values ('Ana', 'I grew up there.') returning id",
@@ -1390,14 +1390,14 @@ test("heslo: náhled přes odkaz vrátí i kapitoly, autora a zdroje", async () 
   );
 });
 
-test("překlady: čte je každý, píše jen sekce celku", async () => {
-  // blurb: v migraci s českými názvy států není, test si ho založí sám.
+test("translations: everyone reads them, only the unit's section writes", async () => {
+  // blurb: not in the migration with Czech country names, the test creates it.
   const row = ["country", "BRA", "blurb", "cs", "Brazílie"];
   const insert =
     "insert into translations (entity, entity_key, field, locale, value) values ($1, $2, $3, $4, $5)";
   await as(null, () => refused(q(insert, row)));
   await as(id.reader, () => refused(q(insert, row)));
-  // publisher nemá sekci regions; data-editor ukazatele (layers), ne země
+  // publisher lacks the regions section; data-editor has indicators (layers), not countries
   await as(id.pubA, () => refused(q(insert, row)));
   await as(id.admin, () => q(insert, row));
   await as(id.admin, () =>
@@ -1426,7 +1426,7 @@ test("překlady: čte je každý, píše jen sekce celku", async () => {
   );
 });
 
-test("překlad: založí ho, kdo smí psát, jako vlastní koncept s kopií obsahu", async () => {
+test("entry translation: a writer creates it as their own draft with copied content", async () => {
   const original = await newEntry(id.pubB, "translated-original", ["BRA"]);
   await q("update entries set kind = 'entry', summary_points = $2 where id = $1", [
     original,
@@ -1438,7 +1438,7 @@ test("překlad: založí ho, kdo smí psát, jako vlastní koncept s kopií obsa
   );
   await q("update entries set status = 'published' where id = $1", [original]);
 
-  // Čtenář nepíše, anonym funkci nespustí.
+  // A reader doesn't write, anonymous can't run the function.
   await as(id.reader, () => refused(q("select create_entry_translation($1, 'cs')", [original])));
   await as(null, () => refused(q("select create_entry_translation($1, 'cs')", [original])));
 
@@ -1461,7 +1461,7 @@ test("překlad: založí ho, kdo smí psát, jako vlastní koncept s kopií obsa
   const chapter = await one("select title, audio_url from entry_chapters where entry_id = $1", [
     translation,
   ]);
-  assert.deepEqual(chapter, { title: "One", audio_url: null }); // zvuk je v jazyce originálu
+  assert.deepEqual(chapter, { title: "One", audio_url: null }); // audio is in the original's language
   assert.deepEqual(
     (await q("select country_iso3 from entry_countries where entry_id = $1", [translation])).map(
       (r) => r.country_iso3,
@@ -1469,7 +1469,7 @@ test("překlad: založí ho, kdo smí psát, jako vlastní koncept s kopií obsa
     ["BRA"],
   );
 
-  // Druhý český překlad téhož originálu ne; překlad překladu ne.
+  // No second Czech translation of the same original; no translation of a translation.
   await as(id.pubA, () =>
     refused(q("select create_entry_translation($1, 'cs')", [original]), /duplicate|unique/i),
   );
@@ -1478,7 +1478,7 @@ test("překlad: založí ho, kdo smí psát, jako vlastní koncept s kopií obsa
   );
 });
 
-test("překlad: slug a druh sedí s originálem, originál se nepřehodí, slug se propíše", async () => {
+test("entry translation: slug and kind match the original, original is fixed, slug propagates", async () => {
   const original = await newEntry(id.pubA, "slug-original");
   const other = await newEntry(id.pubA, "slug-other");
   const { id: translation } = await as(id.pubA, () =>
@@ -1507,17 +1507,17 @@ test("překlad: slug a druh sedí s originálem, originál se nepřehodí, slug 
     refused(q("update entries set slug = 'own-slug' where id = $1", [translation])),
   );
 
-  // Přejmenovaný koncept originálu vezme překlad s sebou.
+  // Renaming the original's draft takes the translation along.
   await as(id.pubA, () => q("update entries set slug = 'slug-renamed' where id = $1", [original]));
   assert.equal(
     (await one("select slug from entries where id = $1", [translation])).slug,
     "slug-renamed",
   );
-  // Stejný slug v jiném jazyce je v pořádku, ve stejném ne.
+  // The same slug in another language is fine, in the same one it isn't.
   await refused(newEntry(id.pubA, "slug-renamed"), /duplicate|unique/i);
 });
 
-test("překlad: vyhledávání vrací jen originál, heslo vede na /entry", async () => {
+test("entry translation: search returns only the original, entry links to /entry", async () => {
   const original = await newEntry(id.pubA, "searchable-hydrology", [], "draft");
   await q(
     "update entries set kind = 'entry', title = 'Hydrology of the Andes', status = 'published' where id = $1",
@@ -1537,11 +1537,11 @@ test("překlad: vyhledávání vrací jen originál, heslo vede na /entry", asyn
     hits.map((hit) => hit.url),
     ["/entry/searchable-hydrology"],
   );
-  // Anonym smí vyjmenovat translation_of (sloupcová práva).
+  // Anonymous may name translation_of (column grants).
   await as(null, () => q("select translation_of from entries where false"));
 });
 
-test("vlastní region: skupina zemí s typem a metrikami podle práva specials", async () => {
+test("custom region: country group with a kind and metrics under the specials permission", async () => {
   await q(`insert into roles (id, name) values ('groups-editor', 'Groups editor')`);
   await q(
     `insert into role_permissions (role_id, section, actions) values ('groups-editor', 'specials', 'vce')`,
@@ -1550,7 +1550,7 @@ test("vlastní region: skupina zemí s typem a metrikami podle práva specials",
   await signUp(editor, "groups@atlasoftodaysworld.org");
   await q("update profiles set role_id = 'groups-editor', kind = 'staff' where id = $1", [editor]);
 
-  // Vlastní region ze zemí: stejná tabulka jako globální témata, typ 'region'.
+  // A custom region of countries: same table as global issues, kind 'region'.
   await as(editor, () =>
     q(`insert into special_regions (slug, name, fill, stroke, center_lon, center_lat, kind)
        values ('visegrad', 'Visegrád Group', '#336699', '#224466', 17, 49, 'region')`),
@@ -1563,7 +1563,7 @@ test("vlastní region: skupina zemí s typem a metrikami podle práva specials",
     q(`insert into special_regions (slug, name, fill, stroke, center_lon, center_lat, kind)
        values ('bad-kind', 'X', '#336699', '#224466', 0, 0, 'continent')`),
   );
-  // Bez typu (stávající skupiny i starý formulář) je skupina globální téma.
+  // Without a kind (existing groups and the old form) a group is a global issue.
   await as(editor, () =>
     q(`insert into special_regions (slug, name, fill, stroke, center_lon, center_lat)
        values ('default-kind', 'Default', '#336699', '#224466', 0, 0)`),
@@ -1573,7 +1573,7 @@ test("vlastní region: skupina zemí s typem a metrikami podle práva specials",
     "issue",
   );
 
-  // Metriky skupiny: stačí právo specials; regionu Atlasu a země ne.
+  // Group metrics: the specials permission suffices; not for Atlas regions or countries.
   const metrics = JSON.stringify([{ value: "64M", label: "People", source: "Eurostat" }]);
   await as(editor, () =>
     q("select replace_portrait_items('issue', 'visegrad', 'metrics', $1::jsonb)", [metrics]),
@@ -1583,7 +1583,7 @@ test("vlastní region: skupina zemí s typem a metrikami podle práva specials",
   );
   assert.equal(
     (await one("select count(*)::int n from portrait_metrics where special_slug = 'visegrad'")).n,
-    1, // náhrada sekce nezdvojí karty
+    1, // replacing the section doesn't duplicate cards
   );
   await as(editor, () =>
     refused(
@@ -1593,7 +1593,7 @@ test("vlastní region: skupina zemí s typem a metrikami podle práva specials",
   await as(editor, () =>
     refused(q("select replace_portrait_items('country', 'JPN', 'metrics', $1::jsonb)", [metrics])),
   );
-  // Publisher (bez specials „e") metriky skupiny nezmění.
+  // A publisher (no specials "e") can't change group metrics.
   await as(id.pubA, () =>
     refused(
       q("select replace_portrait_items('issue', 'visegrad', 'metrics', $1::jsonb)", [metrics]),

@@ -9,12 +9,12 @@ import type { ActionState } from "@/lib/actions";
 import { saveTranslations } from "../actions";
 import { FIELD_LABELS } from "../labels";
 
-/** Pole, která jsou v originálu dlouhý text (víceřádkový vstup). */
+/** Fields that are long text in the original (multi-line input). */
 const LONG = new Set(["summary", "blurb", "profile_html", "description"]);
 
 /**
- * Překlad jednoho celku: u každého pole anglický originál a vstup pro překlad.
- * Prázdné pole = bez překladu (web ukáže angličtinu).
+ * Translation of one unit: for each field the English original and a translation input.
+ * Empty field = no translation (the site shows English).
  */
 export function TranslationForm({
   entity,

@@ -1,12 +1,12 @@
 /**
- * Číselník datových vrstev mapy ("Encyclopedia view" / "HDI view" / ...).
+ * Registry of the map's data layers ("Encyclopedia view" / "HDI view" / ...).
  *
- * Přidání další vrstvy = jeden záznam tady + `npm run data:indicators`.
- * Nic jiného se neupravuje – legenda, obarvení globusu, přepínač i karta země
- * se generují z těchto metadat.
+ * Adding another layer = one entry here + `npm run data:indicators`.
+ * Nothing else needs editing – the legend, globe colouring, switcher and country
+ * card are all generated from this metadata.
  *
- * `owidSlug` je název grapheru na ourworldindata.org (poslední část URL).
- * `valueColumn` je jméno sloupce v CSV; když ho vynecháš, bere se 4. sloupec.
+ * `owidSlug` is the grapher name on ourworldindata.org (last part of the URL).
+ * `valueColumn` is the CSV column name; if omitted, the 4th column is used.
  */
 export const INDICATORS = [
   {
@@ -21,7 +21,7 @@ export const INDICATORS = [
     sourceUrl: "https://hdr.undp.org/",
     type: "sequential",
     domain: [0.4, 0.96],
-    // Světle žlutá (nízké) -> tmavě modrá (vysoké). Odpovídá HDI view ve Figmě.
+    // Light yellow (low) -> dark blue (high). Matches the HDI view in Figma.
     ramp: ["#F2F7C4", "#C7E9B4", "#7FCDBB", "#41B6C4", "#1D91C0", "#225EA8", "#0C2C84"],
     higherIsBetter: true,
   },

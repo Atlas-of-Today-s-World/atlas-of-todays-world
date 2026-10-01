@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      // Bez limitů na náhledy – atlas žije z obrázků a dlouhých úryvků.
+      // No preview limits – the atlas lives on images and long snippets.
       "max-snippet": -1,
       "max-image-preview": "large",
       "max-video-preview": -1,
@@ -66,7 +66,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           } as React.CSSProperties
         }
       >
-        {/* Klávesnice a čtečky: rovnou k obsahu, přes menu a ovládání mapy (WCAG 2.4.1). */}
+        {/* Keyboard and screen readers: straight to content, past the menu and map controls (WCAG 2.4.1). */}
         <a
           href="#content"
           className="sr-only z-[100] rounded-full bg-white px-5 py-3 text-[14px] font-medium text-[#0d1324] focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
@@ -74,7 +74,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           Skip to content
         </a>
         {children}
-        {/* Návštěvnost bez cookies a bez osobních údajů (F3); jen na Vercelu. */}
+        {/* Analytics without cookies or personal data (F3); Vercel only. */}
         <Analytics />
       </body>
     </html>

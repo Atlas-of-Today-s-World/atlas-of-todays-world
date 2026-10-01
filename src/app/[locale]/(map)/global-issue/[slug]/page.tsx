@@ -19,8 +19,8 @@ import { getPortrait } from "@/features/portraits/queries";
 import { absoluteUrl, alternates, breadcrumbJsonLd, geoCoordinates, geoMeta } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
 
-// Global Issues vznikají v administraci, takže routa musí umět i slug,
-// který v době buildu neexistoval.
+// Global Issues are created in the admin, so the route must also handle a slug
+// that didn't exist at build time.
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
@@ -62,7 +62,7 @@ export default async function GlobalIssuePage({
   const { slug } = await params;
   const atlas = await getAtlas(await localeFrom(params));
   const region = atlas.issueBySlug.get(slug);
-  // Neznámá adresa: přesměrování (změněný slug), jinak 404.
+  // Unknown URL: redirect (changed slug), otherwise 404.
   if (!region) return redirectOrNotFound(`/global-issue/${slug}`, await localeFrom(params));
 
   const countries = countriesOf(atlas, region.countries);

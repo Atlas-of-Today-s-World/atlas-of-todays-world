@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { ADMIN_NAV } from "@/config/admin-nav";
 import { cn } from "@/lib/cn";
 
-/** Boční menu administrace; položky filtruje server podle oprávnění. */
+/** Admin side menu; the server filters items by permissions. */
 export function AdminNav({ allowed }: { allowed: string[] }) {
   const pathname = usePathname();
   const items = ADMIN_NAV.filter((item) => allowed.includes(item.href));

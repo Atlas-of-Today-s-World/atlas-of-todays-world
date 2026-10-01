@@ -11,7 +11,7 @@ const Key = z
   .regex(/^[a-z0-9]+(_[a-z0-9]+)*$/)
   .max(40);
 
-/** Zapne/vypne přepínač (feature_flags; právo permissions „e" hlídá RLS). */
+/** Turns a flag on/off (feature_flags; RLS enforces the permissions "e" right). */
 export async function setFlag(key: string, enabled: boolean): Promise<ActionState> {
   if (!Key.safeParse(key).success) return { ok: false, error: "Invalid switch." };
   const session = await signedIn();

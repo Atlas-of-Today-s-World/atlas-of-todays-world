@@ -1,12 +1,12 @@
 /**
- * Content Security Policy (ARCHITEKTURA 8.2). Nová externí služba = úprava
- * tady + test v csp.test.ts; jinak ji prohlížeč tiše zablokuje.
+ * Content Security Policy (ARCHITEKTURA 8.2). A new external service = a change
+ * here + a test in csp.test.ts; otherwise the browser silently blocks it.
  *
- * script-src drží 'unsafe-inline': Next vkládá inline bootstrap skripty a nonce
- * by znamenal dynamické renderování každé stránky, což by zrušilo statické/ISR
- * stránky (ADR-012). 'unsafe-eval' je jen ve vývoji (React dev overlay).
+ * script-src keeps 'unsafe-inline': Next injects inline bootstrap scripts and a
+ * nonce would mean dynamic rendering of every page, which would kill static/ISR
+ * pages (ADR-012). 'unsafe-eval' is only in development (React dev overlay).
  */
-/** Cloudflare Turnstile (skript i iframe s výzvou) u přihlášení kódem z e-mailu. */
+/** Cloudflare Turnstile (script and challenge iframe) for sign-in with an email code. */
 const TURNSTILE = "https://challenges.cloudflare.com";
 
 export function buildCsp({ dev, supabaseUrl }: { dev: boolean; supabaseUrl?: string }): string {
@@ -16,7 +16,7 @@ export function buildCsp({ dev, supabaseUrl }: { dev: boolean; supabaseUrl?: str
 
   const directives: Record<string, string[]> = {
     "default-src": ["'self'"],
-    // blob: potřebuje MapLibre pro web workery; Turnstile chrání přihlášení e-mailem (G1).
+    // blob: is needed by MapLibre for web workers; Turnstile protects email sign-in (G1).
     "script-src": [
       "'self'",
       "'unsafe-inline'",
@@ -27,7 +27,7 @@ export function buildCsp({ dev, supabaseUrl }: { dev: boolean; supabaseUrl?: str
     "worker-src": ["'self'", "blob:"],
     "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
     "font-src": ["'self'", "https://fonts.gstatic.com", "data:"],
-    // Dlaždice mapy, obrázky hesel a náhledy zdrojů jsou z různých https hostů.
+    // Map tiles, entry images and source previews come from various https hosts.
     "img-src": ["'self'", "data:", "blob:", "https:"],
     "connect-src": [
       "'self'",
@@ -38,8 +38,8 @@ export function buildCsp({ dev, supabaseUrl }: { dev: boolean; supabaseUrl?: str
       supabaseHttp,
       supabaseWs,
     ],
-    // Zvukové verze hesel (P9): Storage Supabase, nebo https adresa vložená v editoru
-    // (stejně jako obrázky). Zvuk nespustí skript, proto stačí https.
+    // Audio versions of entries (P9): Supabase Storage, or an https URL pasted in the editor
+    // (same as images). Audio can't run a script, so https is enough.
     "media-src": ["'self'", "https:"],
     "frame-src": [
       "https://flo.uri.sh",
@@ -62,7 +62,7 @@ export function buildCsp({ dev, supabaseUrl }: { dev: boolean; supabaseUrl?: str
   return parts.join("; ");
 }
 
-/** Bezpečnostní hlavičky pro každou odpověď (ARCHITEKTURA 8.1, S8). */
+/** Security headers for every response (ARCHITEKTURA 8.1, S8). */
 export function securityHeaderEntries(csp: string, { dev }: { dev: boolean }): [string, string][] {
   const headers: [string, string][] = [
     ["Content-Security-Policy", csp],

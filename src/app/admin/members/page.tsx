@@ -20,8 +20,8 @@ const PLANS = (["patron", "founding", "institution"] as const).map((plan) => ({
 }));
 
 /**
- * Atlas Patrons (ARCHITEKTURA 5.2, sekce members): přehled jen pro čtení —
- * placená členství zapisuje výhradně Stripe webhook; admin smí dát členství zdarma.
+ * Atlas Patrons (ARCHITEKTURA 5.2, members section): read-only overview —
+ * paid memberships are written only by the Stripe webhook; an admin may grant a free membership.
  */
 export default async function MembersPage() {
   const access = await sectionAccess("members");

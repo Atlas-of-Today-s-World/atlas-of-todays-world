@@ -89,7 +89,7 @@ export default async function DataPage() {
             type: indicator.type,
             source: indicator.source,
             unit: indicator.unit,
-            // Rok bez oddělovače tisíců (2024, ne 2,024).
+            // Year without a thousands separator (2024, not 2,024).
             year: indicator.latestYear ? String(indicator.latestYear) : null,
             count: indicator.countryCount,
           },

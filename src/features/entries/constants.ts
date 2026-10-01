@@ -1,7 +1,7 @@
-/** Konstanty hesel bez Zodu — smí je importovat i klientské komponenty editoru. */
+/** Entry constants without Zod — client editor components may import them. */
 
-/** Nejvýš kapitol v hesle (zadání chce 4–6; DB pustí 8). */
+/** Max chapters per entry (the brief wants 4–6; the DB allows 8). */
 export const MAX_CHAPTERS = 8;
 
-/** Doby platnosti sdíleného náhledu v hodinách (DB povolí 1 až 720). */
+/** Shared preview validity periods in hours (the DB allows 1 to 720). */
 export const PREVIEW_HOURS = [24, 72, 168, 720] as const;

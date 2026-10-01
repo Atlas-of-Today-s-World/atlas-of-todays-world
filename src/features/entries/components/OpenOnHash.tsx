@@ -3,9 +3,9 @@
 import { useEffect } from "react";
 
 /**
- * Rozbalené kapitoly patří do adresy (P9, `#chapter-3`): odkaz s kotvou
- * rozbalí příslušný `<details data-hash>` a otevření/zavření ho do adresy
- * zapíše. Text kapitol je celý v HTML — tohle je jen stav, nic se nedotahuje.
+ * Expanded chapters belong in the URL (P9, `#chapter-3`): an anchor link expands
+ * the matching `<details data-hash>`, and opening/closing writes it into the URL.
+ * Chapter text is fully in the HTML — this is just state, nothing is fetched.
  */
 export function OpenOnHash() {
   useEffect(() => {
@@ -18,7 +18,7 @@ export function OpenOnHash() {
       details.open = true;
       target.scrollIntoView({ block: "start" });
     };
-    // `toggle` nebublá — proto zachytávání na dokumentu.
+    // `toggle` doesn't bubble — hence capturing on the document.
     const onToggle = (event: Event) => {
       const details = event.target;
       if (!(details instanceof HTMLDetailsElement) || !details.hasAttribute("data-hash")) return;
