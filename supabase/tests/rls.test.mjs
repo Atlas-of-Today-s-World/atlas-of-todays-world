@@ -1540,3 +1540,63 @@ test("překlad: vyhledávání vrací jen originál, heslo vede na /entry", asyn
   // Anonym smí vyjmenovat translation_of (sloupcová práva).
   await as(null, () => q("select translation_of from entries where false"));
 });
+
+test("vlastní region: skupina zemí s typem a metrikami podle práva specials", async () => {
+  await q(`insert into roles (id, name) values ('groups-editor', 'Groups editor')`);
+  await q(
+    `insert into role_permissions (role_id, section, actions) values ('groups-editor', 'specials', 'vce')`,
+  );
+  const editor = "00000000-0000-4000-8000-0000000003c1";
+  await signUp(editor, "groups@atlasoftodaysworld.org");
+  await q("update profiles set role_id = 'groups-editor', kind = 'staff' where id = $1", [editor]);
+
+  // Vlastní region ze zemí: stejná tabulka jako globální témata, typ 'region'.
+  await as(editor, () =>
+    q(`insert into special_regions (slug, name, fill, stroke, center_lon, center_lat, kind)
+       values ('visegrad', 'Visegrád Group', '#336699', '#224466', 17, 49, 'region')`),
+  );
+  await as(editor, () =>
+    q(`insert into special_region_countries (special_slug, country_iso3)
+       values ('visegrad', 'BRA'), ('visegrad', 'JPN')`),
+  );
+  await refused(
+    q(`insert into special_regions (slug, name, fill, stroke, center_lon, center_lat, kind)
+       values ('bad-kind', 'X', '#336699', '#224466', 0, 0, 'continent')`),
+  );
+  // Bez typu (stávající skupiny i starý formulář) je skupina globální téma.
+  await as(editor, () =>
+    q(`insert into special_regions (slug, name, fill, stroke, center_lon, center_lat)
+       values ('default-kind', 'Default', '#336699', '#224466', 0, 0)`),
+  );
+  assert.equal(
+    (await one("select kind from special_regions where slug = 'default-kind'")).kind,
+    "issue",
+  );
+
+  // Metriky skupiny: stačí právo specials; regionu Atlasu a země ne.
+  const metrics = JSON.stringify([{ value: "64M", label: "People", source: "Eurostat" }]);
+  await as(editor, () =>
+    q("select replace_portrait_items('issue', 'visegrad', 'metrics', $1::jsonb)", [metrics]),
+  );
+  await as(editor, () =>
+    q("select replace_portrait_items('issue', 'visegrad', 'metrics', $1::jsonb)", [metrics]),
+  );
+  assert.equal(
+    (await one("select count(*)::int n from portrait_metrics where special_slug = 'visegrad'")).n,
+    1, // náhrada sekce nezdvojí karty
+  );
+  await as(editor, () =>
+    refused(
+      q("select replace_portrait_items('region', 'east-asia', 'metrics', $1::jsonb)", [metrics]),
+    ),
+  );
+  await as(editor, () =>
+    refused(q("select replace_portrait_items('country', 'JPN', 'metrics', $1::jsonb)", [metrics])),
+  );
+  // Publisher (bez specials „e") metriky skupiny nezmění.
+  await as(id.pubA, () =>
+    refused(
+      q("select replace_portrait_items('issue', 'visegrad', 'metrics', $1::jsonb)", [metrics]),
+    ),
+  );
+});

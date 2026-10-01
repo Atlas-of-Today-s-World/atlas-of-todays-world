@@ -115,6 +115,8 @@ export interface GlobalIssue {
   center: [number, number];
   zoom: number;
   hero: string | null;
+  /** Globální téma (válka, migrace…), nebo vlastní region složený ze zemí. */
+  kind: "issue" | "region";
   countries: string[];
 }
 

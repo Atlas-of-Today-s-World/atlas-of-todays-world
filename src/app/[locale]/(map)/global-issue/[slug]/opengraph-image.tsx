@@ -16,7 +16,7 @@ export default async function Image({
   const t = getMessages(locale).og;
   const issue = (await getAtlas(locale)).issueBySlug.get((await params).slug);
   return renderOg({
-    kicker: t.issue,
+    kicker: issue?.kind === "region" ? t.region : t.issue,
     title: issue?.name ?? t.site,
     subtitle: issue?.subtitle || issue?.summary,
     accent: issue?.fill,

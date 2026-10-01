@@ -78,6 +78,8 @@ export const RegionInput = z.object({
 /** Global issue (special_regions + jeho země). */
 export const IssueInput = z.object({
   original_slug: z.preprocess(blankToUndefined, slug(120).optional()),
+  // Globální téma, nebo vlastní region ze zemí (special_regions.kind).
+  kind: z.enum(["issue", "region"]).default("issue"),
   slug: slug(120),
   name: requiredText(120),
   subtitle: text(200),

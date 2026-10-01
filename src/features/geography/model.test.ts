@@ -106,6 +106,7 @@ const snapshot: AtlasSnapshot = {
       center_lat: 50,
       zoom: 4,
       hero_url: null,
+      kind: "region",
     },
   ],
   issueCountries: [{ special_slug: "central", country_iso3: "CZE" }],
@@ -145,6 +146,8 @@ describe("buildAtlas", () => {
 
   it("složí global issues a pomocné výběry", () => {
     expect(atlas.issueBySlug.get("central")?.countries).toEqual(["CZE"]);
+    // Vlastní region ze zemí si drží svůj typ (jiný štítek na webu).
+    expect(atlas.issueBySlug.get("central")?.kind).toBe("region");
     expect(countriesOf(atlas, ["CZE", "XXX", "DEU"]).map((c) => c.iso3)).toEqual(["DEU", "CZE"]);
     expect(regionColorMap(atlas.regions)).toMatchObject({ CZE: "#aabbcc", DEU: "#aabbcc" });
     expect(atlas.theme).toEqual({ saturation: 0.8, border: 1.5 });

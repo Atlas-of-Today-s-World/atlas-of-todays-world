@@ -86,6 +86,7 @@ export interface AtlasSnapshot {
     center_lat: number;
     zoom: number;
     hero_url: string | null;
+    kind: string;
   }[];
   issueCountries: { special_slug: string; country_iso3: string }[];
   theme: { saturation: number; border: number } | null;
@@ -274,6 +275,7 @@ export function buildAtlas(snapshot: AtlasSnapshot, geo: GeoFacts[], locale: Loc
     center: [Number(row.center_lon), Number(row.center_lat)],
     zoom: Number(row.zoom),
     hero: row.hero_url,
+    kind: row.kind === "region" ? "region" : "issue",
     countries: members.get(row.slug) ?? [],
   }));
 

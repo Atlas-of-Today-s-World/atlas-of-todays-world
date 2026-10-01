@@ -31,15 +31,21 @@ export interface PortraitSubject {
   hero?: string | null;
   /** Barva celku na mapě (proužek pod nadpisem u global issue). */
   accent?: string;
+  /** U skupiny zemí: globální téma, nebo vlastní region (jiný štítek). */
+  groupKind?: "issue" | "region";
   countries: { slug: string; name: string }[];
   population: number;
 }
 
 /** Texty, které se liší pro region a pro skupinu zemí (global issue). */
-function wordingFor(kind: "region" | "issue", t: Messages) {
+function wordingFor(kind: "region" | "issue", t: Messages, groupKind?: "issue" | "region") {
   const region = kind === "region";
   return {
-    label: region ? null : t.portrait.globalIssue,
+    label: region
+      ? null
+      : groupKind === "region"
+        ? t.portrait.customRegion
+        : t.portrait.globalIssue,
     countriesTitle: region ? t.portrait.countriesInRegion : t.portrait.countriesInGroup,
     timelineEmpty: region ? t.portrait.timelineEmptyRegion : t.portrait.timelineEmptyGroup,
     mapsEmpty: region ? t.portrait.mapsEmptyRegion : t.portrait.mapsEmptyGroup,
@@ -70,7 +76,7 @@ export default function Portrait({
   stats: RegionStat[];
 }) {
   const t = getT();
-  const wording = wordingFor(subject.kind, t);
+  const wording = wordingFor(subject.kind, t, subject.groupKind);
   const hero = cssBackgroundImage(subject.hero);
   const complete = Boolean(
     dossier.timeline?.length && dossier.resources?.length && dossier.faq?.length,
