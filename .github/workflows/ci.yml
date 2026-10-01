@@ -74,6 +74,8 @@ jobs:
         with:
           name: lighthouse
           path: .lighthouseci/
+          # Složka začíná tečkou — bez tohohle ji upload-artifact@v4 vynechá.
+          include-hidden-files: true
           retention-days: 7
       - uses: actions/upload-artifact@v4
         if: failure()
