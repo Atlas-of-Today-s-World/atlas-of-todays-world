@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/admin/PageHeader";
 import { can, sectionAccess } from "@/features/auth/access";
 import { EntryForm } from "@/features/entries/components/EntryForm";
 import { EntryWorkflow, RevisionList } from "@/features/entries/components/EntryWorkflow";
+import { PreviewShare } from "@/features/entries/components/PreviewShare";
 import { StatusBadge } from "@/features/entries/components/StatusBadge";
 import { VersionDiff } from "@/features/entries/components/VersionDiff";
 import { getEditableEntry, listRevisions, publishedVersion } from "@/features/entries/editorial";
@@ -85,6 +86,12 @@ export default async function EditEntryPage({
               publishAt={entry.publish_at}
             />
           </section>
+          {canEdit || canApprove ? (
+            <section>
+              <h2 className="font-display mb-3 text-[16px] font-bold">Náhled</h2>
+              <PreviewShare entryId={entry.id} />
+            </section>
+          ) : null}
           <section>
             <h2 className="font-display mb-3 text-[16px] font-bold">Historie změn</h2>
             {canEdit ? (

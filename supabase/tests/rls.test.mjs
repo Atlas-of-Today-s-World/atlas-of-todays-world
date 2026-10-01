@@ -1156,4 +1156,52 @@ test("přesměrování: jen cesta na vlastním webu a bez smyček", async () => 
     );
     await q("delete from redirects where from_path like '/loop-%'");
   });
+
+test("náhled: odkaz vytvoří jen redakce článku, otevře ho kdokoli s tokenem do vypršení", async () => {
+  const entry = await newEntry(id.pubA, "preview-draft", ["BRA"]);
+  // Bez práva k článku: čtenář, anonym, cizí publisher.
+  await as(id.reader, () => refused(q("select create_preview_link($1, 24)", [entry]), /sdílet/));
+  await as(null, () => refused(q("select create_preview_link($1, 24)", [entry])));
+  await as(id.pubB, () => refused(q("select create_preview_link($1, 24)", [entry]), /sdílet/));
+  await as(id.pubA, () => refused(q("select create_preview_link($1, 0)", [entry]), /1 až 720/));
+
+  const { token } = await as(id.pubA, () =>
+    one("select create_preview_link($1, 24) as token", [entry]),
+  );
+  assert.match(token, /^[0-9a-f]{64}$/);
+  const stored = await one("select token_hash from preview_links where entry_id = $1", [entry]);
+  assert.notEqual(stored.token_hash, token); // v DB jen hash
+
+  const preview = await as(null, () =>
+    one("select slug, status, countries from entry_preview($1)", [token]),
+  );
+  assert.deepEqual(preview, { slug: "preview-draft", status: "draft", countries: ["BRA"] });
+  assert.equal(
+    (await as(null, () => q("select 1 from entry_preview($1)", ["0".repeat(64)]))).length,
+    0,
+  );
+  assert.equal((await as(null, () => q("select 1 from entry_preview('nesmysl')"))).length, 0);
+
+  // Přímý zápis nikdo; anonym tabulku nevidí; schvalovatel regionu vytvořit smí.
+  await as(id.pubA, () =>
+    refused(
+      q(
+        "insert into preview_links (entry_id, token_hash, expires_at) values ($1, $2, now() + interval '1 hour')",
+        [entry, "a".repeat(64)],
+      ),
+    ),
+  );
+  await as(null, () => refused(q("select id from preview_links")));
+  await as(id.approverLatam, () => one("select create_preview_link($1, 1)", [entry]));
+
+  // Vypršelý odkaz už článek nevrátí; zrušit smí autor odkazu.
+  await q(
+    "update preview_links set created_at = now() - interval '2 days', expires_at = now() - interval '1 second' where entry_id = $1",
+    [entry],
+  );
+  assert.equal((await as(null, () => q("select 1 from entry_preview($1)", [token]))).length, 0);
+  const removed = await as(id.pubA, () =>
+    q("delete from preview_links where entry_id = $1 returning id", [entry]),
+  );
+  assert.ok(removed.length >= 1);
 });

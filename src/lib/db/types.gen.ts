@@ -1166,6 +1166,55 @@ export type Database = {
           },
         ]
       }
+      preview_links: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          entry_id: string
+          expires_at: string
+          id: string
+          token_hash: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          entry_id: string
+          expires_at: string
+          id?: string
+          token_hash: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          entry_id?: string
+          expires_at?: string
+          id?: string
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "preview_links_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "members_overview"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "preview_links_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "preview_links_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           approval_global: boolean
@@ -1748,6 +1797,31 @@ export type Database = {
       can_edit_entry: { Args: { p_owner: string }; Returns: boolean }
       can_read_unpublished: { Args: { p_owner: string }; Returns: boolean }
       claim_invitation: { Args: never; Returns: string }
+      create_preview_link: {
+        Args: { p_entry: string; p_hours: number }
+        Returns: string
+      }
+      entry_preview: {
+        Args: { p_token: string }
+        Returns: {
+          author_name: string
+          body_html: string
+          category: string
+          countries: string[]
+          cover_credit: string
+          cover_url: string
+          expires_at: string
+          published_on: string
+          reading_minutes: number
+          region_slug: string
+          slug: string
+          special_slug: string
+          status: string
+          summary: string
+          title: string
+          updated_at: string
+        }[]
+      }
       has_perm: {
         Args: { p_action: string; p_section: string }
         Returns: boolean

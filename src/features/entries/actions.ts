@@ -14,7 +14,7 @@ import {
 import { tags } from "@/lib/cache/tags";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { uuid } from "@/lib/validation/common";
-import { EntryInput, ScheduleInput, SendBackInput } from "./schema";
+import { EntryInput, PREVIEW_HOURS, ScheduleInput, SendBackInput } from "./schema";
 
 /** Po změně zveřejněného obsahu obnovit seznamy, detail i portréty. */
 function refresh(slug?: string | null, region?: string | null, issue?: string | null) {
@@ -255,4 +255,26 @@ export async function restoreRevision(entryId: string, revisionId: number): Prom
     refresh(updated.slug, updated.region_slug, updated.special_slug);
   }
   return { ok: true, message: "Obnoveno z historie." };
+}
+
+/**
+ * Sdílitelný odkaz na náhled článku (G2). Smí ho vytvořit jen ten, kdo článek
+ * upravuje nebo schvaluje (rozhoduje create_preview_link). Token se vrací jen
+ * teď, v databázi je pouze jeho hash.
+ */
+export async function createPreviewLink(
+  entryId: string,
+  hours: number,
+): Promise<ActionState & { token?: string }> {
+  if (!uuid.safeParse(entryId).success || !PREVIEW_HOURS.includes(hours as never)) {
+    return { ok: false, error: "Neplatný požadavek." };
+  }
+  const session = await signedIn();
+  if (!session) return NOT_SIGNED_IN;
+  const { data, error } = await session.supabase.rpc("create_preview_link", {
+    p_entry: entryId,
+    p_hours: hours,
+  });
+  if (error) return failed(error);
+  return { ok: true, token: data };
 }

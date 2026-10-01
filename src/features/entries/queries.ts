@@ -119,3 +119,23 @@ export function entriesOfIssue(entries: EntrySummary[], issue: string, countries
   );
   return [...tagged, ...related];
 }
+
+/** Článek pro náhled podle tokenu z odkazu (jakýkoli stav); null = neplatný nebo prošlý. */
+export async function getPreview(
+  token: string,
+): Promise<(Entry & { status: string; expiresAt: string }) | null> {
+  if (!/^[0-9a-f]{64}$/.test(token)) return null;
+  // Bez cache: odkaz může být zrušený nebo prošlý a text se v konceptu mění.
+  const { data, error } = await createPublicClient()
+    .rpc("entry_preview", { p_token: token })
+    .maybeSingle();
+  if (error) throw new Error(`[preview] ${error.message}`);
+  if (!data) return null;
+  const { countries, body_html, status, expires_at, ...row } = data;
+  return {
+    ...toSummary({ ...row, entry_countries: countries.map((iso3) => ({ country_iso3: iso3 })) }),
+    html: sanitizeRichHtml(body_html),
+    status,
+    expiresAt: expires_at,
+  };
+}

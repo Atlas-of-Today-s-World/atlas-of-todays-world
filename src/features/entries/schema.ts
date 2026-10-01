@@ -64,3 +64,6 @@ export const STATUS_LABEL: Record<EntryStatus, string> = {
   published: "Zveřejněno",
   planned: "Plánováno",
 };
+
+/** Doby platnosti sdíleného náhledu v hodinách (DB povolí 1 až 720). */
+export const PREVIEW_HOURS = [24, 72, 168, 720] as const;

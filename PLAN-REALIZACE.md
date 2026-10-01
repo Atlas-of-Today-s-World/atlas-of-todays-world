@@ -196,7 +196,7 @@ Dělá se **před** napojením na DB, aby se komponenty přepisovaly jen jednou.
 
 - [ ] **G1** Vlastní SMTP (Resend) + ověřená doména; zapnout e-mailovou registraci čtenářů (feature flag),
       e-mailové pozvánky přes `inviteUserByEmail`, šablony e-mailů EN/CS, Turnstile. *(závisí na U5)*
-- [ ] **G2** Náhled nepublikovaného obsahu (`draftMode`) + sdílitelný náhled s expirací; autosave editoru.
+- [x] **G2** Náhled nepublikovaného obsahu + sdílitelný náhled s expirací (`/preview/[token]`, ADR-016); autosave editoru do prohlížeče.
 - [x] **G3** Plánované publikování (`publish_at` + pg_cron každých 5 min, `schedule_entry`/`unschedule_entry`, migrace 13),
       správa přesměrování (`redirects`, sekce news, uplatní se jen místo 404, migrace 14), týdenní kontrola odkazů
       (`links.yml`, `npm run check:links`). *Vlastník: ověřit pg_cron na dev projektu před nasazením.*

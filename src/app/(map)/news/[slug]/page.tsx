@@ -1,16 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { NewsArticle } from "@/features/entries/components/NewsArticle";
 import { redirectOrNotFound } from "@/features/redirects/queries";
-import ContentRail from "@/components/ContentRail";
-import MapFocus from "@/components/map/MapFocus";
-import { SectionLabel } from "@/components/atlas/ui";
 import { getEntries, getEntry } from "@/features/entries/queries";
 import { countriesOf } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
 import { absoluteUrl, alternates, breadcrumbJsonLd, geoCoordinates, geoMeta } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
-import { SafeHtml } from "@/components/atlas/SafeHtml";
-import { cssBackgroundImage } from "@/lib/security/urls";
 
 // true, aby se novinka přidaná v adminu objevila hned, bez nového buildu.
 export const dynamicParams = true;
@@ -62,73 +57,7 @@ export default async function NewsPage({ params }: { params: Promise<{ slug: str
 
   return (
     <>
-      <MapFocus
-        center={region?.center ?? null}
-        zoom={region?.zoom ?? null}
-        regionCountries={region?.countries ?? []}
-        regionStroke={region?.stroke ?? null}
-        activeIso3={item.countries[0] ?? null}
-      />
-
-      <ContentRail wide>
-        <article>
-          {cssBackgroundImage(item.hero) ? (
-            <div
-              className="h-52 w-full bg-cover bg-center"
-              style={{ backgroundImage: cssBackgroundImage(item.hero) }}
-              role="img"
-              aria-label={item.title}
-            />
-          ) : null}
-
-          <div className="px-6 pt-7 pb-12 sm:px-10">
-            <SectionLabel>{item.category}</SectionLabel>
-
-            <h1 className="font-display mt-4 text-[30px] leading-tight font-bold text-[var(--color-ink)]">
-              {item.title}
-            </h1>
-
-            <p className="mt-3 text-[14px] leading-relaxed text-[var(--color-ink-soft)]">
-              {item.summary}
-            </p>
-
-            <p className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-[var(--color-ink-muted)]">
-              {region ? (
-                <Link
-                  href={`/region/${region.slug}`}
-                  className="font-medium text-[var(--color-link)] hover:underline"
-                >
-                  {region.name}
-                </Link>
-              ) : null}
-              {issue ? (
-                <Link
-                  href={`/global-issue/${issue.slug}`}
-                  className="rounded-full border border-[var(--color-line)] px-2 py-0.5 font-medium text-[var(--color-link)] transition hover:border-[var(--color-accent)]"
-                >
-                  {issue.name}
-                </Link>
-              ) : null}
-              {item.author ? <span>By {item.author}</span> : null}
-              {item.published ? (
-                <time dateTime={item.published}>
-                  {new Date(item.published).toLocaleDateString("en-GB", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
-                </time>
-              ) : null}
-              {item.readingMinutes ? <span>{item.readingMinutes} min read</span> : null}
-            </p>
-
-            <SafeHtml
-              className="prose-atlas mt-7 border-t border-[var(--color-line)] pt-6"
-              html={item.html}
-            />
-          </div>
-        </article>
-      </ContentRail>
+      <NewsArticle item={item} atlas={atlas} />
 
       <JsonLd
         data={[
