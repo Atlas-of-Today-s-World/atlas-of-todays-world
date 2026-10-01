@@ -66,7 +66,7 @@ export async function generateMetadata({
   const description = country.profile.summary || fallbackDescription(country, getT().countryText);
 
   return {
-    title: `${country.name} — country profile`,
+    title: format(getT().countryCard.title, { name: country.name }),
     description: description.slice(0, 180),
     alternates: alternates(`/country/${country.slug}`, await localeFrom(params)),
     keywords: [

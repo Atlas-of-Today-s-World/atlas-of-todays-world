@@ -6,7 +6,12 @@ import Link from "@/components/i18n/Link";
 import type { SearchHit } from "@/lib/search";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 
-const KIND_KEY = { region: "kindRegion", country: "kindCountry", news: "kindNews" } as const;
+const KIND_KEY = {
+  region: "kindRegion",
+  country: "kindCountry",
+  issue: "kindIssue",
+  news: "kindNews",
+} as const;
 
 /** "Global Encyclopedia" z Figmy: fulltext nad celým Atlasem. */
 export default function EncyclopediaPanel() {
@@ -44,7 +49,7 @@ export default function EncyclopediaPanel() {
     <section className="glass pointer-events-auto w-[min(92vw,22rem)] rounded-[var(--radius-panel)] p-4 shadow-2xl shadow-black/40">
       <h2 className="font-display flex items-center gap-2 text-[15px] font-semibold text-white">
         <BookOpen size={17} strokeWidth={1.5} aria-hidden />
-        Global Encyclopedia
+        {t.encyclopedia.heading}
       </h2>
 
       <label className="mt-3 flex items-center gap-2 rounded-full border border-white/15 bg-black/25 px-3.5 py-2">
@@ -89,8 +94,7 @@ export default function EncyclopediaPanel() {
         </div>
       ) : (
         <p className="mt-2.5 px-1 text-[11.5px] leading-relaxed text-white/50">
-          Try &ldquo;political situation in Russia&rdquo;, &ldquo;Ukraine&rdquo; or &ldquo;Eastern
-          Europe&rdquo;.
+          {t.encyclopedia.hint}
         </p>
       )}
     </section>

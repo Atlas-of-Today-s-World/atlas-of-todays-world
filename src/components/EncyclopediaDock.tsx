@@ -31,7 +31,7 @@ export default function EncyclopediaDock() {
         }`}
       >
         <Search size={16} strokeWidth={1.8} aria-hidden />
-        <span className="hidden sm:inline">{open ? "Close search" : "Search the Atlas"}</span>
+        <span className="hidden sm:inline">{open ? t.search.close : t.search.open}</span>
       </button>
 
       <div className={`${open ? "block" : "hidden"} ${isHome ? "md:block" : ""}`}>

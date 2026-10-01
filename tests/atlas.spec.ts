@@ -159,8 +159,10 @@ test.describe("přihlášení", () => {
     await expect(page).toHaveURL(/\/login\?next=%2Fucet/);
   });
 
-  test("stránka pozvánky vysvětlí, jak se přihlásit", async ({ page }) => {
+  test("stránka pozvánky vysvětlí, jak se přihlásit (v jazyce stránky)", async ({ page }) => {
     await page.goto("/pozvanka");
     await expect(page.getByRole("heading", { name: "Invitation to the Atlas team" })).toBeVisible();
+    await page.goto("/cs/pozvanka");
+    await expect(page.getByRole("heading", { name: "Pozvánka do týmu Atlasu" })).toBeVisible();
   });
 });

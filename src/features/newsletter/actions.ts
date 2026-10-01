@@ -12,12 +12,16 @@ const Input = z.object({
     .string()
     .trim()
     .toLowerCase()
-    .max(254)
-    .regex(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, "That address looks wrong."),
-  consent: z.literal("on", { message: "Please tick the consent box." }),
+    .max(254, "invalidEmail")
+    .regex(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, "invalidEmail"),
+  consent: z.literal("on", { message: "consent" }),
 });
 
-const CONFIRM = "Almost there — confirm the email we just sent.";
+/**
+ * Výsledky jsou kódy (messages: newsletterForm.messages) — text v jazyce
+ * stránky vybere formulář.
+ */
+const CONFIRM = "confirm";
 
 /**
  * Přihlášení k odběru přes Mailchimp (klíč k API nesmí do prohlížeče).
@@ -26,9 +30,9 @@ const CONFIRM = "Almost there — confirm the email we just sent.";
  * Rate limit je sdílený v Postgresu (SEC-06), `website` je past na roboty.
  */
 export async function subscribe(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  if (String(formData.get("website") ?? "").trim()) return { ok: true, message: "Thanks." };
+  if (String(formData.get("website") ?? "").trim()) return { ok: true, message: "thanks" };
   if (!(await allowRequest("newsletter", await headers(), { limit: 5, windowSeconds: 600 }))) {
-    return { ok: false, error: "Too many attempts. Try again later." };
+    return { ok: false, error: "rateLimited" };
   }
   const parsed = Input.safeParse({
     email: formData.get("email"),
@@ -38,7 +42,7 @@ export async function subscribe(_prev: ActionState, formData: FormData): Promise
 
   const key = serverEnv.MAILCHIMP_API_KEY;
   const list = serverEnv.MAILCHIMP_LIST_ID;
-  if (!key || !list) return { ok: false, error: "The newsletter is not connected yet." };
+  if (!key || !list) return { ok: false, error: "notConnected" };
 
   const datacenter = key.split("-")[1];
   const response = await fetch(
@@ -57,7 +61,7 @@ export async function subscribe(_prev: ActionState, formData: FormData): Promise
     // Už přihlášená adresa dostane stejnou odpověď jako nová — jinak by šlo
     // zjišťovat, kdo odebírá.
     if (detail.title === "Member Exists") return { ok: true, message: CONFIRM };
-    return { ok: false, error: "Sign-up failed. Try again later." };
+    return { ok: false, error: "failed" };
   }
   return { ok: true, message: CONFIRM };
 }

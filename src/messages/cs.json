@@ -141,7 +141,8 @@
     "nothing": "V Atlasu zatím nic nenalezeno.",
     "kindRegion": "Region",
     "kindCountry": "Země",
-    "kindNews": "Novinka"
+    "kindNews": "Novinka",
+    "kindIssue": "Globální téma"
   },
   "country": {
     "disputed": "Sporné území.",
@@ -280,5 +281,45 @@
     "lead": "Přihlaste se přes Google stejnou e-mailovou adresou, na kterou vám pozvánka přišla. Roli v týmu dostanete automaticky a otevře se vám administrace.",
     "validity": "Pozvánka platí 5 dní. Pokud vypršela nebo se přihlásíte jinou adresou, požádejte o novou toho, kdo vás zval.",
     "unavailable": "Přihlášení zatím není dostupné."
+  },
+  "ui": {
+    "railPrevious": "{label}: předchozí",
+    "railNext": "{label}: další",
+    "newsOne": "{count} zveřejněná novinka",
+    "newsMany": "Zveřejněné novinky: {count}",
+    "source": "Zdroj:",
+    "fromOrbit": "{name} z oběžné dráhy",
+    "breadcrumb": "Drobečková navigace"
+  },
+  "countryCard": {
+    "title": "{name} — profil země",
+    "ranked": "{rank}. místo z {of} · ",
+    "population": "Obyvatelé",
+    "subregion": "Subregion",
+    "newsAbout": "Novinky: {name}"
+  },
+  "newsTabs": {
+    "heading": "Naše novinky",
+    "categories": "Kategorie novinek",
+    "empty": "Z tohoto regionu zatím nejsou žádné novinky. Přispěvatelé jsou vítáni."
+  },
+  "encyclopedia": {
+    "heading": "Globální encyklopedie",
+    "hint": "Zkuste „politická situace v Rusku“, „Ukrajina“ nebo „východní Evropa“."
+  },
+  "newsletterForm": {
+    "label": "Novinky z Atlasu do schránky",
+    "placeholder": "vy@example.org",
+    "consent": "Občas mi pošlete e-mail o nových heslech Atlasu. Odhlásit se můžu kdykoli. Viz naše",
+    "privacyLink": "zásady ochrany soukromí",
+    "messages": {
+      "confirm": "Skoro hotovo — potvrďte e-mail, který jsme vám právě poslali.",
+      "thanks": "Děkujeme.",
+      "invalidEmail": "Tahle adresa nevypadá správně.",
+      "consent": "Zaškrtněte prosím souhlas.",
+      "rateLimited": "Příliš mnoho pokusů. Zkuste to prosím později.",
+      "notConnected": "Newsletter zatím není připojený.",
+      "failed": "Přihlášení se nepovedlo. Zkuste to prosím později."
+    }
   }
 }

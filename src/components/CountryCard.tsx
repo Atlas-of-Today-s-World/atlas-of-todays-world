@@ -3,6 +3,7 @@ import type { EntrySummary } from "@/features/entries/queries";
 import type { Country, CountryProfile } from "@/features/geography/types";
 import { getRequestLocale, getT } from "@/features/i18n/request";
 import { formatPopulation } from "@/lib/format";
+import { format } from "@/features/i18n/messages";
 import { MetricCards, SourceLink, StatGrid, StatIcon, StatItem } from "./atlas/ui";
 
 /**
@@ -51,7 +52,7 @@ export default function CountryCard({
   return (
     <article className="px-6 pt-6 pb-10">
       {region ? (
-        <nav aria-label="Breadcrumb" className="text-[12px] text-[var(--color-ink-muted)]">
+        <nav aria-label={t.ui.breadcrumb} className="text-[12px] text-[var(--color-ink-muted)]">
           <Link
             href={`/region/${region.slug}`}
             className="font-medium text-[var(--color-link)] hover:underline"
@@ -85,7 +86,9 @@ export default function CountryCard({
             value={stat.value}
             icon={<StatIcon id={stat.id} />}
           >
-            {stat.rank ? `Ranked ${stat.rank} of ${stat.rankOf} · ` : ""}
+            {stat.rank
+              ? format(t.countryCard.ranked, { rank: String(stat.rank), of: String(stat.rankOf) })
+              : ""}
             {stat.year}
             <br />
             <SourceLink href={stat.sourceUrl}>{stat.source}</SourceLink>
@@ -113,7 +116,7 @@ export default function CountryCard({
               backgroundImage: `linear-gradient(180deg, rgba(10,16,32,0.15), rgba(10,16,32,0.55)), url(${region.hero})`,
             }}
             role="img"
-            aria-label={`${region.name} seen from orbit`}
+            aria-label={format(t.ui.fromOrbit, { name: region.name })}
           />
           <span className="block p-4">
             <span className="text-[10.5px] tracking-[0.1em] text-[var(--color-ink-muted)] uppercase">
@@ -134,13 +137,13 @@ export default function CountryCard({
 
       <div className="mt-7 grid grid-cols-2 gap-4 border-t border-[var(--color-line)] pt-5 text-[12.5px]">
         <div>
-          <span className="block text-[var(--color-ink-muted)]">Population</span>
+          <span className="block text-[var(--color-ink-muted)]">{t.countryCard.population}</span>
           <span className="font-medium text-[var(--color-ink)]">
             {formatPopulation(country.population, getRequestLocale())}
           </span>
         </div>
         <div>
-          <span className="block text-[var(--color-ink-muted)]">Subregion</span>
+          <span className="block text-[var(--color-ink-muted)]">{t.countryCard.subregion}</span>
           <span className="font-medium text-[var(--color-ink)]">
             {country.unSubregion ?? "—"}
             {region ? (
@@ -180,7 +183,7 @@ export default function CountryCard({
       {newsItems.length ? (
         <div className="mt-7">
           <h2 className="font-display text-[15px] font-bold text-[var(--color-ink)]">
-            News about {country.name}
+            {format(t.countryCard.newsAbout, { name: country.name })}
           </h2>
           <ul className="mt-3 space-y-2">
             {newsItems.map((item) => (
@@ -190,7 +193,7 @@ export default function CountryCard({
                   className="group block rounded-xl border border-[var(--color-line)] p-3 transition hover:border-[var(--color-accent)]"
                 >
                   <span className="text-[10.5px] tracking-wide text-[var(--color-ink-muted)] uppercase">
-                    {item.category}
+                    {t.categories[item.category]}
                   </span>
                   <span className="mt-0.5 block text-[13.5px] font-medium text-[var(--color-ink)] group-hover:text-[var(--color-accent)]">
                     {item.title}

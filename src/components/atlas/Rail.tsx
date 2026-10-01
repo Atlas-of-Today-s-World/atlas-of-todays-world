@@ -11,6 +11,8 @@ import {
   type ReactNode,
 } from "react";
 import { cn } from "@/lib/cn";
+import { useMessages } from "@/components/i18n/LocaleProvider";
+import { format } from "@/features/i18n/messages";
 
 const track = cva(
   "panel-scroll -mx-1 flex snap-x snap-mandatory overflow-x-auto scroll-smooth px-1 pb-2 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none",
@@ -55,6 +57,7 @@ export function Rail({
   tone?: "light" | "dark";
   className?: string;
 }) {
+  const t = useMessages().ui;
   const ref = useRef<HTMLDivElement>(null);
   const [edges, setEdges] = useState({ start: true, end: true });
 
@@ -119,7 +122,7 @@ export function Rail({
         <div className="mt-2 hidden justify-end gap-2 md:flex">
           <button
             type="button"
-            aria-label={`${label}: previous`}
+            aria-label={format(t.railPrevious, { label })}
             disabled={edges.start}
             onClick={() => page(-1)}
             className={arrow({ tone })}
@@ -128,7 +131,7 @@ export function Rail({
           </button>
           <button
             type="button"
-            aria-label={`${label}: next`}
+            aria-label={format(t.railNext, { label })}
             disabled={edges.end}
             onClick={() => page(1)}
             className={arrow({ tone })}

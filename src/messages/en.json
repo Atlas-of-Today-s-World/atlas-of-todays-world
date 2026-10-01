@@ -141,7 +141,8 @@
     "nothing": "Nothing found in the Atlas yet.",
     "kindRegion": "Region",
     "kindCountry": "Country",
-    "kindNews": "News"
+    "kindNews": "News",
+    "kindIssue": "Global issue"
   },
   "country": {
     "disputed": "Disputed territory.",
@@ -280,5 +281,45 @@
     "lead": "Sign in with Google using the same email address the invitation was sent to. You’ll get your team role automatically and the administration will open.",
     "validity": "The invitation is valid for 5 days. If it has expired or you sign in with a different address, ask the person who invited you for a new one.",
     "unavailable": "Sign-in isn’t available yet."
+  },
+  "ui": {
+    "railPrevious": "{label}: previous",
+    "railNext": "{label}: next",
+    "newsOne": "{count} news item published",
+    "newsMany": "{count} news items published",
+    "source": "Source:",
+    "fromOrbit": "{name} seen from orbit",
+    "breadcrumb": "Breadcrumb"
+  },
+  "countryCard": {
+    "title": "{name} — country profile",
+    "ranked": "Ranked {rank} of {of} · ",
+    "population": "Population",
+    "subregion": "Subregion",
+    "newsAbout": "News about {name}"
+  },
+  "newsTabs": {
+    "heading": "Our News",
+    "categories": "News categories",
+    "empty": "No news published in this region yet. Contributors welcome."
+  },
+  "encyclopedia": {
+    "heading": "Global Encyclopedia",
+    "hint": "Try “political situation in Russia”, “Ukraine” or “Eastern Europe”."
+  },
+  "newsletterForm": {
+    "label": "New Atlas content in your inbox",
+    "placeholder": "you@example.org",
+    "consent": "Send me occasional emails about new Atlas entries. I can unsubscribe at any time. See our",
+    "privacyLink": "privacy policy",
+    "messages": {
+      "confirm": "Almost there — confirm the email we just sent.",
+      "thanks": "Thanks.",
+      "invalidEmail": "That address looks wrong.",
+      "consent": "Please tick the consent box.",
+      "rateLimited": "Too many attempts. Try again later.",
+      "notConnected": "The newsletter is not connected yet.",
+      "failed": "Sign-up failed. Try again later."
+    }
   }
 }

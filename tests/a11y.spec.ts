@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 /**
  * Automatická kontrola přístupnosti (F8, WCAG 2.1 AA) na hlavních typech
@@ -17,28 +17,53 @@ const PAGES = [
   "/privacy",
   "/accessibility",
   "/login",
+  "/news/nordic-model-under-strain",
+  "/search?q=Japan",
+  // Česká verze (G5): jiné texty i jiná délka popisků — vlastní kontrola.
+  "/cs",
+  "/cs/country/ukraine",
+  "/cs/region/east-asia",
+  "/cs/global-issue/russia-ukraine-war",
+  "/cs/news",
+  "/cs/news/nordic-model-under-strain",
+  "/cs/about",
+  "/cs/search?q=Japan",
+  "/cs/login",
+  // Stránka 404 v mapě i mimo ni.
+  "/news/this-does-not-exist",
+  "/this-page-does-not-exist",
 ];
+
+/** Vážná a kritická porušení WCAG 2.1 AA (plátno globusu axe neumí posoudit). */
+async function seriousViolations(page: Page) {
+  const results = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .exclude(".maplibregl-canvas-container")
+    .analyze();
+  return results.violations
+    .filter((v) => ["serious", "critical"].includes(v.impact ?? ""))
+    .map(
+      (v) =>
+        `${v.id}: ${v.nodes
+          .map((n) => n.target.join(" "))
+          .slice(0, 3)
+          .join(", ")}`,
+    );
+}
+
+test("přístupnost: kvíz na stránce 404 během hry", async ({ page }) => {
+  await page.goto("/cs/news/tohle-neexistuje");
+  await page.getByRole("button", { name: "Play the outline quiz" }).click();
+  await expect(page.getByRole("heading", { name: "Which country is this?" })).toBeVisible();
+  await page.getByRole("group", { name: "Choices" }).getByRole("button").first().click();
+  expect(await seriousViolations(page)).toEqual([]);
+});
 
 for (const path of PAGES) {
   test(`přístupnost: ${path}`, async ({ page }) => {
     await page.goto(path);
     await page.waitForLoadState("networkidle");
-    const results = await new AxeBuilder({ page })
-      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
-      .exclude(".maplibregl-canvas-container")
-      .analyze();
-    const serious = results.violations.filter((v) =>
-      ["serious", "critical"].includes(v.impact ?? ""),
-    );
-    expect(
-      serious.map(
-        (v) =>
-          `${v.id}: ${v.nodes
-            .map((n) => n.target.join(" "))
-            .slice(0, 3)
-            .join(", ")}`,
-      ),
-    ).toEqual([]);
+    expect(await seriousViolations(page)).toEqual([]);
   });
 }
 
