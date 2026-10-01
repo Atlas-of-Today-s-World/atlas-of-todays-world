@@ -7,7 +7,7 @@ import type { ActionState } from "@/lib/actions";
  */
 
 export type RowActionIcon =
-  "edit" | "view" | "open" | "share" | "archive" | "restore" | "revoke" | "delete";
+  "edit" | "view" | "open" | "approve" | "share" | "archive" | "restore" | "revoke" | "delete";
 
 export type RowAction =
   | { kind: "link"; icon: RowActionIcon; label: string; href: string; newTab?: boolean }
@@ -53,3 +53,12 @@ export const deleteAction = (
   confirmTitle: `Delete ${what}?`,
   confirmBody: body,
 });
+
+/** Confirmed, non-destructive action (approve, archive, restore…). */
+export const confirmAction = (
+  icon: RowActionIcon,
+  label: string,
+  action: () => Promise<ActionState>,
+  confirmTitle: string,
+  confirmBody: string,
+): RowAction => ({ kind: "action", icon, label, action, confirmTitle, confirmBody });
