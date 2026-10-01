@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useHydrated } from "@/lib/use-hydrated";
 import { useMapState, type SelectionMode } from "./MapContext";
+import { useMessages } from "@/components/i18n/LocaleProvider";
 
 const SEEN_KEY = "atlas.modeSwitchSeen";
 
@@ -25,6 +26,7 @@ export default function ModeSwitch({
   /** Volbu „Issue" schováme, když redakce žádný global issue nemá. */
   hasIssues: boolean;
 }) {
+  const t = useMessages();
   const { mode, setMode } = useMapState();
   // Až po připojení (localStorage zná jen prohlížeč), ať server a klient
   // vykreslí stejné HTML.
@@ -33,9 +35,9 @@ export default function ModeSwitch({
   const hinting = hydrated && !dismissed && !seenBefore();
 
   const options: { id: SelectionMode; label: string }[] = [
-    { id: "countries", label: "Countries" },
-    { id: "regions", label: "Regions" },
-    ...(hasIssues ? [{ id: "issue" as const, label: "Global Issues" }] : []),
+    { id: "countries", label: t.map.modeCountries },
+    { id: "regions", label: t.map.modeRegions },
+    ...(hasIssues ? [{ id: "issue" as const, label: t.map.modeIssues }] : []),
   ];
 
   function choose(next: SelectionMode) {
@@ -59,7 +61,7 @@ export default function ModeSwitch({
 
       <div
         role="radiogroup"
-        aria-label="Map selection mode"
+        aria-label={t.map.modes}
         className={`glass pointer-events-auto flex rounded-full p-0.5 text-[12.5px] transition ${
           hinting ? "ring-1 ring-[#7f97ff]/50" : ""
         }`}

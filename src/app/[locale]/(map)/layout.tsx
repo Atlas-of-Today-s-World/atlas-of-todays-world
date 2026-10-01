@@ -8,19 +8,20 @@ import { ErrorState } from "@/components/atlas/ErrorState";
 import { getFlags } from "@/features/flags/queries";
 import { regionColorMap } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
-import { localeFrom } from "@/features/i18n/request";
+import { format, type Messages } from "@/features/i18n/messages";
+import { getT, localeFrom } from "@/features/i18n/request";
 import type { GlobalIssue, Indicator, Region } from "@/features/geography/types";
 import { saturate, saturateMap } from "@/lib/color";
 import { colorMapFor, legendFor } from "@/lib/indicators";
 
 /** Volby pro přepínač vrstev – generují se z importovaných indikátorů. */
-function buildViewOptions(indicators: Indicator[], saturation: number): ViewOption[] {
+function buildViewOptions(indicators: Indicator[], saturation: number, t: Messages): ViewOption[] {
   return [
     {
       id: "encyclopedia",
-      label: "Encyclopedia view",
-      shortLabel: "Encyclopedia view",
-      caption: "World regions of the Atlas · click any country to open its profile",
+      label: t.map.encyclopediaView,
+      shortLabel: t.map.encyclopediaView,
+      caption: t.map.encyclopediaCaption,
       swatches: [],
     },
     ...indicators.map((indicator) => {
@@ -28,7 +29,7 @@ function buildViewOptions(indicators: Indicator[], saturation: number): ViewOpti
       return {
         id: indicator.id,
         label: indicator.label,
-        shortLabel: `${indicator.shortLabel} view`,
+        shortLabel: format(t.map.layerView, { label: indicator.shortLabel }),
         caption: legend.caption,
         swatches: legend.swatches.map((swatch) => ({
           ...swatch,
@@ -86,7 +87,8 @@ export default async function MapLayout({
 
   const regionLookup = lookup(atlas.regions);
   const issue = lookup(atlas.issues);
-  const viewOptions = buildViewOptions(atlas.indicators, atlas.theme.saturation);
+  const t = getT();
+  const viewOptions = buildViewOptions(atlas.indicators, atlas.theme.saturation, t);
   const regionLabels = atlas.regions.map(({ slug, name, center }) => ({ slug, name, center }));
 
   return (
@@ -115,9 +117,10 @@ export default async function MapLayout({
         {flags.maintenance ? (
           <ContentRail>
             <ErrorState
-              code="Maintenance"
-              title="The Atlas is being updated"
-              lead="We are working on the site right now. Please come back in a little while."
+              code={t.map.maintenance}
+              title={t.map.maintenanceTitle}
+              lead={t.map.maintenanceText}
+              backLabel={t.common.backToGlobe}
             />
           </ContentRail>
         ) : (

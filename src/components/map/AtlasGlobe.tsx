@@ -17,6 +17,7 @@ import { EUROPE_CENTER, globeFillZoom } from "@/lib/home-location";
 import { useMapState } from "./MapContext";
 import { useLatest } from "@/lib/use-latest";
 import { DESKTOP_MIN_PX, railKind, railWidthPx } from "@/config/layout";
+import { useMessages } from "@/components/i18n/LocaleProvider";
 
 interface GlobeColorSets {
   /** ISO3 -> barva pro každou vrstvu, předpočítané na serveru. */
@@ -108,6 +109,7 @@ export default function AtlasGlobe({
   regionLabels,
   styleOptions,
 }: Props) {
+  const t = useMessages();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const hoveredRef = useRef<string | null>(null);
@@ -368,7 +370,7 @@ export default function AtlasGlobe({
       <div className="pointer-events-none absolute top-24 left-5 flex flex-col gap-1.5">
         <button
           type="button"
-          aria-label="Zoom in"
+          aria-label={t.map.zoomIn}
           onClick={() => mapRef.current?.zoomIn({ duration: 300 })}
           className="glass glass-hover pointer-events-auto flex size-(--touch-min) items-center justify-center rounded-[10px] text-white/90 transition focus-visible:ring-2 focus-visible:ring-white/70"
         >
@@ -376,7 +378,7 @@ export default function AtlasGlobe({
         </button>
         <button
           type="button"
-          aria-label="Zoom out"
+          aria-label={t.map.zoomOut}
           onClick={() => mapRef.current?.zoomOut({ duration: 300 })}
           className="glass glass-hover pointer-events-auto flex size-(--touch-min) items-center justify-center rounded-[10px] text-white/90 transition focus-visible:ring-2 focus-visible:ring-white/70"
         >

@@ -6,7 +6,7 @@ import MapFocus from "@/components/map/MapFocus";
 import MapViewSetter from "@/components/map/MapViewSetter";
 import { SectionLabel } from "@/components/atlas/ui";
 import { getAtlas } from "@/features/geography/queries";
-import { localeFrom } from "@/features/i18n/request";
+import { getT, localeFrom } from "@/features/i18n/request";
 import { formatValue } from "@/lib/indicators";
 import { absoluteUrl, alternates, breadcrumbJsonLd } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
@@ -61,7 +61,7 @@ export default async function IndicatorViewPage({
 
       <ContentRail>
         <div className="px-6 pt-6 pb-10">
-          <SectionLabel>Data layer</SectionLabel>
+          <SectionLabel>{getT().map.dataLayer}</SectionLabel>
           <h1 className="font-display mt-4 text-[26px] leading-tight font-bold text-[var(--color-ink)]">
             {indicator.label}
           </h1>

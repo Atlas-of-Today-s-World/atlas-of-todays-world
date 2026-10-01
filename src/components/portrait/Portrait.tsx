@@ -4,6 +4,8 @@ import type { RegionDossier } from "@/lib/content-types";
 import type { RegionStat } from "@/lib/region-stats";
 import { formatPopulation } from "@/lib/format";
 import { cssBackgroundImage } from "@/lib/security/urls";
+import { format, type Messages } from "@/features/i18n/messages";
+import { getT } from "@/features/i18n/request";
 import NewsTabs, { type NewsCard } from "./NewsTabs";
 import {
   EmptySection,
@@ -33,10 +35,17 @@ export interface PortraitSubject {
   population: number;
 }
 
-const WORDING = {
-  region: { label: null, place: "region", countriesTitle: "Countries in this region" },
-  issue: { label: "Global Issue", place: "group", countriesTitle: "Countries in this group" },
-} as const;
+/** Texty, které se liší pro region a pro skupinu zemí (global issue). */
+function wordingFor(kind: "region" | "issue", t: Messages) {
+  const region = kind === "region";
+  return {
+    label: region ? null : t.portrait.globalIssue,
+    countriesTitle: region ? t.portrait.countriesInRegion : t.portrait.countriesInGroup,
+    timelineEmpty: region ? t.portrait.timelineEmptyRegion : t.portrait.timelineEmptyGroup,
+    mapsEmpty: region ? t.portrait.mapsEmptyRegion : t.portrait.mapsEmptyGroup,
+    faqEmpty: region ? t.portrait.faqEmptyRegion : t.portrait.faqEmptyGroup,
+  };
+}
 
 /**
  * Portrét regionu i global issue (ARCHITEKTURA 15.1, D3). Podle zadání
@@ -60,7 +69,8 @@ export default function Portrait({
   dossier: RegionDossier;
   stats: RegionStat[];
 }) {
-  const wording = WORDING[subject.kind];
+  const t = getT();
+  const wording = wordingFor(subject.kind, t);
   const hero = cssBackgroundImage(subject.hero);
   const complete = Boolean(
     dossier.timeline?.length && dossier.resources?.length && dossier.faq?.length,
@@ -109,11 +119,11 @@ export default function Portrait({
         ) : null}
         <dl className="mt-5 grid grid-cols-2 gap-4 border-t border-[var(--color-line)] pt-4 text-[12.5px]">
           <div>
-            <dt className="text-[var(--color-ink-muted)]">Countries</dt>
+            <dt className="text-[var(--color-ink-muted)]">{t.portrait.countries}</dt>
             <dd className="font-medium text-[var(--color-ink)]">{subject.countries.length}</dd>
           </div>
           <div>
-            <dt className="text-[var(--color-ink-muted)]">People</dt>
+            <dt className="text-[var(--color-ink-muted)]">{t.portrait.people}</dt>
             <dd className="font-medium text-[var(--color-ink)]">
               {formatPopulation(subject.population)}
             </dd>
@@ -130,22 +140,15 @@ export default function Portrait({
           subtitle={dossier.timelineSubtitle}
         />
       ) : (
-        <EmptySection
-          title="How the present came about"
-          lead={`An interactive timeline of the events behind the ${wording.place}'s current situation.`}
-        />
+        <EmptySection title={t.portrait.timeline} lead={wording.timelineEmpty} />
       )}
 
-      <ThematicEntries entries={plannedEntries(subject.name, entries)} />
+      <ThematicEntries entries={plannedEntries(subject.name, entries, t)} />
 
       {dossier.visuals?.length ? (
         <VisualCarousel visuals={dossier.visuals} />
       ) : (
-        <EmptySection
-          title="Maps & charts"
-          lead={`A carousel of interactive infographics and maps for this ${wording.place}.`}
-          rows={2}
-        />
+        <EmptySection title={t.portrait.maps} lead={wording.mapsEmpty} rows={2} />
       )}
 
       {news.length ? <NewsTabs newsItems={news} /> : null}
@@ -153,21 +156,13 @@ export default function Portrait({
       {dossier.resources?.length ? (
         <ResourceLibrary resources={dossier.resources} />
       ) : (
-        <EmptySection
-          title="Learn more elsewhere"
-          lead="Videos & documentaries, lectures & debates, articles, reports & books, educational resources, statistics & databases."
-          rows={2}
-        />
+        <EmptySection title={t.portrait.learnMore} lead={t.portrait.learnMoreEmpty} rows={2} />
       )}
 
       {dossier.faq?.length ? (
         <FaqList items={dossier.faq} />
       ) : (
-        <EmptySection
-          title="Common questions"
-          lead={`The five questions people ask most often about this ${wording.place}.`}
-          rows={3}
-        />
+        <EmptySection title={t.portrait.faq} lead={wording.faqEmpty} rows={3} />
       )}
 
       <PortraitSection title={wording.countriesTitle}>
@@ -219,7 +214,7 @@ export function newsCards(
  * Hesla podle čtyř témat. Kde redakce zatím žádné heslo nenapsala ani
  * nenaplánovala, ukazujeme aspoň obecná témata – šedivě.
  */
-function plannedEntries(name: string, entries: PlannedEntry[]): PlannedEntry[] {
+function plannedEntries(name: string, entries: PlannedEntry[], t: Messages): PlannedEntry[] {
   const planned: PlannedEntry[] = entries.map((entry) => ({
     ...entry,
     category: entryCategory(entry.category),
@@ -227,7 +222,15 @@ function plannedEntries(name: string, entries: PlannedEntry[]): PlannedEntry[] {
   for (const category of ENTRY_CATEGORIES) {
     const have = planned.filter((entry) => entry.category === category).length;
     for (let index = have; index < 3; index += 1) {
-      planned.push({ title: `${category} in ${name} (${index + 1})`, category, slug: null });
+      planned.push({
+        title: format(t.portrait.plannedTitle, {
+          category: t.categories[category],
+          place: name,
+          index: String(index + 1),
+        }),
+        category,
+        slug: null,
+      });
     }
   }
   return planned;

@@ -7,6 +7,8 @@ import { buttonVariants } from "@/components/ui/button";
 import type { RegionStat } from "@/lib/region-stats";
 import type { FaqItem, MetricCard, ResourceItem, TimelineItem } from "@/lib/content-types";
 import { cssBackgroundImage, safeUrl } from "@/lib/security/urls";
+import { format } from "@/features/i18n/messages";
+import { getT } from "@/features/i18n/request";
 
 /**
  * Stavební díly portrétu. Používá je portrét regionu i portrét global issue –
@@ -22,8 +24,6 @@ export const ENTRY_CATEGORIES = [
   "Politics & International Relations",
   "Historical Roots",
 ] as const;
-
-const PATRONS_CTA = "Help Us Complete It By Joining Atlas Patrons";
 
 const section = cva("border-t px-6 py-8 sm:px-10", {
   variants: {
@@ -77,9 +77,10 @@ export function PortraitSection({
 }
 
 function PatronsLink({ arrow = true }: { arrow?: boolean }) {
+  const t = getT();
   return (
     <Link href="/patrons" className="font-medium text-[var(--color-link)] hover:underline">
-      {PATRONS_CTA}
+      {t.portrait.patronsCta}
       {arrow ? " →" : ""}
     </Link>
   );
@@ -98,6 +99,7 @@ export function EmptySection({
   lead: string;
   rows?: number;
 }) {
+  const t = getT();
   return (
     <PortraitSection title={title} lead={lead} muted>
       <div aria-hidden className="pointer-events-none mt-5 space-y-2 opacity-55 select-none">
@@ -109,7 +111,7 @@ export function EmptySection({
         ))}
       </div>
       <p className="mt-4 text-[12px] text-[var(--color-ink-muted)]">
-        Not written yet. <PatronsLink />
+        {t.portrait.notWrittenYet}. <PatronsLink />
       </p>
     </PortraitSection>
   );
@@ -129,12 +131,10 @@ export function IndicatorCards({
   stats: RegionStat[];
   metrics?: MetricCard[];
 }) {
+  const t = getT();
   if (metrics.length) {
     return (
-      <PortraitSection
-        title="Key indicators"
-        lead="Picked by the Atlas team, each with the source it comes from."
-      >
+      <PortraitSection title={t.portrait.keyIndicators} lead={t.portrait.keyIndicatorsManual}>
         <MetricCards metrics={metrics} className="mt-5" />
       </PortraitSection>
     );
@@ -142,10 +142,7 @@ export function IndicatorCards({
 
   if (!stats.length) return null;
   return (
-    <PortraitSection
-      title="Key indicators"
-      lead="Population-weighted across the countries in this group. Categorical layers show the most common value."
-    >
+    <PortraitSection title={t.portrait.keyIndicators} lead={t.portrait.keyIndicatorsComputed}>
       <StatGrid className="mt-5">
         {stats.map((stat) => (
           <StatItem
@@ -154,7 +151,11 @@ export function IndicatorCards({
             value={stat.value}
             icon={<StatIcon id={stat.id} />}
           >
-            {stat.coverage.have} of {stat.coverage.total} countries · {stat.year}
+            {format(t.portrait.coverage, {
+              have: String(stat.coverage.have),
+              total: String(stat.coverage.total),
+              year: String(stat.year),
+            })}
             <br />
             <SourceLink href={stat.sourceUrl}>{stat.source}</SourceLink>
           </StatItem>
@@ -174,10 +175,11 @@ export function Timeline({
   title?: string;
   subtitle?: string;
 }) {
+  const t = getT();
   return (
     <PortraitSection
-      title={title || "How the present came about"}
-      lead={subtitle || "The events that shaped the current situation."}
+      title={title || t.portrait.timeline}
+      lead={subtitle || t.portrait.timelineLead}
     >
       <Rail label="Timeline" gap="lg" className="mt-6">
         {items.map((item) => (
@@ -211,21 +213,19 @@ export interface PlannedEntry {
  * podle zadání to platí i pro portrét, který už nějaká hesla má.
  */
 export function ThematicEntries({ entries }: { entries: PlannedEntry[] }) {
+  const t = getT();
   return (
-    <PortraitSection
-      title="Encyclopedic entries"
-      lead="Long-form entries in four themes. Grey titles are planned but not written yet."
-    >
+    <PortraitSection title={t.portrait.entries} lead={t.portrait.entriesLead}>
       <div className="mt-5 space-y-5">
         {ENTRY_CATEGORIES.map((category) => {
           const group = entries.filter((entry) => entry.category === category);
           return (
             <div key={category}>
               <h3 className="text-[11px] font-medium tracking-[0.1em] text-[var(--color-ink-muted)] uppercase">
-                {category}
+                {t.categories[category]}
               </h3>
               {group.length ? (
-                <Rail label={category} gap="sm" className="mt-2.5">
+                <Rail label={t.categories[category]} gap="sm" className="mt-2.5">
                   {group.map((entry) =>
                     entry.slug ? (
                       <Link
@@ -239,7 +239,7 @@ export function ThematicEntries({ entries }: { entries: PlannedEntry[] }) {
                       <span
                         key={entry.title}
                         aria-disabled="true"
-                        title="Not written yet"
+                        title={t.portrait.notWrittenYet}
                         className="pointer-events-none w-56 shrink-0 snap-start rounded-xl border border-dashed border-[var(--color-line)] bg-[var(--color-line)]/20 p-3 text-[13px] leading-snug text-[var(--color-ink-muted)]"
                       >
                         {entry.title}
@@ -249,7 +249,7 @@ export function ThematicEntries({ entries }: { entries: PlannedEntry[] }) {
                 </Rail>
               ) : (
                 <p className="mt-2.5 text-[12px] text-[var(--color-ink-muted)]">
-                  Nothing planned here yet.
+                  {t.portrait.nothingPlanned}
                 </p>
               )}
             </div>
@@ -269,16 +269,14 @@ export function VisualCarousel({
 }: {
   visuals: { title: string; image: string; caption: string }[];
 }) {
+  const t = getT();
   const safe = visuals.flatMap((visual) => {
     const image = safeUrl(visual.image);
     return image ? [{ ...visual, image }] : [];
   });
   return (
-    <PortraitSection
-      title="Maps & charts"
-      lead="Selected visualisations from organisations that track this part of the world."
-    >
-      <Rail label="Maps and charts">
+    <PortraitSection title={t.portrait.maps} lead={t.portrait.mapsLead}>
+      <Rail label={t.portrait.maps}>
         {safe.map((visual) => (
           <figure key={visual.title} className="w-[22rem] max-w-[80vw] shrink-0 snap-start">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -300,17 +298,14 @@ export function VisualCarousel({
 
 /** Databáze zdrojů třetích stran. */
 export function ResourceLibrary({ resources }: { resources: ResourceItem[] }) {
+  const t = getT();
   const safe = resources.flatMap((item) => {
     const url = safeUrl(item.url);
     return url ? [{ ...item, url }] : [];
   });
-  const categories = [...new Set(safe.map((item) => item.kind ?? "Further reading"))];
+  const categories = [...new Set(safe.map((item) => item.kind ?? t.portrait.furtherReading))];
   return (
-    <PortraitSection
-      title="Learn more elsewhere"
-      lead="Documentaries, lectures, reports and databases picked by the Atlas team."
-      tone="dark"
-    >
+    <PortraitSection title={t.portrait.learnMore} lead={t.portrait.learnMoreLead} tone="dark">
       {categories.map((category) => (
         <div key={category} className="mt-5">
           <h3 className="text-[11px] font-medium tracking-[0.1em] text-white/55 uppercase">
@@ -318,7 +313,7 @@ export function ResourceLibrary({ resources }: { resources: ResourceItem[] }) {
           </h3>
           <Rail label={category} tone="dark" className="mt-2.5">
             {safe
-              .filter((item) => (item.kind ?? "Further reading") === category)
+              .filter((item) => (item.kind ?? t.portrait.furtherReading) === category)
               .map((resource) => {
                 const image = cssBackgroundImage(resource.image);
                 return (
@@ -355,8 +350,9 @@ export function ResourceLibrary({ resources }: { resources: ResourceItem[] }) {
 
 /** Rozbalovací FAQ. */
 export function FaqList({ items }: { items: FaqItem[] }) {
+  const t = getT();
   return (
-    <PortraitSection title="Common questions">
+    <PortraitSection title={t.portrait.faq}>
       <div className="mt-4 space-y-2">
         {items.map((item) => (
           <details
@@ -384,19 +380,18 @@ export function FaqList({ items }: { items: FaqItem[] }) {
 
 /** Výzva k podpoře na konci portrétu. */
 export function PatronsCallout({ complete }: { complete: boolean }) {
+  const t = getT();
   return (
     <section className="border-t border-[var(--color-line)] px-6 py-9 text-center sm:px-10">
       <h2 className="font-display text-[22px] font-bold text-[var(--color-ink)]">
-        {complete ? "Together We Can Build a New Encyclopedia" : "This portrait is not finished"}
+        {complete ? t.portrait.patronsCompleteTitle : t.portrait.patronsTodoTitle}
       </h2>
       <p className="mx-auto mt-2.5 max-w-lg text-[12.5px] leading-relaxed text-[var(--color-ink-muted)]">
-        {complete
-          ? "Atlas Patrons fund the writing, the data work and the independence of this encyclopedia."
-          : "The sections above are waiting for authors. Atlas Patrons pay for the research and the writing that fills them in."}
+        {complete ? t.portrait.patronsCompleteText : t.portrait.patronsTodoText}
       </p>
       <div className="mt-6">
         <Link href="/patrons" className={buttonVariants({ className: "text-[13px]" })}>
-          {PATRONS_CTA}
+          {t.portrait.patronsCta}
         </Link>
       </div>
     </section>
