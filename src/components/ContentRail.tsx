@@ -20,10 +20,17 @@ export default function ContentRail({
    */
   closeHref = "/",
   wide = false,
+  placeholder = false,
 }: {
   children: ReactNode;
   closeHref?: string;
   wide?: boolean;
+  /**
+   * Skeleton z loading.tsx: bez `id="content"` a `data-print`. Při streamování
+   * je skeleton chvíli v DOM vedle skutečného panelu (skrytého do odkrytí) —
+   * se stejným id by stránka měla dva `#content` a tisk dva panely.
+   */
+  placeholder?: boolean;
 }) {
   const t = useMessages();
   const [collapsed, setCollapsed] = useState(false);
@@ -54,8 +61,9 @@ export default function ContentRail({
   return (
     <aside
       ref={panel}
-      id="content"
-      data-print="content"
+      id={placeholder ? undefined : "content"}
+      data-print={placeholder ? undefined : "content"}
+      aria-busy={placeholder || undefined}
       tabIndex={-1}
       aria-label={t.panel.content}
       className={`pointer-events-auto absolute inset-x-0 bottom-0 z-20 max-h-[72dvh] overflow-hidden rounded-t-3xl bg-white text-[var(--color-ink)] shadow-[0_-8px_40px_rgba(0,0,0,0.45)] transition-transform duration-300 outline-none md:inset-x-auto md:inset-y-0 md:right-0 md:left-auto md:max-h-none md:rounded-none md:shadow-[0_0_60px_rgba(0,0,0,0.45)] ${
