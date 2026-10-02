@@ -154,6 +154,44 @@ export const getEntries = localized("news");
 /** Published encyclopedia entries (originals), newest first. */
 export const getEncyclopediaEntries = localized("entry");
 
+/** An author's published articles (originals) for the profile page, newest first. */
+export interface AuthorArticle {
+  kind: Kind;
+  slug: string;
+  title: string;
+  category: NewsCategory;
+  published?: string;
+}
+
+/**
+ * Cached per author (a new profile is a cache miss, not a stale list);
+ * publishing revalidates `entries`.
+ */
+export function getArticlesByAuthor(authorSlug: string): Promise<AuthorArticle[]> {
+  return unstable_cache(
+    async () => {
+      const { data, error } = await createPublicClient()
+        .from("entries")
+        .select("slug, kind, title, category, published_on, authors!inner(slug)")
+        .eq("status", "published")
+        .is("translation_of", null)
+        .eq("authors.slug", authorSlug)
+        .order("published_on", { ascending: false, nullsFirst: false })
+        .limit(500);
+      if (error) throw new Error(`[entries] ${error.message}`);
+      return data.map((row) => ({
+        kind: row.kind as Kind,
+        slug: row.slug,
+        title: row.title,
+        category: row.category as NewsCategory,
+        published: row.published_on ?? undefined,
+      }));
+    },
+    ["author-articles", authorSlug],
+    { tags: [tags.entries], revalidate: PUBLIC_REVALIDATE_SECONDS },
+  )();
+}
+
 /**
  * From the published language versions of the same slug, picks the one in the
  * page language, otherwise the original. Also returns the list of available languages.

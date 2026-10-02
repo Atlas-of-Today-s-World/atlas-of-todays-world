@@ -35,7 +35,7 @@ const attr = (tag: string, name: keyof typeof ATTRIBUTES) => ATTRIBUTES[name].ex
 
 /** Text of an inline fragment: links, emphasis, code, line breaks. */
 function inline(html: string): string {
-  return html
+  const text = html
     .replace(/<br\s*\/?>/gi, "  \n")
     .replace(/<img\b[^>]*>/gi, (tag) => {
       const src = attr(tag, "src");
@@ -50,8 +50,17 @@ function inline(html: string): string {
     .replace(/<(em|i)>([\s\S]*?)<\/\1>/gi, (_m, _t, text: string) => `_${text.trim()}_`)
     .replace(/<code>([\s\S]*?)<\/code>/gi, "`$1`")
     .replace(/<sup>([\s\S]*?)<\/sup>/gi, "^$1")
-    .replace(/<sub>([\s\S]*?)<\/sub>/gi, "~$1")
-    .replace(/<[^>]+>/g, "");
+    .replace(/<sub>([\s\S]*?)<\/sub>/gi, "~$1");
+  return stripTags(text);
+}
+
+/**
+ * Drops the remaining tags. Input is sanitized HTML, where a literal "<" in text
+ * is always `&lt;` — so a "<" or ">" left after removing tags belongs to broken
+ * markup and goes too: the result can never contain a tag.
+ */
+function stripTags(html: string): string {
+  return html.replace(/<[^>]*>/g, "").replace(/[<>]/g, "");
 }
 
 /** Table as a Markdown pipe table (first row is the header). */
@@ -59,6 +68,8 @@ function table(html: string): string {
   const rows = [...html.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)].map((row) =>
     [...(row[1] ?? "").matchAll(/<t[hd]\b[^>]*>([\s\S]*?)<\/t[hd]>/gi)].map((cell) =>
       inline(cell[1] ?? "")
+        // Backslashes first, so text can't turn an escaped pipe back into a column break.
+        .replace(/\\/g, "\\\\")
         .replace(/\|/g, "\\|")
         .replace(/\s+/g, " ")
         .trim(),
@@ -93,7 +104,7 @@ export function htmlToMarkdown(html: string): string {
   const md = html
     .replace(/\r\n?/g, "\n")
     .replace(/<pre>([\s\S]*?)<\/pre>/gi, (_m, code: string) =>
-      keep(`\`\`\`\n${decode(code.replace(/<[^>]+>/g, "")).trim()}\n\`\`\``),
+      keep(`\`\`\`\n${decode(stripTags(code)).trim()}\n\`\`\``),
     )
     .replace(/<table\b[^>]*>([\s\S]*?)<\/table>/gi, (_m, body: string) => keep(decode(table(body))))
     .replace(/<ol\b[^>]*>([\s\S]*?)<\/ol>/gi, (_m, body: string) => keep(decode(list(body, true))))

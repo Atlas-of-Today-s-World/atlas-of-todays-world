@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "@/components/i18n/Link";
 import { JsonLd } from "@/components/JsonLd";
 import { getAuthorBySlug, getAuthors } from "@/features/authors/queries";
-import { getEncyclopediaEntries, getEntries } from "@/features/entries/queries";
+import { getArticlesByAuthor } from "@/features/entries/queries";
 import { format, getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import { formatLongDate } from "@/lib/format";
@@ -31,15 +31,12 @@ export async function generateStaticParams() {
   return (await getAuthors()).map((author) => ({ slug: author.slug }));
 }
 
-/** The author's published news and entries in the page language, newest first. */
-async function articlesOf(slug: string, locale: Parameters<typeof getEntries>[0]) {
-  const [news, entries] = await Promise.all([getEntries(locale), getEncyclopediaEntries(locale)]);
-  return [
-    ...entries.map((item) => ({ ...item, path: `/entry/${item.slug}` })),
-    ...news.map((item) => ({ ...item, path: `/news/${item.slug}` })),
-  ]
-    .filter((item) => item.authorSlug === slug)
-    .sort((a, b) => Date.parse(b.published ?? "") - Date.parse(a.published ?? ""));
+/** The author's published news and entries, newest first, with their page path. */
+async function articlesOf(slug: string) {
+  return (await getArticlesByAuthor(slug)).map((item) => ({
+    ...item,
+    path: `/${item.kind}/${item.slug}`,
+  }));
 }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
@@ -48,7 +45,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const author = await getAuthorBySlug(slug);
   if (!author) return {};
   const t = getMessages(locale).authorPage;
-  const articles = await articlesOf(slug, locale);
+  const articles = await articlesOf(slug);
   return pageMetadata({
     locale,
     path: `/authors/${slug}`,
@@ -68,7 +65,7 @@ export default async function AuthorPage({ params }: Params) {
   if (!author) notFound();
   const messages = getMessages(locale);
   const t = messages.authorPage;
-  const articles = await articlesOf(slug, locale);
+  const articles = await articlesOf(slug);
   const photo = cssBackgroundImage(author.photo);
   const url = pageUrl(`/authors/${slug}`, locale);
 

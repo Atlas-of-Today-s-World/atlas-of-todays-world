@@ -33,6 +33,14 @@ describe("htmlToMarkdown", () => {
     ).toBe("| Country | HDI |\n| --- | --- |\n| Chad | 0.394 \\| low |\n\n```\na < b\n```");
   });
 
+  it("never leaves a tag, even from broken markup; escapes backslashes in tables", () => {
+    expect(htmlToMarkdown("<p>a <scr<script>ipt>alert(1)</p>")).not.toMatch(/<|>/);
+    expect(htmlToMarkdown("<pre><code><scr<b>ipt></code></pre>")).not.toMatch(/<[a-z]/i);
+    expect(htmlToMarkdown("<table><tr><th>A</th></tr><tr><td>x\\|y</td></tr></table>")).toContain(
+      "| x\\\\\\|y |",
+    );
+  });
+
   it("empty input gives empty output", () => {
     expect(htmlToMarkdown("")).toBe("");
   });
