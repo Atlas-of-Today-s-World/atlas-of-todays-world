@@ -29,10 +29,10 @@ const blank = (): Chapter => ({
 });
 
 /**
- * Encyclopedia entry chapters (P9): each has a title, 3–5 summary bullets,
- * an illustration, audio and full text. Fields are uncontrolled and named
- * the same in every chapter — the Server Action reads them in page order.
- * The chapter key keeps unsaved text when moving up/down.
+ * Dossier topics (stored as entry chapters): each has a title, 3–5 summary bullets,
+ * a tile photo, audio and full text. Fields are uncontrolled and named
+ * the same in every topic — the Server Action reads them in page order.
+ * The topic key keeps unsaved text when moving up/down.
  */
 export function ChaptersEditor({
   entryId,
@@ -51,15 +51,15 @@ export function ChaptersEditor({
 
   return (
     <section
-      aria-labelledby="chapters-title"
+      aria-labelledby="topics-title"
       className="rounded-2xl border border-[var(--color-line)] p-5"
     >
-      <h2 id="chapters-title" className="font-display text-[18px] font-bold">
-        Chapters
+      <h2 id="topics-title" className="font-display text-[18px] font-bold">
+        Topics
       </h2>
       <p className="mt-1 text-[13px] text-[var(--color-ink-muted)]">
-        An entry has 4–6 chapters. Readers see the title, illustration and summary, and can expand
-        the full text.
+        A dossier has up to 12 topics, shown as photo tiles in two columns. A click on a tile opens
+        the topic: photo, summary bullets, audio and the full text.
       </p>
 
       <ActionForm action={action} className="mt-5 grid gap-4">
@@ -67,16 +67,16 @@ export function ChaptersEditor({
 
         {chapters.map((chapter, index) => {
           const id = (field: string) => `chapter-${chapter.key}-${field}`;
-          const label = `chapter ${index + 1}`;
+          const label = `topic ${index + 1}`;
           return (
             <fieldset
               key={chapter.key}
               className="grid gap-3 rounded-xl bg-[var(--color-line)]/25 p-4"
             >
-              <legend className="sr-only">Chapter {index + 1}</legend>
+              <legend className="sr-only">Topic {index + 1}</legend>
               <div className="flex items-center justify-between">
                 <span className="text-[12px] font-medium text-[var(--color-ink-muted)]">
-                  Chapter {index + 1}
+                  Topic {index + 1}
                 </span>
                 <span className="flex gap-1">
                   <IconAction
@@ -122,14 +122,14 @@ export function ChaptersEditor({
                 />
               </FormField>
               <div className="grid gap-3 sm:grid-cols-[2fr_1fr]">
-                <FormField id={id("illustration")} label="Illustration">
+                <FormField id={id("illustration")} label="Tile photo">
                   <UploadField
                     id={id("illustration")}
                     name="illustration_url"
                     defaultValue={chapter.illustration_url ?? ""}
                   />
                 </FormField>
-                <FormField id={id("credit")} label="Illustration credit">
+                <FormField id={id("credit")} label="Photo credit">
                   <Input
                     id={id("credit")}
                     name="illustration_credit"
@@ -140,8 +140,8 @@ export function ChaptersEditor({
               </div>
               <FormField
                 id={id("audio")}
-                label="Chapter audio"
-                hint="MP3, M4A/AAC, Ogg/Opus, WAV or FLAC up to 50 MB. A chapter in MP3 (64 kbps) is about 7–10 MB; WAV and FLAC are 5–10× larger."
+                label="Topic audio"
+                hint="MP3, M4A/AAC, Ogg/Opus, WAV or FLAC up to 50 MB. A topic in MP3 (64 kbps) is about 7–10 MB; WAV and FLAC are 5–10× larger."
               >
                 <UploadField
                   id={id("audio")}
@@ -157,7 +157,7 @@ export function ChaptersEditor({
                 <RichTextEditor
                   name="body_html"
                   initialHtml={chapter.body_html}
-                  label={`Chapter ${index + 1} text`}
+                  label={`Topic ${index + 1} text`}
                 />
               </div>
             </fieldset>
@@ -166,7 +166,7 @@ export function ChaptersEditor({
 
         {!chapters.length ? (
           <p className="text-[13px] text-[var(--color-ink-muted)]">
-            This entry has no chapters yet — only the introduction will appear on the website.
+            This dossier has no topics yet — only the introduction will appear on the website.
           </p>
         ) : null}
 
@@ -178,9 +178,9 @@ export function ChaptersEditor({
             onClick={() => setChapters((current) => [...current, blank()])}
             disabled={chapters.length >= MAX_CHAPTERS}
           >
-            <Plus size={16} aria-hidden /> Add chapter
+            <Plus size={16} aria-hidden /> Add topic
           </Button>
-          <SubmitButton size="sm">Save chapters</SubmitButton>
+          <SubmitButton size="sm">Save topics</SubmitButton>
         </div>
       </ActionForm>
     </section>

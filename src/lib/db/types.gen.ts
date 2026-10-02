@@ -283,9 +283,12 @@ export type Database = {
           cover_credit: string | null
           cover_url: string | null
           created_at: string
+          geo_summary: string | null
           id: string
           kind: string
           locale: string
+          noindex: boolean
+          og_image_url: string | null
           owner_id: string | null
           publish_at: string | null
           published_on: string | null
@@ -294,6 +297,9 @@ export type Database = {
           review_note: string | null
           scheduled_by: string | null
           search: unknown
+          seo_description: string | null
+          seo_keywords: string[]
+          seo_title: string | null
           slug: string
           special_slug: string | null
           status: string
@@ -314,9 +320,12 @@ export type Database = {
           cover_credit?: string | null
           cover_url?: string | null
           created_at?: string
+          geo_summary?: string | null
           id?: string
           kind?: string
           locale?: string
+          noindex?: boolean
+          og_image_url?: string | null
           owner_id?: string | null
           publish_at?: string | null
           published_on?: string | null
@@ -325,6 +334,9 @@ export type Database = {
           review_note?: string | null
           scheduled_by?: string | null
           search?: unknown
+          seo_description?: string | null
+          seo_keywords?: string[]
+          seo_title?: string | null
           slug: string
           special_slug?: string | null
           status?: string
@@ -345,9 +357,12 @@ export type Database = {
           cover_credit?: string | null
           cover_url?: string | null
           created_at?: string
+          geo_summary?: string | null
           id?: string
           kind?: string
           locale?: string
+          noindex?: boolean
+          og_image_url?: string | null
           owner_id?: string | null
           publish_at?: string | null
           published_on?: string | null
@@ -356,6 +371,9 @@ export type Database = {
           review_note?: string | null
           scheduled_by?: string | null
           search?: unknown
+          seo_description?: string | null
+          seo_keywords?: string[]
+          seo_title?: string | null
           slug?: string
           special_slug?: string | null
           status?: string
@@ -519,6 +537,38 @@ export type Database = {
           },
         ]
       }
+      entry_faq: {
+        Row: {
+          answer: string
+          entry_id: string
+          id: string
+          position: number
+          question: string
+        }
+        Insert: {
+          answer: string
+          entry_id: string
+          id?: string
+          position: number
+          question: string
+        }
+        Update: {
+          answer?: string
+          entry_id?: string
+          id?: string
+          position?: number
+          question?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entry_faq_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       entry_revisions: {
         Row: {
           entry_id: string
@@ -561,6 +611,42 @@ export type Database = {
             columns: ["saved_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      entry_tile_notes: {
+        Row: {
+          body_html: string
+          entry_id: string
+          tile_id: string
+          updated_at: string
+        }
+        Insert: {
+          body_html?: string
+          entry_id: string
+          tile_id: string
+          updated_at?: string
+        }
+        Update: {
+          body_html?: string
+          entry_id?: string
+          tile_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entry_tile_notes_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "entry_tile_notes_tile_id_fkey"
+            columns: ["tile_id"]
+            isOneToOne: false
+            referencedRelation: "learn_more_tiles"
             referencedColumns: ["id"]
           },
         ]
@@ -960,6 +1046,56 @@ export type Database = {
             columns: ["role_id"]
             isOneToOne: false
             referencedRelation: "roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learn_more_tiles: {
+        Row: {
+          description: string
+          entry_id: string | null
+          icon: string
+          id: string
+          image_credit: string | null
+          image_url: string | null
+          label: string
+          legacy_kind: string | null
+          position: number
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          description?: string
+          entry_id?: string | null
+          icon?: string
+          id?: string
+          image_credit?: string | null
+          image_url?: string | null
+          label: string
+          legacy_kind?: string | null
+          position?: number
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          description?: string
+          entry_id?: string | null
+          icon?: string
+          id?: string
+          image_credit?: string | null
+          image_url?: string | null
+          label?: string
+          legacy_kind?: string | null
+          position?: number
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learn_more_tiles_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "entries"
             referencedColumns: ["id"]
           },
         ]
@@ -1413,11 +1549,12 @@ export type Database = {
           entry_id: string | null
           id: string
           image_url: string | null
-          kind: string
+          kind: string | null
           position: number
           region_slug: string | null
           source: string
           special_slug: string | null
+          tile_id: string | null
           title: string
           url: string
         }
@@ -1426,11 +1563,12 @@ export type Database = {
           entry_id?: string | null
           id?: string
           image_url?: string | null
-          kind: string
+          kind?: string | null
           position?: number
           region_slug?: string | null
           source?: string
           special_slug?: string | null
+          tile_id?: string | null
           title: string
           url: string
         }
@@ -1439,11 +1577,12 @@ export type Database = {
           entry_id?: string | null
           id?: string
           image_url?: string | null
-          kind?: string
+          kind?: string | null
           position?: number
           region_slug?: string | null
           source?: string
           special_slug?: string | null
+          tile_id?: string | null
           title?: string
           url?: string
         }
@@ -1468,6 +1607,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "special_regions"
             referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "resources_tile_id_fkey"
+            columns: ["tile_id"]
+            isOneToOne: false
+            referencedRelation: "learn_more_tiles"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1866,7 +2012,9 @@ export type Database = {
         Args: { p_special: string }
         Returns: boolean
       }
+      can_read_entry: { Args: { p_entry: string }; Returns: boolean }
       can_read_unpublished: { Args: { p_owner: string }; Returns: boolean }
+      can_write_entry: { Args: { p_entry: string }; Returns: boolean }
       claim_invitation: { Args: never; Returns: string }
       create_entry_translation: {
         Args: { p_entry: string; p_locale: string }

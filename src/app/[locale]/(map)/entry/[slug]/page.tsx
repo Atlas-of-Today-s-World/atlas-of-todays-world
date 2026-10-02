@@ -8,6 +8,7 @@ import { getAtlas } from "@/features/geography/queries";
 import { localeFrom } from "@/features/i18n/request";
 import { absoluteUrl, alternates, breadcrumbJsonLd } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
+import { SEO_DESCRIPTION_MAX } from "@/features/entries/constants";
 
 // true, so an entry published in the admin shows up immediately, without a new build.
 export const dynamicParams = true;
@@ -15,6 +16,16 @@ export const dynamicParams = true;
 export async function generateStaticParams() {
   const entries = await getEncyclopediaEntries();
   return entries.map((item) => ({ slug: item.slug }));
+}
+
+/**
+ * Default meta description: the summary, else the summary bullets, cut at a
+ * word boundary to what search engines show (~160 characters).
+ */
+function seoDescription(item: { summary: string; summaryPoints: string[] }) {
+  const text = (item.summary || item.summaryPoints.join(" ")).replace(/\s+/g, " ").trim();
+  if (text.length <= SEO_DESCRIPTION_MAX) return text;
+  return `${text.slice(0, SEO_DESCRIPTION_MAX - 1).replace(/\s+\S*$/, "")}…`;
 }
 
 export async function generateMetadata({
@@ -26,15 +37,22 @@ export async function generateMetadata({
   const locale = await localeFrom(params);
   const item = await getEncyclopediaEntry(slug, locale);
   if (!item) return {};
+  // The writer's SEO fields win; otherwise defaults derived from the article.
+  const title = item.seo.title ?? item.title;
+  const description = item.seo.description ?? seoDescription(item);
+  const image = item.seo.image ?? item.hero;
   return {
-    title: item.title,
-    description: item.summary,
+    title,
+    description,
+    keywords: item.seo.keywords.length ? item.seo.keywords : undefined,
+    robots: item.seo.noindex ? { index: false, follow: true } : undefined,
     // Without a translation /cs is a copy of the original — the canonical URL is the original's.
     alternates: alternates(`/entry/${item.slug}`, item.locale, item.languages),
     openGraph: {
       type: "article",
-      title: `${item.title} — Atlas of Today's World`,
-      description: item.summary,
+      title: `${title} — Atlas of Today's World`,
+      description,
+      images: image ? [{ url: image }] : undefined,
       url: absoluteUrl(`/entry/${item.slug}`),
       publishedTime: item.published,
       modifiedTime: item.updated ?? item.published,
@@ -75,10 +93,14 @@ export default async function EntryPage({
           {
             "@context": "https://schema.org",
             "@type": "Article",
-            headline: item.title,
-            description: item.summary,
-            abstract: item.summaryPoints.length ? item.summaryPoints.join(" ") : undefined,
-            image: item.hero ? [item.hero] : undefined,
+            headline: item.seo.title ?? item.title,
+            description: item.seo.description ?? seoDescription(item),
+            // GEO: a self-contained answer engines can quote, else the summary bullets.
+            abstract:
+              item.seo.geoSummary ??
+              (item.summaryPoints.length ? item.summaryPoints.join(" ") : undefined),
+            keywords: item.seo.keywords.length ? item.seo.keywords.join(", ") : undefined,
+            image: [item.seo.image, item.hero].filter(Boolean),
             articleSection: item.category,
             datePublished: item.published,
             dateModified: item.updated ?? item.published,
@@ -97,7 +119,7 @@ export default async function EntryPage({
             hasPart: item.chapters.map((chapter, index) => ({
               "@type": "WebPageElement",
               name: chapter.title,
-              url: absoluteUrl(`/entry/${item.slug}#chapter-${index + 1}`),
+              url: absoluteUrl(`/entry/${item.slug}#topic-${index + 1}`),
               audio: chapter.audio
                 ? { "@type": "AudioObject", contentUrl: chapter.audio, name: chapter.title }
                 : undefined,
@@ -108,6 +130,19 @@ export default async function EntryPage({
               url: absoluteUrl(`/country/${country.slug}`),
             })),
           },
+          ...(item.faq.length
+            ? [
+                {
+                  "@context": "https://schema.org",
+                  "@type": "FAQPage",
+                  mainEntity: item.faq.map((faq) => ({
+                    "@type": "Question",
+                    name: faq.question,
+                    acceptedAnswer: { "@type": "Answer", text: faq.answer },
+                  })),
+                },
+              ]
+            : []),
           breadcrumbJsonLd([
             { name: "Atlas of Today's World", path: "/" },
             ...(region ? [{ name: region.name, path: `/region/${region.slug}` }] : []),

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { NEWS_CATEGORIES } from "@/lib/content-types";
 import {
   blankToUndefined,
+  httpsUrl,
   iso3,
   optionalHttpsUrl,
   optionalNumber,
@@ -10,6 +11,7 @@ import {
   text,
   uuid,
 } from "@/lib/validation/common";
+import { GEO_SUMMARY_MAX, SEO_DESCRIPTION_MAX, SEO_TITLE_MAX, TILE_ICONS } from "./constants";
 
 /** Text with one item per line → list of non-empty lines (trim removes CR). */
 const lines = (value: unknown) =>
@@ -107,3 +109,62 @@ export const STATUS_LABEL: Record<EntryStatus, string> = {
   published: "Published",
   planned: "Scheduled",
 };
+
+/** A learn-more tile: default (no entry) or of one dossier — limits as `learn_more_tiles`. */
+export const TileInput = z.object({
+  id: z.preprocess(blankToUndefined, uuid.optional()),
+  entry_id: z.preprocess(blankToUndefined, uuid.optional()),
+  slug: z.preprocess(blankToUndefined, slug(60).optional()),
+  label: requiredText(60),
+  description: text(200).default(""),
+  icon: z.enum(TILE_ICONS),
+  image_url: optionalHttpsUrl,
+  image_credit: text(300).default(""),
+  position: optionalNumber(z.number().int().min(0).max(99)),
+});
+export type TileInput = z.infer<typeof TileInput>;
+
+/** One comma- or line-separated list → trimmed, de-duplicated keywords. */
+const keywords = z.preprocess(
+  (value) =>
+    typeof value === "string"
+      ? [
+          ...new Set(
+            value
+              .split(/[,\n]/)
+              .map((word) => word.trim())
+              .filter(Boolean),
+          ),
+        ]
+      : value,
+  z.array(text(60)).max(12, "At most 12 keywords."),
+);
+
+/** SEO & GEO overrides of a dossier — empty means "use the default". */
+export const SeoInput = z.object({
+  entry_id: uuid,
+  seo_title: text(SEO_TITLE_MAX).default(""),
+  seo_description: text(SEO_DESCRIPTION_MAX).default(""),
+  og_image_url: optionalHttpsUrl,
+  seo_keywords: keywords.default([]),
+  geo_summary: text(GEO_SUMMARY_MAX).default(""),
+  noindex: z.preprocess((value) => value === "on", z.boolean()),
+});
+
+/** A link inside a learn-more tile (same limits as portrait resources). */
+const TileLink = z.object({
+  title: requiredText(200),
+  source: text(120).default(""),
+  description: text(600).default(""),
+  url: httpsUrl,
+  image_url: optionalHttpsUrl,
+});
+
+/** Learn-more content of one dossier: links per tile (notes come as rich-text fields). */
+export const LearnMoreInput = z
+  .array(z.object({ tile_id: uuid, links: z.array(TileLink).max(50) }))
+  .max(30)
+  .refine(
+    (tiles) => tiles.reduce((sum, tile) => sum + tile.links.length, 0) <= 50,
+    "A dossier holds at most 50 links.",
+  );

@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Trash2 } from "lucide-react";
+import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { can, sectionAccess } from "@/features/auth/access";
 import { listAuthors } from "@/features/authors/editorial";
-import { saveEntryResources } from "@/features/entries/actions";
+import { deleteTile, saveEntryFaq } from "@/features/entries/actions";
 import { ChaptersEditor } from "@/features/entries/components/ChaptersEditor";
+import { LearnMoreEditor } from "@/features/entries/components/LearnMoreEditor";
+import { SeoForm } from "@/features/entries/components/SeoForm";
+import { TileForm } from "@/features/entries/components/TileForm";
 import { LanguageVersions } from "@/features/entries/components/LanguageVersions";
 import { DEFAULT_LOCALE, isLocale, localePath } from "@/features/i18n/config";
 import { EntryForm } from "@/features/entries/components/EntryForm";
@@ -23,17 +28,56 @@ import {
 } from "@/features/entries/editorial";
 import { getPickerOptions } from "@/features/geography/queries";
 import { CollectionEditor } from "@/features/portraits/components/CollectionEditor";
+import { cn } from "@/lib/cn";
 import { uuid } from "@/lib/validation/common";
 import { createServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Edit article" };
+
+/** Sections of a dossier's editor, one per tab (`?tab=`). */
+const TABS = [
+  { key: "article", label: "Article" },
+  { key: "topics", label: "Topics" },
+  { key: "learn-more", label: "Learn more" },
+  { key: "seo", label: "SEO & GEO" },
+] as const;
+type Tab = (typeof TABS)[number]["key"];
+
+function DossierTabs({ id, current }: { id: string; current: Tab }) {
+  return (
+    <nav aria-label="Dossier sections" className="border-b border-[var(--color-line)]">
+      <ul className="-mb-px flex flex-wrap gap-1">
+        {TABS.map((tab) => (
+          <li key={tab.key}>
+            <Link
+              href={
+                tab.key === "article"
+                  ? `/admin/content/${id}`
+                  : `/admin/content/${id}?tab=${tab.key}`
+              }
+              aria-current={tab.key === current ? "page" : undefined}
+              className={cn(
+                "inline-flex min-h-11 items-center border-b-2 px-3 text-[13.5px] font-medium transition",
+                tab.key === current
+                  ? "border-[var(--color-accent)] text-[var(--color-ink)]"
+                  : "border-transparent text-[var(--color-ink-muted)] hover:text-[var(--color-ink)]",
+              )}
+            >
+              {tab.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
 
 export default async function EditEntryPage({
   params,
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ saved?: string; translation?: string }>;
+  searchParams: Promise<{ saved?: string; translation?: string; tab?: string }>;
 }) {
   const access = await sectionAccess("news");
   if (!access) return <NoAccess />;
@@ -59,7 +103,10 @@ export default async function EditEntryPage({
     ]);
   const canApprove = approve.data === true;
   const canEdit = edit.data === true && (entry.status !== "published" || canApprove);
-  const { saved, translation } = await searchParams;
+  const { saved, translation, tab: tabParam } = await searchParams;
+  const tab: Tab =
+    isEntry && TABS.some((item) => item.key === tabParam) ? (tabParam as Tab) : "article";
+  const ownTiles = parts?.tiles.filter((tile) => tile.entry_id === entry.id) ?? [];
 
   return (
     <>
@@ -93,17 +140,91 @@ export default async function EditEntryPage({
       <div className="grid gap-10 xl:grid-cols-[1fr_20rem]">
         <div className="grid content-start gap-6">
           {published ? <VersionDiff before={published} after={entry} /> : null}
+          {isEntry ? <DossierTabs id={entry.id} current={tab} /> : null}
           {canEdit ? (
             <>
-              <EntryForm entry={entry} authors={authors} {...options} />
-              {parts ? (
+              {tab === "article" ? (
+                <EntryForm entry={entry} authors={authors} {...options} />
+              ) : null}
+              {parts && tab === "topics" ? (
+                <ChaptersEditor entryId={entry.id} initial={parts.chapters} />
+              ) : null}
+              {parts && tab === "learn-more" ? (
                 <>
-                  <ChaptersEditor entryId={entry.id} initial={parts.chapters} />
+                  <p className="text-[13.5px] text-[var(--color-ink-soft)]">
+                    Tiles on the right half of the dossier. Default tiles appear on every dossier
+                    (manage them in{" "}
+                    <Link
+                      href="/admin/learn-more-tiles"
+                      className="text-[var(--color-link)] underline"
+                    >
+                      Learn-more tiles
+                    </Link>
+                    ); add links or your own text to any of them, or a tile only for this dossier.
+                  </p>
+                  <LearnMoreEditor
+                    entryId={entry.id}
+                    tiles={parts.tiles}
+                    links={parts.links}
+                    notes={parts.notes}
+                  />
+                  <section
+                    aria-labelledby="own-tiles-title"
+                    className="rounded-2xl border border-[var(--color-line)] p-5"
+                  >
+                    <h2 id="own-tiles-title" className="font-display text-[18px] font-bold">
+                      Tiles only for this dossier
+                    </h2>
+                    {ownTiles.map((tile) => (
+                      <details
+                        key={tile.id}
+                        className="mt-4 rounded-xl bg-[var(--color-line)]/25 p-4"
+                      >
+                        <summary className="flex min-h-11 cursor-pointer items-center gap-3 font-medium">
+                          {tile.label}
+                          <span className="ml-auto">
+                            <ConfirmButton
+                              label={`Delete tile ${tile.label}`}
+                              icon={<Trash2 aria-hidden className="size-4" />}
+                              variant="quietDanger"
+                              size="rowIcon"
+                              title={`Delete tile ${tile.label}?`}
+                              body="Its links and text in this dossier are deleted too."
+                              confirm="Delete"
+                              action={deleteTile.bind(null, tile.id)}
+                            />
+                          </span>
+                        </summary>
+                        <div className="mt-3">
+                          <TileForm tile={tile} entryId={entry.id} />
+                        </div>
+                      </details>
+                    ))}
+                    <h3 className="mt-6 text-[13px] font-medium text-[var(--color-ink-soft)]">
+                      Add a tile
+                    </h3>
+                    <div className="mt-2">
+                      <TileForm
+                        tile={null}
+                        entryId={entry.id}
+                        submitLabel="Add tile to this dossier"
+                      />
+                    </div>
+                  </section>
+                </>
+              ) : null}
+              {parts && tab === "seo" ? (
+                <>
+                  <SeoForm
+                    entryId={entry.id}
+                    seo={parts.seo}
+                    defaults={{ title: entry.title, description: entry.summary }}
+                  />
                   <CollectionEditor
-                    save={saveEntryResources}
+                    save={saveEntryFaq}
                     target={{ entry_id: entry.id }}
-                    collection="resources"
-                    initial={parts.resources}
+                    collection="faq"
+                    initial={parts.faq}
                   />
                 </>
               ) : null}
