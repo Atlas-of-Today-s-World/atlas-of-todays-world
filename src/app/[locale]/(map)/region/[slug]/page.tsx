@@ -15,7 +15,17 @@ import { getAtlas } from "@/features/geography/queries";
 import { getRequestLocale, localeFrom } from "@/features/i18n/request";
 import { getPortrait } from "@/features/portraits/queries";
 import { groupStats, population } from "@/lib/region-stats";
-import { absoluteUrl, alternates, breadcrumbJsonLd, geoCoordinates, geoMeta } from "@/lib/seo";
+import { geoMeta } from "@/lib/seo";
+import { pageMetadata } from "@/lib/seo/metadata";
+import {
+  breadcrumbNode,
+  faqNode,
+  graph,
+  groupPlaceNode,
+  ids,
+  pageUrl,
+  webPageNode,
+} from "@/lib/seo/jsonld";
 import { JsonLd } from "@/components/JsonLd";
 
 // true: with false, Next returns 404 after revalidateTag (an admin write) even for
@@ -33,23 +43,17 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const region = (await getAtlas(await localeFrom(params))).regionBySlug.get(slug);
+  const locale = await localeFrom(params);
+  const region = (await getAtlas(locale)).regionBySlug.get(slug);
   if (!region) return {};
-  return {
+  return pageMetadata({
+    locale,
+    path: `/region/${region.slug}`,
     title: region.name,
-    description: region.summary.slice(0, 180),
-    alternates: alternates(`/region/${region.slug}`, await localeFrom(params)),
-    openGraph: {
-      title: `${region.name} — Atlas of Today's World`,
-      description: region.summary.slice(0, 180),
-      url: absoluteUrl(`/region/${region.slug}`),
-    },
-    other: geoMeta({
-      lat: region.center[1],
-      lon: region.center[0],
-      placename: region.name,
-    }),
-  };
+    description: region.summary,
+    ownImage: true,
+    other: geoMeta({ lat: region.center[1], lon: region.center[0], placename: region.name }),
+  });
 }
 
 /**
@@ -62,7 +66,8 @@ export default async function RegionPage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { slug } = await params;
-  const atlas = await getAtlas(await localeFrom(params));
+  const locale = await localeFrom(params);
+  const atlas = await getAtlas(locale);
   const region = atlas.regionBySlug.get(slug);
   if (!region) notFound();
 
@@ -104,46 +109,41 @@ export default async function RegionPage({
       </ContentRail>
 
       <JsonLd
-        data={[
-          {
-            "@context": "https://schema.org",
-            "@type": "Place",
-            "@id": absoluteUrl(`/region/${region.slug}#region`),
+        data={graph(
+          webPageNode({
+            url: pageUrl(`/region/${region.slug}`, locale),
             name: region.name,
             description: region.summary,
-            url: absoluteUrl(`/region/${region.slug}`),
-            image: region.hero ?? undefined,
-            hasMap: absoluteUrl(`/region/${region.slug}`),
-            geo: geoCoordinates(region.center[1], region.center[0]),
-            containsPlace: countries.map((country) => ({
-              "@type": "Country",
-              name: country.name,
-              url: absoluteUrl(`/country/${country.slug}`),
-            })),
+            locale,
+            about: ids.region(region.slug),
+            image: region.hero,
+            breadcrumb: breadcrumbNode(
+              [
+                { name: "Atlas of Today's World", path: "/" },
+                { name: region.name, path: `/region/${region.slug}` },
+              ],
+              locale,
+            ),
+          }),
+          {
+            ...groupPlaceNode({
+              kind: "region",
+              slug: region.slug,
+              name: region.name,
+              description: region.summary,
+              locale,
+              center: region.center,
+              image: region.hero,
+              countries,
+            }),
             subjectOf: newsItems.map((item) => ({
-              "@type": "Article",
+              "@type": "NewsArticle",
               headline: item.title,
-              url: absoluteUrl(`/news/${item.slug}`),
+              url: pageUrl(`/news/${item.slug}`, locale),
             })),
           },
-          ...(dossier.faq?.length
-            ? [
-                {
-                  "@context": "https://schema.org",
-                  "@type": "FAQPage",
-                  mainEntity: dossier.faq.map((item) => ({
-                    "@type": "Question",
-                    name: item.question,
-                    acceptedAnswer: { "@type": "Answer", text: item.answer },
-                  })),
-                },
-              ]
-            : []),
-          breadcrumbJsonLd([
-            { name: "Atlas of Today's World", path: "/" },
-            { name: region.name, path: `/region/${region.slug}` },
-          ]),
-        ]}
+          faqNode(pageUrl(`/region/${region.slug}`, locale), dossier.faq ?? []),
+        )}
       />
     </>
   );

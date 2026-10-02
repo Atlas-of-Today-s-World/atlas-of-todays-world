@@ -12,7 +12,10 @@ import { GOAL, MEMBERSHIP_PATH } from "@/features/membership/config";
 import { getPatronStats, type PatronStats } from "@/features/membership/queries";
 import { cn } from "@/lib/cn";
 import { formatEuro, formatNumber, formatPercent } from "@/lib/format";
-import { alternates } from "@/lib/seo";
+import { JsonLd } from "@/components/JsonLd";
+import { ORGANIZATION } from "@/config/organization";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { breadcrumbNode, faqNode, graph, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 
 type Params = { params: Promise<{ locale: string }> };
 
@@ -22,12 +25,13 @@ const JOIN_ID = "join";
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const locale = await localeFrom(params);
   const t = getMessages(locale).patrons;
-  return {
+  return pageMetadata({
+    locale,
+    path: MEMBERSHIP_PATH,
     title: t.title,
     description: t.description,
-    alternates: alternates(MEMBERSHIP_PATH, locale),
-    openGraph: { title: t.title, description: t.description },
-  };
+    ownImage: true,
+  });
 }
 
 /** The original site's faint world map, self-hosted (public/brand). */
@@ -218,6 +222,41 @@ export default async function MembershipPage({ params }: Params) {
           </section>
         </div>
       </div>
+
+      <JsonLd
+        data={graph(
+          {
+            ...webPageNode({
+              url: pageUrl(MEMBERSHIP_PATH, locale),
+              name: t.title,
+              description: t.description,
+              locale,
+              about: ids.organization,
+              breadcrumb: breadcrumbNode(
+                [
+                  { name: "Atlas of Today's World", path: "/" },
+                  { name: t.title, path: MEMBERSHIP_PATH },
+                ],
+                locale,
+              ),
+            }),
+            potentialAction: {
+              "@type": "DonateAction",
+              name: t.heroCta,
+              target: pageUrl(MEMBERSHIP_PATH, locale),
+              recipient: { "@id": ids.organization },
+            },
+          },
+          faqNode(
+            pageUrl(MEMBERSHIP_PATH, locale),
+            // Plain text for robots: the {email} placeholder filled in, **bold** markers dropped.
+            t.faq.map((item) => ({
+              question: item.question,
+              answer: item.answer.replace(/\{email\}/g, ORGANIZATION.email).replace(/\*\*/g, ""),
+            })),
+          ),
+        )}
+      />
 
       {/* Closing band with the same donation card. */}
       <section

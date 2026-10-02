@@ -4,7 +4,7 @@ import MapFocus from "@/components/map/MapFocus";
 import { SectionLabel } from "@/components/atlas/ui";
 import type { Atlas } from "@/features/geography/types";
 import { getT } from "@/features/i18n/request";
-import { cssBackgroundImage } from "@/lib/security/urls";
+import { safeUrl } from "@/lib/security/urls";
 import type { EntrySummary } from "../queries";
 
 /**
@@ -31,7 +31,7 @@ export function ArticleFrame({
   children: React.ReactNode;
 }) {
   const region = item.region ? atlas.regionBySlug.get(item.region) : undefined;
-  const hero = cssBackgroundImage(item.hero);
+  const hero = safeUrl(item.hero);
 
   return (
     <>
@@ -48,11 +48,16 @@ export function ArticleFrame({
         <article lang={lang}>
           {hero ? (
             <figure className="m-0">
-              <div
-                className="h-52 w-full bg-cover bg-center"
-                style={{ backgroundImage: hero }}
-                role="img"
-                aria-label={item.title}
+              {/* A real <img>: image search indexes it and the browser finds the LCP early. */}
+              {/* eslint-disable-next-line @next/next/no-img-element -- remote editorial photo, no optimizer (next.config) */}
+              <img
+                src={hero}
+                alt={item.title}
+                width={1200}
+                height={416}
+                fetchPriority="high"
+                decoding="async"
+                className="h-52 w-full object-cover"
               />
               {heroCaption ? (
                 <figcaption className="px-6 pt-2 text-right text-[10.5px] text-[var(--color-ink-muted)] sm:px-10">

@@ -4,7 +4,8 @@ import { getAtlas } from "@/features/geography/queries";
 import Link from "@/components/i18n/Link";
 import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
-import { absoluteUrl, alternates } from "@/lib/seo";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { datasetNode, graph, itemListNode, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { JsonLd } from "@/components/JsonLd";
 
 export async function generateMetadata({
@@ -12,15 +13,14 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  const t = getMessages(await localeFrom(params)).home;
-  return {
-    // `absolute` bypasses the "%s — Atlas of Today's World" template from the root layout,
-    // otherwise the site name would appear twice in the home page title.
-    title: {
-      absolute: t.title,
-    },
+  const locale = await localeFrom(params);
+  const t = getMessages(locale).home;
+  return pageMetadata({
+    locale,
+    path: "/",
+    // `absolute`: the title already carries the site name (no template suffix).
+    title: { absolute: t.title },
     description: t.description,
-    alternates: alternates("/", await localeFrom(params)),
     keywords: [
       "world atlas",
       "interactive globe",
@@ -30,7 +30,7 @@ export async function generateMetadata({
       "political regime map",
       "encyclopedia of the present",
     ],
-  };
+  });
 }
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
@@ -46,64 +46,33 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     }
   }
 
-  // Structured data so search engines understand the map is a hub
-  // for region and country profiles, and can offer search within Atlas.
-  const jsonLd = [
+  // The map is a hub: its page lists the regions and the data layers (Datasets).
+  const url = pageUrl("/", locale);
+  const jsonLd = graph(
+    webPageNode({ url, name: t.title, description: t.description, locale, type: "CollectionPage" }),
     {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "@id": absoluteUrl("/#website"),
-      name: "Atlas of Today's World",
-      alternateName: "Atlas",
-      url: absoluteUrl("/"),
-      inLanguage: "en",
-      publisher: { "@id": absoluteUrl("/#organization") },
-      potentialAction: {
-        "@type": "SearchAction",
-        target: {
-          "@type": "EntryPoint",
-          urlTemplate: absoluteUrl("/search?q={search_term_string}"),
-        },
-        "query-input": "required name=search_term_string",
-      },
+      ...itemListNode(
+        t.regions,
+        regions.map((region) => ({
+          name: region.name,
+          url: pageUrl(`/region/${region.slug}`, locale),
+        })),
+      ),
+      "@id": `${url}#regions`,
     },
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "@id": absoluteUrl("/#organization"),
-      name: "Atlas of Today's World",
-      url: absoluteUrl("/"),
-      logo: absoluteUrl("/icon.svg"),
-      description:
-        "An independent encyclopedia of the present, built around an interactive 3D globe.",
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "ItemList",
-      name: "World regions of the Atlas",
-      numberOfItems: regions.length,
-      itemListElement: regions.map((region, index) => ({
-        "@type": "ListItem",
-        position: index + 1,
-        name: region.name,
-        url: absoluteUrl(`/region/${region.slug}`),
-      })),
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "Dataset",
-      name: "Country indicators of Atlas of Today's World",
-      description: `Latest available values of ${indicators.length} development, governance and environment indicators for the countries of the world.`,
-      url: absoluteUrl("/"),
-      isAccessibleForFree: true,
-      spatialCoverage: { "@type": "Place", name: "World" },
-      variableMeasured: indicators.map((indicator) => ({
-        "@type": "PropertyValue",
+    indicators.map((indicator) =>
+      datasetNode({
+        id: indicator.id,
         name: indicator.label,
-        url: absoluteUrl(`/view/${indicator.id}`),
-      })),
-    },
-  ];
+        description: indicator.description,
+        locale,
+        unit: indicator.unit,
+        latestYear: indicator.latestYear,
+        source: indicator.source,
+        sourceUrl: indicator.sourceUrl,
+      }),
+    ),
+  );
 
   return (
     <>

@@ -12,6 +12,9 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: "#070b16",
     theme_color: "#0a1020",
     categories: ["education", "news", "reference"],
-    icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" }],
+    icons: [
+      { src: "/icon.svg", sizes: "any", type: "image/svg+xml" },
+      { src: "/logo.png", sizes: "512x512", type: "image/png" },
+    ],
   };
 }

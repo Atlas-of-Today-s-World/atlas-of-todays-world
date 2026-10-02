@@ -1781,3 +1781,31 @@ test("dossier: learn-more tiles, tile notes, FAQ and SEO follow the dossier's ri
     ),
   );
 });
+
+test("author profiles: slug from the name, unique, stable on rename, readable by anon", async () => {
+  const first = await one(
+    "insert into authors (name) values ('Jiří Nováková-Šťastná') returning id, slug",
+  );
+  assert.equal(first.slug, "jiri-novakova-stastna");
+  const second = await one(
+    "insert into authors (name) values ('Jiří Nováková Šťastná') returning slug",
+  );
+  assert.equal(second.slug, "jiri-novakova-stastna-2");
+  const odd = await one("insert into authors (name) values ('!!!') returning slug");
+  assert.equal(odd.slug, "author");
+
+  // Renaming keeps the URL; clearing the slug regenerates it from the new name.
+  const slugOf = async () => (await one("select slug from authors where id = $1", [first.id])).slug;
+  await q("update authors set name = 'Jana Dvořáková' where id = $1", [first.id]);
+  assert.equal(await slugOf(), "jiri-novakova-stastna");
+  await q("update authors set slug = null where id = $1", [first.id]);
+  assert.equal(await slugOf(), "jana-dvorakova");
+  await refused(q("update authors set slug = 'Not A Slug' where id = $1", [first.id]), /check/);
+
+  await as(null, async () => {
+    const row = await one("select slug, name from authors where id = $1", [first.id]);
+    assert.equal(row.slug, "jana-dvorakova");
+    await refused(q("select profile_id from authors limit 1"), /permission denied/);
+    await refused(q("select slugify_text('x')"), /permission denied/);
+  });
+});

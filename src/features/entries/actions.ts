@@ -15,7 +15,8 @@ import {
 } from "@/lib/actions";
 import { tags } from "@/lib/cache/tags";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
-import { DEFAULT_LOCALE, isLocale } from "@/features/i18n/config";
+import { DEFAULT_LOCALE, isLocale, localePath } from "@/features/i18n/config";
+import { notifyIndexNow } from "@/lib/seo/indexnow";
 import { requiredText, slug as slugSchema, slugify, uuid } from "@/lib/validation/common";
 import { COLLECTIONS } from "@/features/portraits/schema";
 import {
@@ -36,6 +37,16 @@ function refresh(slug?: string | null, region?: string | null, issue?: string | 
   if (slug) updateTag(tags.entry(slug));
   if (region) updateTag(tags.portrait("region", region));
   if (issue) updateTag(tags.portrait("issue", issue));
+}
+
+/**
+ * After the response, tells IndexNow engines (Bing → ChatGPT search, Seznam…)
+ * that the article's page changed, appeared or disappeared (ADR-021).
+ */
+function pingSearchEngines(row: { slug: string; kind: string; locale: string }) {
+  const locale = isLocale(row.locale) ? row.locale : DEFAULT_LOCALE;
+  const path = localePath(locale, `/${row.kind === "entry" ? "entry" : "news"}/${row.slug}`);
+  notifyIndexNow([path]);
 }
 
 /**
@@ -107,7 +118,7 @@ export async function saveEntry(_prev: ActionState, formData: FormData): Promise
   const countryError = await syncCountries(supabase, entryId, countries);
   if (countryError) return countryError;
 
-  if (status === "published") refresh(row.slug, row.region_slug, row.special_slug);
+  if (status === "published") await refreshEntry(supabase, entryId, true);
   if (!id) redirect(`/admin/content/${entryId}?saved=1`);
   return { ok: true, message: "Saved.", id: entryId };
 }
@@ -167,11 +178,12 @@ async function transition(fn: Transition, id: string): Promise<ActionState> {
 async function refreshEntry(supabase: Client, id: string, onlyPublished = false) {
   const { data } = await supabase
     .from("entries")
-    .select("slug, status, region_slug, special_slug")
+    .select("slug, status, region_slug, special_slug, kind, locale")
     .eq("id", id)
     .maybeSingle();
   if (onlyPublished && data?.status !== "published") return;
   refresh(data?.slug, data?.region_slug, data?.special_slug);
+  if (data) pingSearchEngines(data);
 }
 
 type Client = NonNullable<Awaited<ReturnType<typeof signedIn>>>["supabase"];
@@ -487,7 +499,7 @@ export async function deleteEntry(id: string): Promise<ActionState> {
     .from("entries")
     .delete()
     .eq("id", id)
-    .select("slug, status, region_slug, special_slug");
+    .select("slug, status, region_slug, special_slug, kind, locale");
   if (error) return failed(error);
   if (!data.length)
     return {
@@ -495,8 +507,10 @@ export async function deleteEntry(id: string): Promise<ActionState> {
       error: "The article can't be deleted (no permission or it no longer exists).",
     };
   const [removed] = data;
-  if (removed?.status === "published")
+  if (removed?.status === "published") {
     refresh(removed.slug, removed.region_slug, removed.special_slug);
+    pingSearchEngines(removed);
+  }
   return { ok: true, message: "Deleted." };
 }
 
@@ -530,11 +544,12 @@ export async function restoreRevision(entryId: string, revisionId: number): Prom
       cover_url: snapshot.cover_url,
     })
     .eq("id", entryId)
-    .select("slug, status, region_slug, special_slug")
+    .select("slug, status, region_slug, special_slug, kind, locale")
     .single();
   if (updateError) return failed(updateError);
   if (updated.status === "published") {
     refresh(updated.slug, updated.region_slug, updated.special_slug);
+    pingSearchEngines(updated);
   }
   return { ok: true, message: "Restored from history." };
 }

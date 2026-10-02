@@ -1,13 +1,21 @@
 import { EnglishOnly } from "@/components/i18n/EnglishOnly";
 import { localeFrom } from "@/features/i18n/request";
 import type { Metadata } from "next";
+import { englishOnlyMetadata } from "@/lib/seo/metadata";
 import Link from "@/components/i18n/Link";
 import { ContactLink } from "@/components/atlas/ContactLink";
 
-export const metadata: Metadata = {
-  title: "Privacy policy",
-  description: "What personal data Atlas of Today's World processes, why, and your rights.",
-};
+const TITLE = "Privacy policy";
+const DESCRIPTION = "What personal data Atlas of Today's World processes, why, and your rights.";
+
+/** English only for now: /cs/privacy canonicalizes to the English original. */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  return englishOnlyMetadata(await localeFrom(params), "/privacy", TITLE, DESCRIPTION);
+}
 
 /**
  * Privacy policy (F5, SEC-11). Describes only what the app actually

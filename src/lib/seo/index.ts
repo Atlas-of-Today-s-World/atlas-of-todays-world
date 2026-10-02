@@ -1,6 +1,6 @@
 import { DEFAULT_LOCALE, LOCALES, localePath, type Locale } from "@/features/i18n/config";
 import type { Metadata } from "next";
-import { SITE_URL } from "./site";
+import { SITE_URL } from "@/lib/site";
 
 export function absoluteUrl(path: string): string {
   return new URL(path, SITE_URL).toString();
@@ -30,7 +30,7 @@ export function geoMeta(input: {
   return out;
 }
 
-/** Language variants. English only for now, but hreflang is ready. */
+/** Canonical URL and hreflang of a page in its language versions. */
 export function alternates(
   path: string,
   locale: Locale = DEFAULT_LOCALE,
@@ -44,37 +44,12 @@ export function alternates(
     canonical: localePath(locale, path),
     languages: {
       ...Object.fromEntries(available.map((item) => [item, localePath(item, path)])),
-      "x-default": path,
+      // English if the page has it, otherwise its only/first language.
+      "x-default": localePath(
+        available.includes(DEFAULT_LOCALE) ? DEFAULT_LOCALE : (available[0] ?? locale),
+        path,
+      ),
     },
-  };
-}
-
-export interface Crumb {
-  name: string;
-  path: string;
-}
-
-/** Breadcrumbs for bots – Google builds the result path from them. */
-export function breadcrumbJsonLd(crumbs: Crumb[]) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: crumbs.map((crumb, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: crumb.name,
-      item: absoluteUrl(crumb.path),
-    })),
-  };
-}
-
-/** Coordinates in the shape schema.org understands. */
-export function geoCoordinates(lat: number | null, lon: number | null) {
-  if (lat === null || lon === null) return undefined;
-  return {
-    "@type": "GeoCoordinates" as const,
-    latitude: Number(lat.toFixed(4)),
-    longitude: Number(lon.toFixed(4)),
   };
 }
 

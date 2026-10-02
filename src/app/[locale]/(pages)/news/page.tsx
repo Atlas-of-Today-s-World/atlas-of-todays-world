@@ -4,7 +4,9 @@ import { getEntries } from "@/features/entries/queries";
 import { getAtlas } from "@/features/geography/queries";
 import { format, getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
-import { alternates } from "@/lib/seo";
+import { JsonLd } from "@/components/JsonLd";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { breadcrumbNode, graph, itemListNode, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { NEWS_CATEGORIES } from "@/lib/content-types";
 
 type Params = { params: Promise<{ locale: string }> };
@@ -12,7 +14,7 @@ type Params = { params: Promise<{ locale: string }> };
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const locale = await localeFrom(params);
   const t = getMessages(locale).newsIndex;
-  return { title: t.title, description: t.description, alternates: alternates("/news", locale) };
+  return pageMetadata({ locale, path: "/news", title: t.title, description: t.description });
 }
 
 export default async function NewsIndexPage({ params }: Params) {
@@ -65,6 +67,36 @@ export default async function NewsIndexPage({ params }: Params) {
           </section>
         );
       })}
+
+      <JsonLd
+        data={graph(
+          webPageNode({
+            url: pageUrl("/news", locale),
+            name: t.heading,
+            description: t.description,
+            locale,
+            type: "CollectionPage",
+            breadcrumb: breadcrumbNode(
+              [
+                { name: "Atlas of Today's World", path: "/" },
+                { name: t.heading, path: "/news" },
+              ],
+              locale,
+            ),
+          }),
+          itemListNode(
+            t.heading,
+            newsItems.map((item) => ({
+              name: item.title,
+              // The canonical URL: this language if the item exists in it, else its original.
+              url: pageUrl(
+                `/news/${item.slug}`,
+                item.languages.includes(locale) ? locale : (item.languages[0] ?? locale),
+              ),
+            })),
+          ),
+        )}
+      />
 
       <section className="mt-12 border-t border-[var(--color-line)] pt-8">
         <h2 className="font-display text-[18px] font-bold">{t.byRegion}</h2>

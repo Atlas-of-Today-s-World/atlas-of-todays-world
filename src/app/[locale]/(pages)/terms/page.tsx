@@ -1,13 +1,21 @@
 import { EnglishOnly } from "@/components/i18n/EnglishOnly";
 import { localeFrom } from "@/features/i18n/request";
 import type { Metadata } from "next";
+import { englishOnlyMetadata } from "@/lib/seo/metadata";
 import Link from "@/components/i18n/Link";
 import { ContactLink } from "@/components/atlas/ContactLink";
 
-export const metadata: Metadata = {
-  title: "Terms of use",
-  description: "The rules for using Atlas of Today's World.",
-};
+const TITLE = "Terms of use";
+const DESCRIPTION = "The rules for using Atlas of Today's World.";
+
+/** English only for now: /cs/terms canonicalizes to the English original. */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  return englishOnlyMetadata(await localeFrom(params), "/terms", TITLE, DESCRIPTION);
+}
 
 /** Terms of use (F5). */
 export default async function TermsPage({ params }: { params: Promise<{ locale: string }> }) {

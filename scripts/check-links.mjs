@@ -99,14 +99,24 @@ async function checkLink(url) {
   return { state: "unknown", detail: String(status) };
 }
 
+/** <loc> URLs of a sitemap, on the checked deployment (the sitemap carries the production domain). */
+async function sitemapLocs(path) {
+  const response = await request(`${SITE}${path}`, "GET");
+  if (!response.ok) throw new Error(`${path} returned ${response.status}`);
+  const xml = await response.text();
+  const locs = [...xml.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g)].map(
+    (match) => SITE + new URL(decodeEntities(match[1])).pathname,
+  );
+  return { index: xml.includes("<sitemapindex"), locs };
+}
+
 async function main() {
-  const sitemap = await request(`${SITE}/sitemap.xml`, "GET");
-  if (!sitemap.ok) throw new Error(`sitemap.xml returned ${sitemap.status}`);
-  const pages = [...(await sitemap.text()).matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g)]
-    .map((match) => decodeEntities(match[1]))
-    // The sitemap may carry the production domain even when checking another deployment.
-    .map((loc) => SITE + new URL(loc).pathname)
-    .slice(0, MAX_PAGES);
+  // /sitemap.xml is an index of child sitemaps (pages, regions, countries, news…).
+  const root = await sitemapLocs("/sitemap.xml");
+  const children = root.index
+    ? await Promise.all(root.locs.map((loc) => sitemapLocs(new URL(loc).pathname)))
+    : [root];
+  const pages = [...new Set(children.flatMap((child) => child.locs))].slice(0, MAX_PAGES);
   console.log(`Pages from sitemap: ${pages.length}`);
 
   /** Link URL → pages it appears on. */

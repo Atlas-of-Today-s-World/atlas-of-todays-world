@@ -1,13 +1,21 @@
 import { EnglishOnly } from "@/components/i18n/EnglishOnly";
 import { localeFrom } from "@/features/i18n/request";
 import type { Metadata } from "next";
+import { englishOnlyMetadata } from "@/lib/seo/metadata";
 import Link from "@/components/i18n/Link";
 import { ContactLink } from "@/components/atlas/ContactLink";
 
-export const metadata: Metadata = {
-  title: "Accessibility",
-  description: "How accessible Atlas of Today's World is, and how to reach us about barriers.",
-};
+const TITLE = "Accessibility";
+const DESCRIPTION = "How accessible Atlas of Today's World is, and how to reach us about barriers.";
+
+/** English only for now: /cs/accessibility canonicalizes to the English original. */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  return englishOnlyMetadata(await localeFrom(params), "/accessibility", TITLE, DESCRIPTION);
+}
 
 /** Accessibility statement (F5, F8). Keep it in line with the actual state. */
 export default async function AccessibilityPage({

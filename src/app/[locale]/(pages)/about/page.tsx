@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
 import { getAtlas } from "@/features/geography/queries";
-import { getMessages } from "@/features/i18n/messages";
+import { format, getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
-import { alternates } from "@/lib/seo";
+import { JsonLd } from "@/components/JsonLd";
+import { ORGANIZATION } from "@/config/organization";
+import { pageMetadata } from "@/lib/seo/metadata";
+import { breadcrumbNode, graph, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 
 type Params = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const locale = await localeFrom(params);
   const t = getMessages(locale).about;
-  return { title: t.title, description: t.description, alternates: alternates("/about", locale) };
+  return pageMetadata({ locale, path: "/about", title: t.title, description: t.description });
 }
 
 export default async function AboutPage({ params }: Params) {
@@ -21,7 +24,10 @@ export default async function AboutPage({ params }: Params) {
       <h1 className="font-display text-[34px] font-bold text-[var(--color-ink)]">{t.title}</h1>
       <p className="mt-4">{t.intro}</p>
 
-      <h2>{t.dataTitle}</h2>
+      <h2 id="mission">{t.missionTitle}</h2>
+      <p>{t.missionText}</p>
+
+      <h2 id="data">{t.dataTitle}</h2>
       <p>{t.dataText}</p>
       <ul>
         {indicators.map((indicator) => (
@@ -33,6 +39,45 @@ export default async function AboutPage({ params }: Params) {
 
       <h2>{t.editorialTitle}</h2>
       <p>{t.editorialText}</p>
+
+      <h2 id="editorial-standards">{t.standardsTitle}</h2>
+      <p>{format(t.standardsText, { email: ORGANIZATION.email })}</p>
+
+      <h2 id="cite">{t.citeTitle}</h2>
+      <p>{t.citeText}</p>
+
+      <h2 id="machine-readable">{t.machineTitle}</h2>
+      <p>{t.machineText}</p>
+
+      <h2 id="publisher">{t.whoTitle}</h2>
+      <p>
+        {format(t.whoText, {
+          legalName: ORGANIZATION.legalName,
+          companyId: ORGANIZATION.companyId,
+          address: `${ORGANIZATION.address.streetAddress}, ${ORGANIZATION.address.postalCode} ${ORGANIZATION.address.addressLocality}`,
+          email: ORGANIZATION.email,
+        })}
+      </p>
+
+      <JsonLd
+        data={graph(
+          webPageNode({
+            url: pageUrl("/about", locale),
+            name: t.title,
+            description: t.description,
+            locale,
+            type: "AboutPage",
+            about: ids.organization,
+            breadcrumb: breadcrumbNode(
+              [
+                { name: "Atlas of Today's World", path: "/" },
+                { name: t.title, path: "/about" },
+              ],
+              locale,
+            ),
+          }),
+        )}
+      />
     </main>
   );
 }

@@ -1,4 +1,5 @@
 import { SafeHtml } from "@/components/atlas/SafeHtml";
+import Link from "@/components/i18n/Link";
 import type { Atlas } from "@/features/geography/types";
 import { getRequestLocale, getT } from "@/features/i18n/request";
 import { format } from "@/features/i18n/messages";
@@ -26,9 +27,27 @@ export function NewsArticle({
     <ArticleFrame item={item} atlas={atlas} banner={banner} lang={item.locale}>
       <p className={META_LINE}>
         <PlaceLinks item={item} atlas={atlas} />
-        {item.author ? <span>{format(t.by, { author: item.author })}</span> : null}
+        {item.author ? (
+          item.authorSlug ? (
+            <Link
+              href={`/authors/${item.authorSlug}`}
+              rel="author"
+              className="font-medium text-[var(--color-link)] hover:underline"
+            >
+              {format(t.by, { author: item.author })}
+            </Link>
+          ) : (
+            <span>{format(t.by, { author: item.author })}</span>
+          )
+        ) : null}
         {item.published ? (
           <time dateTime={item.published}>{formatLongDate(item.published, locale)}</time>
+        ) : null}
+        {/* Freshness is visible, not only in the metadata (E-E-A-T, answer engines). */}
+        {item.updated && item.published && item.updated > item.published ? (
+          <span>
+            {t.updated} <time dateTime={item.updated}>{formatLongDate(item.updated, locale)}</time>
+          </span>
         ) : null}
         {item.readingMinutes ? (
           <span>{format(t.minRead, { minutes: String(item.readingMinutes) })}</span>

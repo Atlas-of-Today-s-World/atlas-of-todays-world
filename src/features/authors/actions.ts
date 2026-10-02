@@ -31,7 +31,8 @@ export async function saveAuthor(_prev: ActionState, formData: FormData): Promis
   if (!id) {
     const { data, error } = await session.supabase
       .from("authors")
-      .insert(row)
+      // Empty slug = the DB generates a unique one from the name (/authors/<slug>).
+      .insert({ ...row, slug: "" })
       .select("id")
       .single();
     if (error) return failed(error);

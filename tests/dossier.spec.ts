@@ -8,6 +8,7 @@ import {
   signIn,
   testEmail,
 } from "./support/accounts";
+import { jsonLdNodes, validateJsonLd } from "../src/lib/seo/jsonld-rules";
 
 /**
  * Dossier (encyclopedia entry): topic tiles and "Learn more" tiles side by
@@ -21,11 +22,23 @@ const run = randomUUID().slice(0, 8);
 const slug = `e2e-dossier-${run}`;
 const title = `E2E dossier ${run}`;
 let entryId = "";
+let authorId = "";
+let authorSlug = "";
 let editor = "";
 
 test.beforeAll(async () => {
   editor = testEmail("dossier");
   await createUser(editor, "content-editor");
+
+  // An author profile (G8): the DB generates the public slug from the name.
+  const { data: author, error: authorError } = await service
+    .from("authors")
+    .insert({ name: `E2E Autorka ${run}`, slug: "", bio: "Geographer of migration routes." })
+    .select("id, slug")
+    .single();
+  if (authorError) throw authorError;
+  authorId = author.id;
+  authorSlug = author.slug;
 
   const { data: entry, error } = await service
     .from("entries")
@@ -38,6 +51,7 @@ test.beforeAll(async () => {
       status: "published",
       published_on: "2026-10-01",
       body_html: "<p>Introduction of the dossier.</p>",
+      author_id: authorId,
       seo_title: `Smuggling explained ${run}`,
       geo_summary: "Migrant smuggling is the paid facilitation of irregular border crossing.",
     })
@@ -77,6 +91,7 @@ test.beforeAll(async () => {
 
 test.afterAll(async () => {
   if (service && entryId) await service.from("entries").delete().eq("id", entryId);
+  if (service && authorId) await service.from("authors").delete().eq("id", authorId);
   await cleanUp();
 });
 
@@ -103,6 +118,34 @@ test("dossier page: topic and learn-more tiles open their panels", async ({ page
 
   const jsonLd = await page.locator('script[type="application/ld+json"]').allTextContents();
   expect(jsonLd.join("")).toContain('"FAQPage"');
+});
+
+test("SEO & GEO: valid Article graph, author profile and a Markdown version", async ({
+  page,
+  request,
+}) => {
+  expect(authorSlug).toBe(`e2e-autorka-${run}`);
+  const html = await (await request.get(`/entry/${slug}`)).text();
+  const data = [
+    ...html.matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g),
+  ].map((block) => JSON.parse((block[1] ?? "").replace(/\\u003c/g, "<")));
+  expect(validateJsonLd(data)).toEqual([]);
+  const article = data.flatMap(jsonLdNodes).find((node) => node["@type"] === "Article");
+  expect(article).toMatchObject({
+    abstract: expect.stringContaining("Migrant smuggling"),
+    author: { "@type": "Person", url: expect.stringContaining(`/authors/${authorSlug}`) },
+  });
+
+  const markdown = await request.get(`/entry/${slug}.md`);
+  expect(markdown.headers()["content-type"]).toContain("text/markdown");
+  expect(await markdown.text()).toContain("Migrant smuggling is the paid facilitation");
+
+  await page.goto(`/entry/${slug}`);
+  await page.getByText(`About the author: E2E Autorka ${run}`).click();
+  await page.getByRole("link", { name: `Articles by E2E Autorka ${run}` }).click();
+  await expect(page).toHaveURL(new RegExp(`/authors/${authorSlug}$`));
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(`E2E Autorka ${run}`);
+  await expect(page.getByRole("link", { name: title })).toBeVisible();
 });
 
 test("a shared link to a topic opens it", async ({ page }) => {
