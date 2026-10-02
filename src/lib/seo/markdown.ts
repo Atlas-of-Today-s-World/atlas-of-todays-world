@@ -60,7 +60,15 @@ function inline(html: string): string {
  * markup and goes too: the result can never contain a tag.
  */
 function stripTags(html: string): string {
-  return html.replace(/<[^>]*>/g, "").replace(/[<>]/g, "");
+  // A character scan rather than a regex: nested leftovers like `<scr<b>ipt>` can't survive it.
+  let out = "";
+  let inTag = false;
+  for (const char of html) {
+    if (char === "<") inTag = true;
+    else if (char === ">") inTag = false;
+    else if (!inTag) out += char;
+  }
+  return out;
 }
 
 /** Table as a Markdown pipe table (first row is the header). */
