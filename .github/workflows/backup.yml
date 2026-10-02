@@ -31,8 +31,8 @@ jobs:
       PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
       RECIPIENT: ${{ vars.BACKUP_AGE_RECIPIENT }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: supabase/setup-cli@v1
+      - uses: actions/checkout@v7
+      - uses: supabase/setup-cli@v3
         with:
           version: latest
       - name: Install age
@@ -56,7 +56,7 @@ jobs:
           tar -C "$work" -czf - schema.sql roles.sql data.sql | age -r "$RECIPIENT" > "atlas-db-$stamp.tar.gz.age"
           rm -rf "$work"
           ls -l atlas-db-*.age
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: atlas-db-backup
           path: atlas-db-*.tar.gz.age
