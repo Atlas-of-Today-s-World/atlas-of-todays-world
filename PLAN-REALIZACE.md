@@ -162,7 +162,7 @@ Dělá se **před** napojením na DB, aby se komponenty přepisovaly jen jednou.
       z jednoho builderu (NGO, WebSite, NewsArticle/Article, Country se `sameAs` Wikidata, Dataset, ProfilePage, FAQ,
       breadcrumbs) ověřovaná v unit i e2e testech, metadata z `pageMetadata` (title ≤ 60, popis ≤ 160, OG/Twitter
       všude, `/cs` bez překladu kanonicky na originál), IndexNow po publikaci, veřejné profily autorů
-      (migrace 20261002000080), O Atlasu s posláním, vydavatelem, redakčními zásadami a citací. PR: (doplní se).
+      (migrace 20261002000080), O Atlasu s posláním, vydavatelem, redakčními zásadami a citací. PR: [#39](https://github.com/Atlas-of-Today-s-World/atlas-of-todays-world/pull/39).
       *Vlastník: Search Console + Bing Webmaster + Seznam Webmaster, `INDEXNOW_KEY` ve Vercelu, Wikidata — viz `docs/seo-geo-audit.md`.*
 
 ---
