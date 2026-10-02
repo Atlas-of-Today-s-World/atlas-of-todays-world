@@ -205,7 +205,16 @@ test.describe("manual indicator value", () => {
       .eq("country_iso3", country)
       .maybeSingle();
     if (error) throw error;
-    original = data;
+    // A cancelled CI run can leave its manual e2e value behind; never treat that
+    // leftover as the original row (afterAll would restore it and later runs fail).
+    original = String(data?.source_note ?? "").startsWith("e2e zdroj ") ? null : data;
+    if (!original && data) {
+      await service
+        .from("indicator_values")
+        .delete()
+        .eq("indicator_id", indicator)
+        .eq("country_iso3", country);
+    }
   });
 
   test.afterAll(async () => {
