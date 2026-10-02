@@ -51,15 +51,16 @@ function visible(html) {
     .replace(/\s+/g, " ");
 }
 
-/** Extracts all structured-data blocks from a page. */
+/** Extracts all structured-data nodes from a page (arrays and `@graph` flattened). */
 function jsonLd(html) {
   const blocks = [
     ...html.matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g),
   ];
-  return blocks.flatMap((block) => {
-    const parsed = JSON.parse(block[1].replace(/\\u003c/g, "<"));
-    return Array.isArray(parsed) ? parsed : [parsed];
-  });
+  const flat = (data) =>
+    (Array.isArray(data) ? data : [data]).flatMap((node) =>
+      node?.["@graph"] ? flat(node["@graph"]) : [node],
+    );
+  return blocks.flatMap((block) => flat(JSON.parse(block[1].replace(/\\u003c/g, "<"))));
 }
 
 async function main() {
@@ -185,15 +186,91 @@ async function main() {
     );
   });
 
-  await check("sitemap knows regions and global issues", async () => {
-    const { body } = await get("/sitemap.xml");
+  await check("sitemap index lists child sitemaps", async () => {
+    const { status, body } = await get("/sitemap.xml");
+    assert(status === 200, `status ${status}`);
+    assert(body.includes("<sitemapindex"), "not a sitemap index");
+    for (const name of ["pages", "regions", "countries", "data", "news"]) {
+      assert(body.includes(`/sitemaps/${name}.xml`), `missing ${name} sitemap`);
+    }
+  });
+
+  await check("sitemap knows regions and global issues, with hreflang", async () => {
+    const { status, headers, body } = await get("/sitemaps/regions.xml");
+    assert(status === 200, `status ${status}`);
+    assert(/xml/.test(headers.get("content-type") ?? ""), "not XML");
     assert(body.includes("/region/middle-east-north-africa"), "missing region");
+    assert(body.includes("/cs/region/middle-east-north-africa"), "missing Czech version");
+    assert(body.includes('hreflang="x-default"'), "missing hreflang");
+    assert(body.includes("<lastmod>"), "missing lastmod");
     assert(!body.includes("/full"), "sitemap still offers the removed /full");
   });
 
-  await check("robots.txt points to the sitemap", async () => {
+  await check("robots.txt: AI crawlers allowed, private paths closed, sitemap", async () => {
     const { body } = await get("/robots.txt");
-    assert(body.toLowerCase().includes("sitemap"), "missing link to the sitemap");
+    for (const bot of [
+      "GPTBot",
+      "OAI-SearchBot",
+      "ClaudeBot",
+      "PerplexityBot",
+      "Google-Extended",
+    ]) {
+      assert(body.includes(`User-Agent: ${bot}`), `missing ${bot}`);
+    }
+    assert(body.includes("Disallow: /api/"), "API not disallowed");
+    assert(body.includes("Disallow: /membership/checkout"), "checkout not disallowed");
+    assert(!/^Host:/m.test(body), "non-standard Host line");
+    assert(/Sitemap: \S+\/sitemap\.xml/.test(body), "missing link to the sitemap");
+  });
+
+  for (const [path, type, marker] of [
+    ["/feed.xml", "application/rss+xml", '<rss version="2.0"'],
+    ["/cs/feed.xml", "application/rss+xml", "<language>cs</language>"],
+    ["/atom.xml", "application/atom+xml", "<feed xmlns"],
+    ["/llms.txt", "text/plain", "# Atlas of Today's World"],
+    ["/cs/llms.txt", "text/plain", "## Regiony světa"],
+    ["/llms-full.txt", "text/plain", "# Country data"],
+    ["/news/sahel-coup-belt.md", "text/markdown", "# The Sahel"],
+  ]) {
+    await check(`${path} is ${type}`, async () => {
+      const { status, headers, body } = await get(path);
+      assert(status === 200, `status ${status}`);
+      assert(headers.get("content-type")?.startsWith(type), `type ${headers.get("content-type")}`);
+      assert(body.includes(marker), `missing ${marker}`);
+    });
+  }
+
+  await check("home links feeds and llms.txt and carries the publisher", async () => {
+    const { body } = await get("/");
+    assert(/rel="alternate" type="application\/rss\+xml"/.test(body), "missing RSS link");
+    assert(body.includes("/llms.txt"), "missing llms.txt link");
+    const nodes = jsonLd(body);
+    assert(
+      nodes.some((node) => node["@type"] === "NGO" && node.logo),
+      "missing Organization (NGO) with logo",
+    );
+    assert(
+      nodes.some((node) => node["@type"] === "WebSite"),
+      "missing WebSite",
+    );
+  });
+
+  await check("news article is a NewsArticle with breadcrumbs", async () => {
+    const nodes = jsonLd((await get("/news/sahel-coup-belt")).body);
+    const article = nodes.find((node) => node["@type"] === "NewsArticle");
+    assert(article?.datePublished && article?.publisher, "incomplete NewsArticle");
+    assert(
+      nodes.some((node) => node["@type"] === "BreadcrumbList"),
+      "missing BreadcrumbList",
+    );
+  });
+
+  await check("preview images are served without a redirect", async () => {
+    const html = (await get("/region/east-asia")).body;
+    const image = /<meta property="og:image" content="([^"]+)"/.exec(html)?.[1];
+    assert(image, "missing og:image");
+    const { status } = await get(new URL(image).pathname + new URL(image).search);
+    assert(status === 200, `og:image returned ${status}`);
   });
 
   process.stdout.write("\nSecurity\n");

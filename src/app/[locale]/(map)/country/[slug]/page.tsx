@@ -9,7 +9,9 @@ import { format, type Messages } from "@/features/i18n/messages";
 import { getRequestLocale, getT, localeFrom } from "@/features/i18n/request";
 import type { Country } from "@/features/geography/types";
 import { formatPopulation } from "@/lib/format";
-import { absoluteUrl, alternates, breadcrumbJsonLd, geoCoordinates, geoMeta } from "@/lib/seo";
+import { geoMeta } from "@/lib/seo";
+import { pageMetadata, pageTitle } from "@/lib/seo/metadata";
+import { breadcrumbNode, countryNode, graph, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { JsonLd } from "@/components/JsonLd";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
 
@@ -60,15 +62,19 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const country = (await getAtlas(await localeFrom(params))).countryBySlug.get(slug);
+  const locale = await localeFrom(params);
+  const country = (await getAtlas(locale)).countryBySlug.get(slug);
   if (!country) return {};
 
   const description = country.profile.summary || fallbackDescription(country, getT().countryText);
 
-  return {
-    title: format(getT().countryCard.title, { name: country.name }),
-    description: description.slice(0, 180),
-    alternates: alternates(`/country/${country.slug}`, await localeFrom(params)),
+  return pageMetadata({
+    locale,
+    path: `/country/${country.slug}`,
+    title: pageTitle(format(getT().countryCard.title, { name: country.name })),
+    description,
+    type: "profile",
+    ownImage: true,
     keywords: [
       country.name,
       country.nameFormal ?? country.name,
@@ -77,19 +83,13 @@ export async function generateMetadata({
       `${country.name} political system`,
       country.region?.name ?? "",
     ].filter(Boolean),
-    openGraph: {
-      type: "profile",
-      title: `${country.name} — Atlas of Today's World`,
-      description: description.slice(0, 180),
-      url: absoluteUrl(`/country/${country.slug}`),
-    },
     other: geoMeta({
       lat: country.labelLat,
       lon: country.labelLon,
       placename: country.name,
       regionCode: country.iso2,
     }),
-  };
+  });
 }
 
 export default async function CountryPage({
@@ -98,7 +98,8 @@ export default async function CountryPage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { slug } = await params;
-  const country = (await getAtlas(await localeFrom(params))).countryBySlug.get(slug);
+  const locale = await localeFrom(params);
+  const country = (await getAtlas(locale)).countryBySlug.get(slug);
   if (!country) notFound();
 
   const newsItems = entriesOfCountry(await getEntries(getRequestLocale()), country.iso3);
@@ -132,57 +133,45 @@ export default async function CountryPage({
       </ContentRail>
 
       <JsonLd
-        data={[
-          {
-            "@context": "https://schema.org",
-            "@type": "Country",
-            "@id": absoluteUrl(`/country/${country.slug}#country`),
+        data={graph(
+          webPageNode({
+            url: pageUrl(`/country/${country.slug}`, locale),
             name: country.name,
-            alternateName: country.nameFormal ?? undefined,
             description,
-            url: absoluteUrl(`/country/${country.slug}`),
-            identifier: [
-              { "@type": "PropertyValue", propertyID: "ISO 3166-1 alpha-3", value: country.iso3 },
-              ...(country.iso2
-                ? [
-                    {
-                      "@type": "PropertyValue",
-                      propertyID: "ISO 3166-1 alpha-2",
-                      value: country.iso2,
-                    },
-                  ]
-                : []),
-            ],
-            geo: geoCoordinates(country.labelLat, country.labelLon),
-            hasMap: absoluteUrl(`/country/${country.slug}`),
-            containedInPlace: region
-              ? {
-                  "@type": "Place",
-                  name: region.name,
-                  url: absoluteUrl(`/region/${region.slug}`),
-                }
-              : undefined,
-            // Indicators as machine-readable values, with source and year.
-            additionalProperty: country.stats.map((stat) => ({
-              "@type": "PropertyValue",
-              name: stat.label,
-              value: stat.raw,
-              unitText: stat.value.replace(/^[\d.,\s]+/, "").trim() || undefined,
-              valueReference: `${stat.source} (${stat.year})`,
-              url: stat.sourceUrl,
-            })),
+            locale,
+            type: "ItemPage",
+            about: ids.country(country.slug),
+            breadcrumb: breadcrumbNode(
+              [
+                { name: "Atlas of Today's World", path: "/" },
+                ...(region ? [{ name: region.name, path: `/region/${region.slug}` }] : []),
+                { name: country.name, path: `/country/${country.slug}` },
+              ],
+              locale,
+            ),
+          }),
+          {
+            ...countryNode({
+              slug: country.slug,
+              iso3: country.iso3,
+              iso2: country.iso2,
+              name: country.name,
+              nameFormal: country.nameFormal,
+              description,
+              lat: country.labelLat,
+              lon: country.labelLon,
+              locale,
+              region,
+              population: country.population,
+              stats: country.stats,
+            }),
             subjectOf: newsItems.map((item) => ({
-              "@type": "Article",
+              "@type": "NewsArticle",
               headline: item.title,
-              url: absoluteUrl(`/news/${item.slug}`),
+              url: pageUrl(`/news/${item.slug}`, locale),
             })),
           },
-          breadcrumbJsonLd([
-            { name: "Atlas of Today's World", path: "/" },
-            ...(region ? [{ name: region.name, path: `/region/${region.slug}` }] : []),
-            { name: country.name, path: `/country/${country.slug}` },
-          ]),
-        ]}
+        )}
       />
     </>
   );

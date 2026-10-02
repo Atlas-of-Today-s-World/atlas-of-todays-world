@@ -163,7 +163,17 @@
     "dataTitle": "Where the data comes from",
     "dataText": "Country borders and names come from Natural Earth. The data layers are imported in bulk from Our World in Data and refreshed with a single command, so a yearly update takes minutes rather than manual editing:",
     "editorialTitle": "Editorial content",
-    "editorialText": "Region portraits, country profiles and news are written by the Atlas team in the Atlas’s own editorial system, where every change goes through review before it is published."
+    "editorialText": "Region portraits, country profiles and news are written by the Atlas team in the Atlas’s own editorial system, where every change goes through review before it is published.",
+    "missionTitle": "Our mission",
+    "missionText": "Atlas of Today’s World helps anyone understand today’s world in its geographic context — free to read, without advertising and without an account. We are a non-profit, non-governmental organization registered in the Czech Republic since 2016, supported by our readers through Atlas Patrons.",
+    "whoTitle": "Who publishes the Atlas",
+    "whoText": "{legalName}, a registered association (spolek) under Czech law, company ID (IČO) {companyId}, {address}. Contact: {email}.",
+    "standardsTitle": "Editorial standards and corrections",
+    "standardsText": "Every article names its author and shows when it was published and last updated. Facts link to their sources, and every number comes with the year and the institution that measured it. Each change is reviewed by an editor before it is published. If you find a mistake, write to {email}: we correct errors openly and update the article’s date.",
+    "citeTitle": "How to cite the Atlas",
+    "citeText": "Atlas of Today’s World, “page title”, page URL (date of access). Data layers can also be cited with their original source, which every page names.",
+    "machineTitle": "For researchers, search engines and AI tools",
+    "machineText": "The Atlas is open to search engines and AI assistants. A Markdown overview for language models is at /llms.txt (full text at /llms-full.txt), every article has a Markdown version (add .md to its address), and new articles appear in our RSS and Atom feeds."
   },
   "patrons": {
     "title": "Atlas Patrons",
@@ -342,7 +352,11 @@
     "faq": "Questions and answers",
     "showTopic": "Topic {number}: {title}",
     "resourcesCount": "{count} resources",
-    "resourcesOne": "1 resource"
+    "resourcesOne": "1 resource",
+    "sources": "Sources and further reading",
+    "editorialTeam": "Atlas editorial team",
+    "citeTitle": "How to cite",
+    "citeText": "Atlas of Today’s World, “{title}”, {url} (accessed {date})."
   },
   "og": {
     "site": "Atlas of Today's World",
@@ -361,7 +375,7 @@
     "errorCode": "Error {digest}"
   },
   "home": {
-    "title": "Atlas of Today's World — an interactive encyclopedia on a 3D globe",
+    "title": "Atlas of Today's World — interactive atlas of every country",
     "description": "Spin the satellite globe, click any country and read its profile: human development, political regime, living conditions and the news behind them.",
     "intro": "An interactive encyclopedia of the present. Explore the world on a 3D satellite globe, switch between data layers such as the Human Development Index, political regime or corruption perceptions, and open the profile of any region or country.",
     "regions": "World regions",
@@ -443,5 +457,36 @@
       "notConnected": "The newsletter is not connected yet.",
       "failed": "Sign-up failed. Try again later."
     }
+  },
+  "authorPage": {
+    "kicker": "Author",
+    "description": "{name} writes for Atlas of Today’s World, the non-profit encyclopedia of the present.",
+    "articles": "Articles by {name}",
+    "none": "No published articles yet."
+  },
+  "seo": {
+    "feedTitle": "Atlas of Today’s World — news and encyclopedia",
+    "feedDescription": "New articles from Atlas of Today’s World, the non-profit encyclopedia of the present: news analysis and encyclopedia dossiers on every world region.",
+    "llmsIntro": "Atlas of Today’s World is published by {legalName}, a non-profit registered association in Prague, Czech Republic, founded in 2016. Everything is free to read without an account.",
+    "llmsUse": "Country, region and global-issue pages combine editorial text with indicators from international sources (UNDP, World Bank, V-Dem, Transparency International and others via Our World in Data); every value states its source and year. Articles show their author, publication date and last update.",
+    "llmsCite": "Cite as: Atlas of Today’s World, “<page title>”, <URL> (accessed <date>).",
+    "llmsFormats": "Languages: English (no prefix) and Czech (/cs/…). Markdown version of any article: add .md to its URL. Full text of all articles: {full}. Feeds: {rss} (RSS) and {atom} (Atom). Sitemap: {sitemap}.",
+    "sectionEntries": "Encyclopedia dossiers",
+    "sectionNews": "News and analysis",
+    "sectionRegions": "World regions",
+    "sectionIssues": "Global issues and country groups",
+    "sectionData": "Data layers (datasets by country)",
+    "sectionAbout": "About the Atlas",
+    "sectionCountries": "Country profiles",
+    "countryData": "Country data: latest values of all indicators",
+    "country": "Country",
+    "dataNote": "{description} Source: {source}; latest data {year}; {count} countries.",
+    "published": "Published",
+    "updated": "Last updated",
+    "author": "Author",
+    "region": "Region",
+    "countries": "Countries",
+    "category": "Category",
+    "publisher": "Publisher"
   }
 }

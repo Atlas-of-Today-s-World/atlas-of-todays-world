@@ -16,7 +16,17 @@ import { countriesOf } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
 import { getRequestLocale, localeFrom } from "@/features/i18n/request";
 import { getPortrait } from "@/features/portraits/queries";
-import { absoluteUrl, alternates, breadcrumbJsonLd, geoCoordinates, geoMeta } from "@/lib/seo";
+import { geoMeta } from "@/lib/seo";
+import { pageMetadata, pageTitle } from "@/lib/seo/metadata";
+import {
+  breadcrumbNode,
+  faqNode,
+  graph,
+  groupPlaceNode,
+  ids,
+  pageUrl,
+  webPageNode,
+} from "@/lib/seo/jsonld";
 import { JsonLd } from "@/components/JsonLd";
 
 // Global Issues are created in the admin, so the route must also handle a slug
@@ -34,24 +44,19 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const region = (await getAtlas(await localeFrom(params))).issueBySlug.get(slug);
+  const locale = await localeFrom(params);
+  const region = (await getAtlas(locale)).issueBySlug.get(slug);
   if (!region) return {};
 
-  return {
-    title: `${region.name} — ${region.subtitle}`,
-    description: region.summary.slice(0, 180),
-    alternates: alternates(`/global-issue/${region.slug}`, await localeFrom(params)),
-    openGraph: {
-      title: `${region.name} — Atlas of Today's World`,
-      description: region.summary.slice(0, 180),
-      url: absoluteUrl(`/global-issue/${region.slug}`),
-    },
-    other: geoMeta({
-      lat: region.center[1],
-      lon: region.center[0],
-      placename: region.name,
-    }),
-  };
+  return pageMetadata({
+    locale,
+    path: `/global-issue/${region.slug}`,
+    // The subtitle only when it fits next to the name (≤ 60 characters with the brand).
+    title: pageTitle(region.name, region.subtitle),
+    description: region.summary,
+    ownImage: true,
+    other: geoMeta({ lat: region.center[1], lon: region.center[0], placename: region.name }),
+  });
 }
 
 export default async function GlobalIssuePage({
@@ -60,10 +65,11 @@ export default async function GlobalIssuePage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { slug } = await params;
-  const atlas = await getAtlas(await localeFrom(params));
+  const locale = await localeFrom(params);
+  const atlas = await getAtlas(locale);
   const region = atlas.issueBySlug.get(slug);
   // Unknown URL: redirect (changed slug), otherwise 404.
-  if (!region) return redirectOrNotFound(`/global-issue/${slug}`, await localeFrom(params));
+  if (!region) return redirectOrNotFound(`/global-issue/${slug}`, locale);
 
   const countries = countriesOf(atlas, region.countries);
   const [entries, encyclopedia, upcoming, dossier] = await Promise.all([
@@ -108,26 +114,35 @@ export default async function GlobalIssuePage({
       </ContentRail>
 
       <JsonLd
-        data={[
-          {
-            "@context": "https://schema.org",
-            "@type": "Place",
+        data={graph(
+          webPageNode({
+            url: pageUrl(`/global-issue/${region.slug}`, locale),
+            name: `${region.name} — ${region.subtitle}`,
+            description: region.summary,
+            locale,
+            about: ids.issue(region.slug),
+            image: region.hero,
+            breadcrumb: breadcrumbNode(
+              [
+                { name: "Atlas of Today's World", path: "/" },
+                { name: region.name, path: `/global-issue/${region.slug}` },
+              ],
+              locale,
+            ),
+          }),
+          groupPlaceNode({
+            kind: "issue",
+            slug: region.slug,
             name: region.name,
             alternateName: region.subtitle,
             description: region.summary,
-            url: absoluteUrl(`/global-issue/${region.slug}`),
-            geo: geoCoordinates(region.center[1], region.center[0]),
-            containsPlace: countries.map((country) => ({
-              "@type": "Country",
-              name: country.name,
-              url: absoluteUrl(`/country/${country.slug}`),
-            })),
-          },
-          breadcrumbJsonLd([
-            { name: "Atlas of Today's World", path: "/" },
-            { name: region.name, path: `/global-issue/${region.slug}` },
-          ]),
-        ]}
+            locale,
+            center: region.center,
+            image: region.hero,
+            countries,
+          }),
+          faqNode(pageUrl(`/global-issue/${region.slug}`, locale), dossier.faq ?? []),
+        )}
       />
     </>
   );

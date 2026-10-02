@@ -1,4 +1,5 @@
 import { ChevronDown } from "lucide-react";
+import Link from "@/components/i18n/Link";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
 import { FaqList } from "@/components/portrait/sections";
 import type { Atlas } from "@/features/geography/types";
@@ -146,7 +147,7 @@ function EntryHeader({ item, atlas }: { item: Encyclopedia; atlas: Atlas }) {
       </div>
 
       {item.seo.geoSummary ? (
-        <section aria-label={t.inShort} className="mt-6">
+        <section id="in-short" aria-label={t.inShort} className="mt-6">
           <p className={LABEL}>{t.inShort}</p>
           <p className="mt-1.5 text-[14.5px] leading-relaxed text-[var(--color-ink)]">
             {item.seo.geoSummary}
@@ -155,7 +156,11 @@ function EntryHeader({ item, atlas }: { item: Encyclopedia; atlas: Atlas }) {
       ) : null}
 
       {item.summaryPoints.length ? (
-        <section aria-label={t.summary} className="mt-6 rounded-xl bg-[var(--color-line)]/25 p-4">
+        <section
+          id="key-points"
+          aria-label={t.summary}
+          className="mt-6 rounded-xl bg-[var(--color-line)]/25 p-4"
+        >
           <ul className="list-disc space-y-1.5 pl-5 text-[13.5px] leading-relaxed text-[var(--color-ink)]">
             {item.summaryPoints.map((point) => (
               <li key={point}>{point}</li>
@@ -329,6 +334,15 @@ function AuthorBio({ author }: { author: EntryAuthor }) {
             {author.positionality}
           </p>
         </>
+      ) : null}
+      {author.slug ? (
+        <Link
+          href={`/authors/${author.slug}`}
+          rel="author"
+          className="mt-4 flex min-h-11 items-center text-[13px] font-medium text-[var(--color-link)] hover:underline"
+        >
+          {format(getT().authorPage.articles, { name: author.name })}
+        </Link>
       ) : null}
     </details>
   );

@@ -163,7 +163,17 @@
     "dataTitle": "Odkud jsou data",
     "dataText": "Hranice a názvy zemí pocházejí z Natural Earth. Datové vrstvy se hromadně importují z Our World in Data a obnovují jediným příkazem, takže roční aktualizace trvá minuty, ne ruční přepisování:",
     "editorialTitle": "Redakční obsah",
-    "editorialText": "Portréty regionů, profily zemí a novinky píše tým Atlasu ve vlastním redakčním systému, kde každá změna před zveřejněním prochází kontrolou."
+    "editorialText": "Portréty regionů, profily zemí a novinky píše tým Atlasu ve vlastním redakčním systému, kde každá změna před zveřejněním prochází kontrolou.",
+    "missionTitle": "Naše poslání",
+    "missionText": "Atlas of Today’s World pomáhá komukoli porozumět dnešnímu světu v jeho zeměpisných souvislostech — zdarma, bez reklam a bez účtu. Jsme nezisková nevládní organizace registrovaná v Česku od roku 2016 a podporují nás čtenáři prostřednictvím Atlas Patrons.",
+    "whoTitle": "Kdo Atlas vydává",
+    "whoText": "{legalName}, zapsaný spolek podle českého práva, IČO {companyId}, {address}. Kontakt: {email}.",
+    "standardsTitle": "Redakční zásady a opravy",
+    "standardsText": "Každý článek uvádí autora a datum zveřejnění i poslední aktualizace. Fakta odkazují na zdroje a každé číslo má rok a instituci, která ho změřila. Každou změnu před zveřejněním kontroluje redaktor. Pokud najdete chybu, napište na {email}: chyby opravujeme otevřeně a u článku aktualizujeme datum.",
+    "citeTitle": "Jak Atlas citovat",
+    "citeText": "Atlas of Today’s World, „název stránky“, adresa stránky (datum citace). Datové vrstvy lze citovat i s původním zdrojem, který každá stránka uvádí.",
+    "machineTitle": "Pro výzkumníky, vyhledávače a nástroje AI",
+    "machineText": "Atlas je otevřený vyhledávačům i asistentům AI. Přehled v Markdownu pro jazykové modely je na /llms.txt (plný text na /llms-full.txt), každý článek má verzi v Markdownu (přidejte k adrese .md) a nové články vycházejí v kanálech RSS a Atom."
   },
   "patrons": {
     "title": "Atlas Patrons",
@@ -342,7 +352,11 @@
     "faq": "Otázky a odpovědi",
     "showTopic": "Téma {number}: {title}",
     "resourcesCount": "Zdrojů: {count}",
-    "resourcesOne": "Zdrojů: 1"
+    "resourcesOne": "Zdrojů: 1",
+    "sources": "Zdroje a další čtení",
+    "editorialTeam": "Redakce Atlasu",
+    "citeTitle": "Jak citovat",
+    "citeText": "Atlas of Today’s World, „{title}“, {url} (citováno {date})."
   },
   "og": {
     "site": "Atlas of Today's World",
@@ -361,7 +375,7 @@
     "errorCode": "Chyba {digest}"
   },
   "home": {
-    "title": "Atlas of Today's World — interaktivní encyklopedie na 3D glóbu",
+    "title": "Atlas of Today's World — interaktivní atlas všech zemí světa",
     "description": "Otočte satelitním glóbem, klikněte na kteroukoli zemi a přečtěte si její profil: lidský rozvoj, politický režim, životní podmínky a zprávy, které za tím stojí.",
     "intro": "Interaktivní encyklopedie současnosti. Prozkoumejte svět na 3D satelitním glóbu, přepínejte datové vrstvy jako index lidského rozvoje, politický režim nebo vnímání korupce a otevřete profil kteréhokoli regionu či země.",
     "regions": "Regiony světa",
@@ -443,5 +457,36 @@
       "notConnected": "Newsletter zatím není připojený.",
       "failed": "Přihlášení se nepovedlo. Zkuste to prosím později."
     }
+  },
+  "authorPage": {
+    "kicker": "Autor",
+    "description": "{name} píše pro Atlas of Today’s World, neziskovou encyklopedii současnosti.",
+    "articles": "Články: {name}",
+    "none": "Zatím žádné zveřejněné články."
+  },
+  "seo": {
+    "feedTitle": "Atlas of Today’s World — novinky a encyklopedie",
+    "feedDescription": "Nové články Atlas of Today’s World, neziskové encyklopedie současnosti: analýzy novinek a encyklopedické dosiéry o všech regionech světa.",
+    "llmsIntro": "Atlas of Today’s World vydává {legalName}, neziskový zapsaný spolek se sídlem v Praze, založený v roce 2016. Vše je ke čtení zdarma a bez účtu.",
+    "llmsUse": "Stránky zemí, regionů a globálních témat spojují redakční text s ukazateli z mezinárodních zdrojů (UNDP, Světová banka, V-Dem, Transparency International a další přes Our World in Data); každá hodnota uvádí zdroj a rok. Články uvádějí autora, datum zveřejnění a poslední aktualizace.",
+    "llmsCite": "Citujte jako: Atlas of Today’s World, „<název stránky>“, <URL> (citováno <datum>).",
+    "llmsFormats": "Jazyky: angličtina (bez předpony) a čeština (/cs/…). Verze článku v Markdownu: přidejte k adrese .md. Plný text všech článků: {full}. Kanály: {rss} (RSS) a {atom} (Atom). Mapa webu: {sitemap}.",
+    "sectionEntries": "Encyklopedické dosiéry",
+    "sectionNews": "Novinky a analýzy",
+    "sectionRegions": "Regiony světa",
+    "sectionIssues": "Globální témata a skupiny zemí",
+    "sectionData": "Datové vrstvy (data podle zemí)",
+    "sectionAbout": "O Atlasu",
+    "sectionCountries": "Profily zemí",
+    "countryData": "Data zemí: poslední hodnoty všech ukazatelů",
+    "country": "Země",
+    "dataNote": "{description} Zdroj: {source}; poslední data {year}; zemí: {count}.",
+    "published": "Zveřejněno",
+    "updated": "Aktualizováno",
+    "author": "Autor",
+    "region": "Region",
+    "countries": "Země",
+    "category": "Kategorie",
+    "publisher": "Vydavatel"
   }
 }

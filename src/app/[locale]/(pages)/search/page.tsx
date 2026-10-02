@@ -5,6 +5,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { localePath } from "@/features/i18n/config";
 import { format, getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
+import { pageMetadata } from "@/lib/seo/metadata";
 
 /**
  * Server-rendered results page. It exists because of SearchAction in structured
@@ -14,8 +15,16 @@ import { localeFrom } from "@/features/i18n/request";
 type Params = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const t = getMessages(await localeFrom(params)).searchPage;
-  return { title: t.title, description: t.description, robots: { index: false, follow: true } };
+  const locale = await localeFrom(params);
+  const t = getMessages(locale).searchPage;
+  // Result pages are thin and endless: out of the index, links still followed.
+  return pageMetadata({
+    locale,
+    path: "/search",
+    title: t.title,
+    description: t.description,
+    noindex: true,
+  });
 }
 
 const KIND_KEY = {

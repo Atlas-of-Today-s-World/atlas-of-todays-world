@@ -147,8 +147,9 @@ Dělá se **před** napojením na DB, aby se komponenty přepisovaly jen jednou.
 - [x] **G5** Jazykové mutace P15: routy pod `[locale]` (angličtina bez předpony přes proxy, `/cs/…`), přepínač jazyka,
       hreflang/canonical a sitemap s jazykovými verzemi, `translations` + administrace Překlady (regiony, země, témata,
       ukazatele), `messages/{en,cs}.json` pro hlavičku a navigaci (ADR-018).
-- [ ] **G5.2** Zbylé texty UI do `messages/*.json` (sekce portrétu, panely, formuláře veřejné části) a české verze
+- [x] **G5.2** Zbylé texty UI do `messages/*.json` (sekce portrétu, panely, formuláře veřejné části) a české verze
       novinek/hesel (`entries.locale` + vazba na originál).
+      *Hotovo: texty UI v #23, překlady hesel a novinek migrací 20261002000020 (`entries.locale` + `translation_of`).*
 - [ ] **G6** Platby P10 (Stripe, webhook → `memberships`) — po přechodu na Vercel Pro (komerční použití).
 - [ ] **G7** Webflow import P16 a přesměrování starých URL; přechod koncept → produkce (ARCHITEKTURA 13.5).
       *Připraveno: `scripts/import-webflow.mjs` (CSV z CMS Exportu i JSON z Data API v2, nanečisto bez `--apply`,
@@ -156,6 +157,13 @@ Dělá se **před** napojením na DB, aby se komponenty přepisovaly jen jednou.
       mapování `scripts/webflow/mapping.config.mjs` a 6 přesměrování starých stránek. Ověřeno na atlas-dev.
       **Vlastník (U10): dodat export kolekcí z Webflow CMS** — pak upravit názvy polí v konfiguraci a spustit
       nanečisto → `--apply --project dev` → kontrola → `--project prod`. Checklist 13.5 zůstává na vlastníkovi.*
+- [x] **G8** SEO & GEO (ADR-021): robots s AI crawlery, index sitemap (`/sitemaps/*.xml`, `lastmod` z DB, hreflang,
+      obrázky, Google News), RSS/Atom (EN/CS), `llms.txt` + `llms-full.txt` + Markdown verze článků, strukturovaná data
+      z jednoho builderu (NGO, WebSite, NewsArticle/Article, Country se `sameAs` Wikidata, Dataset, ProfilePage, FAQ,
+      breadcrumbs) ověřovaná v unit i e2e testech, metadata z `pageMetadata` (title ≤ 60, popis ≤ 160, OG/Twitter
+      všude, `/cs` bez překladu kanonicky na originál), IndexNow po publikaci, veřejné profily autorů
+      (migrace 20261002000080), O Atlasu s posláním, vydavatelem, redakčními zásadami a citací. PR: (doplní se).
+      *Vlastník: Search Console + Bing Webmaster + Seznam Webmaster, `INDEXNOW_KEY` ve Vercelu, Wikidata — viz `docs/seo-geo-audit.md`.*
 
 ---
 

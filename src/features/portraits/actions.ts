@@ -14,6 +14,7 @@ import {
   listItemError,
 } from "@/lib/actions";
 import { tags } from "@/lib/cache/tags";
+import { notifyIndexNow } from "@/lib/seo/indexnow";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { slug as slugSchema } from "@/lib/validation/common";
 import { COLLECTIONS, CountryInput, IssueInput, PortraitKind, RegionInput } from "./schema";
@@ -103,6 +104,7 @@ export async function saveRegion(_prev: ActionState, formData: FormData): Promis
   if (!data.length) return { ok: false, error: "You can't edit this region." };
   updateTag(tags.atlas);
   updateTag(tags.portrait("region", slug));
+  notifyIndexNow([`/region/${slug}`], { everyLanguage: true });
   return { ok: true, message: "Region saved." };
 }
 
@@ -153,6 +155,7 @@ export async function saveIssue(_prev: ActionState, formData: FormData): Promise
   updateTag(tags.atlas);
   updateTag(tags.portrait("issue", fields.slug));
   updateTag(tags.entries);
+  notifyIndexNow([`/global-issue/${fields.slug}`], { everyLanguage: true });
   if (!original_slug || original_slug !== fields.slug) {
     redirect(`/admin/global-issues/${fields.slug}`);
   }
@@ -192,9 +195,11 @@ export async function saveCountry(_prev: ActionState, formData: FormData): Promi
       profile_html: sanitizeRichHtml(fields.profile_html),
     })
     .eq("iso3", iso3)
-    .select("iso3");
+    .select("iso3, slug");
   if (error) return failed(error);
-  if (!data.length) return { ok: false, error: "You can't edit this country." };
+  const [country] = data;
+  if (!country) return { ok: false, error: "You can't edit this country." };
   updateTag(tags.atlas);
+  notifyIndexNow([`/country/${country.slug}`], { everyLanguage: true });
   return { ok: true, message: "Country profile saved." };
 }

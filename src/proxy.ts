@@ -30,13 +30,39 @@ const matches = (pathname: string, prefixes: string[]) =>
 /** Paths without language versions: admin, API, callbacks and files (robots.txt…). */
 const UNLOCALIZED = ["/admin", "/api", "/auth", "/_next", "/.well-known"];
 const isFile = (pathname: string) => /\.[a-z0-9]+$/i.test(pathname);
+/** Files that do have language versions (feeds, llms.txt) — routed like pages. */
+const LOCALIZED_FILES = new Set(["/feed.xml", "/atom.xml", "/llms.txt", "/llms-full.txt"]);
+/** Markdown version of an article: /news/<slug>.md → route /[locale]/md/news/<slug>. */
+const MARKDOWN = /^\/(news|entry)\/([a-z0-9-]+)\.md$/;
+/** `/en/feed.xml` → `/feed.xml` (so it gets the same 308 to the unprefixed URL as pages). */
+const withoutDefaultPrefix = (path: string) =>
+  path.startsWith(`/${DEFAULT_LOCALE}/`) ? path.slice(DEFAULT_LOCALE.length + 1) : path;
+const METADATA_IMAGE = /\/(opengraph|twitter)-image[a-z0-9-]*$/;
 
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
-  const localized = !matches(pathname, UNLOCALIZED) && !isFile(pathname);
-  const { locale, path } = localized
-    ? splitLocale(pathname)
-    : { locale: DEFAULT_LOCALE, path: pathname };
+
+  // Public URLs are lowercase (slugs are checked by the DB); /News → /news, once.
+  if (/[A-Z]/.test(pathname) && !matches(pathname, UNLOCALIZED) && !isFile(pathname)) {
+    return securityHeaders(
+      NextResponse.redirect(new URL(`${pathname.toLowerCase()}${search}`, request.url), 308),
+    );
+  }
+
+  const split = splitLocale(pathname);
+  const markdown = MARKDOWN.exec(split.path);
+  if (markdown && !matches(pathname, UNLOCALIZED)) {
+    const target = `/${split.locale}/md/${markdown[1]}/${markdown[2]}`;
+    return securityHeaders(NextResponse.rewrite(new URL(target, request.url)));
+  }
+
+  // Next links preview images by their internal route (/en/…/opengraph-image-x):
+  // served as they are, without the /en → / redirect a social scraper would have to follow.
+  const localized =
+    !matches(pathname, UNLOCALIZED) &&
+    !METADATA_IMAGE.test(pathname) &&
+    (!isFile(pathname) || LOCALIZED_FILES.has(withoutDefaultPrefix(split.path)));
+  const { locale, path } = localized ? split : { locale: DEFAULT_LOCALE, path: pathname };
 
   // /en/… is just another spelling of the default version — the canonical URL has no prefix.
   if (

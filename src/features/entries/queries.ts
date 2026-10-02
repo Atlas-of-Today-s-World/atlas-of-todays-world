@@ -21,6 +21,8 @@ export interface EntrySummary {
   hero?: string;
   heroCredit?: string;
   author?: string;
+  /** Public profile of the author (/authors/<slug>), when the byline is a profile. */
+  authorSlug?: string;
   published?: string;
   updated?: string;
   readingMinutes?: number;
@@ -38,8 +40,9 @@ export interface Entry extends EntrySummary {
 }
 
 // Anon may read only the listed columns (DB-08) — never select *.
-const COLUMNS =
+const BASE_COLUMNS =
   "slug, locale, title, summary, category, region_slug, special_slug, cover_url, cover_credit, author_name, published_on, updated_at, reading_minutes, entry_countries(country_iso3)";
+const COLUMNS = `${BASE_COLUMNS}, authors(slug, name)`;
 
 interface Row {
   slug: string;
@@ -56,6 +59,8 @@ interface Row {
   updated_at: string;
   reading_minutes: number | null;
   entry_countries: { country_iso3: string }[];
+  /** Author profile (byline with a public page); null for free-text bylines. */
+  authors: { slug: string; name: string } | null;
 }
 
 function toSummary(row: Row, languages: Locale[] = [DEFAULT_LOCALE]): EntrySummary {
@@ -70,7 +75,9 @@ function toSummary(row: Row, languages: Locale[] = [DEFAULT_LOCALE]): EntrySumma
     countries: row.entry_countries.map((item) => item.country_iso3),
     hero: row.cover_url ?? undefined,
     heroCredit: row.cover_credit ?? undefined,
-    author: row.author_name ?? undefined,
+    // The profile's name takes precedence over the article's free text.
+    author: row.authors?.name ?? row.author_name ?? undefined,
+    authorSlug: row.authors?.slug,
     published: row.published_on ?? undefined,
     updated: row.updated_at.slice(0, 10),
     readingMinutes: row.reading_minutes ?? undefined,
@@ -235,6 +242,7 @@ export async function getPreview(token: string): Promise<Preview | null> {
       ...row,
       locale: DEFAULT_LOCALE,
       entry_countries: countries.map((iso3) => ({ country_iso3: iso3 })),
+      authors: null,
     }),
     html: sanitizeRichHtml(body_html),
     locale: DEFAULT_LOCALE,
@@ -276,6 +284,8 @@ export interface EntryChapter {
 
 export interface EntryAuthor {
   name: string;
+  /** Public profile page /authors/<slug> (missing in previews). */
+  slug?: string;
   photo?: string;
   bio: string;
   positionality: string;
@@ -318,6 +328,7 @@ export interface Encyclopedia extends Entry {
 }
 
 interface AuthorRow {
+  slug?: string;
   name: string;
   photo_url: string | null;
   bio: string;
@@ -468,6 +479,7 @@ function toEncyclopedia(item: Entry, parts: EncyclopediaParts, defaults: TileRow
     authorProfile: author
       ? {
           name: author.name,
+          slug: author.slug,
           photo: author.photo_url ?? undefined,
           bio: author.bio,
           positionality: author.positionality,
@@ -498,9 +510,9 @@ function toEncyclopedia(item: Entry, parts: EncyclopediaParts, defaults: TileRow
 }
 
 // Anon may read only the listed columns (DB-08) — nested tables included.
-const ENCYCLOPEDIA_COLUMNS = `${COLUMNS}, body_html, summary_points,
+const ENCYCLOPEDIA_COLUMNS = `${BASE_COLUMNS}, body_html, summary_points,
   seo_title, seo_description, og_image_url, seo_keywords, geo_summary, noindex,
-  authors(name, photo_url, bio, positionality),
+  authors(slug, name, photo_url, bio, positionality),
   entry_chapters(position, title, summary_points, body_html, illustration_url, illustration_credit, audio_url),
   resources(position, kind, tile_id, title, source, url, image_url),
   learn_more_tiles!learn_more_tiles_entry_id_fkey(${TILE_COLUMNS}),

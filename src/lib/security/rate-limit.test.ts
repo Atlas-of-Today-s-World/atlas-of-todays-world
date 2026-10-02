@@ -6,7 +6,7 @@ const rpc = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/env.server", () => ({ serverEnv: env }));
 vi.mock("@/lib/supabase/service", () => ({ createServiceClient: () => ({ rpc }) }));
 
-const { allowRequest } = await import("./rate-limit");
+const { allowKey, allowRequest } = await import("./rate-limit");
 
 const opts = { limit: 3, windowSeconds: 60 };
 const headers = (ip?: string) => new Headers(ip ? { "x-forwarded-for": ip } : {});
@@ -47,5 +47,22 @@ describe("allowRequest", () => {
     expect(await allowRequest("search", headers("1.2.3.4"), opts)).toBe(true);
     expect(log).toHaveBeenCalled();
     log.mockRestore();
+  });
+});
+
+describe("allowKey", () => {
+  beforeEach(() => {
+    env.SUPABASE_SERVICE_ROLE_KEY = "service";
+    rpc.mockReset();
+  });
+
+  it("limits under the given key as is", async () => {
+    rpc.mockResolvedValue({ data: false, error: null });
+    expect(await allowKey("indexnow:abc", { limit: 1, windowSeconds: 900 })).toBe(false);
+    expect(rpc).toHaveBeenCalledWith("hit_rate_limit", {
+      p_key: "indexnow:abc",
+      p_limit: 1,
+      p_window_seconds: 900,
+    });
   });
 });

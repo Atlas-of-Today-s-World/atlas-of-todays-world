@@ -2,6 +2,8 @@ import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import { Inter, Manrope } from "next/font/google";
 import "./globals.css";
+import { serverEnv } from "@/lib/env.server";
+import { DEFAULT_OG_IMAGE, TITLE_SUFFIX } from "@/lib/seo/metadata";
 import { SITE_URL } from "@/lib/site";
 
 const inter = Inter({
@@ -19,8 +21,8 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Atlas of Today's World — an interactive encyclopedia on a 3D globe",
-    template: "%s — Atlas of Today's World",
+    default: "Atlas of Today's World — interactive atlas of every country",
+    template: `%s${TITLE_SUFFIX}`,
   },
   description:
     "Explore every country and world region on an interactive satellite globe: political systems, living conditions, human development and the stories behind them.",
@@ -28,16 +30,32 @@ export const metadata: Metadata = {
   authors: [{ name: "Atlas of Today's World" }],
   publisher: "Atlas of Today's World",
   category: "reference",
+  // Pages set their own URL, locale and image (lib/seo/metadata.ts); this is the fallback.
   openGraph: {
     type: "website",
     siteName: "Atlas of Today's World",
-    locale: "en",
-    url: SITE_URL,
+    images: [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630 }],
   },
   twitter: { card: "summary_large_image" },
+  verification: {
+    google: serverEnv.GOOGLE_SITE_VERIFICATION,
+    other: {
+      ...(serverEnv.BING_SITE_VERIFICATION
+        ? { "msvalidate.01": serverEnv.BING_SITE_VERIFICATION }
+        : {}),
+      ...(serverEnv.SEZNAM_SITE_VERIFICATION
+        ? { "seznam-wmt": serverEnv.SEZNAM_SITE_VERIFICATION }
+        : {}),
+    },
+  },
   robots: {
     index: true,
     follow: true,
+    // No preview limits for every engine (Bing feeds Copilot/ChatGPT): long snippets
+    // and large images are what make a page quotable in AI answers.
+    "max-snippet": -1,
+    "max-image-preview": "large",
+    "max-video-preview": -1,
     googleBot: {
       index: true,
       follow: true,

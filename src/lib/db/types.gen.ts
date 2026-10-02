@@ -170,6 +170,7 @@ export type Database = {
           photo_url: string | null
           positionality: string
           profile_id: string | null
+          slug: string
         }
         Insert: {
           bio?: string
@@ -179,6 +180,7 @@ export type Database = {
           photo_url?: string | null
           positionality?: string
           profile_id?: string | null
+          slug: string
         }
         Update: {
           bio?: string
@@ -188,6 +190,7 @@ export type Database = {
           photo_url?: string | null
           positionality?: string
           profile_id?: string | null
+          slug?: string
         }
         Relationships: [
           {
@@ -2156,6 +2159,7 @@ export type Database = {
         Args: { p_items: number; p_len: number; p_values: string[] }
         Returns: boolean
       }
+      slugify_text: { Args: { p_text: string }; Returns: string }
       submit_entry: { Args: { p_entry: string }; Returns: undefined }
       translation_section: { Args: { p_entity: string }; Returns: string }
       unpublish_entry: { Args: { p_entry: string }; Returns: undefined }

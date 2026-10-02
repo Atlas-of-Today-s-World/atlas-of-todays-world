@@ -1,23 +1,11 @@
 import type { MetadataRoute } from "next";
-import { SITE_URL } from "@/lib/site";
+import { robotsRules } from "@/lib/seo/robots";
 
 /**
- * Open to all robots including AI crawlers (GPTBot, ClaudeBot,
- * PerplexityBot, Google-Extended). If ATW ever doesn't want Atlas content
- * used for model training, just add a rule with `disallow: "/"`
- * for the specific user agent.
+ * Open to search engines and AI crawlers (ADR-021): the Atlas is a non-profit
+ * with an open-access mission, so being read, cited and summarised by answer
+ * engines is the goal. Private and transactional paths stay closed.
  */
 export default function robots(): MetadataRoute.Robots {
-  return {
-    rules: [
-      {
-        userAgent: "*",
-        allow: "/",
-        // The search API has no business in the index – it generates infinite URLs.
-        disallow: ["/api/"],
-      },
-    ],
-    sitemap: `${SITE_URL}/sitemap.xml`,
-    host: SITE_URL,
-  };
+  return robotsRules();
 }

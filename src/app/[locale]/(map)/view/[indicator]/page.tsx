@@ -9,7 +9,8 @@ import { getAtlas } from "@/features/geography/queries";
 import { format, getMessages } from "@/features/i18n/messages";
 import { getRequestLocale, getT, localeFrom } from "@/features/i18n/request";
 import { formatValue } from "@/lib/indicators";
-import { absoluteUrl, alternates, breadcrumbJsonLd } from "@/lib/seo";
+import { pageMetadata, pageTitle } from "@/lib/seo/metadata";
+import { breadcrumbNode, datasetNode, graph, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { JsonLd } from "@/components/JsonLd";
 
 // true: with false, Next returns 404 after revalidateTag (an admin write) even for
@@ -37,13 +38,18 @@ export async function generateMetadata({
     year: String(indicator.latestYear),
     source: indicator.source,
   });
-  const title = format(t.title, { label: indicator.label });
-  return {
-    title,
+  return pageMetadata({
+    locale,
+    path: `/view/${indicator.id}`,
+    title: pageTitle(format(t.title, { label: indicator.label })),
     description,
-    alternates: alternates(`/view/${indicator.id}`, await localeFrom(params)),
-    openGraph: { title, description },
-  };
+    keywords: [
+      indicator.label,
+      `${indicator.label} by country`,
+      `${indicator.shortLabel} map`,
+      indicator.source,
+    ],
+  });
 }
 
 export default async function IndicatorViewPage({
@@ -52,7 +58,8 @@ export default async function IndicatorViewPage({
   params: Promise<{ locale: string; indicator: string }>;
 }) {
   const { indicator: id } = await params;
-  const atlas = await getAtlas(await localeFrom(params));
+  const locale = await localeFrom(params);
+  const atlas = await getAtlas(locale);
   const indicator = atlas.indicatorById.get(id);
   if (!indicator) notFound();
 
@@ -62,6 +69,8 @@ export default async function IndicatorViewPage({
       return country ? [{ country, ...item }] : [];
     })
     .sort((a, b) => (indicator.higherIsBetter ? b.value - a.value : a.value - b.value));
+
+  const years = Object.values(indicator.values).map((item) => item.year);
 
   return (
     <>
@@ -128,31 +137,38 @@ export default async function IndicatorViewPage({
       </ContentRail>
 
       <JsonLd
-        data={[
-          {
-            "@context": "https://schema.org",
-            "@type": "Dataset",
-            name: `${indicator.label} by country`,
-            description: `${indicator.label}, latest available value per country (${indicator.latestYear}). Covers ${indicator.countryCount} countries.`,
-            url: absoluteUrl(`/view/${indicator.id}`),
-            creator: { "@type": "Organization", name: indicator.source },
-            isBasedOn: indicator.sourceUrl,
-            temporalCoverage: String(indicator.latestYear ?? ""),
-            // The dataset covers the whole planet – make that explicit for robots.
-            spatialCoverage: { "@type": "Place", name: "World" },
-            variableMeasured: {
-              "@type": "PropertyValue",
-              name: indicator.label,
-              unitText: indicator.unit.trim() || undefined,
-            },
-            license: "https://creativecommons.org/licenses/by/4.0/",
-            isAccessibleForFree: true,
-          },
-          breadcrumbJsonLd([
-            { name: "Atlas of Today's World", path: "/" },
-            { name: indicator.label, path: `/view/${indicator.id}` },
-          ]),
-        ]}
+        data={graph(
+          webPageNode({
+            url: pageUrl(`/view/${indicator.id}`, locale),
+            name: indicator.label,
+            description: indicator.description,
+            locale,
+            about: `${pageUrl(`/view/${indicator.id}`, locale)}#dataset`,
+            breadcrumb: breadcrumbNode(
+              [
+                { name: "Atlas of Today's World", path: "/" },
+                { name: indicator.label, path: `/view/${indicator.id}` },
+              ],
+              locale,
+            ),
+          }),
+          datasetNode({
+            id: indicator.id,
+            name: indicator.label,
+            description: `${indicator.description} ${format(getT().view.description, {
+              label: indicator.label,
+              count: String(indicator.countryCount),
+              year: String(indicator.latestYear),
+              source: indicator.source,
+            })}`,
+            locale,
+            unit: indicator.unit,
+            latestYear: indicator.latestYear,
+            earliestYear: years.length ? Math.min(...years) : null,
+            source: indicator.source,
+            sourceUrl: indicator.sourceUrl,
+          }),
+        )}
       />
     </>
   );
