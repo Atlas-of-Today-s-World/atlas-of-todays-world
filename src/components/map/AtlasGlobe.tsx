@@ -363,9 +363,12 @@ export default function AtlasGlobe({
   }, [focus.activeIso3, focus.regionCountries, focus.regionStroke, pendingIso3, ready]);
 
   // --- camera flight ---
+  /** The last place a page focused on (country label, region centre) – where closing a panel zooms out. */
+  const lastPlaceRef = useRef<[number, number] | null>(null);
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
+    if (focus.center) lastPlaceRef.current = focus.center;
 
     // Corner window: the whole globe, turned to the page's place (if it has one).
     if (mini) {
@@ -407,9 +410,10 @@ export default function AtlasGlobe({
       return;
     }
 
-    if (!focus.center) return;
+    // Zoom only (closing a panel): zoom out over the last place instead of turning the globe away.
+    if (!focus.center && focus.zoom === null) return;
     map.flyTo({
-      center: focus.center,
+      center: focus.center ?? lastPlaceRef.current ?? map.getCenter(),
       zoom: focus.zoom ?? 3,
       duration: 1600,
       essential: true,
