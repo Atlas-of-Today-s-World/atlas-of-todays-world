@@ -201,10 +201,15 @@ async function moveImage(source) {
     const bytes = Buffer.from(await response.arrayBuffer());
     if (bytes.length > MAX_IMAGE_BYTES) continue;
     const name = `import/webflow/${createHash("sha1").update(source).digest("hex")}.${IMAGE_TYPES[type]}`;
-    const { error } = await db.storage
-      .from(IMAGE_BUCKET)
-      .upload(name, bytes, { contentType: type, upsert: true });
-    if (error) throw new Error(`Storage ${name}: ${error.message}`);
+    // Storage sometimes answers 502 under load: three tries before giving up.
+    for (let attempt = 1; ; attempt += 1) {
+      const { error } = await db.storage
+        .from(IMAGE_BUCKET)
+        .upload(name, bytes, { contentType: type, upsert: true });
+      if (!error) break;
+      if (attempt === 3) throw new Error(`Storage ${name}: ${error.message}`);
+      await new Promise((done) => setTimeout(done, 2000 * attempt));
+    }
     result = db.storage.from(IMAGE_BUCKET).getPublicUrl(name).data.publicUrl;
     break;
   }
