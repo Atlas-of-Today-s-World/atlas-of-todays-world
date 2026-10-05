@@ -45,9 +45,9 @@ jobs:
             exit 1
           fi
           echo "ready=true" >> "$GITHUB_OUTPUT"
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         if: steps.config.outputs.ready == 'true'
-      - uses: supabase/setup-cli@v1
+      - uses: supabase/setup-cli@v3
         if: steps.config.outputs.ready == 'true'
         with:
           version: latest
