@@ -32,18 +32,30 @@ jobs:
       RECIPIENT: ${{ vars.BACKUP_AGE_RECIPIENT }}
     steps:
       - uses: actions/checkout@v7
-      - uses: supabase/setup-cli@v3
-        with:
-          version: latest
-      - name: Install age
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq age
+      # Until the owner sets the age public key (PLAN U8) there is nothing to
+      # encrypt to: the run says so as a warning instead of failing red every
+      # night. Any other missing setting is still a hard failure.
       - name: Check configuration
+        id: config
         run: |
-          for v in SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD PROJECT_REF RECIPIENT; do
+          if [ -z "$RECIPIENT" ]; then
+            echo "::warning title=No backup made::Set the repository variable BACKUP_AGE_RECIPIENT (age1…) to start nightly backups (PLAN U8)."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          for v in SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD PROJECT_REF; do
             test -n "${!v}" || { echo "Chybí $v"; exit 1; }
           done
           case "$RECIPIENT" in age1*) ;; *) echo "BACKUP_AGE_RECIPIENT není age klíč"; exit 1;; esac
+      - uses: supabase/setup-cli@v3
+        if: steps.config.outputs.skip != 'true'
+        with:
+          version: latest
+      - name: Install age
+        if: steps.config.outputs.skip != 'true'
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq age
       - name: Dump and encrypt
+        if: steps.config.outputs.skip != 'true'
         run: |
           set -euo pipefail
           umask 077
@@ -57,6 +69,7 @@ jobs:
           rm -rf "$work"
           ls -l atlas-db-*.age
       - uses: actions/upload-artifact@v7
+        if: steps.config.outputs.skip != 'true'
         with:
           name: atlas-db-backup
           path: atlas-db-*.tar.gz.age

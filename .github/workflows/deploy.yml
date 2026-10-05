@@ -68,12 +68,15 @@ jobs:
   deploy:
     needs: migrate
     # Deploy production only after green CI and a successful migration. A PR
-    # preview from a fork has no access to the token.
+    # preview from a fork or from Dependabot has no access to the token, so it
+    # is skipped instead of failing red on every dependency bump.
     if: >-
       always() && (needs.migrate.result == 'success' || needs.migrate.result == 'skipped') && (
         (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
         github.event_name == 'workflow_dispatch' ||
-        (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository))
+        (github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          github.actor != 'dependabot[bot]'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
