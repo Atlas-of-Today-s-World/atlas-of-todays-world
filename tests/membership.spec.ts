@@ -50,12 +50,10 @@ test.describe("Atlas Patrons", () => {
     await expect(page).toHaveURL(/\/membership$/);
   });
 
-  test("/cs/membership is in Czech", async ({ page }) => {
-    await page.goto("/cs/membership");
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("Pomozte nám budovat");
-    await expect(
-      page.locator("main form").first().getByRole("button", { name: "Přispět a přidat se" }),
-    ).toBeVisible();
+  test("the former Czech /cs/membership redirects to /membership", async ({ request }) => {
+    const response = await request.get("/cs/membership", { maxRedirects: 0 });
+    expect(response.status()).toBe(308);
+    expect(response.headers().location).toMatch(/\/membership$/);
   });
 
   test("the old /patrons address redirects to /membership", async ({ request }) => {

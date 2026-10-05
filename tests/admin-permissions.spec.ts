@@ -81,7 +81,7 @@ const forbidden = (page: Page) => expect(page.getByTestId("section-forbidden")).
 // 1) The menu shows only sections with the "v" (view) right
 // ---------------------------------------------------------------------------
 
-// The news section also brings Authors and Redirects; regions/specials/layers also Translations.
+// The news section also brings Authors and Redirects.
 const MENU: Record<Exclude<(typeof ROLES)[number], "reader">, string[]> = {
   "content-editor": [
     "Overview",
@@ -93,7 +93,6 @@ const MENU: Record<Exclude<(typeof ROLES)[number], "reader">, string[]> = {
     "Regions & countries",
     "Country groups",
     "Map data layers",
-    "Translations",
   ],
   "content-approver": [
     "Overview",
@@ -111,14 +110,12 @@ const MENU: Record<Exclude<(typeof ROLES)[number], "reader">, string[]> = {
     "URL redirects",
     "Regions & countries",
     "Map data layers",
-    "Translations",
   ],
   "data-editor": [
     "Overview",
     "Regions & countries",
     "Country groups",
     "Map data layers",
-    "Translations",
     "Map appearance",
   ],
   observer: ["Overview", "Articles", "Author profiles", "Learn-more tiles", "URL redirects"],
