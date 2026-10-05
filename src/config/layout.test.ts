@@ -18,6 +18,9 @@ describe("layout tokens", () => {
     expect(railKind("/region/sub-saharan-africa")).toBe("wide");
     expect(railKind("/news/sahel-coup-belt")).toBe("wide");
     expect(railKind("/global-issue/sahel")).toBe("wide");
+    // The internal route English pages render under on the server.
+    expect(railKind("/en")).toBe("none");
+    expect(railKind("/en/region/sub-saharan-africa")).toBe("wide");
   });
 
   it("computes the panel width", () => {

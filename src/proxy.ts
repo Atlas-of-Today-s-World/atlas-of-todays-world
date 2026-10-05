@@ -1,7 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { publicEnv } from "@/lib/env";
 import { buildCsp, securityHeaderEntries } from "@/lib/security/csp";
-import { DEFAULT_LOCALE, localePath, splitLocale } from "@/features/i18n/config";
+import {
+  DEFAULT_LOCALE,
+  localePath,
+  splitLocale,
+  withoutDefaultPrefix,
+} from "@/features/i18n/config";
 import { refreshSession } from "@/lib/supabase/middleware";
 
 /**
@@ -34,9 +39,6 @@ const isFile = (pathname: string) => /\.[a-z0-9]+$/i.test(pathname);
 const LOCALIZED_FILES = new Set(["/feed.xml", "/atom.xml", "/llms.txt", "/llms-full.txt"]);
 /** Markdown version of an article: /news/<slug>.md → route /[locale]/md/news/<slug>. */
 const MARKDOWN = /^\/(news|entry)\/([a-z0-9-]+)\.md$/;
-/** `/en/feed.xml` → `/feed.xml` (so it gets the same 308 to the unprefixed URL as pages). */
-const withoutDefaultPrefix = (path: string) =>
-  path.startsWith(`/${DEFAULT_LOCALE}/`) ? path.slice(DEFAULT_LOCALE.length + 1) : path;
 const METADATA_IMAGE = /\/(opengraph|twitter)-image[a-z0-9-]*$/;
 
 export async function proxy(request: NextRequest) {
@@ -61,6 +63,7 @@ export async function proxy(request: NextRequest) {
   const localized =
     !matches(pathname, UNLOCALIZED) &&
     !METADATA_IMAGE.test(pathname) &&
+    // `/en/feed.xml` → `/feed.xml` (so it gets the same 308 to the unprefixed URL as pages).
     (!isFile(pathname) || LOCALIZED_FILES.has(withoutDefaultPrefix(split.path)));
   const { locale, path } = localized ? split : { locale: DEFAULT_LOCALE, path: pathname };
 

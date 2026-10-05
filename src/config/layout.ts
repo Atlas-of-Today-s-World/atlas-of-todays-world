@@ -4,7 +4,7 @@
  * match — layout.test.ts enforces it.
  */
 
-import { splitLocale } from "@/features/i18n/config";
+import { splitLocale, withoutDefaultPrefix } from "@/features/i18n/config";
 
 /** Right content panel: min(vw, rem). */
 export const RAIL = { vw: 38, rem: 27 } as const;
@@ -23,8 +23,8 @@ export type RailKind = "none" | "normal" | "wide";
 
 /** Which panel is open on the given path. */
 export function railKind(pathname: string): RailKind {
-  // The language prefix (/cs/…) does not affect the panel width.
-  const { path } = splitLocale(pathname);
+  // The language prefix (/cs/…, or the internal /en/… on the server) does not affect the panel width.
+  const { path } = splitLocale(withoutDefaultPrefix(pathname));
   if (path === "/") return "none";
   return WIDE_RAIL.test(path) ? "wide" : "normal";
 }
