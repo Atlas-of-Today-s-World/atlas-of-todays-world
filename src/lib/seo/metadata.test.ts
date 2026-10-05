@@ -46,23 +46,21 @@ describe("pageTitle", () => {
 });
 
 describe("pageMetadata", () => {
-  it("sets canonical, hreflang, og:url and og:locale of the page language", () => {
+  it("sets canonical, hreflang, og:url and og:locale", () => {
     const meta = pageMetadata({
-      locale: "cs",
+      locale: "en",
       path: "/region/east-asia",
-      title: "Východní Asie",
+      title: "East Asia",
       description: "x".repeat(300),
     });
-    expect(meta.alternates?.canonical).toBe("/cs/region/east-asia");
+    expect(meta.alternates?.canonical).toBe("/region/east-asia");
     expect(meta.alternates?.languages).toMatchObject({
       en: "/region/east-asia",
-      cs: "/cs/region/east-asia",
       "x-default": "/region/east-asia",
     });
     expect(meta.openGraph).toMatchObject({
-      url: `${SITE}/cs/region/east-asia`,
-      locale: "cs_CZ",
-      alternateLocale: ["en_US"],
+      url: `${SITE}/region/east-asia`,
+      locale: "en_US",
       images: [{ url: DEFAULT_OG_IMAGE }],
     });
     expect(String(meta.description).length).toBeLessThanOrEqual(160);
@@ -71,32 +69,6 @@ describe("pageMetadata", () => {
     expect("robots" in meta).toBe(false);
     expect(Object.values(meta)).not.toContain(undefined);
     expect(Object.values(meta.openGraph ?? {})).not.toContain(undefined);
-  });
-
-  it("an untranslated original under /cs canonicalizes to the original", () => {
-    const meta = pageMetadata({
-      locale: "cs",
-      path: "/news/sahel",
-      title: "Sahel",
-      description: "Coups.",
-      contentLocale: "en",
-      languages: ["en"],
-      type: "article",
-      markdown: true,
-      ownImage: true,
-      article: { published: "2026-09-02", modified: "2026-09-30", authors: ["Ana"] },
-    });
-    expect(meta.alternates?.canonical).toBe("/news/sahel");
-    expect(meta.alternates?.languages).toEqual({ en: "/news/sahel", "x-default": "/news/sahel" });
-    expect(meta.alternates?.types).toEqual({ "text/markdown": `${SITE}/news/sahel.md` });
-    expect(meta.openGraph).toMatchObject({
-      type: "article",
-      url: `${SITE}/news/sahel`,
-      publishedTime: "2026-09-02",
-      modifiedTime: "2026-09-30",
-    });
-    // The segment's opengraph-image file supplies the picture.
-    expect(meta.openGraph?.images).toBeUndefined();
   });
 
   it("keeps an editor's description whole and marks noindex pages", () => {
@@ -114,7 +86,7 @@ describe("pageMetadata", () => {
   });
 
   it("English-only pages point every language to the English URL", () => {
-    const meta = englishOnlyMetadata("cs", "/privacy", "Privacy policy", "Data we process.");
+    const meta = englishOnlyMetadata("en", "/privacy", "Privacy policy", "Data we process.");
     expect(meta.alternates?.canonical).toBe("/privacy");
     expect(meta.alternates?.languages).toEqual({ en: "/privacy", "x-default": "/privacy" });
     expect(meta.openGraph).toMatchObject({ locale: "en_US" });

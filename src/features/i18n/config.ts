@@ -1,14 +1,15 @@
 /**
- * Atlas languages (G5, P15). English is the default and stays without a prefix
- * in the URL (existing links and SEO); other languages have the prefix `/cs/…`.
- * New language = add the code here + messages/<code>.json; the code needs nothing else.
+ * Atlas languages (G5, P15). The site is English only (decision 2026-10-05).
+ * English stays without a prefix in the URL. The routing still supports more
+ * languages: add the code here + messages/<code>.json (other languages get a
+ * `/<code>/…` prefix) and bring back a language switcher in the header.
  */
-export const LOCALES = ["en", "cs"] as const;
+export const LOCALES = ["en"] as const;
 export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = "en";
 
 /** Language name in the language itself (language switcher). */
-export const LOCALE_NAMES: Record<Locale, string> = { en: "English", cs: "Čeština" };
+export const LOCALE_NAMES: Record<Locale, string> = { en: "English" };
 
 export const isLocale = (value: string | undefined | null): value is Locale =>
   (LOCALES as readonly string[]).includes(value ?? "");

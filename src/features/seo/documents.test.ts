@@ -50,38 +50,38 @@ describe("article Markdown", () => {
     );
   });
 
-  it("entry: answer-first summary, key points, topics, FAQ and sources; Czech labels for Czech text", () => {
+  it("entry: answer-first summary, key points, topics, FAQ and sources", () => {
     const entry = {
       ...news,
       slug: "smuggling",
-      locale: "cs",
+      locale: "en",
       author: undefined,
       authorSlug: undefined,
       html: "",
-      summaryPoints: ["Bod jedna"],
-      chapters: [{ title: "Trasy", summaryPoints: ["Moře"], html: "<p>Text.</p>" }],
-      faq: [{ question: "Co to je?", answer: "Zločin." }],
+      summaryPoints: ["Point one"],
+      chapters: [{ title: "Routes", summaryPoints: ["Sea"], html: "<p>Text.</p>" }],
+      faq: [{ question: "What is it?", answer: "A crime." }],
       tiles: [
         {
           resources: [{ title: "UNODC report", source: "UNODC", url: "https://www.unodc.org/x" }],
         },
       ],
       seo: {
-        geoSummary: "Převaděčství je placená pomoc s nelegálním přechodem hranic.",
+        geoSummary: "Migrant smuggling is the paid facilitation of irregular border crossing.",
         keywords: [],
       },
     } as unknown as Encyclopedia;
     const markdown = articleMarkdown("entry", entry, atlas);
-    expect(markdown).toContain(`- URL: ${SITE}/cs/entry/smuggling`);
-    expect(markdown).toContain("- Autor: Redakce Atlasu");
+    expect(markdown).toContain(`- URL: ${SITE}/entry/smuggling`);
+    expect(markdown).toContain("- Author: Atlas editorial team");
     expect(markdown).toContain(
-      "## Stručně\n\nPřevaděčství je placená pomoc s nelegálním přechodem hranic.",
+      "## In short\n\nMigrant smuggling is the paid facilitation of irregular border crossing.",
     );
-    expect(markdown).toContain("## Shrnutí\n\n- Bod jedna");
-    expect(markdown).toContain("## Téma 1: Trasy\n\n- Moře\n\nText.");
-    expect(markdown).toContain("## Otázky a odpovědi\n\n### Co to je?\n\nZločin.");
+    expect(markdown).toContain("## Summary\n\n- Point one");
+    expect(markdown).toContain("## Topic 1: Routes\n\n- Sea\n\nText.");
+    expect(markdown).toContain("## Questions and answers\n\n### What is it?\n\nA crime.");
     expect(markdown).toContain(
-      "## Zdroje a další čtení\n\n- [UNODC report](https://www.unodc.org/x) — UNODC",
+      "## Sources and further reading\n\n- [UNODC report](https://www.unodc.org/x) — UNODC",
     );
   });
 });

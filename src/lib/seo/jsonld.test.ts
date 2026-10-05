@@ -26,7 +26,7 @@ const czechia = { slug: "czechia", name: "Czechia", iso3: "CZE" };
 
 describe("JSON-LD builders", () => {
   it("publisher and website: an NGO with logo, profiles, registration and search", () => {
-    const data = parsed(graph(organizationNode(), websiteNode("cs")));
+    const data = parsed(graph(organizationNode(), websiteNode("en")));
     expect(validateJsonLd(data)).toEqual([]);
     const [org, site] = jsonLdNodes(data);
     expect(org).toMatchObject({
@@ -44,7 +44,7 @@ describe("JSON-LD builders", () => {
         "https://bsky.app/profile/atlas-otw.bsky.social",
       ]),
     );
-    expect(JSON.stringify(site)).toContain("/cs/search?q={search_term_string}");
+    expect(JSON.stringify(site)).toContain("/search?q={search_term_string}");
   });
 
   it("news article: NewsArticle with author profile, publisher, places and dates", () => {
@@ -98,13 +98,13 @@ describe("JSON-LD builders", () => {
   });
 
   it("encyclopedia entry: Article with abstract, citations, parts, FAQ and speakable page", () => {
-    const url = pageUrl("/entry/smuggling", "cs");
+    const url = pageUrl("/entry/smuggling", "en");
     const data = parsed(
       graph(
         webPageNode({
           url,
           name: "Smuggling",
-          locale: "cs",
+          locale: "en",
           speakable: ["#in-short"],
           about: `${url}#article`,
         }),
@@ -116,7 +116,7 @@ describe("JSON-LD builders", () => {
           abstract: "Migrant smuggling is the paid facilitation of irregular border crossing.",
           images: ["/og-image.png"],
           published: "2026-10-01",
-          locale: "cs",
+          locale: "en",
           author: null,
           citations: [{ title: "UNODC report", url: "https://www.unodc.org/x", source: "UNODC" }],
           parts: [{ name: "Routes", url: `${url}#topic-1`, audio: "https://example.org/a.mp3" }],

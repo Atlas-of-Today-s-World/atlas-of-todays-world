@@ -6,7 +6,7 @@ import type { listLanguageVersions } from "../editorial";
 import { StatusBadge } from "./StatusBadge";
 
 /** Label of the button for creating a new language version, per target locale. */
-const CREATE_LABEL: Partial<Record<string, string>> = { cs: "Create Czech version" };
+const CREATE_LABEL: Partial<Record<string, string>> = {};
 
 /**
  * Language versions of an article (G5.3): the original and its translations with

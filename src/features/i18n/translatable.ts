@@ -1,29 +1,18 @@
 import type { AtlasSnapshot } from "@/features/geography/model";
 
 /**
- * Which unit fields can be translated (single list for the site and the admin).
+ * Which unit fields can be translated. The site is English only now; the
+ * overlay stays so a future language only needs rows in the translations table.
  * Unit key: region and issue → slug, country → iso3, indicator → id.
  */
-export const TRANSLATABLE = {
+const TRANSLATABLE = {
   region: ["name", "tagline", "summary"],
   country: ["name", "name_formal", "tagline", "blurb", "profile_html"],
   issue: ["name", "subtitle", "summary"],
   indicator: ["label", "short_label", "description"],
 } as const;
 
-export type TranslatableEntity = keyof typeof TRANSLATABLE;
-export const TRANSLATABLE_ENTITIES = Object.keys(TRANSLATABLE) as TranslatableEntity[];
-
-/** Permission section of a unit — same as translation_section() in the DB. */
-export const ENTITY_SECTION = {
-  region: "regions",
-  country: "regions",
-  issue: "specials",
-  indicator: "layers",
-} as const satisfies Record<TranslatableEntity, string>;
-
-/** Fields with HTML (sanitized on save). */
-export const HTML_FIELDS: ReadonlySet<string> = new Set(["profile_html"]);
+type TranslatableEntity = keyof typeof TRANSLATABLE;
 
 export interface TranslationRow {
   entity: string;

@@ -1,9 +1,9 @@
 import type { Locale } from "@/features/i18n/config";
 
-const INTL: Record<Locale, string> = { en: "en-US", cs: "cs-CZ" };
-export const DATE_INTL: Record<Locale, string> = { en: "en-GB", cs: "cs-CZ" };
+const INTL: Record<Locale, string> = { en: "en-US" };
+export const DATE_INTL: Record<Locale, string> = { en: "en-GB" };
 
-/** Number with a fixed number of decimals in the language's notation (0.92 / 0,92). */
+/** Number with a fixed number of decimals in the language's notation (0.92). */
 export function formatNumber(value: number, decimals: number, locale: Locale = "en"): string {
   return new Intl.NumberFormat(INTL[locale], {
     minimumFractionDigits: decimals,
@@ -13,10 +13,9 @@ export function formatNumber(value: number, decimals: number, locale: Locale = "
 
 const POPULATION_UNITS: Record<Locale, [string, string, string]> = {
   en: ["bn", "m", "k"],
-  cs: ["mld.", "mil.", "tis."],
 };
 
-/** Population for the country card and portrait ("1.43 bn", "38.0 m" / "38,0 mil."). */
+/** Population for the country card and portrait ("1.43 bn", "38.0 m"). */
 export function formatPopulation(value: number | null, locale: Locale = "en"): string {
   if (!value) return "—";
   const [bn, m, k] = POPULATION_UNITS[locale];

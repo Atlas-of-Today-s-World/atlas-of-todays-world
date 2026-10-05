@@ -195,13 +195,12 @@ async function main() {
     }
   });
 
-  await check("sitemap knows regions and global issues, with hreflang", async () => {
+  await check("sitemap knows regions, English only", async () => {
     const { status, headers, body } = await get("/sitemaps/regions.xml");
     assert(status === 200, `status ${status}`);
     assert(/xml/.test(headers.get("content-type") ?? ""), "not XML");
     assert(body.includes("/region/middle-east-north-africa"), "missing region");
-    assert(body.includes("/cs/region/middle-east-north-africa"), "missing Czech version");
-    assert(body.includes('hreflang="x-default"'), "missing hreflang");
+    assert(!body.includes("/cs/"), "sitemap still lists the removed Czech version");
     assert(body.includes("<lastmod>"), "missing lastmod");
     assert(!body.includes("/full"), "sitemap still offers the removed /full");
   });
@@ -223,12 +222,16 @@ async function main() {
     assert(/Sitemap: \S+\/sitemap\.xml/.test(body), "missing link to the sitemap");
   });
 
+  await check("former Czech URLs redirect to English", async () => {
+    const { status, headers } = await get("/cs/about");
+    assert(status === 308, `/cs/about vrátil ${status}`);
+    assert(headers.get("location")?.endsWith("/about"), `špatný cíl: ${headers.get("location")}`);
+  });
+
   for (const [path, type, marker] of [
     ["/feed.xml", "application/rss+xml", '<rss version="2.0"'],
-    ["/cs/feed.xml", "application/rss+xml", "<language>cs</language>"],
     ["/atom.xml", "application/atom+xml", "<feed xmlns"],
     ["/llms.txt", "text/plain", "# Atlas of Today's World"],
-    ["/cs/llms.txt", "text/plain", "## Regiony světa"],
     ["/llms-full.txt", "text/plain", "# Country data"],
     ["/news/sahel-coup-belt.md", "text/markdown", "# The Sahel"],
   ]) {

@@ -161,10 +161,8 @@ test.describe("sign-in", () => {
     await expect(page).toHaveURL(/\/login\?next=%2Fucet/);
   });
 
-  test("invitation page explains how to sign in (in the page language)", async ({ page }) => {
+  test("invitation page explains how to sign in", async ({ page }) => {
     await page.goto("/pozvanka");
     await expect(page.getByRole("heading", { name: "Invitation to the Atlas team" })).toBeVisible();
-    await page.goto("/cs/pozvanka");
-    await expect(page.getByRole("heading", { name: "Pozvánka do týmu Atlasu" })).toBeVisible();
   });
 });

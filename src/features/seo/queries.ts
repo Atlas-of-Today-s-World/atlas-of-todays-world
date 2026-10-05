@@ -10,7 +10,7 @@ import {
 } from "@/features/entries/queries";
 import { getAtlas } from "@/features/geography/queries";
 import type { Atlas } from "@/features/geography/types";
-import { DEFAULT_LOCALE, LOCALES, localePath, type Locale } from "@/features/i18n/config";
+import { DEFAULT_LOCALE, localePath, type Locale } from "@/features/i18n/config";
 import { format, getMessages } from "@/features/i18n/messages";
 import { LEGAL_NAV } from "@/config/navigation";
 import { ORGANIZATION } from "@/config/organization";
@@ -289,9 +289,6 @@ function head(atlas: Atlas, news: EntrySummary[], entries: EntrySummary[], local
         atom: url(locale, "/atom.xml"),
         sitemap: absoluteUrl("/sitemap.xml"),
       }),
-      ...LOCALES.filter((code) => code !== locale).map(
-        (code) => `${code.toUpperCase()}: ${url(code, "/llms.txt")}`,
-      ),
     ],
     sections: sections(atlas, news, entries, locale),
     optional: countryLinks(atlas, locale),

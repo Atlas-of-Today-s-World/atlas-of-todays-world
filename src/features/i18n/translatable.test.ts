@@ -29,10 +29,9 @@ describe("localizeSnapshot", () => {
 });
 
 describe("localePath", () => {
-  it("English without a prefix, others with a prefix", () => {
+  it("English without a prefix", () => {
     expect(localePath("en", "/country/brazil")).toBe("/country/brazil");
-    expect(localePath("cs", "/country/brazil")).toBe("/cs/country/brazil");
-    expect(localePath("cs", "/")).toBe("/cs");
-    expect(localePath("cs", "about")).toBe("/cs/about");
+    expect(localePath("en", "/")).toBe("/");
+    expect(localePath("en", "about")).toBe("/about");
   });
 });

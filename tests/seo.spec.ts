@@ -29,7 +29,7 @@ for (const [path, type, marker] of [
   ["/sitemaps/countries.xml", "application/xml", "/country/czechia</loc>"],
   ["/sitemaps/news.xml", "application/xml", "<image:image>"],
   ["/feed.xml", "application/rss+xml", "<item>"],
-  ["/cs/atom.xml", "application/atom+xml", 'xml:lang="cs"'],
+  ["/atom.xml", "application/atom+xml", "<feed"],
   ["/llms.txt", "text/plain", "## World regions"],
   ["/llms-full.txt", "text/plain", "| [Czechia]("],
   ["/news/sahel-coup-belt.md", "text/markdown", "- Published: "],
@@ -46,9 +46,7 @@ for (const [path, type, marker] of [
 
 for (const path of [
   "/",
-  "/cs",
   "/region/east-asia",
-  "/cs/region/east-asia",
   "/global-issue/russia-ukraine-war",
   "/country/czechia",
   "/view/hdi",
@@ -63,7 +61,7 @@ for (const path of [
     expect(validateJsonLd(data)).toEqual([]);
     const types = data.flatMap(jsonLdNodes).map((node) => node["@type"]);
     expect(types).toEqual(expect.arrayContaining(["NGO", "WebSite"]));
-    if (path !== "/" && path !== "/cs") expect(types).toContain("BreadcrumbList");
+    if (path !== "/") expect(types).toContain("BreadcrumbList");
 
     expect(meta(body, /<link rel="canonical" href="([^"]+)"/)).toBeTruthy();
     expect(meta(body, /<meta property="og:image" content="([^"]+)"/)).toBeTruthy();
@@ -89,10 +87,10 @@ test("a news item is a NewsArticle with dates, publisher and a Markdown alternat
   expect(body).toMatch(/<link rel="alternate" type="text\/markdown" href="[^"]+\.md"/);
 });
 
-test("search results and untranslated legal pages stay out of the index", async ({ request }) => {
+test("search results stay out of the index; legal pages are canonical", async ({ request }) => {
   const search = await html(request, "/search?q=war");
   expect(meta(search, /<meta name="robots" content="([^"]+)"/)).toContain("noindex");
-  const privacy = await html(request, "/cs/privacy");
+  const privacy = await html(request, "/privacy");
   expect(meta(privacy, /<link rel="canonical" href="([^"]+)"/)).toMatch(/\/privacy$/);
 });
 
