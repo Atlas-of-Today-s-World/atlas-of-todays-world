@@ -227,13 +227,13 @@ export function ThematicEntries({ entries }: { entries: PlannedEntry[] }) {
                 {t.categories[category]}
               </h3>
               {group.length ? (
-                <Rail label={t.categories[category]} gap="sm" className="mt-2.5">
+                <Rail label={t.categories[category]} gap="sm" layout="grid" className="mt-2.5">
                   {group.map((entry) =>
                     entry.slug ? (
                       <Link
                         key={entry.title}
                         href={`/entry/${entry.slug}`}
-                        className="w-56 shrink-0 snap-start rounded-xl border border-[var(--color-line)] p-3 text-[13px] leading-snug font-medium text-[var(--color-ink)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+                        className="min-w-0 rounded-xl border border-[var(--color-line)] p-3 text-[13px] leading-snug font-medium break-words text-[var(--color-ink)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
                       >
                         {entry.title}
                       </Link>
@@ -242,7 +242,7 @@ export function ThematicEntries({ entries }: { entries: PlannedEntry[] }) {
                         key={entry.title}
                         aria-disabled="true"
                         title={t.portrait.notWrittenYet}
-                        className="pointer-events-none w-56 shrink-0 snap-start rounded-xl border border-dashed border-[var(--color-line)] bg-[var(--color-line)]/20 p-3 text-[13px] leading-snug text-[var(--color-ink-muted)]"
+                        className="pointer-events-none min-w-0 rounded-xl border border-dashed border-[var(--color-line)] bg-[var(--color-line)]/20 p-3 text-[13px] leading-snug break-words text-[var(--color-ink-muted)]"
                       >
                         {entry.title}
                       </span>

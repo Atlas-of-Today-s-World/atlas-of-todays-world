@@ -308,7 +308,7 @@ export function countriesOf(atlas: Atlas, iso3s: string[]): Country[] {
     .sort(byPopulation);
 }
 
-/** ISO3 -> region colour: the base for the "Encyclopedia view" on the globe. */
+/** ISO3 -> region colour: the base for the default "World metrics" view on the globe. */
 export function regionColorMap(regions: Region[]): Record<string, string> {
   const out: Record<string, string> = {};
   for (const region of regions) for (const iso3 of region.countries) out[iso3] = region.fill;

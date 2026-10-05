@@ -24,6 +24,14 @@ const track = cva(
   },
 );
 
+/** Grid layout: two tiles per row, the rest wraps; the panel scrolls, never the block. */
+const grid = cva("grid grid-cols-2", {
+  variants: {
+    gap: { sm: "gap-2.5", md: "gap-3", lg: "gap-6" },
+  },
+  defaultVariants: { gap: "md" },
+});
+
 const arrow = cva(
   "grid size-(--touch-min) place-items-center rounded-full border transition disabled:pointer-events-none disabled:opacity-30",
   {
@@ -42,12 +50,17 @@ const arrow = cva(
  * The single Atlas carousel (ARCHITEKTURA 15.3, D2): timeline, entries, visuals,
  * sources and news. Items have their own width and `snap-start`; Rail handles
  * scrolling with arrows, keyboard (←/→, Home/End) and labels for screen readers.
+ *
+ * `layout="grid"` lays the same items out two per row with no horizontal
+ * scrolling at all — for lists people scan rather than browse (entries).
+ * Items then must not set their own width.
  */
 export function Rail({
   label,
   children,
   gap,
   tone = "light",
+  layout = "scroll",
   className,
 }: {
   /** Screen-reader label ("Timeline", "News") — different for each carousel on the page. */
@@ -55,6 +68,7 @@ export function Rail({
   children: ReactNode;
   gap?: "sm" | "md" | "lg";
   tone?: "light" | "dark";
+  layout?: "scroll" | "grid";
   className?: string;
 }) {
   const t = useMessages().ui;
@@ -101,6 +115,14 @@ export function Rail({
   };
 
   const scrollable = !(edges.start && edges.end);
+
+  if (layout === "grid") {
+    return (
+      <div role="region" aria-label={label} className={cn("mt-5", className)}>
+        <div className={grid({ gap })}>{children}</div>
+      </div>
+    );
+  }
 
   return (
     <div

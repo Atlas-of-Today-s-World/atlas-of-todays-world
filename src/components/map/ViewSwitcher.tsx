@@ -12,7 +12,7 @@ export interface ViewOption {
 }
 
 /**
- * Data layer switcher – the "Encyclopedia view" button in Figma.
+ * Data layer switcher – the "World metrics" button (called "Encyclopedia view" in Figma).
  * The option list comes from the server, so adding an indicator to
  * scripts/indicators.config.mjs shows up here automatically.
  */
