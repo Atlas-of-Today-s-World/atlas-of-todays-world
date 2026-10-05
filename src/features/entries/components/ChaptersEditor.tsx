@@ -31,9 +31,9 @@ const blank = (): Chapter => ({
 });
 
 /**
- * Articles of a topic (stored as entry chapters): each has a title, 3–5 summary
+ * Chapters of a topic (stored as entry chapters): each has a title, 3–5 summary
  * bullets, a tile photo or colour, audio and full text. Fields are uncontrolled
- * and named the same in every article — the Server Action reads them in page
+ * and named the same in every chapter — the Server Action reads them in page
  * order. The key keeps unsaved text when moving up/down.
  */
 export function ChaptersEditor({
@@ -57,11 +57,11 @@ export function ChaptersEditor({
       className="rounded-2xl border border-[var(--color-line)] p-5"
     >
       <h2 id="articles-title" className="font-display text-[18px] font-bold">
-        Articles
+        Chapters
       </h2>
       <p className="mt-1 text-[13px] text-[var(--color-ink-muted)]">
-        A topic has up to 12 articles, shown as tiles in two columns (photo, or a colour when there
-        is none). A click on a tile opens the article: photo, summary bullets, audio and full text.
+        A topic has up to 12 chapters, shown as a row of cards (photo, or a colour when there is
+        none). A click on a card opens the chapter: photo, summary bullets, audio and full text.
       </p>
 
       <ActionForm action={action} className="mt-5 grid gap-4">
@@ -69,16 +69,16 @@ export function ChaptersEditor({
 
         {chapters.map((chapter, index) => {
           const id = (field: string) => `chapter-${chapter.key}-${field}`;
-          const label = `article ${index + 1}`;
+          const label = `chapter ${index + 1}`;
           return (
             <fieldset
               key={chapter.key}
               className="grid gap-3 rounded-xl bg-[var(--color-line)]/25 p-4"
             >
-              <legend className="sr-only">Article {index + 1}</legend>
+              <legend className="sr-only">Chapter {index + 1}</legend>
               <div className="flex items-center justify-between">
                 <span className="text-[12px] font-medium text-[var(--color-ink-muted)]">
-                  Article {index + 1}
+                  Chapter {index + 1}
                 </span>
                 <span className="flex gap-1">
                   <IconAction
@@ -150,8 +150,8 @@ export function ChaptersEditor({
               </FormField>
               <FormField
                 id={id("audio")}
-                label="Article audio"
-                hint="MP3, M4A/AAC, Ogg/Opus, WAV or FLAC up to 50 MB. An article in MP3 (64 kbps) is about 7–10 MB; WAV and FLAC are 5–10× larger."
+                label="Chapter audio"
+                hint="MP3, M4A/AAC, Ogg/Opus, WAV or FLAC up to 50 MB. A chapter in MP3 (64 kbps) is about 7–10 MB; WAV and FLAC are 5–10× larger."
               >
                 <UploadField
                   id={id("audio")}
@@ -167,7 +167,7 @@ export function ChaptersEditor({
                 <RichTextEditor
                   name="body_html"
                   initialHtml={chapter.body_html}
-                  label={`Article ${index + 1} text`}
+                  label={`Chapter ${index + 1} text`}
                 />
               </div>
             </fieldset>
@@ -176,7 +176,7 @@ export function ChaptersEditor({
 
         {!chapters.length ? (
           <p className="text-[13px] text-[var(--color-ink-muted)]">
-            This topic has no articles yet — only the introduction will appear on the website.
+            This topic has no chapters yet — only the introduction will appear on the website.
           </p>
         ) : null}
 
@@ -188,9 +188,9 @@ export function ChaptersEditor({
             onClick={() => setChapters((current) => [...current, blank()])}
             disabled={chapters.length >= MAX_CHAPTERS}
           >
-            <Plus size={16} aria-hidden /> Add article
+            <Plus size={16} aria-hidden /> Add chapter
           </Button>
-          <SubmitButton size="sm">Save articles</SubmitButton>
+          <SubmitButton size="sm">Save chapters</SubmitButton>
         </div>
       </ActionForm>
     </section>

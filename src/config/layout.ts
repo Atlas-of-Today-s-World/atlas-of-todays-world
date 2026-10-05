@@ -11,6 +11,13 @@ export const RAIL = { vw: 38, rem: 27 } as const;
 /** Wide panel (region portrait, global issue, news item). */
 export const RAIL_WIDE = { vw: 52, rem: 46 } as const;
 
+/** Globe window bottom left on full-width pages, in px (larger from Tailwind `sm` up). */
+export const MINI_GLOBE = {
+  mobile: { width: 200, height: 132 },
+  desktop: { width: 280, height: 180 },
+  desktopMinPx: 640,
+} as const;
+
 /** From this width up the panel is on the right; below it, a bottom sheet (Tailwind `md`). */
 export const DESKTOP_MIN_PX = 768;
 /** Minimum touch target (WCAG 2.5.5). */
@@ -18,14 +25,21 @@ export const TOUCH_MIN_PX = 44;
 
 const REM_PX = 16;
 const WIDE_RAIL = /^\/(news|region|global-issue)\//;
+/** Full-width pages over the map (Topics, encyclopedia entries): the globe shrinks to a corner window. */
+const FULL_PAGE = /^\/(topics|entry)(\/|$)/;
 
 export type RailKind = "none" | "normal" | "wide";
 
-/** Which panel is open on the given path. */
+/** Path without the language prefix (/cs/…, or the internal /en/… on the server). */
+const pagePath = (pathname: string) => splitLocale(withoutDefaultPrefix(pathname)).path;
+
+/** A full-width page: the globe waits in a small window bottom left. */
+export const isFullPage = (pathname: string): boolean => FULL_PAGE.test(pagePath(pathname));
+
+/** Which panel is open on the given path (a full-width page has none). */
 export function railKind(pathname: string): RailKind {
-  // The language prefix (/cs/…, or the internal /en/… on the server) does not affect the panel width.
-  const { path } = splitLocale(withoutDefaultPrefix(pathname));
-  if (path === "/") return "none";
+  const path = pagePath(pathname);
+  if (path === "/" || FULL_PAGE.test(path)) return "none";
   return WIDE_RAIL.test(path) ? "wide" : "normal";
 }
 

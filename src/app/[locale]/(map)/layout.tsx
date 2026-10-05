@@ -97,7 +97,7 @@ export default async function MapLayout({
   const t = getT();
   const viewOptions = buildViewOptions(atlas.indicators, atlas.theme.saturation, t);
   const regionLabels = atlas.regions.map(({ slug, name, center }) => ({ slug, name, center }));
-  // Topic counts over places (ADR-023): computed here once, the globe only draws them.
+  // Topic counts over places (ADR-024): computed here once, the globe only draws them.
   const counts = countTopics(places, {
     regionOf: Object.fromEntries(atlas.countries.map((c) => [c.iso3, c.region?.slug])),
     issues: atlas.issues,

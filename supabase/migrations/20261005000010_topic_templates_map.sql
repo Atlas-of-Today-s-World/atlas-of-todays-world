@@ -1,5 +1,5 @@
 -- =============================================================================
--- Topics: tile templates, own tiles per topic, map layers (ADR-023)
+-- Topics: tile templates, own tiles per topic, map layers (ADR-024)
 -- =============================================================================
 --
 -- A topic is an encyclopedia entry (`entries.kind = 'entry'`, shown as a

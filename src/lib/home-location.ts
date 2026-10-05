@@ -9,6 +9,8 @@
  *   3. if neither matches, the center of Europe.
  */
 
+import { MINI_GLOBE } from "@/config/layout";
+
 /** Center of Europe – the default view when the location can't be determined. */
 export const EUROPE_CENTER: [number, number] = [14, 49.5];
 
@@ -23,8 +25,19 @@ export const EUROPE_CENTER: [number, number] = [14, 49.5];
 export function globeFillZoom(fill = 1.04): number {
   if (typeof window === "undefined") return 2.6;
   const diameter = Math.min(window.innerWidth, window.innerHeight) * fill;
-  const zoom = Math.log2((diameter * Math.PI) / 512);
-  return Math.max(1.7, Math.min(3.4, zoom));
+  return Math.max(1.7, Math.min(3.4, zoomForDiameter(diameter)));
+}
+
+const zoomForDiameter = (diameterPx: number) => Math.log2((diameterPx * Math.PI) / 512);
+
+/**
+ * Zoom at which the whole globe fits the small window on full-width pages
+ * (with a thin margin). Below MapLibre's usual minimum, so the map's minZoom
+ * is lowered while the window is shown.
+ */
+export function miniGlobeZoom(viewportWidth: number): number {
+  const size = viewportWidth >= MINI_GLOBE.desktopMinPx ? MINI_GLOBE.desktop : MINI_GLOBE.mobile;
+  return zoomForDiameter(Math.min(size.width, size.height) * 0.9);
 }
 
 /** Rough continent center by time zone prefix. */

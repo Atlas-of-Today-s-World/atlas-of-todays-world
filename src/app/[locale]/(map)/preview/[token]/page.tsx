@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { FullPage } from "@/components/FullPage";
 import { EncyclopediaArticle } from "@/features/entries/components/EncyclopediaArticle";
 import { NewsArticle } from "@/features/entries/components/NewsArticle";
 import { getPreview } from "@/features/entries/queries";
@@ -29,7 +30,8 @@ export default async function PreviewPage({
 }) {
   const { token } = await params;
   const locale = await localeFrom(params);
-  const t = getMessages(locale).preview;
+  const messages = getMessages(locale);
+  const t = messages.preview;
   const [preview, atlas] = await Promise.all([getPreview(token), getAtlas(locale)]);
   if (!preview) notFound();
   const expires = new Intl.DateTimeFormat(DATE_INTL[locale], {
@@ -48,8 +50,11 @@ export default async function PreviewPage({
     </p>
   );
 
+  // Entries are full-width pages (like /entry/…); news stays in the panel over the map.
   return preview.kind === "entry" ? (
-    <EncyclopediaArticle item={preview.item} atlas={atlas} banner={banner} />
+    <FullPage t={messages}>
+      <EncyclopediaArticle item={preview.item} atlas={atlas} banner={banner} />
+    </FullPage>
   ) : (
     <NewsArticle item={preview.item} atlas={atlas} banner={banner} />
   );

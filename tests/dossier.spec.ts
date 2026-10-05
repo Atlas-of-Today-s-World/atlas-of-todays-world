@@ -95,14 +95,15 @@ test.afterAll(async () => {
   await cleanUp();
 });
 
-test("dossier page: topic and learn-more tiles open their panels", async ({ page }) => {
+test("dossier page: chapter and learn-more tiles open their panels", async ({ page }) => {
   await page.goto(`/entry/${slug}`);
   await expect(page).toHaveTitle(`Smuggling explained ${run} — Atlas of Today's World`);
   await expect(page.getByText("Migrant smuggling is the paid facilitation")).toBeVisible();
 
-  const topics = page.getByRole("region", { name: "Articles" });
-  await expect(topics.getByRole("button")).toHaveCount(2);
-  // The first topic is open by default.
+  // Full-width page: the row of chapter cards, the open chapter right below it.
+  const topics = page.getByRole("region", { name: "Chapters" });
+  await expect(topics.getByRole("list").getByRole("button")).toHaveCount(2);
+  // The first chapter is open by default.
   await expect(page.getByRole("heading", { level: 2, name: "Brief overview" })).toBeVisible();
 
   await topics.getByRole("button", { name: /Smuggling routes/ }).click();
@@ -118,6 +119,22 @@ test("dossier page: topic and learn-more tiles open their panels", async ({ page
 
   const jsonLd = await page.locator('script[type="application/ld+json"]').allTextContents();
   expect(jsonLd.join("")).toContain('"FAQPage"');
+});
+
+test("Topics: from the list to a dossier and back to the Atlas", async ({ page }) => {
+  await page.goto("/topics");
+  await expect(page.getByRole("heading", { level: 1, name: "Topics" })).toBeVisible();
+  // The globe waits in its window bottom left and leads back to the map.
+  await expect(page.locator("[data-globe-window]")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Back to the Atlas globe" })).toBeVisible();
+
+  await page.getByRole("link", { name: title }).click();
+  await expect(page).toHaveURL(new RegExp(`/entry/${slug}$`));
+  await expect(page.getByRole("region", { name: "Chapters" })).toBeVisible();
+
+  await page.getByRole("link", { name: "Back to Atlas", exact: true }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.locator("[data-globe-window]")).toHaveCount(0);
 });
 
 test("SEO & GEO: valid Article graph, author profile and a Markdown version", async ({

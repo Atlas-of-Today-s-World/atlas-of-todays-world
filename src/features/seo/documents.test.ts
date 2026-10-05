@@ -78,7 +78,7 @@ describe("article Markdown", () => {
       "## In short\n\nMigrant smuggling is the paid facilitation of irregular border crossing.",
     );
     expect(markdown).toContain("## Summary\n\n- Point one");
-    expect(markdown).toContain("## Article 1: Routes\n\n- Sea\n\nText.");
+    expect(markdown).toContain("## Chapter 1: Routes\n\n- Sea\n\nText.");
     expect(markdown).toContain("## Questions and answers\n\n### What is it?\n\nA crime.");
     expect(markdown).toContain(
       "## Sources and further reading\n\n- [UNODC report](https://www.unodc.org/x) — UNODC",

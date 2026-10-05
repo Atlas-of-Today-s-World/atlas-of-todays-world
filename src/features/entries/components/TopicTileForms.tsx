@@ -29,9 +29,9 @@ function LabelFields({
     <div className="grid gap-4 sm:grid-cols-2">
       <FormField
         id={`${prefix}-articles`}
-        label="Heading of the article tiles"
+        label="Heading of the chapter cards"
         required={required}
-        hint={required ? undefined : "Empty = “Articles”."}
+        hint={required ? undefined : "Empty = “Chapters”."}
       >
         <Input
           id={`${prefix}-articles`}
@@ -39,7 +39,7 @@ function LabelFields({
           maxLength={40}
           required={required}
           defaultValue={articles}
-          placeholder="Articles"
+          placeholder="Chapters"
         />
       </FormField>
       <FormField
@@ -200,7 +200,7 @@ export function TemplateForm({ template }: { template: TemplateSummary | null })
       </div>
       <LabelFields
         prefix="template"
-        articles={template?.articles_label ?? "Articles"}
+        articles={template?.articles_label ?? "Chapters"}
         learnMore={template?.learn_more_label ?? "Learn more"}
         required
       />

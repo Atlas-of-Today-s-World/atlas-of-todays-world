@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import EncyclopediaDock from "@/components/EncyclopediaDock";
-import { RAIL_OFFSET, railKind } from "@/config/layout";
+import { RAIL_OFFSET, isFullPage, railKind } from "@/config/layout";
 import ModeSwitch from "./ModeSwitch";
 import ViewSwitcher, { type ViewOption } from "./ViewSwitcher";
 
@@ -22,6 +22,8 @@ export default function MapControls({
   const rail = railKind(pathname);
   // Without the panel the bar keeps the same margin on mobile and desktop.
   const offset = rail === "none" ? "right-5" : `right-5 ${RAIL_OFFSET[rail]}`;
+  // On full-width pages the globe is only a small window: no controls over it.
+  if (isFullPage(pathname)) return null;
 
   return (
     <div

@@ -214,7 +214,7 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
   ];
   const parsed = z
     .array(ChapterInput)
-    .max(MAX_CHAPTERS, `At most ${MAX_CHAPTERS} articles.`)
+    .max(MAX_CHAPTERS, `At most ${MAX_CHAPTERS} chapters.`)
     .safeParse(
       titles.map((title, index) => ({
         title,
@@ -226,7 +226,7 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
         tile_background: backgrounds[index],
       })),
     );
-  if (!parsed.success) return listItemError(parsed.error, "Article", CHAPTER_FIELD_LABEL);
+  if (!parsed.success) return listItemError(parsed.error, "Chapter", CHAPTER_FIELD_LABEL);
 
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
@@ -240,7 +240,7 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
   });
   if (error) return failed(error);
   await refreshEntry(session.supabase, entryId, true);
-  return { ok: true, message: "Articles saved." };
+  return { ok: true, message: "Chapters saved." };
 }
 
 /** Dossier FAQ — shown on the page and as FAQPage structured data. */

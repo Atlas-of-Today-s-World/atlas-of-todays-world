@@ -1,5 +1,5 @@
 /**
- * How many topics belong to each place on the globe (ADR-023). Pure, so the
+ * How many topics belong to each place on the globe (ADR-024). Pure, so the
  * server computes it once per page and a unit test pins the rules:
  *
  * - countries layer: a country counts the topics placed on it, on its region

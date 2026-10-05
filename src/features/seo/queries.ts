@@ -12,7 +12,7 @@ import { getAtlas } from "@/features/geography/queries";
 import type { Atlas } from "@/features/geography/types";
 import { DEFAULT_LOCALE, localePath, type Locale } from "@/features/i18n/config";
 import { format, getMessages } from "@/features/i18n/messages";
-import { LEGAL_NAV } from "@/config/navigation";
+import { LEGAL_NAV, TOPICS_PATH } from "@/config/navigation";
 import { ORGANIZATION } from "@/config/organization";
 import { MEMBERSHIP_PATH } from "@/features/membership/config";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
@@ -112,6 +112,7 @@ export async function getSitemaps(now = Date.now()): Promise<Record<SitemapName,
     pages: [
       { path: "/", lastmod: latest([dataChanged, ...articles.map(articleDate)]) },
       { path: "/news", lastmod: latest(news.map(articleDate)) },
+      { path: TOPICS_PATH, lastmod: latest(entries.map(articleDate)) },
       { path: "/about", lastmod: dataChanged },
       { path: MEMBERSHIP_PATH },
       ...LEGAL_NAV.map((item) => ({ path: item.href, languages: [DEFAULT_LOCALE] })),
@@ -258,6 +259,7 @@ function sections(atlas: Atlas, news: EntrySummary[], entries: EntrySummary[], l
       title: s.sectionAbout,
       links: [
         { name: t.about.title, url: url(locale, "/about"), note: t.about.description },
+        { name: t.topics.title, url: url(locale, TOPICS_PATH), note: t.topics.description },
         { name: t.patrons.title, url: url(locale, MEMBERSHIP_PATH), note: t.patrons.description },
         { name: "RSS", url: url(locale, "/feed.xml") },
         { name: "Sitemap", url: absoluteUrl("/sitemap.xml") },

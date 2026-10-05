@@ -22,10 +22,12 @@ import {
   type StyleOptions,
 } from "./mapStyle";
 import { format } from "@/features/i18n/messages";
-import { EUROPE_CENTER, globeFillZoom } from "@/lib/home-location";
+import { EUROPE_CENTER, globeFillZoom, miniGlobeZoom } from "@/lib/home-location";
 import { useMapState } from "./MapContext";
 import { useLatest } from "@/lib/use-latest";
-import { DESKTOP_MIN_PX, railKind, railWidthPx } from "@/config/layout";
+import { DESKTOP_MIN_PX, isFullPage, railKind, railWidthPx } from "@/config/layout";
+import Link from "@/components/i18n/Link";
+import { cn } from "@/lib/cn";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { isSpinEvent, useIdleSpin } from "./useIdleSpin";
 
@@ -100,6 +102,10 @@ function topicExpressions(counts: Record<string, number>, property: "iso3" | "sl
 }
 
 const NEUTRAL = "#7d8aa8";
+/** Closest zoom on the full map; the corner window on full-width pages goes below it. */
+const MIN_ZOOM = 0.8;
+/** Globe ↔ corner window transition (matches the wrapper's CSS transition). */
+const WINDOW_MS = 700;
 /** Upper bound for the globe canvas pixel ratio (see the Map options). */
 const MAX_PIXEL_RATIO = 1.5;
 
@@ -202,8 +208,12 @@ export default function AtlasGlobe({
   const regionIsoRef = useRef<string[]>([]);
   const activeIsoRef = useRef<string[]>([]);
 
-  // On the home map the globe turns slowly until the user grabs it.
-  useIdleSpin(mapRef, surfaceRef, ready, railKind(usePathname()) === "none");
+  const pathname = usePathname();
+  /** Full-width page (Topics, entry): the globe waits in a small window bottom left. */
+  const mini = isFullPage(pathname);
+
+  // On the home map (and in the corner window) the globe turns slowly until the user grabs it.
+  useIdleSpin(mapRef, surfaceRef, ready, railKind(pathname) === "none");
 
   // --- map initialization (only once for the app's whole lifetime) ---
   useEffect(() => {
@@ -221,7 +231,7 @@ export default function AtlasGlobe({
         // appear as a tiny ball and only then fly in.
         center: EUROPE_CENTER,
         zoom: globeFillZoom(),
-        minZoom: 0.8,
+        minZoom: MIN_ZOOM,
         maxZoom: 9,
         attributionControl: { compact: true },
         // Satellite imagery is 256 px raster; rendering above 1.5× only multiplies
@@ -462,6 +472,27 @@ export default function AtlasGlobe({
     if (!map || !ready) return;
     if (focus.center) lastPlaceRef.current = focus.center;
 
+    // Corner window: the whole globe, turned to the page's place (if it has one).
+    if (mini) {
+      const zoom = miniGlobeZoom(window.innerWidth);
+      map.setMinZoom(Math.min(MIN_ZOOM, zoom));
+      map.easeTo({
+        center: focus.center ?? map.getCenter(),
+        zoom,
+        duration: WINDOW_MS,
+        essential: true,
+      });
+      return;
+    }
+    // Back to the full map: grow the globe with the window, then restore the usual minimum.
+    if (map.getMinZoom() < MIN_ZOOM) {
+      map.once("moveend", () => map.setMinZoom(MIN_ZOOM));
+      if (!focus.bbox && !focus.center) {
+        map.easeTo({ zoom: globeFillZoom(), duration: WINDOW_MS, essential: true });
+        return;
+      }
+    }
+
     // The viewport can zoom "by country size": Luxembourg up close, Russia from afar.
     if (focus.bbox) {
       const [minLon, minLat, maxLon, maxLat] = focus.bbox;
@@ -489,13 +520,43 @@ export default function AtlasGlobe({
       duration: 1600,
       essential: true,
     });
-  }, [focus.bbox, focus.center, focus.zoom, ready]);
+  }, [focus.bbox, focus.center, focus.zoom, mini, ready]);
 
   return (
-    <div ref={surfaceRef} data-print="hide" className="absolute inset-0">
+    <div
+      ref={surfaceRef}
+      data-print="hide"
+      data-globe-window={mini ? "" : undefined}
+      // Width/height animate between the full map and the corner window; MapLibre
+      // follows the size with its ResizeObserver, a final resize() makes it crisp.
+      onTransitionEnd={(event) => {
+        if (event.target === event.currentTarget) mapRef.current?.resize();
+      }}
+      className={cn(
+        "fixed bottom-0 left-0 overflow-hidden bg-[var(--color-space-deep)] transition-[width,height,left,bottom,border-radius] duration-700 ease-[cubic-bezier(0.65,0,0.35,1)]",
+        mini
+          ? "bottom-4 left-4 z-[46] h-(--mini-globe-height) w-(--mini-globe-width) rounded-2xl shadow-2xl ring-1 shadow-black/60 ring-white/25"
+          : "h-dvh w-full",
+      )}
+    >
       <div ref={containerRef} className="h-full w-full" />
 
-      <div className="pointer-events-none absolute top-24 left-5 flex flex-col gap-1.5">
+      {mini ? (
+        <Link
+          href="/"
+          aria-label={t.topics.globeWindow}
+          className="group absolute inset-0 z-10 flex items-start justify-center rounded-2xl bg-gradient-to-b from-black/55 via-transparent to-transparent p-2.5 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none focus-visible:ring-inset"
+        >
+          <span className="rounded-full bg-black/55 px-3 py-1 text-[11px] font-medium text-white backdrop-blur transition group-hover:bg-black/75">
+            {t.topics.backToAtlas}
+          </span>
+        </Link>
+      ) : null}
+
+      <div
+        hidden={mini}
+        className="pointer-events-none absolute top-24 left-5 flex flex-col gap-1.5"
+      >
         <button
           type="button"
           aria-label={t.map.zoomIn}
@@ -514,7 +575,7 @@ export default function AtlasGlobe({
         </button>
       </div>
 
-      {hoverLabel ? (
+      {hoverLabel && !mini ? (
         <div className="glass pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 rounded-full px-3.5 py-1.5 text-xs tracking-wide text-white/90">
           {hoverLabel}
         </div>

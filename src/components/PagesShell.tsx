@@ -66,26 +66,33 @@ export function PagesShell({
       >
         {children}
       </div>
-      <footer className="border-t border-[var(--color-line)]">
-        <nav
-          aria-label={t.header.legal}
-          className={cn(
-            "mx-auto flex flex-wrap gap-x-5 px-6 py-4 text-[12.5px] text-[var(--color-ink-muted)]",
-            width,
-          )}
-        >
-          <span className="flex min-h-11 items-center">© Atlas of Today&rsquo;s World</span>
-          {LEGAL_NAV.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex min-h-11 items-center hover:text-[var(--color-accent)]"
-            >
-              {t.nav[item.key]}
-            </Link>
-          ))}
-        </nav>
-      </footer>
+      <LegalFooter t={t} width={width} />
     </div>
+  );
+}
+
+/** Footer of pages without the globe and of full-width pages: © and the legal pages. */
+export function LegalFooter({ t, width }: { t: Messages; width: string }) {
+  return (
+    <footer className="border-t border-[var(--color-line)]">
+      <nav
+        aria-label={t.header.legal}
+        className={cn(
+          "mx-auto flex flex-wrap gap-x-5 px-6 py-4 text-[12.5px] text-[var(--color-ink-muted)]",
+          width,
+        )}
+      >
+        <span className="flex min-h-11 items-center">© Atlas of Today&rsquo;s World</span>
+        {LEGAL_NAV.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className="flex min-h-11 items-center hover:text-[var(--color-accent)]"
+          >
+            {t.nav[item.key]}
+          </Link>
+        ))}
+      </nav>
+    </footer>
   );
 }

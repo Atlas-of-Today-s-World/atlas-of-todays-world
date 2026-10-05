@@ -36,7 +36,7 @@ export const metadata: Metadata = { title: "Edit article" };
 /** Sections of a dossier's editor, one per tab (`?tab=`). */
 const TABS = [
   { key: "article", label: "Article" },
-  { key: "topics", label: "Articles" },
+  { key: "topics", label: "Chapters" },
   { key: "learn-more", label: "Learn more" },
   { key: "seo", label: "SEO & GEO" },
 ] as const;
