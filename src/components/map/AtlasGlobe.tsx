@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { useLocalizedRouter } from "@/components/i18n/useLocalizedRouter";
 import type {
   Map as MapLibreMap,
@@ -26,6 +27,7 @@ import { useMapState } from "./MapContext";
 import { useLatest } from "@/lib/use-latest";
 import { DESKTOP_MIN_PX, railKind, railWidthPx } from "@/config/layout";
 import { useMessages } from "@/components/i18n/LocaleProvider";
+import { isSpinEvent, useIdleSpin } from "./useIdleSpin";
 
 interface GlobeColorSets {
   /** ISO3 -> color for each layer, precomputed on the server. */
@@ -165,6 +167,7 @@ export default function AtlasGlobe({
 }: Props) {
   const t = useMessages();
   const containerRef = useRef<HTMLDivElement>(null);
+  const surfaceRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const hoveredRef = useRef<string | null>(null);
   const readyRef = useRef(false);
@@ -195,6 +198,9 @@ export default function AtlasGlobe({
   const hoveredIsoRef = useRef<string[]>([]);
   const regionIsoRef = useRef<string[]>([]);
   const activeIsoRef = useRef<string[]>([]);
+
+  // On the home map the globe turns slowly until the user grabs it.
+  useIdleSpin(mapRef, surfaceRef, ready, railKind(usePathname()) === "none");
 
   // --- map initialization (only once for the app's whole lifetime) ---
   useEffect(() => {
@@ -319,12 +325,16 @@ export default function AtlasGlobe({
       // During a camera flight different countries pass under a still cursor.
       // So we turn the highlight off when movement starts and recompute it when it ends,
       // otherwise a random country from mid-animation would stay highlighted.
-      const onMoveStart = () => {
+      // The idle spin moves the camera every frame; the highlight stays on until the cursor moves.
+      const onMoveStart = (event: object) => {
+        if (isSpinEvent(event)) return;
         hoveredRef.current = null;
         setHoverState(map, hoveredIsoRef, []);
         setHoverLabel(null);
       };
-      const onMoveEnd = () => applyHover(cursorRef.current);
+      const onMoveEnd = (event: object) => {
+        if (!isSpinEvent(event)) applyHover(cursorRef.current);
+      };
 
       map.on("mousemove", onMove);
       map.on("click", onClick);
@@ -465,7 +475,7 @@ export default function AtlasGlobe({
   }, [focus.bbox, focus.center, focus.zoom, ready]);
 
   return (
-    <div data-print="hide" className="absolute inset-0">
+    <div ref={surfaceRef} data-print="hide" className="absolute inset-0">
       <div ref={containerRef} className="h-full w-full" />
 
       <div className="pointer-events-none absolute top-24 left-5 flex flex-col gap-1.5">

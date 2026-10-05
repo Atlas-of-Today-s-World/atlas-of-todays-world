@@ -110,6 +110,7 @@
   },
   "map": {
     "encyclopediaView": "World metrics",
+    "noMetric": "No metric",
     "encyclopediaCaption": "World regions of the Atlas · click any country to open its profile · numbers show topics",
     "topicsOne": "1 topic",
     "topicsCount": "{count} topics",
@@ -381,7 +382,8 @@
     "description": "Spin the satellite globe, click any country and read its profile: human development, political regime, living conditions and the news behind them.",
     "intro": "An interactive encyclopedia of the present. Explore the world on a 3D satellite globe, switch between data layers such as the Human Development Index, political regime or corruption perceptions, and open the profile of any region or country.",
     "regions": "World regions",
-    "countries": "Countries"
+    "countries": "Countries",
+    "support": "Support the Atlas"
   },
   "view": {
     "title": "{label} by country",

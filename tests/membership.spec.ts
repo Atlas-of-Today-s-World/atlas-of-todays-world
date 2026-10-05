@@ -14,6 +14,13 @@ async function fillCard(page: Page, number: string) {
 }
 
 test.describe("Atlas Patrons", () => {
+  test("the coin button on the home map leads to the donation page", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("link", { name: "Support the Atlas" }).click();
+    await expect(page).toHaveURL(/\/membership$/);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Help Us Build");
+  });
+
   test("one-time €100 → demo checkout with test card → thank-you", async ({ page }) => {
     await page.goto("/membership");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Help Us Build");

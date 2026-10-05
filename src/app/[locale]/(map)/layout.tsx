@@ -21,7 +21,8 @@ function buildViewOptions(indicators: Indicator[], saturation: number, t: Messag
   return [
     {
       id: "encyclopedia",
-      label: t.map.encyclopediaView,
+      // Default: no indicator, the globe shows the Atlas regions. The button then reads "World metrics".
+      label: t.map.noMetric,
       shortLabel: t.map.encyclopediaView,
       caption: t.map.encyclopediaCaption,
       swatches: [],
