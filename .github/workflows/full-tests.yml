@@ -1,0 +1,119 @@
+# The full suite, split into parallel jobs. It does NOT block deploys:
+# deploy.yml waits only for CI (ci.yml). Runs after every push to main and on
+# demand (Actions → Full tests → Run workflow); a red run here means "fix
+# before the next feature", not "the site is down".
+#
+# To make it blocking again: move these jobs into ci.yml (or add them to the
+# required status checks of `main`).
+name: Full tests
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: full-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Storybook, DB, duplicity, unused, audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Storybook builds (shared component catalog)
+        run: npm run build-storybook
+      - run: npm run test:coverage
+      - run: npm run test:db
+      - name: Duplicity (jscpd)
+        run: npm run check:dup
+      - name: Unused code (knip)
+        run: npm run check:unused
+      - name: Vulnerable dependencies
+        run: npm run check:audit
+
+  e2e:
+    name: e2e ${{ matrix.shard }}/3
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+    # Public values of the dev project (atlas-dev) — e2e never touches production.
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL_DEV }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY_DEV }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: next-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
+          restore-keys: next-${{ hashFiles('package-lock.json') }}-
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - name: Playwright (shard ${{ matrix.shard }} of 3)
+        run: |
+          npm run start &
+          npx --yes wait-on --timeout 60000 http://localhost:3000
+          npx playwright install --with-deps chromium
+          npx playwright test --shard=${{ matrix.shard }}/3
+        env:
+          BASE_URL: http://localhost:3000
+          # Only for test accounts in atlas-dev (tests/auth.spec.ts); without it the suite is skipped.
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY_DEV }}
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: playwright-report-${{ matrix.shard }}
+          path: playwright-report/
+          retention-days: 7
+
+  lighthouse:
+    name: Lighthouse
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL_DEV }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY_DEV }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: next-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
+          restore-keys: next-${{ hashFiles('package-lock.json') }}-
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - name: Lighthouse (performance and accessibility budgets, lighthouserc.json)
+        run: |
+          npm run start &
+          npx --yes wait-on --timeout 60000 http://localhost:3000
+          npx --yes @lhci/cli@0.14 autorun
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: lighthouse
+          path: .lighthouseci/
+          # The folder starts with a dot — without this upload-artifact skips it.
+          include-hidden-files: true
+          retention-days: 7

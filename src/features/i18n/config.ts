@@ -22,6 +22,18 @@ export function localePath(locale: Locale, path: string): string {
 }
 
 /**
+ * Drops the `/en` prefix of the internal route English pages are rendered under
+ * (`/en/country/x` → `/country/x`). On the server `usePathname()` can return
+ * that internal path, so anything reading the page from it must strip it first.
+ */
+export const withoutDefaultPrefix = (path: string): string =>
+  path === `/${DEFAULT_LOCALE}`
+    ? "/"
+    : path.startsWith(`/${DEFAULT_LOCALE}/`)
+      ? path.slice(DEFAULT_LOCALE.length + 1)
+      : path;
+
+/**
  * Language and path without the language prefix from the browser URL
  * (`/cs/country/x` → cs, `/country/x`; `/country/x` → en, unchanged).
  */
