@@ -492,5 +492,12 @@
     "countries": "Countries",
     "category": "Category",
     "publisher": "Publisher"
+  },
+  "cookies": {
+    "label": "Cookie notice",
+    "text": "This site uses only the cookies it needs to work — no advertising or tracking cookies. Visits are counted without cookies.",
+    "privacy": "Privacy",
+    "ok": "OK",
+    "closesIn": "Closes in {seconds} s"
   }
 }

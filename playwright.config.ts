@@ -1,4 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
+import { COOKIE_NOTICE_KEY } from "./src/config/cookies";
+
+const baseURL = process.env.BASE_URL ?? "http://localhost:3000";
 
 /**
  * In-browser walkthroughs of the app.
@@ -25,7 +28,18 @@ export default defineConfig({
   workers: process.env.CI ? 2 : 1,
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : [["list"]],
   use: {
-    baseURL: process.env.BASE_URL ?? "http://localhost:3000",
+    baseURL,
+    // The cookie notice counts as seen, so it never covers what a test clicks
+    // (tests/cookies.spec.ts starts without it).
+    storageState: {
+      cookies: [],
+      origins: [
+        {
+          origin: new URL(baseURL).origin,
+          localStorage: [{ name: COOKIE_NOTICE_KEY, value: "1" }],
+        },
+      ],
+    },
     trace: "retain-on-failure",
   },
   projects: [
