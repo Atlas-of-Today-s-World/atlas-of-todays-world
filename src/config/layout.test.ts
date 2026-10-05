@@ -1,7 +1,15 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { RAIL, RAIL_WIDE, TOUCH_MIN_PX, railKind, railWidthPx } from "./layout";
+import {
+  MINI_GLOBE,
+  RAIL,
+  RAIL_WIDE,
+  TOUCH_MIN_PX,
+  isFullPage,
+  railKind,
+  railWidthPx,
+} from "./layout";
 
 const css = readFileSync(join(__dirname, "../app/globals.css"), "utf8");
 
@@ -10,6 +18,11 @@ describe("layout tokens", () => {
     expect(css).toContain(`--rail-width: min(${RAIL.vw}vw, ${RAIL.rem}rem);`);
     expect(css).toContain(`--rail-width-wide: min(${RAIL_WIDE.vw}vw, ${RAIL_WIDE.rem}rem);`);
     expect(css).toContain(`--touch-min: ${TOUCH_MIN_PX}px;`);
+    expect(css).toContain(`--mini-globe-width: ${MINI_GLOBE.mobile.width}px;`);
+    expect(css).toContain(`--mini-globe-height: ${MINI_GLOBE.mobile.height}px;`);
+    expect(css).toContain(`@media (min-width: ${MINI_GLOBE.desktopMinPx}px)`);
+    expect(css).toContain(`--mini-globe-width: ${MINI_GLOBE.desktop.width}px;`);
+    expect(css).toContain(`--mini-globe-height: ${MINI_GLOBE.desktop.height}px;`);
   });
 
   it("detects the panel kind from the path", () => {
@@ -21,6 +34,17 @@ describe("layout tokens", () => {
     // The internal route English pages render under on the server.
     expect(railKind("/en")).toBe("none");
     expect(railKind("/en/region/sub-saharan-africa")).toBe("wide");
+  });
+
+  it("detects full-width pages", () => {
+    expect(isFullPage("/topics")).toBe(true);
+    expect(isFullPage("/entry/migrant-smuggling")).toBe(true);
+    expect(isFullPage("/en/entry/migrant-smuggling")).toBe(true);
+    expect(isFullPage("/")).toBe(false);
+    expect(isFullPage("/news/sahel-coup-belt")).toBe(false);
+    expect(isFullPage("/topicsx")).toBe(false);
+    // No side panel there: the page itself is full width.
+    expect(railKind("/entry/migrant-smuggling")).toBe("none");
   });
 
   it("computes the panel width", () => {

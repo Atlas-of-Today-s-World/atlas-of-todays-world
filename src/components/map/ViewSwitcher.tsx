@@ -1,6 +1,8 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { isFullPage } from "@/config/layout";
 import { useMapState } from "./MapContext";
 
 export interface ViewOption {
@@ -89,8 +91,9 @@ export default function ViewSwitcher({ options }: { options: ViewOption[] }) {
 /** Legend at the bottom left. Sits directly in the map container, not in the controls bar. */
 export function MapLegend({ options }: { options: ViewOption[] }) {
   const { view } = useMapState();
+  const pathname = usePathname();
   const option = options.find((item) => item.id === view) ?? options[0];
-  if (!option) return null;
+  if (!option || isFullPage(pathname)) return null;
 
   if (!option.swatches.length) {
     return (

@@ -45,6 +45,8 @@
   /* Admin table surfaces: header/footer and hovered row (opaque because of the sticky column). */
   --color-surface-muted: #f6f7fa;
   --color-surface-hover: #f4f5fc;
+  /* Ground of the full-width pages (Topics, encyclopedia entries). */
+  --color-paper: #f4f5f8;
 
   --font-display: "Manrope", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -58,6 +60,16 @@
   --rail-width: min(38vw, 27rem);
   --rail-width-wide: min(52vw, 46rem);
   --touch-min: 44px;
+  /* Globe window on full-width pages — must match MINI_GLOBE in src/config/layout.ts. */
+  --mini-globe-width: 200px;
+  --mini-globe-height: 132px;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --mini-globe-width: 280px;
+    --mini-globe-height: 180px;
+  }
 }
 
 /* Users who prefer reduced motion get no animations (panel transitions, carousels, cursor). */
@@ -110,6 +122,11 @@ body {
 
 .maplibregl-ctrl-attrib a {
   color: rgba(255, 255, 255, 0.75) !important;
+}
+
+/* In the small globe window the attribution stays folded to its (i) button. */
+[data-globe-window] .maplibregl-ctrl-attrib-inner {
+  display: none;
 }
 
 /* The globe is keyboard-operable too (arrows, +/−) — so focus must be visible. */
@@ -176,6 +193,18 @@ body {
   inset: 0;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
   animation: coin-shine 5s ease-in-out infinite;
+}
+
+/* Full-width page (FullPage) rising over the globe as it shrinks to its corner window. */
+@keyframes full-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* Content panels: subtle scrollbar so it doesn't cut into the design. */
