@@ -5,7 +5,8 @@ import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import type { FaqItem, NewsCategory, ResourceItem } from "@/lib/content-types";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { createPublicClient } from "@/lib/supabase/public";
-import { toTileIcon, type TileIcon } from "./constants";
+import { MAP_LAYERS, type MapLayer, toTileIcon, type TileIcon } from "./constants";
+import type { TopicPlace } from "@/features/topics/map-counts";
 
 /** Published news item without body — for lists, portraits, sitemap. */
 export interface EntrySummary {
@@ -632,3 +633,28 @@ export function thematicEntries(published: EntrySummary[], upcoming: UpcomingEnt
     ...upcoming.map(({ title, category }) => ({ title, category, slug: null })),
   ];
 }
+
+/** Published topics with where they belong on the globe (the map's topic counts). */
+export const getTopicPlaces = unstable_cache(
+  async (): Promise<TopicPlace[]> => {
+    const { data, error } = await createPublicClient()
+      .from("entries")
+      .select("slug, title, region_slug, special_slug, map_layers, entry_countries(country_iso3)")
+      .eq("kind", "entry")
+      .eq("status", "published")
+      .is("translation_of", null);
+    if (error) throw new Error(`[topics] ${error.message}`);
+    return data.map((row) => ({
+      slug: row.slug,
+      title: row.title,
+      region: row.region_slug,
+      issue: row.special_slug,
+      countries: row.entry_countries.map((country) => country.country_iso3),
+      layers: row.map_layers.filter((layer): layer is MapLayer =>
+        (MAP_LAYERS as readonly string[]).includes(layer),
+      ),
+    }));
+  },
+  ["topic-places"],
+  { tags: [tags.entries], revalidate: PUBLIC_REVALIDATE_SECONDS },
+);

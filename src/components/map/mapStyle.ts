@@ -14,6 +14,8 @@ export interface StyleOptions {
   /** Border width multiplier from the site appearance settings. */
   border: number;
   areas: AreaShape[];
+  /** Anchor points of the global issues / country groups (their topic counts sit there). */
+  issueLabels: RegionLabel[];
 }
 
 export interface RegionLabel {
@@ -22,7 +24,7 @@ export interface RegionLabel {
   center: [number, number];
 }
 
-/** Region labels – one point per region, positioned at a hand-picked center. */
+/** Group labels – one point per region or global issue, at its hand-picked center. */
 function regionLabelSource(regions: RegionLabel[]): GeoJSONSourceSpecification {
   return {
     type: "geojson",
@@ -75,6 +77,47 @@ export const LAYERS = {
   regionLabel: "region-label",
 } as const;
 
+/** Topic count badges, one layer per globe mode (filters and numbers are set at runtime). */
+export const TOPIC_LAYERS = {
+  countries: "topic-count-country",
+  regions: "topic-count-region",
+  issue: "topic-count-issue",
+} as const;
+
+/** The pill behind a topic count (drawn in AtlasGlobe on `styleimagemissing`). */
+export const TOPIC_BADGE_IMAGE = "topic-badge";
+
+/** Same rule as country names: small countries appear only when zoomed in. */
+export const COUNTRY_RANK_FILTER = ["<=", ["get", "rank"], ["+", 0.5, ["*", 1.45, ["zoom"]]]];
+
+/** A topic count under a label: small white pill, hidden where it would collide. */
+function topicBadgeLayer(id: string, source: string, minzoom = 0) {
+  return {
+    id,
+    type: "symbol" as const,
+    source,
+    minzoom,
+    // Nothing until AtlasGlobe knows the counts.
+    filter: ["==", 1, 0],
+    layout: {
+      "text-field": "",
+      "text-font": ["Open Sans Semibold"],
+      "text-size": 10.5,
+      "text-anchor": "top" as const,
+      "text-offset": [0, 1.35],
+      "icon-image": TOPIC_BADGE_IMAGE,
+      "icon-text-fit": "both" as const,
+      "icon-text-fit-padding": [1.5, 5, 1.5, 5],
+      "symbol-sort-key": ["-", 0, ["to-number", ["get", "count"], 0]],
+    },
+    paint: {
+      "text-color": "#0b1220",
+      "icon-opacity": 0.9,
+      "text-opacity": 0.95,
+    },
+  };
+}
+
 /**
  * Globe style. Country coloring isn't handled here – it's overridden at runtime via
  * `setPaintProperty`, so switching layers (Encyclopedia / HDI / ...) doesn't have to
@@ -112,6 +155,7 @@ export function buildStyle(regions: RegionLabel[], options: StyleOptions): Style
         data: "/data/country-labels.geo.json",
       },
       "region-labels": regionLabelSource(regions),
+      "issue-labels": regionLabelSource(options.issueLabels),
       areas,
     },
     sky: {
@@ -245,7 +289,7 @@ export function buildStyle(regions: RegionLabel[], options: StyleOptions): Style
         // fills the area at a lower zoom.
         minzoom: 1.6,
         // LABELRANK: 1 = large countries, 8 = tiny territories. Smaller ones appear only when zoomed in.
-        filter: ["<=", ["get", "rank"], ["+", 0.5, ["*", 1.45, ["zoom"]]]],
+        filter: COUNTRY_RANK_FILTER,
         layout: {
           "text-field": ["get", "name"],
           "text-font": ["Open Sans Regular"],
@@ -279,6 +323,9 @@ export function buildStyle(regions: RegionLabel[], options: StyleOptions): Style
           "text-halo-width": 1.6,
         },
       },
+      topicBadgeLayer(TOPIC_LAYERS.countries, "country-labels", 1.6),
+      topicBadgeLayer(TOPIC_LAYERS.regions, "region-labels"),
+      topicBadgeLayer(TOPIC_LAYERS.issue, "issue-labels"),
     ],
   } as StyleSpecification;
 }

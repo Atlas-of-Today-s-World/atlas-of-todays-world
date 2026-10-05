@@ -135,7 +135,7 @@ export const STATUS_LABEL: Record<EntryStatus, string> = {
 };
 
 /** One "Learn more" tile of a topic or a template — limits as `learn_more_tiles`. */
-export const TileItem = z.object({
+const TileItem = z.object({
   id: z.preprocess(blankToUndefined, uuid.optional()),
   slug: slug(60),
   label: requiredText(60),
@@ -145,8 +145,6 @@ export const TileItem = z.object({
   image_credit: text(300).default(""),
   background: hexColor,
 });
-export type TileItem = z.infer<typeof TileItem>;
-
 export const TILE_FIELD_LABEL: Record<string, string> = {
   slug: "address",
   label: "label",

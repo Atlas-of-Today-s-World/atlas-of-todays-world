@@ -8,6 +8,8 @@ import { ErrorState } from "@/components/atlas/ErrorState";
 import { getFlags } from "@/features/flags/queries";
 import { regionColorMap } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
+import { getTopicPlaces } from "@/features/entries/queries";
+import { badgeNumbers, countTopics } from "@/features/topics/map-counts";
 import { format, type Messages } from "@/features/i18n/messages";
 import { getRequestLocale, getT, localeFrom } from "@/features/i18n/request";
 import type { GlobalIssue, Indicator, Region } from "@/features/geography/types";
@@ -72,7 +74,11 @@ export default async function MapLayout({
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
-  const [atlas, flags] = await Promise.all([getAtlas(await localeFrom(params)), getFlags()]);
+  const [atlas, flags, places] = await Promise.all([
+    getAtlas(await localeFrom(params)),
+    getFlags(),
+    getTopicPlaces(),
+  ]);
   const slugs = Object.fromEntries(atlas.countries.map((country) => [country.iso3, country.slug]));
 
   const colorSets: Record<string, Record<string, string>> = {
@@ -90,6 +96,16 @@ export default async function MapLayout({
   const t = getT();
   const viewOptions = buildViewOptions(atlas.indicators, atlas.theme.saturation, t);
   const regionLabels = atlas.regions.map(({ slug, name, center }) => ({ slug, name, center }));
+  // Topic counts over places (ADR-023): computed here once, the globe only draws them.
+  const counts = countTopics(places, {
+    regionOf: Object.fromEntries(atlas.countries.map((c) => [c.iso3, c.region?.slug])),
+    issues: atlas.issues,
+  });
+  const topicCounts = {
+    countries: badgeNumbers(counts.countries),
+    regions: badgeNumbers(counts.regions),
+    issue: badgeNumbers(counts.issues),
+  };
 
   return (
     <MapProvider>
@@ -100,8 +116,10 @@ export default async function MapLayout({
           regions={regionLookup}
           issue={issue}
           regionLabels={regionLabels}
+          topicCounts={topicCounts}
           styleOptions={{
             border: atlas.theme.border,
+            issueLabels: atlas.issues.map(({ slug, name, center }) => ({ slug, name, center })),
             areas: atlas.areas.map(({ slug, label, name, fill, stroke, geometry }) => ({
               slug,
               label: label || name,
