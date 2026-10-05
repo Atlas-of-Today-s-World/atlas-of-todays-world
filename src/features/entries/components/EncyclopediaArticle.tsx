@@ -55,13 +55,16 @@ export function EncyclopediaArticle({
           id: topicId(index),
           title: chapter.title,
           image: chapter.illustration,
+          background: chapter.tileBackground,
         }))}
+        labels={item.labels}
         tiles={item.tiles.map((tile) => ({
           id: tileId(tile),
           label: tile.label,
           description: tile.description,
           icon: tile.icon,
           image: tile.image,
+          background: tile.background,
           count: tile.resources.length,
           empty: !tile.resources.length && !tile.notesHtml,
         }))}

@@ -6,6 +6,7 @@ import { ActionStatus } from "@/components/admin/ActionStatus";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { ActionForm } from "@/components/ui/action-form";
 import { Button } from "@/components/ui/button";
+import { ColorField } from "@/components/ui/color-field";
 import { FormField, Input, Textarea } from "@/components/ui/field";
 import { IconAction } from "@/features/portraits/components/CollectionEditor";
 import type { ActionState } from "@/lib/actions";
@@ -26,13 +27,14 @@ const blank = (): Chapter => ({
   illustration_url: null,
   illustration_credit: null,
   audio_url: null,
+  tile_background: null,
 });
 
 /**
- * Dossier topics (stored as entry chapters): each has a title, 3–5 summary bullets,
- * a tile photo, audio and full text. Fields are uncontrolled and named
- * the same in every topic — the Server Action reads them in page order.
- * The topic key keeps unsaved text when moving up/down.
+ * Articles of a topic (stored as entry chapters): each has a title, 3–5 summary
+ * bullets, a tile photo or colour, audio and full text. Fields are uncontrolled
+ * and named the same in every article — the Server Action reads them in page
+ * order. The key keeps unsaved text when moving up/down.
  */
 export function ChaptersEditor({
   entryId,
@@ -51,15 +53,15 @@ export function ChaptersEditor({
 
   return (
     <section
-      aria-labelledby="topics-title"
+      aria-labelledby="articles-title"
       className="rounded-2xl border border-[var(--color-line)] p-5"
     >
-      <h2 id="topics-title" className="font-display text-[18px] font-bold">
-        Topics
+      <h2 id="articles-title" className="font-display text-[18px] font-bold">
+        Articles
       </h2>
       <p className="mt-1 text-[13px] text-[var(--color-ink-muted)]">
-        A dossier has up to 12 topics, shown as photo tiles in two columns. A click on a tile opens
-        the topic: photo, summary bullets, audio and the full text.
+        A topic has up to 12 articles, shown as tiles in two columns (photo, or a colour when there
+        is none). A click on a tile opens the article: photo, summary bullets, audio and full text.
       </p>
 
       <ActionForm action={action} className="mt-5 grid gap-4">
@@ -67,16 +69,16 @@ export function ChaptersEditor({
 
         {chapters.map((chapter, index) => {
           const id = (field: string) => `chapter-${chapter.key}-${field}`;
-          const label = `topic ${index + 1}`;
+          const label = `article ${index + 1}`;
           return (
             <fieldset
               key={chapter.key}
               className="grid gap-3 rounded-xl bg-[var(--color-line)]/25 p-4"
             >
-              <legend className="sr-only">Topic {index + 1}</legend>
+              <legend className="sr-only">Article {index + 1}</legend>
               <div className="flex items-center justify-between">
                 <span className="text-[12px] font-medium text-[var(--color-ink-muted)]">
-                  Topic {index + 1}
+                  Article {index + 1}
                 </span>
                 <span className="flex gap-1">
                   <IconAction
@@ -138,10 +140,18 @@ export function ChaptersEditor({
                   />
                 </FormField>
               </div>
+              <FormField id={id("color")} label="Tile colour">
+                <ColorField
+                  id={id("color")}
+                  name="tile_background"
+                  defaultValue={chapter.tile_background}
+                  label="Use a colour when the tile has no photo"
+                />
+              </FormField>
               <FormField
                 id={id("audio")}
-                label="Topic audio"
-                hint="MP3, M4A/AAC, Ogg/Opus, WAV or FLAC up to 50 MB. A topic in MP3 (64 kbps) is about 7–10 MB; WAV and FLAC are 5–10× larger."
+                label="Article audio"
+                hint="MP3, M4A/AAC, Ogg/Opus, WAV or FLAC up to 50 MB. An article in MP3 (64 kbps) is about 7–10 MB; WAV and FLAC are 5–10× larger."
               >
                 <UploadField
                   id={id("audio")}
@@ -157,7 +167,7 @@ export function ChaptersEditor({
                 <RichTextEditor
                   name="body_html"
                   initialHtml={chapter.body_html}
-                  label={`Topic ${index + 1} text`}
+                  label={`Article ${index + 1} text`}
                 />
               </div>
             </fieldset>
@@ -166,7 +176,7 @@ export function ChaptersEditor({
 
         {!chapters.length ? (
           <p className="text-[13px] text-[var(--color-ink-muted)]">
-            This dossier has no topics yet — only the introduction will appear on the website.
+            This topic has no articles yet — only the introduction will appear on the website.
           </p>
         ) : null}
 
@@ -178,9 +188,9 @@ export function ChaptersEditor({
             onClick={() => setChapters((current) => [...current, blank()])}
             disabled={chapters.length >= MAX_CHAPTERS}
           >
-            <Plus size={16} aria-hidden /> Add topic
+            <Plus size={16} aria-hidden /> Add article
           </Button>
-          <SubmitButton size="sm">Save topics</SubmitButton>
+          <SubmitButton size="sm">Save articles</SubmitButton>
         </div>
       </ActionForm>
     </section>

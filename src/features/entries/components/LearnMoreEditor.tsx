@@ -5,13 +5,13 @@ import { useActionState, useState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { ActionForm } from "@/components/ui/action-form";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FormField, Input, Textarea } from "@/components/ui/field";
 import { IconAction } from "@/features/portraits/components/CollectionEditor";
 import type { ActionState } from "@/lib/actions";
 import { swap } from "@/lib/array";
 import { saveLearnMore } from "../actions";
+import { MAX_LINKS } from "../constants";
 import type { EditableLink, EditableTile } from "../editorial";
 import { RichTextEditor } from "./RichTextEditor";
 
@@ -31,9 +31,9 @@ const LINK_FIELDS: { name: keyof EditableLink; label: string; max: number; url?:
 ];
 
 /**
- * "Learn more" of one dossier: every tile (the defaults and the dossier's own)
- * with its links and its own rich text — e.g. hand-written notes. A tile with
- * neither is shown greyed out on the site. Everything is saved at once.
+ * "Learn more" of one topic: every tile with its links and its own rich text —
+ * e.g. hand-written notes. A tile with neither is shown greyed out on the
+ * site. Everything is saved at once.
  */
 export function LearnMoreEditor({
   entryId,
@@ -75,9 +75,6 @@ export function LearnMoreEditor({
           >
             <summary className="flex min-h-12 cursor-pointer list-none items-center gap-3 px-4 py-2 [&::-webkit-details-marker]:hidden">
               <span className="font-display text-[15px] font-bold">{tile.label}</span>
-              <Badge tone={tile.entry_id ? "accent" : "neutral"}>
-                {tile.entry_id ? "This dossier only" : "Default tile"}
-              </Badge>
               <span className="ml-auto text-[12px] text-[var(--color-ink-muted)]">
                 {list.length} {list.length === 1 ? "link" : "links"}
                 {hasNotes ? " · text" : ""}
@@ -160,7 +157,7 @@ export function LearnMoreEditor({
                 <Button
                   variant="outline"
                   size="sm"
-                  disabled={total >= 50}
+                  disabled={total >= MAX_LINKS}
                   onClick={() => change(tile.id, (items) => [...items, blankLink()])}
                 >
                   <Plus size={16} aria-hidden /> Add link to {tile.label}

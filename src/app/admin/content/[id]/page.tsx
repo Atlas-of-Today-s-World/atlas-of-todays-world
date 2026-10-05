@@ -1,17 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Trash2 } from "lucide-react";
-import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { can, sectionAccess } from "@/features/auth/access";
 import { listAuthors } from "@/features/authors/editorial";
-import { deleteTile, saveEntryFaq } from "@/features/entries/actions";
+import { saveEntryFaq } from "@/features/entries/actions";
 import { ChaptersEditor } from "@/features/entries/components/ChaptersEditor";
 import { LearnMoreEditor } from "@/features/entries/components/LearnMoreEditor";
 import { SeoForm } from "@/features/entries/components/SeoForm";
-import { TileForm } from "@/features/entries/components/TileForm";
+import { TemplateTools, TopicTilesForm } from "@/features/entries/components/TopicTileForms";
 import { LanguageVersions } from "@/features/entries/components/LanguageVersions";
 import { DEFAULT_LOCALE, isLocale, localePath } from "@/features/i18n/config";
 import { EntryForm } from "@/features/entries/components/EntryForm";
@@ -24,6 +22,7 @@ import {
   getEntryParts,
   listLanguageVersions,
   listRevisions,
+  listTemplates,
   publishedVersion,
 } from "@/features/entries/editorial";
 import { getPickerOptions } from "@/features/geography/queries";
@@ -37,7 +36,7 @@ export const metadata: Metadata = { title: "Edit article" };
 /** Sections of a dossier's editor, one per tab (`?tab=`). */
 const TABS = [
   { key: "article", label: "Article" },
-  { key: "topics", label: "Topics" },
+  { key: "topics", label: "Articles" },
   { key: "learn-more", label: "Learn more" },
   { key: "seo", label: "SEO & GEO" },
 ] as const;
@@ -45,7 +44,7 @@ type Tab = (typeof TABS)[number]["key"];
 
 function DossierTabs({ id, current }: { id: string; current: Tab }) {
   return (
-    <nav aria-label="Dossier sections" className="border-b border-[var(--color-line)]">
+    <nav aria-label="Topic sections" className="border-b border-[var(--color-line)]">
       <ul className="-mb-px flex flex-wrap gap-1">
         {TABS.map((tab) => (
           <li key={tab.key}>
@@ -89,7 +88,7 @@ export default async function EditEntryPage({
 
   const supabase = await createServerClient();
   const isEntry = entry.kind === "entry";
-  const [options, revisions, approve, edit, published, authors, parts, versions] =
+  const [options, revisions, approve, edit, published, authors, parts, versions, templates] =
     await Promise.all([
       getPickerOptions(),
       listRevisions(id),
@@ -100,13 +99,13 @@ export default async function EditEntryPage({
       listAuthors(),
       isEntry ? getEntryParts(id) : Promise.resolve(null),
       listLanguageVersions(entry),
+      isEntry ? listTemplates() : Promise.resolve([]),
     ]);
   const canApprove = approve.data === true;
   const canEdit = edit.data === true && (entry.status !== "published" || canApprove);
   const { saved, translation, tab: tabParam } = await searchParams;
   const tab: Tab =
     isEntry && TABS.some((item) => item.key === tabParam) ? (tabParam as Tab) : "article";
-  const ownTiles = parts?.tiles.filter((tile) => tile.entry_id === entry.id) ?? [];
 
   return (
     <>
@@ -152,64 +151,41 @@ export default async function EditEntryPage({
               {parts && tab === "learn-more" ? (
                 <>
                   <p className="text-[13.5px] text-[var(--color-ink-soft)]">
-                    Tiles on the right half of the dossier. Default tiles appear on every dossier
-                    (manage them in{" "}
+                    Resource tiles on the right half of the topic. Change their look and order here,
+                    fill them with links and text below. Templates are managed in{" "}
                     <Link
-                      href="/admin/learn-more-tiles"
+                      href="/admin/topic-templates"
                       className="text-[var(--color-link)] underline"
                     >
-                      Learn-more tiles
+                      Topic templates
                     </Link>
-                    ); add links or your own text to any of them, or a tile only for this dossier.
+                    .
                   </p>
-                  <LearnMoreEditor
+                  <TemplateTools
                     entryId={entry.id}
-                    tiles={parts.tiles}
-                    links={parts.links}
-                    notes={parts.notes}
+                    templates={templates}
+                    current={parts.labels.template_id}
                   />
                   <section
-                    aria-labelledby="own-tiles-title"
-                    className="rounded-2xl border border-[var(--color-line)] p-5"
+                    aria-labelledby="tiles-title"
+                    className="grid gap-4 rounded-2xl border border-[var(--color-line)] p-5"
                   >
-                    <h2 id="own-tiles-title" className="font-display text-[18px] font-bold">
-                      Tiles only for this dossier
+                    <h2 id="tiles-title" className="font-display text-[18px] font-bold">
+                      Tiles and headings
                     </h2>
-                    {ownTiles.map((tile) => (
-                      <details
-                        key={tile.id}
-                        className="mt-4 rounded-xl bg-[var(--color-line)]/25 p-4"
-                      >
-                        <summary className="flex min-h-11 cursor-pointer items-center gap-3 font-medium">
-                          {tile.label}
-                          <span className="ml-auto">
-                            <ConfirmButton
-                              label={`Delete tile ${tile.label}`}
-                              icon={<Trash2 aria-hidden className="size-4" />}
-                              variant="quietDanger"
-                              size="rowIcon"
-                              title={`Delete tile ${tile.label}?`}
-                              body="Its links and text in this dossier are deleted too."
-                              confirm="Delete"
-                              action={deleteTile.bind(null, tile.id)}
-                            />
-                          </span>
-                        </summary>
-                        <div className="mt-3">
-                          <TileForm tile={tile} entryId={entry.id} />
-                        </div>
-                      </details>
-                    ))}
-                    <h3 className="mt-6 text-[13px] font-medium text-[var(--color-ink-soft)]">
-                      Add a tile
-                    </h3>
-                    <div className="mt-2">
-                      <TileForm
-                        tile={null}
-                        entryId={entry.id}
-                        submitLabel="Add tile to this dossier"
-                      />
-                    </div>
+                    <TopicTilesForm entryId={entry.id} tiles={parts.tiles} labels={parts.labels} />
+                  </section>
+                  <section aria-labelledby="links-title" className="grid gap-4">
+                    <h2 id="links-title" className="font-display text-[18px] font-bold">
+                      Links and text in the tiles
+                    </h2>
+                    <LearnMoreEditor
+                      key={parts.tiles.map((tile) => tile.id).join("|")}
+                      entryId={entry.id}
+                      tiles={parts.tiles}
+                      links={parts.links}
+                      notes={parts.notes}
+                    />
                   </section>
                 </>
               ) : null}

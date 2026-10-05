@@ -62,6 +62,7 @@ export interface EditableEntry extends EditorialRow {
   countries: string[];
   summary_points: string[];
   author_id: string | null;
+  map_layers: string[];
 }
 
 export async function getEditableEntry(id: string): Promise<EditableEntry | null> {
@@ -69,7 +70,7 @@ export async function getEditableEntry(id: string): Promise<EditableEntry | null
   const { data, error } = await supabase
     .from("entries")
     .select(
-      `${LIST_COLUMNS}, summary, special_slug, cover_url, cover_credit, reading_minutes, body_html, published_on, summary_points, author_id, entry_countries(country_iso3)`,
+      `${LIST_COLUMNS}, summary, special_slug, cover_url, cover_credit, reading_minutes, body_html, published_on, summary_points, author_id, map_layers, entry_countries(country_iso3)`,
     )
     .eq("id", id)
     .maybeSingle();
@@ -111,46 +112,58 @@ export interface EditableChapter {
   illustration_url: string | null;
   illustration_credit: string | null;
   audio_url: string | null;
+  tile_background: string | null;
 }
 
-/** A learn-more tile in the admin (default when `entry_id` is null). */
+/** A "Learn more" tile of a topic or a template in the admin. */
 export interface EditableTile {
   id: string;
-  entry_id: string | null;
   slug: string;
   label: string;
   description: string;
   icon: string;
   image_url: string | null;
   image_credit: string | null;
-  position: number;
-  legacy_kind: string | null;
+  background: string | null;
 }
 
-const TILE_COLUMNS =
-  "id, entry_id, slug, label, description, icon, image_url, image_credit, position, legacy_kind";
+const TILE_COLUMNS = "id, slug, label, description, icon, image_url, image_credit, background";
 
-/** Default tiles (shown on every dossier), in order. */
-export async function listDefaultTiles(): Promise<EditableTile[]> {
-  const supabase = await createServerClient();
-  const { data, error } = await supabase
-    .from("learn_more_tiles")
-    .select(TILE_COLUMNS)
-    .is("entry_id", null)
-    .order("position");
-  if (error) throw new Error(`[tiles] ${error.message}`);
-  return data;
+export interface TemplateSummary {
+  id: string;
+  name: string;
+  description: string;
+  is_default: boolean;
+  articles_label: string;
+  learn_more_label: string;
+  tiles: EditableTile[];
 }
 
-export async function getTile(id: string): Promise<EditableTile | null> {
+/** Topic templates with their tiles, the default first. */
+export async function listTemplates(): Promise<TemplateSummary[]> {
   const supabase = await createServerClient();
   const { data, error } = await supabase
-    .from("learn_more_tiles")
-    .select(TILE_COLUMNS)
-    .eq("id", id)
-    .maybeSingle();
-  if (error) throw new Error(`[tiles] ${error.message}`);
-  return data;
+    .from("topic_templates")
+    .select(
+      `id, name, description, is_default, articles_label, learn_more_label,
+       topic_template_tiles(${TILE_COLUMNS}, position)`,
+    )
+    .order("is_default", { ascending: false })
+    .order("name");
+  if (error) throw new Error(`[templates] ${error.message}`);
+  return data.map(({ topic_template_tiles, ...template }) => ({
+    ...template,
+    tiles: [...topic_template_tiles]
+      .sort((x, y) => x.position - y.position)
+      .map(({ position, ...tile }) => {
+        void position;
+        return tile;
+      }),
+  }));
+}
+
+export async function getTemplate(id: string): Promise<TemplateSummary | null> {
+  return (await listTemplates()).find((template) => template.id === id) ?? null;
 }
 
 /** A link of a tile in the editor; text fields, null as an empty string. */
@@ -177,7 +190,9 @@ export async function getEntryParts(id: string) {
   const [chapters, resources, tiles, notes, faq, seo] = await Promise.all([
     supabase
       .from("entry_chapters")
-      .select("title, summary_points, body_html, illustration_url, illustration_credit, audio_url")
+      .select(
+        "title, summary_points, body_html, illustration_url, illustration_credit, audio_url, tile_background",
+      )
       .eq("entry_id", id)
       .order("position"),
     supabase
@@ -185,26 +200,20 @@ export async function getEntryParts(id: string) {
       .select("tile_id, title, source, description, url, image_url")
       .eq("entry_id", id)
       .order("position"),
-    supabase
-      .from("learn_more_tiles")
-      .select(TILE_COLUMNS)
-      .or(`entry_id.is.null,entry_id.eq.${id}`)
-      .order("position"),
+    supabase.from("learn_more_tiles").select(TILE_COLUMNS).eq("entry_id", id).order("position"),
     supabase.from("entry_tile_notes").select("tile_id, body_html").eq("entry_id", id),
     supabase.from("entry_faq").select("question, answer").eq("entry_id", id).order("position"),
     supabase
       .from("entries")
-      .select("seo_title, seo_description, og_image_url, seo_keywords, geo_summary, noindex")
+      .select(
+        "seo_title, seo_description, og_image_url, seo_keywords, geo_summary, noindex, template_id, articles_label, learn_more_label",
+      )
       .eq("id", id)
       .single(),
   ]);
   for (const [name, result] of Object.entries({ chapters, resources, tiles, notes, faq, seo })) {
     if (result.error) throw new Error(`[${name}] ${result.error.message}`);
   }
-  // Defaults first, then the dossier's own tiles.
-  const allTiles = [...(tiles.data ?? [])].sort(
-    (a, b) => Number(a.entry_id !== null) - Number(b.entry_id !== null) || a.position - b.position,
-  );
   const links: Record<string, EditableLink[]> = {};
   for (const row of resources.data ?? []) {
     if (!row.tile_id) continue;
@@ -219,7 +228,12 @@ export async function getEntryParts(id: string) {
   const row = seo.data;
   return {
     chapters: (chapters.data ?? []) as EditableChapter[],
-    tiles: allTiles,
+    tiles: (tiles.data ?? []) as EditableTile[],
+    labels: {
+      template_id: row?.template_id ?? null,
+      articles_label: row?.articles_label ?? "",
+      learn_more_label: row?.learn_more_label ?? "",
+    },
     links,
     notes: Object.fromEntries((notes.data ?? []).map((note) => [note.tile_id, note.body_html])),
     faq: (faq.data ?? []).map((item) => ({ question: item.question, answer: item.answer })),

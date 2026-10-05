@@ -20,6 +20,8 @@ const LEGACY_ADMIN_PATHS: readonly (readonly [string, string])[] = [
   ["/admin/ucty/:path*", "/admin/accounts/:path*"],
   ["/admin/role/:path*", "/admin/roles/:path*"],
   ["/admin/clenove", "/admin/members"],
+  // Default learn-more tiles became topic templates (ADR-023).
+  ["/admin/learn-more-tiles/:path*", "/admin/topic-templates"],
 ];
 
 const LEGACY_ADMIN_REDIRECTS = LEGACY_ADMIN_PATHS.map(([source, destination]) => ({

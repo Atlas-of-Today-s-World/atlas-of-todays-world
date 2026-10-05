@@ -39,14 +39,22 @@ export function UploadField({
   defaultValue,
   invalid,
   kind = "image",
+  onChange,
 }: {
   id: string;
-  name: string;
+  /** Form field name; leave out when the value goes through `onChange`. */
+  name?: string;
   defaultValue: string;
   invalid?: boolean;
   kind?: UploadKind;
+  /** Called with every new URL (typed or uploaded) — for editors that keep state. */
+  onChange?: (url: string) => void;
 }) {
-  const [url, setUrl] = useState(defaultValue);
+  const [url, setUrlState] = useState(defaultValue);
+  const setUrl = (next: string) => {
+    setUrlState(next);
+    onChange?.(next);
+  };
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const preview = kind === "image" ? cssBackgroundImage(url) : undefined;

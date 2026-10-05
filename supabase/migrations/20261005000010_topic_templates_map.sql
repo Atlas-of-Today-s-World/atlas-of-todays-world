@@ -458,3 +458,53 @@ begin
   end case;
 end;
 $$;
+
+-- ---------------------------------------------------------------------------
+-- Preview by link: the topic's own tiles, notes and labels come along
+-- ---------------------------------------------------------------------------
+
+drop function public.entry_preview_parts(text);
+
+create function public.entry_preview_parts(p_token text)
+returns table (
+  kind text, summary_points text[], author jsonb, chapters jsonb, resources jsonb,
+  tiles jsonb, notes jsonb, articles_label text, learn_more_label text
+)
+language sql stable security definer
+set search_path = public, pg_temp
+as $$
+  select e.kind, e.summary_points,
+         (select jsonb_build_object('name', a.name, 'photo_url', a.photo_url, 'bio', a.bio,
+                                    'positionality', a.positionality)
+            from authors a where a.id = e.author_id),
+         coalesce((select jsonb_agg(jsonb_build_object(
+                     'position', c.position, 'title', c.title, 'summary_points', c.summary_points,
+                     'body_html', c.body_html, 'illustration_url', c.illustration_url,
+                     'illustration_credit', c.illustration_credit, 'audio_url', c.audio_url,
+                     'tile_background', c.tile_background)
+                     order by c.position)
+                     from entry_chapters c where c.entry_id = e.id), '[]'),
+         coalesce((select jsonb_agg(jsonb_build_object(
+                     'position', r.position, 'kind', r.kind, 'tile_id', r.tile_id, 'title', r.title,
+                     'source', r.source, 'description', r.description, 'url', r.url,
+                     'image_url', r.image_url)
+                     order by r.position)
+                     from resources r where r.entry_id = e.id), '[]'),
+         coalesce((select jsonb_agg(jsonb_build_object(
+                     'id', t.id, 'slug', t.slug, 'label', t.label, 'description', t.description,
+                     'icon', t.icon, 'image_url', t.image_url, 'image_credit', t.image_credit,
+                     'background', t.background, 'position', t.position)
+                     order by t.position)
+                     from learn_more_tiles t where t.entry_id = e.id), '[]'),
+         coalesce((select jsonb_agg(jsonb_build_object('tile_id', n.tile_id, 'body_html', n.body_html))
+                     from entry_tile_notes n where n.entry_id = e.id), '[]'),
+         e.articles_label, e.learn_more_label
+  from preview_links l
+  join entries e on e.id = l.entry_id
+  where p_token ~ '^[0-9a-f]{64}$'
+    and l.token_hash = encode(sha256(convert_to(p_token, 'UTF8')), 'hex')
+    and l.expires_at > now();
+$$;
+
+revoke execute on function public.entry_preview_parts(text) from public;
+grant execute on function public.entry_preview_parts(text) to anon, authenticated;
