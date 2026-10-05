@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
+import { CookieNotice } from "@/components/CookieNotice";
 import { LocaleProvider } from "@/components/i18n/LocaleProvider";
 import { JsonLd } from "@/components/JsonLd";
 import { isLocale, LOCALES, localePath } from "@/features/i18n/config";
@@ -50,6 +51,7 @@ export default async function LocaleLayout({
       {/* <html lang> is the shared root; this wrapper carries the content language (WCAG 3.1.2). */}
       <div lang={locale} className="contents">
         {children}
+        <CookieNotice />
       </div>
     </LocaleProvider>
   );
