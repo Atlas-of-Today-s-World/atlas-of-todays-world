@@ -43,6 +43,25 @@ test.describe("globus", () => {
   });
 });
 
+test.describe("World metrics", () => {
+  test("defaults to No metric and returns to it from an indicator", async ({ page }) => {
+    await page.goto("/");
+    const button = page.getByRole("button", { name: "World metrics" });
+    await expect(button).toBeVisible();
+    await expect(page.getByText(/World regions of the Atlas/)).toBeVisible();
+
+    await button.click();
+    const noMetric = page.getByRole("button", { name: "No metric" });
+    await expect(noMetric).toHaveClass(/bg-white\/15/);
+    // Any indicator, then back to the regions view.
+    await noMetric.locator("xpath=following-sibling::button[1]").click();
+    await expect(page.getByRole("button", { name: "World metrics" })).toHaveCount(0);
+    await page.getByRole("button", { name: /view$/ }).click();
+    await page.getByRole("button", { name: "No metric" }).click();
+    await expect(page.getByRole("button", { name: "World metrics" })).toBeVisible();
+  });
+});
+
 test.describe("panel s obsahem", () => {
   test("country profile leads to the region and back to the map", async ({ page }) => {
     await page.goto("/country/ukraine");
