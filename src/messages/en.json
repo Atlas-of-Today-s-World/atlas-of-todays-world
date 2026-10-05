@@ -110,6 +110,7 @@
   },
   "map": {
     "encyclopediaView": "World metrics",
+    "noMetric": "No metric",
     "encyclopediaCaption": "World regions of the Atlas · click any country to open its profile",
     "layerView": "{label} view",
     "modes": "Map selection mode",
