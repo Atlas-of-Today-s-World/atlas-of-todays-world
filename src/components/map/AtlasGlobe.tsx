@@ -152,7 +152,7 @@ export default function AtlasGlobe({
     let cancelled = false;
     let cleanup: (() => void) | undefined;
     // MapLibre i jeho worker z public/ (loadMapLibre, ADR-017).
-    void loadMapLibre().then(({ Map: MapLibreMap }) => {
+    void loadMapLibre().then(({ Map: MapLibreMap, AttributionControl }) => {
       if (cancelled || !containerRef.current) return;
       const map = new MapLibreMap({
         container: containerRef.current,
@@ -163,7 +163,8 @@ export default function AtlasGlobe({
         zoom: globeFillZoom(),
         minZoom: 0.8,
         maxZoom: 9,
-        attributionControl: { compact: true },
+        // Added below in the bottom-left corner (the right one holds the donate button).
+        attributionControl: false,
         // Satellite imagery is 256 px raster; rendering above 1.5× only multiplies
         // GPU/CPU work (2.6× DPR phones paint ~3× the pixels) without visible gain.
         pixelRatio: Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO),
@@ -171,6 +172,7 @@ export default function AtlasGlobe({
         maxPitch: 0,
       });
       mapRef.current = map;
+      map.addControl(new AttributionControl({ compact: true }), "bottom-left");
 
       map.on("error", (event: ErrorEvent) => {
         console.error("[atlas-globe]", event.error?.message ?? event);
