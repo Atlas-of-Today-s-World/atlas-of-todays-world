@@ -1363,7 +1363,7 @@ body.no-labels #regionLabels { display: none; }
       </div>
       <div style="position:relative" id="viewWrap">
         <button class="pill glass-btn" id="viewBtn" aria-expanded="false">
-          <span id="viewLabel">Encyclopedia view</span><span class="chev" aria-hidden="true">&#8964;</span>
+          <span id="viewLabel">World metrics</span><span class="chev" aria-hidden="true">&#8964;</span>
         </button>
         <div class="glass" id="viewMenu" hidden></div>
       </div>
@@ -1994,8 +1994,8 @@ body.no-labels #regionLabels { display: none; }
   function buildViews() {
     const list = [{
       id: "encyclopedia",
-      label: "Encyclopedia view",
-      short: "Encyclopedia view",
+      label: "World metrics",
+      short: "World metrics",
       caption: "World regions of the Atlas · click any country to open its profile",
     }].concat(METRICS.map((metric) => ({
       id: metric.id,
@@ -7289,7 +7289,7 @@ body.no-labels #regionLabels { display: none; }
 
       '<h2 class="rail-h" style="margin-top:32px">Region colours</h2>' +
       '<p style="margin:8px 0 0;font-size:13px;line-height:1.7;color:var(--ink-soft)">The nine Atlas ' +
-      'regions as they appear in <b>Encyclopedia view</b>.</p>' +
+      'regions as they appear in <b>World metrics</b>.</p>' +
       '<p style="margin:12px 0 0;display:flex;gap:8px;flex-wrap:wrap">' + REGION_PRESETS.map((preset) =>
         '<button type="button" class="mini" data-rpreset="' + preset.id + '">' + esc(preset.label) + "</button>").join("") +
       "</p>" +

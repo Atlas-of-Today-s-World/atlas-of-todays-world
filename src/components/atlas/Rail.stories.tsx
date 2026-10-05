@@ -20,6 +20,27 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Light: Story = {};
+export const Grid: Story = {
+  args: {
+    layout: "grid",
+    gap: "sm",
+    children: Array.from({ length: 5 }, (_, i) => (
+      <div
+        key={i}
+        className="min-w-0 rounded-xl border border-[var(--color-line)] bg-white p-3 text-[13px] text-[var(--color-ink)]"
+      >
+        Entry {i + 1} — titles wrap instead of scrolling sideways
+      </div>
+    )),
+  },
+  decorators: [
+    (Story) => (
+      <div className="w-96">
+        <Story />
+      </div>
+    ),
+  ],
+};
 export const Dark: Story = {
   args: { tone: "dark" },
   decorators: [
