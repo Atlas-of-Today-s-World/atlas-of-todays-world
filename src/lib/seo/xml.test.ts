@@ -38,15 +38,15 @@ describe("sitemaps", () => {
     expect(xml).toContain("<lastmod>2026-09-30T12:59:34.310Z</lastmod>");
   });
 
-  it("one <url> per language, each with all hreflang links, images and lastmod", () => {
+  it("one <url> per page with images and lastmod; a single language has no hreflang", () => {
     const xml = urlsetXml([
       { path: "/region/east-asia", lastmod: "2026-09-30", images: ["https://x.org/a&b.jpg", null] },
       { path: "/privacy", languages: ["en"] },
     ]);
     wellFormed(xml);
-    expect(xml.match(/<url>/g)).toHaveLength(3);
-    expect(xml).toContain(`<loc>${SITE}/cs/region/east-asia</loc>`);
-    expect(xml).toContain(`hreflang="x-default" href="${SITE}/region/east-asia"`);
+    expect(xml.match(/<url>/g)).toHaveLength(2);
+    expect(xml).toContain(`<loc>${SITE}/region/east-asia</loc>`);
+    expect(xml).not.toContain("/cs/");
     expect(xml).toContain("<image:loc>https://x.org/a&amp;b.jpg</image:loc>");
     expect(xml).toContain("<lastmod>2026-09-30</lastmod>");
     // A single-language page has no alternates.

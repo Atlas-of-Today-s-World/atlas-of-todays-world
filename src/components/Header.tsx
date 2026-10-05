@@ -9,7 +9,6 @@ import { ACCOUNT_NAV, LEGAL_NAV, MAIN_NAV, SOCIALS } from "@/config/navigation";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 import NewsletterForm from "./NewsletterForm";
 import { BrandLogo } from "./atlas/BrandLogo";
-import { LanguageSwitcher } from "./i18n/LanguageSwitcher";
 import { useMessages } from "./i18n/LocaleProvider";
 
 /**
@@ -101,7 +100,6 @@ export default function Header({ newsletter = true }: { newsletter?: boolean }) 
             </a>
           ))}
         </span>
-        <LanguageSwitcher className="text-[13px]" />
         <Link
           href={ACCOUNT_NAV.href}
           className="grid min-h-11 min-w-11 place-items-center text-white/60 transition hover:text-white"
@@ -181,10 +179,9 @@ export default function Header({ newsletter = true }: { newsletter?: boolean }) 
                   {social.icon}
                 </a>
               ))}
-              <LanguageSwitcher className="ml-auto text-[13px]" />
               <Link
                 href={ACCOUNT_NAV.href}
-                className="flex min-h-11 items-center text-[13px] text-white/60"
+                className="ml-auto flex min-h-11 items-center text-[13px] text-white/60"
               >
                 {t.nav[ACCOUNT_NAV.key]}
               </Link>

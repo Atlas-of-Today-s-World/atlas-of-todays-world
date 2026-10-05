@@ -107,7 +107,7 @@ export function organizationNode(): JsonLdNode {
     identifier: { "@type": "PropertyValue", propertyID: "CZ-ICO", value: org.companyId },
     address: { "@type": "PostalAddress", ...org.address },
     areaServed: "Worldwide",
-    knowsLanguage: ["en", "cs"],
+    knowsLanguage: ["en"],
     sameAs: [...org.socials, org.wikidata],
     publishingPrinciples: absoluteUrl("/about#editorial-standards"),
     potentialAction: {
@@ -127,7 +127,7 @@ export function websiteNode(locale: Locale): JsonLdNode {
     name: ORGANIZATION.name,
     alternateName: "Atlas",
     url: absoluteUrl("/"),
-    inLanguage: ["en", "cs"],
+    inLanguage: ["en"],
     publisher: ref(ids.organization),
     isAccessibleForFree: true,
     potentialAction: {

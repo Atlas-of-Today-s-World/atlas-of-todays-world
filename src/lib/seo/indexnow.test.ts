@@ -88,9 +88,6 @@ describe("IndexNow", () => {
     const body = JSON.parse(
       String((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body),
     );
-    expect(body.urlList).toEqual([
-      new URL("/region/x", SITE_URL).toString(),
-      new URL("/cs/region/x", SITE_URL).toString(),
-    ]);
+    expect(body.urlList).toEqual([new URL("/region/x", SITE_URL).toString()]);
   });
 });

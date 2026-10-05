@@ -13,7 +13,7 @@ export const DESCRIPTION_MAX = 160;
 export const DEFAULT_OG_IMAGE = "/og-image.png";
 
 /** Open Graph locale codes (language_TERRITORY). */
-const OG_LOCALE: Record<Locale, string> = { en: "en_US", cs: "cs_CZ" };
+const OG_LOCALE: Record<Locale, string> = { en: "en_US" };
 
 /**
  * Text cut to `max` characters at a word boundary, with an ellipsis.

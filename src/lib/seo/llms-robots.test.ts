@@ -86,11 +86,9 @@ describe("robots.txt", () => {
           "/admin",
           "/auth/",
           "/membership/checkout",
-          "/cs/membership/checkout",
           "/membership/thank-you",
           "/membership/manage",
           "/preview/",
-          "/cs/preview/",
         ]),
       );
       // Public content is never blocked.

@@ -23,17 +23,6 @@ const PAGES = [
   "/membership/checkout?period=monthly&amount=10",
   "/membership/thank-you?period=one-time&amount=50",
   "/membership/manage",
-  // Czech version (G5): different texts and label lengths — checked separately.
-  "/cs",
-  "/cs/country/ukraine",
-  "/cs/region/east-asia",
-  "/cs/global-issue/russia-ukraine-war",
-  "/cs/news",
-  "/cs/news/nordic-model-under-strain",
-  "/cs/about",
-  "/cs/search?q=Japan",
-  "/cs/login",
-  "/cs/membership",
   // The 404 page both inside and outside the map.
   "/news/this-does-not-exist",
   "/this-page-does-not-exist",
@@ -57,7 +46,7 @@ async function seriousViolations(page: Page) {
 }
 
 test("accessibility: quiz on the 404 page during a game", async ({ page }) => {
-  await page.goto("/cs/news/tohle-neexistuje");
+  await page.goto("/news/this-does-not-exist");
   await page.getByRole("button", { name: "Play the outline quiz" }).click();
   await expect(page.getByRole("heading", { name: "Which country is this?" })).toBeVisible();
   await page.getByRole("group", { name: "Choices" }).getByRole("button").first().click();

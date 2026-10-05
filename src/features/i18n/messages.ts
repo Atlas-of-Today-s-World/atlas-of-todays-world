@@ -1,4 +1,3 @@
-import cs from "@/messages/cs.json";
 import en from "@/messages/en.json";
 import type { Locale } from "./config";
 
@@ -9,9 +8,9 @@ import type { Locale } from "./config";
  */
 export type Messages = typeof en;
 
-const MESSAGES: Record<Locale, Messages> = { en, cs: cs satisfies Messages };
+const MESSAGES: Record<Locale, Messages> = { en };
 
-export const getMessages = (locale: Locale): Messages => MESSAGES[locale];
+export const getMessages = (locale: Locale): Messages => MESSAGES[locale] ?? MESSAGES.en;
 
 /** Fills in `{name}` in the text. */
 export function format(template: string, values: Record<string, string>): string {

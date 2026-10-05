@@ -15,7 +15,6 @@ const LEGACY_ADMIN_PATHS: readonly (readonly [string, string])[] = [
   ["/admin/schvalovani", "/admin/approvals"],
   ["/admin/presmerovani", "/admin/redirects"],
   ["/admin/regiony/:path*", "/admin/regions/:path*"],
-  ["/admin/preklady/:path*", "/admin/translations/:path*"],
   ["/admin/oblasti/:path*", "/admin/areas/:path*"],
   ["/admin/vzhled", "/admin/appearance"],
   ["/admin/ucty/:path*", "/admin/accounts/:path*"],
@@ -44,13 +43,13 @@ const nextConfig: NextConfig = {
         destination: "/global-issue/:slug",
         permanent: true,
       },
+      // The site is English only (2026-10-05); the former Czech version /cs/…
+      // points to the same page in English.
+      { source: "/cs/:old(support|patrons)", destination: "/membership", permanent: true },
+      { source: "/cs", destination: "/", permanent: true },
+      { source: "/cs/:path*", destination: "/:path*", permanent: true },
       // Atlas Patrons live at /membership, the address of the original site.
       { source: "/:old(support|patrons)", destination: "/membership", permanent: true },
-      {
-        source: "/:locale(cs)/:old(support|patrons)",
-        destination: "/:locale/membership",
-        permanent: true,
-      },
       // There is only one region portrait; the former "full" version points to it.
       {
         source: "/region/:slug/full",

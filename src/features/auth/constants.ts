@@ -7,7 +7,7 @@
 export const EMAIL_CODE_LENGTH = 6;
 
 /** Email language (templates in supabase/templates read `.Data.locale`). */
-export const EMAIL_LOCALES = ["en", "cs"] as const;
+export const EMAIL_LOCALES = ["en"] as const;
 
 /**
  * Result of email sign-in actions. Errors are codes, not sentences — reader-facing
