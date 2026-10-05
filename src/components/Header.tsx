@@ -4,7 +4,7 @@ import Link from "@/components/i18n/Link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Menu, UserRound, X } from "lucide-react";
-import { RAIL_OFFSET, railKind } from "@/config/layout";
+import { RAIL_OFFSET, isFullPage, railKind } from "@/config/layout";
 import { ACCOUNT_NAV, LEGAL_NAV, MAIN_NAV, SOCIALS } from "@/config/navigation";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 import NewsletterForm from "./NewsletterForm";
@@ -49,6 +49,9 @@ export default function Header({ newsletter = true }: { newsletter?: boolean }) 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [menuOpen]);
+
+  // Full-width pages bring their own header (FullPage).
+  if (isFullPage(pathname)) return null;
 
   return (
     <header

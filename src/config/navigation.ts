@@ -1,6 +1,9 @@
 import type { Messages } from "@/features/i18n/messages";
 import { MEMBERSHIP_PATH } from "@/features/membership/config";
 
+/** Overview of all encyclopedia entries (full-width page, the globe in a corner window). */
+export const TOPICS_PATH = "/topics";
+
 /**
  * Single definition of the menu (ARCHITEKTURA 15.1, D4) — the header above the map
  * (desktop and mobile) and the header of pages without the globe.
@@ -17,6 +20,7 @@ export interface NavItem {
 
 export const MAIN_NAV: readonly NavItem[] = [
   { href: "/", key: "map" },
+  { href: TOPICS_PATH, key: "topics" },
   { href: "/news", key: "news", compactHidden: true },
   { href: "/about", key: "about" },
   { href: MEMBERSHIP_PATH, key: "patrons", primary: true },

@@ -1,6 +1,8 @@
 import { ChevronDown } from "lucide-react";
 import Link from "@/components/i18n/Link";
+import { ReadMore } from "@/components/atlas/ReadMore";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
+import MapFocus from "@/components/map/MapFocus";
 import { FaqList } from "@/components/portrait/sections";
 import type { Atlas } from "@/features/geography/types";
 import { format } from "@/features/i18n/messages";
@@ -8,7 +10,7 @@ import { getRequestLocale, getT } from "@/features/i18n/request";
 import { formatLongDate } from "@/lib/format";
 import { cssBackgroundImage, safeUrl } from "@/lib/security/urls";
 import type { Encyclopedia, EntryAuthor, EntryChapter as Chapter, LearnMoreTile } from "../queries";
-import { ArticleFrame, META_LINE, PlaceLinks } from "./ArticleFrame";
+import { META_LINE, PlaceLinks } from "./ArticleFrame";
 import { DossierExplorer } from "./DossierExplorer";
 import { OpenOnHash } from "./OpenOnHash";
 
@@ -24,9 +26,10 @@ const CHEVRON = "size-4 transition-transform group-open:rotate-180";
 const LABEL = "text-[11px] font-medium tracking-[0.1em] text-[var(--color-ink-muted)] uppercase";
 
 /**
- * Encyclopedia entry presented as a dossier, for the public page and preview:
- * header with author and summary, then topic tiles and "Learn more" tiles
- * side by side (each opens its panel), FAQ and the author's bio.
+ * Encyclopedia entry presented as a dossier on a full-width page (FullPage),
+ * also for the preview: a photo header with the title, author and summary,
+ * the row of chapter cards with the open chapter below, "Learn more" tiles,
+ * FAQ and the author's bio. The globe window bottom left turns to the region.
  */
 export function EncyclopediaArticle({
   item,
@@ -38,53 +41,103 @@ export function EncyclopediaArticle({
   /** Bar above the article (preview: status and link validity). */
   banner?: React.ReactNode;
 }) {
+  const region = item.region ? atlas.regionBySlug.get(item.region) : undefined;
+  const hero = safeUrl(item.hero);
   return (
-    <ArticleFrame
-      item={item}
-      atlas={atlas}
-      banner={banner}
-      heroCaption={item.heroCredit}
-      lang={item.locale}
-    >
-      <EntryHeader item={item} atlas={atlas} />
-
-      {item.html ? <SafeHtml className="prose-atlas mt-7" html={item.html} /> : null}
-
-      <DossierExplorer
-        topics={item.chapters.map((chapter, index) => ({
-          id: topicId(index),
-          title: chapter.title,
-          image: chapter.illustration,
-        }))}
-        tiles={item.tiles.map((tile) => ({
-          id: tileId(tile),
-          label: tile.label,
-          description: tile.description,
-          icon: tile.icon,
-          image: tile.image,
-          count: tile.resources.length,
-          empty: !tile.resources.length && !tile.notesHtml,
-        }))}
-        panels={Object.fromEntries([
-          ...item.chapters.map((chapter, index) => [
-            topicId(index),
-            <TopicPanel key={topicId(index)} chapter={chapter} index={index} />,
-          ]),
-          ...item.tiles
-            .filter((tile) => tile.resources.length || tile.notesHtml)
-            .map((tile) => [tileId(tile), <TilePanel key={tile.id} tile={tile} />]),
-        ])}
+    <>
+      <MapFocus
+        center={region?.center ?? null}
+        regionCountries={region?.countries ?? []}
+        regionStroke={region?.stroke ?? null}
+        activeIso3={item.countries[0] ?? null}
       />
+      {banner}
 
-      {item.faq.length ? (
-        <div className="-mx-6 mt-10 sm:-mx-10">
-          <FaqList items={item.faq} />
+      <article lang={item.locale}>
+        <header className="relative isolate overflow-hidden bg-[var(--color-space)] text-white">
+          {hero ? (
+            // A real <img>: image search indexes it and the browser finds the LCP early.
+            // eslint-disable-next-line @next/next/no-img-element -- remote editorial photo, no optimizer (next.config)
+            <img
+              src={hero}
+              alt={item.title}
+              width={1600}
+              height={640}
+              fetchPriority="high"
+              decoding="async"
+              className="absolute inset-0 -z-10 h-full w-full object-cover"
+            />
+          ) : null}
+          <div
+            aria-hidden
+            className="absolute inset-0 -z-10 bg-gradient-to-t from-[var(--color-space-deep)] via-[var(--color-space-deep)]/65 to-[var(--color-space-deep)]/15"
+          />
+          <div className="mx-auto flex min-h-72 max-w-6xl flex-col justify-end px-4 pt-16 pb-10 sm:min-h-96 sm:px-8">
+            <p className="text-[11px] font-medium tracking-[0.14em] text-white/75 uppercase">
+              {getT().categories[item.category]}
+            </p>
+            <h1 className="font-display mt-3 max-w-4xl text-[34px] leading-[1.08] font-bold text-balance sm:text-[52px]">
+              {item.title}
+            </h1>
+            {item.summary ? (
+              <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-white/80 sm:text-[17px]">
+                {item.summary}
+              </p>
+            ) : null}
+          </div>
+          {item.heroCredit ? (
+            <p className="absolute right-3 bottom-2 text-[10.5px] text-white/55">
+              {item.heroCredit}
+            </p>
+          ) : null}
+        </header>
+
+        <div className="mx-auto max-w-6xl px-4 pt-6 pb-12 sm:px-8">
+          <div className="max-w-3xl">
+            <EntryHeader item={item} atlas={atlas} />
+            {item.html ? <SafeHtml className="prose-atlas mt-7" html={item.html} /> : null}
+          </div>
+
+          <DossierExplorer
+            topics={item.chapters.map((chapter, index) => ({
+              id: topicId(index),
+              title: chapter.title,
+              image: chapter.illustration,
+            }))}
+            tiles={item.tiles.map((tile) => ({
+              id: tileId(tile),
+              label: tile.label,
+              description: tile.description,
+              icon: tile.icon,
+              image: tile.image,
+              count: tile.resources.length,
+              empty: !tile.resources.length && !tile.notesHtml,
+            }))}
+            topicPanels={Object.fromEntries(
+              item.chapters.map((chapter, index) => [
+                topicId(index),
+                <TopicPanel key={topicId(index)} chapter={chapter} index={index} />,
+              ]),
+            )}
+            tilePanels={Object.fromEntries(
+              item.tiles
+                .filter((tile) => tile.resources.length || tile.notesHtml)
+                .map((tile) => [tileId(tile), <TilePanel key={tile.id} tile={tile} />]),
+            )}
+          />
+
+          <div className="mx-auto max-w-3xl">
+            {item.faq.length ? (
+              <div className="-mx-6 mt-14 sm:-mx-10">
+                <FaqList items={item.faq} />
+              </div>
+            ) : null}
+            {item.authorProfile ? <AuthorBio author={item.authorProfile} /> : null}
+          </div>
         </div>
-      ) : null}
-
-      {item.authorProfile ? <AuthorBio author={item.authorProfile} /> : null}
+      </article>
       <OpenOnHash />
-    </ArticleFrame>
+    </>
   );
 }
 
@@ -197,47 +250,42 @@ function EntryAudio({ src, title }: { src?: string; title: string }) {
   );
 }
 
-/** Topic panel: illustration, title, summary, audio and the full text. */
+/**
+ * Open chapter below the cards: number badge, title, summary, audio and the
+ * text as a preview with "Read more" (the card above already shows the photo).
+ */
 function TopicPanel({ chapter, index }: { chapter: Chapter; index: number }) {
   const t = getT().article;
   const id = topicId(index);
-  const illustration = cssBackgroundImage(chapter.illustration);
   return (
-    <section
-      aria-labelledby={`${id}-title`}
-      className="mt-8 border-t border-[var(--color-line)] pt-7"
-    >
-      {illustration ? (
-        <figure className="m-0">
-          <div
-            className="h-44 w-full rounded-xl bg-cover bg-center"
-            style={{ backgroundImage: illustration }}
-            role="img"
-            aria-label={chapter.title}
-          />
-          {chapter.illustrationCredit ? (
-            <figcaption className="mt-1 text-right text-[10.5px] text-[var(--color-ink-muted)]">
-              {chapter.illustrationCredit}
-            </figcaption>
-          ) : null}
-        </figure>
-      ) : null}
-      <p className={`mt-5 ${LABEL}`}>{format(t.topic, { number: String(index + 1) })}</p>
+    <section aria-labelledby={`${id}-title`} className="mt-12">
+      <p className="inline-flex rounded-full bg-[var(--color-ink)] px-2.5 py-0.5 text-[12px] font-semibold text-white">
+        {format(t.topic, { number: String(index + 1) })}
+      </p>
       <h2
         id={`${id}-title`}
-        className="font-display mt-1 text-[22px] leading-snug font-bold text-[var(--color-ink)]"
+        className="font-display mt-3 text-[26px] leading-snug font-bold text-[var(--color-ink)] sm:text-[30px]"
       >
         {chapter.title}
       </h2>
+      {chapter.illustrationCredit ? (
+        <p className="mt-1 text-[10.5px] text-[var(--color-ink-muted)]">
+          {chapter.illustrationCredit}
+        </p>
+      ) : null}
       {chapter.summaryPoints.length ? (
-        <ul className="mt-3 list-disc space-y-1 pl-5 text-[13.5px] leading-relaxed text-[var(--color-ink-soft)]">
+        <ul className="mt-4 list-disc space-y-1 pl-5 text-[14px] leading-relaxed text-[var(--color-ink-soft)]">
           {chapter.summaryPoints.map((point) => (
             <li key={point}>{point}</li>
           ))}
         </ul>
       ) : null}
       <EntryAudio src={chapter.audio} title={chapter.title} />
-      {chapter.html ? <SafeHtml className="prose-atlas mt-5" html={chapter.html} /> : null}
+      {chapter.html ? (
+        <ReadMore more={t.readMore} less={t.showLess} className="mt-5">
+          <SafeHtml className="prose-atlas" html={chapter.html} />
+        </ReadMore>
+      ) : null}
     </section>
   );
 }
@@ -250,7 +298,7 @@ function TilePanel({ tile }: { tile: LearnMoreTile }) {
   });
   const titleId = `${tileId(tile)}-title`;
   return (
-    <section aria-labelledby={titleId} className="mt-8 border-t border-[var(--color-line)] pt-7">
+    <section aria-labelledby={titleId} className="mt-12">
       <h2
         id={titleId}
         className="font-display text-[22px] leading-snug font-bold text-[var(--color-ink)]"
