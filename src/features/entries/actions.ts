@@ -1,12 +1,13 @@
 "use server";
 
 import "server-only";
-import { updateTag } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import {
   failed,
   formObject,
+  jsonField,
   invalid,
   listItemError,
   NOT_SIGNED_IN,
@@ -17,7 +18,7 @@ import { tags } from "@/lib/cache/tags";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { DEFAULT_LOCALE, isLocale, localePath } from "@/features/i18n/config";
 import { notifyIndexNow } from "@/lib/seo/indexnow";
-import { requiredText, slug as slugSchema, slugify, uuid } from "@/lib/validation/common";
+import { requiredText, slug as slugSchema, uuid } from "@/lib/validation/common";
 import { COLLECTIONS } from "@/features/portraits/schema";
 import {
   CHAPTER_FIELD_LABEL,
@@ -27,7 +28,9 @@ import {
   ScheduleInput,
   SendBackInput,
   SeoInput,
-  TileInput,
+  TilesInput,
+  TILE_FIELD_LABEL,
+  TopicLabelsInput,
 } from "./schema";
 import { MAX_CHAPTERS, PREVIEW_HOURS } from "./constants";
 
@@ -55,15 +58,18 @@ function pingSearchEngines(row: { slug: string; kind: string; locale: string }) 
  * stores the previous version of the text in the revision history.
  */
 export async function saveEntry(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  const parsed = EntryInput.safeParse(formObject(formData, ["countries"]));
+  // Unticked checkboxes send nothing: the layers are read only when the form showed them.
+  const arrays = formData.has("map_layers_shown") ? ["countries", "map_layers"] : ["countries"];
+  const parsed = EntryInput.safeParse(formObject(formData, arrays));
   if (!parsed.success) return invalid(parsed.error);
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
   const { supabase, user } = session;
-  const { id, countries, planned, ...fields } = parsed.data;
+  const { id, countries, planned, map_layers, ...fields } = parsed.data;
 
   const row = {
     ...fields,
+    ...(map_layers ? { map_layers } : {}),
     summary: fields.summary,
     region_slug: fields.region_slug ?? null,
     special_slug: fields.special_slug ?? null,
@@ -198,16 +204,17 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
   if (!uuid.safeParse(entryId).success) return { ok: false, error: "Invalid entry." };
   const column = (name: string) => formData.getAll(name).map(String);
   const titles = column("title");
-  const [points, bodies, illustrations, credits, audio] = [
+  const [points, bodies, illustrations, credits, audio, backgrounds] = [
     column("summary_points"),
     column("body_html"),
     column("illustration_url"),
     column("illustration_credit"),
     column("audio_url"),
+    column("tile_background"),
   ];
   const parsed = z
     .array(ChapterInput)
-    .max(MAX_CHAPTERS, `At most ${MAX_CHAPTERS} topics.`)
+    .max(MAX_CHAPTERS, `At most ${MAX_CHAPTERS} chapters.`)
     .safeParse(
       titles.map((title, index) => ({
         title,
@@ -216,9 +223,10 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
         illustration_url: illustrations[index],
         illustration_credit: credits[index],
         audio_url: audio[index],
+        tile_background: backgrounds[index],
       })),
     );
-  if (!parsed.success) return listItemError(parsed.error, "Topic", CHAPTER_FIELD_LABEL);
+  if (!parsed.success) return listItemError(parsed.error, "Chapter", CHAPTER_FIELD_LABEL);
 
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
@@ -232,16 +240,7 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
   });
   if (error) return failed(error);
   await refreshEntry(session.supabase, entryId, true);
-  return { ok: true, message: "Topics saved." };
-}
-
-/** Reads a JSON list posted in a hidden field; null when it isn't valid JSON. */
-function jsonField(formData: FormData, name: string): unknown {
-  try {
-    return JSON.parse(String(formData.get(name) ?? "[]"));
-  } catch {
-    return null;
-  }
+  return { ok: true, message: "Chapters saved." };
 }
 
 /** Dossier FAQ — shown on the page and as FAQPage structured data. */
@@ -332,51 +331,36 @@ export async function saveEntrySeo(_prev: ActionState, formData: FormData): Prom
 }
 
 /**
- * Creates or changes a learn-more tile: a default one (no `entry_id`, appears
- * on every dossier) or one dossier's own. The slug comes from the label.
+ * The "Learn more" tiles of a topic and the labels of its two halves, saved at
+ * once (DB `replace_tiles`): a tile left out is deleted with its links and text.
  */
-export async function saveTile(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  const parsed = TileInput.safeParse(formObject(formData));
-  if (!parsed.success) return invalid(parsed.error);
-  const session = await signedIn();
-  if (!session) return NOT_SIGNED_IN;
-  const { id, entry_id, ...fields } = parsed.data;
-  const row = {
-    ...fields,
-    slug: fields.slug ?? slugify(fields.label).slice(0, 60),
-    image_url: fields.image_url ?? null,
-    image_credit: fields.image_credit || null,
-    position: fields.position ?? 0,
-  };
-  const { data, error } = id
-    ? await session.supabase.from("learn_more_tiles").update(row).eq("id", id).select("id")
-    : await session.supabase
-        .from("learn_more_tiles")
-        .insert({ ...row, entry_id: entry_id ?? null })
-        .select("id");
-  if (error) return failed(error);
-  if (!data.length) return { ok: false, error: "You can't change this tile." };
-  if (entry_id) await refreshEntry(session.supabase, entry_id, true);
-  else updateTag(tags.entries);
-  return { ok: true, message: id ? "Tile saved." : "Tile added." };
-}
+export async function saveTopicTiles(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const entryId = String(formData.get("entry_id") ?? "");
+  if (!uuid.safeParse(entryId).success) return { ok: false, error: "Invalid entry." };
+  const tiles = TilesInput.safeParse(jsonField(formData, "tiles"));
+  if (!tiles.success) return listItemError(tiles.error, "Tile", TILE_FIELD_LABEL);
+  const labels = TopicLabelsInput.safeParse(formObject(formData));
+  if (!labels.success) return invalid(labels.error);
 
-/** Deletes a tile with its links and notes (the five original default tiles stay). */
-export async function deleteTile(id: string): Promise<ActionState> {
-  if (!uuid.safeParse(id).success) return { ok: false, error: "Invalid tile." };
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
-  const { data, error } = await session.supabase
-    .from("learn_more_tiles")
-    .delete()
-    .eq("id", id)
-    .select("entry_id");
+  const { error } = await session.supabase.rpc("replace_tiles", {
+    p_entry: entryId,
+    p_template: null,
+    p_items: tiles.data,
+  });
   if (error) return failed(error);
-  const [removed] = data;
-  if (!removed) return { ok: false, error: "This tile can't be deleted." };
-  if (removed.entry_id) await refreshEntry(session.supabase, removed.entry_id, true);
-  else updateTag(tags.entries);
-  return { ok: true, message: "Tile deleted." };
+  const { error: labelError } = await session.supabase
+    .from("entries")
+    .update({
+      articles_label: labels.data.articles_label || null,
+      learn_more_label: labels.data.learn_more_label || null,
+    })
+    .eq("id", entryId);
+  if (labelError) return failed(labelError);
+  await refreshEntry(session.supabase, entryId, true);
+  revalidatePath(`/admin/content/${entryId}`);
+  return { ok: true, message: "Tiles saved." };
 }
 
 export async function submitEntry(id: string) {

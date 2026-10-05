@@ -1,51 +1,29 @@
 "use client";
 
-import {
-  BookOpen,
-  ChartColumn,
-  Clapperboard,
-  FileText,
-  Globe,
-  GraduationCap,
-  Link as LinkIcon,
-  type LucideIcon,
-  Map as MapIcon,
-  Mic,
-  PenLine,
-} from "lucide-react";
 import { type ReactNode, useState, useSyncExternalStore } from "react";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { format } from "@/features/i18n/messages";
 import { cn } from "@/lib/cn";
-import { cssBackgroundImage } from "@/lib/security/urls";
-import type { TileIcon } from "../constants";
-
-const ICONS: Record<TileIcon, LucideIcon> = {
-  video: Clapperboard,
-  chart: ChartColumn,
-  book: BookOpen,
-  graduation: GraduationCap,
-  mic: Mic,
-  pen: PenLine,
-  map: MapIcon,
-  link: LinkIcon,
-  file: FileText,
-  globe: Globe,
-};
+import type { TileIcon as TileIconName } from "../constants";
+import { tileStyle } from "./TileFace";
+import { TileIcon } from "./TileIcon";
 
 export interface TopicTileData {
   /** Panel id, also the URL hash (`topic-2`). */
   id: string;
   title: string;
   image?: string;
+  /** Tile colour when there is no photo. */
+  background?: string;
 }
 
 export interface LearnTileData {
   id: string;
   label: string;
   description: string;
-  icon: TileIcon;
+  icon: TileIconName;
   image?: string;
+  background?: string;
   count: number;
   /** Nothing in this dossier yet: shown greyed out, not clickable. */
   empty: boolean;
@@ -79,11 +57,14 @@ export function DossierExplorer({
   tiles,
   topicPanels,
   tilePanels,
+  labels = {},
 }: {
   topics: TopicTileData[];
   tiles: LearnTileData[];
   topicPanels: Record<string, ReactNode>;
   tilePanels: Record<string, ReactNode>;
+  /** Headings set in the topic (from its template); missing = the default texts. */
+  labels?: { articles?: string; learnMore?: string };
 }) {
   const t = useMessages().article;
   const hash = useSyncExternalStore(subscribe, readHash, noHash);
@@ -118,11 +99,10 @@ export function DossierExplorer({
       {topics.length ? (
         <section aria-labelledby="dossier-topics">
           <h2 id="dossier-topics" className={HEADING}>
-            {t.chapters}
+            {labels.articles ?? t.chapters}
           </h2>
           <ul className={ROW}>
             {topics.map((topic, index) => {
-              const image = cssBackgroundImage(topic.image);
               return (
                 <li key={topic.id}>
                   <button
@@ -139,7 +119,7 @@ export function DossierExplorer({
                       "aspect-[4/5] sm:aspect-[3/5]",
                       open === topic.id && ACTIVE,
                     )}
-                    style={image ? { backgroundImage: image } : undefined}
+                    style={tileStyle(topic.image, topic.background)}
                   >
                     <span aria-hidden className={SHADE} />
                     <span className="font-display relative text-[15px] leading-tight font-semibold text-balance sm:text-[16px]">
@@ -157,17 +137,16 @@ export function DossierExplorer({
       {tiles.length ? (
         <section aria-labelledby="dossier-learn-more" className="mt-14">
           <h2 id="dossier-learn-more" className={HEADING}>
-            {t.learnMore}
+            {labels.learnMore ?? t.learnMore}
           </h2>
           <ul className={ROW}>
             {tiles.map((tile) => {
-              const Icon = ICONS[tile.icon];
-              const image = cssBackgroundImage(tile.image);
+              const style = tileStyle(tile.image, tile.background);
               const body = (
                 <>
                   <span aria-hidden className={SHADE} />
                   <span className="relative mb-auto grid size-9 place-items-center rounded-full bg-white/15 backdrop-blur-sm">
-                    <Icon aria-hidden className="size-4.5" />
+                    <TileIcon name={tile.icon} className="size-4.5" />
                   </span>
                   <span className="font-display relative mt-3 text-[14px] leading-snug font-bold">
                     {tile.label}
@@ -188,7 +167,7 @@ export function DossierExplorer({
                   {tile.empty ? (
                     <div
                       className={cn(TILE, "min-h-36 opacity-45 shadow-none grayscale")}
-                      style={image ? { backgroundImage: image } : undefined}
+                      style={style}
                     >
                       {body}
                     </div>
@@ -199,7 +178,7 @@ export function DossierExplorer({
                       aria-expanded={open === tile.id}
                       onClick={() => choose(tile.id)}
                       className={cn(TILE, "min-h-36", open === tile.id && ACTIVE)}
-                      style={image ? { backgroundImage: image } : undefined}
+                      style={style}
                     >
                       {body}
                     </button>

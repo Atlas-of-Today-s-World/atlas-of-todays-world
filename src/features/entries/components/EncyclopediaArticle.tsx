@@ -103,13 +103,16 @@ export function EncyclopediaArticle({
               id: topicId(index),
               title: chapter.title,
               image: chapter.illustration,
+              background: chapter.tileBackground,
             }))}
+            labels={item.labels}
             tiles={item.tiles.map((tile) => ({
               id: tileId(tile),
               label: tile.label,
               description: tile.description,
               icon: tile.icon,
               image: tile.image,
+              background: tile.background,
               count: tile.resources.length,
               empty: !tile.resources.length && !tile.notesHtml,
             }))}
@@ -311,10 +314,11 @@ function TilePanel({ tile }: { tile: LearnMoreTile }) {
       {tile.notesHtml ? <SafeHtml className="prose-atlas mt-4" html={tile.notesHtml} /> : null}
       {resources.length ? (
         <ul className="mt-5 grid gap-3 sm:grid-cols-2">
-          {resources.map((resource) => {
+          {resources.map((resource, index) => {
             const image = cssBackgroundImage(resource.image);
             return (
-              <li key={resource.url}>
+              // The same link may sit in a tile twice (under two sub-headings).
+              <li key={`${index}-${resource.url}`}>
                 <a
                   href={resource.url}
                   target="_blank"

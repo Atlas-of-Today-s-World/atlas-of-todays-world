@@ -1638,30 +1638,25 @@ test("dossier: learn-more tiles, tile notes, FAQ and SEO follow the dossier's ri
   const other = await newEntry(id.pubB, "dossier-other");
   const call = "select replace_entry_parts($1, $2, $3::jsonb)";
 
-  // The five original resource kinds are seeded as default tiles.
-  const defaults = await as(null, () =>
-    q("select slug, legacy_kind from learn_more_tiles where entry_id is null order by position"),
+  // A topic owns its tiles: turning the article into a topic copies the
+  // default template ("Standard" = the five original resource kinds).
+  await q("update entries set kind = 'entry' where id = any($1)", [[entry, other]]);
+  const own = await q(
+    "select id, slug from learn_more_tiles where entry_id = $1 order by position",
+    [entry],
   );
-  assert.equal(defaults.length, 5);
-  const videos = defaults.find((tile) => tile.slug === "videos");
-  assert.equal(videos.legacy_kind, "Videos & Documentaries");
-
-  // Default tiles: only someone with the right over all articles.
-  await as(id.pubA, () =>
-    refused(q("insert into learn_more_tiles (slug, label) values ('notes', 'Notes')")),
+  assert.deepEqual(
+    own.map((tile) => tile.slug),
+    ["videos", "stats", "reading", "education", "lectures"],
   );
-  const notes = await as(id.admin, () =>
-    one(
-      "insert into learn_more_tiles (slug, label, icon) values ('notes', 'Hand-written notes', 'pen') returning id",
-    ),
-  );
-  // Seeded tiles cannot be deleted (their links would go with them).
-  await as(id.admin, () =>
-    q("delete from learn_more_tiles where slug = 'videos' and entry_id is null"),
-  );
+  const notes = own.find((tile) => tile.slug === "videos");
+  // The old shared tiles are only the legacy-kind mapping: nobody reads them.
   assert.equal(
-    (await one("select count(*)::int n from learn_more_tiles where slug = 'videos'")).n,
-    1,
+    (await as(null, () => q("select 1 from learn_more_tiles where entry_id is null"))).length,
+    0,
+  );
+  await as(id.admin, () =>
+    refused(q("insert into learn_more_tiles (slug, label) values ('notes', 'Notes')")),
   );
 
   // A custom tile of one dossier: its writer yes, another publisher no.
@@ -1779,6 +1774,133 @@ test("dossier: learn-more tiles, tile notes, FAQ and SEO follow the dossier's ri
         entry,
       ]),
     ),
+  );
+});
+
+test("topic templates: default copy, re-apply by slug, own tiles, rights", async () => {
+  const entry = await newEntry(id.pubA, "topic-templates");
+  await q("update entries set kind = 'entry' where id = $1", [entry]);
+  const tiles = () =>
+    q("select id, slug, label, icon from learn_more_tiles where entry_id = $1 order by position", [
+      entry,
+    ]);
+  const videos = (await tiles()).find((tile) => tile.slug === "videos");
+  await as(id.pubA, () =>
+    q("select replace_entry_parts($1, 'resources', $2::jsonb)", [
+      entry,
+      JSON.stringify([{ tile_id: videos.id, title: "Doc", url: "https://example.org/doc" }]),
+    ]),
+  );
+
+  // Templates: readable by writers, changed only with the right over all articles.
+  const standard = await as(id.pubA, () => one("select id from topic_templates where is_default"));
+  assert.ok(standard.id);
+  await as(null, () => refused(q("select * from topic_templates")));
+  await as(id.pubA, () => refused(q("insert into topic_templates (name) values ('Mine')")));
+  const short = await as(id.admin, () =>
+    one(
+      "insert into topic_templates (name, learn_more_label) values ('Short', 'Go deeper') returning id",
+    ),
+  );
+  await as(id.admin, () =>
+    q("select replace_tiles(null, $1, $2::jsonb)", [
+      short.id,
+      JSON.stringify([
+        { slug: "videos", label: "Watch", icon: "podcast", background: "#123456" },
+        { slug: "maps", label: "Maps", icon: "map" },
+      ]),
+    ]),
+  );
+  await as(id.admin, () =>
+    refused(
+      q("select replace_tiles(null, $1, $2::jsonb)", [
+        short.id,
+        JSON.stringify([{ slug: "x", label: "X", icon: "rocket" }]),
+      ]),
+    ),
+  );
+
+  // Re-applying keeps links on tiles of the same slug; removing drops the rest.
+  await as(id.pubA, () => q("select apply_topic_template($1, $2, true)", [entry, short.id]));
+  assert.deepEqual(
+    (await tiles()).map(({ slug, label }) => [slug, label]),
+    [
+      ["videos", "Watch"],
+      ["maps", "Maps"],
+    ],
+  );
+  assert.equal(
+    (await one("select count(*)::int n from resources where entry_id = $1", [entry])).n,
+    1,
+  );
+  const topic = await one(
+    "select template_id, learn_more_label, articles_label from entries where id = $1",
+    [entry],
+  );
+  assert.deepEqual(topic, {
+    template_id: short.id,
+    learn_more_label: "Go deeper",
+    articles_label: null,
+  });
+  await as(id.pubB, () =>
+    refused(q("select apply_topic_template($1, $2)", [entry, standard.id]), /may not edit/),
+  );
+
+  // Own tiles saved at once: rename, reorder, add, delete (links go with the tile).
+  const [watch, maps] = await tiles();
+  await as(id.pubA, () =>
+    q("select replace_tiles($1, null, $2::jsonb)", [
+      entry,
+      JSON.stringify([
+        { id: maps.id, slug: "maps", label: "Atlas maps", icon: "map" },
+        { slug: "podcasts", label: "Podcasts", icon: "podcast" },
+      ]),
+    ]),
+  );
+  assert.deepEqual(
+    (await tiles()).map(({ slug }) => slug),
+    ["maps", "podcasts"],
+  );
+  assert.equal(
+    (await one("select count(*)::int n from resources where tile_id = $1", [watch.id])).n,
+    0,
+  );
+
+  // The topic's tiles become a new template; another one can be the default.
+  const saved = await as(id.admin, () =>
+    one("select save_topic_as_template($1, 'From topic') as id", [entry]),
+  );
+  assert.deepEqual(
+    (
+      await q("select slug from topic_template_tiles where template_id = $1 order by position", [
+        saved.id,
+      ])
+    ).map((row) => row.slug),
+    ["maps", "podcasts"],
+  );
+  await as(id.pubA, () =>
+    refused(q("select set_default_topic_template($1)", [saved.id]), /may not change/),
+  );
+  await as(id.admin, () => q("select set_default_topic_template($1)", [saved.id]));
+  assert.equal((await one("select name from topic_templates where is_default")).name, "From topic");
+  // A new topic starts from the new default; the default can't be deleted.
+  const fresh = await newEntry(id.pubA, "topic-fresh");
+  await q("update entries set kind = 'entry' where id = $1", [fresh]);
+  assert.equal(
+    (await one("select count(*)::int n from learn_more_tiles where entry_id = $1", [fresh])).n,
+    2,
+  );
+  await as(id.admin, () => q("delete from topic_templates where id = $1", [saved.id]));
+  assert.equal(
+    (await one("select count(*)::int n from topic_templates where id = $1", [saved.id])).n,
+    1,
+  );
+  await as(id.admin, () => q("select set_default_topic_template($1)", [standard.id]));
+
+  // Map layers: only the three known globe layers.
+  await as(id.pubA, () => q("update entries set map_layers = '{regions}' where id = $1", [entry]));
+  await as(id.pubA, () =>
+    refused(q("update entries set map_layers = '{continents}' where id = $1", [entry])),
   );
 });
 

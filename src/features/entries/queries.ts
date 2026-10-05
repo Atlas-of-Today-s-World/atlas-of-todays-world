@@ -5,7 +5,8 @@ import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import type { FaqItem, NewsCategory, ResourceItem } from "@/lib/content-types";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { createPublicClient } from "@/lib/supabase/public";
-import { TILE_ICONS, type TileIcon } from "./constants";
+import { MAP_LAYERS, type MapLayer, toTileIcon, type TileIcon } from "./constants";
+import type { TopicPlace } from "@/features/topics/map-counts";
 
 /** Published news item without body — for lists, portraits, sitemap. */
 export interface EntrySummary {
@@ -290,17 +291,18 @@ export async function getPreview(token: string): Promise<Preview | null> {
   return {
     ...meta,
     kind: "entry",
-    item: toEncyclopedia(
-      item,
-      {
-        summary_points: extra.data.summary_points,
-        author: extra.data.author as AuthorRow | null,
-        chapters: extra.data.chapters as unknown as ChapterRow[],
-        resources: extra.data.resources as unknown as ResourceRow[],
+    item: toEncyclopedia(item, {
+      summary_points: extra.data.summary_points,
+      author: extra.data.author as AuthorRow | null,
+      chapters: extra.data.chapters as unknown as ChapterRow[],
+      resources: extra.data.resources as unknown as ResourceRow[],
+      tiles: extra.data.tiles as unknown as TileRow[],
+      notes: extra.data.notes as unknown as NoteRow[],
+      labels: {
+        articles_label: extra.data.articles_label,
+        learn_more_label: extra.data.learn_more_label,
       },
-      // The preview shows the default tiles; custom tiles, notes and FAQ appear once published.
-      await getDefaultTiles(),
-    ),
+    }),
   };
 }
 
@@ -316,6 +318,8 @@ export interface EntryChapter {
   html: string;
   illustration?: string;
   illustrationCredit?: string;
+  /** Tile colour when there is no photo. */
+  tileBackground?: string;
   /** Audio version of the chapter — the player shows only when it exists. */
   audio?: string;
 }
@@ -338,6 +342,8 @@ export interface LearnMoreTile {
   icon: TileIcon;
   image?: string;
   imageCredit?: string;
+  /** Tile colour when there is no photo. */
+  background?: string;
   resources: ResourceItem[];
   /** Sanitized rich text of the tile in this dossier (e.g. hand-written notes). */
   notesHtml: string;
@@ -359,8 +365,10 @@ export interface Encyclopedia extends Entry {
   authorProfile?: EntryAuthor;
   chapters: EntryChapter[];
   resources: ResourceItem[];
-  /** Default tiles first, then the dossier's own, each with its content. */
+  /** The topic's own resource tiles, each with its content. */
   tiles: LearnMoreTile[];
+  /** Headings of the two halves; missing = the default texts. */
+  labels: { articles?: string; learnMore?: string };
   faq: FaqItem[];
   seo: EntrySeo;
 }
@@ -381,6 +389,7 @@ interface ChapterRow {
   illustration_url: string | null;
   illustration_credit: string | null;
   audio_url: string | null;
+  tile_background?: string | null;
 }
 
 interface ResourceRow {
@@ -401,8 +410,8 @@ interface TileRow {
   icon: string;
   image_url: string | null;
   image_credit: string | null;
+  background?: string | null;
   position: number;
-  legacy_kind?: string | null;
 }
 
 interface SeoRow {
@@ -434,57 +443,29 @@ interface EncyclopediaParts {
   notes?: NoteRow[];
   faq?: FaqRow[];
   seo?: SeoRow;
+  labels?: { articles_label: string | null; learn_more_label: string | null };
 }
 
-const TILE_COLUMNS = "id, slug, label, description, icon, image_url, image_credit, position";
-
-/** Default learn-more tiles (on every dossier), in their order. */
-const getDefaultTiles = unstable_cache(
-  async (): Promise<TileRow[]> => {
-    const { data, error } = await createPublicClient()
-      .from("learn_more_tiles")
-      .select(`${TILE_COLUMNS}, legacy_kind`)
-      .is("entry_id", null)
-      .order("position");
-    if (error) throw new Error(`[tiles] ${error.message}`);
-    return data;
-  },
-  ["learn-more-tiles"],
-  { tags: [tags.entries], revalidate: PUBLIC_REVALIDATE_SECONDS },
-);
-
-const toIcon = (value: string): TileIcon =>
-  (TILE_ICONS as readonly string[]).includes(value) ? (value as TileIcon) : "link";
+const TILE_COLUMNS =
+  "id, slug, label, description, icon, image_url, image_credit, background, position";
 
 const optional = (value: string | null | undefined) => value?.trim() || undefined;
 
 type PlacedResource = ResourceItem & { tileId?: string | null };
 
-/**
- * Tiles of one dossier: defaults, then its own. A link goes to its tile (an
- * older link without one by its legacy kind); notes are matched by tile.
- */
-function toTiles(
-  defaults: TileRow[],
-  parts: EncyclopediaParts,
-  resources: PlacedResource[],
-): LearnMoreTile[] {
-  const byKind = new Map(
-    defaults.flatMap((tile) => (tile.legacy_kind ? [[tile.legacy_kind, tile.id] as const] : [])),
-  );
-  const tileOf = (resource: PlacedResource) =>
-    resource.tileId ?? (resource.kind ? byKind.get(resource.kind) : undefined);
+/** The topic's own tiles in order; a link goes to its tile, notes are matched by tile. */
+function toTiles(parts: EncyclopediaParts, resources: PlacedResource[]): LearnMoreTile[] {
   const notes = new Map((parts.notes ?? []).map((note) => [note.tile_id, note.body_html]));
-  const own = [...(parts.tiles ?? [])].sort(byPosition);
-  return [...defaults, ...own].map((tile) => ({
+  return [...(parts.tiles ?? [])].sort(byPosition).map((tile) => ({
     id: tile.id,
     slug: tile.slug,
     label: tile.label,
     description: tile.description,
-    icon: toIcon(tile.icon),
+    icon: toTileIcon(tile.icon),
     image: tile.image_url ?? undefined,
     imageCredit: tile.image_credit ?? undefined,
-    resources: resources.filter((resource) => tileOf(resource) === tile.id).map(withoutTile),
+    background: tile.background ?? undefined,
+    resources: resources.filter((resource) => resource.tileId === tile.id).map(withoutTile),
     notesHtml: sanitizeRichHtml(notes.get(tile.id) ?? ""),
   }));
 }
@@ -498,7 +479,7 @@ const byPosition = (a: { position?: number }, b: { position?: number }) =>
   (a.position ?? 0) - (b.position ?? 0);
 
 /** One shape of an entry for both the public page and preview (DB rows → component type). */
-function toEncyclopedia(item: Entry, parts: EncyclopediaParts, defaults: TileRow[]): Encyclopedia {
+function toEncyclopedia(item: Entry, parts: EncyclopediaParts): Encyclopedia {
   const author = parts.author;
   const resources: PlacedResource[] = [...parts.resources].sort(byPosition).map((resource) => ({
     title: resource.title,
@@ -529,10 +510,15 @@ function toEncyclopedia(item: Entry, parts: EncyclopediaParts, defaults: TileRow
       html: sanitizeRichHtml(chapter.body_html),
       illustration: chapter.illustration_url ?? undefined,
       illustrationCredit: chapter.illustration_credit ?? undefined,
+      tileBackground: chapter.tile_background ?? undefined,
       audio: chapter.audio_url ?? undefined,
     })),
     resources: resources.map(withoutTile),
-    tiles: toTiles(defaults, parts, resources),
+    tiles: toTiles(parts, resources),
+    labels: {
+      articles: optional(parts.labels?.articles_label),
+      learnMore: optional(parts.labels?.learn_more_label),
+    },
     faq: [...(parts.faq ?? [])]
       .sort(byPosition)
       .map(({ question, answer }) => ({ question, answer })),
@@ -550,8 +536,9 @@ function toEncyclopedia(item: Entry, parts: EncyclopediaParts, defaults: TileRow
 // Anon may read only the listed columns (DB-08) — nested tables included.
 const ENCYCLOPEDIA_COLUMNS = `${BASE_COLUMNS}, body_html, summary_points,
   seo_title, seo_description, og_image_url, seo_keywords, geo_summary, noindex,
+  articles_label, learn_more_label,
   authors(slug, name, photo_url, bio, positionality),
-  entry_chapters(position, title, summary_points, body_html, illustration_url, illustration_credit, audio_url),
+  entry_chapters(position, title, summary_points, body_html, illustration_url, illustration_credit, audio_url, tile_background),
   resources(position, kind, tile_id, title, source, url, image_url),
   learn_more_tiles!learn_more_tiles_entry_id_fkey(${TILE_COLUMNS}),
   entry_tile_notes(tile_id, body_html),
@@ -579,6 +566,8 @@ export async function getEncyclopediaEntry(
           body_html: string;
           summary_points: string[];
           translation_of: string | null;
+          articles_label: string | null;
+          learn_more_label: string | null;
           authors: AuthorRow | null;
           entry_chapters: ChapterRow[];
           resources: ResourceRow[];
@@ -590,7 +579,7 @@ export async function getEncyclopediaEntry(
     ["encyclopedia", slug],
     { tags: [tags.entries, tags.entry(slug)], revalidate: PUBLIC_REVALIDATE_SECONDS },
   );
-  const [rows, defaults] = await Promise.all([load(), getDefaultTiles()]);
+  const rows = await load();
   const version = pickVersion(rows, locale);
   if (!version) return null;
   const { row } = version;
@@ -610,8 +599,8 @@ export async function getEncyclopediaEntry(
       notes: row.entry_tile_notes,
       faq: row.entry_faq,
       seo: row,
+      labels: row,
     },
-    defaults,
   );
 }
 
@@ -644,3 +633,28 @@ export function thematicEntries(published: EntrySummary[], upcoming: UpcomingEnt
     ...upcoming.map(({ title, category }) => ({ title, category, slug: null })),
   ];
 }
+
+/** Published topics with where they belong on the globe (the map's topic counts). */
+export const getTopicPlaces = unstable_cache(
+  async (): Promise<TopicPlace[]> => {
+    const { data, error } = await createPublicClient()
+      .from("entries")
+      .select("slug, title, region_slug, special_slug, map_layers, entry_countries(country_iso3)")
+      .eq("kind", "entry")
+      .eq("status", "published")
+      .is("translation_of", null);
+    if (error) throw new Error(`[topics] ${error.message}`);
+    return data.map((row) => ({
+      slug: row.slug,
+      title: row.title,
+      region: row.region_slug,
+      issue: row.special_slug,
+      countries: row.entry_countries.map((country) => country.country_iso3),
+      layers: row.map_layers.filter((layer): layer is MapLayer =>
+        (MAP_LAYERS as readonly string[]).includes(layer),
+      ),
+    }));
+  },
+  ["topic-places"],
+  { tags: [tags.entries], revalidate: PUBLIC_REVALIDATE_SECONDS },
+);

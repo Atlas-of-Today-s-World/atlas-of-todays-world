@@ -15,6 +15,7 @@ import { UploadField } from "./UploadField";
 import { RichTextEditor } from "./RichTextEditor";
 import { useDraftBackup } from "./useDraftBackup";
 import { ActionForm } from "@/components/ui/action-form";
+import { MAP_LAYER_LABEL, MAP_LAYERS } from "../constants";
 
 interface Option {
   slug: string;
@@ -153,7 +154,7 @@ export function EntryForm({
             onChange={(event) => setKind(event.target.value as "news" | "entry")}
           >
             <option value="news">News article</option>
-            <option value="entry">Encyclopedia entry</option>
+            <option value="entry">Topic (encyclopedia entry)</option>
           </Select>
         </FormField>
         <FormField id="region_slug" label="Region" errors={errors.region_slug}>
@@ -191,6 +192,30 @@ export function EntryForm({
           defaultSelected={values?.countries ?? []}
         />
       </FormField>
+
+      {isEntry ? (
+        <fieldset className="grid gap-1">
+          <legend className="text-[12.5px] font-medium text-[var(--color-ink-soft)]">
+            Count on the map
+          </legend>
+          <p className="text-[12.5px] text-[var(--color-ink-muted)]">
+            On which globe layers this topic adds to the number shown over its region, country group
+            or countries. A topic of a region also counts for each of its countries.
+          </p>
+          <input type="hidden" name="map_layers_shown" value="1" />
+          <div className="flex flex-wrap gap-x-5">
+            {MAP_LAYERS.map((layer) => (
+              <Checkbox
+                key={layer}
+                name="map_layers"
+                value={layer}
+                label={MAP_LAYER_LABEL[layer]}
+                defaultChecked={(values?.map_layers ?? MAP_LAYERS).includes(layer)}
+              />
+            ))}
+          </div>
+        </fieldset>
+      ) : null}
 
       <FormField
         id="summary"

@@ -11,7 +11,27 @@ import {
   text,
   uuid,
 } from "@/lib/validation/common";
-import { GEO_SUMMARY_MAX, SEO_DESCRIPTION_MAX, SEO_TITLE_MAX, TILE_ICONS } from "./constants";
+import {
+  GEO_SUMMARY_MAX,
+  MAP_LAYERS,
+  MAX_LINKS,
+  MAX_TILES,
+  SEO_DESCRIPTION_MAX,
+  SEO_TITLE_MAX,
+  TILE_ICONS,
+} from "./constants";
+
+/** Tile background colour (DB `is_hex_color`); empty = none. */
+const hexColor = z.preprocess(
+  blankToUndefined,
+  z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/, "Use a colour like #1f3a5f.")
+    .optional(),
+);
+
+/** Section label of a topic ("Chapters", "Learn more"); empty = the template's. */
+const sectionLabel = text(40).default("");
 
 /** Text with one item per line → list of non-empty lines (trim removes CR). */
 const lines = (value: unknown) =>
@@ -50,6 +70,8 @@ export const EntryInput = z.object({
   // Encyclopedia entries only (P9); left empty for news.
   summary_points: summaryPoints.default([]),
   author_id: z.preprocess(blankToUndefined, uuid.optional()),
+  // Topics only (the form marks it with `map_layers_shown`): globe layers it is counted on.
+  map_layers: z.array(z.enum(MAP_LAYERS)).optional(),
 });
 export type EntryInput = z.infer<typeof EntryInput>;
 
@@ -62,6 +84,7 @@ export const ChapterInput = z.object({
   illustration_credit: text(300).default(""),
   // Chapter audio version (R4) — per chapter, so the file fits within 50 MB.
   audio_url: optionalHttpsUrl,
+  tile_background: hexColor,
 });
 export type ChapterInput = z.infer<typeof ChapterInput>;
 
@@ -72,6 +95,7 @@ export const CHAPTER_FIELD_LABEL: Record<string, string> = {
   illustration_url: "illustration",
   illustration_credit: "illustration credit",
   audio_url: "audio",
+  tile_background: "tile colour",
 };
 
 export const SendBackInput = z.object({
@@ -110,19 +134,50 @@ export const STATUS_LABEL: Record<EntryStatus, string> = {
   planned: "Scheduled",
 };
 
-/** A learn-more tile: default (no entry) or of one dossier — limits as `learn_more_tiles`. */
-export const TileInput = z.object({
+/** One "Learn more" tile of a topic or a template — limits as `learn_more_tiles`. */
+const TileItem = z.object({
   id: z.preprocess(blankToUndefined, uuid.optional()),
-  entry_id: z.preprocess(blankToUndefined, uuid.optional()),
-  slug: z.preprocess(blankToUndefined, slug(60).optional()),
+  slug: slug(60),
   label: requiredText(60),
   description: text(200).default(""),
   icon: z.enum(TILE_ICONS),
   image_url: optionalHttpsUrl,
   image_credit: text(300).default(""),
-  position: optionalNumber(z.number().int().min(0).max(99)),
+  background: hexColor,
 });
-export type TileInput = z.infer<typeof TileInput>;
+export const TILE_FIELD_LABEL: Record<string, string> = {
+  slug: "address",
+  label: "label",
+  description: "description",
+  icon: "icon",
+  image_url: "photo",
+  image_credit: "photo credit",
+  background: "colour",
+};
+
+/** All tiles of a topic or a template, saved at once; addresses (slugs) unique. */
+export const TilesInput = z
+  .array(TileItem)
+  .max(MAX_TILES, `At most ${MAX_TILES} tiles.`)
+  .refine(
+    (tiles) => new Set(tiles.map((tile) => tile.slug)).size === tiles.length,
+    "Two tiles have the same label — rename one of them.",
+  );
+
+/** Labels of a topic's two halves; empty = the default text. */
+export const TopicLabelsInput = z.object({
+  articles_label: sectionLabel,
+  learn_more_label: sectionLabel,
+});
+
+/** A topic template's own fields (its tiles come as `TilesInput`). */
+export const TemplateInput = z.object({
+  id: z.preprocess(blankToUndefined, uuid.optional()),
+  name: requiredText(80),
+  description: text(300).default(""),
+  articles_label: requiredText(40),
+  learn_more_label: requiredText(40),
+});
 
 /** One comma- or line-separated list → trimmed, de-duplicated keywords. */
 const keywords = z.preprocess(
@@ -162,9 +217,9 @@ const TileLink = z.object({
 
 /** Learn-more content of one dossier: links per tile (notes come as rich-text fields). */
 export const LearnMoreInput = z
-  .array(z.object({ tile_id: uuid, links: z.array(TileLink).max(50) }))
-  .max(30)
+  .array(z.object({ tile_id: uuid, links: z.array(TileLink).max(MAX_LINKS) }))
+  .max(MAX_TILES)
   .refine(
-    (tiles) => tiles.reduce((sum, tile) => sum + tile.links.length, 0) <= 50,
-    "A dossier holds at most 50 links.",
+    (tiles) => tiles.reduce((sum, tile) => sum + tile.links.length, 0) <= MAX_LINKS,
+    `A topic holds at most ${MAX_LINKS} links.`,
   );

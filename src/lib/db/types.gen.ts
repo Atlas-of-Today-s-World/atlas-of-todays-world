@@ -276,6 +276,10 @@ export type Database = {
       }
       entries: {
         Row: {
+          articles_label: string | null
+          learn_more_label: string | null
+          map_layers: string[]
+          template_id: string | null
           approved_at: string | null
           approved_by: string | null
           area_id: string | null
@@ -313,6 +317,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          articles_label?: string | null
+          learn_more_label?: string | null
+          map_layers?: string[]
+          template_id?: string | null
           approved_at?: string | null
           approved_by?: string | null
           area_id?: string | null
@@ -350,6 +358,10 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          articles_label?: string | null
+          learn_more_label?: string | null
+          map_layers?: string[]
+          template_id?: string | null
           approved_at?: string | null
           approved_by?: string | null
           area_id?: string | null
@@ -387,6 +399,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "entries_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "topic_templates"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "entries_approved_by_fkey"
             columns: ["approved_by"]
@@ -468,6 +487,7 @@ export type Database = {
       }
       entry_chapters: {
         Row: {
+          tile_background: string | null
           audio_url: string | null
           body_html: string
           entry_id: string
@@ -479,6 +499,7 @@ export type Database = {
           title: string
         }
         Insert: {
+          tile_background?: string | null
           audio_url?: string | null
           body_html?: string
           entry_id: string
@@ -490,6 +511,7 @@ export type Database = {
           title: string
         }
         Update: {
+          tile_background?: string | null
           audio_url?: string | null
           body_html?: string
           entry_id?: string
@@ -1055,6 +1077,7 @@ export type Database = {
       }
       learn_more_tiles: {
         Row: {
+          background: string | null
           description: string
           entry_id: string | null
           icon: string
@@ -1068,6 +1091,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          background?: string | null
           description?: string
           entry_id?: string | null
           icon?: string
@@ -1081,6 +1105,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          background?: string | null
           description?: string
           entry_id?: string | null
           icon?: string
@@ -1835,6 +1860,83 @@ export type Database = {
           },
         ]
       }
+      topic_template_tiles: {
+        Row: {
+          background: string | null
+          description: string
+          icon: string
+          id: string
+          image_credit: string | null
+          image_url: string | null
+          label: string
+          position: number
+          slug: string
+          template_id: string
+        }
+        Insert: {
+          background?: string | null
+          description?: string
+          icon?: string
+          id?: string
+          image_credit?: string | null
+          image_url?: string | null
+          label: string
+          position?: number
+          slug: string
+          template_id: string
+        }
+        Update: {
+          background?: string | null
+          description?: string
+          icon?: string
+          id?: string
+          image_credit?: string | null
+          image_url?: string | null
+          label?: string
+          position?: number
+          slug?: string
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topic_template_tiles_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "topic_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      topic_templates: {
+        Row: {
+          articles_label: string
+          description: string
+          id: string
+          is_default: boolean
+          learn_more_label: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          articles_label?: string
+          description?: string
+          id?: string
+          is_default?: boolean
+          learn_more_label?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          articles_label?: string
+          description?: string
+          id?: string
+          is_default?: boolean
+          learn_more_label?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       timeline_events: {
         Row: {
           body: string
@@ -2051,11 +2153,15 @@ export type Database = {
       entry_preview_parts: {
         Args: { p_token: string }
         Returns: {
+          articles_label: string | null
           author: Json
           chapters: Json
           kind: string
+          learn_more_label: string | null
+          notes: Json
           resources: Json
           summary_points: string[]
+          tiles: Json
         }[]
       }
       has_perm: {
@@ -2122,6 +2228,22 @@ export type Database = {
       publish_due_entries: { Args: never; Returns: number }
       purge_audit_log: { Args: never; Returns: number }
       record_page_view: { Args: never; Returns: undefined }
+      apply_topic_template: {
+        Args: { p_entry: string; p_remove_missing?: boolean; p_template: string }
+        Returns: undefined
+      }
+      replace_tiles: {
+        Args: { p_entry: string | null; p_items: Json; p_template: string | null }
+        Returns: undefined
+      }
+      save_topic_as_template: {
+        Args: { p_entry: string; p_name: string }
+        Returns: string
+      }
+      set_default_topic_template: {
+        Args: { p_template: string }
+        Returns: undefined
+      }
       replace_entry_parts: {
         Args: { p_entry: string; p_items: Json; p_part: string }
         Returns: undefined

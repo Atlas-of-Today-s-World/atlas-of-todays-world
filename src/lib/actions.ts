@@ -52,6 +52,15 @@ export function formObject(formData: FormData, arrays: string[] = []): Record<st
   return out;
 }
 
+/** Reads a JSON list posted in a hidden field; null when it isn't valid JSON. */
+export function jsonField(formData: FormData, name: string): unknown {
+  try {
+    return JSON.parse(String(formData.get(name) ?? "[]"));
+  } catch {
+    return null;
+  }
+}
+
 /**
  * First error of an item list as "Chapter 2, Title: …" (forms that submit
  * arrays of items — chapters, sources, portrait sections).

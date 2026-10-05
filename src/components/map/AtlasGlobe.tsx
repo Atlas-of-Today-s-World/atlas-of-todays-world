@@ -12,7 +12,16 @@ import type {
 } from "maplibre-gl";
 import { Minus, Plus } from "lucide-react";
 import { loadMapLibre } from "./maplibre";
-import { buildStyle, LAYERS, type RegionLabel, type StyleOptions } from "./mapStyle";
+import {
+  buildStyle,
+  COUNTRY_RANK_FILTER,
+  LAYERS,
+  TOPIC_BADGE_IMAGES,
+  TOPIC_LAYERS,
+  type RegionLabel,
+  type StyleOptions,
+} from "./mapStyle";
+import { format } from "@/features/i18n/messages";
 import { EUROPE_CENTER, globeFillZoom, miniGlobeZoom } from "@/lib/home-location";
 import { useMapState } from "./MapContext";
 import { useLatest } from "@/lib/use-latest";
@@ -45,6 +54,51 @@ interface Props {
   regionLabels: RegionLabel[];
   /** Appearance and custom areas from the admin. */
   styleOptions: StyleOptions;
+  /** Number of topics per place, for each selection mode (ISO3 or group slug → count). */
+  topicCounts: Record<SelectionModeKey, Record<string, number>>;
+  /** Countries with a topic of their own (solid pill); the others only inherit (soft pill). */
+  ownTopicCountries: string[];
+}
+
+type SelectionModeKey = keyof typeof TOPIC_LAYERS;
+
+/** The pill behind a topic count: rounded, stretchable around the number. */
+function topicBadgeImage(soft: boolean) {
+  const ratio = 2;
+  const [w, h, r] = [16 * ratio, 12 * ratio, 6 * ratio];
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  ctx.fillStyle = soft ? "rgba(8,14,28,0.55)" : "#ffffff";
+  ctx.strokeStyle = soft ? "rgba(255,255,255,0.75)" : "rgba(11,18,32,0.35)";
+  ctx.lineWidth = ratio;
+  ctx.beginPath();
+  ctx.roundRect(ratio / 2, ratio / 2, w - ratio, h - ratio, r);
+  ctx.fill();
+  ctx.stroke();
+  return {
+    image: ctx.getImageData(0, 0, w, h),
+    options: {
+      pixelRatio: ratio,
+      stretchX: [[r, w - r]] as [number, number][],
+      stretchY: [[r - 1, r + 1]] as [number, number][],
+      content: [r / 2, ratio * 2, w - r / 2, h - ratio * 2] as [number, number, number, number],
+    },
+  };
+}
+
+/** ISO3 / slug → count as MapLibre filter and label expressions for one badge layer. */
+function topicExpressions(counts: Record<string, number>, property: "iso3" | "slug") {
+  const keys = Object.keys(counts);
+  const pairs = keys.flatMap((key) => [key, String(counts[key])]);
+  const has: ExpressionSpecification = ["in", ["get", property], ["literal", keys]];
+  // MapLibre types can't express a variable number of pairs in "match".
+  const text = (keys.length
+    ? ["match", ["get", property], ...pairs, ""]
+    : ["literal", ""]) as unknown as ExpressionSpecification;
+  return { has, text };
 }
 
 const NEUTRAL = "#7d8aa8";
@@ -117,6 +171,8 @@ export default function AtlasGlobe({
   issue,
   regionLabels,
   styleOptions,
+  topicCounts,
+  ownTopicCountries,
 }: Props) {
   const t = useMessages();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -138,6 +194,10 @@ export default function AtlasGlobe({
   const regionsRef = useLatest(regions);
   const issueRef = useLatest(issue);
   const slugsRef = useLatest(slugs);
+  const topicCountsRef = useLatest(topicCounts);
+  const topicLabelRef = useLatest((count: number) =>
+    count === 1 ? t.map.topicsOne : format(t.map.topicsCount, { count: String(count) }),
+  );
   const activeRef = useLatest(focus.activeIso3);
   /** URLs we've already prefetched – so we don't prefetch the same on every move. */
   const prefetchedRef = useRef(new Set<string>());
@@ -191,6 +251,13 @@ export default function AtlasGlobe({
         setReady(true);
       });
 
+      map.on("styleimagemissing", (event: { id: string }) => {
+        const soft = event.id === TOPIC_BADGE_IMAGES.inherited;
+        if ((!soft && event.id !== TOPIC_BADGE_IMAGES.own) || map.hasImage(event.id)) return;
+        const badge = topicBadgeImage(soft);
+        if (badge) map.addImage(event.id, badge.image, badge.options);
+      });
+
       // State for e2e tests and diagnostics: country borders are loaded and rendered.
       // "idle" isn't enough — it may not fire during camera animation; sourcedata always does.
       const markCountriesLoaded = (event: MapSourceDataEvent) => {
@@ -215,9 +282,10 @@ export default function AtlasGlobe({
           const slug = lookup.slugByCountry[iso3];
           const group = slug ? lookup.bySlug[slug] : undefined;
           if (!group) return null;
+          const topics = topicCountsRef.current[isIssue ? "issue" : "regions"][slug ?? ""] ?? 0;
           return {
             iso3,
-            label: group.name,
+            label: topics ? `${group.name} · ${topicLabelRef.current(topics)}` : group.name,
             href: isIssue ? `/global-issue/${slug}` : `/region/${slug}`,
             countries: group.countries,
           };
@@ -225,9 +293,11 @@ export default function AtlasGlobe({
 
         const slug = slugsRef.current[iso3];
         if (!slug) return null;
+        const name = (feature?.properties?.name as string) ?? iso3;
+        const topics = topicCountsRef.current.countries[iso3] ?? 0;
         return {
           iso3,
-          label: (feature?.properties?.name as string) ?? iso3,
+          label: topics ? `${name} · ${topicLabelRef.current(topics)}` : name,
           href: `/country/${slug}`,
           countries: [iso3],
         };
@@ -346,6 +416,38 @@ export default function AtlasGlobe({
     hoveredRef.current = null;
     setHoverLabel(null);
   }, [mode, ready]);
+
+  // --- topic counts: one badge layer per mode, numbers from the server ---
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+    const layers: [SelectionModeKey, "iso3" | "slug"][] = [
+      ["countries", "iso3"],
+      ["regions", "slug"],
+      ["issue", "slug"],
+    ];
+    for (const [key, property] of layers) {
+      const { has, text } = topicExpressions(topicCounts[key], property);
+      const layer = TOPIC_LAYERS[key];
+      map.setFilter(
+        layer,
+        key === "countries"
+          ? (["all", COUNTRY_RANK_FILTER, has] as unknown as ExpressionSpecification)
+          : has,
+      );
+      map.setLayoutProperty(layer, "text-field", text);
+      map.setLayoutProperty(layer, "visibility", key === mode ? "visible" : "none");
+    }
+    // Countries: solid pill for a topic of their own, soft one when all are inherited.
+    const own: ExpressionSpecification = ["in", ["get", "iso3"], ["literal", ownTopicCountries]];
+    map.setLayoutProperty(TOPIC_LAYERS.countries, "icon-image", [
+      "case",
+      own,
+      TOPIC_BADGE_IMAGES.own,
+      TOPIC_BADGE_IMAGES.inherited,
+    ]);
+    map.setPaintProperty(TOPIC_LAYERS.countries, "text-color", ["case", own, "#0b1220", "#ffffff"]);
+  }, [topicCounts, ownTopicCountries, mode, ready]);
 
   // --- highlight of the active country / region ---
   useEffect(() => {

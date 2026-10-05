@@ -34,7 +34,7 @@ export const ADMIN_NAV: readonly AdminNavItem[] = [
   { href: "/admin", label: "Overview", section: null, icon: LayoutDashboard },
   { href: "/admin/content", label: "Articles", section: "news", icon: Newspaper },
   { href: "/admin/authors", label: "Author profiles", section: "news", icon: PenLine },
-  { href: "/admin/learn-more-tiles", label: "Learn-more tiles", section: "news", icon: LayoutGrid },
+  { href: "/admin/topic-templates", label: "Topic templates", section: "news", icon: LayoutGrid },
   { href: "/admin/approvals", label: "Article approvals", section: "approvals", icon: BadgeCheck },
   { href: "/admin/redirects", label: "URL redirects", section: "news", icon: SignpostBig },
   { href: "/admin/regions", label: "Regions & countries", section: "regions", icon: Globe2 },

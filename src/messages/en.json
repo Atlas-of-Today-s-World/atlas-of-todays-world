@@ -112,7 +112,9 @@
   "map": {
     "encyclopediaView": "World metrics",
     "noMetric": "No metric",
-    "encyclopediaCaption": "World regions of the Atlas · click any country to open its profile",
+    "encyclopediaCaption": "World regions of the Atlas · click any country to open its profile · numbers show topics",
+    "topicsOne": "1 topic",
+    "topicsCount": "{count} topics",
     "layerView": "{label} view",
     "modes": "Map selection mode",
     "modeCountries": "Countries",
