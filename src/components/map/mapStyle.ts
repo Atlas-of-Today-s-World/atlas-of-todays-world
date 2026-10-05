@@ -84,36 +84,46 @@ export const TOPIC_LAYERS = {
   issue: "topic-count-issue",
 } as const;
 
-/** The pill behind a topic count (drawn in AtlasGlobe on `styleimagemissing`). */
-export const TOPIC_BADGE_IMAGE = "topic-badge";
+/**
+ * Pills behind a topic count (drawn in AtlasGlobe on `styleimagemissing`):
+ * solid where the place has a topic of its own, soft where every topic comes
+ * from its region or group.
+ */
+export const TOPIC_BADGE_IMAGES = { own: "topic-badge", inherited: "topic-badge-soft" } as const;
 
 /** Same rule as country names: small countries appear only when zoomed in. */
 export const COUNTRY_RANK_FILTER = ["<=", ["get", "rank"], ["+", 0.5, ["*", 1.45, ["zoom"]]]];
 
-/** A topic count under a label: small white pill, hidden where it would collide. */
-function topicBadgeLayer(id: string, source: string, minzoom = 0) {
+/**
+ * A topic count under a label: a small pill that never hides a place name
+ * (placed regardless of collisions and ignored by them).
+ */
+function topicBadgeLayer(id: string, source: string, { minzoom = 0, below = 1.35 } = {}) {
   return {
     id,
     type: "symbol" as const,
     source,
     minzoom,
     // Nothing until AtlasGlobe knows the counts.
-    filter: ["==", 1, 0],
+    filter: ["boolean", false],
     layout: {
       "text-field": "",
       "text-font": ["Open Sans Semibold"],
-      "text-size": 10.5,
+      "text-size": 10,
       "text-anchor": "top" as const,
-      "text-offset": [0, 1.35],
-      "icon-image": TOPIC_BADGE_IMAGE,
+      // Ems below the label point: past a one-line country name, a two-line region name.
+      "text-offset": [0, below],
+      "icon-image": TOPIC_BADGE_IMAGES.own,
       "icon-text-fit": "both" as const,
-      "icon-text-fit-padding": [1.5, 5, 1.5, 5],
-      "symbol-sort-key": ["-", 0, ["to-number", ["get", "count"], 0]],
+      "icon-text-fit-padding": [1.5, 4.5, 1.5, 4.5],
+      "text-allow-overlap": true,
+      "icon-allow-overlap": true,
+      "text-ignore-placement": true,
+      "icon-ignore-placement": true,
     },
     paint: {
       "text-color": "#0b1220",
-      "icon-opacity": 0.9,
-      "text-opacity": 0.95,
+      "icon-opacity": 0.92,
     },
   };
 }
@@ -323,9 +333,10 @@ export function buildStyle(regions: RegionLabel[], options: StyleOptions): Style
           "text-halo-width": 1.6,
         },
       },
-      topicBadgeLayer(TOPIC_LAYERS.countries, "country-labels", 1.6),
-      topicBadgeLayer(TOPIC_LAYERS.regions, "region-labels"),
-      topicBadgeLayer(TOPIC_LAYERS.issue, "issue-labels"),
+      topicBadgeLayer(TOPIC_LAYERS.countries, "country-labels", { minzoom: 1.6 }),
+      topicBadgeLayer(TOPIC_LAYERS.regions, "region-labels", { below: 3 }),
+      // Groups have no name on the globe: the count sits on their centre.
+      topicBadgeLayer(TOPIC_LAYERS.issue, "issue-labels", { below: -0.6 }),
     ],
   } as StyleSpecification;
 }

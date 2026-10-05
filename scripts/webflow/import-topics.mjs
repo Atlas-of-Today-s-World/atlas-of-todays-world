@@ -72,6 +72,14 @@ const { values: args } = parseArgs({
 
 const { topics } = JSON.parse(readFileSync(args.data, "utf8"));
 const clip = (value, max) => (value ?? "").trim().slice(0, max);
+/** Whole sentences up to `max` characters (a summary never stops mid-word). */
+function sentences(value, max) {
+  const text = (value ?? "").trim();
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  const end = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("? "), cut.lastIndexOf("! "));
+  return end > 80 ? cut.slice(0, end + 1) : `${cut.slice(0, cut.lastIndexOf(" "))}…`;
+}
 const cleanAuthor = (value) => clip(value.replace(/\s*\(In Progress\)\s*$/i, ""), 120);
 const https = (url) => (url ?? "").trim().replace(/^http:\/\//, "https://");
 
@@ -108,7 +116,7 @@ function plan(topic) {
       locale: "en",
       kind: "entry",
       title: clip(topic.title, 200),
-      summary: clip(topic.chapters[0]?.teaser || topic.summaryPoints.join(" "), 600),
+      summary: sentences(topic.chapters[0]?.teaser || topic.summaryPoints.join(" "), 600),
       summary_points: topic.summaryPoints.slice(0, 5).map((point) => clip(point, 300)),
       category: CATEGORY[topic.lens] ?? "Society",
       cover_url: topic.hero ? https(topic.hero) : null,

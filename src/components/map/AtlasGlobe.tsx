@@ -16,7 +16,7 @@ import {
   buildStyle,
   COUNTRY_RANK_FILTER,
   LAYERS,
-  TOPIC_BADGE_IMAGE,
+  TOPIC_BADGE_IMAGES,
   TOPIC_LAYERS,
   type RegionLabel,
   type StyleOptions,
@@ -54,12 +54,14 @@ interface Props {
   styleOptions: StyleOptions;
   /** Number of topics per place, for each selection mode (ISO3 or group slug → count). */
   topicCounts: Record<SelectionModeKey, Record<string, number>>;
+  /** Countries with a topic of their own (solid pill); the others only inherit (soft pill). */
+  ownTopicCountries: string[];
 }
 
 type SelectionModeKey = keyof typeof TOPIC_LAYERS;
 
-/** The pill behind a topic count: white, rounded, stretchable around the number. */
-function topicBadgeImage() {
+/** The pill behind a topic count: rounded, stretchable around the number. */
+function topicBadgeImage(soft: boolean) {
   const ratio = 2;
   const [w, h, r] = [16 * ratio, 12 * ratio, 6 * ratio];
   const canvas = document.createElement("canvas");
@@ -67,8 +69,8 @@ function topicBadgeImage() {
   canvas.height = h;
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
-  ctx.fillStyle = "#ffffff";
-  ctx.strokeStyle = "rgba(11,18,32,0.35)";
+  ctx.fillStyle = soft ? "rgba(8,14,28,0.55)" : "#ffffff";
+  ctx.strokeStyle = soft ? "rgba(255,255,255,0.75)" : "rgba(11,18,32,0.35)";
   ctx.lineWidth = ratio;
   ctx.beginPath();
   ctx.roundRect(ratio / 2, ratio / 2, w - ratio, h - ratio, r);
@@ -164,6 +166,7 @@ export default function AtlasGlobe({
   regionLabels,
   styleOptions,
   topicCounts,
+  ownTopicCountries,
 }: Props) {
   const t = useMessages();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -239,9 +242,10 @@ export default function AtlasGlobe({
       });
 
       map.on("styleimagemissing", (event: { id: string }) => {
-        if (event.id !== TOPIC_BADGE_IMAGE || map.hasImage(TOPIC_BADGE_IMAGE)) return;
-        const badge = topicBadgeImage();
-        if (badge) map.addImage(TOPIC_BADGE_IMAGE, badge.image, badge.options);
+        const soft = event.id === TOPIC_BADGE_IMAGES.inherited;
+        if ((!soft && event.id !== TOPIC_BADGE_IMAGES.own) || map.hasImage(event.id)) return;
+        const badge = topicBadgeImage(soft);
+        if (badge) map.addImage(event.id, badge.image, badge.options);
       });
 
       // State for e2e tests and diagnostics: country borders are loaded and rendered.
@@ -424,7 +428,16 @@ export default function AtlasGlobe({
       map.setLayoutProperty(layer, "text-field", text);
       map.setLayoutProperty(layer, "visibility", key === mode ? "visible" : "none");
     }
-  }, [topicCounts, mode, ready]);
+    // Countries: solid pill for a topic of their own, soft one when all are inherited.
+    const own: ExpressionSpecification = ["in", ["get", "iso3"], ["literal", ownTopicCountries]];
+    map.setLayoutProperty(TOPIC_LAYERS.countries, "icon-image", [
+      "case",
+      own,
+      TOPIC_BADGE_IMAGES.own,
+      TOPIC_BADGE_IMAGES.inherited,
+    ]);
+    map.setPaintProperty(TOPIC_LAYERS.countries, "text-color", ["case", own, "#0b1220", "#ffffff"]);
+  }, [topicCounts, ownTopicCountries, mode, ready]);
 
   // --- highlight of the active country / region ---
   useEffect(() => {
