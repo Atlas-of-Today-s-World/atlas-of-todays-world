@@ -100,7 +100,7 @@ test("dossier page: topic and learn-more tiles open their panels", async ({ page
   await expect(page).toHaveTitle(`Smuggling explained ${run} — Atlas of Today's World`);
   await expect(page.getByText("Migrant smuggling is the paid facilitation")).toBeVisible();
 
-  const topics = page.getByRole("region", { name: "Topics" });
+  const topics = page.getByRole("region", { name: "Articles" });
   await expect(topics.getByRole("button")).toHaveCount(2);
   // The first topic is open by default.
   await expect(page.getByRole("heading", { level: 2, name: "Brief overview" })).toBeVisible();
@@ -153,9 +153,9 @@ test("a shared link to a topic opens it", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 2, name: "Smuggling routes" })).toBeVisible();
 });
 
-test("admin: dossier tabs, SEO and a tile only for this dossier", async ({ page }) => {
+test("admin: topic tabs, SEO and a new tile with its own icon", async ({ page }) => {
   await signIn(page, editor, `/admin/content/${entryId}`);
-  const tabs = page.getByRole("navigation", { name: "Dossier sections" });
+  const tabs = page.getByRole("navigation", { name: "Topic sections" });
   await expect(tabs.getByRole("link", { name: "Article" })).toHaveAttribute("aria-current", "page");
 
   await tabs.getByRole("link", { name: "SEO & GEO" }).click();
@@ -164,14 +164,26 @@ test("admin: dossier tabs, SEO and a tile only for this dossier", async ({ page 
   await expect(page.getByText("SEO & GEO saved.")).toBeVisible();
 
   await tabs.getByRole("link", { name: "Learn more" }).click();
+  // The topic started from the Standard template: its five tiles plus the custom one.
+  await page.getByRole("button", { name: "Add tile" }).click();
   await page.getByLabel("Label").last().fill("Podcasts");
-  await page.getByRole("button", { name: "Add tile to this dossier" }).click();
-  await expect(page.getByText("Tile added.")).toBeVisible();
+  await page.getByRole("radiogroup").last().getByRole("radio", { name: "Podcast" }).click();
+  await page.getByRole("button", { name: "Save tiles" }).click();
+  await expect(page.getByText("Tiles saved.")).toBeVisible();
 
   const { data } = await service
     .from("learn_more_tiles")
-    .select("slug")
+    .select("slug, icon")
     .eq("entry_id", entryId)
     .order("slug");
-  expect(data?.map((row) => row.slug)).toEqual(["field-notes", "podcasts"]);
+  expect(data?.map((row) => row.slug)).toEqual([
+    "education",
+    "field-notes",
+    "lectures",
+    "podcasts",
+    "reading",
+    "stats",
+    "videos",
+  ]);
+  expect(data?.find((row) => row.slug === "podcasts")?.icon).toBe("podcast");
 });

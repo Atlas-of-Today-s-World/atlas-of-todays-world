@@ -12,6 +12,7 @@ v `.gitignore` a repo je **veřejné**: nikdy necommituj `docs/`, tajné údaje 
 ## Kontext v kostce
 
 - **Web je jen v angličtině** (ADR-022): žádný `cs.json`, přepínač jazyka ani `/cs` adresy (ty přesměrují na angličtinu). Texty UI dál z `messages/en.json`. Nový jazyk jen na výslovné přání vlastníka.
+- **Téma (topic) = heslo `kind='entry'`** s vlastními dlaždicemi ze šablony (`topic_templates`, ADR-023); počty témat na mapě počítá `features/topics/map-counts.ts`. Sdílené dlaždice `entry_id is null` jsou jen pro staré `resources.kind`, nečti je.
 - Next.js 15 App Router, React 19, TS strict, Tailwind 4, MapLibre (globus v layoutu `(map)`, nepřemontovává se).
 - Supabase (Frankfurt): Postgres 17, 30 tabulek, RLS všude, role × sekce × `vced`, workflow
   `planned → draft → pending → published` jen přes RPC (`submit_entry`, `approve_entry`, `send_back_entry`, `unpublish_entry`).

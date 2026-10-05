@@ -164,6 +164,13 @@ Dělá se **před** napojením na DB, aby se komponenty přepisovaly jen jednou.
       všude, `/cs` bez překladu kanonicky na originál), IndexNow po publikaci, veřejné profily autorů
       (migrace 20261002000080), O Atlasu s posláním, vydavatelem, redakčními zásadami a citací. PR: [#39](https://github.com/Atlas-of-Today-s-World/atlas-of-todays-world/pull/39).
       *Vlastník: Search Console + Bing Webmaster + Seznam Webmaster, `INDEXNOW_KEY` ve Vercelu, Wikidata — viz `docs/seo-geo-audit.md`.*
+- [ ] **G9** Témata (topics) na mapě a šablony dlaždic (ADR-023): počty témat nad zeměmi / regiony / skupinami
+      (země dědí témata svého regionu a skupin, `entries.map_layers`), šablony „Learn more“ dlaždic
+      (`topic_templates`, výchozí „Standard“ = pět původních sekcí, aplikace na existující téma, uložení tématu jako
+      šablony), editor dlaždic (ikony, fotka nebo barva, pořadí) a barva dlaždic článků; přenos 17 témat ze starého
+      webu (`scripts/webflow/scrape-global-issues.mjs` → `import-topics.mjs`, přesměrování starých adres).
+      Na atlas-dev přes workflow „Topics on atlas-dev“ (s ukázkovým umístěním na mapě). **Na produkci zatím ne** —
+      vlastník rozhodne o umístění témat na mapě a o importu do produkce (`--project prod` bez `--demo-places`).
 
 ---
 
