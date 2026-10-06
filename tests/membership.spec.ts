@@ -16,7 +16,8 @@ async function fillCard(page: Page, number: string) {
 test.describe("Atlas Patrons", () => {
   test("the coin button on the home map leads to the donation page", async ({ page }) => {
     await page.goto("/");
-    await page.getByRole("link", { name: "Support the Atlas" }).click();
+    // The menu item and the gold coin both say it; whichever is on screen.
+    await page.locator("a:visible", { hasText: "Support the Atlas" }).first().click();
     await expect(page).toHaveURL(/\/membership$/);
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Help Us Build");
   });

@@ -111,7 +111,7 @@ export default function Header({
               .map((item) =>
                 item.primary ? (
                   <Link
-                    key={item.href}
+                    key={item.key}
                     href={item.href}
                     className={buttonVariants({ variant: "patron", size: "sm" })}
                   >
@@ -119,7 +119,7 @@ export default function Header({
                   </Link>
                 ) : (
                   <Link
-                    key={item.href}
+                    key={item.key}
                     href={item.href}
                     className="flex min-h-9 items-center rounded-md bg-white/10 px-3 font-medium transition hover:bg-white/20"
                   >
@@ -273,7 +273,7 @@ function MenuDialog({
 
         <nav aria-label={t.header.legal} className="flex gap-4 text-[12.5px] text-white/60">
           {LEGAL_NAV.map((item) => (
-            <Link key={item.href} href={item.href} className="flex min-h-11 items-center">
+            <Link key={item.key} href={item.href} className="flex min-h-11 items-center">
               {t.nav[item.key]}
             </Link>
           ))}
