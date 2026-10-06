@@ -207,7 +207,12 @@ export function TopicsBrowser({
                       ),
                     )
                   }
-                  className={cn(FIELD, filter?.kind === kind && "border-[var(--color-accent)]")}
+                  // The chosen filter stands out on a light gold ground.
+                  className={cn(
+                    FIELD,
+                    filter?.kind === kind &&
+                      "border-[var(--color-gold)] bg-[var(--color-gold-light)]/45 font-medium",
+                  )}
                 >
                   <option value="">{allLabels[kind]}</option>
                   {options(kind).map(([key, name]) => (
