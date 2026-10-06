@@ -2,7 +2,8 @@
 
 import { usePathname } from "next/navigation";
 import EncyclopediaDock from "@/components/EncyclopediaDock";
-import { RAIL_OFFSET, isFullPage, railKind } from "@/config/layout";
+import { RAIL_OFFSET, isFullPage, isHome, railKind } from "@/config/layout";
+import { cn } from "@/lib/cn";
 import ModeSwitch from "./ModeSwitch";
 import ViewSwitcher, { type ViewOption } from "./ViewSwitcher";
 
@@ -28,7 +29,13 @@ export default function MapControls({
   return (
     <div
       data-print="hide"
-      className={`pointer-events-none absolute top-16 left-4 z-30 flex flex-col items-end gap-2.5 sm:top-20 sm:left-auto ${offset}`}
+      className={cn(
+        "pointer-events-none absolute left-4 z-30 flex flex-col items-end gap-2.5 sm:left-auto",
+        // Home: below the transparent header over the globe. Elsewhere the map
+        // already starts under the dark bar (MapStage), so the controls sit right at its top.
+        isHome(pathname) ? "top-16 sm:top-20" : "top-3",
+        offset,
+      )}
     >
       <div className="flex flex-wrap items-start justify-end gap-2.5">
         <ModeSwitch hasIssues={hasIssues} />
