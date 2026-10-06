@@ -32,6 +32,11 @@ export const MOBILE_SHEET = {
   expandedClassName: "max-h-[calc(100dvh-5.5rem)]",
   expandedScrollClassName: "max-h-[calc(100dvh-8.25rem)]",
 } as const;
+/**
+ * Sticky offset right under the dark header bar of full-width pages (Header
+ * `bar`, `h-16`): the reading progress and the chapters bar of a topic.
+ */
+export const UNDER_HEADER_BAR = "top-16";
 /** Minimum touch target (WCAG 2.5.5). */
 export const TOUCH_MIN_PX = 44;
 

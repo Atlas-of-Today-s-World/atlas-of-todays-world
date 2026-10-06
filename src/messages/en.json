@@ -396,6 +396,8 @@
     "previousTopic": "Previous subtopic: {title}",
     "nextTopic": "Next subtopic: {title}",
     "topicSteps": "Previous and next subtopic",
+    "jumpToTopic": "Jump to a subtopic",
+    "topicOf": "{number} of {total}",
     "subtopicUpdated": "Updated {date}",
     "resourcesCount": "{count} resources",
     "resourcesOne": "1 resource",
