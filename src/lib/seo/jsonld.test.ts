@@ -25,6 +25,14 @@ const parsed = (data: unknown) => JSON.parse(jsonLdHtml(data).replace(/\\u003c/g
 const czechia = { slug: "czechia", name: "Czechia", iso3: "CZE" };
 
 describe("JSON-LD builders", () => {
+  it("drops invisible characters the old site left in text", () => {
+    const data = parsed(graph(personNode({ slug: "a", name: "A", description: "Lawyer.‍ ​" })));
+    expect(data["@graph"][0].description).toBe("Lawyer.");
+    // Text that is nothing but fillers disappears like any empty value.
+    const empty = parsed(graph(personNode({ slug: "a", name: "A", description: "‍" })));
+    expect(empty["@graph"][0].description).toBeUndefined();
+  });
+
   it("publisher and website: an NGO with logo, profiles, registration and search", () => {
     const data = parsed(graph(organizationNode(), websiteNode("en")));
     expect(validateJsonLd(data)).toEqual([]);

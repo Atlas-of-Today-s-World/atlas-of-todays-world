@@ -347,7 +347,7 @@
   "newsIndex": {
     "title": "All news",
     "heading": "News",
-    "description": "Every published item of Atlas of Today’s World, by region and by theme.",
+    "description": "News from Atlas of Today’s World: short, sourced updates on politics, conflict, climate and society around the world, sorted by region and theme.",
     "intro": "Each news item opens inside the world map, so you never lose the geographic context.",
     "count": "{count} published so far.",
     "byRegion": "Browse by region"

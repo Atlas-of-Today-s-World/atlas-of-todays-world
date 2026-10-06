@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { ArrowRight, Check, HandHeart, Mail, PenLine } from "lucide-react";
 import Link from "@/components/i18n/Link";
+import { JsonLd } from "@/components/JsonLd";
 import NewsletterForm from "@/components/NewsletterForm";
 import { NEWSLETTER_PATH } from "@/config/navigation";
 import { getFlags } from "@/features/flags/queries";
 import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import { MEMBERSHIP_PATH, VOLUNTEER_ID } from "@/features/membership/config";
+import { breadcrumbNode, graph, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { pageMetadata } from "@/lib/seo/metadata";
 
 type Params = { params: Promise<{ locale: string }> };
@@ -113,6 +115,24 @@ export default async function NewsletterPage({ params }: Params) {
           </span>
         </Link>
       </div>
+      <JsonLd
+        data={graph(
+          webPageNode({
+            url: pageUrl(NEWSLETTER_PATH, locale),
+            name: t.title,
+            description: t.description,
+            locale,
+            about: ids.organization,
+            breadcrumb: breadcrumbNode(
+              [
+                { name: "Atlas of Today's World", path: "/" },
+                { name: t.title, path: NEWSLETTER_PATH },
+              ],
+              locale,
+            ),
+          }),
+        )}
+      />
     </>
   );
 }
