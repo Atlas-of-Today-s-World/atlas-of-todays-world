@@ -46,7 +46,11 @@ export default function MapControls({
         <ModeSwitch hasIssues={hasIssues} />
         <ViewSwitcher options={options} />
       </div>
-      <EncyclopediaDock />
+      {/* On phones an open panel is a bottom sheet: the always-open search would
+          reach down over it (and its close button), so it waits until the panel closes. */}
+      <div className={cn(rail !== "none" && "hidden md:block")}>
+        <EncyclopediaDock />
+      </div>
       {isHome(pathname) ? <FeaturedSubtopics items={featured} /> : null}
     </div>
   );
