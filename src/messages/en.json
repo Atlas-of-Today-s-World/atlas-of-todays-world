@@ -122,6 +122,8 @@
     "modeIssues": "Special Regions",
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out",
+    "spinStart": "Rotate the globe",
+    "spinStop": "Stop rotating",
     "dataLayer": "Data layer",
     "maintenance": "Maintenance",
     "maintenanceTitle": "The Atlas is being updated",

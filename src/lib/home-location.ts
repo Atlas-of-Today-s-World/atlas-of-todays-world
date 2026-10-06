@@ -29,10 +29,14 @@ export function globeFillZoom(fill = GLOBE_FILL): number {
   return Math.max(FILL_ZOOM.min, Math.min(FILL_ZOOM.max, zoomForDiameter(diameter)));
 }
 
-/** Share of the shorter window side the home globe spans. */
-const GLOBE_FILL = 1.04;
-/** Bounds of the home zoom: legible country names, the whole sphere in view. */
-const FILL_ZOOM = { min: 1.7, max: 3.4 } as const;
+/**
+ * Share of the shorter window side the home globe spans: a little over the
+ * window (1.25, i.e. 20 % closer than the whole sphere at 1.04), so the land
+ * fills the screen and the rim slips just past the edges.
+ */
+const GLOBE_FILL = 1.25;
+/** Bounds of the home zoom (scaled with the fill): legible names, a sphere still recognisable. */
+const FILL_ZOOM = { min: 1.96, max: 3.66 } as const;
 
 const zoomForDiameter = (diameterPx: number) => Math.log2((diameterPx * Math.PI) / 512);
 const diameterAt = (zoom: number) => Math.round((512 * 2 ** zoom) / Math.PI);
