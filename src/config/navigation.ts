@@ -4,6 +4,9 @@ import { MEMBERSHIP_PATH } from "@/features/membership/config";
 /** Overview of all encyclopedia entries (full-width page, the globe in a corner window). */
 export const TOPICS_PATH = "/topics";
 
+/** Newsletter sign-up page (the "Newsletter" button bottom right). */
+export const NEWSLETTER_PATH = "/newsletter";
+
 /**
  * Public address of an article: a news item under /news, an encyclopedia entry
  * (a topic) under /topics. The only place that knows the mapping (old /entry/…

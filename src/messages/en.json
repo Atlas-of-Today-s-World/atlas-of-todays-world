@@ -573,5 +573,26 @@
     "privacy": "Privacy",
     "ok": "OK",
     "closesIn": "Closes in {seconds} s"
+  },
+  "newsletterPage": {
+    "button": "Newsletter",
+    "title": "The Atlas newsletter",
+    "metaTitle": "Newsletter",
+    "description": "Sign up for the Atlas of Today’s World newsletter: new topics, data updates and what our editors are working on — about once a month.",
+    "lead": "About once a month we send what is new in the Atlas: fresh topics and subtopics, updated data on the map and a look at what our editors are working on.",
+    "points": [
+      "New topics and subtopics as they are published",
+      "Data updates and new layers on the globe",
+      "Behind the scenes of an independent encyclopedia"
+    ],
+    "note": "No spam and no tracking. Every e-mail has an unsubscribe link.",
+    "off": "The newsletter is about to start — check back soon.",
+    "moreTitle": "Want to do more?",
+    "donateTitle": "Support the Atlas even more",
+    "donateText": "An open encyclopedia of today’s world is paid for by its readers. A monthly gift of any size keeps it free for everyone.",
+    "donateCta": "Become an Atlas Patron",
+    "editorTitle": "Write with us",
+    "editorText": "Know a country, a region or an issue well? Join our volunteer editors and help write and review topics.",
+    "editorCta": "Apply as a volunteer editor"
   }
 }
