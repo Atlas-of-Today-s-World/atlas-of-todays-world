@@ -311,27 +311,33 @@ body {
 
 /*
  * Topic count pulse over the idle globe (AtlasGlobe): a copy of the badge pill
- * grows a little and settles back. Shown only while the globe spins, which
- * never happens with reduced motion.
+ * grows to almost twice its size with a soft red glow and settles back.
+ * Shown only while the globe spins, which never happens with reduced motion.
  */
 @keyframes topic-pulse {
   0% {
     opacity: 0;
     transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
   }
   15% {
     opacity: 1;
   }
   45% {
-    transform: scale(1.4);
+    transform: scale(1.8);
+    box-shadow:
+      0 0 0 3px rgba(239, 68, 68, 0.35),
+      0 0 14px 4px rgba(239, 68, 68, 0.6);
   }
   80% {
     opacity: 1;
     transform: scale(1);
+    box-shadow: 0 0 6px 1px rgba(239, 68, 68, 0.25);
   }
   100% {
     opacity: 0;
     transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
   }
 }
 
@@ -346,7 +352,6 @@ body {
     600 10px/12px var(--font-sans),
     sans-serif;
   white-space: nowrap;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
   animation: topic-pulse 1.6s ease-in-out both;
 }
 
