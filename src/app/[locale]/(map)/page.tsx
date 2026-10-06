@@ -7,7 +7,6 @@ import { localeFrom } from "@/features/i18n/request";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { datasetNode, graph, itemListNode, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { JsonLd } from "@/components/JsonLd";
-import { DonateCoin } from "@/components/membership/DonateCoin";
 
 export async function generateMetadata({
   params,
@@ -78,8 +77,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   return (
     <>
       <HomeFocus centers={homeCenters} />
-      {/* Bottom right, above the map attribution; the legend sits bottom left. */}
-      <DonateCoin label={t.support} className="absolute right-3 bottom-3 z-20 sm:right-5" />
 
       {/* Text for search engines and screen readers – visually hidden, the map is in the layout. */}
       <div id="content" tabIndex={-1} className="sr-only">

@@ -5,6 +5,7 @@ import { MapStage } from "@/components/map/MapStage";
 import { MapProvider } from "@/components/map/MapContext";
 import { MapLegend, type ViewOption } from "@/components/map/ViewSwitcher";
 import ContentRail from "@/components/ContentRail";
+import { FloatingDonate } from "@/components/membership/FloatingDonate";
 import { ErrorState } from "@/components/atlas/ErrorState";
 import { getFlags } from "@/features/flags/queries";
 import { regionColorMap } from "@/features/geography/model";
@@ -120,6 +121,7 @@ export default async function MapLayout({
     <MapProvider>
       <main className="relative h-dvh w-full overflow-hidden bg-[var(--color-space-deep)]">
         <Header newsletter={flags.newsletter} showNews={flags.newsMenu} />
+        <FloatingDonate onMap />
         <MapStage>
           <AtlasGlobe
             colorSets={colorSets}

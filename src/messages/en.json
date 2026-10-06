@@ -1,9 +1,9 @@
 {
   "nav": {
-    "map": "Map",
     "topics": "Topics",
     "news": "News",
     "about": "About",
+    "support": "Support the Atlas",
     "patrons": "Atlas Patrons",
     "signIn": "Sign in",
     "privacy": "Privacy",
