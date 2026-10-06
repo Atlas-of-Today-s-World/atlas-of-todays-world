@@ -532,7 +532,8 @@ export default function AtlasGlobe({
             : has,
       );
       map.setLayoutProperty(layer, "text-field", text);
-      map.setLayoutProperty(layer, "visibility", key === mode ? "visible" : "none");
+      // The small globe window on full-width pages shows no counts.
+      map.setLayoutProperty(layer, "visibility", key === mode && !mini ? "visible" : "none");
       // Solid pill for topics of the place's own, soft one when all are
       // inherited; a zero is soft and faint.
       const own: ExpressionSpecification =
@@ -547,7 +548,7 @@ export default function AtlasGlobe({
       map.setPaintProperty(layer, "icon-opacity", ["case", has, 0.92, 0.5]);
       map.setPaintProperty(layer, "text-opacity", ["case", has, 1, 0.7]);
     }
-  }, [topicCounts, ownTopicCountries, mode, ready]);
+  }, [topicCounts, ownTopicCountries, mode, mini, ready]);
 
   // --- highlight of the active country / region ---
   useEffect(() => {
@@ -647,7 +648,7 @@ export default function AtlasGlobe({
           aria-label={t.topics.globeWindow}
           className="group absolute inset-0 z-10 flex items-start justify-center rounded-2xl bg-gradient-to-b from-black/55 via-transparent to-transparent p-2.5 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none focus-visible:ring-inset"
         >
-          <span className="rounded-full bg-black/55 px-3 py-1 text-[11px] font-medium text-white backdrop-blur transition group-hover:bg-black/75">
+          <span className="rounded-full bg-black/55 px-3.5 py-[5px] text-[13px] font-medium text-white backdrop-blur transition group-hover:bg-black/75">
             {t.topics.backToAtlas}
           </span>
         </Link>
