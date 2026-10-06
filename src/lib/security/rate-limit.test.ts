@@ -48,6 +48,14 @@ describe("allowRequest", () => {
     expect(log).toHaveBeenCalled();
     log.mockRestore();
   });
+
+  it("a database outage refuses sign-in codes instead of opening them", async () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    rpc.mockResolvedValue({ data: null, error: { message: "down" } });
+    expect(await allowRequest("email-code", headers("1.2.3.4"), opts)).toBe(false);
+    expect(await allowRequest("email-verify", headers("1.2.3.4"), opts)).toBe(false);
+    log.mockRestore();
+  });
 });
 
 describe("allowKey", () => {

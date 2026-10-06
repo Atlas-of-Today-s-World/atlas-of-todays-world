@@ -45,10 +45,13 @@ export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
   // Public URLs are lowercase (slugs are checked by the DB); /News → /news, once.
+  // The target is built on a clone of the request URL, so the host can't change
+  // even for a path like "//Evil.com" (new URL() would read that as a host).
   if (/[A-Z]/.test(pathname) && !matches(pathname, UNLOCALIZED) && !isFile(pathname)) {
-    return securityHeaders(
-      NextResponse.redirect(new URL(`${pathname.toLowerCase()}${search}`, request.url), 308),
-    );
+    const target = request.nextUrl.clone();
+    target.pathname = pathname.toLowerCase().replace(/^\/{2,}/, "/");
+    target.search = search;
+    return securityHeaders(NextResponse.redirect(target, 308));
   }
 
   const split = splitLocale(pathname);

@@ -1,5 +1,6 @@
 import { ShareButton } from "@/components/atlas/ShareButton";
 import Link from "@/components/i18n/Link";
+import { cssBackgroundImage } from "@/lib/security/urls";
 import { TopicsLink } from "@/components/topics/RelatedTopics";
 import type { EntrySummary } from "@/features/entries/queries";
 import type { Country, CountryProfile } from "@/features/geography/types";
@@ -128,7 +129,12 @@ export default function CountryCard({
           <span
             className="block h-28 w-full bg-cover bg-center"
             style={{
-              backgroundImage: `linear-gradient(180deg, rgba(10,16,32,0.15), rgba(10,16,32,0.55)), url(${region.hero})`,
+              backgroundImage: [
+                "linear-gradient(180deg, rgba(10,16,32,0.15), rgba(10,16,32,0.55))",
+                cssBackgroundImage(region.hero),
+              ]
+                .filter(Boolean)
+                .join(", "),
             }}
             role="img"
             aria-label={format(t.ui.fromOrbit, { name: region.name })}

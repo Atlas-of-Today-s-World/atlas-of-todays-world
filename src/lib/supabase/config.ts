@@ -14,3 +14,14 @@ export function requireSupabaseConfig() {
   }
   return config;
 }
+
+/**
+ * Options of the Supabase session cookies. `Secure` wherever the site runs on
+ * HTTPS (Vercel: production and previews), so the session never travels over
+ * plain HTTP; local development and CI on http://localhost keep working.
+ * SameSite=Lax is the @supabase/ssr default, kept explicit.
+ */
+export const SESSION_COOKIE_OPTIONS = {
+  sameSite: "lax",
+  secure: process.env.VERCEL === "1",
+} as const;
