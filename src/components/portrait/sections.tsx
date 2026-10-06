@@ -8,6 +8,7 @@ import { buttonVariants } from "@/components/ui/button";
 import type { RegionStat } from "@/lib/region-stats";
 import type { FaqItem, MetricCard, ResourceItem, TimelineItem } from "@/lib/content-types";
 import { cssBackgroundImage, safeUrl } from "@/lib/security/urls";
+import { PHOTO_WIDTH } from "@/lib/images";
 import { format } from "@/features/i18n/messages";
 import { MEMBERSHIP_PATH } from "@/features/membership/config";
 import { getT } from "@/features/i18n/request";
@@ -317,7 +318,7 @@ export function ResourceLibrary({ resources }: { resources: ResourceItem[] }) {
             {safe
               .filter((item) => (item.kind ?? t.portrait.furtherReading) === category)
               .map((resource) => {
-                const image = cssBackgroundImage(resource.image);
+                const image = cssBackgroundImage(resource.image, PHOTO_WIDTH.thumb);
                 return (
                   <a
                     key={resource.url}

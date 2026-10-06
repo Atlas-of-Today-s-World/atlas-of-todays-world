@@ -6,6 +6,7 @@ import { format } from "@/features/i18n/messages";
 import { getT } from "@/features/i18n/request";
 import { cn } from "@/lib/cn";
 import { cssBackgroundImage } from "@/lib/security/urls";
+import { PHOTO_WIDTH } from "@/lib/images";
 
 /**
  * "See all 5 topics →" — to the Topics list filtered to this place. A spark
@@ -71,7 +72,7 @@ export function RelatedTopics({
       </h2>
       <ul className="mt-3 grid grid-cols-2 gap-2.5">
         {items.slice(0, 6).map((item) => {
-          const image = cssBackgroundImage(item.hero);
+          const image = cssBackgroundImage(item.hero, PHOTO_WIDTH.tile);
           return (
             <li key={item.slug}>
               <Link

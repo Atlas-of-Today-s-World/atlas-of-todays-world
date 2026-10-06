@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { PHOTO_ORIGINS } from "./src/lib/images";
 
 // The admin moved to English URLs; old Czech bookmarks redirect.
 // More specific paths must come before general ones (first match wins).
@@ -74,9 +75,20 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  // next/image is not used; the optimizer is off so /_next/image isn't
-  // an open proxy for any host.
-  images: { unoptimized: true },
+  // Editorial photos are resized by /_next/image (lib/images.ts photoUrl) —
+  // only from the listed origins, so it's no open proxy for any host.
+  images: {
+    remotePatterns: PHOTO_ORIGINS.map(({ hostname, pathname }) => ({
+      protocol: "https" as const,
+      hostname,
+      pathname: `${pathname}**`,
+    })),
+    formats: ["image/avif", "image/webp"],
+    // Photos don't change under their address: a month on the CDN.
+    minimumCacheTTL: 2_678_400,
+    // The largest photos of the old site are a few MB; anything bigger is refused.
+    maximumResponseBody: 15_000_000,
+  },
 };
 
 export default nextConfig;

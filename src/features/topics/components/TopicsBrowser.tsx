@@ -9,6 +9,7 @@ import { TOPICS_PATH } from "@/config/navigation";
 import { format } from "@/features/i18n/messages";
 import { cn } from "@/lib/cn";
 import { cssBackgroundImage } from "@/lib/security/urls";
+import { PHOTO_WIDTH } from "@/lib/images";
 import { queryWords, type TopicHit } from "../text-search";
 
 export interface TopicCard {
@@ -281,7 +282,7 @@ export function TopicsBrowser({
           ) : null}
           <ul className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {shown.map((item) => {
-              const image = cssBackgroundImage(item.hero);
+              const image = cssBackgroundImage(item.hero, PHOTO_WIDTH.card);
               return (
                 <li key={item.slug}>
                   <Link
