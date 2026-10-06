@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { SITE_URL } from "@/lib/site";
 import { photoSrcSet, photoUrl } from "./images";
 
 const WEBFLOW = "https://cdn.prod.website-files.com/635f/65e9_big%20picture.jpg";
@@ -8,6 +9,15 @@ describe("photo URLs", () => {
     expect(photoUrl(WEBFLOW, 640)).toBe(
       `/_next/image?url=${encodeURIComponent(WEBFLOW)}&w=640&q=75`,
     );
+  });
+
+  it("resizes our own photos, as a path or as an absolute URL of this site", () => {
+    const local = "/images/webflow/abc.webp";
+    const expected = `/_next/image?url=${encodeURIComponent(local)}&w=828&q=75`;
+    expect(photoUrl(local, 828)).toBe(expected);
+    expect(photoUrl(`${SITE_URL}${local}`, 828)).toBe(expected);
+    // Elsewhere on our site (logos, data) stays as it is.
+    expect(photoUrl(`${SITE_URL}/brand/logo.svg`, 828)).toBe(`${SITE_URL}/brand/logo.svg`);
   });
 
   it("leaves other hosts, relative and invalid URLs alone (no open proxy)", () => {

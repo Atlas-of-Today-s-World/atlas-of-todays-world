@@ -32,7 +32,10 @@ export const ids = {
 
 const ref = (id: string) => ({ "@id": id });
 
-/** Drops empty values so the output carries only what is known. */
+/** Zero-width characters (the old site's empty-paragraph fillers): invisible, yet quoted as-is. */
+const INVISIBLE = /[​-‍⁠﻿]/g;
+
+/** Drops empty values so the output carries only what is known; text loses invisible characters. */
 function prune(value: Value): Value {
   if (Array.isArray(value)) {
     const items = value.map(prune).filter((item) => item !== undefined);
@@ -44,7 +47,11 @@ function prune(value: Value): Value {
       .filter(([, item]) => item !== undefined);
     return entries.length ? Object.fromEntries(entries) : undefined;
   }
-  if (value === null || value === "") return undefined;
+  if (typeof value === "string") {
+    const text = value.replace(INVISIBLE, "").trim();
+    return text === "" ? undefined : text;
+  }
+  if (value === null) return undefined;
   return value;
 }
 

@@ -1,5 +1,5 @@
 import type { NextConfig } from "next";
-import { PHOTO_ORIGINS } from "./src/lib/images";
+import { LOCAL_PHOTOS, PHOTO_ORIGINS } from "./src/lib/images";
 
 // The admin moved to English URLs; old Czech bookmarks redirect.
 // More specific paths must come before general ones (first match wins).
@@ -83,6 +83,8 @@ const nextConfig: NextConfig = {
       hostname,
       pathname: `${pathname}**`,
     })),
+    // Local files only from public/images (no query strings): our own photos.
+    localPatterns: [{ pathname: `${LOCAL_PHOTOS}**`, search: "" }],
     formats: ["image/avif", "image/webp"],
     // Photos don't change under their address: a month on the CDN.
     minimumCacheTTL: 2_678_400,

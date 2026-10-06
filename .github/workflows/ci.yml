@@ -28,6 +28,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
@@ -48,6 +50,8 @@ jobs:
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY_DEV }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
@@ -63,5 +67,5 @@ jobs:
       - name: Smoke test against the production build
         run: |
           npm run start &
-          npx --yes wait-on --timeout 60000 http://localhost:3000
+          npx --yes wait-on@9.5.1 --timeout 60000 http://localhost:3000
           npm run test:smoke
