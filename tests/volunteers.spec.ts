@@ -7,6 +7,12 @@ import { requireDevAccounts, service, testEmail } from "./support/accounts";
  */
 requireDevAccounts();
 
+// The form is limited to 3 applications an hour per address. Every CI run
+// comes from localhost without one, so all runs would share a single limit in
+// atlas-dev; each run applies from its own documentation address instead.
+const octet = () => 1 + Math.floor(Math.random() * 254);
+test.use({ extraHTTPHeaders: { "x-forwarded-for": `198.18.${octet()}.${octet()}` } });
+
 test("a visitor applies as a volunteer editor on the membership page", async ({ page }) => {
   const email = testEmail("volunteer");
   try {

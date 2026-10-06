@@ -402,7 +402,10 @@
     "resourcesCount": "{count} resources",
     "resourcesOne": "1 resource",
     "sources": "Sources and further reading",
-    "editorialTeam": "Atlas editorial team"
+    "editorialTeam": "Atlas editorial team",
+    "breadcrumb": "Breadcrumb",
+    "breadcrumbAtlas": "Atlas",
+    "allTopics": "All topics"
   },
   "og": {
     "site": "Atlas of Today's World",
