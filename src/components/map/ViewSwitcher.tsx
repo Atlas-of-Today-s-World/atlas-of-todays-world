@@ -89,7 +89,7 @@ export default function ViewSwitcher({ options }: { options: ViewOption[] }) {
 }
 
 /**
- * Legend at the bottom left, above the map attribution (ⓘ) in the very corner.
+ * Legend at the bottom left, on one line with the map attribution (ⓘ) in the very corner.
  * Sits directly in the map container, not in the controls bar.
  */
 export function MapLegend({ options }: { options: ViewOption[] }) {
@@ -100,14 +100,14 @@ export function MapLegend({ options }: { options: ViewOption[] }) {
 
   if (!option.swatches.length) {
     return (
-      <p className="pointer-events-none absolute bottom-12 left-5 z-20 max-w-[70vw] text-[11px] text-white/55">
+      <p className="pointer-events-none absolute bottom-3.5 left-[42px] z-20 max-w-[70vw] text-[11px] text-white/55">
         {option.caption}
       </p>
     );
   }
 
   return (
-    <div className="pointer-events-none absolute bottom-12 left-5 z-20 w-[min(80vw,24rem)]">
+    <div className="pointer-events-none absolute bottom-3.5 left-[42px] z-20 w-[min(80vw,24rem)]">
       <div className="flex overflow-hidden rounded-md">
         {option.swatches.map((swatch) => (
           <div key={swatch.label + swatch.color} className="flex-1">

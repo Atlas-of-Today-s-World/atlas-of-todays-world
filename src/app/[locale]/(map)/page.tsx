@@ -79,7 +79,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     <>
       <HomeFocus centers={homeCenters} />
       {/* Bottom right, above the map attribution; the legend sits bottom left. */}
-      <DonateCoin label={t.support} className="absolute right-3 bottom-12 z-20 sm:right-5" />
+      <DonateCoin label={t.support} className="absolute right-3 bottom-3 z-20 sm:right-5" />
 
       {/* Text for search engines and screen readers – visually hidden, the map is in the layout. */}
       <div id="content" tabIndex={-1} className="sr-only">

@@ -243,6 +243,18 @@ export default function AtlasGlobe({
       });
       mapRef.current = map;
       map.addControl(new AttributionControl({ compact: true }), "bottom-left");
+      // Only the ⓘ shows; its text opens on click. MapLibre opens it by itself the
+      // first time the imagery credits arrive, so that one opening is undone.
+      const attribution = containerRef.current.querySelector(".maplibregl-ctrl-attrib");
+      if (attribution) {
+        const collapse = new MutationObserver(() => {
+          if (!attribution.classList.contains("maplibregl-compact-show")) return;
+          attribution.classList.remove("maplibregl-compact-show");
+          attribution.removeAttribute("open");
+          collapse.disconnect();
+        });
+        collapse.observe(attribution, { attributes: true, attributeFilter: ["class"] });
+      }
 
       map.on("error", (event: ErrorEvent) => {
         console.error("[atlas-globe]", event.error?.message ?? event);
