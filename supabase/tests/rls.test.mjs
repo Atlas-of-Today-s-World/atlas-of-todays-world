@@ -2006,3 +2006,61 @@ test("author profiles: slug from the name, unique, stable on rename, readable by
     await refused(q("select slugify_text('x')"), /permission denied/);
   });
 });
+
+test("volunteer applications: anyone applies through the function, only account managers see and handle them", async () => {
+  // A visitor applies; the table itself stays closed to anon.
+  await as(null, () =>
+    q("select submit_volunteer_application('Ana Writer', ' Ana@Example.org ', 'Sahel', 'Hi')"),
+  );
+  await as(null, () => refused(q("select * from volunteer_applications")));
+  await as(null, () =>
+    refused(q("insert into volunteer_applications (name, email) values ('x', 'x@y.zz')")),
+  );
+  await as(null, () =>
+    refused(q("select submit_volunteer_application('', 'not-an-email', '', '')"), /check/),
+  );
+
+  // Someone without the accounts right sees nothing and can't set the address.
+  assert.equal((await as(id.pubA, () => q("select id from volunteer_applications"))).length, 0);
+  const notMine = await as(id.pubA, () =>
+    q("update volunteer_settings set notify_email = 'me@x.org' returning id"),
+  );
+  assert.equal(notMine.length, 0);
+
+  // The accounts manager reads it, marks it and sets where applications go.
+  const [row] = await as(id.permAdmin, () =>
+    q("select id, email, status from volunteer_applications"),
+  );
+  assert.deepEqual(
+    { email: row.email, status: row.status },
+    { email: "ana@example.org", status: "new" },
+  );
+  await as(id.permAdmin, () =>
+    q("update volunteer_applications set status = 'contacted' where id = $1", [row.id]),
+  );
+  await as(id.permAdmin, () =>
+    refused(q("update volunteer_applications set email = 'x@y.zz' where id = $1", [row.id])),
+  );
+  await as(id.permAdmin, () =>
+    q("update volunteer_settings set notify_email = 'team@atlasoftodaysworld.org'"),
+  );
+  await as(id.permAdmin, () =>
+    refused(q("update volunteer_settings set notify_email = 'nope'"), /check/),
+  );
+  assert.equal(
+    (await one("select notify_email from volunteer_settings")).notify_email,
+    "team@atlasoftodaysworld.org",
+  );
+
+  // At most 30 applications an hour for everyone together.
+  for (let n = 1; n < 30; n++) {
+    await as(null, () =>
+      q("select submit_volunteer_application('N', $1, '', '')", [`n${n}@x.org`]),
+    );
+  }
+  await as(null, () =>
+    refused(q("select submit_volunteer_application('N', 'late@x.org', '', '')"), /rate_limited/),
+  );
+  await as(id.permAdmin, () => q("delete from volunteer_applications"));
+  assert.equal((await one("select count(*)::int as n from volunteer_applications")).n, 0);
+});
