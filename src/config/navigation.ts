@@ -26,7 +26,7 @@ export interface NavItem {
   compactHidden?: boolean;
 }
 
-export const MAIN_NAV: readonly NavItem[] = [
+const MAIN_NAV: readonly NavItem[] = [
   { href: "/", key: "map" },
   { href: TOPICS_PATH, key: "topics" },
   { href: "/news", key: "news", compactHidden: true },
