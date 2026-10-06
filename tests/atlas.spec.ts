@@ -134,6 +134,23 @@ test.describe("global issues", () => {
   });
 });
 
+test.describe("search shortcut", () => {
+  test.skip(({ isMobile }) => isMobile, "desktop project only");
+
+  test('"/" focuses the search field without typing the slash', async ({ page }) => {
+    await page.goto("/");
+    const search = page.getByPlaceholder(/Search places/);
+    await expect(search).toBeVisible();
+
+    // Like the Esc test: the listener exists only after hydration, so retry the key.
+    await expect(async () => {
+      await page.keyboard.press("/");
+      await expect(search).toBeFocused({ timeout: 2_000 });
+    }).toPass({ timeout: 25_000 });
+    await expect(search).toHaveValue("");
+  });
+});
+
 test.describe("mobil", () => {
   test.skip(({ isMobile }) => !isMobile, "mobile project only");
 

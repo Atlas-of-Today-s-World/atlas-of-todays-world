@@ -5,6 +5,7 @@ import { useLocalizedRouter } from "@/components/i18n/useLocalizedRouter";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { MOBILE_SHEET } from "@/config/layout";
 import { cn } from "@/lib/cn";
+import { belongsToField } from "@/lib/keyboard";
 import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 
@@ -50,11 +51,7 @@ export default function ContentRail({
   // Esc in a form field (search, newsletter) belongs to that field, not the panel.
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key !== "Escape" || event.defaultPrevented) return;
-      const target = event.target as HTMLElement | null;
-      if (target?.closest("input, textarea, select, [contenteditable='true'], [role='dialog']")) {
-        return;
-      }
+      if (event.key !== "Escape" || event.defaultPrevented || belongsToField(event)) return;
       router.push(closeHref);
     };
     window.addEventListener("keydown", onKey);
