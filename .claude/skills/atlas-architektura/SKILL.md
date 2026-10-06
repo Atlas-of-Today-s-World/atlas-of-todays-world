@@ -5,7 +5,7 @@ description: Architektura a závazné postupové standardy projektu Atlas of Tod
 
 # Atlas of Today's World — architektura a standardy
 
-Úplný dokument: `ARCHITEKTURA.md` v kořeni repa (přečti relevantní kapitolu před prací).
+Úplný dokument: `ARCHITEKTURA.md` v kořeni repa je rejstřík; kapitoly jsou v `docs/architecture/` (přečti relevantní kapitolu před prací, aktuální stav a dluh v `docs/architecture/analyza-2026-10.md`).
 Neveřejné konkrétní nálezy: `docs/architektura-nalezy.md` (SEC-xx, DB-xx) — složka `docs/` je
 v `.gitignore` a repo je **veřejné**: nikdy necommituj `docs/`, tajné údaje ani popisy zranitelností.
 

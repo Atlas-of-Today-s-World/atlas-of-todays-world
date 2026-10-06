@@ -1,5 +1,6 @@
 import { displayText } from "./rows";
 import type { CellValue, ColumnDef, DataTableRow } from "./types";
+import { slugify } from "@/lib/validation/common";
 
 /**
  * CSV export of the rows on screen (after search, filters and sort). Runs in
@@ -35,13 +36,7 @@ export function rowsToCsv(columns: readonly ColumnDef[], rows: readonly DataTabl
 
 /** Safe file name: letters, digits, dash; `.csv` and today's date appended. */
 export function csvFileName(base: string, today = new Date()): string {
-  const slug =
-    base
-      .toLowerCase()
-      .normalize("NFKD")
-      .replace(/[̀-ͯ]/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "") || "export";
+  const slug = slugify(base) || "export";
   return `${slug}-${today.toISOString().slice(0, 10)}.csv`;
 }
 

@@ -27,8 +27,9 @@ test-results/
 playwright-report/
 .env.local
 
-# Interní dokumenty – jen lokálně, repo je veřejné
-docs/
+# Interní dokumenty – jen lokálně, repo je veřejné; veřejná je jen architektura
+/docs/*
+!/docs/architecture/
 
 # Výstupy testů
 coverage/

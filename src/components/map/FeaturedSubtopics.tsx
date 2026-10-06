@@ -4,17 +4,12 @@ import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { TOPICS_PATH } from "@/config/navigation";
 import type { SubtopicTile } from "@/features/topics/featured";
-import { cssBackgroundImage } from "@/lib/security/urls";
+import { tileBackground } from "@/lib/tile-style";
 import { PHOTO_WIDTH } from "@/lib/images";
 
 // Photo, else the tile colour from the admin (kept light: no icon set on the home map).
-const tileStyle = (item: SubtopicTile) => {
-  const photo = cssBackgroundImage(item.image, PHOTO_WIDTH.thumb);
-  if (photo) return { backgroundImage: photo };
-  return item.background && /^#[0-9a-f]{6}$/i.test(item.background)
-    ? { backgroundColor: item.background }
-    : undefined;
-};
+const tileStyle = (item: SubtopicTile) =>
+  tileBackground(item.image, item.background, PHOTO_WIDTH.thumb);
 
 /**
  * Two subtopic tiles under the search field on the home map — the newest, or

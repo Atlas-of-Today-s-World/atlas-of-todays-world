@@ -18,12 +18,9 @@
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
     "account": "Sign in or open your account",
-    "accountTitle": "Sign in / your account",
-    "language": "Language",
-    "switchTo": "Switch to {language}"
+    "accountTitle": "Sign in / your account"
   },
   "common": {
-    "skipToContent": "Skip to content",
     "close": "Close",
     "backToGlobe": "Back to the globe",
     "notTranslated": "This text is not translated yet — showing the English original."
@@ -405,9 +402,7 @@
     "resourcesCount": "{count} resources",
     "resourcesOne": "1 resource",
     "sources": "Sources and further reading",
-    "editorialTeam": "Atlas editorial team",
-    "citeTitle": "How to cite",
-    "citeText": "Atlas of Today’s World, “{title}”, {url} (accessed {date})."
+    "editorialTeam": "Atlas editorial team"
   },
   "og": {
     "site": "Atlas of Today's World",
@@ -530,7 +525,6 @@
     "sectionIssues": "Special regions",
     "sectionData": "Data layers (datasets by country)",
     "sectionAbout": "About the Atlas",
-    "sectionCountries": "Country profiles",
     "countryData": "Country data: latest values of all indicators",
     "country": "Country",
     "dataNote": "{description} Source: {source}; latest data {year}; {count} countries.",
@@ -551,7 +545,6 @@
     "seeAll": "See all {count} topics",
     "seeOne": "See the topic",
     "related": "Related topics",
-    "filteredBy": "Topics about {name}",
     "relatedWith": "Topics related to {name}",
     "relatedWithRegion": "Topics related to {name} or {region}",
     "allCountries": "All countries",

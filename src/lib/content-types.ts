@@ -1,6 +1,7 @@
 /**
- * Content types and enums without a dependency on `node:fs` – this file may be
- * imported by client components too. File loading lives in `content.ts`.
+ * Shapes of news and portrait content (news categories, timeline, resources,
+ * FAQ, metric cards…) shared by server queries and client components; no
+ * runtime dependencies, so client code may import it.
  */
 
 export type NewsCategory =

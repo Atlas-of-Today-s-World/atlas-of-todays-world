@@ -1,5 +1,11 @@
 import "server-only";
 import { createServerClient } from "@/lib/supabase/server";
+import { ilikeAny } from "@/lib/db/filters";
+
+/**
+ * Redirects — admin reads (layer: features/<domain>/editorial.ts). Under the session,
+ * no cache; the public side reads them through redirects/queries.ts.
+ */
 
 export interface RedirectRow {
   id: string;
@@ -17,12 +23,8 @@ export async function listRedirects(q?: string): Promise<RedirectRow[]> {
     .select("id, from_path, to_path, permanent, created_at")
     .order("created_at", { ascending: false })
     .limit(500);
-  // Value in the .or() filter is quoted and without characters that would break the filter (as for accounts).
-  const term = q
-    ?.trim()
-    .replace(/[%_,()"\\]/g, "")
-    .slice(0, 100);
-  if (term) query = query.or(`from_path.ilike."%${term}%",to_path.ilike."%${term}%"`);
+  const search = ilikeAny(["from_path", "to_path"], q);
+  if (search) query = query.or(search);
   const { data, error } = await query;
   if (error) throw new Error(`[redirects] ${error.message}`);
   return data;

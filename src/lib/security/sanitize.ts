@@ -1,4 +1,3 @@
-import { marked } from "marked";
 import sanitizeHtml from "sanitize-html";
 
 /**
@@ -52,8 +51,4 @@ const OPTIONS: sanitizeHtml.IOptions = {
 
 export function sanitizeRichHtml(html: string): string {
   return sanitizeHtml(html, OPTIONS);
-}
-
-export function markdownToSafeHtml(markdown: string): string {
-  return sanitizeRichHtml(marked.parse(markdown, { async: false }) as string);
 }

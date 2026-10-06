@@ -1,5 +1,12 @@
 import "server-only";
 import { createServerClient } from "@/lib/supabase/server";
+import { ilikeAny } from "@/lib/db/filters";
+
+/**
+ * Accounts — admin reads (layer: features/<domain>/editorial.ts, ARCHITEKTURA 4.1).
+ * Runs under the signed-in user's session without a cache: RLS decides who
+ * sees which accounts, so the same query is safe for every role.
+ */
 
 export interface AccountRow {
   id: string;
@@ -24,12 +31,8 @@ export async function listAccounts(kind: "staff" | "reader", q?: string): Promis
     .is("deleted_at", null)
     .order("email")
     .limit(500);
-  // Value in the .or() filter is quoted, without characters that would break or alter the filter.
-  const needle = q
-    ?.trim()
-    .replace(/[%_,()"\\]/g, "")
-    .slice(0, 100);
-  if (needle) query = query.or(`email.ilike."%${needle}%",name.ilike."%${needle}%"`);
+  const search = ilikeAny(["email", "name"], q);
+  if (search) query = query.or(search);
   const { data, error } = await query;
   if (error) throw new Error(`[accounts] ${error.message}`);
   return data as AccountRow[];
