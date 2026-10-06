@@ -67,6 +67,7 @@ const { values: args } = parseArgs({
     project: { type: "string" },
     "demo-places": { type: "boolean", default: false },
     env: { type: "string", default: ".env.local" },
+    sql: { type: "string" },
   },
 });
 
@@ -156,9 +157,93 @@ for (const item of plans) {
       (item.skipped.length ? `, ${item.skipped.length} skipped (not https)` : ""),
   );
 }
+if (args.sql) {
+  await writeSql(args.sql);
+  process.exit(0);
+}
 if (!args.apply) {
   console.log(`\nDry run — ${plans.length} topics, nothing written. Live: --apply --project dev`);
   process.exit(0);
+}
+
+/**
+ * The same import as one SQL transaction (for psql as the database owner),
+ * when no service key is at hand. Images keep their Webflow addresses; a later
+ * run with --apply moves them to Storage. No demo placements.
+ */
+async function writeSql(file) {
+  const { writeFileSync } = await import("node:fs");
+  const { sanitizeRichHtml } = await import("../../src/lib/security/sanitize.ts");
+  const blocks = plans.map(({ entry, author, chapters, links, redirect }) => {
+    const payload = JSON.stringify({
+      entry,
+      author,
+      chapters: chapters.map((chapter) => ({
+        ...chapter,
+        body_html: sanitizeRichHtml(chapter.body_html),
+      })),
+      links,
+      redirect,
+    });
+    if (payload.includes("$topic$"))
+      throw new Error(`${entry.slug}: payload contains the quote tag`);
+    return `do $do$
+declare
+  p jsonb := $topic$${payload}$topic$::jsonb;
+  e jsonb := p -> 'entry';
+  v_author uuid;
+  v_entry uuid;
+begin
+  if p -> 'author' <> 'null'::jsonb then
+    select id into v_author from authors where name = p -> 'author' ->> 'name' limit 1;
+    if v_author is null then
+      insert into authors (name, bio, positionality, photo_url, slug)
+      values (p -> 'author' ->> 'name', p -> 'author' ->> 'bio', p -> 'author' ->> 'positionality',
+              p -> 'author' ->> 'photo_url', '')
+      returning id into v_author;
+    else
+      update authors set bio = p -> 'author' ->> 'bio', positionality = p -> 'author' ->> 'positionality',
+                         photo_url = p -> 'author' ->> 'photo_url'
+       where id = v_author;
+    end if;
+  end if;
+
+  insert into entries (slug, locale, kind, title, summary, summary_points, category, cover_url, cover_credit,
+                       author_name, author_id, status, published_on, body_html, seo_keywords)
+  values (e ->> 'slug', 'en', 'entry', e ->> 'title', e ->> 'summary',
+          array(select jsonb_array_elements_text(e -> 'summary_points')), e ->> 'category',
+          e ->> 'cover_url', e ->> 'cover_credit', e ->> 'author_name', v_author, 'published',
+          (e ->> 'published_on')::date, '', array(select jsonb_array_elements_text(e -> 'seo_keywords')))
+  on conflict (slug, locale) do update set
+    title = excluded.title, summary = excluded.summary, summary_points = excluded.summary_points,
+    category = excluded.category, cover_url = excluded.cover_url, cover_credit = excluded.cover_credit,
+    author_name = excluded.author_name, author_id = excluded.author_id, status = 'published',
+    published_on = excluded.published_on, seo_keywords = excluded.seo_keywords
+  returning id into v_entry;
+
+  delete from entry_chapters where entry_id = v_entry;
+  insert into entry_chapters (entry_id, position, title, summary_points, body_html, illustration_url, illustration_credit)
+  select v_entry, (c ->> 'position')::int, c ->> 'title',
+         array(select jsonb_array_elements_text(c -> 'summary_points')), c ->> 'body_html',
+         c ->> 'illustration_url', c ->> 'illustration_credit'
+    from jsonb_array_elements(p -> 'chapters') c;
+
+  -- Tiles come from the default template when the topic is created.
+  delete from resources where entry_id = v_entry;
+  insert into resources (entry_id, position, tile_id, title, source, description, url)
+  select v_entry, (ord - 1)::int, t.id, l ->> 'title', l ->> 'source', l ->> 'description', l ->> 'url'
+    from jsonb_array_elements(p -> 'links') with ordinality as x(l, ord)
+    join learn_more_tiles t on t.entry_id = v_entry and t.slug = l ->> 'tile';
+
+  insert into redirects (from_path, to_path, permanent)
+  values (p -> 'redirect' ->> 'from_path', p -> 'redirect' ->> 'to_path', true)
+  on conflict (from_path) do update set to_path = excluded.to_path;
+  raise notice 'imported %', e ->> 'slug';
+end
+$do$;`;
+  });
+  writeFileSync(file, `begin;\n${blocks.join("\n\n")}\ncommit;\n`);
+  console.log(`\nSQL for ${plans.length} topics → ${file}`);
 }
 
 // ---------------------------------------------------------------------------

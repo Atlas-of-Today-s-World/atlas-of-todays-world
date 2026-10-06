@@ -1,7 +1,8 @@
 # Manual import of the old site's Global Issues topics (scripts/webflow/import-topics.mjs).
-# Production: the service key is read for this run only through the Supabase
-# Management API (SUPABASE_ACCESS_TOKEN) and masked in the log; no demo
-# placements on the map. atlas-dev uses its own secret and may add them.
+# atlas-dev: through the API with its service key, images moved to Storage,
+# demo placements on the map. Production: one SQL transaction through the
+# database password the deploy already uses (the access token may not read API
+# keys); images keep their Webflow addresses, no demo placements.
 name: Import topics
 
 on:
@@ -23,9 +24,6 @@ permissions:
 jobs:
   import:
     runs-on: ubuntu-latest
-    env:
-      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-      PROD_REF: ${{ vars.SUPABASE_PROJECT_REF || 'ewbzkxialhtwuqlenjof' }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -33,33 +31,29 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - name: Credentials
+
+      - name: Import to atlas-dev
+        if: inputs.target == 'dev'
         env:
-          DEV_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL_DEV }}
-          DEV_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY_DEV }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL_DEV }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY_DEV }}
+        run: node scripts/webflow/import-topics.mjs --apply --project dev --demo-places --env /dev/null
+
+      - uses: supabase/setup-cli@v3
+        if: inputs.target == 'prod'
+        with:
+          version: latest
+      - name: Import to production
+        if: inputs.target == 'prod'
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          PROD_REF: ${{ vars.SUPABASE_PROJECT_REF }}
         run: |
-          if [ "${{ inputs.target }}" = "prod" ]; then
-            status=$(curl -s -o keys.json -w '%{http_code}' -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
-              "https://api.supabase.com/v1/projects/$PROD_REF/api-keys?reveal=true")
-            keys=$(cat keys.json); rm -f keys.json
-            # Legacy "service_role" JWT, or a new-style secret key (sb_secret_…).
-            key=$(echo "$keys" | jq -r 'if type == "array" then (first(.[] | select(.name == "service_role")) // first(.[] | select(.type == "secret")) | .api_key // empty) else empty end' 2>/dev/null || true)
-            if [ -z "$key" ]; then
-              echo "::error::No service key for $PROD_REF (HTTP $status)"
-              # Names and types only, or the API's error message — never a key value.
-              echo "$keys" | jq -c 'if type == "array" then [.[] | {name, type}] else {message, error} end' 2>/dev/null || true
-              exit 1
-            fi
-            echo "::add-mask::$key"
-            echo "SUPABASE_SERVICE_ROLE_KEY=$key" >> "$GITHUB_ENV"
-            echo "NEXT_PUBLIC_SUPABASE_URL=https://$PROD_REF.supabase.co" >> "$GITHUB_ENV"
-          else
-            echo "::add-mask::$DEV_KEY"
-            echo "SUPABASE_SERVICE_ROLE_KEY=$DEV_KEY" >> "$GITHUB_ENV"
-            echo "NEXT_PUBLIC_SUPABASE_URL=$DEV_URL" >> "$GITHUB_ENV"
-          fi
-      - name: Import
-        run: |
-          extra=""
-          [ "${{ inputs.target }}" = "dev" ] && extra="--demo-places"
-          node scripts/webflow/import-topics.mjs --apply --project "${{ inputs.target }}" $extra --env /dev/null
+          node scripts/webflow/import-topics.mjs --sql topics.sql
+          supabase link --project-ref "$PROD_REF" --password "$SUPABASE_DB_PASSWORD"
+          pooler=$(cat supabase/.temp/pooler-url)
+          # Session mode (5432) with the password; psql stops at the first error and rolls back.
+          url=$(echo "$pooler" | sed -E "s#^postgresql://([^@]+)@#postgresql://\1:${SUPABASE_DB_PASSWORD}@#; s#:6543/#:5432/#")
+          echo "::add-mask::$url"
+          psql "$url" -v ON_ERROR_STOP=1 -q -f topics.sql
