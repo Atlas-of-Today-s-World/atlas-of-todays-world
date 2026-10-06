@@ -181,19 +181,8 @@ export default function Header({
               {t.nav[item.key]}
             </Link>
           ))}
-        <span className="flex items-center gap-2 text-white/60">
-          {SOCIALS.map((social) => (
-            <a
-              key={social.label}
-              href={social.href}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={social.label}
-              className="grid h-7 w-7 place-items-center rounded-full border border-white/25 text-[10px] font-semibold transition hover:border-white/70 hover:text-white"
-            >
-              {social.icon}
-            </a>
-          ))}
+        <span className="flex items-center gap-2">
+          <SocialLinks className="h-7 w-7 text-[10px]" />
         </span>
         <Link
           href={ACCOUNT_NAV.href}
@@ -280,18 +269,7 @@ function MenuDialog({
         </nav>
 
         <div className="flex items-center gap-3">
-          {SOCIALS.map((social) => (
-            <a
-              key={social.label}
-              href={social.href}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={social.label}
-              className="grid h-11 w-11 place-items-center rounded-full border border-white/25 text-[12px] font-semibold"
-            >
-              {social.icon}
-            </a>
-          ))}
+          <SocialLinks className="h-11 w-11 text-[12px]" />
           <Link
             href={ACCOUNT_NAV.href}
             className="ml-auto flex min-h-11 items-center text-[13px] text-white/60"
@@ -302,4 +280,26 @@ function MenuDialog({
       </div>
     </div>
   );
+}
+
+/**
+ * Social network links as round badges: white with dark letters, so they stand
+ * out on the photo behind the home header as well as on the dark bar.
+ */
+function SocialLinks({ className }: { className: string }) {
+  return SOCIALS.map((social) => (
+    <a
+      key={social.label}
+      href={social.href}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={social.label}
+      className={cn(
+        "grid place-items-center rounded-full bg-white font-bold text-[var(--color-ink)] shadow-sm transition hover:bg-[var(--color-accent)] hover:text-white focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none",
+        className,
+      )}
+    >
+      {social.icon}
+    </a>
+  ));
 }
