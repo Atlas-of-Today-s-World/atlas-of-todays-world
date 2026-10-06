@@ -309,6 +309,12 @@
     },
     "builtWith": "This website was built in cooperation with",
     "builtWithLabel": "Website by Develogi.cz",
+    "newsletter": {
+      "eyebrow": "Newsletter",
+      "title": "Stay with the Atlas — free, about once a month",
+      "text": "Not ready to give? Get the new topics, data updates on the globe and a look behind the scenes straight to your inbox.",
+      "cta": "Sign up for the newsletter"
+    },
     "volunteer": {
       "title": "Write for the Atlas as a volunteer",
       "lead": "Not every way to help is a donation. If you know a country, a region or an issue well, you can join our editors and write or review topics — as a volunteer, alongside your studies or work. Tell us a little about yourself and we will get in touch.",
