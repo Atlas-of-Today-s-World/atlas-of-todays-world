@@ -13,6 +13,7 @@ import type { Encyclopedia, EntryAuthor, EntryChapter as Chapter, LearnMoreTile 
 import { META_LINE, PlaceLinks } from "./ArticleFrame";
 import { DossierExplorer } from "./DossierExplorer";
 import { OpenOnHash } from "./OpenOnHash";
+import { ReadingProgress } from "./ReadingProgress";
 
 const AUTHOR_ID = "about-the-author";
 /** Panel ids double as URL hashes: `#topic-2`, `#learn-videos`. */
@@ -54,6 +55,8 @@ export function EncyclopediaArticle({
         regionStroke={region?.stroke ?? null}
         activeIso3={item.countries[0] ?? null}
       />
+      {/* A direct child of the FullPage frame, so it stays under the header all the way down. */}
+      <ReadingProgress />
       {banner}
 
       <article lang={item.locale}>

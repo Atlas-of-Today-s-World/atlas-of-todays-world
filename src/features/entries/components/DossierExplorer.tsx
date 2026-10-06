@@ -1,6 +1,7 @@
 "use client";
 
-import { type ReactNode, useState, useSyncExternalStore } from "react";
+import { type ReactNode, useRef, useState, useSyncExternalStore } from "react";
+import { flushSync } from "react-dom";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { format } from "@/features/i18n/messages";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -8,6 +9,7 @@ import { cn } from "@/lib/cn";
 import type { TileIcon as TileIconName } from "../constants";
 import { tileStyle } from "./TileFace";
 import { TileIcon } from "./TileIcon";
+import { TopicJumpBar } from "./TopicJumpBar";
 
 export interface TopicTileData {
   /** Panel id, also the URL hash (`topic-2`). */
@@ -80,13 +82,16 @@ export function DossierExplorer({
   const t = useMessages().article;
   const hash = useSyncExternalStore(subscribe, readHash, noHash);
   const [chosen, setChosen] = useState<string | null>(null);
+  const tilesRef = useRef<HTMLDivElement>(null);
   const fallback = topics[0]?.id ?? tiles.find((tile) => !tile.empty)?.id ?? null;
   // Older links pointed at `#chapter-3`; topics took their place.
   const wanted = hash.replace(/^chapter-/, "topic-");
   const open = chosen ?? (wanted in topicPanels || wanted in tilePanels ? wanted : fallback);
 
   const choose = (id: string, block: ScrollLogicalPosition = "nearest") => {
-    setChosen(id);
+    // Show the panel first: a hidden one can't be scrolled to, and the page would
+    // stay where the previous subtopic ended (Previous / Next at its bottom).
+    flushSync(() => setChosen(id));
     window.history.replaceState(null, "", `#${id}`);
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block });
   };
@@ -141,7 +146,10 @@ export function DossierExplorer({
         <div
           key={id}
           id={id}
-          className={cn("scroll-mt-24", open === id ? "block" : "hidden print:block")}
+          className={cn(
+            "scroll-mt-32 md:scroll-mt-24",
+            open === id ? "block" : "hidden print:block",
+          )}
         >
           {panel}
           {stepper(id)}
@@ -152,7 +160,7 @@ export function DossierExplorer({
 
   return (
     <div className="mt-12">
-      <div className={cn("grid gap-y-10 lg:grid-cols-4", GAP)}>
+      <div ref={tilesRef} className={cn("grid gap-y-10 lg:grid-cols-4", GAP)}>
         {topics.length ? (
           <section aria-labelledby="dossier-topics" className="lg:col-span-3">
             <h2 id="dossier-topics" className={HEADING}>
@@ -244,6 +252,16 @@ export function DossierExplorer({
           </section>
         ) : null}
       </div>
+      {topics.length > 1 ? (
+        <TopicJumpBar
+          topics={topics}
+          open={open}
+          heading={labels.articles ?? t.chapters}
+          after={tilesRef}
+          // Like Previous / Next: open it and start reading from its top.
+          onChoose={(id) => choose(id, "start")}
+        />
+      ) : null}
       <div className="mt-10">
         {panels(topicPanels)}
         {panels(tilePanels)}
