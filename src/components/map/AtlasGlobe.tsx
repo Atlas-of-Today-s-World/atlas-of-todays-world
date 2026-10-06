@@ -84,8 +84,6 @@ interface Props {
   styleOptions: StyleOptions;
   /** Number of topics per place, for each selection mode (ISO3 or group slug → count). */
   topicCounts: Record<SelectionModeKey, Record<string, number>>;
-  /** Countries with a topic of their own (solid pill); the others only inherit (soft pill). */
-  ownTopicCountries: string[];
 }
 
 type SelectionModeKey = keyof typeof TOPIC_LAYERS;
@@ -149,7 +147,6 @@ function pulseTopicBadges(
   map: MapLibreMap,
   mode: SelectionModeKey,
   numberOf: (key: string) => number,
-  isOwn: (key: string) => boolean,
 ) {
   const canvas = map.getCanvas();
   const [w, h] = [canvas.clientWidth, canvas.clientHeight];
@@ -178,7 +175,7 @@ function pulseTopicBadges(
       element.setAttribute("aria-hidden", "true");
       element.style.pointerEvents = "none";
       const pill = document.createElement("span");
-      pill.className = count && isOwn(key) ? "topic-pulse" : "topic-pulse topic-pulse-soft";
+      pill.className = count ? "topic-pulse" : "topic-pulse topic-pulse-soft";
       pill.textContent = String(count);
       element.append(pill);
       const marker = new Marker({
@@ -272,7 +269,6 @@ export default function AtlasGlobe({
   regionLabels,
   styleOptions,
   topicCounts,
-  ownTopicCountries,
 }: Props) {
   const t = useMessages();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -300,7 +296,6 @@ export default function AtlasGlobe({
   const topicCountsRef = useLatest(topicCounts);
   const metricValuesRef = useLatest(metricValues);
   const viewRef = useLatest(view);
-  const ownTopicCountriesRef = useLatest(ownTopicCountries);
   const topicLabelRef = useLatest((count: number) =>
     count === 1 ? t.map.topicsOne : format(t.map.topicsCount, { count: String(count) }),
   );
@@ -324,12 +319,7 @@ export default function AtlasGlobe({
     const map = mapRef.current;
     if (!map || document.hidden) return;
     const key = modeRef.current;
-    pulseTopicBadges(
-      map,
-      key,
-      (place) => topicCountsRef.current[key][place] ?? 0,
-      (place) => key !== "countries" || ownTopicCountriesRef.current.includes(place),
-    );
+    pulseTopicBadges(map, key, (place) => topicCountsRef.current[key][place] ?? 0);
   });
 
   // --- map initialization (only once for the app's whole lifetime) ---
@@ -385,8 +375,8 @@ export default function AtlasGlobe({
         });
 
         map.on("styleimagemissing", (event: { id: string }) => {
-          const soft = event.id === TOPIC_BADGE_IMAGES.inherited;
-          if ((!soft && event.id !== TOPIC_BADGE_IMAGES.own) || map.hasImage(event.id)) return;
+          const soft = event.id === TOPIC_BADGE_IMAGES.none;
+          if ((!soft && event.id !== TOPIC_BADGE_IMAGES.some) || map.hasImage(event.id)) return;
           const badge = topicBadgeImage(soft);
           if (badge) map.addImage(event.id, badge.image, badge.options);
         });
@@ -624,21 +614,18 @@ export default function AtlasGlobe({
       map.setLayoutProperty(layer, "text-field", text);
       // The small globe window on full-width pages shows no counts.
       map.setLayoutProperty(layer, "visibility", key === mode && !mini ? "visible" : "none");
-      // Solid pill for topics of the place's own, soft one when all are
-      // inherited; a zero is soft and faint.
-      const own: ExpressionSpecification =
-        key === "countries" ? ["in", ["get", "iso3"], ["literal", ownTopicCountries]] : has;
+      // The same pill everywhere: solid with linked topics, soft and faint at 0.
       map.setLayoutProperty(layer, "icon-image", [
         "case",
-        own,
-        TOPIC_BADGE_IMAGES.own,
-        TOPIC_BADGE_IMAGES.inherited,
+        has,
+        TOPIC_BADGE_IMAGES.some,
+        TOPIC_BADGE_IMAGES.none,
       ]);
-      map.setPaintProperty(layer, "text-color", ["case", own, "#0b1220", "#ffffff"]);
+      map.setPaintProperty(layer, "text-color", ["case", has, "#0b1220", "#ffffff"]);
       map.setPaintProperty(layer, "icon-opacity", ["case", has, 0.92, 0.5]);
       map.setPaintProperty(layer, "text-opacity", ["case", has, 1, 0.7]);
     }
-  }, [topicCounts, ownTopicCountries, mode, openIssue, mini, ready]);
+  }, [topicCounts, mode, openIssue, mini, ready]);
 
   // --- highlight of the active country / region ---
   useEffect(() => {

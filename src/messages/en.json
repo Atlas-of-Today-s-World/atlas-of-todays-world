@@ -607,5 +607,8 @@
     "editorTitle": "Write with us",
     "editorText": "Know a country, a region or an issue well? Join our volunteer editors and help write and review topics.",
     "editorCta": "Apply as a volunteer editor"
+  },
+  "tab": {
+    "comeBack": "Come back, we need you"
   }
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getAtlas } from "@/features/geography/queries";
 import { format, getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
+import { DevelogiCredit } from "@/components/DevelogiCredit";
 import { JsonLd } from "@/components/JsonLd";
 import { ORGANIZATION } from "@/config/organization";
 import { pageMetadata } from "@/lib/seo/metadata";
@@ -58,6 +59,12 @@ export default async function AboutPage({ params }: Params) {
           email: ORGANIZATION.email,
         })}
       </p>
+
+      <DevelogiCredit
+        text={getMessages(locale).patrons.builtWith}
+        label={getMessages(locale).patrons.builtWithLabel}
+        className="mt-12 justify-start border-t border-[var(--color-line)] pt-6"
+      />
 
       <JsonLd
         data={graph(
