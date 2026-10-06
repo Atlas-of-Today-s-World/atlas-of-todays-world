@@ -4,6 +4,8 @@ import { usePathname } from "next/navigation";
 import EncyclopediaDock from "@/components/EncyclopediaDock";
 import { RAIL_OFFSET, isFullPage, isHome, railKind } from "@/config/layout";
 import { cn } from "@/lib/cn";
+import type { SubtopicTile } from "@/features/topics/featured";
+import { FeaturedSubtopics } from "./FeaturedSubtopics";
 import ModeSwitch from "./ModeSwitch";
 import ViewSwitcher, { type ViewOption } from "./ViewSwitcher";
 
@@ -15,9 +17,12 @@ import ViewSwitcher, { type ViewOption } from "./ViewSwitcher";
 export default function MapControls({
   options,
   hasIssues,
+  featured,
 }: {
   options: ViewOption[];
   hasIssues: boolean;
+  /** Subtopic tiles under the search field (home map only). */
+  featured: SubtopicTile[];
 }) {
   const pathname = usePathname();
   const rail = railKind(pathname);
@@ -42,6 +47,7 @@ export default function MapControls({
         <ViewSwitcher options={options} />
       </div>
       <EncyclopediaDock />
+      {isHome(pathname) ? <FeaturedSubtopics items={featured} /> : null}
     </div>
   );
 }

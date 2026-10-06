@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import AtlasGlobe, { type RegionLookup } from "@/components/map/AtlasGlobe";
 import MapControls from "@/components/map/MapControls";
+import { featuredSubtopics } from "@/features/topics/featured";
 import { MapStage } from "@/components/map/MapStage";
 import { MapProvider } from "@/components/map/MapContext";
 import { MapLegend, type ViewOption } from "@/components/map/ViewSwitcher";
@@ -78,10 +79,11 @@ export default async function MapLayout({
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
-  const [atlas, flags, places] = await Promise.all([
+  const [atlas, flags, places, featured] = await Promise.all([
     getAtlas(await localeFrom(params)),
     getFlags(),
     getTopicPlaces(),
+    featuredSubtopics(),
   ]);
   const slugs = Object.fromEntries(atlas.countries.map((country) => [country.iso3, country.slug]));
 
@@ -160,7 +162,11 @@ export default async function MapLayout({
               })),
             }}
           />
-          <MapControls options={viewOptions} hasIssues={Object.keys(issue.bySlug).length > 0} />
+          <MapControls
+            options={viewOptions}
+            hasIssues={Object.keys(issue.bySlug).length > 0}
+            featured={featured}
+          />
           <MapLegend options={viewOptions} />
           {flags.maintenance ? (
             <ContentRail>
