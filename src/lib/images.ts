@@ -1,8 +1,7 @@
 /**
  * Editorial photos through Next's image optimizer (`/_next/image`): resized to
  * the width a tile or hero needs and served as AVIF / WebP, cached on the CDN.
- * The topics imported from the old site still point at its Webflow CDN, where
- * a single photo can weigh several megabytes.
+ * Originals (uploads, the old site's photos) can weigh several megabytes.
  *
  * Only these origins are optimized — next.config builds its `remotePatterns`
  * from the same list, so `/_next/image` is no open proxy — plus our own photos
