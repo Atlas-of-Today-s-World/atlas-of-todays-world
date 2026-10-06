@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "@/components/i18n/Link";
 import type { SearchHit } from "@/lib/search";
@@ -46,18 +46,18 @@ export default function EncyclopediaPanel() {
   }, [query]);
 
   return (
-    <section className="glass pointer-events-auto w-[min(92vw,22rem)] rounded-[var(--radius-panel)] p-4 shadow-2xl shadow-black/40">
-      <h2 className="font-display flex items-center gap-2 text-[15px] font-semibold text-white">
-        <BookOpen size={17} strokeWidth={1.5} aria-hidden />
-        {t.encyclopedia.heading}
-      </h2>
-
-      <label className="mt-3 flex items-center gap-2 rounded-full border border-white/15 bg-black/25 px-3.5 py-2">
+    // No visible heading (compact block); the name stays for screen readers.
+    <section
+      aria-label={t.encyclopedia.heading}
+      className="glass pointer-events-auto w-[min(92vw,22rem)] rounded-[var(--radius-panel)] p-3 shadow-2xl shadow-black/40"
+    >
+      <label className="flex items-center gap-2 rounded-full border border-white/15 bg-black/25 px-3.5 py-2">
         <Search size={15} strokeWidth={1.7} className="text-white/60" aria-hidden />
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder={t.search.placeholder}
+          aria-label={t.search.placeholder}
           className="w-full bg-transparent text-[13px] text-white placeholder:text-white/45 focus:outline-none"
         />
       </label>
