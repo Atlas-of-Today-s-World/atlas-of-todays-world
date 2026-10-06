@@ -3,6 +3,7 @@
 import { type ReactNode, useState, useSyncExternalStore } from "react";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { format } from "@/features/i18n/messages";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/cn";
 import type { TileIcon as TileIconName } from "../constants";
 import { tileStyle } from "./TileFace";
@@ -49,8 +50,9 @@ const HEADING = "font-display text-[26px] font-semibold tracking-tight sm:text-[
  * half the gap, so two of them line up with one subtopic tile.
  */
 const GAP = "gap-3";
-const SUBTOPIC_HEIGHT = "h-40 sm:h-48";
-const RESOURCE_HEIGHT = "h-[4.625rem] sm:h-[5.625rem]";
+const SUBTOPIC_HEIGHT = "h-30 sm:h-36";
+// (144 px − 12 px gap) / 2 = 66 px from `sm` up; on phones the columns stack, no pairing needed.
+const RESOURCE_HEIGHT = "h-16 sm:h-[4.125rem]";
 /** Half-height resource tile: icon beside the label instead of above it. */
 const RESOURCE = cn(RESOURCE_HEIGHT, "flex-row items-center justify-start gap-3 py-2");
 
@@ -83,14 +85,58 @@ export function DossierExplorer({
   const wanted = hash.replace(/^chapter-/, "topic-");
   const open = chosen ?? (wanted in topicPanels || wanted in tilePanels ? wanted : fallback);
 
-  const choose = (id: string) => {
+  const choose = (id: string, block: ScrollLogicalPosition = "nearest") => {
     setChosen(id);
     window.history.replaceState(null, "", `#${id}`);
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block });
+  };
+
+  /** Previous / next subtopic under the open one, as tiles of the same size as above. */
+  const stepper = (id: string) => {
+    const index = topics.findIndex((topic) => topic.id === id);
+    if (index === -1) return null;
+    const steps = [
+      { topic: topics[index - 1], label: t.previousTopic, back: true },
+      { topic: topics[index + 1], label: t.nextTopic, back: false },
+    ];
+    return (
+      <nav aria-label={t.topicSteps} className="mt-12 grid grid-cols-2 gap-3 print:hidden">
+        {steps.map(({ topic, label, back }) =>
+          topic ? (
+            <button
+              key={topic.id}
+              type="button"
+              aria-label={format(label, { title: topic.title })}
+              // Open it and start reading from its top.
+              onClick={() => choose(topic.id, "start")}
+              className={cn(
+                TILE,
+                SUBTOPIC_HEIGHT,
+                "w-full max-w-72",
+                back ? "justify-self-start" : "items-end justify-self-end text-right",
+              )}
+              style={tileStyle(topic.image, topic.background)}
+            >
+              <span aria-hidden className={SHADE} />
+              <span className="relative mb-auto inline-flex items-center gap-1.5 rounded-full bg-black/45 px-2.5 py-1 text-[11px] font-semibold tracking-[0.08em] uppercase backdrop-blur-sm">
+                {back ? <ArrowLeft aria-hidden className="size-3.5" /> : null}
+                {back ? t.previous : t.next}
+                {back ? null : <ArrowRight aria-hidden className="size-3.5" />}
+              </span>
+              <span className="font-display relative text-[15px] leading-tight font-semibold text-balance sm:text-[16px]">
+                {topic.title}
+              </span>
+            </button>
+          ) : (
+            <span key={back ? "none-back" : "none-next"} aria-hidden />
+          ),
+        )}
+      </nav>
+    );
   };
 
   const panels = (record: Record<string, ReactNode>) => (
-    <div className="mx-auto max-w-3xl">
+    <div>
       {Object.entries(record).map(([id, panel]) => (
         <div
           key={id}
@@ -98,6 +144,7 @@ export function DossierExplorer({
           className={cn("scroll-mt-24", open === id ? "block" : "hidden print:block")}
         >
           {panel}
+          {stepper(id)}
         </div>
       ))}
     </div>
