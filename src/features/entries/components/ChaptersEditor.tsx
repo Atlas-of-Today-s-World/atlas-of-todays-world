@@ -13,6 +13,7 @@ import type { ActionState } from "@/lib/actions";
 import { saveChapters } from "../actions";
 import type { EditableChapter } from "../editorial";
 import { MAX_CHAPTERS } from "../constants";
+import { EditStamp } from "./EditStamp";
 import { RichTextEditor } from "./RichTextEditor";
 import { UploadField } from "./UploadField";
 import { swap } from "@/lib/array";
@@ -39,9 +40,12 @@ const blank = (): Chapter => ({
 export function ChaptersEditor({
   entryId,
   initial,
+  names = {},
 }: {
   entryId: string;
   initial: EditableChapter[];
+  /** Editors' names for the "created by / edited by" line of each subtopic. */
+  names?: Record<string, string>;
 }) {
   // Keys of saved chapters by order — same on the server and in the browser (hydration).
   const [chapters, setChapters] = useState<Chapter[]>(() =>
@@ -76,6 +80,7 @@ export function ChaptersEditor({
               className="grid gap-3 rounded-xl bg-[var(--color-line)]/25 p-4"
             >
               <legend className="sr-only">Subtopic {index + 1}</legend>
+              <input type="hidden" name="chapter_id" value={chapter.id ?? ""} />
               <div className="flex items-center justify-between">
                 <span className="text-[12px] font-medium text-[var(--color-ink-muted)]">
                   Subtopic {index + 1}
@@ -102,7 +107,14 @@ export function ChaptersEditor({
                   />
                 </span>
               </div>
-              <FormField id={id("title")} label="Title" required>
+              <EditStamp
+                createdAt={chapter.created_at}
+                createdBy={chapter.created_by}
+                updatedAt={chapter.updated_at}
+                updatedBy={chapter.updated_by}
+                names={names}
+              />
+              <FormField id={id("title")} label="Tile text (subtopic title)" required>
                 <Input
                   id={id("title")}
                   name="title"
@@ -113,7 +125,7 @@ export function ChaptersEditor({
               </FormField>
               <FormField
                 id={id("summary")}
-                label="Summary bullet points"
+                label="Key points (top of the opened subtopic)"
                 hint="3–5 bullet points, one per line."
               >
                 <Textarea
@@ -124,14 +136,14 @@ export function ChaptersEditor({
                 />
               </FormField>
               <div className="grid gap-3 sm:grid-cols-[2fr_1fr]">
-                <FormField id={id("illustration")} label="Tile photo">
+                <FormField id={id("illustration")} label="Tile background photo">
                   <UploadField
                     id={id("illustration")}
                     name="illustration_url"
                     defaultValue={chapter.illustration_url ?? ""}
                   />
                 </FormField>
-                <FormField id={id("credit")} label="Photo credit">
+                <FormField id={id("credit")} label="Tile photo credit">
                   <Input
                     id={id("credit")}
                     name="illustration_credit"
@@ -162,7 +174,7 @@ export function ChaptersEditor({
               </FormField>
               <div className="grid gap-1.5">
                 <span className="text-[12.5px] font-medium text-[var(--color-ink-soft)]">
-                  Full text
+                  Subtopic text (shown when the tile is opened)
                 </span>
                 <RichTextEditor
                   name="body_html"

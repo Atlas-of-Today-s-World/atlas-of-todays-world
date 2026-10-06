@@ -276,6 +276,8 @@ export type Database = {
       }
       entries: {
         Row: {
+          hero_background: string | null
+          updated_by: string | null
           articles_label: string | null
           learn_more_label: string | null
           map_layers: string[]
@@ -317,6 +319,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          hero_background?: string | null
+          updated_by?: string | null
           articles_label?: string | null
           learn_more_label?: string | null
           map_layers?: string[]
@@ -358,6 +362,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          hero_background?: string | null
+          updated_by?: string | null
           articles_label?: string | null
           learn_more_label?: string | null
           map_layers?: string[]
@@ -487,6 +493,10 @@ export type Database = {
       }
       entry_chapters: {
         Row: {
+          created_at: string
+          created_by: string | null
+          updated_at: string
+          updated_by: string | null
           tile_background: string | null
           audio_url: string | null
           body_html: string
@@ -499,6 +509,10 @@ export type Database = {
           title: string
         }
         Insert: {
+          created_at?: string
+          created_by?: string | null
+          updated_at?: string
+          updated_by?: string | null
           tile_background?: string | null
           audio_url?: string | null
           body_html?: string
@@ -511,6 +525,10 @@ export type Database = {
           title: string
         }
         Update: {
+          created_at?: string
+          created_by?: string | null
+          updated_at?: string
+          updated_by?: string | null
           tile_background?: string | null
           audio_url?: string | null
           body_html?: string
@@ -2247,6 +2265,7 @@ export type Database = {
         Args: { p_template: string }
         Returns: undefined
       }
+      staff_name: { Args: { p_profile: string }; Returns: string }
       replace_entry_parts: {
         Args: { p_entry: string; p_items: Json; p_part: string }
         Returns: undefined

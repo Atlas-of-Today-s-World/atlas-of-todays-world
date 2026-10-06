@@ -7,12 +7,11 @@ import { ColorField } from "@/components/ui/color-field";
 import { FormField, Input } from "@/components/ui/field";
 import { IconAction } from "@/features/portraits/components/CollectionEditor";
 import { swap } from "@/lib/array";
-import { cn } from "@/lib/cn";
 import { slugify } from "@/lib/validation/common";
-import { MAX_TILES, TILE_ICON_LABEL, TILE_ICONS } from "../constants";
+import { MAX_TILES } from "../constants";
 import type { EditableTile } from "../editorial";
 import { TILE, TileFace, tileStyle } from "./TileFace";
-import { TileIcon } from "./TileIcon";
+import { IconPicker } from "./IconPicker";
 import { UploadField } from "./UploadField";
 
 /** A tile while editing; `key` keeps React rows stable, `id` is empty for a new one. */
@@ -125,30 +124,12 @@ export function TilesEditor({ initial, note }: { initial: EditableTile[]; note?:
                   />
                 </FormField>
               </div>
-              <div role="radiogroup" aria-label={`Icon of ${name}`} className="grid gap-1.5">
-                <span className="text-[12.5px] font-medium text-[var(--color-ink-soft)]">Icon</span>
-                <div className="flex flex-wrap gap-1.5">
-                  {TILE_ICONS.map((icon) => (
-                    <button
-                      key={icon}
-                      type="button"
-                      role="radio"
-                      aria-checked={row.icon === icon}
-                      aria-label={TILE_ICON_LABEL[icon]}
-                      title={TILE_ICON_LABEL[icon]}
-                      onClick={() => set(index, { icon })}
-                      className={cn(
-                        "grid size-(--touch-min) place-items-center rounded-lg border transition focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none",
-                        row.icon === icon
-                          ? "border-[var(--color-accent)] bg-[var(--color-accent)] text-white"
-                          : "border-[var(--color-line)] text-[var(--color-ink-soft)] hover:border-[var(--color-ink-muted)]",
-                      )}
-                    >
-                      <TileIcon name={icon} className="size-4.5" />
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <IconPicker
+                id={id("icon")}
+                value={row.icon}
+                label={name}
+                onChange={(icon) => set(index, { icon })}
+              />
               <div className="grid gap-4 sm:grid-cols-[2fr_1fr]">
                 <FormField id={id("image")} label="Background photo">
                   <UploadField

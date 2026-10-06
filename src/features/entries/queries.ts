@@ -320,6 +320,8 @@ export interface EntryChapter {
   illustrationCredit?: string;
   /** Tile colour when there is no photo. */
   tileBackground?: string;
+  /** Day the subtopic last changed (ISO date). */
+  updated?: string;
   /** Audio version of the chapter — the player shows only when it exists. */
   audio?: string;
 }
@@ -369,6 +371,8 @@ export interface Encyclopedia extends Entry {
   tiles: LearnMoreTile[];
   /** Headings of the two halves; missing = the default texts. */
   labels: { articles?: string; learnMore?: string };
+  /** Header colour when there is no photo. */
+  heroBackground?: string;
   faq: FaqItem[];
   seo: EntrySeo;
 }
@@ -390,6 +394,7 @@ interface ChapterRow {
   illustration_credit: string | null;
   audio_url: string | null;
   tile_background?: string | null;
+  updated_at?: string;
 }
 
 interface ResourceRow {
@@ -443,7 +448,11 @@ interface EncyclopediaParts {
   notes?: NoteRow[];
   faq?: FaqRow[];
   seo?: SeoRow;
-  labels?: { articles_label: string | null; learn_more_label: string | null };
+  labels?: {
+    articles_label: string | null;
+    learn_more_label: string | null;
+    hero_background?: string | null;
+  };
 }
 
 const TILE_COLUMNS =
@@ -511,6 +520,7 @@ function toEncyclopedia(item: Entry, parts: EncyclopediaParts): Encyclopedia {
       illustration: chapter.illustration_url ?? undefined,
       illustrationCredit: chapter.illustration_credit ?? undefined,
       tileBackground: chapter.tile_background ?? undefined,
+      updated: chapter.updated_at?.slice(0, 10),
       audio: chapter.audio_url ?? undefined,
     })),
     resources: resources.map(withoutTile),
@@ -519,6 +529,7 @@ function toEncyclopedia(item: Entry, parts: EncyclopediaParts): Encyclopedia {
       articles: optional(parts.labels?.articles_label),
       learnMore: optional(parts.labels?.learn_more_label),
     },
+    heroBackground: optional(parts.labels?.hero_background),
     faq: [...(parts.faq ?? [])]
       .sort(byPosition)
       .map(({ question, answer }) => ({ question, answer })),
@@ -536,9 +547,9 @@ function toEncyclopedia(item: Entry, parts: EncyclopediaParts): Encyclopedia {
 // Anon may read only the listed columns (DB-08) — nested tables included.
 const ENCYCLOPEDIA_COLUMNS = `${BASE_COLUMNS}, body_html, summary_points,
   seo_title, seo_description, og_image_url, seo_keywords, geo_summary, noindex,
-  articles_label, learn_more_label,
+  articles_label, learn_more_label, hero_background,
   authors(slug, name, photo_url, bio, positionality),
-  entry_chapters(position, title, summary_points, body_html, illustration_url, illustration_credit, audio_url, tile_background),
+  entry_chapters(position, title, summary_points, body_html, illustration_url, illustration_credit, audio_url, tile_background, updated_at),
   resources(position, kind, tile_id, title, source, url, image_url),
   learn_more_tiles!learn_more_tiles_entry_id_fkey(${TILE_COLUMNS}),
   entry_tile_notes(tile_id, body_html),
@@ -568,6 +579,7 @@ export async function getEncyclopediaEntry(
           translation_of: string | null;
           articles_label: string | null;
           learn_more_label: string | null;
+          hero_background: string | null;
           authors: AuthorRow | null;
           entry_chapters: ChapterRow[];
           resources: ResourceRow[];

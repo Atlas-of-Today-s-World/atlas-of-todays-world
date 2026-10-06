@@ -1837,7 +1837,7 @@ test("topic templates: default copy, re-apply by slug, own tiles, rights", async
     refused(
       q("select replace_tiles(null, $1, $2::jsonb)", [
         short.id,
-        JSON.stringify([{ slug: "x", label: "X", icon: "rocket" }]),
+        JSON.stringify([{ slug: "x", label: "X", icon: "Not an icon!" }]),
       ]),
     ),
   );
@@ -1923,6 +1923,59 @@ test("topic templates: default copy, re-apply by slug, own tiles, rights", async
   await as(id.pubA, () => q("update entries set map_layers = '{regions}' where id = $1", [entry]));
   await as(id.pubA, () =>
     refused(q("update entries set map_layers = '{continents}' where id = $1", [entry])),
+  );
+});
+
+test("subtopics: who created and edited them, kept across saves", async () => {
+  const entry = await newEntry(id.pubA, "subtopic-stamps");
+  const save = (who, items) =>
+    as(who, () =>
+      q("select replace_entry_parts($1, 'chapters', $2::jsonb)", [entry, JSON.stringify(items)]),
+    );
+  await save(id.pubA, [
+    { title: "One", body_html: "<p>a</p>" },
+    { title: "Two", body_html: "<p>b</p>" },
+  ]);
+  const first = await q(
+    "select id, title, created_by, updated_at from entry_chapters where entry_id = $1 order by position",
+    [entry],
+  );
+  assert.deepEqual(
+    first.map((row) => row.created_by),
+    [id.pubA, id.pubA],
+  );
+
+  // Saved again by an editor: order swapped, only "Two" changed.
+  await new Promise((done) => setTimeout(done, 20));
+  await save(id.admin, [
+    { id: first[1].id, title: "Two (revised)", body_html: "<p>b</p>" },
+    { id: first[0].id, title: "One", body_html: "<p>a</p>" },
+  ]);
+  const second = await q(
+    "select id, title, position, created_by, updated_by, updated_at from entry_chapters where entry_id = $1 order by position",
+    [entry],
+  );
+  assert.deepEqual(
+    second.map((row) => row.id),
+    [first[1].id, first[0].id],
+  );
+  assert.equal(second[0].created_by, id.pubA);
+  assert.equal(second[0].updated_by, id.admin);
+  assert.ok(second[0].updated_at > first[1].updated_at);
+  // The untouched one keeps its stamp.
+  assert.equal(second[1].updated_by, id.pubA);
+  assert.equal(String(second[1].updated_at), String(first[0].updated_at));
+
+  // The topic itself records its last editor; staff names only for writers.
+  await as(id.admin, () => q("update entries set title = 'Stamped' where id = $1", [entry]));
+  assert.equal(
+    (await one("select updated_by from entries where id = $1", [entry])).updated_by,
+    id.admin,
+  );
+  assert.ok((await as(id.pubA, () => one("select staff_name($1) as n", [id.admin]))).n);
+  assert.equal(
+    (await as(id.newcomer, () => one("select staff_name($1) as n", [id.admin]))).n,
+    null,
   );
 });
 

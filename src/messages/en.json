@@ -355,6 +355,7 @@
     "inShort": "In short",
     "faq": "Questions and answers",
     "showTopic": "Subtopic {number}: {title}",
+    "subtopicUpdated": "Updated {date}",
     "readMore": "Read more",
     "showLess": "Show less",
     "resourcesCount": "{count} resources",

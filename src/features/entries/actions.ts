@@ -80,6 +80,7 @@ export async function saveEntry(_prev: ActionState, formData: FormData): Promise
     reading_minutes: fields.reading_minutes ?? null,
     body_html: sanitizeRichHtml(fields.body_html),
     author_id: fields.author_id ?? null,
+    hero_background: fields.hero_background ?? null,
   };
 
   let entryId = id;
@@ -205,6 +206,7 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
   if (!uuid.safeParse(entryId).success) return { ok: false, error: "Invalid entry." };
   const column = (name: string) => formData.getAll(name).map(String);
   const titles = column("title");
+  const ids = column("chapter_id");
   const [points, bodies, illustrations, credits, audio, backgrounds] = [
     column("summary_points"),
     column("body_html"),
@@ -225,6 +227,7 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
         illustration_credit: credits[index],
         audio_url: audio[index],
         tile_background: backgrounds[index],
+        id: ids[index],
       })),
     );
   if (!parsed.success) return listItemError(parsed.error, "Subtopic", CHAPTER_FIELD_LABEL);

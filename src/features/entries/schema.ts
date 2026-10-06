@@ -72,11 +72,15 @@ export const EntryInput = z.object({
   author_id: z.preprocess(blankToUndefined, uuid.optional()),
   // Topics only (the form marks it with `map_layers_shown`): globe layers it is counted on.
   map_layers: z.array(z.enum(MAP_LAYERS)).optional(),
+  // Topics only: header colour without a photo.
+  hero_background: hexColor,
 });
 export type EntryInput = z.infer<typeof EntryInput>;
 
 /** Entry chapter — limits matching the `entry_chapters` table. */
 export const ChapterInput = z.object({
+  /** Kept so the subtopic keeps its "created by / when" (empty for a new one). */
+  id: z.preprocess(blankToUndefined, uuid.optional()),
   title: requiredText(200),
   summary_points: summaryPoints,
   body_html: z.string().max(200_000, "The chapter text is too long."),

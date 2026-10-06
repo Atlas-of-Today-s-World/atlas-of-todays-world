@@ -5,6 +5,7 @@ import { ActionStatus } from "@/components/admin/ActionStatus";
 import { CountryPicker, type CountryOption } from "@/components/admin/CountryPicker";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { Button } from "@/components/ui/button";
+import { ColorField } from "@/components/ui/color-field";
 import { Checkbox, FormField, Input, Select, Textarea, describedBy } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
 import { NEWS_CATEGORIES } from "@/lib/content-types";
@@ -34,8 +35,11 @@ export function EntryForm({
   issues,
   countries,
   authors,
+  defaultKind = "news",
 }: {
   entry: EditableEntry | null;
+  /** Type of a new item ("entry" = a topic, from the New topic button). */
+  defaultKind?: "news" | "entry";
   regions: Option[];
   issues: Option[];
   countries: CountryOption[];
@@ -49,7 +53,7 @@ export function EntryForm({
   const [generation, setGeneration] = useState(0);
   const [slug, setSlug] = useState(entry?.slug ?? "");
   const [slugTouched, setSlugTouched] = useState(Boolean(entry));
-  const [kind, setKind] = useState(entry?.kind ?? "news");
+  const [kind, setKind] = useState(entry?.kind ?? defaultKind);
   const isEntry = kind === "entry";
   const errors = state.fieldErrors ?? {};
   const published = entry?.status === "published";
@@ -93,7 +97,13 @@ export function EntryForm({
       ) : null}
       {entry ? <input type="hidden" name="id" value={entry.id} /> : null}
 
-      <FormField id="title" label="Title" required errors={errors.title}>
+      <FormField
+        id="title"
+        label={isEntry ? "Header – title" : "Title"}
+        hint={isEntry ? "The big heading over the header photo." : undefined}
+        required
+        errors={errors.title}
+      >
         <Input
           id="title"
           name="title"
@@ -220,8 +230,12 @@ export function EntryForm({
 
       <FormField
         id="summary"
-        label="Summary"
-        hint="One or two sentences; shown in listings and search engines."
+        label={isEntry ? "Header – lead text" : "Summary"}
+        hint={
+          isEntry
+            ? "The paragraph under the title in the header; also on the Topics list and in search engines."
+            : "One or two sentences; shown in listings and search engines."
+        }
         errors={errors.summary}
       >
         <Textarea
@@ -238,8 +252,8 @@ export function EntryForm({
         <>
           <FormField
             id="summary_points"
-            label="Summary bullet points"
-            hint="3–5 bullet points, one per line. Shown in the entry header."
+            label="Key points box (under the header)"
+            hint="3–5 points, one per line."
             errors={errors.summary_points}
           >
             <Textarea
@@ -253,7 +267,7 @@ export function EntryForm({
           <FormField
             id="author_id"
             label="Author (profile)"
-            hint="Photo, bio and positionality come from the profile (Authors section). Audio is uploaded per chapter."
+            hint="Byline under the header and the bio at the end come from the profile (Author profiles)."
             errors={errors.author_id}
           >
             <Select id="author_id" name="author_id" defaultValue={values?.author_id ?? ""}>
@@ -268,7 +282,11 @@ export function EntryForm({
         </>
       ) : null}
 
-      <FormField id="cover_url" label="Cover image" errors={errors.cover_url}>
+      <FormField
+        id="cover_url"
+        label={isEntry ? "Header – background photo" : "Cover image"}
+        errors={errors.cover_url}
+      >
         <UploadField
           id="cover_url"
           name="cover_url"
@@ -277,10 +295,21 @@ export function EntryForm({
         />
       </FormField>
 
+      {isEntry ? (
+        <FormField id="hero_background" label="Header – background colour">
+          <ColorField
+            id="hero_background"
+            name="hero_background"
+            defaultValue={values?.hero_background ?? null}
+            label="Use a colour (shown without a photo, or while it loads)"
+          />
+        </FormField>
+      ) : null}
+
       <div className="grid gap-5 sm:grid-cols-3">
         <FormField
           id="cover_credit"
-          label="Photo credit"
+          label={isEntry ? "Header – photo credit" : "Photo credit"}
           className="sm:col-span-1"
           errors={errors.cover_credit}
         >
@@ -313,7 +342,7 @@ export function EntryForm({
 
       <div className="grid gap-1.5">
         <span className="text-[12.5px] font-medium text-[var(--color-ink-soft)]">
-          {isEntry ? "Entry introduction (before chapters, optional)" : "Text"}
+          {isEntry ? "Introduction text (between the key points and the tiles, optional)" : "Text"}
         </span>
         <RichTextEditor
           name="body_html"
