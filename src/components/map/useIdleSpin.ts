@@ -8,7 +8,7 @@ export const SPIN_DEG_PER_SEC = 1;
 /** Pause after the globe is ready (and after the home flight) before it starts turning. */
 const START_DELAY_MS = 2500;
 /** After the visitor's last touch of the globe, it starts turning again this much later. */
-export const RESUME_AFTER_MS = 5000;
+const RESUME_AFTER_MS = 5000;
 /** While the globe turns, `onBeat` fires this often (the topic count pulse). */
 const BEAT_MS = 3000;
 /** ~30 fps is smooth at this speed and halves the GPU work of a 60 fps loop. */
