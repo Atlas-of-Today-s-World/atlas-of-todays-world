@@ -1,3 +1,4 @@
+import { ShareButton } from "@/components/atlas/ShareButton";
 import Link from "@/components/i18n/Link";
 import { TopicsLink } from "@/components/topics/RelatedTopics";
 import type { EntrySummary } from "@/features/entries/queries";
@@ -81,9 +82,10 @@ export default function CountryCard({
       ) : null}
 
       <p className="mt-3 text-[13px] leading-relaxed text-[var(--color-ink-soft)]">{description}</p>
-      {topics ? (
-        <TopicsLink count={topics.items.length} href={topics.href} className="mt-4" />
-      ) : null}
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        {topics ? <TopicsLink count={topics.items.length} href={topics.href} /> : null}
+        <ShareButton title={country.name} />
+      </div>
 
       <StatGrid className="mt-5">
         {highlights.map((stat) => (

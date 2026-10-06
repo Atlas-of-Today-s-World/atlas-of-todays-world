@@ -86,6 +86,14 @@ test.describe("panel s obsahem", () => {
     await expect(page).toHaveURL(/\/$/);
   });
 
+  test("country profile offers a Share button with a comfortable touch target", async ({
+    page,
+  }) => {
+    await page.goto("/country/ukraine");
+    await expect(page.locator("#content").getByRole("button", { name: "Share" })).toBeVisible();
+    await hasTouchTarget(page, '#content button:has-text("Share")');
+  });
+
   test("panel closes with the Esc key", async ({ page }) => {
     await page.goto("/country/ukraine");
     // Only hydrated React handles the key, so wait for the panel to come alive

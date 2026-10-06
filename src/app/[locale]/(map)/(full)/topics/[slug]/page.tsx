@@ -96,6 +96,7 @@ export default async function EntryPage({
       <EncyclopediaArticle
         item={item}
         atlas={atlas}
+        share
         banner={<NotTranslated page={locale} text={item.locale} />}
       />
 
