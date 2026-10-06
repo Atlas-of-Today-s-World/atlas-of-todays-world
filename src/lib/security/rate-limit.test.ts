@@ -17,6 +17,17 @@ describe("allowRequest", () => {
     rpc.mockReset();
   });
 
+  it("without a service key in production allows the request but reports the missing key", async () => {
+    env.SUPABASE_SERVICE_ROLE_KEY = undefined;
+    vi.stubEnv("VERCEL_ENV", "production");
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(await allowRequest("search", headers("1.2.3.4"), opts)).toBe(true);
+    expect(log).toHaveBeenCalledWith(expect.stringContaining("SUPABASE_SERVICE_ROLE_KEY"));
+    expect(rpc).not.toHaveBeenCalled();
+    log.mockRestore();
+    vi.unstubAllEnvs();
+  });
+
   it("without a service key (locally) allows everything and doesn't touch the DB", async () => {
     env.SUPABASE_SERVICE_ROLE_KEY = undefined;
     expect(await allowRequest("search", headers("1.2.3.4"), opts)).toBe(true);

@@ -51,6 +51,14 @@ describe("cssBackgroundImage", () => {
   it("doesn't return an unsafe URL", () => {
     expect(cssBackgroundImage("javascript:alert(1)")).toBeUndefined();
   });
+
+  it("asks for a resized photo when given a width, still escaped", () => {
+    // A foreign origin stays as it is; ours would go through the image optimizer.
+    expect(cssBackgroundImage("https://x.org/a.jpg", 400)).toBe('url("https://x.org/a.jpg")');
+    const ours = cssBackgroundImage("/images/topic(1).jpg", 400) ?? "";
+    expect(ours.startsWith('url("')).toBe(true);
+    expect(ours.slice(5, -2)).not.toMatch(/["()]/);
+  });
 });
 
 describe("safeRedirect", () => {
