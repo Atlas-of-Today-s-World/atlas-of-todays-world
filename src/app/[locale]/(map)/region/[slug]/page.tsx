@@ -97,6 +97,7 @@ export default async function RegionPage({
             hero: region.hero,
             countries: countries.map(({ slug, name }) => ({ slug, name })),
             population: population(countries),
+            showMetrics: region.showMetrics,
           }}
           news={newsCards(newsItems)}
           entries={thematicEntries(

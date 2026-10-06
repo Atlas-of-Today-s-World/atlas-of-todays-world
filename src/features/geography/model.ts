@@ -29,6 +29,7 @@ export interface AtlasSnapshot {
     summary: string;
     hero_url: string | null;
     hero_credit: string;
+    show_metrics?: boolean;
   }[];
   countries: {
     iso3: string;
@@ -215,6 +216,7 @@ export function buildAtlas(snapshot: AtlasSnapshot, geo: GeoFacts[], locale: Loc
     zoom: Number(row.zoom),
     hero: row.hero_url,
     heroCredit: row.hero_credit,
+    showMetrics: row.show_metrics ?? true,
     summary: row.summary,
     countries: sortedCountries
       .filter((country) => country.region_slug === row.slug)

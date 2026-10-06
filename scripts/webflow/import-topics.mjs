@@ -4,7 +4,7 @@
  * (scrape-global-issues.mjs) as published topics (encyclopedia entries).
  *
  *   node scripts/webflow/import-topics.mjs [--data scripts/webflow/data/global-issues.json]
- *        [--apply --project dev|prod] [--demo-places] [--env .env.local]
+ *        [--apply --project dev|prod] [--replace-places] [--sql <file>] [--env .env.local]
  *
  * Without --apply it is a DRY RUN and prints what would be written.
  * With --apply it writes with the service key into the project whose ref must
@@ -17,8 +17,9 @@
  * a repeated run re-uses them). Repeatable: a topic's articles and links are
  * replaced whole, its tiles keep what editors changed.
  *
- * --demo-places (atlas-dev only) puts a few topics on the map so the topic
- * counts can be tried out; real placements are an editorial decision.
+ * Places on the map (PLACES) are filled in only where a topic has none yet,
+ * so a repeated run never undoes an editor's choice; --replace-places
+ * overwrites them (atlas-dev, where demo placements used to sit).
  */
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
@@ -48,16 +49,58 @@ const CATEGORY = {
   "Globalization: The Connection and Disconnection of Worlds": "International Relations",
 };
 
-/** Demo placements for atlas-dev: a region topic, a country topic, issue topics. */
-const DEMO_PLACES = {
-  "international-law-mechanisms-related-to-refugees": { region_slug: "western-central-europe" },
-  "detention-of-migrants-and-refugees": { countries: ["CZE"] },
-  "migrant-smuggling": { special_slug: "migration-routes", countries: ["LBY", "ITA", "GRC"] },
-  "types-of-migrants": { special_slug: "forced-displacement" },
-  "disaster-risk-reduction-and-climate-change-adaptation": { special_slug: "climate-frontlines" },
-  "connections-between-biodiversity-and-climate-change": { special_slug: "climate-frontlines" },
-  "international-humanitarian-law-and-the-conduct-of-war": { special_slug: "russia-ukraine-war" },
-  "gender-equality-and-poverty": { region_slug: "sub-saharan-africa" },
+/**
+ * Where each topic sits on the map, read from its text (the countries and
+ * regions it discusses) and its subject (the global issue it belongs to).
+ * Topics about the world as a whole stay without a place. Editors change it
+ * in the admin; the import only fills empty places.
+ */
+const PLACES = {
+  "detention-of-migrants-and-refugees": {
+    region_slug: "western-central-europe",
+    special_slug: "forced-displacement",
+    countries: ["CZE"],
+  },
+  "types-of-migrants": { special_slug: "forced-displacement", countries: ["SYR", "LBN", "PSE"] },
+  "migrant-smuggling": {
+    special_slug: "migration-routes",
+    countries: ["MEX", "LBY", "TUR", "GRC", "NER"],
+  },
+  "international-law-mechanisms-related-to-refugees": { special_slug: "forced-displacement" },
+  "gender-equality-and-poverty": { region_slug: "western-central-europe" },
+  "the-state-of-inequality-within-minority-groups": {
+    region_slug: "western-central-europe",
+    countries: ["HUN", "ROU", "FIN", "SWE"],
+  },
+  "climate-change-challenges-to-combating-climate-change-at-the-individual-regional-and-global-level":
+    { special_slug: "climate-frontlines" },
+  "disaster-risk-reduction-and-climate-change-adaptation": {
+    special_slug: "climate-frontlines",
+    countries: ["IND", "BGD", "PAK"],
+  },
+  "connections-between-biodiversity-and-climate-change": {
+    special_slug: "climate-frontlines",
+    countries: ["BRA"],
+  },
+  "political-ideologies-and-their-perspectives-on-human-rights": {
+    region_slug: "western-central-europe",
+    countries: ["IRL", "FRA", "ITA", "GBR"],
+  },
+  "human-rights-violations-and-advocacy": { countries: ["COL", "GTM", "RWA", "MMR", "BDI"] },
+  "international-humanitarian-law-and-the-conduct-of-war": {
+    region_slug: "middle-east-north-africa",
+    countries: ["IRQ", "IRN", "ISR", "PSE"],
+  },
+  "the-role-of-international-organisations-in-peace-and-conflict": {
+    special_slug: "russia-ukraine-war",
+    countries: ["UKR", "SDN", "COG"],
+  },
+  "ethics-and-practices-of-humanitarian-intervention": {
+    countries: ["XKX", "BIH", "COD", "HTI", "SLE"],
+  },
+  "the-rise-of-non-state-actors-in-the-20th-and-21st-century": {
+    countries: ["IRQ", "AFG", "QAT", "COL"],
+  },
 };
 
 const { values: args } = parseArgs({
@@ -65,7 +108,7 @@ const { values: args } = parseArgs({
     data: { type: "string", default: "scripts/webflow/data/global-issues.json" },
     apply: { type: "boolean", default: false },
     project: { type: "string" },
-    "demo-places": { type: "boolean", default: false },
+    "replace-places": { type: "boolean", default: false },
     env: { type: "string", default: ".env.local" },
     sql: { type: "string" },
   },
@@ -146,7 +189,7 @@ function plan(topic) {
     })),
     links: links.slice(0, 200),
     skipped,
-    redirect: { from_path: topic.oldPath, to_path: `/entry/${topic.slug}`, permanent: true },
+    redirect: { from_path: topic.oldPath, to_path: `/topics/${topic.slug}`, permanent: true },
   };
 }
 
@@ -169,15 +212,17 @@ if (!args.apply) {
 /**
  * The same import as one SQL transaction (for psql as the database owner),
  * when no service key is at hand. Images keep their Webflow addresses; a later
- * run with --apply moves them to Storage. No demo placements.
+ * run with --apply moves them to Storage.
  */
 async function writeSql(file) {
+  const replace = args["replace-places"] ? "true" : "false";
   const { writeFileSync } = await import("node:fs");
   const { sanitizeRichHtml } = await import("../../src/lib/security/sanitize.ts");
   const blocks = plans.map(({ entry, author, chapters, links, redirect }) => {
     const payload = JSON.stringify({
       entry,
       author,
+      place: PLACES[entry.slug] ?? null,
       chapters: chapters.map((chapter) => ({
         ...chapter,
         body_html: sanitizeRichHtml(chapter.body_html),
@@ -235,6 +280,17 @@ begin
     from jsonb_array_elements(p -> 'links') with ordinality as x(l, ord)
     join learn_more_tiles t on t.entry_id = v_entry and t.slug = l ->> 'tile';
 
+  -- A place on the map only where the topic has none yet (editors decide later).
+  if p -> 'place' <> 'null'::jsonb
+     and (${replace} or ((select region_slug is null and special_slug is null from entries where id = v_entry)
+         and not exists (select 1 from entry_countries where entry_id = v_entry))) then
+    update entries set region_slug = p -> 'place' ->> 'region_slug', special_slug = p -> 'place' ->> 'special_slug'
+     where id = v_entry;
+    delete from entry_countries where entry_id = v_entry;
+    insert into entry_countries (entry_id, country_iso3)
+    select v_entry, c from jsonb_array_elements_text(coalesce(p -> 'place' -> 'countries', '[]')) c;
+  end if;
+
   insert into redirects (from_path, to_path, permanent)
   values (p -> 'redirect' ->> 'from_path', p -> 'redirect' ->> 'to_path', true)
   on conflict (from_path) do update set to_path = excluded.to_path;
@@ -257,10 +313,6 @@ if (!expected || !url.includes(`${expected}.supabase.co`)) {
   console.error(
     `Refused: --project ${args.project ?? "(missing)"} doesn't match the Supabase URL.`,
   );
-  process.exit(2);
-}
-if (args["demo-places"] && args.project !== "dev") {
-  console.error("Refused: demo placements are for atlas-dev only.");
   process.exit(2);
 }
 if (!env.SUPABASE_SERVICE_ROLE_KEY) {
@@ -324,15 +376,12 @@ for (const item of plans) {
       : must(await db.from("authors").insert(row).select("id").single(), "author").id;
   }
 
-  const places = args["demo-places"] ? (DEMO_PLACES[entry.slug] ?? {}) : {};
-  const { countries = [], ...placement } = places;
   const saved = must(
     await db
       .from("entries")
       .upsert(
         {
           ...entry,
-          ...placement,
           author_id: authorId,
           cover_url: await moveImage(entry.cover_url),
         },
@@ -344,7 +393,19 @@ for (const item of plans) {
   );
   const id = saved.id;
 
-  if (args["demo-places"]) {
+  const place = PLACES[entry.slug];
+  const current = must(
+    await db
+      .from("entries")
+      .select("region_slug, special_slug, entry_countries(country_iso3)")
+      .eq("id", id)
+      .single(),
+    "place",
+  );
+  const empty = !current.region_slug && !current.special_slug && !current.entry_countries.length;
+  if (place && (empty || args["replace-places"])) {
+    const { countries = [], region_slug = null, special_slug = null } = place;
+    must(await db.from("entries").update({ region_slug, special_slug }).eq("id", id), "place");
     must(await db.from("entry_countries").delete().eq("entry_id", id), "countries");
     if (countries.length) {
       must(
