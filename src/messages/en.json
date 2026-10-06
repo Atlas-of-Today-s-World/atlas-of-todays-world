@@ -511,7 +511,21 @@
     "filterNone": "No topic about {name} yet.",
     "clearFilter": "Show all topics",
     "backToAtlas": "Back to Atlas",
-    "globeWindow": "Back to the Atlas globe"
+    "globeWindow": "Back to the Atlas globe",
+    "filters": "Filter topics",
+    "filterCountry": "Country",
+    "filterRegion": "Region",
+    "filterSpecial": "Special region",
+    "filterAll": "All",
+    "filterHint": "One filter at a time — choosing one clears the others.",
+    "search": "Search in topics",
+    "searchPlaceholder": "Search the text of all topics…",
+    "searching": "Searching…",
+    "resultsCount": "{count} matches in the text",
+    "resultsOne": "1 match in the text",
+    "noResults": "Nothing found in the text of these topics.",
+    "introPart": "Introduction",
+    "inTopic": "in {topic}"
   },
   "cookies": {
     "label": "Cookie notice",

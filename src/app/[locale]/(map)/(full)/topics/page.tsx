@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { JsonLd } from "@/components/JsonLd";
 import { TOPICS_PATH } from "@/config/navigation";
 import { getAtlas } from "@/features/geography/queries";
 import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
-import { FilteredTopicsGrid, TopicsGrid } from "@/features/topics/components/TopicsGrid";
+import { TopicsBrowser } from "@/features/topics/components/TopicsBrowser";
 import { topicIndex } from "@/features/topics/related";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { breadcrumbNode, graph, itemListNode, pageUrl, webPageNode } from "@/lib/seo/jsonld";
@@ -56,12 +55,8 @@ export default async function TopicsPage({ params }: Params) {
         </p>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-8">
-        {/* Without search params the static render lists everything; the filter runs in the browser. */}
-        <Suspense fallback={<TopicsGrid items={cards} filters={filters} names={names} />}>
-          <FilteredTopicsGrid items={cards} filters={filters} names={names} />
-        </Suspense>
-      </div>
+      {/* The static render lists everything; the filter and the search run in the browser. */}
+      <TopicsBrowser items={cards} filters={filters} names={names} />
 
       <JsonLd
         data={graph(
