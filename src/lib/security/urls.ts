@@ -1,3 +1,5 @@
+import { photoUrl } from "@/lib/images";
+
 /**
  * URLs from data into `href`, `src` and CSS `url()` (ARCHITEKTURA 8.1, S5).
  *
@@ -28,9 +30,11 @@ export function safeUrl(value: unknown, { allowMailto = false } = {}): string | 
  * Value for CSS `background-image`. Quotes and parentheses are escaped so the
  * URL can't leave `url("…")` and inject more CSS.
  */
-export function cssBackgroundImage(value: unknown): string | undefined {
-  const url = safeUrl(value);
-  if (!url) return undefined;
+export function cssBackgroundImage(value: unknown, width?: number): string | undefined {
+  const safe = safeUrl(value);
+  if (!safe) return undefined;
+  // With a width, a photo from our origins comes resized (lib/images.ts).
+  const url = width ? photoUrl(safe, width) : safe;
   // encodeURIComponent doesn't escape parentheses, so do it by hand (safeUrl already dropped control chars).
   const escaped = url.replace(/["'\\()]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`);
   return `url("${escaped}")`;

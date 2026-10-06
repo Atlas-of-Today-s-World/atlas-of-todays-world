@@ -87,7 +87,8 @@ const getHomeFeatured = unstable_cache(
 
 /**
  * The two subtopics on the home map: the ones pinned in the admin, each empty
- * (or unpublished) slot filled with the newest subtopic not shown yet.
+ * (or unpublished) slot filled with the newest subtopic not shown yet — from a
+ * topic not shown yet when there is one, so the two tiles aren't one topic twice.
  */
 export function pickFeatured(
   tiles: readonly SubtopicTile[],
@@ -95,11 +96,15 @@ export function pickFeatured(
 ): SubtopicTile[] {
   const byId = new Map(tiles.map((tile) => [tile.id, tile]));
   const chosen = pins.map((id) => (id ? byId.get(id) : undefined));
-  const used = new Set(chosen.flatMap((tile) => (tile ? [tile.id] : [])));
-  const newest = tiles.filter((tile) => !used.has(tile.id));
-  return chosen
-    .map((tile) => tile ?? newest.shift())
-    .filter((tile): tile is SubtopicTile => Boolean(tile));
+  const shown = chosen.filter((tile): tile is SubtopicTile => Boolean(tile));
+  const next = () => {
+    const fresh = tiles.filter((tile) => !shown.some((other) => other.id === tile.id));
+    const pick =
+      fresh.find((tile) => !shown.some((other) => other.topicSlug === tile.topicSlug)) ?? fresh[0];
+    if (pick) shown.push(pick);
+    return pick;
+  };
+  return chosen.map((tile) => tile ?? next()).filter((tile): tile is SubtopicTile => Boolean(tile));
 }
 
 export async function featuredSubtopics(): Promise<SubtopicTile[]> {

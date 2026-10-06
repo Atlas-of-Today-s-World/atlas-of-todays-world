@@ -91,15 +91,18 @@ export default function Header({
             aria-label={t.header.home}
             className="flex min-h-11 items-center justify-self-start"
           >
-            <BrandLogo tone="light" className="h-[18px] sm:h-6" />
+            <BrandLogo tone="light" className="h-5 sm:h-6" />
           </Link>
 
+          {/* On phones a compact "← Atlas" (same accessible name), so the logo has room. */}
           <Link
             href="/"
-            className="flex min-h-11 items-center gap-2 justify-self-center rounded-full border border-white/25 px-4 text-[13px] font-medium whitespace-nowrap transition hover:border-white/60 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:outline-none"
+            aria-label={t.topics.backToAtlas}
+            className="flex min-h-11 items-center gap-1.5 justify-self-center rounded-full border border-white/25 px-3 text-[12.5px] font-medium whitespace-nowrap transition hover:border-white/60 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:outline-none sm:gap-2 sm:px-4 sm:text-[13px]"
           >
             <ArrowLeft aria-hidden className="size-4" />
-            {t.topics.backToAtlas}
+            <span className="sm:hidden">{t.topics.backToAtlasShort}</span>
+            <span className="max-sm:hidden">{t.topics.backToAtlas}</span>
           </Link>
 
           <nav
@@ -181,19 +184,8 @@ export default function Header({
               {t.nav[item.key]}
             </Link>
           ))}
-        <span className="flex items-center gap-2 text-white/60">
-          {SOCIALS.map((social) => (
-            <a
-              key={social.label}
-              href={social.href}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={social.label}
-              className="grid h-7 w-7 place-items-center rounded-full border border-white/25 text-[10px] font-semibold transition hover:border-white/70 hover:text-white"
-            >
-              {social.icon}
-            </a>
-          ))}
+        <span className="flex items-center gap-2">
+          <SocialLinks className="h-7 w-7 text-[10px]" />
         </span>
         <Link
           href={ACCOUNT_NAV.href}
@@ -280,18 +272,7 @@ function MenuDialog({
         </nav>
 
         <div className="flex items-center gap-3">
-          {SOCIALS.map((social) => (
-            <a
-              key={social.label}
-              href={social.href}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={social.label}
-              className="grid h-11 w-11 place-items-center rounded-full border border-white/25 text-[12px] font-semibold"
-            >
-              {social.icon}
-            </a>
-          ))}
+          <SocialLinks className="h-11 w-11 text-[12px]" />
           <Link
             href={ACCOUNT_NAV.href}
             className="ml-auto flex min-h-11 items-center text-[13px] text-white/60"
@@ -302,4 +283,26 @@ function MenuDialog({
       </div>
     </div>
   );
+}
+
+/**
+ * Social network links as round badges: white with dark letters, so they stand
+ * out on the photo behind the home header as well as on the dark bar.
+ */
+function SocialLinks({ className }: { className: string }) {
+  return SOCIALS.map((social) => (
+    <a
+      key={social.label}
+      href={social.href}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={social.label}
+      className={cn(
+        "grid place-items-center rounded-full bg-white font-bold text-[var(--color-ink)] shadow-sm transition hover:bg-[var(--color-accent)] hover:text-white focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none",
+        className,
+      )}
+    >
+      {social.icon}
+    </a>
+  ));
 }

@@ -8,6 +8,7 @@ import { format, getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import { formatLongDate } from "@/lib/format";
 import { cssBackgroundImage } from "@/lib/security/urls";
+import { PHOTO_WIDTH } from "@/lib/images";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { articlePath } from "@/config/navigation";
 import {
@@ -67,7 +68,7 @@ export default async function AuthorPage({ params }: Params) {
   const messages = getMessages(locale);
   const t = messages.authorPage;
   const articles = await articlesOf(slug);
-  const photo = cssBackgroundImage(author.photo);
+  const photo = cssBackgroundImage(author.photo, PHOTO_WIDTH.avatar);
   const url = pageUrl(`/authors/${slug}`, locale);
 
   return (

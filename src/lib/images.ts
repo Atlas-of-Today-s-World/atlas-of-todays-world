@@ -1,0 +1,69 @@
+/**
+ * Editorial photos through Next's image optimizer (`/_next/image`): resized to
+ * the width a tile or hero needs and served as AVIF / WebP, cached on the CDN.
+ * The topics imported from the old site still point at its Webflow CDN, where
+ * a single photo can weigh several megabytes.
+ *
+ * Only these origins are optimized — next.config builds its `remotePatterns`
+ * from the same list, so `/_next/image` is no open proxy. Anything else (and
+ * data/relative URLs) is returned unchanged.
+ */
+
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+/** Hosts and path prefixes of photos worth resizing. */
+export const PHOTO_ORIGINS: readonly { hostname: string; pathname: string }[] = [
+  // Images of the topics imported from the original atlasoftodaysworld.org.
+  { hostname: "cdn.prod.website-files.com", pathname: "/" },
+  // Uploads from the admin (public Storage buckets) of this deployment's project.
+  ...(SUPABASE_URL
+    ? [{ hostname: new URL(SUPABASE_URL).hostname, pathname: "/storage/v1/object/public/" }]
+    : []),
+];
+
+/**
+ * Widths requested from the optimizer. Each must be one of Next's default
+ * `deviceSizes` / `imageSizes`, otherwise /_next/image refuses the request.
+ */
+export const PHOTO_WIDTH = {
+  /** Author portraits. */
+  avatar: 256,
+  /** Small tiles: home "Latest subtopics", resource thumbnails. */
+  thumb: 384,
+  /** Subtopic and topic tiles. */
+  tile: 640,
+  /** Topic cards on /topics, region and country heroes in the side panel. */
+  card: 828,
+  /** Full-width topic hero. */
+  hero: 1920,
+} as const;
+
+/** Next 16 accepts only the configured qualities; 75 is its default. */
+const QUALITY = 75;
+
+function isPhotoOrigin(url: URL): boolean {
+  return (
+    url.protocol === "https:" &&
+    PHOTO_ORIGINS.some(
+      (origin) => url.hostname === origin.hostname && url.pathname.startsWith(origin.pathname),
+    )
+  );
+}
+
+/** The optimizer's address for `src` at `width`, or `src` itself when it isn't ours to resize. */
+export function photoUrl(src: string, width: number): string {
+  let url: URL;
+  try {
+    url = new URL(src);
+  } catch {
+    return src;
+  }
+  if (!isPhotoOrigin(url)) return src;
+  return `/_next/image?url=${encodeURIComponent(url.href)}&w=${width}&q=${QUALITY}`;
+}
+
+/** `srcset` for a responsive <img> (hero photos). */
+export function photoSrcSet(src: string, widths: readonly number[]): string | undefined {
+  const sets = widths.map((width) => `${photoUrl(src, width)} ${width}w`);
+  return photoUrl(src, widths[0] ?? PHOTO_WIDTH.hero) === src ? undefined : sets.join(", ");
+}

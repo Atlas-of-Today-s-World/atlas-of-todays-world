@@ -9,6 +9,7 @@ import { format } from "@/features/i18n/messages";
 import { getRequestLocale, getT } from "@/features/i18n/request";
 import { formatLongDate } from "@/lib/format";
 import { cssBackgroundImage, safeUrl } from "@/lib/security/urls";
+import { PHOTO_WIDTH, photoSrcSet, photoUrl } from "@/lib/images";
 import type { Encyclopedia, EntryAuthor, EntryChapter as Chapter, LearnMoreTile } from "../queries";
 import { META_LINE, PlaceLinks } from "./ArticleFrame";
 import { DossierExplorer } from "./DossierExplorer";
@@ -66,9 +67,13 @@ export function EncyclopediaArticle({
         >
           {hero ? (
             // A real <img>: image search indexes it and the browser finds the LCP early.
-            // eslint-disable-next-line @next/next/no-img-element -- remote editorial photo, no optimizer (next.config)
+            // Resized by /_next/image (lib/images.ts) rather than next/image: a plain
+            // full-bleed background under the header text.
+            // eslint-disable-next-line @next/next/no-img-element -- see above
             <img
-              src={hero}
+              src={photoUrl(hero, PHOTO_WIDTH.hero)}
+              srcSet={photoSrcSet(hero, [PHOTO_WIDTH.card, 1200, PHOTO_WIDTH.hero])}
+              sizes="100vw"
               alt={item.title}
               width={1600}
               height={640}
@@ -155,7 +160,7 @@ function EntryHeader({ item, atlas, share }: { item: Encyclopedia; atlas: Atlas;
   const t = getT().article;
   const locale = getRequestLocale();
   const author = item.authorProfile;
-  const photo = cssBackgroundImage(author?.photo);
+  const photo = cssBackgroundImage(author?.photo, PHOTO_WIDTH.avatar);
   return (
     <>
       <p className={META_LINE}>
@@ -324,7 +329,7 @@ function TilePanel({ tile }: { tile: LearnMoreTile }) {
       {resources.length ? (
         <ul className="mt-5 grid gap-3 sm:grid-cols-2">
           {resources.map((resource, index) => {
-            const image = cssBackgroundImage(resource.image);
+            const image = cssBackgroundImage(resource.image, PHOTO_WIDTH.thumb);
             return (
               // The same link may sit in a tile twice (under two sub-headings).
               <li key={`${index}-${resource.url}`}>
@@ -364,7 +369,7 @@ function TilePanel({ tile }: { tile: LearnMoreTile }) {
 /** Author bio with positionality statement (collapsible, target of the header link). */
 function AuthorBio({ author }: { author: EntryAuthor }) {
   const t = getT().article;
-  const photo = cssBackgroundImage(author.photo);
+  const photo = cssBackgroundImage(author.photo, PHOTO_WIDTH.avatar);
   return (
     <details
       id={AUTHOR_ID}
