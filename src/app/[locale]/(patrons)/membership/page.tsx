@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ArrowRight, Mail, PenLine } from "lucide-react";
+import { DevelogiCredit } from "@/components/DevelogiCredit";
 import Link from "@/components/i18n/Link";
 import { NEWSLETTER_PATH } from "@/config/navigation";
 import { getFlags } from "@/features/flags/queries";
@@ -351,27 +352,13 @@ export default async function MembershipPage({ params }: Params) {
       </section>
 
       {/* Credit: the website was built in cooperation with Develogi.cz. */}
-      <aside aria-label={t.builtWithLabel} className="bg-white">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-4 gap-y-2 px-6 py-8">
-          <p className="text-[13px] text-[var(--color-ink-soft)]">{t.builtWith}</p>
-          <a
-            href="https://develogi.cz"
-            target="_blank"
-            rel="noopener"
-            className="inline-flex min-h-11 items-center rounded-md px-1 transition hover:opacity-80 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element -- small static logo, no optimizer (next.config) */}
-            <img
-              src="/brand/develogi-logo-dark.png"
-              alt="Develogi.cz"
-              width={155}
-              height={24}
-              loading="lazy"
-              className="h-6 w-auto"
-            />
-          </a>
-        </div>
-      </aside>
+      <div className="bg-white">
+        <DevelogiCredit
+          text={t.builtWith}
+          label={t.builtWithLabel}
+          className="mx-auto max-w-6xl px-6 py-8"
+        />
+      </div>
     </main>
   );
 }

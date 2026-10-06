@@ -85,11 +85,11 @@ export const TOPIC_LAYERS = {
 } as const;
 
 /**
- * Pills behind a topic count (drawn in AtlasGlobe on `styleimagemissing`):
- * solid where the place has a topic of its own, soft where every topic comes
- * from its region or group.
+ * Pills behind a topic count (drawn in AtlasGlobe on `styleimagemissing`).
+ * One look for countries, regions and special regions alike: the number is how
+ * many topics are linked to the place — solid with topics, soft and faint at 0.
  */
-export const TOPIC_BADGE_IMAGES = { own: "topic-badge", inherited: "topic-badge-soft" } as const;
+export const TOPIC_BADGE_IMAGES = { some: "topic-badge", none: "topic-badge-soft" } as const;
 
 /** Same rule as country names: small countries appear only when zoomed in. */
 export const COUNTRY_RANK_FILTER = ["<=", ["get", "rank"], ["+", 0.5, ["*", 1.45, ["zoom"]]]];
@@ -113,7 +113,7 @@ function topicBadgeLayer(id: string, source: string, { minzoom = 0, below = 1.35
       "text-anchor": "top" as const,
       // Ems below the label point: past a one-line country name, a two-line region name.
       "text-offset": [0, below],
-      "icon-image": TOPIC_BADGE_IMAGES.own,
+      "icon-image": TOPIC_BADGE_IMAGES.some,
       "icon-text-fit": "both" as const,
       "icon-text-fit-padding": [1.5, 4.5, 1.5, 4.5],
       "text-allow-overlap": true,

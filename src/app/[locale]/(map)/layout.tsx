@@ -127,13 +127,6 @@ export default async function MapLayout({
     regions: badgeNumbers(counts.regions),
     issue: badgeNumbers(counts.issues),
   };
-  const ownTopicCountries = [
-    ...new Set(
-      places
-        .filter((topic) => topic.layers.includes("countries"))
-        .flatMap((topic) => topic.countries),
-    ),
-  ];
 
   return (
     <MapProvider>
@@ -149,7 +142,6 @@ export default async function MapLayout({
             issue={issue}
             regionLabels={regionLabels}
             topicCounts={topicCounts}
-            ownTopicCountries={ownTopicCountries}
             styleOptions={{
               border: atlas.theme.border,
               issueLabels: atlas.issues.map(({ slug, name, center }) => ({ slug, name, center })),
