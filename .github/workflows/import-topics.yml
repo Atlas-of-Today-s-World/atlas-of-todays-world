@@ -39,10 +39,16 @@ jobs:
           DEV_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY_DEV }}
         run: |
           if [ "${{ inputs.target }}" = "prod" ]; then
-            key=$(curl -sf -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
-              "https://api.supabase.com/v1/projects/$PROD_REF/api-keys?reveal=true" \
-              | jq -r '.[] | select(.name == "service_role") | .api_key')
-            [ -n "$key" ] && [ "$key" != "null" ] || { echo "::error::No service key for $PROD_REF"; exit 1; }
+            status=$(curl -s -o keys.json -w '%{http_code}' -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+              "https://api.supabase.com/v1/projects/$PROD_REF/api-keys?reveal=true")
+            keys=$(cat keys.json); rm -f keys.json
+            # Legacy "service_role" JWT, or a new-style secret key (sb_secret_…).
+            key=$(echo "$keys" | jq -r 'first(.[] | select(.name == "service_role")) // first(.[] | select(.type == "secret")) | .api_key // empty' 2>/dev/null)
+            if [ -z "$key" ]; then
+              echo "::error::No service key for $PROD_REF (HTTP $status)"
+              echo "$keys" | jq -c '[.[] | {name, type}]' 2>/dev/null || echo "$keys" | head -c 300
+              exit 1
+            fi
             echo "::add-mask::$key"
             echo "SUPABASE_SERVICE_ROLE_KEY=$key" >> "$GITHUB_ENV"
             echo "NEXT_PUBLIC_SUPABASE_URL=https://$PROD_REF.supabase.co" >> "$GITHUB_ENV"
