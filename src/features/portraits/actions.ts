@@ -159,7 +159,7 @@ export async function saveIssue(_prev: ActionState, formData: FormData): Promise
   if (!original_slug || original_slug !== fields.slug) {
     redirect(`/admin/global-issues/${fields.slug}`);
   }
-  return { ok: true, message: "Global issue saved." };
+  return { ok: true, message: "Special region saved." };
 }
 
 export async function deleteIssue(slug: string): Promise<ActionState> {

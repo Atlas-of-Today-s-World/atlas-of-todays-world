@@ -5,7 +5,7 @@ import { OG_SIZE, renderOg } from "@/lib/og";
 
 export const size = OG_SIZE;
 export const contentType = "image/png";
-export const alt = "Global issue — Atlas of Today's World";
+export const alt = "Special region — Atlas of Today's World";
 
 export default async function Image({
   params,

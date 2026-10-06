@@ -36,7 +36,7 @@ test("custom region: created from countries, type in list and article sections",
   page,
 }) => {
   await signIn(page, email, "/admin/global-issues");
-  await expect(page.getByRole("heading", { level: 1, name: "Country groups" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Special regions" })).toBeVisible();
 
   await page.getByRole("link", { name: "New custom region" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "New custom region" })).toBeVisible();

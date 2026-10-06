@@ -178,7 +178,7 @@ export function EntryForm({
             ))}
           </Select>
         </FormField>
-        <FormField id="special_slug" label="Country group" errors={errors.special_slug}>
+        <FormField id="special_slug" label="Special region" errors={errors.special_slug}>
           <Select id="special_slug" name="special_slug" defaultValue={values?.special_slug ?? ""}>
             <option value="">— none —</option>
             {issues.map((issue) => (
@@ -210,8 +210,8 @@ export function EntryForm({
             Count on the map
           </legend>
           <p className="text-[12.5px] text-[var(--color-ink-muted)]">
-            On which globe layers this topic adds to the number shown over its region, country group
-            or countries. A topic of a region also counts for each of its countries.
+            On which globe layers this topic adds to the number shown over its region, special
+            region or countries. A topic of a region also counts for each of its countries.
           </p>
           <input type="hidden" name="map_layers_shown" value="1" />
           <div className="flex flex-wrap gap-x-5">
