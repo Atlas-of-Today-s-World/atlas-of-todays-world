@@ -8,9 +8,11 @@ export interface Flags {
   newsletter: boolean;
   /** Sign-in with an email code and email invitations (G1) — only with our own SMTP. */
   emailAuth: boolean;
+  /** News in the main menu (switched on by hand, or by the first published news). */
+  newsMenu: boolean;
 }
 
-const DEFAULTS: Flags = { maintenance: false, newsletter: true, emailAuth: false };
+const DEFAULTS: Flags = { maintenance: false, newsletter: true, emailAuth: false, newsMenu: false };
 
 /**
  * Feature flags (feature_flags, F6) — cached with a tag; toggling them in the
@@ -29,6 +31,7 @@ export const getFlags = unstable_cache(
       maintenance: map.get("maintenance") ?? DEFAULTS.maintenance,
       newsletter: map.get("newsletter") ?? DEFAULTS.newsletter,
       emailAuth: map.get("email_auth") ?? DEFAULTS.emailAuth,
+      newsMenu: map.get("news_menu") ?? DEFAULTS.newsMenu,
     };
   },
   ["feature-flags"],

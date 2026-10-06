@@ -40,6 +40,9 @@ const nextConfig: NextConfig = {
   // (in the shared demo and in links), so they must redirect, not vanish.
   async redirects() {
     return [
+      // Topics moved from /entry/<slug> (2026-10-06); shared links keep working.
+      { source: "/entry/:slug.md", destination: "/topics/:slug.md", permanent: true },
+      { source: "/entry/:slug", destination: "/topics/:slug", permanent: true },
       {
         source: "/special/:slug",
         destination: "/global-issue/:slug",

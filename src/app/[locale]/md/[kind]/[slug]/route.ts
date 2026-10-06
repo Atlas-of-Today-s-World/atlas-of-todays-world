@@ -6,7 +6,7 @@ import { machineResponse } from "@/lib/seo/response";
 
 /**
  * Markdown version of an article (llms.txt convention): `/news/<slug>.md`,
- * `/cs/entry/<slug>.md` — the proxy rewrites those URLs here. The HTML page
+ * `/topics/<slug>.md` — the proxy rewrites those URLs here. The HTML page
  * stays the canonical one (Link header), so search engines don't index a copy.
  */
 export const revalidate = 3600;

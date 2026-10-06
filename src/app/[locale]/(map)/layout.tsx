@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import AtlasGlobe, { type RegionLookup } from "@/components/map/AtlasGlobe";
 import MapControls from "@/components/map/MapControls";
+import { MapStage } from "@/components/map/MapStage";
 import { MapProvider } from "@/components/map/MapContext";
 import { MapLegend, type ViewOption } from "@/components/map/ViewSwitcher";
 import ContentRail from "@/components/ContentRail";
@@ -118,41 +119,43 @@ export default async function MapLayout({
   return (
     <MapProvider>
       <main className="relative h-dvh w-full overflow-hidden bg-[var(--color-space-deep)]">
-        <AtlasGlobe
-          colorSets={colorSets}
-          slugs={slugs}
-          regions={regionLookup}
-          issue={issue}
-          regionLabels={regionLabels}
-          topicCounts={topicCounts}
-          ownTopicCountries={ownTopicCountries}
-          styleOptions={{
-            border: atlas.theme.border,
-            issueLabels: atlas.issues.map(({ slug, name, center }) => ({ slug, name, center })),
-            areas: atlas.areas.map(({ slug, label, name, fill, stroke, geometry }) => ({
-              slug,
-              label: label || name,
-              fill,
-              stroke,
-              geometry,
-            })),
-          }}
-        />
-        <Header newsletter={flags.newsletter} />
-        <MapControls options={viewOptions} hasIssues={Object.keys(issue.bySlug).length > 0} />
-        <MapLegend options={viewOptions} />
-        {flags.maintenance ? (
-          <ContentRail>
-            <ErrorState
-              code={t.map.maintenance}
-              title={t.map.maintenanceTitle}
-              lead={t.map.maintenanceText}
-              backLabel={t.common.backToGlobe}
-            />
-          </ContentRail>
-        ) : (
-          children
-        )}
+        <Header newsletter={flags.newsletter} showNews={flags.newsMenu} />
+        <MapStage>
+          <AtlasGlobe
+            colorSets={colorSets}
+            slugs={slugs}
+            regions={regionLookup}
+            issue={issue}
+            regionLabels={regionLabels}
+            topicCounts={topicCounts}
+            ownTopicCountries={ownTopicCountries}
+            styleOptions={{
+              border: atlas.theme.border,
+              issueLabels: atlas.issues.map(({ slug, name, center }) => ({ slug, name, center })),
+              areas: atlas.areas.map(({ slug, label, name, fill, stroke, geometry }) => ({
+                slug,
+                label: label || name,
+                fill,
+                stroke,
+                geometry,
+              })),
+            }}
+          />
+          <MapControls options={viewOptions} hasIssues={Object.keys(issue.bySlug).length > 0} />
+          <MapLegend options={viewOptions} />
+          {flags.maintenance ? (
+            <ContentRail>
+              <ErrorState
+                code={t.map.maintenance}
+                title={t.map.maintenanceTitle}
+                lead={t.map.maintenanceText}
+                backLabel={t.common.backToGlobe}
+              />
+            </ContentRail>
+          ) : (
+            children
+          )}
+        </MapStage>
       </main>
     </MapProvider>
   );

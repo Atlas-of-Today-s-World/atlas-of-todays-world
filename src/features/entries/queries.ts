@@ -85,7 +85,7 @@ function toSummary(row: Row, languages: Locale[] = [DEFAULT_LOCALE]): EntrySumma
   };
 }
 
-/** News item (`/news`) or encyclopedia entry (`/entry`, P9). */
+/** News item (`/news`) or encyclopedia entry (`/topics/<slug>`, P9). */
 type Kind = "news" | "entry";
 
 const toLocale = (value: string): Locale => (isLocale(value) ? value : DEFAULT_LOCALE);

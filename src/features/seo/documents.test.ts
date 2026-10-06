@@ -72,13 +72,13 @@ describe("article Markdown", () => {
       },
     } as unknown as Encyclopedia;
     const markdown = articleMarkdown("entry", entry, atlas);
-    expect(markdown).toContain(`- URL: ${SITE}/entry/smuggling`);
+    expect(markdown).toContain(`- URL: ${SITE}/topics/smuggling`);
     expect(markdown).toContain("- Author: Atlas editorial team");
     expect(markdown).toContain(
       "## In short\n\nMigrant smuggling is the paid facilitation of irregular border crossing.",
     );
     expect(markdown).toContain("## Summary\n\n- Point one");
-    expect(markdown).toContain("## Chapter 1: Routes\n\n- Sea\n\nText.");
+    expect(markdown).toContain("## Subtopic 1: Routes\n\n- Sea\n\nText.");
     expect(markdown).toContain("## Questions and answers\n\n### What is it?\n\nA crime.");
     expect(markdown).toContain(
       "## Sources and further reading\n\n- [UNODC report](https://www.unodc.org/x) — UNODC",

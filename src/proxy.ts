@@ -37,8 +37,8 @@ const UNLOCALIZED = ["/admin", "/api", "/auth", "/_next", "/.well-known"];
 const isFile = (pathname: string) => /\.[a-z0-9]+$/i.test(pathname);
 /** Files that do have language versions (feeds, llms.txt) — routed like pages. */
 const LOCALIZED_FILES = new Set(["/feed.xml", "/atom.xml", "/llms.txt", "/llms-full.txt"]);
-/** Markdown version of an article: /news/<slug>.md → route /[locale]/md/news/<slug>. */
-const MARKDOWN = /^\/(news|entry)\/([a-z0-9-]+)\.md$/;
+/** Markdown version of an article: /news/<slug>.md → /[locale]/md/news/<slug>, /topics/<slug>.md → …/md/entry/<slug>. */
+const MARKDOWN = /^\/(news|topics)\/([a-z0-9-]+)\.md$/;
 const METADATA_IMAGE = /\/(opengraph|twitter)-image[a-z0-9-]*$/;
 
 export async function proxy(request: NextRequest) {
@@ -54,7 +54,8 @@ export async function proxy(request: NextRequest) {
   const split = splitLocale(pathname);
   const markdown = MARKDOWN.exec(split.path);
   if (markdown && !matches(pathname, UNLOCALIZED)) {
-    const target = `/${split.locale}/md/${markdown[1]}/${markdown[2]}`;
+    const kind = markdown[1] === "topics" ? "entry" : markdown[1];
+    const target = `/${split.locale}/md/${kind}/${markdown[2]}`;
     return securityHeaders(NextResponse.rewrite(new URL(target, request.url)));
   }
 

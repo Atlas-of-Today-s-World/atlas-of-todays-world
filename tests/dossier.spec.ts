@@ -96,12 +96,12 @@ test.afterAll(async () => {
 });
 
 test("dossier page: chapter and learn-more tiles open their panels", async ({ page }) => {
-  await page.goto(`/entry/${slug}`);
+  await page.goto(`/topics/${slug}`);
   await expect(page).toHaveTitle(`Smuggling explained ${run} — Atlas of Today's World`);
   await expect(page.getByText("Migrant smuggling is the paid facilitation")).toBeVisible();
 
   // Full-width page: the row of chapter cards, the open chapter right below it.
-  const topics = page.getByRole("region", { name: "Chapters" });
+  const topics = page.getByRole("region", { name: "Subtopics" });
   await expect(topics.getByRole("list").getByRole("button")).toHaveCount(2);
   // The first chapter is open by default.
   await expect(page.getByRole("heading", { level: 2, name: "Brief overview" })).toBeVisible();
@@ -130,12 +130,12 @@ test("Topics: from the list to a dossier and back to the Atlas", async ({ page }
 
   // The list is prerendered and cached, so the dossier made for this run may not
   // be in it yet: open the first topic it shows (atlas-dev has imported ones).
-  const first = page.locator('a[href^="/entry/"]').first();
+  const first = page.locator('a[href^="/topics/"]').first();
   const href = (await first.getAttribute("href")) ?? "";
-  expect(href).toMatch(/^\/entry\/[a-z0-9-]+$/);
+  expect(href).toMatch(/^\/topics\/[a-z0-9-]+$/);
   await first.click();
   await expect(page).toHaveURL(new RegExp(`${href}$`));
-  await expect(page.getByRole("region", { name: "Chapters" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Subtopics" })).toBeVisible();
 
   await page.getByRole("link", { name: "Back to Atlas", exact: true }).click();
   await expect(page).toHaveURL(/\/$/);
@@ -147,7 +147,7 @@ test("SEO & GEO: valid Article graph, author profile and a Markdown version", as
   request,
 }) => {
   expect(authorSlug).toBe(`e2e-autorka-${run}`);
-  const html = await (await request.get(`/entry/${slug}`)).text();
+  const html = await (await request.get(`/topics/${slug}`)).text();
   const data = [
     ...html.matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g),
   ].map((block) => JSON.parse((block[1] ?? "").replace(/\\u003c/g, "<")));
@@ -158,11 +158,11 @@ test("SEO & GEO: valid Article graph, author profile and a Markdown version", as
     author: { "@type": "Person", url: expect.stringContaining(`/authors/${authorSlug}`) },
   });
 
-  const markdown = await request.get(`/entry/${slug}.md`);
+  const markdown = await request.get(`/topics/${slug}.md`);
   expect(markdown.headers()["content-type"]).toContain("text/markdown");
   expect(await markdown.text()).toContain("Migrant smuggling is the paid facilitation");
 
-  await page.goto(`/entry/${slug}`);
+  await page.goto(`/topics/${slug}`);
   await page.getByText(`About the author: E2E Autorka ${run}`).click();
   await page.getByRole("link", { name: `Articles by E2E Autorka ${run}` }).click();
   await expect(page).toHaveURL(new RegExp(`/authors/${authorSlug}$`));
@@ -171,7 +171,7 @@ test("SEO & GEO: valid Article graph, author profile and a Markdown version", as
 });
 
 test("a shared link to a topic opens it", async ({ page }) => {
-  await page.goto(`/entry/${slug}#topic-2`);
+  await page.goto(`/topics/${slug}#topic-2`);
   await expect(page.getByRole("heading", { level: 2, name: "Smuggling routes" })).toBeVisible();
 });
 

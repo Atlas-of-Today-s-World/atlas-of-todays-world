@@ -1007,7 +1007,7 @@ test("feature flags: everyone reads them, only permission management changes the
   const flags = await as(null, () => q("select key, enabled from feature_flags order by key"));
   assert.deepEqual(
     flags.map((f) => f.key),
-    ["email_auth", "maintenance", "newsletter"],
+    ["email_auth", "maintenance", "news_menu", "news_menu_auto", "newsletter"],
   );
   // E-mail sign-in and invitations (G1) are off until we have our own SMTP (U5).
   assert.equal(flags.find((f) => f.key === "email_auth").enabled, false);
@@ -1022,6 +1022,28 @@ test("feature flags: everyone reads them, only permission management changes the
   const flag = await one("select enabled, updated_by from feature_flags where key = 'maintenance'");
   assert.deepEqual(flag, { enabled: true, updated_by: id.admin });
   await q("update feature_flags set enabled = false where key = 'maintenance'");
+
+  // News in the menu: off by hand, back on with the next published news article.
+  await q("update feature_flags set enabled = false where key = 'news_menu'");
+  const news = await newEntry(id.pubA, "news-menu-on");
+  assert.equal(
+    (await one("select enabled from feature_flags where key = 'news_menu'")).enabled,
+    false,
+  );
+  await q("update entries set status = 'published' where id = $1", [news]);
+  assert.equal(
+    (await one("select enabled from feature_flags where key = 'news_menu'")).enabled,
+    true,
+  );
+  // Without the automatic switch it stays as set.
+  await q("update feature_flags set enabled = false where key in ('news_menu', 'news_menu_auto')");
+  const quiet = await newEntry(id.pubA, "news-menu-quiet");
+  await q("update entries set status = 'published' where id = $1", [quiet]);
+  assert.equal(
+    (await one("select enabled from feature_flags where key = 'news_menu'")).enabled,
+    false,
+  );
+  await q("update feature_flags set enabled = true where key = 'news_menu_auto'");
 });
 
 test("scheduled publishing: only an approver schedules, cron publishes", async () => {

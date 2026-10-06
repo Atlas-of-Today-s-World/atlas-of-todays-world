@@ -30,13 +30,14 @@ import { CollectionEditor } from "@/features/portraits/components/CollectionEdit
 import { cn } from "@/lib/cn";
 import { uuid } from "@/lib/validation/common";
 import { createServerClient } from "@/lib/supabase/server";
+import { articlePath } from "@/config/navigation";
 
 export const metadata: Metadata = { title: "Edit article" };
 
 /** Sections of a dossier's editor, one per tab (`?tab=`). */
 const TABS = [
   { key: "article", label: "Article" },
-  { key: "topics", label: "Chapters" },
+  { key: "topics", label: "Subtopics" },
   { key: "learn-more", label: "Learn more" },
   { key: "seo", label: "SEO & GEO" },
 ] as const;
@@ -118,7 +119,7 @@ export default async function EditEntryPage({
               <Link
                 href={localePath(
                   isLocale(entry.locale) ? entry.locale : DEFAULT_LOCALE,
-                  `/${isEntry ? "entry" : "news"}/${entry.slug}`,
+                  articlePath(entry.kind, entry.slug),
                 )}
                 className="text-[var(--color-link)] underline"
               >

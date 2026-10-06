@@ -49,7 +49,7 @@ export default async function TopicsPage({ params }: Params) {
               return (
                 <li key={item.slug}>
                   <Link
-                    href={`/entry/${item.slug}`}
+                    href={`/topics/${item.slug}`}
                     className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none"
                   >
                     <span
@@ -102,7 +102,7 @@ export default async function TopicsPage({ params }: Params) {
             t.title,
             entries.map((item) => ({
               name: item.title,
-              url: pageUrl(`/entry/${item.slug}`, locale),
+              url: pageUrl(`/topics/${item.slug}`, locale),
             })),
           ),
         )}

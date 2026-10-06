@@ -38,13 +38,13 @@ describe("layout tokens", () => {
 
   it("detects full-width pages", () => {
     expect(isFullPage("/topics")).toBe(true);
-    expect(isFullPage("/entry/migrant-smuggling")).toBe(true);
-    expect(isFullPage("/en/entry/migrant-smuggling")).toBe(true);
+    expect(isFullPage("/topics/migrant-smuggling")).toBe(true);
+    expect(isFullPage("/en/topics/migrant-smuggling")).toBe(true);
     expect(isFullPage("/")).toBe(false);
     expect(isFullPage("/news/sahel-coup-belt")).toBe(false);
     expect(isFullPage("/topicsx")).toBe(false);
     // No side panel there: the page itself is full width.
-    expect(railKind("/entry/migrant-smuggling")).toBe("none");
+    expect(railKind("/topics/migrant-smuggling")).toBe("none");
   });
 
   it("computes the panel width", () => {

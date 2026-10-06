@@ -33,6 +33,7 @@ import {
   TopicLabelsInput,
 } from "./schema";
 import { MAX_CHAPTERS, PREVIEW_HOURS } from "./constants";
+import { articlePath } from "@/config/navigation";
 
 /** After published content changes, revalidate lists, detail and portraits. */
 function refresh(slug?: string | null, region?: string | null, issue?: string | null) {
@@ -48,7 +49,7 @@ function refresh(slug?: string | null, region?: string | null, issue?: string | 
  */
 function pingSearchEngines(row: { slug: string; kind: string; locale: string }) {
   const locale = isLocale(row.locale) ? row.locale : DEFAULT_LOCALE;
-  const path = localePath(locale, `/${row.kind === "entry" ? "entry" : "news"}/${row.slug}`);
+  const path = localePath(locale, articlePath(row.kind, row.slug));
   notifyIndexNow([path]);
 }
 
@@ -214,7 +215,7 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
   ];
   const parsed = z
     .array(ChapterInput)
-    .max(MAX_CHAPTERS, `At most ${MAX_CHAPTERS} chapters.`)
+    .max(MAX_CHAPTERS, `At most ${MAX_CHAPTERS} subtopics.`)
     .safeParse(
       titles.map((title, index) => ({
         title,
@@ -226,7 +227,7 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
         tile_background: backgrounds[index],
       })),
     );
-  if (!parsed.success) return listItemError(parsed.error, "Chapter", CHAPTER_FIELD_LABEL);
+  if (!parsed.success) return listItemError(parsed.error, "Subtopic", CHAPTER_FIELD_LABEL);
 
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
@@ -240,7 +241,7 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
   });
   if (error) return failed(error);
   await refreshEntry(session.supabase, entryId, true);
-  return { ok: true, message: "Chapters saved." };
+  return { ok: true, message: "Subtopics saved." };
 }
 
 /** Dossier FAQ — shown on the page and as FAQPage structured data. */

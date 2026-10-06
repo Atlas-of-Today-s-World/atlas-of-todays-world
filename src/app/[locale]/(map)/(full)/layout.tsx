@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { FullPage } from "@/components/FullPage";
+import { getFlags } from "@/features/flags/queries";
 import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 
@@ -15,5 +16,10 @@ export default async function FullPageLayout({
   children: ReactNode;
   params: Promise<{ locale: string }>;
 }) {
-  return <FullPage t={getMessages(await localeFrom(params))}>{children}</FullPage>;
+  const [locale, flags] = await Promise.all([localeFrom(params), getFlags()]);
+  return (
+    <FullPage t={getMessages(locale)} showNews={flags.newsMenu} newsletter={flags.newsletter}>
+      {children}
+    </FullPage>
+  );
 }

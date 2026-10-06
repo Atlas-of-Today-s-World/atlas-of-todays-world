@@ -6,6 +6,7 @@ import { ORGANIZATION } from "@/config/organization";
 import { absoluteUrl } from "@/lib/seo";
 import { htmlToMarkdown } from "@/lib/seo/markdown";
 import type { LlmsDocument } from "@/lib/seo/llms";
+import { articlePath } from "@/config/navigation";
 
 /**
  * Articles as Markdown documents (answer-first: summary, key facts, then the
@@ -16,7 +17,7 @@ import type { LlmsDocument } from "@/lib/seo/llms";
 
 export type ArticleKind = "news" | "entry";
 
-const pathOf = (kind: ArticleKind, slug: string) => `/${kind}/${slug}`;
+const pathOf = (kind: ArticleKind, slug: string) => articlePath(kind, slug);
 
 /** Canonical URL of the article in the language its text is in. */
 export const articleUrl = (kind: ArticleKind, item: Entry) =>
