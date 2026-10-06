@@ -209,8 +209,9 @@ body {
 
 /*
  * Spark running round the edge of a call to action ("See all N topics"): a
- * conic gradient with a short bright tail, masked to a 2 px ring that follows
- * the element's own rounded border. Reduced motion leaves it standing still.
+ * conic gradient with a short bright tail, masked to a thin ring that follows
+ * the element's own rounded border, with a soft halo. Reduced motion leaves it
+ * standing still.
  */
 @property --spark-angle {
   syntax: "<angle>";
@@ -232,21 +233,45 @@ body {
 .spark-ring::before {
   content: "";
   position: absolute;
-  inset: -2px;
-  padding: 2px;
+  inset: -2.5px;
+  padding: 2.5px;
   border-radius: inherit;
   background: conic-gradient(
     from var(--spark-angle),
-    transparent 0deg 290deg,
-    var(--color-gold) 335deg,
-    #fff 352deg,
+    transparent 0deg 270deg,
+    var(--color-gold) 330deg,
+    var(--color-gold-light) 348deg,
+    #fff 354deg,
     transparent 360deg
   );
   mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
   mask-composite: exclude;
-  filter: drop-shadow(0 0 3px var(--color-gold));
+  animation: spark-orbit 2.8s linear infinite;
+  pointer-events: none;
+}
+
+/* The glow: the same spark blurred, shown only outside the element (a mask
+   clips a filter, so the ring above can't carry its own halo). */
+.spark-ring::after {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  padding: 10px;
+  border-radius: calc(var(--spark-radius, 999px) + 10px);
+  background: conic-gradient(
+    from var(--spark-angle),
+    transparent 0deg 260deg,
+    var(--color-gold) 335deg,
+    var(--color-gold-light) 352deg,
+    transparent 360deg
+  );
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  filter: blur(5px);
   animation: spark-orbit 2.8s linear infinite;
   pointer-events: none;
 }
