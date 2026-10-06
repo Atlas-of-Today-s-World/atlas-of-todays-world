@@ -47,7 +47,7 @@ export default function EncyclopediaPanel() {
     };
   }, [query]);
 
-  // "/" jumps to the search, as on GitHub or YouTube â€” unless the visitor is
+  // "/" jumps to the search, as on GitHub or YouTube — unless the visitor is
   // typing elsewhere or holds a modifier (Shift is how some layouts type "/").
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
