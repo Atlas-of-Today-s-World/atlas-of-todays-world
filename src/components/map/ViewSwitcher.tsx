@@ -111,7 +111,7 @@ export function MapLegend({ options }: { options: ViewOption[] }) {
     return (
       <p
         className={cn(
-          "pointer-events-none absolute bottom-3.5 left-[42px] z-20 max-w-[calc(100vw-120px)] text-[11px] text-white/55 sm:max-w-[70vw]",
+          "pointer-events-none absolute bottom-3.5 left-[42px] z-20 max-w-[calc(100vw-120px)] text-[11px] text-white/75 sm:max-w-[70vw]",
           hidden,
         )}
       >
@@ -134,13 +134,13 @@ export function MapLegend({ options }: { options: ViewOption[] }) {
         {option.swatches.map((swatch) => (
           <div key={swatch.label + swatch.color} className="min-w-0 flex-1">
             <div style={{ background: swatch.color }} className="h-6 sm:h-10" />
-            <div className="mt-1 truncate text-center text-[11px] text-white/75 tabular-nums sm:mt-1.5 sm:text-[15px]">
+            <div className="mt-1 truncate text-center text-[11px] text-white/85 tabular-nums sm:mt-1.5 sm:text-[15px]">
               {swatch.label}
             </div>
           </div>
         ))}
       </div>
-      <p className="mt-1.5 text-[12px] leading-snug text-white/60 sm:mt-2 sm:text-[15px]">
+      <p className="mt-1.5 text-[12px] leading-snug text-white/75 sm:mt-2 sm:text-[15px]">
         {option.caption}
       </p>
     </div>

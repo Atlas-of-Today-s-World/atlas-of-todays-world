@@ -76,7 +76,7 @@ export function CookieNotice() {
               {t.privacy}
             </Link>
           </p>
-          <p aria-hidden className="mt-2 text-[11px] text-white/55 tabular-nums">
+          <p aria-hidden className="mt-2 text-[11px] text-white/70 tabular-nums">
             {format(t.closesIn, { seconds: String(left) })}
           </p>
         </div>

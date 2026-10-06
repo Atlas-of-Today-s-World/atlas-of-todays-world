@@ -729,19 +729,23 @@ export default function AtlasGlobe({
           <span className="font-semibold text-white">{hoverLabel.name}</span>
           {hoverLabel.metric ? (
             <>
-              <span className="text-white/45"> · </span>
+              <span aria-hidden className="text-white/45">
+                {" · "}
+              </span>
               {hoverLabel.metric.label}:{" "}
               <span className="font-semibold text-white tabular-nums">
                 {hoverLabel.metric.value ?? t.map.noData}
               </span>
               {hoverLabel.metric.year ? (
-                <span className="text-white/55"> ({hoverLabel.metric.year})</span>
+                <span className="text-white/70"> ({hoverLabel.metric.year})</span>
               ) : null}
             </>
           ) : null}
           {hoverLabel.topics ? (
             <>
-              <span className="text-white/45"> · </span>
+              <span aria-hidden className="text-white/45">
+                {" · "}
+              </span>
               {hoverLabel.topics}
             </>
           ) : null}
