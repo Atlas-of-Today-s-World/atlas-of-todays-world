@@ -51,7 +51,7 @@ export default function ModeSwitch({
   }
 
   return (
-    <div className="relative">
+    <div className="relative min-w-0 flex-1 sm:flex-none">
       {hinting ? (
         <span aria-hidden className="pointer-events-none absolute -top-1 -right-1 flex h-3 w-3">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#7f97ff] opacity-80" />
@@ -62,7 +62,7 @@ export default function ModeSwitch({
       <div
         role="radiogroup"
         aria-label={t.map.modes}
-        className={`glass pointer-events-auto flex rounded-full p-0.5 text-[12.5px] transition ${
+        className={`glass pointer-events-auto flex rounded-full p-0.5 text-[12px] transition sm:text-[12.5px] ${
           hinting ? "ring-1 ring-[#7f97ff]/50" : ""
         }`}
       >
@@ -73,7 +73,8 @@ export default function ModeSwitch({
             role="radio"
             aria-checked={mode === option.id}
             onClick={() => choose(option.id)}
-            className={`rounded-full px-3.5 py-1.5 whitespace-nowrap transition ${
+            // On phones the three share the row evenly.
+            className={`min-h-9 flex-1 rounded-full px-2 py-1.5 whitespace-nowrap transition sm:min-h-0 sm:flex-none sm:px-3.5 ${
               mode === option.id
                 ? "bg-white font-medium text-[#0d1324]"
                 : "text-white/75 hover:text-white"

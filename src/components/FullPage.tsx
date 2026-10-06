@@ -32,8 +32,9 @@ export function FullPage({
       {children}
 
       <LegalFooter t={t} width="max-w-7xl" />
-      {/* Room at the end so the globe window bottom left never covers the last lines. */}
-      <div aria-hidden className="h-[calc(var(--mini-globe-height)+2rem)]" />
+      {/* Room at the end so the globe window bottom left (on phones the floating
+          buttons) never covers the last lines. */}
+      <div aria-hidden className="h-28 sm:h-[calc(var(--mini-globe-height)+2rem)]" />
     </div>
   );
 }

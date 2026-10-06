@@ -154,9 +154,9 @@ export function TopicsBrowser({
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,34rem)] lg:items-end">
         <div>{heading}</div>
         <div className="rounded-2xl bg-white p-3 shadow-sm ring-1 ring-black/5">
-          <fieldset className="grid grid-cols-3 gap-2">
+          <fieldset className="grid gap-2 sm:grid-cols-3">
             <legend className="sr-only">{t.filters}</legend>
-            <span className="relative col-span-3 flex items-center gap-1">
+            <span className="relative col-span-full flex items-center gap-1">
               <label htmlFor="topics-search" className="sr-only">
                 {t.search}
               </label>

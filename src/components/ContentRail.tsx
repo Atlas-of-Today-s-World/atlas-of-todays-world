@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocalizedRouter } from "@/components/i18n/useLocalizedRouter";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { MOBILE_SHEET } from "@/config/layout";
+import { cn } from "@/lib/cn";
 import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 
@@ -11,7 +13,9 @@ import { useMessages } from "@/components/i18n/LocaleProvider";
  * whole news items – so the user never leaves the map.
  *
  * On desktop it's the right column, on mobile a bottom sheet; the content is rendered
- * only once so it isn't duplicated in the HTML.
+ * only once so it isn't duplicated in the HTML. The sheet opens at a little over
+ * half the window (the place stays visible above it); its handle expands it to
+ * nearly full height — a tap, or a swipe up (and down to shrink it back).
  */
 export default function ContentRail({
   children,
@@ -35,6 +39,10 @@ export default function ContentRail({
 }) {
   const t = useMessages();
   const [collapsed, setCollapsed] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  // Where a swipe on the handle started; a swipe also ends in a click, which it swallows.
+  const swipeFrom = useRef<number | null>(null);
+  const swiped = useRef(false);
   const router = useLocalizedRouter();
   const panel = useRef<HTMLElement>(null);
 
@@ -67,14 +75,37 @@ export default function ContentRail({
       aria-busy={placeholder || undefined}
       tabIndex={-1}
       aria-label={t.panel.content}
-      className={`pointer-events-auto absolute inset-x-0 bottom-0 z-20 max-h-[72dvh] overflow-hidden rounded-t-3xl bg-white text-[var(--color-ink)] shadow-[0_-8px_40px_rgba(0,0,0,0.45)] transition-transform duration-300 outline-none md:inset-x-auto md:inset-y-0 md:right-0 md:left-auto md:max-h-none md:rounded-none md:shadow-[0_0_60px_rgba(0,0,0,0.45)] ${
-        wide ? "md:w-(--rail-width-wide)" : "md:w-(--rail-width)"
-      } ${collapsed ? "md:translate-x-full" : "md:translate-x-0"}`}
+      className={cn(
+        "pointer-events-auto absolute inset-x-0 bottom-0 z-20 overflow-hidden rounded-t-3xl bg-white text-[var(--color-ink)] shadow-[0_-8px_40px_rgba(0,0,0,0.45)] transition-[transform,max-height] duration-300 outline-none md:inset-x-auto md:inset-y-0 md:right-0 md:left-auto md:max-h-none md:rounded-none md:shadow-[0_0_60px_rgba(0,0,0,0.45)]",
+        expanded ? MOBILE_SHEET.expandedClassName : MOBILE_SHEET.className,
+        wide ? "md:w-(--rail-width-wide)" : "md:w-(--rail-width)",
+        collapsed ? "md:translate-x-full" : "md:translate-x-0",
+      )}
     >
-      {/* Sheet handle on mobile */}
-      <div className="flex justify-center py-2.5 md:hidden">
-        <span className="h-1 w-10 rounded-full bg-[var(--color-line)]" />
-      </div>
+      {/* Sheet handle on mobile: tap or swipe to expand / shrink the sheet. */}
+      <button
+        type="button"
+        aria-expanded={expanded}
+        aria-label={expanded ? t.panel.shrink : t.panel.expand}
+        onClick={() => {
+          if (swiped.current) swiped.current = false;
+          else setExpanded((value) => !value);
+        }}
+        onPointerDown={(event) => {
+          swipeFrom.current = event.clientY;
+          swiped.current = false;
+        }}
+        onPointerUp={(event) => {
+          const from = swipeFrom.current;
+          swipeFrom.current = null;
+          if (from === null || Math.abs(event.clientY - from) < 24) return;
+          swiped.current = true;
+          setExpanded(event.clientY < from);
+        }}
+        className="flex h-11 w-full touch-none items-center justify-center focus-visible:outline-none md:hidden [&:focus-visible>span]:bg-[var(--color-accent)]"
+      >
+        <span aria-hidden className="h-1.5 w-12 rounded-full bg-[var(--color-line)]" />
+      </button>
 
       {/* Panel collapse on desktop */}
       <button
@@ -96,7 +127,12 @@ export default function ContentRail({
         <X size={18} strokeWidth={1.8} aria-hidden />
       </Link>
 
-      <div className="panel-scroll max-h-[calc(72dvh-1.75rem)] overflow-y-auto overscroll-contain pb-6 md:h-full md:max-h-none md:pb-0">
+      <div
+        className={cn(
+          "panel-scroll overflow-y-auto overscroll-contain pb-6 md:h-full md:max-h-none md:pb-0",
+          expanded ? MOBILE_SHEET.expandedScrollClassName : MOBILE_SHEET.scrollClassName,
+        )}
+      >
         {children}
       </div>
     </aside>

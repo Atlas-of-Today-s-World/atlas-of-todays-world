@@ -2,7 +2,9 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { isFullPage } from "@/config/layout";
+import { Layers } from "lucide-react";
+import { isFullPage, railKind } from "@/config/layout";
+import { cn } from "@/lib/cn";
 import { useMapState } from "./MapContext";
 
 export interface ViewOption {
@@ -40,10 +42,15 @@ export default function ViewSwitcher({ options }: { options: ViewOption[] }) {
         type="button"
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
-        className="glass glass-hover flex items-center gap-2 rounded-full px-4 py-2 text-[13px] whitespace-nowrap text-white/90 transition"
+        // On phones an icon, so the mode switch keeps the row (the legend names the metric).
+        className="glass glass-hover flex size-10 items-center justify-center gap-2 rounded-full text-[13px] whitespace-nowrap text-white/90 transition sm:size-auto sm:px-4 sm:py-2"
       >
-        {active?.shortLabel}
-        <span aria-hidden className={open ? "rotate-180 transition" : "transition"}>
+        <Layers aria-hidden className="size-[18px] sm:hidden" />
+        <span className="sr-only sm:not-sr-only">{active?.shortLabel}</span>
+        <span
+          aria-hidden
+          className={cn("max-sm:hidden", open ? "rotate-180 transition" : "transition")}
+        >
           ⌄
         </span>
       </button>
@@ -97,10 +104,17 @@ export function MapLegend({ options }: { options: ViewOption[] }) {
   const pathname = usePathname();
   const option = options.find((item) => item.id === view) ?? options[0];
   if (!option || isFullPage(pathname)) return null;
+  // On phones an open panel (bottom sheet) covers the bottom of the map.
+  const hidden = railKind(pathname) !== "none" && "max-md:hidden";
 
   if (!option.swatches.length) {
     return (
-      <p className="pointer-events-none absolute bottom-3.5 left-[42px] z-20 max-w-[70vw] text-[11px] text-white/55">
+      <p
+        className={cn(
+          "pointer-events-none absolute bottom-3.5 left-[42px] z-20 max-w-[calc(100vw-120px)] text-[11px] text-white/55 sm:max-w-[70vw]",
+          hidden,
+        )}
+      >
         {option.caption}
       </p>
     );
@@ -108,19 +122,27 @@ export function MapLegend({ options }: { options: ViewOption[] }) {
 
   return (
     // Scale large enough to read over the globe: 31 rem long, 40 px colour bar, 15 px labels.
-    // On phones it leaves room for the attribution (left) and the support button (right).
-    <div className="pointer-events-none absolute bottom-3.5 left-[42px] z-20 w-[min(calc(100vw-110px),31.25rem)]">
+    // On phones it is smaller and leaves room for the attribution (left) and the
+    // floating buttons (right).
+    <div
+      className={cn(
+        "pointer-events-none absolute bottom-3.5 left-[42px] z-20 w-[min(calc(100vw-110px),31.25rem)]",
+        hidden,
+      )}
+    >
       <div className="flex overflow-hidden rounded-md">
         {option.swatches.map((swatch) => (
           <div key={swatch.label + swatch.color} className="min-w-0 flex-1">
-            <div style={{ background: swatch.color }} className="h-10" />
-            <div className="mt-1.5 truncate text-center text-[15px] text-white/75 tabular-nums">
+            <div style={{ background: swatch.color }} className="h-6 sm:h-10" />
+            <div className="mt-1 truncate text-center text-[11px] text-white/75 tabular-nums sm:mt-1.5 sm:text-[15px]">
               {swatch.label}
             </div>
           </div>
         ))}
       </div>
-      <p className="mt-2 text-[15px] leading-snug text-white/60">{option.caption}</p>
+      <p className="mt-1.5 text-[12px] leading-snug text-white/60 sm:mt-2 sm:text-[15px]">
+        {option.caption}
+      </p>
     </div>
   );
 }

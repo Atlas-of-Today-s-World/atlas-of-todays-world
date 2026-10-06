@@ -20,6 +20,18 @@ export const MINI_GLOBE = {
 
 /** From this width up the panel is on the right; below it, a bottom sheet (Tailwind `md`). */
 export const DESKTOP_MIN_PX = 768;
+/**
+ * Mobile bottom sheet (ContentRail): the share of the window it takes when it
+ * opens, so the place stays visible on the strip of globe above it (the camera
+ * pads by the same share). Tapped or swiped up, it grows to nearly full height.
+ */
+export const MOBILE_SHEET = {
+  ratio: 0.58,
+  className: "max-h-[58dvh]",
+  scrollClassName: "max-h-[calc(58dvh-2.75rem)]",
+  expandedClassName: "max-h-[calc(100dvh-5.5rem)]",
+  expandedScrollClassName: "max-h-[calc(100dvh-8.25rem)]",
+} as const;
 /** Minimum touch target (WCAG 2.5.5). */
 export const TOUCH_MIN_PX = 44;
 

@@ -12,7 +12,10 @@ import ViewSwitcher, { type ViewOption } from "./ViewSwitcher";
 /**
  * Bar over the map, top right: countries/regions switcher, data layer
  * switcher and search. When a region or country profile is
- * open, it moves left so the white panel doesn't cover it.
+ * open, it moves left so the white panel doesn't cover it. On phones the bar
+ * spans the width (switches on one row, search under them) and steps aside
+ * while a panel is open: the bottom sheet needs the room, the globe above it
+ * shows the place.
  */
 export default function MapControls({
   options,
@@ -27,7 +30,7 @@ export default function MapControls({
   const pathname = usePathname();
   const rail = railKind(pathname);
   // Without the panel the bar keeps the same margin on mobile and desktop.
-  const offset = rail === "none" ? "right-5" : `right-5 ${RAIL_OFFSET[rail]}`;
+  const offset = rail === "none" ? "right-4 sm:right-5" : `right-4 sm:right-5 ${RAIL_OFFSET[rail]}`;
   // On full-width pages the globe is only a small window: no controls over it.
   if (isFullPage(pathname)) return null;
 
@@ -35,22 +38,19 @@ export default function MapControls({
     <div
       data-print="hide"
       className={cn(
-        "pointer-events-none absolute left-4 z-30 flex flex-col items-end gap-2.5 sm:left-auto",
+        "pointer-events-none absolute left-4 z-30 flex flex-col items-stretch gap-2.5 sm:left-auto sm:items-end",
+        rail !== "none" && "max-md:hidden",
         // Home: below the transparent header over the globe. Elsewhere the map
         // already starts under the dark bar (MapStage), so the controls sit right at its top.
         isHome(pathname) ? "top-16 sm:top-20" : "top-3",
         offset,
       )}
     >
-      <div className="flex flex-wrap items-start justify-end gap-2.5">
+      <div className="flex items-start justify-between gap-2 sm:flex-wrap sm:justify-end sm:gap-2.5">
         <ModeSwitch hasIssues={hasIssues} />
         <ViewSwitcher options={options} />
       </div>
-      {/* On phones an open panel is a bottom sheet: the always-open search would
-          reach down over it (and its close button), so it waits until the panel closes. */}
-      <div className={cn(rail !== "none" && "hidden md:block")}>
-        <EncyclopediaDock />
-      </div>
+      <EncyclopediaDock />
       {isHome(pathname) ? <FeaturedSubtopics items={featured} /> : null}
     </div>
   );
