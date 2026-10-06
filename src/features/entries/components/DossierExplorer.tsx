@@ -1,6 +1,7 @@
 "use client";
 
 import { type ReactNode, useRef, useState, useSyncExternalStore } from "react";
+import { flushSync } from "react-dom";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { format } from "@/features/i18n/messages";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -88,7 +89,9 @@ export function DossierExplorer({
   const open = chosen ?? (wanted in topicPanels || wanted in tilePanels ? wanted : fallback);
 
   const choose = (id: string, block: ScrollLogicalPosition = "nearest") => {
-    setChosen(id);
+    // Show the panel first: a hidden one can't be scrolled to, and the page would
+    // stay where the previous subtopic ended (Previous / Next at its bottom).
+    flushSync(() => setChosen(id));
     window.history.replaceState(null, "", `#${id}`);
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block });
   };
@@ -143,7 +146,10 @@ export function DossierExplorer({
         <div
           key={id}
           id={id}
-          className={cn("scroll-mt-24", open === id ? "block" : "hidden print:block")}
+          className={cn(
+            "scroll-mt-32 md:scroll-mt-24",
+            open === id ? "block" : "hidden print:block",
+          )}
         >
           {panel}
           {stepper(id)}
