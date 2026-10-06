@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { cssBackgroundImage } from "@/lib/security/urls";
+import { PHOTO_WIDTH } from "@/lib/images";
 import { TileIcon } from "./TileIcon";
 
 /** Shared look of every topic tile: photo or colour field, gradient for legible text. */
@@ -11,7 +12,7 @@ const HEX = /^#[0-9a-fA-F]{6}$/;
 
 /** Inline background of a tile: the photo wins, otherwise its colour. */
 export function tileStyle(image?: string | null, background?: string | null) {
-  const photo = cssBackgroundImage(image);
+  const photo = cssBackgroundImage(image, PHOTO_WIDTH.tile);
   const style: CSSProperties = {};
   if (photo) style.backgroundImage = photo;
   if (background && HEX.test(background)) style.backgroundColor = background;

@@ -5,6 +5,7 @@ import Link from "@/components/i18n/Link";
 import { Rail } from "@/components/atlas/Rail";
 import { NEWS_CATEGORIES, type NewsCategory } from "@/lib/content-types";
 import { cssBackgroundImage } from "@/lib/security/urls";
+import { PHOTO_WIDTH } from "@/lib/images";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 
 const FALLBACK_HERO = "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&q=60";
@@ -63,7 +64,8 @@ export default function NewsTabs({ newsItems }: { newsItems: NewsCard[] }) {
                 className="h-28 w-full bg-cover bg-center"
                 style={{
                   backgroundImage:
-                    cssBackgroundImage(item.hero) ?? cssBackgroundImage(FALLBACK_HERO),
+                    cssBackgroundImage(item.hero, PHOTO_WIDTH.tile) ??
+                    cssBackgroundImage(FALLBACK_HERO),
                 }}
               />
               <div className="p-3">

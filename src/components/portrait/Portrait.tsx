@@ -7,6 +7,7 @@ import type { RegionDossier } from "@/lib/content-types";
 import type { RegionStat } from "@/lib/region-stats";
 import { formatPopulation } from "@/lib/format";
 import { cssBackgroundImage } from "@/lib/security/urls";
+import { PHOTO_WIDTH } from "@/lib/images";
 import { format, type Messages } from "@/features/i18n/messages";
 import { getRequestLocale, getT } from "@/features/i18n/request";
 import NewsTabs, { type NewsCard } from "./NewsTabs";
@@ -85,7 +86,7 @@ export default function Portrait({
 }) {
   const t = getT();
   const wording = wordingFor(subject.kind, t, subject.groupKind);
-  const hero = cssBackgroundImage(subject.hero);
+  const hero = cssBackgroundImage(subject.hero, PHOTO_WIDTH.card);
   const complete = Boolean(
     dossier.timeline?.length && dossier.resources?.length && dossier.faq?.length,
   );

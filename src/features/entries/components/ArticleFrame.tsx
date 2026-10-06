@@ -4,6 +4,7 @@ import MapFocus from "@/components/map/MapFocus";
 import { SectionLabel } from "@/components/atlas/ui";
 import type { Atlas } from "@/features/geography/types";
 import { getT } from "@/features/i18n/request";
+import { PHOTO_WIDTH, photoSrcSet, photoUrl } from "@/lib/images";
 import { safeUrl } from "@/lib/security/urls";
 import type { EntrySummary } from "../queries";
 
@@ -49,9 +50,12 @@ export function ArticleFrame({
           {hero ? (
             <figure className="m-0">
               {/* A real <img>: image search indexes it and the browser finds the LCP early. */}
-              {/* eslint-disable-next-line @next/next/no-img-element -- remote editorial photo, no optimizer (next.config) */}
+              {/* eslint-disable-next-line @next/next/no-img-element -- resized by /_next/image (lib/images.ts) */}
               <img
-                src={hero}
+                src={photoUrl(hero, 1200)}
+                srcSet={photoSrcSet(hero, [PHOTO_WIDTH.card, 1200])}
+                // The wide side panel (--rail-width-wide) is at most 46 rem.
+                sizes="(min-width: 768px) 46rem, 100vw"
                 alt={item.title}
                 width={1200}
                 height={416}
