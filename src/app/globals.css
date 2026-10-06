@@ -207,6 +207,50 @@ body {
   }
 }
 
+/*
+ * Spark running round the edge of a call to action ("See all N topics"): a
+ * conic gradient with a short bright tail, masked to a 2 px ring that follows
+ * the element's own rounded border. Reduced motion leaves it standing still.
+ */
+@property --spark-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes spark-orbit {
+  to {
+    --spark-angle: 360deg;
+  }
+}
+
+.spark-ring {
+  position: relative;
+  isolation: isolate;
+}
+
+.spark-ring::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  padding: 2px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--spark-angle),
+    transparent 0deg 290deg,
+    var(--color-gold) 335deg,
+    #fff 352deg,
+    transparent 360deg
+  );
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  filter: drop-shadow(0 0 3px var(--color-gold));
+  animation: spark-orbit 2.8s linear infinite;
+  pointer-events: none;
+}
+
 /* Content panels: subtle scrollbar so it doesn't cut into the design. */
 .panel-scroll {
   scrollbar-width: thin;
