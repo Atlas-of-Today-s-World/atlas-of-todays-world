@@ -32,6 +32,8 @@ jobs:
       RECIPIENT: ${{ vars.BACKUP_AGE_RECIPIENT }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       # Until the owner sets the age public key (PLAN U8) there is nothing to
       # encrypt to: the run says so as a warning instead of failing red every
       # night. Any other missing setting is still a hard failure.
@@ -50,7 +52,7 @@ jobs:
       - uses: supabase/setup-cli@v3
         if: steps.config.outputs.skip != 'true'
         with:
-          version: latest
+          version: 2.120.0
       - name: Install age
         if: steps.config.outputs.skip != 'true'
         run: sudo apt-get update -qq && sudo apt-get install -y -qq age

@@ -23,9 +23,13 @@ permissions:
 
 jobs:
   import:
+    # Production content only from the reviewed code on main.
+    if: inputs.target == 'dev' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
@@ -42,7 +46,7 @@ jobs:
       - uses: supabase/setup-cli@v3
         if: inputs.target == 'prod'
         with:
-          version: latest
+          version: 2.120.0
       - name: Import to production
         if: inputs.target == 'prod'
         env:
@@ -52,8 +56,7 @@ jobs:
         run: |
           node scripts/webflow/import-topics.mjs --sql topics.sql
           supabase link --project-ref "$PROD_REF" --password "$SUPABASE_DB_PASSWORD"
-          pooler=$(cat supabase/.temp/pooler-url)
-          # Session mode (5432) with the password; psql stops at the first error and rolls back.
-          url=$(echo "$pooler" | sed -E "s#^postgresql://([^@]+)@#postgresql://\1:${SUPABASE_DB_PASSWORD}@#; s#:6543/#:5432/#")
-          echo "::add-mask::$url"
-          psql "$url" -v ON_ERROR_STOP=1 -q -f topics.sql
+          # Session mode (5432); the password goes through PGPASSWORD, never into
+          # the URL or the command line. psql stops at the first error and rolls back.
+          url=$(sed -E "s#:6543/#:5432/#" supabase/.temp/pooler-url)
+          PGPASSWORD="$SUPABASE_DB_PASSWORD" psql "$url" -v ON_ERROR_STOP=1 -q -f topics.sql
