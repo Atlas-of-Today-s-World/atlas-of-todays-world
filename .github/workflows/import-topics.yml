@@ -1,0 +1,58 @@
+# Manual import of the old site's Global Issues topics (scripts/webflow/import-topics.mjs).
+# Production: the service key is read for this run only through the Supabase
+# Management API (SUPABASE_ACCESS_TOKEN) and masked in the log; no demo
+# placements on the map. atlas-dev uses its own secret and may add them.
+name: Import topics
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Project"
+        type: choice
+        options: [dev, prod]
+        default: dev
+
+concurrency:
+  group: import-topics-${{ inputs.target }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      PROD_REF: ${{ vars.SUPABASE_PROJECT_REF || 'ewbzkxialhtwuqlenjof' }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Credentials
+        env:
+          DEV_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL_DEV }}
+          DEV_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY_DEV }}
+        run: |
+          if [ "${{ inputs.target }}" = "prod" ]; then
+            key=$(curl -sf -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+              "https://api.supabase.com/v1/projects/$PROD_REF/api-keys?reveal=true" \
+              | jq -r '.[] | select(.name == "service_role") | .api_key')
+            [ -n "$key" ] && [ "$key" != "null" ] || { echo "::error::No service key for $PROD_REF"; exit 1; }
+            echo "::add-mask::$key"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$key" >> "$GITHUB_ENV"
+            echo "NEXT_PUBLIC_SUPABASE_URL=https://$PROD_REF.supabase.co" >> "$GITHUB_ENV"
+          else
+            echo "::add-mask::$DEV_KEY"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$DEV_KEY" >> "$GITHUB_ENV"
+            echo "NEXT_PUBLIC_SUPABASE_URL=$DEV_URL" >> "$GITHUB_ENV"
+          fi
+      - name: Import
+        run: |
+          extra=""
+          [ "${{ inputs.target }}" = "dev" ] && extra="--demo-places"
+          node scripts/webflow/import-topics.mjs --apply --project "${{ inputs.target }}" $extra --env /dev/null
