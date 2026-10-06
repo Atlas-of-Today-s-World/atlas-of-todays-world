@@ -583,6 +583,11 @@
     "ok": "OK",
     "closesIn": "Closes in {seconds} s"
   },
+  "share": {
+    "share": "Share",
+    "copied": "Link copied",
+    "copyFailed": "Couldn’t copy the link"
+  },
   "newsletterPage": {
     "button": "Newsletter",
     "title": "The Atlas newsletter",

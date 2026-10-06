@@ -1,3 +1,4 @@
+import { ShareButton } from "@/components/atlas/ShareButton";
 import Link from "@/components/i18n/Link";
 import { RelatedTopics, TopicsLink } from "@/components/topics/RelatedTopics";
 import type { EntrySummary } from "@/features/entries/queries";
@@ -130,10 +131,11 @@ export default function Portrait({
             <NewsBadge count={news.length} />
           </div>
         ) : null}
-        {/* The way to the place's topics comes first, above the counts. */}
-        {topics ? (
-          <TopicsLink count={topics.items.length} href={topics.href} className="mt-5" />
-        ) : null}
+        {/* The way to the place's topics comes first, above the counts; sharing sits beside it. */}
+        <div className="mt-5 flex flex-wrap items-center gap-2">
+          {topics ? <TopicsLink count={topics.items.length} href={topics.href} /> : null}
+          <ShareButton title={subject.name} />
+        </div>
         <dl className="mt-5 grid grid-cols-2 gap-4 border-t border-[var(--color-line)] pt-4 text-[12.5px]">
           <div>
             <dt className="text-[var(--color-ink-muted)]">{t.portrait.countries}</dt>

@@ -1,6 +1,7 @@
 import { ChevronDown } from "lucide-react";
 import Link from "@/components/i18n/Link";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
+import { ShareButton } from "@/components/atlas/ShareButton";
 import MapFocus from "@/components/map/MapFocus";
 import { FaqList } from "@/components/portrait/sections";
 import type { Atlas } from "@/features/geography/types";
@@ -34,11 +35,14 @@ export function EncyclopediaArticle({
   item,
   atlas,
   banner,
+  share = false,
 }: {
   item: Encyclopedia;
   atlas: Atlas;
   /** Bar above the article (preview: status and link validity). */
   banner?: React.ReactNode;
+  /** The Share button — on the public page only, never on a secret preview link. */
+  share?: boolean;
 }) {
   const region = item.region ? atlas.regionBySlug.get(item.region) : undefined;
   const hero = safeUrl(item.hero);
@@ -96,7 +100,7 @@ export function EncyclopediaArticle({
 
         <div className="mx-auto max-w-6xl px-4 pt-6 pb-12 sm:px-8">
           {/* Text runs the full width of the content, like the tile rows below. */}
-          <EntryHeader item={item} atlas={atlas} />
+          <EntryHeader item={item} atlas={atlas} share={share} />
           {item.html ? <SafeHtml className="prose-atlas mt-7" html={item.html} /> : null}
 
           <DossierExplorer
@@ -144,7 +148,7 @@ export function EncyclopediaArticle({
 }
 
 /** Author with photo (click scrolls to the bio), dates and summary bullets. */
-function EntryHeader({ item, atlas }: { item: Encyclopedia; atlas: Atlas }) {
+function EntryHeader({ item, atlas, share }: { item: Encyclopedia; atlas: Atlas; share: boolean }) {
   const t = getT().article;
   const locale = getRequestLocale();
   const author = item.authorProfile;
@@ -181,6 +185,7 @@ function EntryHeader({ item, atlas }: { item: Encyclopedia; atlas: Atlas }) {
             {format(t.by, { author: item.author })}
           </span>
         ) : null}
+        {share ? <ShareButton title={item.title} /> : null}
         <dl className="ml-auto grid grid-cols-[auto_auto] gap-x-2 text-[11.5px] text-[var(--color-ink-muted)]">
           {item.published ? (
             <>
