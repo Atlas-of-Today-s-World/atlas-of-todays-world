@@ -86,9 +86,15 @@ export default function CountryCard({
             value={stat.value}
             icon={<StatIcon id={stat.id} />}
           >
-            {stat.rank
-              ? format(t.countryCard.ranked, { rank: String(stat.rank), of: String(stat.rankOf) })
-              : ""}
+            {/* The rank opens the layer's ranking of all countries with this one picked. */}
+            <Link
+              href={`/view/${stat.id}#${country.iso3.toLowerCase()}`}
+              className="text-[var(--color-link)] hover:underline"
+            >
+              {stat.rank
+                ? format(t.countryCard.ranked, { rank: String(stat.rank), of: String(stat.rankOf) })
+                : t.countryCard.allCountries}
+            </Link>
             {stat.year}
             <br />
             <SourceLink href={stat.sourceUrl}>{stat.source}</SourceLink>

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "@/components/i18n/Link";
 import { notFound } from "next/navigation";
 import ContentRail from "@/components/ContentRail";
-import MapFocus from "@/components/map/MapFocus";
+import { RankingFocus } from "@/components/map/RankingFocus";
 import MapViewSetter from "@/components/map/MapViewSetter";
 import { SectionLabel } from "@/components/atlas/ui";
 import { getAtlas } from "@/features/geography/queries";
@@ -74,7 +74,11 @@ export default async function IndicatorViewPage({
 
   return (
     <>
-      <MapFocus center={[18, 28]} zoom={1.7} />
+      <RankingFocus
+        places={Object.fromEntries(
+          ranked.map((row) => [row.country.iso3.toLowerCase(), row.country.bbox]),
+        )}
+      />
       <MapViewSetter view={indicator.id} />
 
       <ContentRail>
@@ -100,7 +104,12 @@ export default async function IndicatorViewPage({
 
           <ol className="mt-6 divide-y divide-[var(--color-line)]">
             {ranked.map((row, index) => (
-              <li key={row.country.iso3} className="flex items-center gap-3 py-2">
+              <li
+                key={row.country.iso3}
+                id={row.country.iso3.toLowerCase()}
+                // The country picked from its card (#hun) is highlighted and scrolled to.
+                className="-mx-2 flex scroll-mt-24 items-center gap-3 rounded-md px-2 py-2 target:bg-[var(--color-accent-soft)] target:font-semibold"
+              >
                 <span className="w-7 shrink-0 text-[11.5px] text-[var(--color-ink-muted)] tabular-nums">
                   {indicator.type === "categorical" ? "·" : index + 1}
                 </span>

@@ -438,6 +438,7 @@
   "countryCard": {
     "title": "{name} — country profile",
     "ranked": "Ranked {rank} of {of} · ",
+    "allCountries": "All countries · ",
     "population": "Population",
     "subregion": "Subregion",
     "newsAbout": "News about {name}"
