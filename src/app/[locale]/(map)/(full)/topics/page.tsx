@@ -46,17 +46,28 @@ export default async function TopicsPage({ params }: Params) {
 
   return (
     <>
-      <div className="mx-auto max-w-7xl px-4 pt-12 pb-4 sm:px-8 sm:pt-16">
-        <h1 className="font-display text-[34px] font-bold tracking-tight sm:text-[44px]">
-          {t.title}
-        </h1>
-        <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-[var(--color-ink-soft)]">
-          {t.intro}
-        </p>
-      </div>
-
       {/* The static render lists everything; the filter and the search run in the browser. */}
-      <TopicsBrowser items={cards} filters={filters} names={names} />
+      <TopicsBrowser
+        heading={
+          <>
+            <h1 className="font-display text-[34px] font-bold tracking-tight sm:text-[44px]">
+              {t.title}
+            </h1>
+            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-[var(--color-ink-soft)]">
+              {t.intro}
+            </p>
+          </>
+        }
+        items={cards}
+        filters={filters}
+        names={names}
+        regionOf={Object.fromEntries(
+          Object.keys(counts.countries).flatMap((iso3) => {
+            const region = atlas.countryByIso3.get(iso3)?.region?.name;
+            return region ? [[iso3, region]] : [];
+          }),
+        )}
+      />
 
       <JsonLd
         data={graph(
