@@ -1,6 +1,7 @@
 "use client";
 
 import { Search, X } from "lucide-react";
+import { TopicsInvite } from "@/components/topics/TopicsInvite";
 import { type ReactNode, useEffect, useState, useSyncExternalStore } from "react";
 import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
@@ -305,9 +306,12 @@ export function TopicsBrowser({
           </ul>
         </>
       ) : (
-        <p className="mt-8 text-[14px] text-[var(--color-ink-muted)]">
-          {filter ? format(t.filterNone, { name: filterName }) : t.empty}
-        </p>
+        <>
+          <p className="mt-8 text-[14px] text-[var(--color-ink-muted)]">
+            {filter ? format(t.filterNone, { name: filterName }) : t.empty}
+          </p>
+          {filter ? <TopicsInvite t={t} place={filterName} full className="mt-4 max-w-xl" /> : null}
+        </>
       )}
     </div>
   );
