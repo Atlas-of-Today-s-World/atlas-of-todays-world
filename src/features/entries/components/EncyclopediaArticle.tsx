@@ -54,7 +54,10 @@ export function EncyclopediaArticle({
       {banner}
 
       <article lang={item.locale}>
-        <header className="relative isolate overflow-hidden bg-[var(--color-space)] text-white">
+        <header
+          className="relative isolate overflow-hidden bg-[var(--color-space)] text-white"
+          style={item.heroBackground ? { backgroundColor: item.heroBackground } : undefined}
+        >
           {hero ? (
             // A real <img>: image search indexes it and the browser finds the LCP early.
             // eslint-disable-next-line @next/next/no-img-element -- remote editorial photo, no optimizer (next.config)
@@ -271,8 +274,14 @@ function TopicPanel({ chapter, index }: { chapter: Chapter; index: number }) {
       >
         {chapter.title}
       </h2>
-      {chapter.illustrationCredit ? (
+      {chapter.illustrationCredit || chapter.updated ? (
         <p className="mt-1 text-[10.5px] text-[var(--color-ink-muted)]">
+          {chapter.updated
+            ? format(t.subtopicUpdated, {
+                date: formatLongDate(chapter.updated, getRequestLocale()),
+              })
+            : null}
+          {chapter.updated && chapter.illustrationCredit ? " · " : null}
           {chapter.illustrationCredit}
         </p>
       ) : null}

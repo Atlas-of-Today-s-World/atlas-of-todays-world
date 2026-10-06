@@ -52,12 +52,20 @@ export default async function EntriesPage({
       <PageHeader
         icon={navIcon("/admin/content")}
         title="Articles"
-        lead="News articles and encyclopedia entries — drafts, pending approval and published. Publishing always goes through Article approvals."
+        lead="Topics (encyclopedia entries) and news articles — drafts, pending approval and published. Publishing always goes through Article approvals."
         actions={
           can(access.permissions, "news", "c") ? (
-            <Link href="/admin/content/new" className={buttonVariants({ size: "sm" })}>
-              New article
-            </Link>
+            <span className="flex flex-wrap gap-2">
+              <Link href="/admin/content/new?kind=entry" className={buttonVariants({ size: "sm" })}>
+                New topic
+              </Link>
+              <Link
+                href="/admin/content/new"
+                className={buttonVariants({ size: "sm", variant: "outline" })}
+              >
+                New article
+              </Link>
+            </span>
           ) : null
         }
       />

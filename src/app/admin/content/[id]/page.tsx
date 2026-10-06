@@ -12,6 +12,7 @@ import { SeoForm } from "@/features/entries/components/SeoForm";
 import { TemplateTools, TopicTilesForm } from "@/features/entries/components/TopicTileForms";
 import { LanguageVersions } from "@/features/entries/components/LanguageVersions";
 import { DEFAULT_LOCALE, isLocale, localePath } from "@/features/i18n/config";
+import { EditStamp } from "@/features/entries/components/EditStamp";
 import { EntryForm } from "@/features/entries/components/EntryForm";
 import { EntryWorkflow, RevisionList } from "@/features/entries/components/EntryWorkflow";
 import { PreviewShare } from "@/features/entries/components/PreviewShare";
@@ -147,7 +148,11 @@ export default async function EditEntryPage({
                 <EntryForm entry={entry} authors={authors} {...options} />
               ) : null}
               {parts && tab === "topics" ? (
-                <ChaptersEditor entryId={entry.id} initial={parts.chapters} />
+                <ChaptersEditor
+                  entryId={entry.id}
+                  initial={parts.chapters}
+                  names={parts.stamps.names}
+                />
               ) : null}
               {parts && tab === "learn-more" ? (
                 <>
@@ -215,6 +220,19 @@ export default async function EditEntryPage({
           )}
         </div>
         <aside className="grid content-start gap-8">
+          {parts ? (
+            <section>
+              <h2 className="font-display mb-2 text-[16px] font-bold">Who and when</h2>
+              <EditStamp
+                createdAt={parts.stamps.created_at}
+                createdBy={parts.stamps.created_by}
+                updatedAt={parts.stamps.updated_at}
+                updatedBy={parts.stamps.updated_by}
+                names={parts.stamps.names}
+                className="text-[13px] leading-relaxed text-[var(--color-ink-soft)]"
+              />
+            </section>
+          ) : null}
           <section>
             <h2 className="font-display mb-3 text-[16px] font-bold">Workflow</h2>
             <EntryWorkflow

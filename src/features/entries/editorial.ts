@@ -63,6 +63,7 @@ export interface EditableEntry extends EditorialRow {
   summary_points: string[];
   author_id: string | null;
   map_layers: string[];
+  hero_background: string | null;
 }
 
 export async function getEditableEntry(id: string): Promise<EditableEntry | null> {
@@ -70,7 +71,7 @@ export async function getEditableEntry(id: string): Promise<EditableEntry | null
   const { data, error } = await supabase
     .from("entries")
     .select(
-      `${LIST_COLUMNS}, summary, special_slug, cover_url, cover_credit, reading_minutes, body_html, published_on, summary_points, author_id, map_layers, entry_countries(country_iso3)`,
+      `${LIST_COLUMNS}, summary, special_slug, cover_url, cover_credit, reading_minutes, body_html, published_on, summary_points, author_id, map_layers, hero_background, entry_countries(country_iso3)`,
     )
     .eq("id", id)
     .maybeSingle();
@@ -106,6 +107,8 @@ export async function listLanguageVersions(entry: { id: string; translation_of: 
 
 /** A chapter in the editor (order = position). */
 export interface EditableChapter {
+  /** Kept across saves, so the subtopic keeps who created it and when. */
+  id?: string;
   title: string;
   summary_points: string[];
   body_html: string;
@@ -113,6 +116,19 @@ export interface EditableChapter {
   illustration_credit: string | null;
   audio_url: string | null;
   tile_background: string | null;
+  created_at?: string;
+  created_by?: string | null;
+  updated_at?: string;
+  updated_by?: string | null;
+}
+
+/** "Who and when" of a topic and its subtopics, with the editors' names. */
+interface EditStamps {
+  created_at: string;
+  created_by: string | null;
+  updated_at: string;
+  updated_by: string | null;
+  names: Record<string, string>;
 }
 
 /** A "Learn more" tile of a topic or a template in the admin. */
@@ -191,7 +207,7 @@ export async function getEntryParts(id: string) {
     supabase
       .from("entry_chapters")
       .select(
-        "title, summary_points, body_html, illustration_url, illustration_credit, audio_url, tile_background",
+        "id, title, summary_points, body_html, illustration_url, illustration_credit, audio_url, tile_background, created_at, created_by, updated_at, updated_by",
       )
       .eq("entry_id", id)
       .order("position"),
@@ -206,7 +222,7 @@ export async function getEntryParts(id: string) {
     supabase
       .from("entries")
       .select(
-        "seo_title, seo_description, og_image_url, seo_keywords, geo_summary, noindex, template_id, articles_label, learn_more_label",
+        "seo_title, seo_description, og_image_url, seo_keywords, geo_summary, noindex, template_id, articles_label, learn_more_label, created_at, owner_id, updated_at, updated_by",
       )
       .eq("id", id)
       .single(),
@@ -226,8 +242,35 @@ export async function getEntryParts(id: string) {
     });
   }
   const row = seo.data;
+  const chapterRows = (chapters.data ?? []) as EditableChapter[];
+  // Editors' names for the "created by / edited by" lines (team only, DB staff_name).
+  const people = [
+    ...new Set(
+      [
+        row?.owner_id,
+        row?.updated_by,
+        ...chapterRows.flatMap((c) => [c.created_by, c.updated_by]),
+      ].filter((value): value is string => Boolean(value)),
+    ),
+  ];
+  const named = await Promise.all(
+    people.map(
+      async (person) =>
+        [person, (await supabase.rpc("staff_name", { p_profile: person })).data] as const,
+    ),
+  );
+  const names = Object.fromEntries(
+    named.filter(([, name]) => name).map(([person, name]) => [person, name as string]),
+  );
   return {
-    chapters: (chapters.data ?? []) as EditableChapter[],
+    chapters: chapterRows,
+    stamps: {
+      created_at: row?.created_at ?? "",
+      created_by: row?.owner_id ?? null,
+      updated_at: row?.updated_at ?? "",
+      updated_by: row?.updated_by ?? null,
+      names,
+    } satisfies EditStamps,
     tiles: (tiles.data ?? []) as EditableTile[],
     labels: {
       template_id: row?.template_id ?? null,
