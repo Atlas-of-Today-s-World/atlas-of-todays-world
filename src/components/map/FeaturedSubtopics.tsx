@@ -19,7 +19,8 @@ const tileStyle = (item: SubtopicTile) => {
 /**
  * Two subtopic tiles under the search field on the home map — the newest, or
  * the ones the editors pinned in the admin (Home page). Same width as the
- * search block; on phones the globe gets the room instead.
+ * search block. On phones a compact strip (low tiles, the heading only for
+ * screen readers), left out on short screens where the globe needs the room.
  */
 export function FeaturedSubtopics({ items }: { items: SubtopicTile[] }) {
   const t = useMessages().map;
@@ -27,22 +28,22 @@ export function FeaturedSubtopics({ items }: { items: SubtopicTile[] }) {
   return (
     <section
       aria-labelledby="featured-subtopics"
-      className="glass pointer-events-auto hidden w-[min(92vw,22rem)] rounded-[var(--radius-panel)] p-3 shadow-2xl shadow-black/40 md:block"
+      className="glass pointer-events-auto w-full rounded-[var(--radius-panel)] p-2 shadow-2xl shadow-black/40 sm:w-[min(92vw,22rem)] sm:p-3 max-sm:[@media(max-height:699px)]:hidden"
     >
       <h2
         id="featured-subtopics"
-        className="px-1 text-[10.5px] font-medium tracking-[0.12em] text-white/60 uppercase"
+        className="px-1 text-[10.5px] font-medium tracking-[0.12em] text-white/75 uppercase max-sm:sr-only"
       >
         {t.latestSubtopics}
       </h2>
-      <ul className="mt-2 grid grid-cols-2 gap-2">
+      <ul className="grid grid-cols-2 gap-2 sm:mt-2">
         {items.map((item) => (
           <li key={item.id}>
             <Link
               href={`${TOPICS_PATH}/${item.topicSlug}#${item.anchor}`}
               // A topic page is a heavy route: fetched once pointed at, not on arrival.
               prefetchOnIntent
-              className="group relative flex h-32 flex-col justify-end overflow-hidden rounded-xl bg-[var(--color-ink)] bg-cover bg-center p-2.5 text-white transition hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:outline-none"
+              className="group relative flex h-20 flex-col justify-end overflow-hidden rounded-xl bg-[var(--color-ink)] bg-cover bg-center p-2 text-white transition hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:outline-none sm:h-32 sm:p-2.5"
               style={tileStyle(item)}
             >
               <span
@@ -52,7 +53,7 @@ export function FeaturedSubtopics({ items }: { items: SubtopicTile[] }) {
               <span className="relative line-clamp-1 text-[9.5px] font-medium tracking-[0.08em] text-white/70 uppercase">
                 {item.topicTitle}
               </span>
-              <span className="font-display relative mt-0.5 line-clamp-3 text-[12.5px] leading-tight font-semibold">
+              <span className="font-display relative mt-0.5 line-clamp-2 text-[12px] leading-tight font-semibold sm:line-clamp-3 sm:text-[12.5px]">
                 {item.title}
               </span>
             </Link>

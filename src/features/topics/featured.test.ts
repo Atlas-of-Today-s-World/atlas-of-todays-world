@@ -27,6 +27,17 @@ describe("home featured subtopics", () => {
     expect(pickFeatured(tiles, ["a", null]).map((t) => t.id)).toEqual(["a", "c"]);
   });
 
+  it("prefers subtopics of two different topics", () => {
+    const mixed = [
+      { ...tile("c2", "2026-10-03"), topicSlug: "smuggling" },
+      { ...tile("c1", "2026-10-03"), topicSlug: "smuggling" },
+      { ...tile("d1", "2026-10-02"), topicSlug: "detention" },
+    ];
+    expect(pickFeatured(mixed, [null, null]).map((t) => t.id)).toEqual(["c2", "d1"]);
+    // A pinned subtopic counts too: the other slot comes from another topic.
+    expect(pickFeatured(mixed, ["c1", null]).map((t) => t.id)).toEqual(["c1", "d1"]);
+  });
+
   it("an unpublished or deleted pin falls back to the newest", () => {
     expect(pickFeatured(tiles, ["gone", "a"]).map((t) => t.id)).toEqual(["c", "a"]);
   });
