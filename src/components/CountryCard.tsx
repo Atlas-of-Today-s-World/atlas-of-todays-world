@@ -1,4 +1,5 @@
 import Link from "@/components/i18n/Link";
+import { TopicsLink } from "@/components/topics/RelatedTopics";
 import type { EntrySummary } from "@/features/entries/queries";
 import type { Country, CountryProfile } from "@/features/geography/types";
 import { getRequestLocale, getT } from "@/features/i18n/request";
@@ -25,11 +26,14 @@ export default function CountryCard({
   newsItems,
   description,
   profile,
+  topics,
 }: {
   country: Country;
   newsItems: EntrySummary[];
   description: string;
   profile?: CountryProfile | null;
+  /** Topics about the country (own, its region's, its groups') and the filtered list. */
+  topics?: { items: EntrySummary[]; href: string };
 }) {
   const t = getT();
   const region = country.region;
@@ -77,6 +81,9 @@ export default function CountryCard({
       ) : null}
 
       <p className="mt-3 text-[13px] leading-relaxed text-[var(--color-ink-soft)]">{description}</p>
+      {topics ? (
+        <TopicsLink count={topics.items.length} href={topics.href} className="mt-4" />
+      ) : null}
 
       <StatGrid className="mt-5">
         {highlights.map((stat) => (

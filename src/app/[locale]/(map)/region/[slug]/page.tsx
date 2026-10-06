@@ -12,6 +12,7 @@ import {
 } from "@/features/entries/queries";
 import { countriesOf } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
+import { relatedTopics } from "@/features/topics/related";
 import { getRequestLocale, localeFrom } from "@/features/i18n/request";
 import { getPortrait } from "@/features/portraits/queries";
 import { groupStats, population } from "@/lib/region-stats";
@@ -72,11 +73,12 @@ export default async function RegionPage({
   if (!region) notFound();
 
   const countries = countriesOf(atlas, region.countries);
-  const [entries, encyclopedia, upcoming, dossier] = await Promise.all([
+  const [entries, encyclopedia, upcoming, dossier, topics] = await Promise.all([
     getEntries(getRequestLocale()),
     getEncyclopediaEntries(getRequestLocale()),
     getPlannedEntries(),
     getPortrait("region", region.slug),
+    relatedTopics(atlas, locale, "region", region.slug),
   ]);
   const newsItems = entriesOfRegion(entries, region.slug);
 
@@ -90,6 +92,7 @@ export default async function RegionPage({
       />
       <ContentRail wide>
         <Portrait
+          topics={topics}
           subject={{
             kind: "region",
             name: region.name,

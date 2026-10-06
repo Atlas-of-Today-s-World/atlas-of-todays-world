@@ -1,4 +1,6 @@
 import Link from "@/components/i18n/Link";
+import { RelatedTopics, TopicsLink } from "@/components/topics/RelatedTopics";
+import type { EntrySummary } from "@/features/entries/queries";
 import { NewsBadge, SectionLabel } from "@/components/atlas/ui";
 import type { RegionDossier } from "@/lib/content-types";
 import type { RegionStat } from "@/lib/region-stats";
@@ -69,8 +71,11 @@ export default function Portrait({
   entries,
   dossier,
   stats,
+  topics,
 }: {
   subject: PortraitSubject;
+  /** Topics about the region / group and the filtered Topics list. */
+  topics?: { items: EntrySummary[]; href: string };
   news: NewsCard[];
   /** Encyclopedia entries (P9): published ones with a link, planned ones with `slug: null`. */
   entries: PlannedEntry[];
@@ -137,6 +142,9 @@ export default function Portrait({
             </dd>
           </div>
         </dl>
+        {topics ? (
+          <TopicsLink count={topics.items.length} href={topics.href} className="mt-5" />
+        ) : null}
       </header>
 
       {subject.showMetrics === false ? null : (
@@ -189,6 +197,14 @@ export default function Portrait({
           ))}
         </ul>
       </PortraitSection>
+
+      {topics ? (
+        <RelatedTopics
+          items={topics.items}
+          href={topics.href}
+          className="mt-2 px-6 pb-8 sm:px-10"
+        />
+      ) : null}
 
       <PatronsCallout complete={complete} />
 

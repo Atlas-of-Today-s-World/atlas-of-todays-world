@@ -14,6 +14,8 @@ import { pageMetadata, pageTitle } from "@/lib/seo/metadata";
 import { breadcrumbNode, countryNode, graph, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { JsonLd } from "@/components/JsonLd";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
+import { RelatedTopics } from "@/components/topics/RelatedTopics";
+import { relatedTopics } from "@/features/topics/related";
 
 // true: with false, Next returns 404 after revalidateTag (an admin write) even for
 // existing pages (NoFallbackError). An unknown slug ends up in notFound().
@@ -99,9 +101,11 @@ export default async function CountryPage({
 }) {
   const { slug } = await params;
   const locale = await localeFrom(params);
-  const country = (await getAtlas(locale)).countryBySlug.get(slug);
+  const atlas = await getAtlas(locale);
+  const country = atlas.countryBySlug.get(slug);
   if (!country) notFound();
 
+  const topics = await relatedTopics(atlas, locale, "country", country.iso3);
   const newsItems = entriesOfCountry(await getEntries(getRequestLocale()), country.iso3);
   const profile = country.profile;
   const description = profile.summary || fallbackDescription(country, getT().countryText);
@@ -128,8 +132,10 @@ export default async function CountryPage({
           newsItems={newsItems}
           description={description}
           profile={profile}
+          topics={topics}
         />
         {profile.html ? <SafeHtml className="prose-atlas px-6 pb-10" html={profile.html} /> : null}
+        <RelatedTopics items={topics.items} href={topics.href} className="mt-0 px-6 pb-10" />
       </ContentRail>
 
       <JsonLd

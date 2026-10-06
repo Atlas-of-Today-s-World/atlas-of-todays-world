@@ -14,6 +14,7 @@ import {
 } from "@/features/entries/queries";
 import { countriesOf } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
+import { relatedTopics } from "@/features/topics/related";
 import { getRequestLocale, localeFrom } from "@/features/i18n/request";
 import { getPortrait } from "@/features/portraits/queries";
 import { geoMeta } from "@/lib/seo";
@@ -72,11 +73,12 @@ export default async function GlobalIssuePage({
   if (!region) return redirectOrNotFound(`/global-issue/${slug}`, locale);
 
   const countries = countriesOf(atlas, region.countries);
-  const [entries, encyclopedia, upcoming, dossier] = await Promise.all([
+  const [entries, encyclopedia, upcoming, dossier, topics] = await Promise.all([
     getEntries(getRequestLocale()),
     getEncyclopediaEntries(getRequestLocale()),
     getPlannedEntries(),
     getPortrait("issue", region.slug),
+    relatedTopics(atlas, locale, "issue", region.slug),
   ]);
   const related = entriesOfIssue(entries, region.slug, region.countries);
 
@@ -92,6 +94,7 @@ export default async function GlobalIssuePage({
 
       <ContentRail wide>
         <Portrait
+          topics={topics}
           subject={{
             kind: "issue",
             groupKind: region.kind,
