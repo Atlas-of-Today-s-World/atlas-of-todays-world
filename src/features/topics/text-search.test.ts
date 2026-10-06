@@ -51,6 +51,8 @@ describe("topic text search", () => {
     expect(htmlToText("<p>Rock &amp; roll</p><p>Next&nbsp;line&#8217;s</p>")).toBe(
       "Rock & roll Next line’s",
     );
+    // Nested or broken tags leave no markup behind.
+    expect(htmlToText("<scr<script>ipt>alert(1)</script> a < b")).toBe("alert(1) a b");
   });
 
   it("needs every word, in the heading or the text", () => {

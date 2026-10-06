@@ -61,9 +61,15 @@ const ENTITIES: Record<string, string> = {
 
 /** Sanitized HTML → readable plain text. */
 export function htmlToText(html: string): string {
-  return html
-    .replace(/<(br|\/p|\/li|\/h[1-6]|\/blockquote)\b[^>]*>/gi, " ")
-    .replace(/<[^>]*>/g, "")
+  let text = html.replace(/<(br|\/p|\/li|\/h[1-6]|\/blockquote)\b[^>]*>/gi, " ");
+  // Strip tags until none is left (removing one can't join two halves into a new
+  // tag), then drop any stray angle bracket: the result is plain text, never markup.
+  for (let previous = ""; previous !== text;) {
+    previous = text;
+    text = text.replace(/<[^<>]*>/g, "");
+  }
+  return text
+    .replace(/[<>]/g, "")
     .replace(/&(#\d+|#x[\da-f]+|[a-z]+);/gi, (entity, code: string) => {
       if (code.startsWith("#x") || code.startsWith("#X"))
         return String.fromCodePoint(parseInt(code.slice(2), 16));
