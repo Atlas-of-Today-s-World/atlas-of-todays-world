@@ -78,11 +78,11 @@ export function EncyclopediaArticle({
             <p className="text-[11px] font-medium tracking-[0.14em] text-white/75 uppercase">
               {getT().categories[item.category]}
             </p>
-            <h1 className="font-display mt-3 max-w-4xl text-[34px] leading-[1.08] font-bold text-balance sm:text-[52px]">
+            <h1 className="font-display mt-3 text-[34px] leading-[1.08] font-bold text-balance sm:text-[52px]">
               {item.title}
             </h1>
             {item.summary ? (
-              <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-white/80 sm:text-[17px]">
+              <p className="mt-4 text-[15px] leading-relaxed text-white/80 sm:text-[17px]">
                 {item.summary}
               </p>
             ) : null}
@@ -95,10 +95,9 @@ export function EncyclopediaArticle({
         </header>
 
         <div className="mx-auto max-w-6xl px-4 pt-6 pb-12 sm:px-8">
-          <div className="max-w-3xl">
-            <EntryHeader item={item} atlas={atlas} />
-            {item.html ? <SafeHtml className="prose-atlas mt-7" html={item.html} /> : null}
-          </div>
+          {/* Text runs the full width of the content, like the tile rows below. */}
+          <EntryHeader item={item} atlas={atlas} />
+          {item.html ? <SafeHtml className="prose-atlas mt-7" html={item.html} /> : null}
 
           <DossierExplorer
             topics={item.chapters.map((chapter, index) => ({
@@ -131,14 +130,12 @@ export function EncyclopediaArticle({
             )}
           />
 
-          <div className="mx-auto max-w-3xl">
-            {item.faq.length ? (
-              <div className="-mx-6 mt-14 sm:-mx-10">
-                <FaqList items={item.faq} />
-              </div>
-            ) : null}
-            {item.authorProfile ? <AuthorBio author={item.authorProfile} /> : null}
-          </div>
+          {item.faq.length ? (
+            <div className="-mx-6 mt-14 sm:-mx-10">
+              <FaqList items={item.faq} />
+            </div>
+          ) : null}
+          {item.authorProfile ? <AuthorBio author={item.authorProfile} /> : null}
         </div>
       </article>
       <OpenOnHash />
