@@ -719,7 +719,7 @@ export default function AtlasGlobe({
       </div>
 
       {hoverLabel && !mini ? (
-        <div className="glass pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 rounded-full px-3.5 py-1.5 text-xs tracking-wide text-white/90">
+        <div className="glass pointer-events-none absolute bottom-6 left-1/2 w-max max-w-[calc(100%-2rem)] -translate-x-1/2 rounded-3xl px-5 py-[9px] text-center text-[15px] tracking-wide text-white/90 sm:text-[18px]">
           <span className="font-semibold text-white">{hoverLabel.name}</span>
           {hoverLabel.metric ? (
             <>
