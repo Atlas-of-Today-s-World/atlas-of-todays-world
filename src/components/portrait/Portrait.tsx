@@ -11,6 +11,7 @@ import { PHOTO_WIDTH } from "@/lib/images";
 import { format, type Messages } from "@/features/i18n/messages";
 import { getRequestLocale, getT } from "@/features/i18n/request";
 import NewsTabs, { type NewsCard } from "./NewsTabs";
+import { PortraitCounts } from "./PortraitCounts";
 import {
   EmptySection,
   ENTRY_CATEGORIES,
@@ -137,18 +138,10 @@ export default function Portrait({
           {topics ? <TopicsLink count={topics.items.length} href={topics.href} /> : null}
           <ShareButton title={subject.name} />
         </div>
-        <dl className="mt-5 grid grid-cols-2 gap-4 border-t border-[var(--color-line)] pt-4 text-[12.5px]">
-          <div>
-            <dt className="text-[var(--color-ink-muted)]">{t.portrait.countries}</dt>
-            <dd className="font-medium text-[var(--color-ink)]">{subject.countries.length}</dd>
-          </div>
-          <div>
-            <dt className="text-[var(--color-ink-muted)]">{t.portrait.people}</dt>
-            <dd className="font-medium text-[var(--color-ink)]">
-              {formatPopulation(subject.population, getRequestLocale())}
-            </dd>
-          </div>
-        </dl>
+        <PortraitCounts
+          countries={subject.countries}
+          population={formatPopulation(subject.population, getRequestLocale())}
+        />
       </header>
 
       {subject.showMetrics === false ? null : (
