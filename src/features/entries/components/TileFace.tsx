@@ -1,5 +1,5 @@
-import type { CSSProperties, ReactNode } from "react";
-import { cssBackgroundImage } from "@/lib/security/urls";
+import type { ReactNode } from "react";
+import { tileBackground } from "@/lib/tile-style";
 import { PHOTO_WIDTH } from "@/lib/images";
 import { TileIcon } from "./TileIcon";
 
@@ -8,15 +8,10 @@ export const TILE =
   "group relative flex min-h-32 flex-col justify-end overflow-hidden rounded-xl bg-[var(--color-ink)] bg-cover bg-center p-3 text-left text-white transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 sm:min-h-36";
 const SHADE =
   "pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/10 transition group-hover:from-black/90";
-const HEX = /^#[0-9a-fA-F]{6}$/;
 
-/** Inline background of a tile: the photo wins, otherwise its colour. */
+/** Inline background of a topic tile: the photo wins, otherwise its colour. */
 export function tileStyle(image?: string | null, background?: string | null) {
-  const photo = cssBackgroundImage(image, PHOTO_WIDTH.tile);
-  const style: CSSProperties = {};
-  if (photo) style.backgroundImage = photo;
-  if (background && HEX.test(background)) style.backgroundColor = background;
-  return photo || style.backgroundColor ? style : undefined;
+  return tileBackground(image, background, PHOTO_WIDTH.tile);
 }
 
 /**

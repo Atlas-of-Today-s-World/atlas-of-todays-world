@@ -2,6 +2,12 @@ import { DEFAULT_LOCALE, LOCALES, localePath, type Locale } from "@/features/i18
 import type { Metadata } from "next";
 import { SITE_URL } from "@/lib/site";
 
+/**
+ * SEO building blocks shared by every page's metadata: absolute URLs,
+ * canonical and hreflang alternates, geo meta tags and JSON-LD serialisation
+ * (escaped so it can't close its <script>).
+ */
+
 export function absoluteUrl(path: string): string {
   return new URL(path, SITE_URL).toString();
 }

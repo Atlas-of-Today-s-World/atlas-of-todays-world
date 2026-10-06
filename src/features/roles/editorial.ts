@@ -1,5 +1,6 @@
 import "server-only";
 import { createServerClient } from "@/lib/supabase/server";
+import { ilikeAny } from "@/lib/db/filters";
 
 /** Roles, their permissions and security settings (under RLS — permissions section only). */
 export async function rolesOverview() {
@@ -49,16 +50,8 @@ export async function auditLog(q?: string): Promise<AuditRow[]> {
     .select("id, at, actor_email, action, target, detail")
     .order("at", { ascending: false })
     .limit(1000);
-  // Value in the .or() filter is quoted, without characters that would break the filter (as for accounts).
-  const needle = q
-    ?.trim()
-    .replace(/[%_,()"\\]/g, "")
-    .slice(0, 100);
-  if (needle) {
-    query = query.or(
-      `action.ilike."%${needle}%",target.ilike."%${needle}%",actor_email.ilike."%${needle}%"`,
-    );
-  }
+  const search = ilikeAny(["action", "target", "actor_email"], q);
+  if (search) query = query.or(search);
   const { data, error } = await query;
   if (error) throw new Error(`[audit] ${error.message}`);
   return data as AuditRow[];

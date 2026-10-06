@@ -1,5 +1,10 @@
 import type { Locale } from "@/features/i18n/config";
 
+/**
+ * Number and date formatting in the page language — the one place for
+ * Intl formats, so every number on the site reads the same.
+ */
+
 const INTL: Record<Locale, string> = { en: "en-US" };
 export const DATE_INTL: Record<Locale, string> = { en: "en-GB" };
 

@@ -6,6 +6,13 @@ import { z } from "zod";
 import { createServerClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 
+/**
+ * Account self-service actions (deleting one's own account). The only place
+ * outside the admin that uses the service key: Auth accounts can't be deleted
+ * under RLS, so the action first proves who the caller is and that they
+ * confirmed, then acts on that one account only.
+ */
+
 export interface ActionState {
   ok: boolean;
   /** Error code — the form picks the text in the page language (messages: account.errors). */

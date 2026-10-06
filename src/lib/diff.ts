@@ -1,3 +1,8 @@
+/**
+ * Paragraph diff for comparing two versions of an article in the admin
+ * (revision history). Pure functions, no DOM: HTML is reduced to text first.
+ */
+
 export interface DiffPart {
   type: "same" | "added" | "removed";
   text: string;

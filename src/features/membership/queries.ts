@@ -3,6 +3,11 @@ import { unstable_cache } from "next/cache";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import { createPublicClient } from "@/lib/supabase/public";
 
+/**
+ * Atlas Patrons — public aggregates (layer: features/<domain>/queries.ts). Only counts
+ * and sums leave the database (patron_stats), never individual patrons.
+ */
+
 export interface PatronStats {
   patrons: number;
   monthlyEur: number;

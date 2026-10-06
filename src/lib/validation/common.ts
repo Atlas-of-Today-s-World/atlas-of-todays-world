@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { HEX_COLOR } from "@/lib/tile-style";
 
 /**
  * Building blocks of the admin Zod schemas — same shapes as the CHECKs in the DB,
@@ -35,7 +36,7 @@ export const optionalHttpsUrl = z.preprocess(blankToUndefined, httpsUrl.optional
 export const hexColor = z
   .string()
   .trim()
-  .regex(/^#[0-9a-fA-F]{6}$/, "Color in the format #rrggbb.")
+  .regex(HEX_COLOR, "Color in the format #rrggbb.")
   .transform((value) => value.toLowerCase());
 
 export const iso3 = z.string().regex(/^[A-Z]{3}$/);

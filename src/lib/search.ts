@@ -3,6 +3,12 @@ import { getEntries } from "@/features/entries/queries";
 import { getAtlas } from "@/features/geography/queries";
 import { createPublicClient } from "@/lib/supabase/public";
 
+/**
+ * Site search (header search, /search, /api/search): one Postgres RPC over
+ * places and articles, ranked in the database; hits are filled in here with
+ * summaries and map centres from the already cached atlas model.
+ */
+
 type SearchKind = "region" | "country" | "issue" | "news";
 
 export interface SearchHit {

@@ -3,6 +3,12 @@ import { unstable_cache } from "next/cache";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import { createPublicClient } from "@/lib/supabase/public";
 
+/**
+ * Feature flags — public read (layer: features/<domain>/queries.ts). Cached under the
+ * `flags` tag and refreshed when the admin switches one; a missing flag or a
+ * database outage falls back to the defaults below.
+ */
+
 export interface Flags {
   maintenance: boolean;
   newsletter: boolean;

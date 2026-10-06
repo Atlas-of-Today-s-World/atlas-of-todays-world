@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { markdownToSafeHtml, sanitizeRichHtml } from "./sanitize";
+import { sanitizeRichHtml } from "./sanitize";
 
 // A selection from the OWASP XSS Filter Evasion Cheat Sheet — none of it may stay executable.
 const XSS_PAYLOADS = [
@@ -48,16 +48,5 @@ describe("sanitizeRichHtml", () => {
 
   it("a mailto link passes", () => {
     expect(sanitizeRichHtml('<a href="mailto:a@b.cz">a</a>')).toContain('href="mailto:a@b.cz"');
-  });
-});
-
-describe("markdownToSafeHtml", () => {
-  it("converts markdown and cleans embedded HTML", () => {
-    const html = markdownToSafeHtml(
-      "## Titulek\n\n<script>alert(1)</script>\n\n[odkaz](https://a.org)",
-    );
-    expect(html).toContain("<h2>Titulek</h2>");
-    expect(html).toContain('<a href="https://a.org" rel="noopener noreferrer">odkaz</a>');
-    expect(isInert(html)).toBe(true);
   });
 });

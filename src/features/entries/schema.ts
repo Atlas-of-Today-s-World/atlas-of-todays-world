@@ -20,14 +20,12 @@ import {
   SEO_TITLE_MAX,
   TILE_ICONS,
 } from "./constants";
+import { HEX_COLOR } from "@/lib/tile-style";
 
 /** Tile background colour (DB `is_hex_color`); empty = none. */
 const hexColor = z.preprocess(
   blankToUndefined,
-  z
-    .string()
-    .regex(/^#[0-9a-fA-F]{6}$/, "Use a colour like #1f3a5f.")
-    .optional(),
+  z.string().regex(HEX_COLOR, "Use a colour like #1f3a5f.").optional(),
 );
 
 /** Section label of a topic ("Subtopics", "Learn more"); empty = the template's. */

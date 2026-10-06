@@ -1,6 +1,7 @@
 import "server-only";
 import { createServerClient } from "@/lib/supabase/server";
 import type { EntryStatus } from "./schema";
+import { ilikeAny } from "@/lib/db/filters";
 
 /**
  * Reads for editors — under the user's session, so RLS shows only what the
@@ -45,7 +46,8 @@ export async function listEntries({
     // The full editorial listing; search and status filters are done by the table (DataTable).
     .limit(1000);
   if (mine) query = query.eq("owner_id", userId);
-  if (q?.trim()) query = query.ilike("title", `%${q.trim().replace(/[%_]/g, "")}%`);
+  const search = ilikeAny(["title"], q);
+  if (search) query = query.or(search);
   const { data, error } = await query;
   if (error) throw new Error(`[entries] ${error.message}`);
   return data as EditorialRow[];
