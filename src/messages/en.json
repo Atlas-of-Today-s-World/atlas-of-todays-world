@@ -306,7 +306,9 @@
       "lead": "In production, this link opens the secure Stripe customer portal, where you can update your card, change the amount or cancel your donation.",
       "demo": "This is a demo — no Stripe account is connected yet.",
       "help": "Need help? Email us at {email}."
-    }
+    },
+    "builtWith": "This website was built in cooperation with",
+    "builtWithLabel": "Website by Develogi.cz"
   },
   "newsIndex": {
     "title": "All news",

@@ -1,0 +1,7 @@
+/* TEAM */
+Website: Develogi.cz s.r.o.
+Site: https://develogi.cz
+Location: Czech Republic
+
+/* SITE */
+Atlas of Today's World — https://atlas-of-todays-world.vercel.app

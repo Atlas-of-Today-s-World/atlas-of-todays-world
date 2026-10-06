@@ -29,6 +29,8 @@ export const metadata: Metadata = {
   applicationName: "Atlas of Today's World",
   authors: [{ name: "Atlas of Today's World" }],
   publisher: "Atlas of Today's World",
+  // The website was built by Develogi.cz s.r.o. (https://develogi.cz) — also in /humans.txt.
+  creator: "Develogi.cz s.r.o. (https://develogi.cz)",
   category: "reference",
   // Pages set their own URL, locale and image (lib/seo/metadata.ts); this is the fallback.
   openGraph: {
