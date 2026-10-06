@@ -135,7 +135,12 @@ export default async function CountryPage({
           topics={topics}
         />
         {profile.html ? <SafeHtml className="prose-atlas px-6 pb-10" html={profile.html} /> : null}
-        <RelatedTopics items={topics.items} href={topics.href} className="mt-0 px-6 pb-10" />
+        <RelatedTopics
+          items={topics.items}
+          href={topics.href}
+          place={country.name}
+          className="mt-0 px-6 pb-10"
+        />
       </ContentRail>
 
       <JsonLd

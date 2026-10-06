@@ -89,16 +89,81 @@ function topicBadgeImage(soft: boolean) {
   };
 }
 
-/** ISO3 / slug → count as MapLibre filter and label expressions for one badge layer. */
-function topicExpressions(counts: Record<string, number>, property: "iso3" | "slug") {
-  const keys = Object.keys(counts);
+/**
+ * ISO3 / slug → count as MapLibre filter and label expressions for one badge
+ * layer; `zero` is the text of a place without topics ("" hides it).
+ */
+function topicExpressions(counts: Record<string, number>, property: "iso3" | "slug", zero = "") {
+  const keys = Object.keys(counts).filter((key) => counts[key]);
   const pairs = keys.flatMap((key) => [key, String(counts[key])]);
   const has: ExpressionSpecification = ["in", ["get", property], ["literal", keys]];
   // MapLibre types can't express a variable number of pairs in "match".
   const text = (keys.length
-    ? ["match", ["get", property], ...pairs, ""]
-    : ["literal", ""]) as unknown as ExpressionSpecification;
+    ? ["match", ["get", property], ...pairs, zero]
+    : ["literal", zero]) as unknown as ExpressionSpecification;
   return { has, text };
+}
+
+/** Topic badges that pulse per beat of the idle spin. */
+const PULSES_PER_BEAT = 2;
+/** Matches the topic-pulse animation in globals.css. */
+const PULSE_MS = 1600;
+/** Ems from the label point to the badge, per mode (as in mapStyle's badge layers). */
+const BADGE_BELOW: Record<SelectionModeKey, number> = { countries: 1.35, regions: 3, issue: -0.6 };
+
+/**
+ * Two random badges near the middle of the globe briefly grow and settle back,
+ * a hint that places can be clicked. A copy of the pill rides as a marker over
+ * the badge: MapLibre can't scale one symbol of a layer without laying out the
+ * whole source again.
+ */
+function pulseTopicBadges(
+  map: MapLibreMap,
+  mode: SelectionModeKey,
+  numberOf: (key: string) => number,
+  isOwn: (key: string) => boolean,
+) {
+  const canvas = map.getCanvas();
+  const [w, h] = [canvas.clientWidth, canvas.clientHeight];
+  // The middle of the view only: badges at the globe's rim are squeezed and hard to see.
+  const features = map.queryRenderedFeatures(
+    [
+      [w * 0.2, h * 0.2],
+      [w * 0.8, h * 0.8],
+    ],
+    { layers: [TOPIC_LAYERS[mode]] },
+  );
+  const property = mode === "countries" ? "iso3" : "slug";
+  const points = new Map<string, [number, number]>();
+  for (const feature of features) {
+    const key = feature.properties?.[property] as string | undefined;
+    if (key && feature.geometry.type === "Point") {
+      points.set(key, feature.geometry.coordinates as [number, number]);
+    }
+  }
+  const picked = [...points].sort(() => Math.random() - 0.5).slice(0, PULSES_PER_BEAT);
+  if (!picked.length) return;
+  void loadMapLibre().then(({ Marker }) => {
+    for (const [key, lngLat] of picked) {
+      const count = numberOf(key);
+      const element = document.createElement("div");
+      element.setAttribute("aria-hidden", "true");
+      element.style.pointerEvents = "none";
+      const pill = document.createElement("span");
+      pill.className = count && isOwn(key) ? "topic-pulse" : "topic-pulse topic-pulse-soft";
+      pill.textContent = String(count);
+      element.append(pill);
+      const marker = new Marker({
+        element,
+        anchor: "top",
+        // The pill's padding reaches above the text box the badge is anchored by.
+        offset: [0, BADGE_BELOW[mode] * 10 - 1.5],
+      })
+        .setLngLat(lngLat)
+        .addTo(map);
+      window.setTimeout(() => marker.remove(), PULSE_MS);
+    }
+  });
 }
 
 const NEUTRAL = "#7d8aa8";
@@ -195,6 +260,7 @@ export default function AtlasGlobe({
   const issueRef = useLatest(issue);
   const slugsRef = useLatest(slugs);
   const topicCountsRef = useLatest(topicCounts);
+  const ownTopicCountriesRef = useLatest(ownTopicCountries);
   const topicLabelRef = useLatest((count: number) =>
     count === 1 ? t.map.topicsOne : format(t.map.topicsCount, { count: String(count) }),
   );
@@ -212,8 +278,19 @@ export default function AtlasGlobe({
   /** Full-width page (Topics, entry): the globe waits in a small window bottom left. */
   const mini = isFullPage(pathname);
 
-  // On the home map (and in the corner window) the globe turns slowly until the user grabs it.
-  useIdleSpin(mapRef, surfaceRef, ready, railKind(pathname) === "none");
+  // On the home map (and in the corner window) the globe turns slowly until the user grabs it,
+  // and now and then two topic counts pulse to invite a click.
+  useIdleSpin(mapRef, surfaceRef, ready, railKind(pathname) === "none", () => {
+    const map = mapRef.current;
+    if (!map || document.hidden) return;
+    const key = modeRef.current;
+    pulseTopicBadges(
+      map,
+      key,
+      (place) => topicCountsRef.current[key][place] ?? 0,
+      (place) => key !== "countries" || ownTopicCountriesRef.current.includes(place),
+    );
+  });
 
   // --- map initialization (only once for the app's whole lifetime) ---
   useEffect(() => {
@@ -441,27 +518,36 @@ export default function AtlasGlobe({
       ["issue", "slug"],
     ];
     for (const [key, property] of layers) {
-      const { has, text } = topicExpressions(topicCounts[key], property);
+      // Countries and regions show 0 too (an open invitation to write);
+      // a special region exists on the map only through its topics.
+      const zero = key === "issue" ? "" : "0";
+      const { has, text } = topicExpressions(topicCounts[key], property, zero);
       const layer = TOPIC_LAYERS[key];
       map.setFilter(
         layer,
         key === "countries"
-          ? (["all", COUNTRY_RANK_FILTER, has] as unknown as ExpressionSpecification)
-          : has,
+          ? (COUNTRY_RANK_FILTER as ExpressionSpecification)
+          : key === "regions"
+            ? null
+            : has,
       );
       map.setLayoutProperty(layer, "text-field", text);
       // The small globe window on full-width pages shows no counts.
       map.setLayoutProperty(layer, "visibility", key === mode && !mini ? "visible" : "none");
+      // Solid pill for topics of the place's own, soft one when all are
+      // inherited; a zero is soft and faint.
+      const own: ExpressionSpecification =
+        key === "countries" ? ["in", ["get", "iso3"], ["literal", ownTopicCountries]] : has;
+      map.setLayoutProperty(layer, "icon-image", [
+        "case",
+        own,
+        TOPIC_BADGE_IMAGES.own,
+        TOPIC_BADGE_IMAGES.inherited,
+      ]);
+      map.setPaintProperty(layer, "text-color", ["case", own, "#0b1220", "#ffffff"]);
+      map.setPaintProperty(layer, "icon-opacity", ["case", has, 0.92, 0.5]);
+      map.setPaintProperty(layer, "text-opacity", ["case", has, 1, 0.7]);
     }
-    // Countries: solid pill for a topic of their own, soft one when all are inherited.
-    const own: ExpressionSpecification = ["in", ["get", "iso3"], ["literal", ownTopicCountries]];
-    map.setLayoutProperty(TOPIC_LAYERS.countries, "icon-image", [
-      "case",
-      own,
-      TOPIC_BADGE_IMAGES.own,
-      TOPIC_BADGE_IMAGES.inherited,
-    ]);
-    map.setPaintProperty(TOPIC_LAYERS.countries, "text-color", ["case", own, "#0b1220", "#ffffff"]);
   }, [topicCounts, ownTopicCountries, mode, mini, ready]);
 
   // --- highlight of the active country / region ---

@@ -27,10 +27,10 @@ export interface NavItem {
 }
 
 const MAIN_NAV: readonly NavItem[] = [
-  { href: "/", key: "map" },
   { href: TOPICS_PATH, key: "topics" },
   { href: "/news", key: "news", compactHidden: true },
   { href: "/about", key: "about" },
+  { href: MEMBERSHIP_PATH, key: "support" },
   { href: MEMBERSHIP_PATH, key: "patrons", primary: true },
 ];
 

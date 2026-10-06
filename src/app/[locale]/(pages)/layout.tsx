@@ -1,3 +1,4 @@
+import { FloatingDonate } from "@/components/membership/FloatingDonate";
 import { PagesShell } from "@/components/PagesShell";
 import { getFlags } from "@/features/flags/queries";
 import { getMessages } from "@/features/i18n/messages";
@@ -19,6 +20,7 @@ export default async function PagesLayout({
       newsletter={flags.newsletter}
     >
       {children}
+      <FloatingDonate />
     </PagesShell>
   );
 }

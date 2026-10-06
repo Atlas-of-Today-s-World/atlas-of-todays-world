@@ -1,9 +1,9 @@
 {
   "nav": {
-    "map": "Map",
     "topics": "Topics",
     "news": "News",
     "about": "About",
+    "support": "Support the Atlas",
     "patrons": "Atlas Patrons",
     "signIn": "Sign in",
     "privacy": "Privacy",
@@ -306,7 +306,9 @@
       "lead": "In production, this link opens the secure Stripe customer portal, where you can update your card, change the amount or cancel your donation.",
       "demo": "This is a demo — no Stripe account is connected yet.",
       "help": "Need help? Email us at {email}."
-    }
+    },
+    "builtWith": "This website was built in cooperation with",
+    "builtWithLabel": "Website by Develogi.cz"
   },
   "newsIndex": {
     "title": "All news",
@@ -356,8 +358,6 @@
     "faq": "Questions and answers",
     "showTopic": "Subtopic {number}: {title}",
     "subtopicUpdated": "Updated {date}",
-    "readMore": "Read more",
-    "showLess": "Show less",
     "resourcesCount": "{count} resources",
     "resourcesOne": "1 resource",
     "sources": "Sources and further reading",
@@ -514,6 +514,12 @@
     "allRegions": "All regions",
     "allSpecial": "All special regions",
     "filterNone": "No topic about {name} yet.",
+    "inviteTitle": "No topics about {place} yet",
+    "inviteText": "Do you know {place} well? Write a topic for the Atlas as an editor, or help us commission one with a donation.",
+    "inviteMore": "Missing a topic about {place}?",
+    "inviteWrite": "Write a topic",
+    "inviteSupport": "Support the Atlas",
+    "inviteSubject": "A topic about {place}",
     "clearFilter": "Show all topics",
     "backToAtlas": "Back to Atlas",
     "globeWindow": "Back to the Atlas globe",

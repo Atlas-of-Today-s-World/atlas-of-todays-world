@@ -2,11 +2,12 @@
  * Where to open the globe when the user arrives on the home page.
  *
  * We don't use browser geolocation – it pops up a permission prompt, which is
- * needlessly invasive for "open it near me". Two signals the browser provides
- * on its own are enough:
- *   1. time zone (Europe/Prague → Czechia) – the best location estimate,
- *   2. language (cs-CZ, or `cs` expanded to CZ via Intl.Locale),
- *   3. if neither matches, the center of Europe.
+ * needlessly invasive for "open it near me". Instead, in this order:
+ *   1. the country of the visitor's IP address (Vercel's edge header, read by
+ *      /api/geo — only the country code, nothing stored),
+ *   2. time zone (Europe/Prague → Czechia),
+ *   3. language (cs-CZ, or `cs` expanded to CZ via Intl.Locale),
+ *   4. if nothing matches, the center of Europe.
  */
 
 import { MINI_GLOBE } from "@/config/layout";
@@ -341,7 +342,7 @@ const ZONE_TO_ISO2: Record<string, string> = {
 export interface HomeCamera {
   center: [number, number];
   /** What determined the view – useful for debugging and for a UI label. */
-  source: "timezone" | "language" | "continent" | "fallback";
+  source: "ip" | "timezone" | "language" | "continent" | "fallback";
 }
 
 function timeZone(): string | null {
@@ -381,7 +382,13 @@ function localeRegions(): string[] {
  * Picks what the globe opens over. `centers` is ISO2 -> [lon, lat]; the server
  * sends it so the whole country list doesn't have to be shipped to the client.
  */
-export function detectHomeCamera(centers: Record<string, [number, number]>): HomeCamera {
+export function detectHomeCamera(
+  centers: Record<string, [number, number]>,
+  /** ISO 3166-1 alpha-2 of the visitor's IP address, when known. */
+  ipCountry: string | null = null,
+): HomeCamera {
+  if (ipCountry && centers[ipCountry]) return { center: centers[ipCountry], source: "ip" };
+
   const zone = timeZone();
 
   const zoneIso2 = zone ? ZONE_TO_ISO2[zone] : undefined;
@@ -401,4 +408,26 @@ export function detectHomeCamera(centers: Record<string, [number, number]>): Hom
   }
 
   return { center: EUROPE_CENTER, source: "fallback" };
+}
+
+/** How long the home page waits for the IP country before using the time zone. */
+const IP_COUNTRY_TIMEOUT_MS = 1200;
+
+/**
+ * Country of the visitor's IP address (ISO 3166-1 alpha-2) from /api/geo, or
+ * null when unknown, slow or failed — the caller then falls back to the time zone.
+ */
+export async function fetchIpCountry(): Promise<string | null> {
+  try {
+    const response = await fetch("/api/geo", {
+      cache: "no-store",
+      signal: AbortSignal.timeout(IP_COUNTRY_TIMEOUT_MS),
+    });
+    const data = (await response.json()) as { country?: unknown };
+    return typeof data.country === "string" && /^[A-Z]{2}$/.test(data.country)
+      ? data.country
+      : null;
+  } catch {
+    return null;
+  }
 }

@@ -43,8 +43,16 @@ const SHADE =
   "pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/5 transition group-hover:from-black/90";
 const ACTIVE = "ring-2 ring-[var(--color-accent)] ring-offset-2";
 const HEADING = "font-display text-[26px] font-semibold tracking-tight sm:text-[30px]";
-/** Each half is a two-column grid of tiles that grows by rows. */
-const ROW = "mt-5 grid grid-cols-2 gap-3";
+/**
+ * One grid of four equal columns on wide screens: subtopics fill three, the
+ * resource column the fourth. A resource tile is half a subtopic tile minus
+ * half the gap, so two of them line up with one subtopic tile.
+ */
+const GAP = "gap-3";
+const SUBTOPIC_HEIGHT = "h-40 sm:h-48";
+const RESOURCE_HEIGHT = "h-[4.625rem] sm:h-[5.625rem]";
+/** Half-height resource tile: icon beside the label instead of above it. */
+const RESOURCE = cn(RESOURCE_HEIGHT, "flex-row items-center justify-start gap-3 py-2");
 
 /**
  * The topic's two halves side by side: subtopic tiles on the left, "Learn
@@ -97,13 +105,13 @@ export function DossierExplorer({
 
   return (
     <div className="mt-12">
-      <div className="grid gap-10 lg:grid-cols-2 lg:gap-8">
+      <div className={cn("grid gap-y-10 lg:grid-cols-4", GAP)}>
         {topics.length ? (
-          <section aria-labelledby="dossier-topics">
+          <section aria-labelledby="dossier-topics" className="lg:col-span-3">
             <h2 id="dossier-topics" className={HEADING}>
               {labels.articles ?? t.chapters}
             </h2>
-            <ul className={ROW}>
+            <ul className={cn("mt-5 grid grid-cols-2 sm:grid-cols-3", GAP)}>
               {topics.map((topic, index) => {
                 return (
                   <li key={topic.id}>
@@ -116,7 +124,7 @@ export function DossierExplorer({
                         title: topic.title,
                       })}
                       onClick={() => choose(topic.id)}
-                      className={cn(TILE, "min-h-40", open === topic.id && ACTIVE)}
+                      className={cn(TILE, SUBTOPIC_HEIGHT, open === topic.id && ACTIVE)}
                       style={tileStyle(topic.image, topic.background)}
                     >
                       <span aria-hidden className={SHADE} />
@@ -136,26 +144,28 @@ export function DossierExplorer({
             <h2 id="dossier-learn-more" className={HEADING}>
               {labels.learnMore ?? t.learnMore}
             </h2>
-            <ul className={ROW}>
+            <ul className={cn("mt-5 grid grid-cols-2 lg:grid-cols-1", GAP)}>
               {tiles.map((tile) => {
                 const style = tileStyle(tile.image, tile.background);
                 const body = (
                   <>
                     <span aria-hidden className={SHADE} />
-                    <span className="relative mb-auto grid size-9 place-items-center rounded-full bg-white/15 backdrop-blur-sm">
+                    <span className="relative grid size-9 shrink-0 place-items-center rounded-full bg-white/15 backdrop-blur-sm">
                       <TileIcon name={tile.icon} className="size-4.5" />
                     </span>
-                    <span className="font-display relative mt-3 text-[14px] leading-snug font-bold">
-                      {tile.label}
-                    </span>
-                    <span className="relative mt-0.5 text-[11px] text-white/70">
-                      {tile.empty
-                        ? t.comingSoon
-                        : tile.count === 1
-                          ? t.resourcesOne
-                          : tile.count
-                            ? format(t.resourcesCount, { count: String(tile.count) })
-                            : tile.description}
+                    <span className="relative flex min-w-0 flex-col">
+                      <span className="font-display line-clamp-2 text-[13.5px] leading-tight font-bold">
+                        {tile.label}
+                      </span>
+                      <span className="mt-0.5 truncate text-[11px] text-white/70">
+                        {tile.empty
+                          ? t.comingSoon
+                          : tile.count === 1
+                            ? t.resourcesOne
+                            : tile.count
+                              ? format(t.resourcesCount, { count: String(tile.count) })
+                              : tile.description}
+                      </span>
                     </span>
                   </>
                 );
@@ -163,7 +173,7 @@ export function DossierExplorer({
                   <li key={tile.id}>
                     {tile.empty ? (
                       <div
-                        className={cn(TILE, "min-h-36 opacity-45 shadow-none grayscale")}
+                        className={cn(TILE, RESOURCE, "opacity-45 shadow-none grayscale")}
                         style={style}
                       >
                         {body}
@@ -174,7 +184,7 @@ export function DossierExplorer({
                         aria-controls={tile.id}
                         aria-expanded={open === tile.id}
                         onClick={() => choose(tile.id)}
-                        className={cn(TILE, "min-h-36", open === tile.id && ACTIVE)}
+                        className={cn(TILE, RESOURCE, open === tile.id && ACTIVE)}
                         style={style}
                       >
                         {body}

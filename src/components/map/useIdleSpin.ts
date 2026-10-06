@@ -7,6 +7,8 @@ import type { Map as MapLibreMap } from "maplibre-gl";
 export const SPIN_DEG_PER_SEC = 1;
 /** Pause after the globe is ready (and after the home flight) before it starts turning. */
 const START_DELAY_MS = 2500;
+/** While the globe turns, `onBeat` fires this often (the topic count pulse). */
+const BEAT_MS = 5000;
 /** ~30 fps is smooth at this speed and halves the GPU work of a 60 fps loop. */
 const FRAME_MS = 33;
 
@@ -28,14 +30,20 @@ export function spinLongitude(lng: number, elapsedMs: number): number {
  * takes over: the first press, wheel or key inside `surfaceRef` stops it for
  * the rest of the visit. It waits while another camera move runs (the home
  * flight over the visitor's country) and never runs with reduced motion.
+ * While it turns, `onBeat` is called every few seconds.
  */
 export function useIdleSpin(
   mapRef: RefObject<MapLibreMap | null>,
   surfaceRef: RefObject<HTMLElement | null>,
   ready: boolean,
   enabled: boolean,
+  onBeat?: () => void,
 ) {
   const stoppedRef = useRef(false);
+  const onBeatRef = useRef(onBeat);
+  useEffect(() => {
+    onBeatRef.current = onBeat;
+  });
 
   useEffect(() => {
     const surface = surfaceRef.current;
@@ -58,6 +66,7 @@ export function useIdleSpin(
     let frame = 0;
     let last = 0;
     let startAt = performance.now() + START_DELAY_MS;
+    let beatAt = startAt + BEAT_MS;
 
     const tick = (now: number) => {
       if (stoppedRef.current) return;
@@ -65,6 +74,7 @@ export function useIdleSpin(
       // Someone else moves the camera (a flight, the user): wait, then pause before resuming.
       if (map.isMoving()) {
         startAt = now + START_DELAY_MS;
+        beatAt = startAt + BEAT_MS;
         last = 0;
         return;
       }
@@ -73,6 +83,10 @@ export function useIdleSpin(
       last = now;
       const center = map.getCenter();
       map.jumpTo({ center: [spinLongitude(center.lng, elapsed), center.lat] }, SPIN_EVENT);
+      if (now >= beatAt) {
+        beatAt = now + BEAT_MS;
+        onBeatRef.current?.();
+      }
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);

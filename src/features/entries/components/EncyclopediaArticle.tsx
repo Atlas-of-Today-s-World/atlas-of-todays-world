@@ -1,6 +1,5 @@
 import { ChevronDown } from "lucide-react";
 import Link from "@/components/i18n/Link";
-import { ReadMore } from "@/components/atlas/ReadMore";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
 import MapFocus from "@/components/map/MapFocus";
 import { FaqList } from "@/components/portrait/sections";
@@ -258,7 +257,7 @@ function EntryAudio({ src, title }: { src?: string; title: string }) {
 
 /**
  * Open chapter below the cards: number badge, title, summary, audio and the
- * text as a preview with "Read more" (the card above already shows the photo).
+ * full text (the card above already shows the photo).
  */
 function TopicPanel({ chapter, index }: { chapter: Chapter; index: number }) {
   const t = getT().article;
@@ -293,11 +292,7 @@ function TopicPanel({ chapter, index }: { chapter: Chapter; index: number }) {
         </ul>
       ) : null}
       <EntryAudio src={chapter.audio} title={chapter.title} />
-      {chapter.html ? (
-        <ReadMore more={t.readMore} less={t.showLess} className="mt-5">
-          <SafeHtml className="prose-atlas" html={chapter.html} />
-        </ReadMore>
-      ) : null}
+      {chapter.html ? <SafeHtml className="prose-atlas mt-5" html={chapter.html} /> : null}
     </section>
   );
 }
