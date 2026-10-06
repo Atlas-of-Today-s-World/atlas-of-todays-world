@@ -152,15 +152,10 @@ test.describe("mobil", () => {
     await expect(menu).toBeHidden();
   });
 
-  test("search is tucked into an icon", async ({ page }) => {
+  test("the search field is right there, without a button to open it", async ({ page }) => {
     await page.goto("/");
-
-    const search = page.getByRole("button", { name: "Search the Atlas" });
-    await expect(search).toBeVisible();
-    await expect(page.getByPlaceholder(/Search places/)).toBeHidden();
-
-    await search.click();
     await expect(page.getByPlaceholder(/Search places/)).toBeVisible();
+    await expect(page.getByRole("button", { name: "Search the Atlas" })).toHaveCount(0);
   });
 });
 

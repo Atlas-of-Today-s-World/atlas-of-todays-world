@@ -139,8 +139,6 @@
     "notFoundText": "The page may have moved, or the address has a typo. Search the Atlas or pick a country on the globe."
   },
   "search": {
-    "open": "Search the Atlas",
-    "close": "Close search",
     "placeholder": "Search places, regions, news…",
     "searching": "Searching…",
     "nothing": "Nothing found in the Atlas yet.",
