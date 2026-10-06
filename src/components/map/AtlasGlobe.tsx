@@ -10,7 +10,7 @@ import type {
   MapMouseEvent,
   MapSourceDataEvent,
 } from "maplibre-gl";
-import { Minus, Plus } from "lucide-react";
+import { Minus, Pause, Plus, Rotate3d } from "lucide-react";
 import { loadMapLibre } from "./maplibre";
 import {
   buildStyle,
@@ -318,7 +318,7 @@ export default function AtlasGlobe({
 
   // On the home map (and in the corner window) the globe turns slowly until the user grabs it,
   // and now and then two topic counts pulse to invite a click.
-  useIdleSpin(mapRef, surfaceRef, ready, railKind(pathname) === "none", () => {
+  const spin = useIdleSpin(mapRef, surfaceRef, ready, railKind(pathname) === "none", () => {
     const map = mapRef.current;
     if (!map || document.hidden) return;
     const key = modeRef.current;
@@ -751,6 +751,19 @@ export default function AtlasGlobe({
         >
           <Minus size={18} aria-hidden />
         </button>
+        {spin.available ? (
+          // Start the rotation (with the pulsing topic counts) now, or stop it.
+          <button
+            type="button"
+            aria-label={spin.spinning ? t.map.spinStop : t.map.spinStart}
+            aria-pressed={spin.spinning}
+            title={spin.spinning ? t.map.spinStop : t.map.spinStart}
+            onClick={spin.toggle}
+            className="glass glass-hover pointer-events-auto mt-1.5 flex size-(--touch-min) items-center justify-center rounded-[10px] text-white/90 transition focus-visible:ring-2 focus-visible:ring-white/70 aria-pressed:text-white"
+          >
+            {spin.spinning ? <Pause size={17} aria-hidden /> : <Rotate3d size={18} aria-hidden />}
+          </button>
+        ) : null}
       </div>
 
       {hoverLabel && !mini ? (
