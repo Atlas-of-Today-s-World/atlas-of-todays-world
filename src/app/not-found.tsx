@@ -1,5 +1,5 @@
 import { ErrorState } from "@/components/atlas/ErrorState";
-import { CountryQuiz } from "@/features/quiz/CountryQuiz";
+import { LazyCountryQuiz } from "@/features/quiz/LazyCountryQuiz";
 import { getT } from "@/features/i18n/request";
 
 /** 404 outside the map (pages without the globe, unknown URLs) — with the outline quiz as consolation. */
@@ -14,7 +14,7 @@ export default function NotFound() {
           lead={t.errors.pageNotFoundLead}
           backLabel={t.common.backToGlobe}
         />
-        <CountryQuiz />
+        <LazyCountryQuiz />
       </main>
     </div>
   );

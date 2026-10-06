@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { MINI_GLOBE } from "@/config/layout";
-import { detectHomeCamera, miniGlobeZoom } from "./home-location";
+import { miniGlobeZoom } from "./home-location";
+import { detectHomeCamera } from "./home-location-guess";
 
 /** Globe diameter in px at a MapLibre zoom (circumference 512·2^zoom). */
 const diameterAt = (zoom: number) => (512 * 2 ** zoom) / Math.PI;
