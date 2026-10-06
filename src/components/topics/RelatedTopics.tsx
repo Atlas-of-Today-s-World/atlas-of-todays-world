@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import Link from "@/components/i18n/Link";
+import { TopicsInvite } from "@/components/topics/TopicsInvite";
 import type { EntrySummary } from "@/features/entries/queries";
 import { format } from "@/features/i18n/messages";
 import { getT } from "@/features/i18n/request";
@@ -34,19 +35,29 @@ export function TopicsLink({
 
 /**
  * Related topics at the end of a country, region or global issue panel:
- * photo tiles (at most six) and the link to all of them.
+ * photo tiles (at most six), the link to all of them and an invitation to
+ * write or support more. With no topic yet, only the invitation.
  */
 export function RelatedTopics({
   items,
   href,
+  place,
   className,
 }: {
   items: EntrySummary[];
   href: string;
+  /** Name of the country, region or global issue, for the invitation. */
+  place: string;
   className?: string;
 }) {
   const t = getT().topics;
-  if (!items.length) return null;
+  if (!items.length) {
+    return (
+      <div className={cn("mt-8", className)}>
+        <TopicsInvite t={t} place={place} full />
+      </div>
+    );
+  }
   return (
     <section aria-labelledby="related-topics" className={cn("mt-8", className)}>
       <h2
@@ -78,6 +89,7 @@ export function RelatedTopics({
         })}
       </ul>
       <TopicsLink count={items.length} href={href} className="mt-4" />
+      <TopicsInvite t={t} place={place} className="mt-3" />
     </section>
   );
 }

@@ -202,6 +202,7 @@ export default function Portrait({
         <RelatedTopics
           items={topics.items}
           href={topics.href}
+          place={subject.name}
           className="mt-2 px-6 pb-8 sm:px-10"
         />
       ) : null}
