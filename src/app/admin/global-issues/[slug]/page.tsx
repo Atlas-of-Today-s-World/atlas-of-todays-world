@@ -16,7 +16,7 @@ import { DeleteIssue } from "@/features/portraits/components/DeleteIssue";
 import { issueForEdit, portraitItems, portraitRights } from "@/features/portraits/editorial";
 import { COLLECTION_NAMES } from "@/features/portraits/schema";
 
-export const metadata: Metadata = { title: "Country group" };
+export const metadata: Metadata = { title: "Special region" };
 
 export default async function IssueEditPage({ params }: { params: Promise<{ slug: string }> }) {
   const access = await sectionAccess("specials");
@@ -48,7 +48,7 @@ export default async function IssueEditPage({ params }: { params: Promise<{ slug
       />
       <ReadOnly
         readOnly={!rights.head}
-        reason="Only roles allowed to edit country groups can edit this."
+        reason="Only roles allowed to edit special regions can edit this."
       >
         <IssueForm
           issue={{
@@ -68,7 +68,7 @@ export default async function IssueEditPage({ params }: { params: Promise<{ slug
             readOnly={collection === "metrics" ? !rights.metrics : !rights.text}
             reason={
               collection === "metrics"
-                ? "Indicators of a country group are edited by roles allowed to edit country groups."
+                ? "Indicators of a special region are edited by roles allowed to edit special regions."
                 : "Portrait texts (timeline, FAQ, sources, visuals) are edited by editors with rights to all articles."
             }
           >

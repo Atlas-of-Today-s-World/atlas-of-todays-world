@@ -38,7 +38,7 @@ export const ADMIN_NAV: readonly AdminNavItem[] = [
   { href: "/admin/approvals", label: "Article approvals", section: "approvals", icon: BadgeCheck },
   { href: "/admin/redirects", label: "URL redirects", section: "news", icon: SignpostBig },
   { href: "/admin/regions", label: "Regions & countries", section: "regions", icon: Globe2 },
-  { href: "/admin/global-issues", label: "Country groups", section: "specials", icon: Shapes },
+  { href: "/admin/global-issues", label: "Special regions", section: "specials", icon: Shapes },
   { href: "/admin/data", label: "Map data layers", section: "layers", icon: Layers },
   { href: "/admin/areas", label: "Custom map areas", section: "areas", icon: MapIcon },
   { href: "/admin/appearance", label: "Map appearance", section: "appearance", icon: Brush },

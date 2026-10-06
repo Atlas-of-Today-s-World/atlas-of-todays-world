@@ -64,7 +64,7 @@
     "emailSoon": "Signing in with an e-mail code will be available soon."
   },
   "portrait": {
-    "globalIssue": "Global Issue",
+    "globalIssue": "Special Region",
     "countriesInRegion": "Countries in this region",
     "countriesInGroup": "Countries in this group",
     "countries": "Countries",
@@ -119,7 +119,7 @@
     "modes": "Map selection mode",
     "modeCountries": "Countries",
     "modeRegions": "Regions",
-    "modeIssues": "Global Issues",
+    "modeIssues": "Special Regions",
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out",
     "dataLayer": "Data layer",
@@ -147,7 +147,7 @@
     "kindRegion": "Region",
     "kindCountry": "Country",
     "kindNews": "News",
-    "kindIssue": "Global issue"
+    "kindIssue": "Special region"
   },
   "country": {
     "disputed": "Disputed territory.",
@@ -369,7 +369,7 @@
     "site": "Atlas of Today's World",
     "country": "Country profile",
     "region": "World region",
-    "issue": "Global issue",
+    "issue": "Special region",
     "news": "News",
     "entry": "Topic",
     "patrons": "Atlas Patrons"
@@ -477,13 +477,13 @@
     "feedTitle": "Atlas of Today’s World — news and encyclopedia",
     "feedDescription": "New articles from Atlas of Today’s World, the non-profit encyclopedia of the present: news analysis and encyclopedia dossiers on every world region.",
     "llmsIntro": "Atlas of Today’s World is published by {legalName}, a non-profit registered association in Prague, Czech Republic, founded in 2016. Everything is free to read without an account.",
-    "llmsUse": "Country, region and global-issue pages combine editorial text with indicators from international sources (UNDP, World Bank, V-Dem, Transparency International and others via Our World in Data); every value states its source and year. Articles show their author, publication date and last update.",
+    "llmsUse": "Country, region and special-region pages combine editorial text with indicators from international sources (UNDP, World Bank, V-Dem, Transparency International and others via Our World in Data); every value states its source and year. Articles show their author, publication date and last update.",
     "llmsCite": "Cite as: Atlas of Today’s World, “<page title>”, <URL> (accessed <date>).",
     "llmsFormats": "Language: English. Markdown version of any article: add .md to its URL. Full text of all articles: {full}. Feeds: {rss} (RSS) and {atom} (Atom). Sitemap: {sitemap}.",
     "sectionEntries": "Encyclopedia dossiers",
     "sectionNews": "News and analysis",
     "sectionRegions": "World regions",
-    "sectionIssues": "Global issues and country groups",
+    "sectionIssues": "Special regions",
     "sectionData": "Data layers (datasets by country)",
     "sectionAbout": "About the Atlas",
     "sectionCountries": "Country profiles",
