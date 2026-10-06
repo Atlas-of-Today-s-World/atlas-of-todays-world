@@ -21,8 +21,8 @@ test("one place filter at a time, kept in the URL", async ({ page }) => {
     await expect(page).not.toHaveURL(/region=/);
   }
 
-  await page.getByRole("button", { name: "Clear filter" }).click();
-  await expect(page).not.toHaveURL(/country=|region=|special=/);
+  await page.getByRole("button", { name: "Show all topics" }).click();
+  await expect(page).not.toHaveURL(/country=|region=|issue=/);
 });
 
 test("full-text search shows excerpts that link into the topic", async ({ page }) => {

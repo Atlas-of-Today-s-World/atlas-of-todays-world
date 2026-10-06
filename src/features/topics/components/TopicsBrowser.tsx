@@ -4,32 +4,39 @@ import { Search, X } from "lucide-react";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
+import { TOPICS_PATH } from "@/config/navigation";
 import { format } from "@/features/i18n/messages";
 import { cn } from "@/lib/cn";
 import { cssBackgroundImage } from "@/lib/security/urls";
-import {
-  filterFromParams,
-  matchesFilter,
-  TOPIC_FILTER_KINDS,
-  type PlaceIndex,
-  type TopicFilterKind,
-} from "../filter";
 import { queryWords, type TopicHit } from "../text-search";
 
-export interface TopicCardData {
+export interface TopicCard {
   slug: string;
   title: string;
   summary: string;
   hero?: string;
-  regionName: string | null;
-  region: string | null;
-  issue: string | null;
-  countries: string[];
+  /** Name of the topic's region, over the title. */
+  place?: string | null;
 }
 
-export interface PlaceOption {
-  value: string;
-  label: string;
+/** Places to filter by: country, region, or special region (global issue / custom region). */
+type Kind = "country" | "region" | "issue";
+const KINDS: readonly Kind[] = ["country", "region", "issue"];
+
+/** Place key → topic slugs and place key → name, per kind (as the counts on the globe). */
+export type TopicFilters = Record<Kind, Record<string, string[]>>;
+export type PlaceNames = Record<Kind, Record<string, string>>;
+
+/**
+ * The one active place filter from the URL — `?country=ita`, `?region=…` or
+ * `?issue=…` (also what "See all topics" on a country or portrait links to).
+ */
+function filterFrom(params: URLSearchParams): { kind: Kind; key: string } | null {
+  for (const kind of KINDS) {
+    const value = params.get(kind);
+    if (value) return { kind, key: kind === "country" ? value.toUpperCase() : value };
+  }
+  return null;
 }
 
 // The filter and the search text live in the URL (shareable, back button), read
@@ -66,27 +73,31 @@ const FIELD =
 const LABEL = "text-[11px] font-medium tracking-[0.1em] text-[var(--color-ink-muted)] uppercase";
 
 /**
- * Topics list with one place filter (country, region or special region — a
- * new choice replaces the old one) and a full-text search inside the topics'
- * chapters, showing an excerpt and a link to the chapter where it occurs.
+ * The Topics list: one place filter (country, region or special region — a
+ * new choice replaces the old one; the same topics as the counts on the globe)
+ * and a full-text search inside the topics showing an excerpt and a link to
+ * the chapter where it occurs. The page stays static: filter and query live
+ * in the URL and run in the browser.
  */
 export function TopicsBrowser({
-  topics,
-  options,
-  places,
+  items,
+  filters,
+  names,
 }: {
-  topics: TopicCardData[];
-  options: Record<TopicFilterKind, PlaceOption[]>;
-  places: PlaceIndex;
+  items: TopicCard[];
+  filters: TopicFilters;
+  names: PlaceNames;
 }) {
   const t = useMessages().topics;
   const search = useSyncExternalStore(subscribe, readSearch, noSearch);
   const params = new URLSearchParams(search);
-  const filter = filterFromParams(params);
+  const filter = filterFrom(params);
+  const filterName = filter ? (names[filter.kind][filter.key] ?? filter.key) : "";
   const query = params.get("q") ?? "";
   const searching = queryWords(query).length > 0;
 
-  const shown = filter ? topics.filter((topic) => matchesFilter(topic, filter, places)) : topics;
+  const inFilter = filter ? new Set(filters[filter.kind][filter.key] ?? []) : null;
+  const shown = inFilter ? items.filter((item) => inFilter.has(item.slug)) : items;
   const allowed = new Set(shown.map((topic) => topic.slug));
 
   const [result, setResult] = useState<{ query: string; hits: TopicHit[] } | null>(null);
@@ -113,11 +124,16 @@ export function TopicsBrowser({
 
   const loading = searching && result?.query !== query.trim();
   const hits = (result?.hits ?? []).filter((hit) => allowed.has(hit.slug));
-  const labels: Record<TopicFilterKind, string> = {
+  const labels: Record<Kind, string> = {
     country: t.filterCountry,
     region: t.filterRegion,
-    special: t.filterSpecial,
+    issue: t.filterSpecial,
   };
+  // Only places with at least one topic, alphabetically.
+  const options = (kind: Kind) =>
+    Object.entries(names[kind])
+      .filter(([key]) => filters[kind][key]?.length)
+      .sort(([, a], [, b]) => a.localeCompare(b));
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-8">
@@ -146,21 +162,22 @@ export function TopicsBrowser({
         <fieldset className="mt-4">
           <legend className="sr-only">{t.filters}</legend>
           <div className="grid gap-3 sm:grid-cols-3">
-            {TOPIC_FILTER_KINDS.map((kind) => (
+            {KINDS.map((kind) => (
               <div key={kind}>
                 <label htmlFor={`topics-filter-${kind}`} className={cn(LABEL, "block")}>
                   {labels[kind]}
                 </label>
                 <select
                   id={`topics-filter-${kind}`}
-                  value={filter?.kind === kind ? filter.value : ""}
+                  value={filter?.kind === kind ? filter.key : ""}
                   // One filter at a time: picking one clears the other two.
                   onChange={(event) =>
                     setParams(
                       Object.fromEntries(
-                        TOPIC_FILTER_KINDS.map((other) => [
+                        KINDS.map((other) => [
                           other,
-                          other === kind ? event.target.value || null : null,
+                          // Lowercase ISO3 for countries, like the "See all topics" links.
+                          other === kind ? event.target.value.toLowerCase() || null : null,
                         ]),
                       ),
                     )
@@ -172,9 +189,9 @@ export function TopicsBrowser({
                   )}
                 >
                   <option value="">{t.filterAll}</option>
-                  {options[kind].map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
+                  {options(kind).map(([key, name]) => (
+                    <option key={key} value={key}>
+                      {name}
                     </option>
                   ))}
                 </select>
@@ -186,7 +203,7 @@ export function TopicsBrowser({
             {filter ? (
               <button
                 type="button"
-                onClick={() => setParams({ country: null, region: null, special: null })}
+                onClick={() => setParams({ country: null, region: null, issue: null })}
                 className="inline-flex min-h-11 items-center gap-1.5 text-[13px] font-medium text-[var(--color-link)] hover:underline"
               >
                 <X aria-hidden className="size-4" />
@@ -213,7 +230,7 @@ export function TopicsBrowser({
               {hits.map((hit) => (
                 <li key={`${hit.slug}#${hit.anchor ?? ""}`}>
                   <Link
-                    href={`/topics/${hit.slug}${hit.anchor ? `#${hit.anchor}` : ""}`}
+                    href={`${TOPICS_PATH}/${hit.slug}${hit.anchor ? `#${hit.anchor}` : ""}`}
                     className="group block rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/5 transition hover:shadow-md focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none sm:p-5"
                   >
                     <span className={LABEL}>{format(t.inTopic, { topic: hit.topicTitle })}</span>
@@ -241,39 +258,46 @@ export function TopicsBrowser({
           )}
         </section>
       ) : shown.length ? (
-        <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {shown.map((item) => {
-            const image = cssBackgroundImage(item.hero);
-            return (
-              <li key={item.slug}>
-                <Link
-                  href={`/topics/${item.slug}`}
-                  className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none"
-                >
-                  <span
-                    aria-hidden
-                    className="relative block aspect-[16/10] bg-[var(--color-ink)] bg-cover bg-center"
-                    style={image ? { backgroundImage: image } : undefined}
+        <>
+          {filter ? (
+            <h2 className="font-display mt-8 text-[22px] font-bold">
+              {format(t.filteredBy, { name: filterName })}
+            </h2>
+          ) : null}
+          <ul className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {shown.map((item) => {
+              const image = cssBackgroundImage(item.hero);
+              return (
+                <li key={item.slug}>
+                  <Link
+                    href={`${TOPICS_PATH}/${item.slug}`}
+                    className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none"
                   >
-                    <span className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-80 transition group-hover:opacity-100" />
-                  </span>
-                  <span className="flex flex-1 flex-col p-5">
-                    {item.regionName ? <span className={LABEL}>{item.regionName}</span> : null}
-                    <span className="font-display mt-1.5 text-[19px] leading-snug font-bold group-hover:text-[var(--color-accent)]">
-                      {item.title}
+                    <span
+                      aria-hidden
+                      className="relative block aspect-[16/10] bg-[var(--color-ink)] bg-cover bg-center"
+                      style={image ? { backgroundImage: image } : undefined}
+                    >
+                      <span className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-80 transition group-hover:opacity-100" />
                     </span>
-                    <span className="mt-2 line-clamp-3 text-[13.5px] leading-relaxed text-[var(--color-ink-soft)]">
-                      {item.summary}
+                    <span className="flex flex-1 flex-col p-5">
+                      {item.place ? <span className={LABEL}>{item.place}</span> : null}
+                      <span className="font-display mt-1.5 text-[19px] leading-snug font-bold group-hover:text-[var(--color-accent)]">
+                        {item.title}
+                      </span>
+                      <span className="mt-2 line-clamp-3 text-[13.5px] leading-relaxed text-[var(--color-ink-soft)]">
+                        {item.summary}
+                      </span>
                     </span>
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </>
       ) : (
         <p className="mt-8 text-[14px] text-[var(--color-ink-muted)]">
-          {topics.length ? t.noTopics : t.empty}
+          {filter ? format(t.filterNone, { name: filterName }) : t.empty}
         </p>
       )}
     </div>

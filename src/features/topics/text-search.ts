@@ -8,7 +8,7 @@
  * - the excerpt is cut around the first hit and marks every hit.
  */
 
-export interface TopicTextPart {
+interface TopicTextPart {
   /** Chapter anchor on the topic page (`topic-2`), null for the introduction. */
   anchor: string | null;
   heading: string;

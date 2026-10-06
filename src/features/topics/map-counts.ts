@@ -39,24 +39,6 @@ function add(target: Record<string, string[]>, key: string, slug: string) {
   if (!list.includes(slug)) list.push(slug);
 }
 
-/**
- * Does the topic belong to the country: placed on it, on its region, or on a
- * global issue / country group it is in. The one rule for the globe counts and
- * the Topics filter.
- */
-export function reachesCountry(
-  topic: Pick<TopicPlace, "region" | "issue" | "countries">,
-  iso3: string,
-  region: string | undefined,
-  issues: readonly string[],
-): boolean {
-  return (
-    topic.countries.includes(iso3) ||
-    (Boolean(region) && topic.region === region) ||
-    (topic.issue !== null && issues.includes(topic.issue))
-  );
-}
-
 export function countTopics(places: readonly TopicPlace[], groups: Groups): TopicCounts {
   const counts: TopicCounts = { countries: {}, regions: {}, issues: {} };
   const issuesOf = new Map<string, string[]>();
@@ -79,7 +61,10 @@ export function countTopics(places: readonly TopicPlace[], groups: Groups): Topi
       const issues = issuesOf.get(iso3) ?? [];
       for (const topic of places) {
         if (!topic.layers.includes("countries")) continue;
-        if (reachesCountry(topic, iso3, region, issues)) add(counts.countries, iso3, topic.slug);
+        const own = topic.countries.includes(iso3);
+        const viaRegion = Boolean(region) && topic.region === region;
+        const viaIssue = topic.issue !== null && issues.includes(topic.issue);
+        if (own || viaRegion || viaIssue) add(counts.countries, iso3, topic.slug);
       }
     }
   }
