@@ -62,9 +62,13 @@ const config = [
     },
   },
   {
-    // Places where injecting HTML is legitimate: SafeHtml itself and JSON-LD
-    // (escaped via jsonLdHtml).
-    files: ["src/components/atlas/SafeHtml.tsx", "src/components/JsonLd.tsx"],
+    // Places where injecting HTML is legitimate: SafeHtml itself, JSON-LD
+    // (escaped via jsonLdHtml) and the fixed pre-paint script (no data in it).
+    files: [
+      "src/components/atlas/SafeHtml.tsx",
+      "src/components/JsonLd.tsx",
+      "src/components/PrePaintScript.tsx",
+    ],
     rules: { "no-restricted-syntax": "off" },
   },
   {

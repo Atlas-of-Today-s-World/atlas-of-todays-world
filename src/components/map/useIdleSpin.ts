@@ -11,6 +11,12 @@ const START_DELAY_MS = 2500;
 const BEAT_MS = 3000;
 /** ~30 fps is smooth at this speed and halves the GPU work of a 60 fps loop. */
 const FRAME_MS = 33;
+/**
+ * On touch screens (phones, tablets) ~12 fps: at one degree a second each step
+ * is still under a pixel, and a phone's CPU stays free to answer taps quickly
+ * (Interaction to Next Paint).
+ */
+const FRAME_MS_TOUCH = 80;
 
 /** Event data of the spin's own camera moves, so hover handling can ignore them. */
 export const SPIN_EVENT = { idleSpin: true } as const;
@@ -63,6 +69,7 @@ export function useIdleSpin(
     if (!map || !ready || !enabled || stoppedRef.current) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
+    const frameMs = window.matchMedia("(pointer: coarse)").matches ? FRAME_MS_TOUCH : FRAME_MS;
     let frame = 0;
     let last = 0;
     let startAt = performance.now() + START_DELAY_MS;
@@ -78,8 +85,8 @@ export function useIdleSpin(
         last = 0;
         return;
       }
-      if (now < startAt || now - last < FRAME_MS) return;
-      const elapsed = last ? now - last : FRAME_MS;
+      if (now < startAt || now - last < frameMs) return;
+      const elapsed = last ? now - last : frameMs;
       last = now;
       const center = map.getCenter();
       map.jumpTo({ center: [spinLongitude(center.lng, elapsed), center.lat] }, SPIN_EVENT);

@@ -199,6 +199,8 @@ const NEUTRAL = "#7d8aa8";
 const MIN_ZOOM = 0.8;
 /** Globe ↔ corner window transition (matches the wrapper's CSS transition). */
 const WINDOW_MS = 700;
+/** Longest wait for an idle moment before the globe starts anyway. */
+const GLOBE_START_TIMEOUT_MS = 1500;
 /** Upper bound for the globe canvas pixel ratio (see the Map options). */
 const MAX_PIXEL_RATIO = 1.5;
 
@@ -334,182 +336,208 @@ export default function AtlasGlobe({
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
+    const container = containerRef.current;
     let cancelled = false;
     let cleanup: (() => void) | undefined;
-    // MapLibre i jeho worker z public/ (loadMapLibre, ADR-017).
-    void loadMapLibre().then(({ Map: MapLibreMap, AttributionControl }) => {
-      if (cancelled || !containerRef.current) return;
-      const map = new MapLibreMap({
-        container: containerRef.current,
-        style: buildStyle(regionLabels, styleOptions),
-        // First frame straight at the default distance, so the map doesn't first
-        // appear as a tiny ball and only then fly in.
-        center: EUROPE_CENTER,
-        zoom: globeFillZoom(),
-        minZoom: MIN_ZOOM,
-        maxZoom: 9,
-        // Added below in the bottom-left corner (the right one holds the donate button).
-        attributionControl: false,
-        // Satellite imagery is 256 px raster; rendering above 1.5× only multiplies
-        // GPU/CPU work (2.6× DPR phones paint ~3× the pixels) without visible gain.
-        pixelRatio: Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO),
-        dragRotate: true,
-        maxPitch: 0,
-      });
-      mapRef.current = map;
-      map.addControl(new AttributionControl({ compact: true }), "bottom-left");
-      // Only the ⓘ shows; its text opens on click. MapLibre opens it by itself the
-      // first time the imagery credits arrive, so that one opening is undone.
-      const attribution = containerRef.current.querySelector(".maplibregl-ctrl-attrib");
-      if (attribution) {
-        const collapse = new MutationObserver(() => {
-          if (!attribution.classList.contains("maplibregl-compact-show")) return;
-          attribution.classList.remove("maplibregl-compact-show");
-          attribution.removeAttribute("open");
-          collapse.disconnect();
+    // MapLibre and its worker from public/ (loadMapLibre, ADR-017).
+    const start = () =>
+      void loadMapLibre().then(({ Map: MapLibreMap, AttributionControl }) => {
+        if (cancelled || !containerRef.current) return;
+        const map = new MapLibreMap({
+          container: containerRef.current,
+          style: buildStyle(regionLabels, styleOptions),
+          // First frame straight at the default distance, so the map doesn't first
+          // appear as a tiny ball and only then fly in.
+          center: EUROPE_CENTER,
+          zoom: globeFillZoom(),
+          minZoom: MIN_ZOOM,
+          maxZoom: 9,
+          // Added below in the bottom-left corner (the right one holds the donate button).
+          attributionControl: false,
+          // Satellite imagery is 256 px raster; rendering above 1.5× only multiplies
+          // GPU/CPU work (2.6× DPR phones paint ~3× the pixels) without visible gain.
+          pixelRatio: Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO),
+          dragRotate: true,
+          maxPitch: 0,
         });
-        collapse.observe(attribution, { attributes: true, attributeFilter: ["class"] });
-      }
+        mapRef.current = map;
+        map.addControl(new AttributionControl({ compact: true }), "bottom-left");
+        // Only the ⓘ shows; its text opens on click. MapLibre opens it by itself the
+        // first time the imagery credits arrive, so that one opening is undone.
+        const attribution = containerRef.current.querySelector(".maplibregl-ctrl-attrib");
+        if (attribution) {
+          const collapse = new MutationObserver(() => {
+            if (!attribution.classList.contains("maplibregl-compact-show")) return;
+            attribution.classList.remove("maplibregl-compact-show");
+            attribution.removeAttribute("open");
+            collapse.disconnect();
+          });
+          collapse.observe(attribution, { attributes: true, attributeFilter: ["class"] });
+        }
 
-      map.on("error", (event: ErrorEvent) => {
-        console.error("[atlas-globe]", event.error?.message ?? event);
-      });
+        map.on("error", (event: ErrorEvent) => {
+          console.error("[atlas-globe]", event.error?.message ?? event);
+        });
 
-      map.on("load", () => {
-        readyRef.current = true;
-        setReady(true);
-      });
+        map.on("load", () => {
+          readyRef.current = true;
+          setReady(true);
+        });
 
-      map.on("styleimagemissing", (event: { id: string }) => {
-        const soft = event.id === TOPIC_BADGE_IMAGES.inherited;
-        if ((!soft && event.id !== TOPIC_BADGE_IMAGES.own) || map.hasImage(event.id)) return;
-        const badge = topicBadgeImage(soft);
-        if (badge) map.addImage(event.id, badge.image, badge.options);
-      });
+        map.on("styleimagemissing", (event: { id: string }) => {
+          const soft = event.id === TOPIC_BADGE_IMAGES.inherited;
+          if ((!soft && event.id !== TOPIC_BADGE_IMAGES.own) || map.hasImage(event.id)) return;
+          const badge = topicBadgeImage(soft);
+          if (badge) map.addImage(event.id, badge.image, badge.options);
+        });
 
-      // State for e2e tests and diagnostics: country borders are loaded and rendered.
-      // "idle" isn't enough — it may not fire during camera animation; sourcedata always does.
-      const markCountriesLoaded = (event: MapSourceDataEvent) => {
-        if (event.sourceId !== "countries" || !map.isSourceLoaded("countries")) return;
-        containerRef.current?.setAttribute("data-countries", "loaded");
-        setPainted(true);
-        map.off("sourcedata", markCountriesLoaded);
-      };
-      map.on("sourcedata", markCountriesLoaded);
+        // State for e2e tests and diagnostics: country borders are loaded and rendered.
+        // "idle" isn't enough — it may not fire during camera animation; sourcedata always does.
+        const markCountriesLoaded = (event: MapSourceDataEvent) => {
+          if (event.sourceId !== "countries" || !map.isSourceLoaded("countries")) return;
+          containerRef.current?.setAttribute("data-countries", "loaded");
+          setPainted(true);
+          map.off("sourcedata", markCountriesLoaded);
+        };
+        map.on("sourcedata", markCountriesLoaded);
 
-      /** The active metric's value for a country (none in the default view). */
-      const metricFor = (iso3: string): HoverLabel["metric"] => {
-        const metric = metricValuesRef.current[viewRef.current];
-        if (!metric) return undefined;
-        const entry = metric.values[iso3];
-        return { label: metric.label, value: entry?.[0] ?? null, year: entry?.[1] };
-      };
+        /** The active metric's value for a country (none in the default view). */
+        const metricFor = (iso3: string): HoverLabel["metric"] => {
+          const metric = metricValuesRef.current[viewRef.current];
+          if (!metric) return undefined;
+          const entry = metric.values[iso3];
+          return { label: metric.label, value: entry?.[0] ?? null, year: entry?.[1] };
+        };
 
-      /** What's under the cursor: country ISO3, its name and the target URL per mode. */
-      const targetAt = (point: MapMouseEvent["point"]) => {
-        const feature = map.queryRenderedFeatures(point, {
-          layers: [LAYERS.fill],
-        })[0];
-        const iso3 = (feature?.properties?.iso3 as string | undefined) ?? null;
-        if (!iso3) return null;
+        /** What's under the cursor: country ISO3, its name and the target URL per mode. */
+        const targetAt = (point: MapMouseEvent["point"]) => {
+          const feature = map.queryRenderedFeatures(point, {
+            layers: [LAYERS.fill],
+          })[0];
+          const iso3 = (feature?.properties?.iso3 as string | undefined) ?? null;
+          if (!iso3) return null;
 
-        // Group modes: a click opens the whole group, not a single country.
-        if (modeRef.current === "regions" || modeRef.current === "issue") {
-          const isIssue = modeRef.current === "issue";
-          const lookup = isIssue ? issueRef.current : regionsRef.current;
-          const slug = lookup.slugByCountry[iso3];
-          const group = slug ? lookup.bySlug[slug] : undefined;
-          if (!group) return null;
-          const topics = topicCountsRef.current[isIssue ? "issue" : "regions"][slug ?? ""] ?? 0;
+          // Group modes: a click opens the whole group, not a single country.
+          if (modeRef.current === "regions" || modeRef.current === "issue") {
+            const isIssue = modeRef.current === "issue";
+            const lookup = isIssue ? issueRef.current : regionsRef.current;
+            const slug = lookup.slugByCountry[iso3];
+            const group = slug ? lookup.bySlug[slug] : undefined;
+            if (!group) return null;
+            const topics = topicCountsRef.current[isIssue ? "issue" : "regions"][slug ?? ""] ?? 0;
+            return {
+              iso3,
+              label: {
+                name: group.name,
+                topics: topics ? topicLabelRef.current(topics) : undefined,
+              } as HoverLabel,
+              href: isIssue ? `/global-issue/${slug}` : `/region/${slug}`,
+              countries: group.countries,
+            };
+          }
+
+          const slug = slugsRef.current[iso3];
+          if (!slug) return null;
+          const name = (feature?.properties?.name as string) ?? iso3;
+          const topics = topicCountsRef.current.countries[iso3] ?? 0;
           return {
             iso3,
             label: {
-              name: group.name,
+              name,
+              metric: metricFor(iso3),
               topics: topics ? topicLabelRef.current(topics) : undefined,
             } as HoverLabel,
-            href: isIssue ? `/global-issue/${slug}` : `/region/${slug}`,
-            countries: group.countries,
+            href: `/country/${slug}`,
+            countries: [iso3],
           };
-        }
-
-        const slug = slugsRef.current[iso3];
-        if (!slug) return null;
-        const name = (feature?.properties?.name as string) ?? iso3;
-        const topics = topicCountsRef.current.countries[iso3] ?? 0;
-        return {
-          iso3,
-          label: {
-            name,
-            metric: metricFor(iso3),
-            topics: topics ? topicLabelRef.current(topics) : undefined,
-          } as HoverLabel,
-          href: `/country/${slug}`,
-          countries: [iso3],
         };
-      };
 
-      /** Recomputes the highlight for the given point on the canvas. */
-      const applyHover = (point: MapMouseEvent["point"] | null) => {
-        const target = point ? targetAt(point) : null;
-        // The metric is part of the key, so switching it under a still cursor updates the label.
-        const key = target ? `${target.href}|${viewRef.current}` : null;
-        if (key === hoveredRef.current) return;
-        hoveredRef.current = key;
+        /** Recomputes the highlight for the given point on the canvas. */
+        const applyHover = (point: MapMouseEvent["point"] | null) => {
+          const target = point ? targetAt(point) : null;
+          // The metric is part of the key, so switching it under a still cursor updates the label.
+          const key = target ? `${target.href}|${viewRef.current}` : null;
+          if (key === hoveredRef.current) return;
+          hoveredRef.current = key;
 
-        // Highlighted countries are kept in feature-state. It's just a flag on already
-        // loaded geometry, so the map doesn't re-tessellate anything and doesn't flicker.
-        setHoverState(map, hoveredIsoRef, target ? target.countries : []);
+          // Highlighted countries are kept in feature-state. It's just a flag on already
+          // loaded geometry, so the map doesn't re-tessellate anything and doesn't flicker.
+          setHoverState(map, hoveredIsoRef, target ? target.countries : []);
 
-        setHoverLabel(target?.label ?? null);
-        map.getCanvas().style.cursor = target ? "pointer" : "grab";
+          setHoverLabel(target?.label ?? null);
+          map.getCanvas().style.cursor = target ? "pointer" : "grab";
 
-        // Fetch the panel content already on hover, so the click is instant.
-        if (target && !prefetchedRef.current.has(target.href)) {
-          prefetchedRef.current.add(target.href);
-          router.prefetch(target.href);
-        }
-      };
+          // Fetch the panel content already on hover, so the click is instant.
+          if (target && !prefetchedRef.current.has(target.href)) {
+            prefetchedRef.current.add(target.href);
+            router.prefetch(target.href);
+          }
+        };
 
-      const onMove = (event: MapMouseEvent) => {
-        cursorRef.current = event.point;
-        applyHover(event.point);
-      };
+        const onMove = (event: MapMouseEvent) => {
+          cursorRef.current = event.point;
+          applyHover(event.point);
+        };
 
-      const onClick = (event: MapMouseEvent) => {
-        const target = targetAt(event.point);
-        if (!target) return;
-        setPending({ iso3: target.iso3, since: activeRef.current });
-        router.push(target.href);
-      };
+        const onClick = (event: MapMouseEvent) => {
+          const target = targetAt(event.point);
+          if (!target) return;
+          setPending({ iso3: target.iso3, since: activeRef.current });
+          router.push(target.href);
+        };
 
-      // During a camera flight different countries pass under a still cursor.
-      // So we turn the highlight off when movement starts and recompute it when it ends,
-      // otherwise a random country from mid-animation would stay highlighted.
-      // The idle spin moves the camera every frame; the highlight stays on until the cursor moves.
-      const onMoveStart = (event: object) => {
-        if (isSpinEvent(event)) return;
-        hoveredRef.current = null;
-        setHoverState(map, hoveredIsoRef, []);
-        setHoverLabel(null);
-      };
-      const onMoveEnd = (event: object) => {
-        if (!isSpinEvent(event)) applyHover(cursorRef.current);
-      };
+        // During a camera flight different countries pass under a still cursor.
+        // So we turn the highlight off when movement starts and recompute it when it ends,
+        // otherwise a random country from mid-animation would stay highlighted.
+        // The idle spin moves the camera every frame; the highlight stays on until the cursor moves.
+        const onMoveStart = (event: object) => {
+          if (isSpinEvent(event)) return;
+          hoveredRef.current = null;
+          setHoverState(map, hoveredIsoRef, []);
+          setHoverLabel(null);
+        };
+        const onMoveEnd = (event: object) => {
+          if (!isSpinEvent(event)) applyHover(cursorRef.current);
+        };
 
-      map.on("mousemove", onMove);
-      map.on("click", onClick);
-      map.on("movestart", onMoveStart);
-      map.on("moveend", onMoveEnd);
-      map.on("mouseout", () => applyHover(null));
+        map.on("mousemove", onMove);
+        map.on("click", onClick);
+        map.on("movestart", onMoveStart);
+        map.on("moveend", onMoveEnd);
+        map.on("mouseout", () => applyHover(null));
 
-      cleanup = () => {
-        map.remove();
-        mapRef.current = null;
-        readyRef.current = false;
-      };
-    });
+        cleanup = () => {
+          map.remove();
+          mapRef.current = null;
+          readyRef.current = false;
+        };
+      });
+
+    // The globe waits for its turn: once the browser is idle (the page's text is
+    // painted first — on phones its ~300 kB library and first frames would push
+    // the Largest Contentful Paint back by seconds), and never while it is hidden
+    // (the corner window is left out on phones): it starts once it has a size.
+    let observer: ResizeObserver | undefined;
+    const whenVisible = () => {
+      if (cancelled) return;
+      const sized = () => container.clientWidth > 0 && container.clientHeight > 0;
+      if (sized()) return start();
+      observer = new ResizeObserver(() => {
+        if (!sized()) return;
+        observer?.disconnect();
+        start();
+      });
+      observer.observe(container);
+    };
+    const idle =
+      typeof window.requestIdleCallback === "function"
+        ? window.requestIdleCallback(whenVisible, { timeout: GLOBE_START_TIMEOUT_MS })
+        : window.setTimeout(whenVisible, 1);
     return () => {
       cancelled = true;
+      if (typeof window.cancelIdleCallback === "function") window.cancelIdleCallback(idle);
+      else window.clearTimeout(idle);
+      observer?.disconnect();
       cleanup?.();
     };
     // The map is deliberately not recreated – dependencies are read via ref/router.

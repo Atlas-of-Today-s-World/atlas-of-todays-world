@@ -2,6 +2,7 @@ import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import { Inter, Manrope } from "next/font/google";
 import "./globals.css";
+import { PrePaintScript } from "@/components/PrePaintScript";
 import { serverEnv } from "@/lib/env.server";
 import { DEFAULT_OG_IMAGE, TITLE_SUFFIX } from "@/lib/seo/metadata";
 import { SITE_URL } from "@/lib/site";
@@ -77,7 +78,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${manrope.variable}`}>
+    // suppressHydrationWarning: PrePaintScript may add an attribute before React hydrates.
+    <html lang="en" className={`${inter.variable} ${manrope.variable}`} suppressHydrationWarning>
       <body
         style={
           {
@@ -86,6 +88,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           } as React.CSSProperties
         }
       >
+        <PrePaintScript />
         {/* Keyboard and screen readers: straight to content, past the menu and map controls (WCAG 2.4.1). */}
         <a
           href="#content"

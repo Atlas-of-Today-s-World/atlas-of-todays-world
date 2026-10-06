@@ -19,7 +19,10 @@ const target = join(root, "public", "maplibre", version);
 mkdirSync(target, { recursive: true });
 // The main module is loaded from here too (src/components/map/maplibre.ts), so
 // the main thread and the worker share a single maplibre-gl-shared.mjs.
+// Their source maps too: the modules point at them, and without them browsers'
+// dev tools (and Lighthouse's "valid source maps" check) report a 404.
 for (const file of ["maplibre-gl.mjs", "maplibre-gl-worker.mjs", "maplibre-gl-shared.mjs"]) {
   copyFileSync(join(dist, file), join(target, file));
+  copyFileSync(join(dist, `${file}.map`), join(target, `${file}.map`));
 }
 console.log(`maplibre worker ${version} → public/maplibre/${version}/`);
