@@ -2,6 +2,7 @@ import {
   BadgeCheck,
   Brush,
   Globe2,
+  HandHeart,
   LayoutDashboard,
   LayoutGrid,
   Layers,
@@ -43,6 +44,7 @@ export const ADMIN_NAV: readonly AdminNavItem[] = [
   { href: "/admin/areas", label: "Custom map areas", section: "areas", icon: MapIcon },
   { href: "/admin/appearance", label: "Map appearance", section: "appearance", icon: Brush },
   { href: "/admin/accounts", label: "Accounts & invitations", section: "users", icon: Users },
+  { href: "/admin/volunteers", label: "Volunteer editors", section: "users", icon: HandHeart },
   { href: "/admin/roles", label: "Roles & permissions", section: "permissions", icon: ShieldCheck },
   { href: "/admin/members", label: "Patron memberships", section: "members", icon: UserRound },
 ];

@@ -85,6 +85,14 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
           and every newsletter has an unsubscribe link.
         </p>
 
+        <h2>Volunteer editors</h2>
+        <p>
+          If you apply to write for the Atlas as a volunteer, we keep your name, e-mail address and
+          what you tell us in our database, so the editorial team can get in touch. Only the people
+          who manage accounts can see it, and we delete it on request or when it is no longer
+          needed.
+        </p>
+
         <h2>Who processes the data</h2>
         <ul>
           <li>Supabase — database and sign-in, hosted in Frankfurt (EU).</li>

@@ -308,7 +308,33 @@
       "help": "Need help? Email us at {email}."
     },
     "builtWith": "This website was built in cooperation with",
-    "builtWithLabel": "Website by Develogi.cz"
+    "builtWithLabel": "Website by Develogi.cz",
+    "volunteer": {
+      "title": "Write for the Atlas as a volunteer",
+      "lead": "Not every way to help is a donation. If you know a country, a region or an issue well, you can join our editors and write or review topics — as a volunteer, alongside your studies or work. Tell us a little about yourself and we will get in touch.",
+      "points": [
+        "Write or update a topic in your field",
+        "Review drafts and check sources",
+        "Work remotely, at your own pace"
+      ],
+      "name": "Your name",
+      "email": "E-mail",
+      "topics": "What would you like to write about?",
+      "topicsHint": "Countries, regions or issues you know well",
+      "message": "A few words about you (optional)",
+      "consent": "I agree that the Atlas may keep these details to contact me about volunteering, as described in the",
+      "privacyLink": "privacy policy",
+      "submit": "Apply as a volunteer editor",
+      "messages": {
+        "thanks": "Thank you! We have your application and will get in touch.",
+        "rateLimited": "Too many attempts. Try again in an hour.",
+        "invalidEmail": "Check the e-mail address.",
+        "name": "Enter your name.",
+        "tooLong": "That text is too long.",
+        "consent": "Please confirm the consent.",
+        "failed": "Something went wrong. Try again later."
+      }
+    }
   },
   "newsIndex": {
     "title": "All news",
