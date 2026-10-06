@@ -29,6 +29,7 @@ import { DESKTOP_MIN_PX, isFullPage, railKind, railWidthPx } from "@/config/layo
 import Link from "@/components/i18n/Link";
 import { cn } from "@/lib/cn";
 import { useMessages } from "@/components/i18n/LocaleProvider";
+import { splitLocale, withoutDefaultPrefix } from "@/features/i18n/config";
 import { isSpinEvent, useIdleSpin } from "./useIdleSpin";
 
 interface GlobeColorSets {
@@ -509,6 +510,9 @@ export default function AtlasGlobe({
   }, [mode, ready]);
 
   // --- topic counts: one badge layer per mode, numbers from the server ---
+  const openIssue = /^\/global-issue\/([^/]+)/.exec(
+    splitLocale(withoutDefaultPrefix(pathname)).path,
+  )?.[1];
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
@@ -529,7 +533,11 @@ export default function AtlasGlobe({
           ? (COUNTRY_RANK_FILTER as ExpressionSpecification)
           : key === "regions"
             ? null
-            : has,
+            : openIssue
+              ? // On a group's page only its own count: another group's pill over one of
+                // its countries reads as its count (Russia–Ukraine War over Belarus).
+                ["all", has, ["==", ["get", "slug"], openIssue]]
+              : has,
       );
       map.setLayoutProperty(layer, "text-field", text);
       // The small globe window on full-width pages shows no counts.
@@ -548,7 +556,7 @@ export default function AtlasGlobe({
       map.setPaintProperty(layer, "icon-opacity", ["case", has, 0.92, 0.5]);
       map.setPaintProperty(layer, "text-opacity", ["case", has, 1, 0.7]);
     }
-  }, [topicCounts, ownTopicCountries, mode, mini, ready]);
+  }, [topicCounts, ownTopicCountries, mode, openIssue, mini, ready]);
 
   // --- highlight of the active country / region ---
   useEffect(() => {
