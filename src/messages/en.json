@@ -563,6 +563,7 @@
     "inviteSubject": "A topic about {place}",
     "clearFilter": "Show all topics",
     "backToAtlas": "Back to Atlas",
+    "backToAtlasShort": "Atlas",
     "globeWindow": "Back to the Atlas globe",
     "filters": "Filter topics",
     "filterCountry": "Country",

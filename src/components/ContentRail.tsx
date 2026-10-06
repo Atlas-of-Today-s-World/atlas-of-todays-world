@@ -16,8 +16,12 @@ import { useMessages } from "@/components/i18n/LocaleProvider";
  * On desktop it's the right column, on mobile a bottom sheet; the content is rendered
  * only once so it isn't duplicated in the HTML. The sheet opens at a little over
  * half the window (the place stays visible above it); its handle expands it to
- * nearly full height — a tap, or a swipe up (and down to shrink it back).
+ * nearly full height — a tap, or a swipe up; a swipe down shrinks it back, and
+ * from its opening height closes the panel (like the X).
  */
+/** How far a finger must travel on the sheet handle to count as a swipe. */
+const SWIPE_MIN_PX = 24;
+
 export default function ContentRail({
   children,
   /**
@@ -95,9 +99,11 @@ export default function ContentRail({
         onPointerUp={(event) => {
           const from = swipeFrom.current;
           swipeFrom.current = null;
-          if (from === null || Math.abs(event.clientY - from) < 24) return;
+          if (from === null || Math.abs(event.clientY - from) < SWIPE_MIN_PX) return;
           swiped.current = true;
-          setExpanded(event.clientY < from);
+          if (event.clientY < from) setExpanded(true);
+          else if (expanded) setExpanded(false);
+          else router.push(closeHref);
         }}
         className="flex h-11 w-full touch-none items-center justify-center focus-visible:outline-none md:hidden [&:focus-visible>span]:bg-[var(--color-accent)]"
       >
