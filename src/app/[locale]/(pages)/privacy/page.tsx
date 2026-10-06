@@ -51,6 +51,11 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
             data — only anonymous totals such as page views and countries.
           </li>
           <li>
+            To open the globe over your country, the home page asks our server for the country of
+            your IP address (as our hosting provider sees it). Only the two-letter country code is
+            used, in your browser, and it is not stored.
+          </li>
+          <li>
             The globe loads map tiles and fonts from MapTiler or Esri and from OpenMapTiles. Your
             browser contacts those servers directly, so they see your IP address.
           </li>
