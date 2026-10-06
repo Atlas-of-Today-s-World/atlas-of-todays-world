@@ -30,7 +30,7 @@ const hexColor = z.preprocess(
     .optional(),
 );
 
-/** Section label of a topic ("Chapters", "Learn more"); empty = the template's. */
+/** Section label of a topic ("Subtopics", "Learn more"); empty = the template's. */
 const sectionLabel = text(40).default("");
 
 /** Text with one item per line → list of non-empty lines (trim removes CR). */

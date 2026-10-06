@@ -12,7 +12,7 @@ import { getAtlas } from "@/features/geography/queries";
 import type { Atlas } from "@/features/geography/types";
 import { DEFAULT_LOCALE, localePath, type Locale } from "@/features/i18n/config";
 import { format, getMessages } from "@/features/i18n/messages";
-import { LEGAL_NAV, TOPICS_PATH } from "@/config/navigation";
+import { articlePath, LEGAL_NAV, TOPICS_PATH } from "@/config/navigation";
 import { ORGANIZATION } from "@/config/organization";
 import { MEMBERSHIP_PATH } from "@/features/membership/config";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
@@ -102,7 +102,7 @@ export async function getSitemaps(now = Date.now()): Promise<Record<SitemapName,
     ]);
   }
   const article = (kind: ArticleKind) => (item: EntrySummary) => ({
-    path: `/${kind}/${item.slug}`,
+    path: articlePath(kind, item.slug),
     languages: item.languages,
     lastmod: articleDate(item),
     images: [item.hero],
@@ -214,7 +214,7 @@ function sections(atlas: Atlas, news: EntrySummary[], entries: EntrySummary[], l
       title: s.sectionEntries,
       links: entries.map((item) => ({
         name: item.title,
-        url: url(locale, `/entry/${item.slug}`),
+        url: url(locale, articlePath("entry", item.slug)),
         note: `${date(item)}${clampText(item.summary, 300)}`,
       })),
     },

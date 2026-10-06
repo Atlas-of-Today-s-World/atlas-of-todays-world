@@ -43,14 +43,15 @@ const SHADE =
   "pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/5 transition group-hover:from-black/90";
 const ACTIVE = "ring-2 ring-[var(--color-accent)] ring-offset-2";
 const HEADING = "font-display text-[26px] font-semibold tracking-tight sm:text-[30px]";
-/** Rows of tiles across the full width of the page. */
-const ROW = "mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6";
+/** Each half is a two-column grid of tiles that grows by rows. */
+const ROW = "mt-5 grid grid-cols-2 gap-3";
 
 /**
- * The dossier across the full width of the page: a row of chapter cards with
- * the open chapter right below it, then the "Learn more" row with its open
- * panel. Every panel is in the HTML (search engines, print), only the open one
- * is shown; it is mirrored in the URL hash (`#topic-2`, `#learn-videos`).
+ * The topic's two halves side by side: subtopic tiles on the left, "Learn
+ * more" resource tiles on the right (stacked on narrow screens). A tile opens
+ * its panel below both halves; every panel is in the HTML (search engines,
+ * print), only the open one is shown, mirrored in the URL hash (`#topic-2`,
+ * `#learn-videos`).
  */
 export function DossierExplorer({
   topics,
@@ -96,100 +97,100 @@ export function DossierExplorer({
 
   return (
     <div className="mt-12">
-      {topics.length ? (
-        <section aria-labelledby="dossier-topics">
-          <h2 id="dossier-topics" className={HEADING}>
-            {labels.articles ?? t.chapters}
-          </h2>
-          <ul className={ROW}>
-            {topics.map((topic, index) => {
-              return (
-                <li key={topic.id}>
-                  <button
-                    type="button"
-                    aria-controls={topic.id}
-                    aria-expanded={open === topic.id}
-                    aria-label={format(t.showTopic, {
-                      number: String(index + 1),
-                      title: topic.title,
-                    })}
-                    onClick={() => choose(topic.id)}
-                    className={cn(
-                      TILE,
-                      "aspect-[4/5] sm:aspect-[3/5]",
-                      open === topic.id && ACTIVE,
-                    )}
-                    style={tileStyle(topic.image, topic.background)}
-                  >
-                    <span aria-hidden className={SHADE} />
-                    <span className="font-display relative text-[15px] leading-tight font-semibold text-balance sm:text-[16px]">
-                      {topic.title}
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-          {panels(topicPanels)}
-        </section>
-      ) : null}
-
-      {tiles.length ? (
-        <section aria-labelledby="dossier-learn-more" className="mt-14">
-          <h2 id="dossier-learn-more" className={HEADING}>
-            {labels.learnMore ?? t.learnMore}
-          </h2>
-          <ul className={ROW}>
-            {tiles.map((tile) => {
-              const style = tileStyle(tile.image, tile.background);
-              const body = (
-                <>
-                  <span aria-hidden className={SHADE} />
-                  <span className="relative mb-auto grid size-9 place-items-center rounded-full bg-white/15 backdrop-blur-sm">
-                    <TileIcon name={tile.icon} className="size-4.5" />
-                  </span>
-                  <span className="font-display relative mt-3 text-[14px] leading-snug font-bold">
-                    {tile.label}
-                  </span>
-                  <span className="relative mt-0.5 text-[11px] text-white/70">
-                    {tile.empty
-                      ? t.comingSoon
-                      : tile.count === 1
-                        ? t.resourcesOne
-                        : tile.count
-                          ? format(t.resourcesCount, { count: String(tile.count) })
-                          : tile.description}
-                  </span>
-                </>
-              );
-              return (
-                <li key={tile.id}>
-                  {tile.empty ? (
-                    <div
-                      className={cn(TILE, "min-h-36 opacity-45 shadow-none grayscale")}
-                      style={style}
-                    >
-                      {body}
-                    </div>
-                  ) : (
+      <div className="grid gap-10 lg:grid-cols-2 lg:gap-8">
+        {topics.length ? (
+          <section aria-labelledby="dossier-topics">
+            <h2 id="dossier-topics" className={HEADING}>
+              {labels.articles ?? t.chapters}
+            </h2>
+            <ul className={ROW}>
+              {topics.map((topic, index) => {
+                return (
+                  <li key={topic.id}>
                     <button
                       type="button"
-                      aria-controls={tile.id}
-                      aria-expanded={open === tile.id}
-                      onClick={() => choose(tile.id)}
-                      className={cn(TILE, "min-h-36", open === tile.id && ACTIVE)}
-                      style={style}
+                      aria-controls={topic.id}
+                      aria-expanded={open === topic.id}
+                      aria-label={format(t.showTopic, {
+                        number: String(index + 1),
+                        title: topic.title,
+                      })}
+                      onClick={() => choose(topic.id)}
+                      className={cn(TILE, "min-h-40", open === topic.id && ACTIVE)}
+                      style={tileStyle(topic.image, topic.background)}
                     >
-                      {body}
+                      <span aria-hidden className={SHADE} />
+                      <span className="font-display relative text-[15px] leading-tight font-semibold text-balance sm:text-[16px]">
+                        {topic.title}
+                      </span>
                     </button>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-          {panels(tilePanels)}
-        </section>
-      ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        ) : null}
+
+        {tiles.length ? (
+          <section aria-labelledby="dossier-learn-more">
+            <h2 id="dossier-learn-more" className={HEADING}>
+              {labels.learnMore ?? t.learnMore}
+            </h2>
+            <ul className={ROW}>
+              {tiles.map((tile) => {
+                const style = tileStyle(tile.image, tile.background);
+                const body = (
+                  <>
+                    <span aria-hidden className={SHADE} />
+                    <span className="relative mb-auto grid size-9 place-items-center rounded-full bg-white/15 backdrop-blur-sm">
+                      <TileIcon name={tile.icon} className="size-4.5" />
+                    </span>
+                    <span className="font-display relative mt-3 text-[14px] leading-snug font-bold">
+                      {tile.label}
+                    </span>
+                    <span className="relative mt-0.5 text-[11px] text-white/70">
+                      {tile.empty
+                        ? t.comingSoon
+                        : tile.count === 1
+                          ? t.resourcesOne
+                          : tile.count
+                            ? format(t.resourcesCount, { count: String(tile.count) })
+                            : tile.description}
+                    </span>
+                  </>
+                );
+                return (
+                  <li key={tile.id}>
+                    {tile.empty ? (
+                      <div
+                        className={cn(TILE, "min-h-36 opacity-45 shadow-none grayscale")}
+                        style={style}
+                      >
+                        {body}
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        aria-controls={tile.id}
+                        aria-expanded={open === tile.id}
+                        onClick={() => choose(tile.id)}
+                        className={cn(TILE, "min-h-36", open === tile.id && ACTIVE)}
+                        style={style}
+                      >
+                        {body}
+                      </button>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        ) : null}
+      </div>
+      <div className="mt-10">
+        {panels(topicPanels)}
+        {panels(tilePanels)}
+      </div>
     </div>
   );
 }

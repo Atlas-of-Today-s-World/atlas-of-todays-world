@@ -232,7 +232,7 @@ export function ThematicEntries({ entries }: { entries: PlannedEntry[] }) {
                     entry.slug ? (
                       <Link
                         key={entry.title}
-                        href={`/entry/${entry.slug}`}
+                        href={`/topics/${entry.slug}`}
                         className="min-w-0 rounded-xl border border-[var(--color-line)] p-3 text-[13px] leading-snug font-medium break-words text-[var(--color-ink)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
                       >
                         {entry.title}

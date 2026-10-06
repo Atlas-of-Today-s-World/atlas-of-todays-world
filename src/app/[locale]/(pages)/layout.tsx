@@ -1,4 +1,5 @@
 import { PagesShell } from "@/components/PagesShell";
+import { getFlags } from "@/features/flags/queries";
 import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 
@@ -10,5 +11,14 @@ export default async function PagesLayout({
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
-  return <PagesShell t={getMessages(await localeFrom(params))}>{children}</PagesShell>;
+  const flags = await getFlags();
+  return (
+    <PagesShell
+      t={getMessages(await localeFrom(params))}
+      showNews={flags.newsMenu}
+      newsletter={flags.newsletter}
+    >
+      {children}
+    </PagesShell>
+  );
 }

@@ -98,7 +98,7 @@ describe("JSON-LD builders", () => {
   });
 
   it("encyclopedia entry: Article with abstract, citations, parts, FAQ and speakable page", () => {
-    const url = pageUrl("/entry/smuggling", "en");
+    const url = pageUrl("/topics/smuggling", "en");
     const data = parsed(
       graph(
         webPageNode({

@@ -4,6 +4,7 @@ import { FullPage } from "@/components/FullPage";
 import { EncyclopediaArticle } from "@/features/entries/components/EncyclopediaArticle";
 import { NewsArticle } from "@/features/entries/components/NewsArticle";
 import { getPreview } from "@/features/entries/queries";
+import { getFlags } from "@/features/flags/queries";
 import { getAtlas } from "@/features/geography/queries";
 import { format, getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
@@ -31,6 +32,7 @@ export default async function PreviewPage({
   const { token } = await params;
   const locale = await localeFrom(params);
   const messages = getMessages(locale);
+  const flags = await getFlags();
   const t = messages.preview;
   const [preview, atlas] = await Promise.all([getPreview(token), getAtlas(locale)]);
   if (!preview) notFound();
@@ -50,9 +52,9 @@ export default async function PreviewPage({
     </p>
   );
 
-  // Entries are full-width pages (like /entry/…); news stays in the panel over the map.
+  // Entries are full-width pages (like /topics/…); news stays in the panel over the map.
   return preview.kind === "entry" ? (
-    <FullPage t={messages}>
+    <FullPage t={messages} showNews={flags.newsMenu} newsletter={flags.newsletter}>
       <EncyclopediaArticle item={preview.item} atlas={atlas} banner={banner} />
     </FullPage>
   ) : (

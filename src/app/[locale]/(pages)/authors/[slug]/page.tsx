@@ -9,6 +9,7 @@ import { localeFrom } from "@/features/i18n/request";
 import { formatLongDate } from "@/lib/format";
 import { cssBackgroundImage } from "@/lib/security/urls";
 import { pageMetadata } from "@/lib/seo/metadata";
+import { articlePath } from "@/config/navigation";
 import {
   breadcrumbNode,
   graph,
@@ -35,7 +36,7 @@ export async function generateStaticParams() {
 async function articlesOf(slug: string) {
   return (await getArticlesByAuthor(slug)).map((item) => ({
     ...item,
-    path: `/${item.kind}/${item.slug}`,
+    path: articlePath(item.kind, item.slug),
   }));
 }
 
