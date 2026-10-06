@@ -1,0 +1,192 @@
+-- Step 2 of moving the imported topics' photos off the old site's Webflow CDN:
+-- the database points at the copies now served with the site
+-- (public/images/webflow, scripts/webflow/mirror-images.mjs). Generated from
+-- scripts/webflow/data/image-mirror.json; each URL also in its decoded and
+-- %28/%29 spellings. Photos inside article HTML are replaced as well.
+-- Idempotent: a second run finds no Webflow URL left to replace.
+
+create temporary table webflow_mirror (old text primary key, new text not null) on commit drop;
+
+insert into webflow_mirror (old, new) values
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/63c988dc940279ff4cf11d11_Syrians_and_Iraq_refugees-min.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/14b509bb0680f41b04e0.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/63cfc8f731fcb00cf422dcc2_img-migrant-smuggling-min.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/ce56474f8fc1618cfea1.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/63d15ffe8f74d7c27e17ea5a_img-migrant-smuggling-over-min.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/c5bcfb4fb967d7fe3d59.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/63d1647f03a2836106f0f205_img-migrant-smuggling-3-min.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/4c57ce532c44fae36a53.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/63d1664ab7b4d60a8bcec03b_img-migrant-smuggling-4-min-min.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/d1b5435c5c0e48aab7c2.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/63d16751a11a8351958224bb_img-migrant-smuggling5-min.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/f9df9396bc2847bdc5ca.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/63d1693584b84735a8446a5d_img-migrant-smuggling6-min.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/1db5851b534d4ce2f8d8.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64379c9fee702c46090bb773_gi03_main_United%20States%20Mission%20Geneva_Flickr.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/757cd753b31223901ee8.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64379c9fee702c46090bb773_gi03_main_United States Mission Geneva_Flickr.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/757cd753b31223901ee8.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6437a8e0bc1a048612c86b08_gi03_big-picture_Mstyslav%20Chernov_Wikimedia%20Commons.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/9fdd70da296d591d8447.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6437a8e0bc1a048612c86b08_gi03_big-picture_Mstyslav Chernov_Wikimedia Commons.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/9fdd70da296d591d8447.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6437a9bb8632fbb4d0ed536b_gi03_01_United%20Nations%20Photo_Flickr.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/44e095c9a45ddc0d3c94.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6437a9bb8632fbb4d0ed536b_gi03_01_United Nations Photo_Flickr.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/44e095c9a45ddc0d3c94.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6437aa756c8c7c1a9989ad1d_gi03_02_International%20Maritime%20Organization_Flickr.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/bec4bc6dec7cb70ca0bd.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6437aa756c8c7c1a9989ad1d_gi03_02_International Maritime Organization_Flickr.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/bec4bc6dec7cb70ca0bd.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6437ac3876b744d629dca4b9_gi03_05_European%20Parliament_Flickr.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/2399678a729709879016.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6437ac3876b744d629dca4b9_gi03_05_European Parliament_Flickr.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/2399678a729709879016.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64d8bef7595cddbf72a0c381_map-of-the-world-1005413_1280.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/6b7431686008465452bc.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64d8c0c4595cddbf72a19453_Definition%20of%20migrant.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/262953e9c714b3016204.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64d8c0c4595cddbf72a19453_Definition of migrant.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/262953e9c714b3016204.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64d8c20a2951a7c1d144c9cd_Voluntary%20vs%20forced%20migration.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/f136b2f1d50b6d9e9779.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64d8c20a2951a7c1d144c9cd_Voluntary vs forced migration.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/f136b2f1d50b6d9e9779.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64d8c4a3421367fec3a7702e_Causes%20and%20Types%20of%20Voluntary%20Migration2.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/d13bff5f9956fb03b0ed.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64d8c4a3421367fec3a7702e_Causes and Types of Voluntary Migration2.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/d13bff5f9956fb03b0ed.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64d8c5b11f7819ef5427ac5d_Causes%20%2B%20Types%20of%20Forced%20Migration.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/a9f5b5a88a2e9d7ab33a.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64d8c5b11f7819ef5427ac5d_Causes %2B Types of Forced Migration.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/a9f5b5a88a2e9d7ab33a.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64db40d2065021b913203e3b_mt6D58Eqn4ZJXe_LdRfXadpHglQBit3FIhhm4P34hzwMQbB1ruWwK1X0RQimsdUKyUyAZbKM20C0vODNeXkCx6dLX4Y3Q4B5VmevBHlGIlRmEIHer2LznKfkSsfR_qtGVxThhcf1Yh5r3im_wr7zFto.png', 'https://atlas-of-todays-world.vercel.app/images/webflow/3d9daaf1ccca8dbc3218.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64db42d29f738f2743775aa6_zAzxD7AAETSdJ4r28PmC1rAZOGys1UB6BekA8TYe6iOIatC3i_XnomQyyj3_NLxSfpGl1_17KrSLZf-_eZfCXSN07KzZQ4KvjVr45PvQIIXSLkimIXA7ZV1N7scccYLZurqT4qZJa_atdTo6k_gI5g8.png', 'https://atlas-of-todays-world.vercel.app/images/webflow/9095da94485266f235ac.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64e8d52a548b7eaded126d9b_Natural%20disasters%20are%20not%20natural.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/cdd4baea0b82fdb5e186.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64e8d52a548b7eaded126d9b_Natural disasters are not natural.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/cdd4baea0b82fdb5e186.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64e8d747ce5da4ea1ae0cd9a_9773934426_9c51a15868_c.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/22cccf90a29f50f45801.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64e8d802ca4e9e9d9f9887ae_Big%20picture%20disaster%20risk%20reduction.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/f565d69cb3e8157da5de.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64e8d802ca4e9e9d9f9887ae_Big picture disaster risk reduction.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/f565d69cb3e8157da5de.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64e8dd1bb9c109ea8fadcf54_Sustainable%20Development.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/6e2c3f24c0de95364199.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64e8dd1bb9c109ea8fadcf54_Sustainable Development.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/6e2c3f24c0de95364199.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64e8de88eff6d9af578d59cb_climate%20resilient%20development.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/b0225b6bd4f95068d3f1.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64e8de88eff6d9af578d59cb_climate resilient development.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/b0225b6bd4f95068d3f1.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64eca4fa1906b165b6de6cf0_getty-images-o9iSB_smxI4-unsplash.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/8a4f237c33fc708c80ba.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64ecae6bb3c9905b5a75689d_7583664684_c46f609109_h.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/de23f3f5f4e731838175.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64ecaf79309a3d4ca4caabbe_52573109390_01859ee02b_c.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/1ad4e380d13b9b711461.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64ecafeefd142fd6ab688adb_Current%20status%20and%20trends.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/68285a5f0d258fccdf81.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64ecafeefd142fd6ab688adb_Current status and trends.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/68285a5f0d258fccdf81.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64ecb01a482b459ef7d27b37_impact%20on%20humans.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/272e30135ee2f5a33bb8.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/64ecb01a482b459ef7d27b37_impact on humans.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/272e30135ee2f5a33bb8.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/650c3228cb4d5b4dd5bf4821_Main%20picture.webp', 'https://atlas-of-todays-world.vercel.app/images/webflow/d9f75826b2a41f2744a1.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/650c3228cb4d5b4dd5bf4821_Main picture.webp', 'https://atlas-of-todays-world.vercel.app/images/webflow/d9f75826b2a41f2744a1.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/650c37b71911c0cf6a8c0706_International%20Human%20Rights%20Regime.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/ad0d88fb111dbdebbf3d.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/650c37b71911c0cf6a8c0706_International Human Rights Regime.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/ad0d88fb111dbdebbf3d.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/650c461abbf96af03b3328ce_larga%20scale%20problems.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/b89e4cb6ecb0e32aa79f.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/650c461abbf96af03b3328ce_larga scale problems.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/b89e4cb6ecb0e32aa79f.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/650c475eb4512e7c72191ed8_sovereignty.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/51b223f63a20c41631c0.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/650c4815b4512e7c721a15eb_individualism%20vs%20community.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/cd3ae278c44942a82f2c.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/650c4815b4512e7c721a15eb_individualism vs community.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/cd3ae278c44942a82f2c.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/650c4a71d037bae692533b31_critical%20perspectives.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/430ceea88a063d177f95.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/650c4a71d037bae692533b31_critical perspectives.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/430ceea88a063d177f95.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6512ae95d6460f512c4f5cde_Untitled%20design.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/51e5448004e0171553e4.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6512ae95d6460f512c4f5cde_Untitled design.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/51e5448004e0171553e4.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/651544971e3a466e9a3b6e09_migrant%20detention%20and%20law.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/48f48a090239ffe6f10b.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/651544971e3a466e9a3b6e09_migrant detention and law.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/48f48a090239ffe6f10b.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6515452c9fce9a18bb0d04e7_main%20picture.png', 'https://atlas-of-todays-world.vercel.app/images/webflow/baece5a4bef3a4af8231.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6515452c9fce9a18bb0d04e7_main picture.png', 'https://atlas-of-todays-world.vercel.app/images/webflow/baece5a4bef3a4af8231.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6515465950448d1fc8163f87_alternatives%20.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/4aad2910641dd53a1949.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6515465950448d1fc8163f87_alternatives .jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/4aad2910641dd53a1949.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/651547600060b3a26b337151_monitoring.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/39948652fefaefd784a0.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/651547ff2f8d4028bde73e89_what%20is%20detention.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/86302d1b393aa58606ce.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/651547ff2f8d4028bde73e89_what is detention.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/86302d1b393aa58606ce.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65154a2d12de067fb6bef77c_deterrence.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/e0443c0a7b4d0aef5466.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65154aa716a4dee7b07e4f25_arguments%20for%20and%20against.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/16afb765654d2ebed52a.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65154aa716a4dee7b07e4f25_arguments for and against.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/16afb765654d2ebed52a.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/652ed14fd40a9674790052b1_Main%20picture%20(4).jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/7a8df62f4a9113695283.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/652ed14fd40a9674790052b1_Main picture (4).jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/7a8df62f4a9113695283.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/652ed14fd40a9674790052b1_Main%20picture%20%284%29.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/7a8df62f4a9113695283.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/652edeb744b78780e075e926_alliance.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/33d37a6531a1143e0256.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/652fd15a28c11336964cf822_peacekeeping.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/93a91e2cd6f5e9b08a57.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/652fd1984dd121e5cfc9379f_un%20promotion.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/4da41a5cf9a034fad96f.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/652fd1984dd121e5cfc9379f_un promotion.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/4da41a5cf9a034fad96f.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/652fd1ec36aa62a512b8623f_peace%20treaties.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/9bd925e6f0ed452465fa.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/652fd1ec36aa62a512b8623f_peace treaties.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/9bd925e6f0ed452465fa.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/652fdc6e72197ca6c4b428b7_community%20based%20approach.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/e6cbbefb538b648e8850.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/652fdc6e72197ca6c4b428b7_community based approach.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/e6cbbefb538b648e8850.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65312c8135812d1941d09792_Main%20picture.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/009ce4c2ea78a2eef9a2.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65312c8135812d1941d09792_Main picture.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/009ce4c2ea78a2eef9a2.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65324cd0bad4e6e6901af3df_committment.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/0d102738b3240dd2c407.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65324e3fd882a157098562d6_factors%20leading%20to%20abuse.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/c97ed1acd082b3192adc.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65324e3fd882a157098562d6_factors leading to abuse.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/c97ed1acd082b3192adc.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65324ea067abab63c760519c_promotion%20of%20hr.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/b18695a64feae55e954f.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65324ea067abab63c760519c_promotion of hr.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/b18695a64feae55e954f.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65324f09d882a15709860508_accountability.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/45add8daf7ba88c6e7af.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6553bdad8d6004b55843827e_main%20pic.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/7476659edeb493a251e7.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6553bdad8d6004b55843827e_main pic.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/7476659edeb493a251e7.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6553c847a4e89d9df0f18bc7_Minority%20rights.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/0633a634688d4e40c8c9.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6553c847a4e89d9df0f18bc7_Minority rights.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/0633a634688d4e40c8c9.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6553ca1c23c27fba09b39a8f_What%20is%20a%20minority.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/eb5beb2a02e2b56fb3e2.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6553ca1c23c27fba09b39a8f_What is a minority.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/eb5beb2a02e2b56fb3e2.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6553cb1b6b68d64f84a28b18_Minorities%20and%20Inequalities.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/59931e91c89f37e132a9.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6553cb1b6b68d64f84a28b18_Minorities and Inequalities.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/59931e91c89f37e132a9.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6553ccb2435555fc52672a5c_current%20issues.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/38638f203c6c52f50ad5.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6553ccb2435555fc52672a5c_current issues.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/38638f203c6c52f50ad5.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6553cdcf8d3c90563e0057a6_ways%20forward.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/019813083e7bb509f45c.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6553cdcf8d3c90563e0057a6_ways forward.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/019813083e7bb509f45c.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65bba3cc12bb008cf55578ca_flidrova%20-%204.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/5613fe9ca96619e07333.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65bba3cc12bb008cf55578ca_flidrova - 4.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/5613fe9ca96619e07333.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65ca4a93f6c67131e94130b9_law%20of%20war.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/cfa0f87a6de71a1f98ae.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65ca4a93f6c67131e94130b9_law of war.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/cfa0f87a6de71a1f98ae.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65cb9ad6da8bcdca477e608c_ihl%2C%20icl%20and%20hrl.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/b2982129cd7ef50cfe1e.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65cb9ad6da8bcdca477e608c_ihl%2C icl and hrl.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/b2982129cd7ef50cfe1e.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65cba1b3f60e195b104f9918_treaties.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/3a250e071bf3298049a3.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65e8711844cc27d97fc2bbd1_wmd.png', 'https://atlas-of-todays-world.vercel.app/images/webflow/ce144347c8cc4d1cce56.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65e876d4043d95d6b03d5330_big%20picture.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/df2fd3277e5317ec7f05.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65e876d4043d95d6b03d5330_big picture.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/df2fd3277e5317ec7f05.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65e876eef05563561480edad_scope%20and%20principles.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/3857d5adb40ebe0029d5.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65e876eef05563561480edad_scope and principles.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/3857d5adb40ebe0029d5.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65e9d537ff24e59a7d98016f_big%20picture.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/43432b445c23ad43e4eb.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65e9d537ff24e59a7d98016f_big picture.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/43432b445c23ad43e4eb.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65e9d580d8065dc27d6e03dc_overview.png', 'https://atlas-of-todays-world.vercel.app/images/webflow/005bdca3abec53b31689.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65e9d5c84af4b48ac1e53eca_liberalism.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/85942c68a1dcd7036d21.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65e9d611891c5f6f3c5c2e2a_socialism.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/8624b6d0498be41ae9a9.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65e9d68290a937beea45ccc3_anarchism.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/8e606a61d99934da907c.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65e9d6e92e281a3121bb33bf_far%20right.png', 'https://atlas-of-todays-world.vercel.app/images/webflow/6d044ead06c61462f57d.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65e9d6e92e281a3121bb33bf_far right.png', 'https://atlas-of-todays-world.vercel.app/images/webflow/6d044ead06c61462f57d.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66697da39f5d16e9e5892d35_00026-technology-im-cyberspace.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/3a979bec4faa5a3e08f6.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66697f73c1bd79779cd2dbfd_52082905602_090e222444_k.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/1a65a47d7f8ae62d4f26.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66698110231627f8f55a31fc_christine-roy-ir5MHI6rPg0-unsplash.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/de1f249ed44be62af40f.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/6669823a94ed1c98ae389764_social-3064515_1920.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/7ce05cb3e4fc740bde63.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/666983945bb5fee764adbdfe_2638087153_401b55b655_k.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/302e47e45a75283bd7a6.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/666985affc879db84785b6e8_joshua-rawson-harris-KRELIShKxTM-unsplash.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/ba0396b6d0e5044ba2b8.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c4aad32bf86efa02ecca03_Main-World%20Food%20Programme-flikr.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/cbfa2fbf7ac204bb6a13.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c4aad32bf86efa02ecca03_Main-World Food Programme-flikr.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/cbfa2fbf7ac204bb6a13.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c4ab5fe6fead3d5ee72546_1-US-Department%20of%20Defense-flikr.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/29ecefac402c6b6674e3.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c4ab5fe6fead3d5ee72546_1-US-Department of Defense-flikr.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/29ecefac402c6b6674e3.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c4abad1c485739dfe8edc4_2-United%20Nations-flikr.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/fc7d2a33a53972168ec1.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c4abad1c485739dfe8edc4_2-United Nations-flikr.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/fc7d2a33a53972168ec1.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c4abf7b4a7f3291f9daa6d_3-alisdare-hickson-flikr.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/b003b87982a863b76f78.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c4ac1a31d485573884b9b2_4-ben-sutherland-flikr.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/5c34e8372f77599b2641.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c4adae79348d0d2ed0db63_Main-pascal-bernardon-unsplash.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/e97dfd239a50ef3a1ea9.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c4adfe948b4bf2b5f3f4a9_1-TheDigitalArtist-pixabay.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/06adea52ea0b69d994b4.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c4ae18447b54468d78b56c_2-EricTop10.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/e77ee8ab238b0c284c02.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c4b0a86a4f6d071ed4d986_3-ted-eytan-google-creative-commons.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/4df266b450f2d6cfeb83.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c4b3512111c13e82e75203_4-pxhere.com-V2.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/7e428002cd519ae5c6cd.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c4b386e2ff3198fa52b249_5-European%20Union-lars-oberhaus-flikr.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/da844c2ed385525d8ab4.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c4b386e2ff3198fa52b249_5-European Union-lars-oberhaus-flikr.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/da844c2ed385525d8ab4.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c5de09339831cfca7185b2_Main-Li-An%20Lim-Unsplash.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/1e2c5b13db3ba1ec3593.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c5de09339831cfca7185b2_Main-Li-An Lim-Unsplash.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/1e2c5b13db3ba1ec3593.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c5de2ee3d03b0fc092856d_1-Eelco%20B%C3%B6htlingk-Unsplash.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/f32ba095176679d0c109.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c5de2ee3d03b0fc092856d_1-Eelco Böhtlingk-Unsplash.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/f32ba095176679d0c109.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c5de530fc7b69d2499a17c_2-markus-spiske-pexels.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/27887ed3123b5cd8e5c5.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c5de86b967b202cec004ad_3-geralt-pixabay.png', 'https://atlas-of-todays-world.vercel.app/images/webflow/fa8262ed3e6f9b7e9e96.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c5deed276024cf516f1c7b_5-united-nations-wikimedia-commons.png', 'https://atlas-of-todays-world.vercel.app/images/webflow/0322f803d7cfaf2e3708.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c5df55a2f506280040c17c_4-rosy-ziegler-pixabay-small.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/a76f7d21666941fe16d2.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c9a161703281e2ef37d3a8_main-UN%20Women%20Europe%20and%20Central%20Asia-flikr.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/d58c14b71d1cfa4fc119.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c9a161703281e2ef37d3a8_main-UN Women Europe and Central Asia-flikr.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/d58c14b71d1cfa4fc119.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c9a183e7ff4732a906f946_1-riya-kumari-pexels.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/5082f60db243e04975b1.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c9a1a29b51e403827b0bb3_2-lorena-pajares-flickr.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/113f03a182a8085b717a.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c9a1d5d320003d1a41817b_3-wikimedia-commons.png', 'https://atlas-of-todays-world.vercel.app/images/webflow/75d146784993faf2b4f6.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c9a1f25b68dbd4f58d1552_4-wikimedia-commons.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/d42bc32816ed5c45969c.webp'),
+  ('https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/66c9a216c433b36365c97449_5-maria-turkmani-pexels.jpg', 'https://atlas-of-todays-world.vercel.app/images/webflow/68402d599d98ad57d527.webp')
+on conflict (old) do nothing;
+
+update public.entries as x set cover_url = m.new from webflow_mirror m where x.cover_url = m.old;
+update public.entries as x set og_image_url = m.new from webflow_mirror m where x.og_image_url = m.old;
+update public.entry_chapters as x set illustration_url = m.new from webflow_mirror m where x.illustration_url = m.old;
+update public.regions as x set hero_url = m.new from webflow_mirror m where x.hero_url = m.old;
+update public.special_regions as x set hero_url = m.new from webflow_mirror m where x.hero_url = m.old;
+update public.learn_more_tiles as x set image_url = m.new from webflow_mirror m where x.image_url = m.old;
+update public.topic_template_tiles as x set image_url = m.new from webflow_mirror m where x.image_url = m.old;
+update public.resources as x set image_url = m.new from webflow_mirror m where x.image_url = m.old;
+update public.timeline_events as x set image_url = m.new from webflow_mirror m where x.image_url = m.old;
+update public.authors as x set photo_url = m.new from webflow_mirror m where x.photo_url = m.old;
+
+-- Article bodies: <img src="…"> of the old CDN.
+do $$
+declare
+  m record;
+begin
+  for m in select old, new from webflow_mirror loop
+    update public.entries set body_html = replace(body_html, m.old, m.new)
+      where body_html like '%' || m.old || '%';
+    update public.entry_chapters set body_html = replace(body_html, m.old, m.new)
+      where body_html like '%' || m.old || '%';
+  end loop;
+end;
+$$;
