@@ -28,3 +28,5 @@ export const MEMBERSHIP_PATH = "/membership";
 export const CHECKOUT_PATH = "/membership/checkout";
 export const THANK_YOU_PATH = "/membership/thank-you";
 export const MANAGE_PATH = "/membership/manage";
+/** Anchor of the volunteer editors section on the membership page. */
+export const VOLUNTEER_ID = "volunteer";
