@@ -1,7 +1,7 @@
 "use client";
 
 import { Search, X } from "lucide-react";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { type ReactNode, useEffect, useState, useSyncExternalStore } from "react";
 import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { TOPICS_PATH } from "@/config/navigation";
@@ -83,16 +83,24 @@ export function TopicsBrowser({
   items,
   filters,
   names,
+  regionOf = {},
+  heading,
 }: {
+  /** Title and intro of the page; the search panel sits beside them on wide screens. */
+  heading: ReactNode;
   items: TopicCard[];
   filters: TopicFilters;
   names: PlaceNames;
+  /** ISO3 → name of the country's region, for "related to Poland or Western & Central Europe". */
+  regionOf?: Record<string, string>;
 }) {
   const t = useMessages().topics;
   const search = useSyncExternalStore(subscribe, readSearch, noSearch);
   const params = new URLSearchParams(search);
   const filter = filterFrom(params);
   const filterName = filter ? (names[filter.kind][filter.key] ?? filter.key) : "";
+  // A country's list also holds its region's topics — the heading says so.
+  const filterRegion = filter?.kind === "country" ? regionOf[filter.key] : undefined;
   const query = params.get("q") ?? "";
   const searching = queryWords(query).length > 0;
 
@@ -129,6 +137,11 @@ export function TopicsBrowser({
     region: t.filterRegion,
     issue: t.filterSpecial,
   };
+  const allLabels: Record<Kind, string> = {
+    country: t.allCountries,
+    region: t.allRegions,
+    issue: t.allSpecial,
+  };
   // Only places with at least one topic, alphabetically.
   const options = (kind: Kind) =>
     Object.entries(names[kind])
@@ -136,40 +149,51 @@ export function TopicsBrowser({
       .sort(([, a], [, b]) => a.localeCompare(b));
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-8">
-      <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/5 sm:p-5">
-        <div>
-          <label htmlFor="topics-search" className={LABEL}>
-            {t.search}
-          </label>
-          <span className="relative mt-1.5 block">
-            <Search
-              aria-hidden
-              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[var(--color-ink-muted)]"
-            />
-            <input
-              id="topics-search"
-              type="search"
-              value={query}
-              onChange={(event) => setParams({ q: event.target.value || null })}
-              placeholder={t.searchPlaceholder}
-              maxLength={200}
-              className={cn(FIELD, "pl-9")}
-            />
-          </span>
-        </div>
-
-        <fieldset className="mt-4">
-          <legend className="sr-only">{t.filters}</legend>
-          <div className="grid gap-3 sm:grid-cols-3">
+    <div className="mx-auto max-w-7xl px-4 pt-12 pb-6 sm:px-8 sm:pt-16">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,34rem)] lg:items-end">
+        <div>{heading}</div>
+        <div className="rounded-2xl bg-white p-3 shadow-sm ring-1 ring-black/5">
+          <fieldset className="grid grid-cols-3 gap-2">
+            <legend className="sr-only">{t.filters}</legend>
+            <span className="relative col-span-3 flex items-center gap-1">
+              <label htmlFor="topics-search" className="sr-only">
+                {t.search}
+              </label>
+              <Search
+                aria-hidden
+                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[var(--color-ink-muted)]"
+              />
+              <input
+                id="topics-search"
+                type="search"
+                value={query}
+                onChange={(event) => setParams({ q: event.target.value || null })}
+                placeholder={t.searchPlaceholder}
+                maxLength={200}
+                className={cn(FIELD, "pl-9")}
+              />
+              {filter ? (
+                <button
+                  type="button"
+                  onClick={() => setParams({ country: null, region: null, issue: null })}
+                  aria-label={t.clearFilter}
+                  title={t.clearFilter}
+                  className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl px-3 text-[13px] font-medium whitespace-nowrap text-[var(--color-link)] hover:bg-[var(--color-accent-soft)]"
+                >
+                  <X aria-hidden className="size-4" />
+                  {t.clearFilter}
+                </button>
+              ) : null}
+            </span>
             {KINDS.map((kind) => (
-              <div key={kind}>
-                <label htmlFor={`topics-filter-${kind}`} className={cn(LABEL, "block")}>
+              <span key={kind} className="block">
+                <label htmlFor={`topics-filter-${kind}`} className="sr-only">
                   {labels[kind]}
                 </label>
                 <select
                   id={`topics-filter-${kind}`}
                   value={filter?.kind === kind ? filter.key : ""}
+                  title={t.filterHint}
                   // One filter at a time: picking one clears the other two.
                   onChange={(event) =>
                     setParams(
@@ -182,36 +206,19 @@ export function TopicsBrowser({
                       ),
                     )
                   }
-                  className={cn(
-                    FIELD,
-                    "mt-1.5",
-                    filter?.kind === kind && "border-[var(--color-accent)]",
-                  )}
+                  className={cn(FIELD, filter?.kind === kind && "border-[var(--color-accent)]")}
                 >
-                  <option value="">{t.filterAll}</option>
+                  <option value="">{allLabels[kind]}</option>
                   {options(kind).map(([key, name]) => (
                     <option key={key} value={key}>
                       {name}
                     </option>
                   ))}
                 </select>
-              </div>
+              </span>
             ))}
-          </div>
-          <div className="mt-3 flex min-h-11 flex-wrap items-center gap-x-4 gap-y-1">
-            <p className="text-[12px] text-[var(--color-ink-muted)]">{t.filterHint}</p>
-            {filter ? (
-              <button
-                type="button"
-                onClick={() => setParams({ country: null, region: null, issue: null })}
-                className="inline-flex min-h-11 items-center gap-1.5 text-[13px] font-medium text-[var(--color-link)] hover:underline"
-              >
-                <X aria-hidden className="size-4" />
-                {t.clearFilter}
-              </button>
-            ) : null}
-          </div>
-        </fieldset>
+          </fieldset>
+        </div>
       </div>
 
       {searching ? (
@@ -261,7 +268,9 @@ export function TopicsBrowser({
         <>
           {filter ? (
             <h2 className="font-display mt-8 text-[22px] font-bold">
-              {format(t.filteredBy, { name: filterName })}
+              {filterRegion
+                ? format(t.relatedWithRegion, { name: filterName, region: filterRegion })
+                : format(t.relatedWith, { name: filterName })}
             </h2>
           ) : null}
           <ul className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

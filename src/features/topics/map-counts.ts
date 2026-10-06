@@ -5,8 +5,10 @@
  * - countries layer: a country counts the topics placed on it, on its region
  *   and on any global issue / country group it belongs to (Czechia = its own
  *   topic + the Europe topic = 2);
- * - regions layer: a region counts the topics placed on the region;
- * - global issues layer: a group counts the topics placed on the group;
+ * - regions layer: a region counts its own topics and every topic of its
+ *   countries (so a region never shows fewer than any of its countries);
+ * - global issues layer: a group counts its own topics and the topics placed
+ *   on any of its countries;
  * - a topic counts only on the layers it is shown on (`map_layers`).
  */
 import type { MapLayer } from "@/features/entries/constants";
@@ -42,29 +44,38 @@ function add(target: Record<string, string[]>, key: string, slug: string) {
 export function countTopics(places: readonly TopicPlace[], groups: Groups): TopicCounts {
   const counts: TopicCounts = { countries: {}, regions: {}, issues: {} };
   const issuesOf = new Map<string, string[]>();
+  const membersOf = new Map<string, string[]>();
   for (const issue of groups.issues) {
+    membersOf.set(issue.slug, issue.countries);
     for (const iso3 of issue.countries)
       issuesOf.set(iso3, [...(issuesOf.get(iso3) ?? []), issue.slug]);
   }
+  const isoCodes = new Set([...Object.keys(groups.regionOf), ...issuesOf.keys()]);
+  for (const topic of places) for (const iso3 of topic.countries) isoCodes.add(iso3);
 
   for (const topic of places) {
-    if (topic.layers.includes("regions") && topic.region)
-      add(counts.regions, topic.region, topic.slug);
-    if (topic.layers.includes("issues") && topic.issue) add(counts.issues, topic.issue, topic.slug);
-  }
+    const inCountries = topic.layers.includes("countries");
+    const inRegions = topic.layers.includes("regions");
+    const inIssues = topic.layers.includes("issues");
+    if (inRegions && topic.region) add(counts.regions, topic.region, topic.slug);
+    if (inIssues && topic.issue) add(counts.issues, topic.issue, topic.slug);
 
-  if (places.some((topic) => topic.layers.includes("countries"))) {
-    const isoCodes = new Set([...Object.keys(groups.regionOf), ...issuesOf.keys()]);
-    for (const topic of places) for (const iso3 of topic.countries) isoCodes.add(iso3);
     for (const iso3 of isoCodes) {
       const region = groups.regionOf[iso3];
-      const issues = issuesOf.get(iso3) ?? [];
-      for (const topic of places) {
-        if (!topic.layers.includes("countries")) continue;
-        const own = topic.countries.includes(iso3);
-        const viaRegion = Boolean(region) && topic.region === region;
-        const viaIssue = topic.issue !== null && issues.includes(topic.issue);
-        if (own || viaRegion || viaIssue) add(counts.countries, iso3, topic.slug);
+      const own = topic.countries.includes(iso3);
+      const viaRegion = Boolean(region) && topic.region === region;
+      const viaIssue = topic.issue !== null && (issuesOf.get(iso3) ?? []).includes(topic.issue);
+      if (!(own || viaRegion || viaIssue)) continue;
+      if (inCountries) add(counts.countries, iso3, topic.slug);
+      // A region holds every topic of its countries, so it never shows fewer than one of them.
+      if (inRegions && region) add(counts.regions, region, topic.slug);
+    }
+
+    // A country group holds the topics placed on any of its countries.
+    if (inIssues) {
+      for (const [slug, members] of membersOf) {
+        if (topic.countries.some((iso3) => members.includes(iso3)))
+          add(counts.issues, slug, topic.slug);
       }
     }
   }

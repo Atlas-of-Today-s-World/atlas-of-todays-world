@@ -25,7 +25,26 @@ describe("topic counts on the globe", () => {
     );
     expect(counts.countries.CZE).toEqual(["europe-energy", "czech-coal"]);
     expect(counts.countries.DEU).toEqual(["europe-energy"]);
-    expect(counts.regions).toEqual({ europe: ["europe-energy"] });
+    // The region also holds Czechia's own topic: never fewer than one of its countries.
+    expect(counts.regions).toEqual({ europe: ["europe-energy", "czech-coal"] });
+  });
+
+  it("a region never counts fewer topics than any of its countries", () => {
+    const counts = countTopics(
+      [
+        topic("europe-energy", { region: "europe" }),
+        topic("czech-coal", { countries: ["CZE"] }),
+        topic("smuggling", { issue: "migration-routes" }),
+      ],
+      groups,
+    );
+    const regionCount = (counts.regions.europe ?? []).length;
+    for (const iso3 of ["CZE", "DEU"]) {
+      expect(regionCount).toBeGreaterThanOrEqual((counts.countries[iso3] ?? []).length);
+    }
+    // A group holds topics placed on its countries.
+    const groupCounts = countTopics([topic("syria-war", { countries: ["SYR"] })], groups);
+    expect(groupCounts.issues["migration-routes"]).toEqual(["syria-war"]);
   });
 
   it("a global issue's topic counts for the group and each of its countries", () => {
