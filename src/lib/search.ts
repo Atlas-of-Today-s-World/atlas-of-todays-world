@@ -44,7 +44,8 @@ export async function search(query: string, limit = 12): Promise<SearchHit[]> {
       title: row.title,
       subtitle: row.subtitle,
       body: "",
-      url: row.url,
+      // Topics moved from /entry/ to /topics/ (the old path only redirects).
+      url: row.url.replace(/^\/entry\//, "/topics/"),
       score: row.rank,
     };
     if (row.kind === "region") {

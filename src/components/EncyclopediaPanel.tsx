@@ -3,6 +3,7 @@
 import { Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import Link from "@/components/i18n/Link";
+import { TOPICS_PATH } from "@/config/navigation";
 import type { SearchHit } from "@/lib/search";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { belongsToField } from "@/lib/keyboard";
@@ -13,6 +14,14 @@ const KIND_KEY = {
   issue: "kindIssue",
   news: "kindNews",
 } as const;
+
+/** Topics and news items share the "news" kind; the address tells them apart. */
+const kindKey = (hit: SearchHit) =>
+  hit.kind === "news" && hit.url.startsWith(TOPICS_PATH + "/")
+    ? "kindTopic"
+    : hit.kind in KIND_KEY
+      ? KIND_KEY[hit.kind as keyof typeof KIND_KEY]
+      : null;
 
 /** "Global Encyclopedia" from Figma: full-text search across all of Atlas. */
 export default function EncyclopediaPanel() {
@@ -115,9 +124,10 @@ export default function EncyclopediaPanel() {
                   >
                     <span className="flex items-center gap-2">
                       <span className="rounded-full bg-white/12 px-1.5 py-0.5 text-[9.5px] tracking-wide text-white/90 uppercase">
-                        {hit.kind in KIND_KEY
-                          ? t.search[KIND_KEY[hit.kind as keyof typeof KIND_KEY]]
-                          : hit.kind}
+                        {(() => {
+                          const key = kindKey(hit);
+                          return key ? t.search[key] : hit.kind;
+                        })()}
                       </span>
                       <span className="text-[13.5px] font-medium text-white">{hit.title}</span>
                     </span>
