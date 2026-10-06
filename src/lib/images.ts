@@ -5,11 +5,19 @@
  * a single photo can weigh several megabytes.
  *
  * Only these origins are optimized — next.config builds its `remotePatterns`
- * from the same list, so `/_next/image` is no open proxy. Anything else (and
- * data/relative URLs) is returned unchanged.
+ * from the same list, so `/_next/image` is no open proxy — plus our own photos
+ * under /images/ (the old site's photos now live in public/images/webflow,
+ * scripts/webflow/mirror-images.mjs), whether written as a path or as an
+ * absolute URL of this site. Anything else is returned unchanged.
  */
 
+// Relative imports: next.config loads this module too, without path aliases.
+import { SITE_URL } from "./site";
+
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+/** Our own photos (public/images), optimized as local files (next.config `localPatterns`). */
+export const LOCAL_PHOTOS = "/images/";
 
 /** Hosts and path prefixes of photos worth resizing. */
 export const PHOTO_ORIGINS: readonly { hostname: string; pathname: string }[] = [
@@ -50,16 +58,24 @@ function isPhotoOrigin(url: URL): boolean {
   );
 }
 
+const optimized = (source: string, width: number) =>
+  `/_next/image?url=${encodeURIComponent(source)}&w=${width}&q=${QUALITY}`;
+
 /** The optimizer's address for `src` at `width`, or `src` itself when it isn't ours to resize. */
 export function photoUrl(src: string, width: number): string {
+  if (src.startsWith(LOCAL_PHOTOS)) return optimized(src, width);
   let url: URL;
   try {
     url = new URL(src);
   } catch {
     return src;
   }
+  // Our own photo by its absolute address (the database stores https URLs).
+  if (url.origin === new URL(SITE_URL).origin && url.pathname.startsWith(LOCAL_PHOTOS)) {
+    return optimized(url.pathname, width);
+  }
   if (!isPhotoOrigin(url)) return src;
-  return `/_next/image?url=${encodeURIComponent(url.href)}&w=${width}&q=${QUALITY}`;
+  return optimized(url.href, width);
 }
 
 /** `srcset` for a responsive <img> (hero photos). */
