@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import type { NextRequest, NextResponse } from "next/server";
 import type { User } from "@supabase/supabase-js";
-import { supabaseConfig } from "./config";
+import { SESSION_COOKIE_OPTIONS, supabaseConfig } from "./config";
 
 /**
  * Refreshes the session in cookies and returns the verified user (or null).
@@ -16,6 +16,7 @@ export async function refreshSession(
   if (!config) return null;
 
   const supabase = createServerClient(config.url, config.anonKey, {
+    cookieOptions: SESSION_COOKIE_OPTIONS,
     cookies: {
       getAll: () => request.cookies.getAll(),
       setAll: (toSet, headers) => {

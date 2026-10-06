@@ -50,6 +50,16 @@ async function as(user, fn, { aal = "aal2" } = {}) {
   }
 }
 
+/** Runs `fn` with the service key (the server's own calls, no user session). */
+async function asService(fn) {
+  await db.exec("reset role; set role service_role");
+  try {
+    return await fn();
+  } finally {
+    await db.exec("reset role");
+  }
+}
+
 const q = async (sql, params = []) => (await db.query(sql, params)).rows;
 const one = async (sql, params = []) => (await q(sql, params))[0];
 
@@ -604,7 +614,7 @@ test("DB-01: a custom role without the permissions right can't bypass allowed e-
   await q(
     `insert into role_permissions (role_id, section, actions) values ('account-helper', 'users', 've')`,
   );
-  const helper = "00000000-0000-4000-8000-0000000000a1";
+  const helper = "00000000-0000-4000-8000-00000000ad02";
   const target = "00000000-0000-4000-8000-0000000000a2";
   await signUp(helper, "helper@atlasoftodaysworld.org");
   await signUp(target, "target@example.org");
@@ -2007,16 +2017,23 @@ test("author profiles: slug from the name, unique, stable on rename, readable by
   });
 });
 
-test("volunteer applications: anyone applies through the function, only account managers see and handle them", async () => {
-  // A visitor applies; the table itself stays closed to anon.
+test("volunteer applications: the server submits them, only account managers see and handle them", async () => {
+  // A visitor applies through the server action (service key); the public key
+  // can't call the function, so nobody can exhaust the shared cap directly.
   await as(null, () =>
+    refused(
+      q("select submit_volunteer_application('Ana Writer', 'ana@example.org', '', '')"),
+      /permission denied/,
+    ),
+  );
+  await asService(() =>
     q("select submit_volunteer_application('Ana Writer', ' Ana@Example.org ', 'Sahel', 'Hi')"),
   );
   await as(null, () => refused(q("select * from volunteer_applications")));
   await as(null, () =>
     refused(q("insert into volunteer_applications (name, email) values ('x', 'x@y.zz')")),
   );
-  await as(null, () =>
+  await asService(() =>
     refused(q("select submit_volunteer_application('', 'not-an-email', '', '')"), /check/),
   );
 
@@ -2054,11 +2071,11 @@ test("volunteer applications: anyone applies through the function, only account 
 
   // At most 30 applications an hour for everyone together.
   for (let n = 1; n < 30; n++) {
-    await as(null, () =>
+    await asService(() =>
       q("select submit_volunteer_application('N', $1, '', '')", [`n${n}@x.org`]),
     );
   }
-  await as(null, () =>
+  await asService(() =>
     refused(q("select submit_volunteer_application('N', 'late@x.org', '', '')"), /rate_limited/),
   );
   await as(id.permAdmin, () => q("delete from volunteer_applications"));
@@ -2088,4 +2105,147 @@ test("home featured subtopics: everyone reads them, only editors with the news r
   // A deleted subtopic frees its slot.
   await q("delete from entry_chapters where id = $1", [chapter.id]);
   assert.equal((await one("select first_chapter from home_featured")).first_chapter, null);
+});
+
+// ---------------------------------------------------------------------------
+// Privilege guards (migration 20261007000010)
+// ---------------------------------------------------------------------------
+
+test("admin accounts: only an admin changes, blocks or removes them", async () => {
+  // A second admin, so keep_one_admin isn't what stops the attempts.
+  const second = "00000000-0000-4000-8000-0000000a2d01";
+  await q("insert into auth.users (id, email) values ($1, 'admin2@example.org')", [second]);
+  await q(
+    "update profiles set role_id = 'admin', kind = 'staff', status = 'active' where id = $1",
+    [second],
+  );
+
+  // The permission admin manages accounts, but not the admins'.
+  for (const change of [
+    "status = 'blocked', blocked_note = 'x'",
+    "role_id = 'reader'",
+    "email = 'attacker@example.org'",
+    "deleted_at = now()",
+  ]) {
+    await as(id.permAdmin, () =>
+      refused(q(`update profiles set ${change} where id = $1`, [second]), /Only an admin/),
+    );
+  }
+  // Removing the profile is refused (or matches no row under RLS); it stays.
+  await as(id.permAdmin, () => q("delete from profiles where id = $1", [second]).catch(() => []));
+  assert.equal(
+    (await one("select status from profiles where id = $1", [second]))?.status,
+    "active",
+  );
+
+  // An admin may.
+  await as(id.admin, () =>
+    q("update profiles set status = 'blocked', blocked_note = 'test' where id = $1", [second]),
+  );
+  assert.equal(
+    (await one("select status from profiles where id = $1", [second])).status,
+    "blocked",
+  );
+  await q("delete from auth.users where id = $1", [second]);
+});
+
+test("sign-in security: only an admin turns off 2FA or invite-only", async () => {
+  await as(id.permAdmin, () =>
+    refused(
+      q("update security_settings set require_2fa_roles = '{}' where id = 1"),
+      /Only an admin can change sign-in security/,
+    ),
+  );
+  await as(id.permAdmin, () =>
+    refused(q("update security_settings set invite_only = false where id = 1"), /Only an admin/),
+  );
+  // Other settings stay with the permission admin.
+  const changed = await as(id.permAdmin, () =>
+    q("update security_settings set session_hours = 10 where id = 1 returning id"),
+  );
+  assert.equal(changed.length, 1);
+  await as(id.admin, () => q("update security_settings set invite_only = true where id = 1"));
+  assert.deepEqual(
+    (await one("select require_2fa_roles from security_settings")).require_2fa_roles,
+    ["admin", "permission-admin"],
+  );
+  await q("update security_settings set session_hours = 12 where id = 1");
+});
+
+test("invitations: a revoked one stays revoked, an extension is short", async () => {
+  const [inv] = await as(id.admin, () =>
+    q(
+      "insert into invitations (email, role_id) values ('guard.test@example.org', 'permission-admin') returning id",
+    ),
+  );
+  await as(id.admin, () => q("update invitations set revoked_at = now() where id = $1", [inv.id]));
+  // Nobody revives it, not even its sender.
+  await as(id.permAdmin, () =>
+    refused(q("update invitations set revoked_at = null where id = $1", [inv.id]), /stays revoked/),
+  );
+  await as(id.admin, () =>
+    refused(q("update invitations set revoked_at = null where id = $1", [inv.id]), /stays revoked/),
+  );
+
+  // A live invitation for a privileged role is extended only by an admin, at most five days.
+  const [live] = await as(id.admin, () =>
+    q(
+      "insert into invitations (email, role_id) values ('guard.live@example.org', 'permission-admin') returning id",
+    ),
+  );
+  await as(id.permAdmin, () =>
+    refused(
+      q("update invitations set expires_at = now() + interval '2 days' where id = $1", [live.id]),
+      /Only an admin can extend/,
+    ),
+  );
+  await as(id.admin, () =>
+    refused(
+      q("update invitations set expires_at = now() + interval '30 days' where id = $1", [live.id]),
+      /at most five days/,
+    ),
+  );
+  await as(id.admin, () =>
+    q("update invitations set expires_at = now() + interval '4 days' where id = $1", [live.id]),
+  );
+  await q("delete from invitations where id in ($1, $2)", [inv.id, live.id]);
+});
+
+test("scheduled publishing: an author's edit of subtopics or FAQ drops the schedule", async () => {
+  const entry = await newEntry(id.pubA, "scheduled-parts", ["BRA"], "pending");
+  const schedule = () =>
+    as(id.approverLatam, () => q("select schedule_entry($1, now() + interval '1 day')", [entry]));
+  const planned = async () =>
+    (await one("select publish_at from entries where id = $1", [entry])).publish_at !== null;
+
+  await schedule();
+  assert.equal(await planned(), true);
+  // The author rewrites a subtopic after approval was scheduled → the plan is void.
+  await as(id.pubA, () =>
+    q("select replace_entry_parts($1, 'chapters', $2::jsonb)", [
+      entry,
+      JSON.stringify([{ title: "Rewritten", body_html: "<p>new text</p>" }]),
+    ]),
+  );
+  assert.equal(await planned(), false);
+
+  // Scheduled again, it holds while nobody else touches the text.
+  await schedule();
+  assert.equal(await planned(), true);
+});
+
+test("approval stamps and creators are set by the database, not the client", async () => {
+  const entry = await as(id.pubA, () =>
+    one(
+      `insert into entries (slug, title, summary, category, region_slug, owner_id, status, approved_by, approved_at)
+       values ('forged-approval', 'Forged', 'S', 'Society', 'latin-america-caribbean', $1, 'draft', $2, now())
+       returning approved_by, approved_at`,
+      [id.pubA, id.editor],
+    ),
+  );
+  assert.deepEqual(entry, { approved_by: null, approved_at: null });
+});
+
+test("staff names: not for a blocked team member", async () => {
+  assert.equal((await as(id.blocked, () => one("select staff_name($1) as n", [id.admin]))).n, null);
 });

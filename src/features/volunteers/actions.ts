@@ -13,8 +13,9 @@ import {
   signedIn,
   type ActionState,
 } from "@/lib/actions";
+import { serverEnv } from "@/lib/env.server";
 import { allowRequest } from "@/lib/security/rate-limit";
-import { createPublicClient } from "@/lib/supabase/public";
+import { createServiceClient } from "@/lib/supabase/service";
 import { uuid } from "@/lib/validation/common";
 import { APPLICATION_STATUSES, ApplicationInput, SettingsInput } from "./schema";
 
@@ -42,7 +43,9 @@ export async function applyAsVolunteer(
     consent: formData.get("consent"),
   });
   if (!parsed.success) return { ok: false, error: firstIssue(parsed.error) };
-  const { error } = await createPublicClient().rpc("submit_volunteer_application", {
+  // Only the server may submit (after the per-IP limit above); the RPC is not public.
+  if (!serverEnv.SUPABASE_SERVICE_ROLE_KEY) return { ok: false, error: "failed" };
+  const { error } = await createServiceClient().rpc("submit_volunteer_application", {
     p_name: parsed.data.name,
     p_email: parsed.data.email,
     p_topics: parsed.data.topics,

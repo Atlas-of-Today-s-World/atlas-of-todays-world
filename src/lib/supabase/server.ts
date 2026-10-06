@@ -2,7 +2,7 @@ import "server-only";
 import { createServerClient as createSsrClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { Database } from "@/lib/db/types.gen";
-import { requireSupabaseConfig } from "./config";
+import { SESSION_COOKIE_OPTIONS, requireSupabaseConfig } from "./config";
 
 /**
  * Client with the signed-in user's session (ARCHITEKTURA 4.1). Every query runs
@@ -13,6 +13,7 @@ export async function createServerClient() {
   const { url, anonKey } = requireSupabaseConfig();
   const cookieStore = await cookies();
   return createSsrClient<Database>(url, anonKey, {
+    cookieOptions: SESSION_COOKIE_OPTIONS,
     cookies: {
       getAll: () => cookieStore.getAll(),
       setAll: (toSet) => {
