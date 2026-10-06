@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
-import { PenLine } from "lucide-react";
+import { ArrowRight, Mail, PenLine } from "lucide-react";
+import Link from "@/components/i18n/Link";
+import { NEWSLETTER_PATH } from "@/config/navigation";
+import { getFlags } from "@/features/flags/queries";
 import { VolunteerForm } from "@/features/volunteers/components/VolunteerForm";
 import { VOLUNTEER_ID } from "@/features/membership/config";
 import { Accordion } from "@/components/atlas/Accordion";
@@ -57,6 +60,41 @@ function WorldMap({ className }: { className?: string }) {
 
 const H2 = "font-display text-[28px] font-bold sm:text-[32px]";
 const CARD = "rounded-[var(--radius-panel)] border border-[var(--color-line)] bg-white";
+
+/** Big graphic link to the newsletter page — for readers not ready to give yet. */
+function NewsletterBanner({ t }: { t: Messages["patrons"]["newsletter"] }) {
+  return (
+    <Link
+      href={NEWSLETTER_PATH}
+      aria-labelledby="newsletter-banner-title"
+      className="group relative isolate mt-20 flex flex-col gap-6 overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_85%_20%,var(--color-patron-bright)_0%,var(--color-patron)_35%,var(--color-space)_90%)] p-7 text-white shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:outline-none sm:flex-row sm:items-center sm:justify-between sm:p-10"
+    >
+      <Mail
+        aria-hidden
+        className="absolute -right-6 -bottom-10 -z-10 size-56 text-white/10 transition group-hover:-rotate-6"
+      />
+      <span className="max-w-2xl">
+        <span className="flex items-center gap-2.5 text-[12px] font-medium tracking-[0.12em] text-white/70 uppercase">
+          <span className="grid size-9 place-items-center rounded-xl bg-white/15">
+            <Mail aria-hidden className="size-5" />
+          </span>
+          {t.eyebrow}
+        </span>
+        <span
+          id="newsletter-banner-title"
+          className="font-display mt-4 block text-[26px] leading-tight font-bold sm:text-[32px]"
+        >
+          {t.title}
+        </span>
+        <span className="mt-3 block text-[15px] leading-relaxed text-white/85">{t.text}</span>
+      </span>
+      <span className="inline-flex min-h-12 shrink-0 items-center gap-2 self-start rounded-full bg-white px-6 text-[15px] font-semibold text-[var(--color-space)] transition group-hover:bg-[var(--color-gold-light)] sm:self-center">
+        {t.cta}
+        <ArrowRight aria-hidden className="size-4 transition group-hover:translate-x-0.5" />
+      </span>
+    </Link>
+  );
+}
 
 function Goal({
   t,
@@ -145,7 +183,7 @@ function Goal({
 export default async function MembershipPage({ params }: Params) {
   const locale = await localeFrom(params);
   const t = getMessages(locale).patrons;
-  const stats = await getPatronStats();
+  const [stats, flags] = await Promise.all([getPatronStats(), getFlags()]);
 
   return (
     <main>
@@ -208,6 +246,8 @@ export default async function MembershipPage({ params }: Params) {
           </section>
 
           <Goal t={t.goal} locale={locale} stats={stats} />
+
+          {flags.newsletter ? <NewsletterBanner t={t.newsletter} /> : null}
 
           <section aria-labelledby="faq-title" className="mt-20">
             <h2 id="faq-title" className={H2}>
