@@ -149,6 +149,7 @@
     "kindRegion": "Region",
     "kindCountry": "Country",
     "kindNews": "News",
+    "kindTopic": "Topic",
     "kindIssue": "Special region"
   },
   "country": {
