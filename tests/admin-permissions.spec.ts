@@ -90,6 +90,7 @@ const MENU: Record<Exclude<(typeof ROLES)[number], "reader">, string[]> = {
     "Topic templates",
     "Article approvals",
     "URL redirects",
+    "Home page",
     "Regions & countries",
     "Country groups",
     "Map data layers",
@@ -101,6 +102,7 @@ const MENU: Record<Exclude<(typeof ROLES)[number], "reader">, string[]> = {
     "Topic templates",
     "Article approvals",
     "URL redirects",
+    "Home page",
   ],
   publisher: [
     "Overview",
@@ -108,6 +110,7 @@ const MENU: Record<Exclude<(typeof ROLES)[number], "reader">, string[]> = {
     "Author profiles",
     "Topic templates",
     "URL redirects",
+    "Home page",
     "Regions & countries",
     "Map data layers",
   ],
@@ -118,7 +121,14 @@ const MENU: Record<Exclude<(typeof ROLES)[number], "reader">, string[]> = {
     "Map data layers",
     "Map appearance",
   ],
-  observer: ["Overview", "Articles", "Author profiles", "Topic templates", "URL redirects"],
+  observer: [
+    "Overview",
+    "Articles",
+    "Author profiles",
+    "Topic templates",
+    "URL redirects",
+    "Home page",
+  ],
   [areasRole]: ["Overview", "Custom map areas"],
 };
 

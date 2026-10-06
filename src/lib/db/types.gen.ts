@@ -775,6 +775,27 @@ export type Database = {
           },
         ]
       }
+      home_featured: {
+        Row: {
+          first_chapter: string | null
+          id: number
+          second_chapter: string | null
+          updated_at: string
+        }
+        Insert: {
+          first_chapter?: string | null
+          id?: number
+          second_chapter?: string | null
+          updated_at?: string
+        }
+        Update: {
+          first_chapter?: string | null
+          id?: number
+          second_chapter?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       indicator_categories: {
         Row: {
           color: string

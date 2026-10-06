@@ -125,7 +125,8 @@
     "dataLayer": "Data layer",
     "maintenance": "Maintenance",
     "maintenanceTitle": "The Atlas is being updated",
-    "maintenanceText": "We are working on the site right now. Please come back in a little while."
+    "maintenanceText": "We are working on the site right now. Please come back in a little while.",
+    "latestSubtopics": "Latest subtopics"
   },
   "panel": {
     "content": "Content panel",

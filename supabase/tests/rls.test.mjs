@@ -2006,3 +2006,28 @@ test("author profiles: slug from the name, unique, stable on rename, readable by
     await refused(q("select slugify_text('x')"), /permission denied/);
   });
 });
+
+test("home featured subtopics: everyone reads them, only editors with the news right pin them", async () => {
+  const entry = await newEntry(id.editor, "home-featured");
+  const [chapter] = await q(
+    "insert into entry_chapters (entry_id, position, title) values ($1, 0, 'Pinned') returning id",
+    [entry],
+  );
+  const slots = await as(null, () => q("select first_chapter, second_chapter from home_featured"));
+  assert.deepEqual(slots, [{ first_chapter: null, second_chapter: null }]);
+  await as(null, () => refused(q("update home_featured set first_chapter = $1", [chapter.id])));
+  const byReader = await as(id.reader, () =>
+    q("update home_featured set first_chapter = $1 returning id", [chapter.id]),
+  );
+  assert.equal(byReader.length, 0);
+
+  await as(id.editor, () => q("update home_featured set first_chapter = $1", [chapter.id]));
+  await as(id.editor, () =>
+    refused(q("update home_featured set second_chapter = $1", [chapter.id]), /check/),
+  );
+  assert.equal((await one("select first_chapter from home_featured")).first_chapter, chapter.id);
+
+  // A deleted subtopic frees its slot.
+  await q("delete from entry_chapters where id = $1", [chapter.id]);
+  assert.equal((await one("select first_chapter from home_featured")).first_chapter, null);
+});
