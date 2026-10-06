@@ -1513,6 +1513,7 @@ export type Database = {
       }
       regions: {
         Row: {
+          show_metrics: boolean
           center_lat: number
           center_lon: number
           fill: string
@@ -1532,6 +1533,7 @@ export type Database = {
           zoom: number
         }
         Insert: {
+          show_metrics?: boolean
           center_lat: number
           center_lon: number
           fill: string
@@ -1551,6 +1553,7 @@ export type Database = {
           zoom?: number
         }
         Update: {
+          show_metrics?: boolean
           center_lat?: number
           center_lon?: number
           fill?: string

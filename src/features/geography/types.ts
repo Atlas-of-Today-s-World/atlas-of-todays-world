@@ -21,6 +21,8 @@ export interface Region {
   zoom: number;
   hero: string | null;
   heroCredit: string;
+  /** False for a region no country data describe (Antarctica): no indicator cards. */
+  showMetrics: boolean;
   /** Lead – shown in the map panel and as the meta description. */
   summary: string;
   /** ISO3 codes of the region's countries, most populous first. */

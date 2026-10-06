@@ -35,6 +35,8 @@ export interface PortraitSubject {
   groupKind?: "issue" | "region";
   countries: { slug: string; name: string }[];
   population: number;
+  /** Without country data (Antarctica): the indicator cards are left out. */
+  showMetrics?: boolean;
 }
 
 /** Texts that differ for a region and for a group of countries (global issue). */
@@ -137,7 +139,9 @@ export default function Portrait({
         </dl>
       </header>
 
-      <IndicatorCards stats={stats} metrics={dossier.metrics} />
+      {subject.showMetrics === false ? null : (
+        <IndicatorCards stats={stats} metrics={dossier.metrics} />
+      )}
 
       {dossier.timeline?.length ? (
         <Timeline

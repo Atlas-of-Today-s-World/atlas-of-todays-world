@@ -28,7 +28,8 @@ before(async () => {
 });
 
 test("seed fills everything the Atlas is drawn from", async () => {
-  assert.equal(await count("regions"), 9);
+  // The 9 regions of the snapshot + Antarctica (migration 20261006000030).
+  assert.equal(await count("regions"), 10);
   assert.ok((await count("countries")) >= 228);
   assert.equal(await count("indicators"), 9);
   assert.ok((await count("indicator_values")) > 1500);
@@ -79,7 +80,10 @@ test("anonymous user gets the whole portrait in one portrait() call", async () =
 });
 
 test("seed carries over region photos, news covers and country profiles", async () => {
-  const noHero = (await db.query("select slug from regions where hero_url is null")).rows;
+  // Antarctica comes from a migration, not from the snapshot; editors add its photo.
+  const noHero = (
+    await db.query("select slug from regions where hero_url is null and slug <> 'antarctica'")
+  ).rows;
   assert.deepEqual(noHero, []);
   const covers = Number(
     (await db.query("select count(*) n from entries where cover_url is not null")).rows[0].n,
