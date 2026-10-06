@@ -43,10 +43,11 @@ jobs:
               "https://api.supabase.com/v1/projects/$PROD_REF/api-keys?reveal=true")
             keys=$(cat keys.json); rm -f keys.json
             # Legacy "service_role" JWT, or a new-style secret key (sb_secret_…).
-            key=$(echo "$keys" | jq -r 'first(.[] | select(.name == "service_role")) // first(.[] | select(.type == "secret")) | .api_key // empty' 2>/dev/null)
+            key=$(echo "$keys" | jq -r 'if type == "array" then (first(.[] | select(.name == "service_role")) // first(.[] | select(.type == "secret")) | .api_key // empty) else empty end' 2>/dev/null || true)
             if [ -z "$key" ]; then
               echo "::error::No service key for $PROD_REF (HTTP $status)"
-              echo "$keys" | jq -c '[.[] | {name, type}]' 2>/dev/null || echo "$keys" | head -c 300
+              # Names and types only, or the API's error message — never a key value.
+              echo "$keys" | jq -c 'if type == "array" then [.[] | {name, type}] else {message, error} end' 2>/dev/null || true
               exit 1
             fi
             echo "::add-mask::$key"
