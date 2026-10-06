@@ -1,8 +1,9 @@
-import { ChevronDown } from "lucide-react";
+import { ArrowLeft, ChevronDown, LayoutGrid } from "lucide-react";
 import Link from "@/components/i18n/Link";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
 import { ShareButton } from "@/components/atlas/ShareButton";
 import MapFocus from "@/components/map/MapFocus";
+import { TOPICS_PATH } from "@/config/navigation";
 import { FaqList } from "@/components/portrait/sections";
 import type { Atlas } from "@/features/geography/types";
 import { format } from "@/features/i18n/messages";
@@ -87,9 +88,35 @@ export function EncyclopediaArticle({
             className="absolute inset-0 -z-10 bg-gradient-to-t from-[var(--color-space-deep)] via-[var(--color-space-deep)]/65 to-[var(--color-space-deep)]/15"
           />
           <div className="mx-auto flex min-h-72 max-w-6xl flex-col justify-end px-4 pt-16 pb-10 sm:min-h-96 sm:px-8">
-            <p className="text-[11px] font-medium tracking-[0.14em] text-white/75 uppercase">
-              {getT().categories[item.category]}
-            </p>
+            {/* The way back: Atlas › Topics › the topic's category (the title follows). */}
+            <nav aria-label={getT().article.breadcrumb}>
+              <ol className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[13px] font-medium text-white/80">
+                <li>
+                  <Link
+                    href="/"
+                    className="inline-flex min-h-8 items-center hover:text-white hover:underline"
+                  >
+                    {getT().article.breadcrumbAtlas}
+                  </Link>
+                </li>
+                <li aria-hidden className="text-white/45">
+                  ›
+                </li>
+                <li>
+                  <Link
+                    href={TOPICS_PATH}
+                    className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-white/15 px-3.5 text-white ring-1 ring-white/25 backdrop-blur transition hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+                  >
+                    <LayoutGrid aria-hidden className="size-3.5" />
+                    {getT().topics.title}
+                  </Link>
+                </li>
+                <li aria-hidden className="text-white/45">
+                  ›
+                </li>
+                <li className="tracking-[0.14em] uppercase">{getT().categories[item.category]}</li>
+              </ol>
+            </nav>
             <h1 className="font-display mt-3 text-[34px] leading-[1.08] font-bold text-balance sm:text-[52px]">
               {item.title}
             </h1>
@@ -148,6 +175,16 @@ export function EncyclopediaArticle({
             </div>
           ) : null}
           {item.authorProfile ? <AuthorBio author={item.authorProfile} /> : null}
+
+          <p className="mt-14 border-t border-[var(--color-line)] pt-6">
+            <Link
+              href={TOPICS_PATH}
+              className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--color-ink)] px-5 text-[14px] font-medium text-white transition hover:bg-[var(--color-accent)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:outline-none"
+            >
+              <ArrowLeft aria-hidden className="size-4" />
+              {getT().article.allTopics}
+            </Link>
+          </p>
         </div>
       </article>
       <OpenOnHash />
