@@ -49,7 +49,7 @@ export default function EncyclopediaPanel() {
     // No visible heading (compact block); the name stays for screen readers.
     <section
       aria-label={t.encyclopedia.heading}
-      className="glass pointer-events-auto w-[min(92vw,22rem)] rounded-[var(--radius-panel)] p-3 shadow-2xl shadow-black/40"
+      className="glass pointer-events-auto w-full rounded-[var(--radius-panel)] p-2 shadow-2xl shadow-black/40 sm:w-[min(92vw,22rem)] sm:p-3"
     >
       <label className="flex items-center gap-2 rounded-full border border-white/15 bg-black/25 px-3.5 py-2">
         <Search size={15} strokeWidth={1.7} className="text-white/60" aria-hidden />
@@ -58,7 +58,8 @@ export default function EncyclopediaPanel() {
           onChange={(event) => setQuery(event.target.value)}
           placeholder={t.search.placeholder}
           aria-label={t.search.placeholder}
-          className="w-full bg-transparent text-[13px] text-white placeholder:text-white/45 focus:outline-none"
+          // 16 px on phones: smaller text makes iOS zoom the page on focus.
+          className="w-full bg-transparent text-base text-white placeholder:text-white/45 focus:outline-none sm:text-[13px]"
         />
       </label>
 
@@ -93,7 +94,7 @@ export default function EncyclopediaPanel() {
           )}
         </div>
       ) : (
-        <p className="mt-2.5 px-1 text-[11.5px] leading-relaxed text-white/50">
+        <p className="mt-2.5 hidden px-1 text-[11.5px] leading-relaxed text-white/50 sm:block">
           {t.encyclopedia.hint}
         </p>
       )}

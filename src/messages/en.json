@@ -133,6 +133,8 @@
     "content": "Content panel",
     "show": "Show panel",
     "hide": "Hide panel",
+    "expand": "Expand panel",
+    "shrink": "Shrink panel",
     "error": "Error",
     "errorTitle": "This panel did not load",
     "errorText": "Something went wrong on our side. Try again in a moment; the globe still works.",

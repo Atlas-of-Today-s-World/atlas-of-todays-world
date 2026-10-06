@@ -121,12 +121,17 @@ test("dossier page: chapter and learn-more tiles open their panels", async ({ pa
   expect(jsonLd.join("")).toContain('"FAQPage"');
 });
 
-test("Topics: from the list to a dossier and back to the Atlas", async ({ page }) => {
+test("Topics: from the list to a dossier and back to the Atlas", async ({ page, isMobile }) => {
   await page.goto("/topics");
   await expect(page.getByRole("heading", { level: 1, name: "Topics" })).toBeVisible();
-  // The globe waits in its window bottom left and leads back to the map.
-  await expect(page.locator("[data-globe-window]")).toBeVisible();
-  await expect(page.getByRole("link", { name: "Back to the Atlas globe" })).toBeVisible();
+  // The globe waits in its window bottom left and leads back to the map; on
+  // phones the window stays out of the way (the header has "Back to Atlas").
+  const globeWindow = page.locator("[data-globe-window]");
+  if (isMobile) await expect(globeWindow).toBeHidden();
+  else {
+    await expect(globeWindow).toBeVisible();
+    await expect(page.getByRole("link", { name: "Back to the Atlas globe" })).toBeVisible();
+  }
 
   // The list is prerendered and cached, so the dossier made for this run may not
   // be in it yet: open the first topic it shows (atlas-dev has imported ones).

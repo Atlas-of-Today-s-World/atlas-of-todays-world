@@ -25,7 +25,7 @@ import { format } from "@/features/i18n/messages";
 import { EUROPE_CENTER, globeFillZoom, miniGlobeZoom } from "@/lib/home-location";
 import { useMapState } from "./MapContext";
 import { useLatest } from "@/lib/use-latest";
-import { DESKTOP_MIN_PX, isFullPage, railKind, railWidthPx } from "@/config/layout";
+import { DESKTOP_MIN_PX, MOBILE_SHEET, isFullPage, railKind, railWidthPx } from "@/config/layout";
 import Link from "@/components/i18n/Link";
 import { cn } from "@/lib/cn";
 import { useMessages } from "@/components/i18n/LocaleProvider";
@@ -191,19 +191,23 @@ const WINDOW_MS = 700;
 const MAX_PIXEL_RATIO = 1.5;
 
 /**
- * Viewport padding so the right content panel doesn't cover the country — wide
- * or narrow, depending on the path being navigated to (tokens from config/layout.ts).
+ * Viewport padding so the content panel doesn't cover the country — on desktop
+ * the right column, wide or narrow depending on the path being navigated to; on
+ * phones the bottom sheet, with the place on the strip of globe above it (the map
+ * controls step aside there while a panel is open). Tokens from config/layout.ts.
  */
 function railPadding() {
   if (typeof window === "undefined") return 60;
-  const isDesktop = window.innerWidth >= DESKTOP_MIN_PX;
+  if (window.innerWidth < DESKTOP_MIN_PX) {
+    return {
+      top: 16,
+      bottom: Math.round(window.innerHeight * MOBILE_SHEET.ratio) + 16,
+      left: 24,
+      right: 24,
+    };
+  }
   const rail = railWidthPx(railKind(window.location.pathname), window.innerWidth);
-  return {
-    top: 110,
-    bottom: isDesktop ? 90 : window.innerHeight * 0.5,
-    left: 60,
-    right: rail + 40,
-  };
+  return { top: 110, bottom: 90, left: 60, right: rail + 40 };
 }
 
 type StateKey = "hover" | "inRegion" | "active";
@@ -678,7 +682,8 @@ export default function AtlasGlobe({
       className={cn(
         "fixed bottom-0 left-0 overflow-hidden bg-[var(--color-space-deep)] transition-[width,height,left,bottom,border-radius] duration-700 ease-[cubic-bezier(0.65,0,0.35,1)]",
         mini
-          ? "bottom-4 left-4 z-[46] h-(--mini-globe-height) w-(--mini-globe-width) rounded-2xl shadow-2xl ring-1 shadow-black/60 ring-white/25"
+          ? // On phones the window would cover the text; "Back to Atlas" is in the header.
+            "bottom-4 left-4 z-[46] h-(--mini-globe-height) w-(--mini-globe-width) rounded-2xl shadow-2xl ring-1 shadow-black/60 ring-white/25 max-sm:hidden"
           : "h-dvh w-full",
       )}
     >
@@ -698,7 +703,8 @@ export default function AtlasGlobe({
 
       <div
         hidden={mini}
-        className="pointer-events-none absolute top-24 left-5 flex flex-col gap-1.5"
+        // Phones zoom with two fingers: the buttons would only crowd the controls there.
+        className="pointer-events-none absolute top-24 left-5 hidden flex-col gap-1.5 md:flex"
       >
         <button
           type="button"
