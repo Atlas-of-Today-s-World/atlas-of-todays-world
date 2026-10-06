@@ -22,10 +22,22 @@ import {
   type StyleOptions,
 } from "./mapStyle";
 import { format } from "@/features/i18n/messages";
-import { EUROPE_CENTER, globeFillZoom, miniGlobeZoom } from "@/lib/home-location";
+import {
+  EUROPE_CENTER,
+  GLOBE_FILL_SIZE_CSS,
+  globeFillZoom,
+  miniGlobeZoom,
+} from "@/lib/home-location";
 import { useMapState } from "./MapContext";
 import { useLatest } from "@/lib/use-latest";
-import { DESKTOP_MIN_PX, MOBILE_SHEET, isFullPage, railKind, railWidthPx } from "@/config/layout";
+import {
+  DESKTOP_MIN_PX,
+  MOBILE_SHEET,
+  isFullPage,
+  isHome,
+  railKind,
+  railWidthPx,
+} from "@/config/layout";
 import Link from "@/components/i18n/Link";
 import { cn } from "@/lib/cn";
 import { useMessages } from "@/components/i18n/LocaleProvider";
@@ -270,6 +282,9 @@ export default function AtlasGlobe({
   const { focus, view, mode } = useMapState();
   const [hoverLabel, setHoverLabel] = useState<HoverLabel | null>(null);
   const [ready, setReady] = useState(false);
+  // Country borders are on the globe: the placeholder sphere may go ("load" can
+  // come much later, after every satellite tile).
+  const [painted, setPainted] = useState(false);
   /** The country just clicked – we highlight it before the content arrives. */
   // Valid until the active country changes (since) — then the page takes over.
   const [pending, setPending] = useState<{ iso3: string; since: string | null } | null>(null);
@@ -377,6 +392,7 @@ export default function AtlasGlobe({
       const markCountriesLoaded = (event: MapSourceDataEvent) => {
         if (event.sourceId !== "countries" || !map.isSourceLoaded("countries")) return;
         containerRef.current?.setAttribute("data-countries", "loaded");
+        setPainted(true);
         map.off("sourcedata", markCountriesLoaded);
       };
       map.on("sourcedata", markCountriesLoaded);
@@ -688,6 +704,19 @@ export default function AtlasGlobe({
       )}
     >
       <div ref={containerRef} className="h-full w-full" />
+
+      {/* Until MapLibre (~300 kB) has loaded, a quiet sphere of the same size holds
+          the globe's place on the home page, so the first frame isn't an empty sky. */}
+      {isHome(pathname) && !mini ? (
+        <div
+          aria-hidden
+          style={{ width: GLOBE_FILL_SIZE_CSS }}
+          className={cn(
+            "pointer-events-none absolute top-1/2 left-1/2 aspect-square -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle_at_35%_30%,#3b5179_0%,#1d2c4a_45%,#0d1628_80%)] shadow-[0_0_80px_8px_rgba(74,111,165,0.35)] transition-opacity duration-1000",
+            (painted || ready) && "opacity-0",
+          )}
+        />
+      ) : null}
 
       {mini ? (
         <Link
