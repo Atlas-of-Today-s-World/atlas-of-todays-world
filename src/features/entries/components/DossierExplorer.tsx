@@ -123,12 +123,12 @@ export function DossierExplorer({
               style={tileStyle(topic.image, topic.background)}
             >
               <span aria-hidden className={SHADE} />
-              <span className="relative mb-auto inline-flex items-center gap-1.5 rounded-full bg-black/45 px-2.5 py-1 text-[11px] font-semibold tracking-[0.08em] uppercase backdrop-blur-sm">
-                {back ? <ArrowLeft aria-hidden className="size-3.5" /> : null}
+              <span className="relative mb-auto inline-flex w-fit items-center gap-1.5 rounded-full bg-black/45 px-3 py-1 text-[13px] font-semibold tracking-[0.08em] uppercase backdrop-blur-sm">
+                {back ? <ArrowLeft aria-hidden className="size-4" /> : null}
                 {back ? t.previous : t.next}
-                {back ? null : <ArrowRight aria-hidden className="size-3.5" />}
+                {back ? null : <ArrowRight aria-hidden className="size-4" />}
               </span>
-              <span className="font-display relative text-[15px] leading-tight font-semibold text-balance sm:text-[16px]">
+              <span className="font-display relative line-clamp-3 text-[18px] leading-tight font-semibold text-balance sm:text-[19px]">
                 {topic.title}
               </span>
             </button>
