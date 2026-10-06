@@ -9,5 +9,5 @@ export const RESOURCE_KINDS = [
   "Statistics & Infographics",
 ] as const;
 
-/** Country group type (special_regions.kind) — labels in the form and in lists. */
-export const GROUP_KIND_LABEL = { region: "Custom region", issue: "Global issue" } as const;
+/** Special region type (special_regions.kind) — labels in the form and in lists. */
+export const GROUP_KIND_LABEL = { region: "Custom region", issue: "Special region" } as const;

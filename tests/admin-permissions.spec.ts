@@ -92,7 +92,7 @@ const MENU: Record<Exclude<(typeof ROLES)[number], "reader">, string[]> = {
     "URL redirects",
     "Home page",
     "Regions & countries",
-    "Country groups",
+    "Special regions",
     "Map data layers",
   ],
   "content-approver": [
@@ -117,7 +117,7 @@ const MENU: Record<Exclude<(typeof ROLES)[number], "reader">, string[]> = {
   "data-editor": [
     "Overview",
     "Regions & countries",
-    "Country groups",
+    "Special regions",
     "Map data layers",
     "Map appearance",
   ],

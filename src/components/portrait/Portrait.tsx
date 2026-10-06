@@ -130,6 +130,10 @@ export default function Portrait({
             <NewsBadge count={news.length} />
           </div>
         ) : null}
+        {/* The way to the place's topics comes first, above the counts. */}
+        {topics ? (
+          <TopicsLink count={topics.items.length} href={topics.href} className="mt-5" />
+        ) : null}
         <dl className="mt-5 grid grid-cols-2 gap-4 border-t border-[var(--color-line)] pt-4 text-[12.5px]">
           <div>
             <dt className="text-[var(--color-ink-muted)]">{t.portrait.countries}</dt>
@@ -142,9 +146,6 @@ export default function Portrait({
             </dd>
           </div>
         </dl>
-        {topics ? (
-          <TopicsLink count={topics.items.length} href={topics.href} className="mt-5" />
-        ) : null}
       </header>
 
       {subject.showMetrics === false ? null : (

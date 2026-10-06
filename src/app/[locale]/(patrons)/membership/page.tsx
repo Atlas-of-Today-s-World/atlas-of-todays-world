@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { PenLine } from "lucide-react";
+import { VolunteerForm } from "@/features/volunteers/components/VolunteerForm";
+import { VOLUNTEER_ID } from "@/features/membership/config";
 import { Accordion } from "@/components/atlas/Accordion";
 import { RichText } from "@/components/atlas/RichText";
 import { DonationCard } from "@/components/membership/DonationCard";
@@ -218,6 +221,36 @@ export default async function MembershipPage({ params }: Params) {
                   answer: <RichText text={item.answer} values={{ email: <PatronsEmail /> }} />,
                 }))}
               />
+            </div>
+          </section>
+
+          {/* Another way to help: volunteer editors (applications land in the admin). */}
+          <section
+            id={VOLUNTEER_ID}
+            aria-labelledby="volunteer-title"
+            className="mt-20 scroll-mt-24 rounded-3xl bg-[var(--color-surface-muted)] p-6 ring-1 ring-black/5 sm:p-10"
+          >
+            <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
+              <div>
+                <h2 id="volunteer-title" className={H2}>
+                  {t.volunteer.title}
+                </h2>
+                <p className="mt-4 text-[15px] leading-relaxed text-[var(--color-ink-soft)]">
+                  {t.volunteer.lead}
+                </p>
+                <ul className="mt-6 space-y-2.5 text-[14px] text-[var(--color-ink)]">
+                  {t.volunteer.points.map((point) => (
+                    <li key={point} className="flex items-start gap-2.5">
+                      <PenLine
+                        aria-hidden
+                        className="mt-0.5 size-4 shrink-0 text-[var(--color-accent)]"
+                      />
+                      {point}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <VolunteerForm />
             </div>
           </section>
         </div>

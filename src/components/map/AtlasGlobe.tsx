@@ -29,6 +29,7 @@ import { DESKTOP_MIN_PX, isFullPage, railKind, railWidthPx } from "@/config/layo
 import Link from "@/components/i18n/Link";
 import { cn } from "@/lib/cn";
 import { useMessages } from "@/components/i18n/LocaleProvider";
+import { splitLocale, withoutDefaultPrefix } from "@/features/i18n/config";
 import { isSpinEvent, useIdleSpin } from "./useIdleSpin";
 
 interface GlobeColorSets {
@@ -43,8 +44,23 @@ export interface RegionLookup {
   bySlug: Record<string, { name: string; countries: string[] }>;
 }
 
+/** Metric id → its short name and each country's formatted value and year (hover label). */
+export type MetricValues = Record<
+  string,
+  { label: string; values: Record<string, [value: string, year: number]> }
+>;
+
+/** What the label under the cursor says. */
+interface HoverLabel {
+  name: string;
+  /** The active metric for this country (countries mode with a metric on). */
+  metric?: { label: string; value: string | null; year?: number };
+  topics?: string;
+}
+
 interface Props {
   colorSets: GlobeColorSets;
+  metricValues: MetricValues;
   /** ISO3 -> country slug, for navigation on click. */
   slugs: Record<string, string>;
   regions: RegionLookup;
@@ -231,6 +247,7 @@ function matchExpression(colors: Record<string, string>): ExpressionSpecificatio
 
 export default function AtlasGlobe({
   colorSets,
+  metricValues,
   slugs,
   regions,
   issue,
@@ -247,7 +264,7 @@ export default function AtlasGlobe({
   const readyRef = useRef(false);
   const router = useLocalizedRouter();
   const { focus, view, mode } = useMapState();
-  const [hoverLabel, setHoverLabel] = useState<string | null>(null);
+  const [hoverLabel, setHoverLabel] = useState<HoverLabel | null>(null);
   const [ready, setReady] = useState(false);
   /** The country just clicked – we highlight it before the content arrives. */
   // Valid until the active country changes (since) — then the page takes over.
@@ -260,6 +277,8 @@ export default function AtlasGlobe({
   const issueRef = useLatest(issue);
   const slugsRef = useLatest(slugs);
   const topicCountsRef = useLatest(topicCounts);
+  const metricValuesRef = useLatest(metricValues);
+  const viewRef = useLatest(view);
   const ownTopicCountriesRef = useLatest(ownTopicCountries);
   const topicLabelRef = useLatest((count: number) =>
     count === 1 ? t.map.topicsOne : format(t.map.topicsCount, { count: String(count) }),
@@ -358,6 +377,14 @@ export default function AtlasGlobe({
       };
       map.on("sourcedata", markCountriesLoaded);
 
+      /** The active metric's value for a country (none in the default view). */
+      const metricFor = (iso3: string): HoverLabel["metric"] => {
+        const metric = metricValuesRef.current[viewRef.current];
+        if (!metric) return undefined;
+        const entry = metric.values[iso3];
+        return { label: metric.label, value: entry?.[0] ?? null, year: entry?.[1] };
+      };
+
       /** What's under the cursor: country ISO3, its name and the target URL per mode. */
       const targetAt = (point: MapMouseEvent["point"]) => {
         const feature = map.queryRenderedFeatures(point, {
@@ -376,7 +403,10 @@ export default function AtlasGlobe({
           const topics = topicCountsRef.current[isIssue ? "issue" : "regions"][slug ?? ""] ?? 0;
           return {
             iso3,
-            label: topics ? `${group.name} · ${topicLabelRef.current(topics)}` : group.name,
+            label: {
+              name: group.name,
+              topics: topics ? topicLabelRef.current(topics) : undefined,
+            } as HoverLabel,
             href: isIssue ? `/global-issue/${slug}` : `/region/${slug}`,
             countries: group.countries,
           };
@@ -388,7 +418,11 @@ export default function AtlasGlobe({
         const topics = topicCountsRef.current.countries[iso3] ?? 0;
         return {
           iso3,
-          label: topics ? `${name} · ${topicLabelRef.current(topics)}` : name,
+          label: {
+            name,
+            metric: metricFor(iso3),
+            topics: topics ? topicLabelRef.current(topics) : undefined,
+          } as HoverLabel,
           href: `/country/${slug}`,
           countries: [iso3],
         };
@@ -397,7 +431,8 @@ export default function AtlasGlobe({
       /** Recomputes the highlight for the given point on the canvas. */
       const applyHover = (point: MapMouseEvent["point"] | null) => {
         const target = point ? targetAt(point) : null;
-        const key = target?.href ?? null;
+        // The metric is part of the key, so switching it under a still cursor updates the label.
+        const key = target ? `${target.href}|${viewRef.current}` : null;
         if (key === hoveredRef.current) return;
         hoveredRef.current = key;
 
@@ -509,6 +544,9 @@ export default function AtlasGlobe({
   }, [mode, ready]);
 
   // --- topic counts: one badge layer per mode, numbers from the server ---
+  const openIssue = /^\/global-issue\/([^/]+)/.exec(
+    splitLocale(withoutDefaultPrefix(pathname)).path,
+  )?.[1];
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
@@ -529,7 +567,11 @@ export default function AtlasGlobe({
           ? (COUNTRY_RANK_FILTER as ExpressionSpecification)
           : key === "regions"
             ? null
-            : has,
+            : openIssue
+              ? // On a group's page only its own count: another group's pill over one of
+                // its countries reads as its count (Russia–Ukraine War over Belarus).
+                ["all", has, ["==", ["get", "slug"], openIssue]]
+              : has,
       );
       map.setLayoutProperty(layer, "text-field", text);
       // The small globe window on full-width pages shows no counts.
@@ -548,7 +590,7 @@ export default function AtlasGlobe({
       map.setPaintProperty(layer, "icon-opacity", ["case", has, 0.92, 0.5]);
       map.setPaintProperty(layer, "text-opacity", ["case", has, 1, 0.7]);
     }
-  }, [topicCounts, ownTopicCountries, mode, mini, ready]);
+  }, [topicCounts, ownTopicCountries, mode, openIssue, mini, ready]);
 
   // --- highlight of the active country / region ---
   useEffect(() => {
@@ -678,7 +720,25 @@ export default function AtlasGlobe({
 
       {hoverLabel && !mini ? (
         <div className="glass pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 rounded-full px-3.5 py-1.5 text-xs tracking-wide text-white/90">
-          {hoverLabel}
+          <span className="font-semibold text-white">{hoverLabel.name}</span>
+          {hoverLabel.metric ? (
+            <>
+              <span className="text-white/45"> · </span>
+              {hoverLabel.metric.label}:{" "}
+              <span className="font-semibold text-white tabular-nums">
+                {hoverLabel.metric.value ?? t.map.noData}
+              </span>
+              {hoverLabel.metric.year ? (
+                <span className="text-white/55"> ({hoverLabel.metric.year})</span>
+              ) : null}
+            </>
+          ) : null}
+          {hoverLabel.topics ? (
+            <>
+              <span className="text-white/45"> · </span>
+              {hoverLabel.topics}
+            </>
+          ) : null}
         </div>
       ) : null}
     </div>

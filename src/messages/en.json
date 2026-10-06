@@ -64,7 +64,7 @@
     "emailSoon": "Signing in with an e-mail code will be available soon."
   },
   "portrait": {
-    "globalIssue": "Global Issue",
+    "globalIssue": "Special Region",
     "countriesInRegion": "Countries in this region",
     "countriesInGroup": "Countries in this group",
     "countries": "Countries",
@@ -119,14 +119,15 @@
     "modes": "Map selection mode",
     "modeCountries": "Countries",
     "modeRegions": "Regions",
-    "modeIssues": "Global Issues",
+    "modeIssues": "Special Regions",
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out",
     "dataLayer": "Data layer",
     "maintenance": "Maintenance",
     "maintenanceTitle": "The Atlas is being updated",
     "maintenanceText": "We are working on the site right now. Please come back in a little while.",
-    "latestSubtopics": "Latest subtopics"
+    "latestSubtopics": "Latest subtopics",
+    "noData": "no data"
   },
   "panel": {
     "content": "Content panel",
@@ -140,15 +141,13 @@
     "notFoundText": "The page may have moved, or the address has a typo. Search the Atlas or pick a country on the globe."
   },
   "search": {
-    "open": "Search the Atlas",
-    "close": "Close search",
     "placeholder": "Search places, regions, news…",
     "searching": "Searching…",
     "nothing": "Nothing found in the Atlas yet.",
     "kindRegion": "Region",
     "kindCountry": "Country",
     "kindNews": "News",
-    "kindIssue": "Global issue"
+    "kindIssue": "Special region"
   },
   "country": {
     "disputed": "Disputed territory.",
@@ -309,7 +308,33 @@
       "help": "Need help? Email us at {email}."
     },
     "builtWith": "This website was built in cooperation with",
-    "builtWithLabel": "Website by Develogi.cz"
+    "builtWithLabel": "Website by Develogi.cz",
+    "volunteer": {
+      "title": "Write for the Atlas as a volunteer",
+      "lead": "Not every way to help is a donation. If you know a country, a region or an issue well, you can join our editors and write or review topics — as a volunteer, alongside your studies or work. Tell us a little about yourself and we will get in touch.",
+      "points": [
+        "Write or update a topic in your field",
+        "Review drafts and check sources",
+        "Work remotely, at your own pace"
+      ],
+      "name": "Your name",
+      "email": "E-mail",
+      "topics": "What would you like to write about?",
+      "topicsHint": "Countries, regions or issues you know well",
+      "message": "A few words about you (optional)",
+      "consent": "I agree that the Atlas may keep these details to contact me about volunteering, as described in the",
+      "privacyLink": "privacy policy",
+      "submit": "Apply as a volunteer editor",
+      "messages": {
+        "thanks": "Thank you! We have your application and will get in touch.",
+        "rateLimited": "Too many attempts. Try again in an hour.",
+        "invalidEmail": "Check the e-mail address.",
+        "name": "Enter your name.",
+        "tooLong": "That text is too long.",
+        "consent": "Please confirm the consent.",
+        "failed": "Something went wrong. Try again later."
+      }
+    }
   },
   "newsIndex": {
     "title": "All news",
@@ -358,6 +383,11 @@
     "inShort": "In short",
     "faq": "Questions and answers",
     "showTopic": "Subtopic {number}: {title}",
+    "previous": "Previous",
+    "next": "Next",
+    "previousTopic": "Previous subtopic: {title}",
+    "nextTopic": "Next subtopic: {title}",
+    "topicSteps": "Previous and next subtopic",
     "subtopicUpdated": "Updated {date}",
     "resourcesCount": "{count} resources",
     "resourcesOne": "1 resource",
@@ -370,7 +400,7 @@
     "site": "Atlas of Today's World",
     "country": "Country profile",
     "region": "World region",
-    "issue": "Global issue",
+    "issue": "Special region",
     "news": "News",
     "entry": "Topic",
     "patrons": "Atlas Patrons"
@@ -478,13 +508,13 @@
     "feedTitle": "Atlas of Today’s World — news and encyclopedia",
     "feedDescription": "New articles from Atlas of Today’s World, the non-profit encyclopedia of the present: news analysis and encyclopedia dossiers on every world region.",
     "llmsIntro": "Atlas of Today’s World is published by {legalName}, a non-profit registered association in Prague, Czech Republic, founded in 2016. Everything is free to read without an account.",
-    "llmsUse": "Country, region and global-issue pages combine editorial text with indicators from international sources (UNDP, World Bank, V-Dem, Transparency International and others via Our World in Data); every value states its source and year. Articles show their author, publication date and last update.",
+    "llmsUse": "Country, region and special-region pages combine editorial text with indicators from international sources (UNDP, World Bank, V-Dem, Transparency International and others via Our World in Data); every value states its source and year. Articles show their author, publication date and last update.",
     "llmsCite": "Cite as: Atlas of Today’s World, “<page title>”, <URL> (accessed <date>).",
     "llmsFormats": "Language: English. Markdown version of any article: add .md to its URL. Full text of all articles: {full}. Feeds: {rss} (RSS) and {atom} (Atom). Sitemap: {sitemap}.",
     "sectionEntries": "Encyclopedia dossiers",
     "sectionNews": "News and analysis",
     "sectionRegions": "World regions",
-    "sectionIssues": "Global issues and country groups",
+    "sectionIssues": "Special regions",
     "sectionData": "Data layers (datasets by country)",
     "sectionAbout": "About the Atlas",
     "sectionCountries": "Country profiles",
@@ -544,5 +574,26 @@
     "privacy": "Privacy",
     "ok": "OK",
     "closesIn": "Closes in {seconds} s"
+  },
+  "newsletterPage": {
+    "button": "Newsletter",
+    "title": "The Atlas newsletter",
+    "metaTitle": "Newsletter",
+    "description": "Sign up for the Atlas of Today’s World newsletter: new topics, data updates and what our editors are working on — about once a month.",
+    "lead": "About once a month we send what is new in the Atlas: fresh topics and subtopics, updated data on the map and a look at what our editors are working on.",
+    "points": [
+      "New topics and subtopics as they are published",
+      "Data updates and new layers on the globe",
+      "Behind the scenes of an independent encyclopedia"
+    ],
+    "note": "No spam and no tracking. Every e-mail has an unsubscribe link.",
+    "off": "The newsletter is about to start — check back soon.",
+    "moreTitle": "Want to do more?",
+    "donateTitle": "Support the Atlas even more",
+    "donateText": "An open encyclopedia of today’s world is paid for by its readers. A monthly gift of any size keeps it free for everyone.",
+    "donateCta": "Become an Atlas Patron",
+    "editorTitle": "Write with us",
+    "editorText": "Know a country, a region or an issue well? Join our volunteer editors and help write and review topics.",
+    "editorCta": "Apply as a volunteer editor"
   }
 }

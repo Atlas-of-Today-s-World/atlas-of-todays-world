@@ -6,7 +6,7 @@ export const SECTION_LABEL: Record<(typeof SECTIONS)[number], string> = {
   news: "Articles",
   approvals: "Article approvals",
   regions: "Regions & countries",
-  specials: "Country groups",
+  specials: "Special regions",
   layers: "Map data layers",
   areas: "Custom map areas",
   appearance: "Map appearance",

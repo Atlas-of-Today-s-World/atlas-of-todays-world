@@ -107,16 +107,20 @@ export function MapLegend({ options }: { options: ViewOption[] }) {
   }
 
   return (
-    <div className="pointer-events-none absolute bottom-3.5 left-[42px] z-20 w-[min(80vw,24rem)]">
+    // Scale large enough to read over the globe: 31 rem long, 40 px colour bar, 15 px labels.
+    // On phones it leaves room for the attribution (left) and the support button (right).
+    <div className="pointer-events-none absolute bottom-3.5 left-[42px] z-20 w-[min(calc(100vw-110px),31.25rem)]">
       <div className="flex overflow-hidden rounded-md">
         {option.swatches.map((swatch) => (
-          <div key={swatch.label + swatch.color} className="flex-1">
-            <div style={{ background: swatch.color }} className="h-2.5" />
-            <div className="mt-1 text-center text-[10px] text-white/65">{swatch.label}</div>
+          <div key={swatch.label + swatch.color} className="min-w-0 flex-1">
+            <div style={{ background: swatch.color }} className="h-10" />
+            <div className="mt-1.5 truncate text-center text-[15px] text-white/75 tabular-nums">
+              {swatch.label}
+            </div>
           </div>
         ))}
       </div>
-      <p className="mt-1.5 text-[10.5px] leading-snug text-white/55">{option.caption}</p>
+      <p className="mt-2 text-[15px] leading-snug text-white/60">{option.caption}</p>
     </div>
   );
 }

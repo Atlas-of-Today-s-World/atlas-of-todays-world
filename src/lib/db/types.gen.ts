@@ -2120,6 +2120,60 @@ export type Database = {
           },
         ]
       }
+      volunteer_applications: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          notified_at: string | null
+          status: string
+          topics: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message?: string
+          name: string
+          notified_at?: string | null
+          status?: string
+          topics?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          notified_at?: string | null
+          status?: string
+          topics?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      volunteer_settings: {
+        Row: {
+          id: number
+          notify_email: string | null
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          notify_email?: string | null
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          notify_email?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       members_overview: {
@@ -2326,6 +2380,10 @@ export type Database = {
       }
       slugify_text: { Args: { p_text: string }; Returns: string }
       submit_entry: { Args: { p_entry: string }; Returns: undefined }
+      submit_volunteer_application: {
+        Args: { p_email: string; p_message: string; p_name: string; p_topics: string }
+        Returns: undefined
+      }
       translation_section: { Args: { p_entity: string }; Returns: string }
       unpublish_entry: { Args: { p_entry: string }; Returns: undefined }
       unschedule_entry: { Args: { p_entry: string }; Returns: undefined }

@@ -126,7 +126,7 @@ test.describe("region portrait", () => {
 test.describe("global issues", () => {
   test("third switch position opens the topic portrait", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("radio", { name: "Global Issues" })).toBeVisible();
+    await expect(page.getByRole("radio", { name: "Special Regions" })).toBeVisible();
 
     await page.goto("/global-issue/russia-ukraine-war");
     await expect(page.getByRole("heading", { name: "Russia–Ukraine War" })).toBeVisible();
@@ -152,15 +152,10 @@ test.describe("mobil", () => {
     await expect(menu).toBeHidden();
   });
 
-  test("search is tucked into an icon", async ({ page }) => {
+  test("the search field is right there, without a button to open it", async ({ page }) => {
     await page.goto("/");
-
-    const search = page.getByRole("button", { name: "Search the Atlas" });
-    await expect(search).toBeVisible();
-    await expect(page.getByPlaceholder(/Search places/)).toBeHidden();
-
-    await search.click();
     await expect(page.getByPlaceholder(/Search places/)).toBeVisible();
+    await expect(page.getByRole("button", { name: "Search the Atlas" })).toHaveCount(0);
   });
 });
 

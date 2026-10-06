@@ -6,7 +6,7 @@ import { MapStage } from "@/components/map/MapStage";
 import { MapProvider } from "@/components/map/MapContext";
 import { MapLegend, type ViewOption } from "@/components/map/ViewSwitcher";
 import ContentRail from "@/components/ContentRail";
-import { FloatingDonate } from "@/components/membership/FloatingDonate";
+import { FloatingActions } from "@/components/membership/FloatingActions";
 import { ErrorState } from "@/components/atlas/ErrorState";
 import { getFlags } from "@/features/flags/queries";
 import { regionColorMap } from "@/features/geography/model";
@@ -17,7 +17,8 @@ import { format, type Messages } from "@/features/i18n/messages";
 import { getRequestLocale, getT, localeFrom } from "@/features/i18n/request";
 import type { GlobalIssue, Indicator, Region } from "@/features/geography/types";
 import { saturate, saturateMap } from "@/lib/color";
-import { colorMapFor, legendFor } from "@/lib/indicators";
+import { colorMapFor, formatValue, legendFor } from "@/lib/indicators";
+import type { MetricValues } from "@/components/map/AtlasGlobe";
 
 /** Options for the layer switcher – generated from imported indicators. */
 function buildViewOptions(indicators: Indicator[], saturation: number, t: Messages): ViewOption[] {
@@ -100,6 +101,21 @@ export default async function MapLayout({
   const issue = lookup(atlas.issues);
   const t = getT();
   const viewOptions = buildViewOptions(atlas.indicators, atlas.theme.saturation, t);
+  // Each metric's value per country, formatted like the legend, for the hover label.
+  const metricValues: MetricValues = Object.fromEntries(
+    atlas.indicators.map((indicator) => [
+      indicator.id,
+      {
+        label: indicator.shortLabel || indicator.label,
+        values: Object.fromEntries(
+          Object.entries(indicator.values).map(([iso3, { value, year }]) => [
+            iso3,
+            [formatValue(indicator, value, getRequestLocale()), year],
+          ]),
+        ),
+      },
+    ]),
+  );
   const regionLabels = atlas.regions.map(({ slug, name, center }) => ({ slug, name, center }));
   // Topic counts over places (ADR-024): computed here once, the globe only draws them.
   const counts = countTopics(places, {
@@ -123,9 +139,10 @@ export default async function MapLayout({
     <MapProvider>
       <main className="relative h-dvh w-full overflow-hidden bg-[var(--color-space-deep)]">
         <Header newsletter={flags.newsletter} showNews={flags.newsMenu} />
-        <FloatingDonate onMap />
+        <FloatingActions onMap newsletter={flags.newsletter} />
         <MapStage>
           <AtlasGlobe
+            metricValues={metricValues}
             colorSets={colorSets}
             slugs={slugs}
             regions={regionLookup}
