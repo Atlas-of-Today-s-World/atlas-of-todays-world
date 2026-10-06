@@ -26,6 +26,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
@@ -56,6 +58,8 @@ jobs:
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY_DEV }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
@@ -70,7 +74,7 @@ jobs:
       - name: Playwright (shard ${{ matrix.shard }} of 3)
         run: |
           npm run start &
-          npx --yes wait-on --timeout 60000 http://localhost:3000
+          npx --yes wait-on@9.5.1 --timeout 60000 http://localhost:3000
           npx playwright install --with-deps chromium
           npx playwright test --shard=${{ matrix.shard }}/3
         env:
@@ -82,7 +86,8 @@ jobs:
         with:
           name: playwright-report-${{ matrix.shard }}
           path: playwright-report/
-          retention-days: 7
+          # The repository is public and traces carry test-account sessions.
+          retention-days: 1
 
   lighthouse:
     name: Lighthouse
@@ -93,6 +98,8 @@ jobs:
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY_DEV }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
@@ -107,7 +114,7 @@ jobs:
       - name: Lighthouse (performance and accessibility budgets, lighthouserc.json)
         run: |
           npm run start &
-          npx --yes wait-on --timeout 60000 http://localhost:3000
+          npx --yes wait-on@9.5.1 --timeout 60000 http://localhost:3000
           npx --yes @lhci/cli@0.14 autorun
       - uses: actions/upload-artifact@v7
         if: always()
