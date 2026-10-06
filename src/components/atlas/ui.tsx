@@ -85,7 +85,8 @@ export function SourceLink({ href, children }: { href?: string | null; children:
       href={url}
       target="_blank"
       rel="noreferrer"
-      className="text-[var(--color-link)] hover:underline"
+      // At least 24 px tall, so stacked source links stay easy to tap (WCAG 2.5.8).
+      className="inline-flex min-h-6 items-center text-[var(--color-link)] hover:underline"
     >
       {children}
     </a>

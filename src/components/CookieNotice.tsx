@@ -23,6 +23,11 @@ const seen = () => {
  * information, not a consent request — which is why it may close by itself
  * after a visible countdown. Hovering or focusing it pauses the countdown
  * (WCAG 2.2.1); once closed it doesn't come back in this browser.
+ *
+ * Rendered on the server, so it paints with the page (a notice appearing after
+ * hydration became the page's late Largest Contentful Paint). Returning
+ * visitors never see it: PrePaintScript marks <html> before the first paint
+ * and globals.css hides it; after hydration it's dropped from the DOM.
  */
 export function CookieNotice() {
   const t = useMessages().cookies;
@@ -31,7 +36,7 @@ export function CookieNotice() {
   const [paused, setPaused] = useState(false);
   const [left, setLeft] = useState(COOKIE_NOTICE_SECONDS);
   const leftRef = useLatest(left);
-  const visible = hydrated && !closed && !seen();
+  const visible = !closed && !(hydrated && seen());
 
   const close = useCallback(() => {
     setClosed(true);
@@ -43,14 +48,15 @@ export function CookieNotice() {
   }, []);
 
   useEffect(() => {
-    if (!visible || paused) return;
+    // The countdown runs only in the browser, once we know the notice is new.
+    if (!hydrated || !visible || paused) return;
     const tick = setInterval(() => setLeft((seconds) => Math.max(0, seconds - 1)), 1000);
     const done = setTimeout(close, leftRef.current * 1000);
     return () => {
       clearInterval(tick);
       clearTimeout(done);
     };
-  }, [visible, paused, close, leftRef]);
+  }, [hydrated, visible, paused, close, leftRef]);
 
   if (!visible) return null;
 
@@ -58,6 +64,9 @@ export function CookieNotice() {
     <section
       aria-label={t.label}
       data-print="hide"
+      data-cookie-notice=""
+      // Painted before React takes over; this marks the moment the countdown runs.
+      data-countdown={hydrated && !paused ? "running" : undefined}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}

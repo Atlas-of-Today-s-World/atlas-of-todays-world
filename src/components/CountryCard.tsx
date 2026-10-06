@@ -1,11 +1,12 @@
 import { ShareButton } from "@/components/atlas/ShareButton";
 import Link from "@/components/i18n/Link";
-import { cssBackgroundImage } from "@/lib/security/urls";
 import { TopicsLink } from "@/components/topics/RelatedTopics";
 import type { EntrySummary } from "@/features/entries/queries";
 import type { Country, CountryProfile } from "@/features/geography/types";
 import { getRequestLocale, getT } from "@/features/i18n/request";
 import { formatPopulation } from "@/lib/format";
+import { PHOTO_WIDTH } from "@/lib/images";
+import { cssBackgroundImage } from "@/lib/security/urls";
 import { format } from "@/features/i18n/messages";
 import { MetricCards, SourceLink, StatGrid, StatIcon, StatItem } from "./atlas/ui";
 
@@ -129,12 +130,15 @@ export default function CountryCard({
           <span
             className="block h-28 w-full bg-cover bg-center"
             style={{
+              // Through cssBackgroundImage: an escaped, resized URL — and none at all
+              // when the region has no photo (it used to request "url(null)").
               backgroundImage: [
                 "linear-gradient(180deg, rgba(10,16,32,0.15), rgba(10,16,32,0.55))",
-                cssBackgroundImage(region.hero),
+                cssBackgroundImage(region.hero, PHOTO_WIDTH.card),
               ]
                 .filter(Boolean)
                 .join(", "),
+              backgroundColor: "var(--color-space)",
             }}
             role="img"
             aria-label={format(t.ui.fromOrbit, { name: region.name })}

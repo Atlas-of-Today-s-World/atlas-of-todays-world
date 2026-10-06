@@ -15,6 +15,8 @@ test("the cookie notice counts down, closes by itself and stays closed", async (
   await expect(notice).toBeVisible();
   await expect(notice.getByText(`Closes in ${COOKIE_NOTICE_SECONDS} s`)).toBeVisible();
   await expect(notice.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
+  // The notice is in the static HTML; its countdown starts once the page is live.
+  await expect(notice).toHaveAttribute("data-countdown", "running");
 
   await page.clock.fastForward(COOKIE_NOTICE_SECONDS * 1000 + 500);
   await expect(notice).toBeHidden();
@@ -27,6 +29,7 @@ test("the cookie notice counts down, closes by itself and stays closed", async (
 test("OK closes the cookie notice right away", async ({ page }) => {
   await page.goto("/about");
   const notice = page.getByRole("region", { name: "Cookie notice" });
+  await expect(notice).toHaveAttribute("data-countdown", "running");
   await notice.getByRole("button", { name: "OK" }).click();
   await expect(notice).toBeHidden();
 });
