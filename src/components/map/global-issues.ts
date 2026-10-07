@@ -67,16 +67,17 @@ export function withStatusMark(
 export function statusMarkImage(id: string) {
   const status = STATUS_BY_IMAGE.get(id);
   if (!status) return null;
-  const ratio = 2;
-  // Inline images are scaled with the text (24 px ≈ one em), so this ends up about 10 px high.
-  const [w, h, gap] = status === "none" ? [1, 1, 0] : [30 * ratio, 24 * ratio, 6 * ratio];
+  // Drawn at 4× for sharp edges on dense screens; laid out at its logical size
+  // (inline images aren’t scaled with the text): a dot a little taller than the digits.
+  const ratio = 4;
+  const [w, h, gap] = status === "none" ? [1, 1, 0] : [14 * ratio, 11 * ratio, 3 * ratio];
   const canvas = document.createElement("canvas");
   canvas.width = w;
   canvas.height = h;
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
   if (status !== "none") {
-    const r = h / 2 - ratio;
+    const r = h / 2 - ratio / 2;
     const [cx, cy] = [gap + (w - gap) / 2, h / 2];
     ctx.fillStyle = status === "ready" ? "#1e9e5a" : "#d98a00";
     ctx.beginPath();
@@ -84,7 +85,7 @@ export function statusMarkImage(id: string) {
     ctx.fill();
     ctx.strokeStyle = "#ffffff";
     ctx.fillStyle = "#ffffff";
-    ctx.lineWidth = 2.4 * ratio;
+    ctx.lineWidth = 1.5 * ratio;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     ctx.beginPath();
@@ -96,7 +97,7 @@ export function statusMarkImage(id: string) {
     } else {
       // Hourglass: two triangles meeting in the middle, with a top and bottom bar.
       const [dx, dy] = [r * 0.42, r * 0.55];
-      ctx.lineWidth = 1.6 * ratio;
+      ctx.lineWidth = 0.9 * ratio;
       ctx.moveTo(cx - dx, cy - dy);
       ctx.lineTo(cx + dx, cy - dy);
       ctx.lineTo(cx - dx, cy + dy);

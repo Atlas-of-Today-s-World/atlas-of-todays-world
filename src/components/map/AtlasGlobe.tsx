@@ -43,7 +43,13 @@ import { cn } from "@/lib/cn";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { isSpinEvent, useIdleSpin } from "./useIdleSpin";
 import { type ContentStatus, unprocessedCountries } from "@/features/geography/content-status";
-import { openIssueSlug, statusesOf, statusMarkImage, withStatusMark } from "./global-issues";
+import {
+  openIssueSlug,
+  STATUS_IMAGES,
+  statusesOf,
+  statusMarkImage,
+  withStatusMark,
+} from "./global-issues";
 
 interface GlobeColorSets {
   /** ISO3 -> color for each layer, precomputed on the server. */
@@ -331,18 +337,14 @@ export default function AtlasGlobe({
   /** The global issue whose panel is open: its countries are lit, the rest of the world greys out. */
   const openIssue = openIssueSlug(pathname);
   const openIssueRef = useLatest(openIssue);
-  // Content status per group and the countries nobody has started on (grey in group modes).
+  // Content status per group (marks in the pills) and the countries of regions
+  // nobody has started on (grey in Regions mode). Issues keep their colours: one
+  // spanning the whole world (Migration) would otherwise grey the entire globe.
   const statuses = useMemo(
     () => ({ regions: statusesOf(regions.bySlug), issue: statusesOf(issue.bySlug) }),
     [regions, issue],
   );
-  const unprocessed = useMemo(
-    () => ({
-      regions: unprocessedCountries(Object.values(regions.bySlug)),
-      issue: unprocessedCountries(Object.values(issue.bySlug)),
-    }),
-    [regions, issue],
-  );
+  const unprocessed = useMemo(() => unprocessedCountries(Object.values(regions.bySlug)), [regions]);
 
   // On the home map (and in the corner window) the globe turns slowly until the user grabs it,
   // and now and then two topic counts pulse to invite a click.
@@ -401,17 +403,17 @@ export default function AtlasGlobe({
         });
 
         map.on("load", () => {
+          // Status marks inside the topic pills (check mark, hourglass) go in before any
+          // pill names them: an image inside text isn't laid out again once it arrives.
+          for (const id of Object.values(STATUS_IMAGES)) {
+            const mark = statusMarkImage(id);
+            if (mark && !map.hasImage(id)) map.addImage(id, mark.image, mark.options);
+          }
           readyRef.current = true;
           setReady(true);
         });
 
         map.on("styleimagemissing", (event: { id: string }) => {
-          // Status marks inside the topic pills (check mark, hourglass).
-          const mark = map.hasImage(event.id) ? null : statusMarkImage(event.id);
-          if (mark) {
-            map.addImage(event.id, mark.image, mark.options);
-            return;
-          }
           const soft = event.id === TOPIC_BADGE_IMAGES.none;
           if ((!soft && event.id !== TOPIC_BADGE_IMAGES.some) || map.hasImage(event.id)) return;
           const badge = topicBadgeImage(soft);
@@ -593,7 +595,7 @@ export default function AtlasGlobe({
     if (focused) {
       // An open global issue: its countries lit (in the issue's colour, or the data
       // layer's), every other country greyed out over a desaturated globe. One paint
-      // update per issue; the membership test runs on the GPU-side expression.
+      // update when the issue changes; nothing is redone while the globe moves.
       const member: ExpressionSpecification = [
         "in",
         ["get", "iso3"],
@@ -601,13 +603,9 @@ export default function AtlasGlobe({
       ];
       fillColor = ["case", member, isData ? fillColor : focused.fill, DIMMED];
       fillOpacity = ["case", member, isData ? 0.9 : 0.72, 0.55];
-    } else if (mode !== "countries" && !isData && unprocessed[mode].length) {
-      // Regions / issues nobody has started on yet: a light grey wash, "not processed yet".
-      const pending: ExpressionSpecification = [
-        "in",
-        ["get", "iso3"],
-        ["literal", unprocessed[mode]],
-      ];
+    } else if (mode === "regions" && !isData && unprocessed.length) {
+      // Regions nobody has started on yet: a light grey wash, "not processed yet".
+      const pending: ExpressionSpecification = ["in", ["get", "iso3"], ["literal", unprocessed]];
       fillColor = ["case", pending, UNPROCESSED, fillColor];
       fillOpacity = ["case", pending, 0.32, fillOpacity];
     }
