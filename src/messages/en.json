@@ -96,7 +96,13 @@
     "patronsCompleteText": "Atlas Patrons fund the writing, the data work and the independence of this encyclopedia.",
     "patronsTodoTitle": "This portrait is not finished",
     "patronsTodoText": "The sections above are waiting for authors. Atlas Patrons pay for the research and the writing that fills them in.",
-    "customRegion": "Region"
+    "customRegion": "Region",
+    "timelineMore": "Read more",
+    "timelineLess": "Show less",
+    "inPreparation": "In preparation",
+    "regionalProfile": "Regional profile",
+    "regionalProfileLead": "{country} is part of {region}. Our editors write about the region as a whole — its story, topics and sources below cover all its countries.",
+    "regionalProfileOpen": "View the whole region"
   },
   "categories": {
     "Living Conditions": "Living Conditions",
