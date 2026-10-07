@@ -25,7 +25,7 @@ Každý bod má kontrolu v testech nebo v CI (sloupec „Ověření“).
 | S10 | Tajné údaje | jen server; `server-only`; GitHub secret scanning + push protection; `grep` bundlu v CI | CI krok |
 | S11 | Závislosti | Dependabot (týdně), `npm audit --audit-level=high` v CI, CodeQL (zdarma pro veřejné repo), zamčené verze | CI |
 | S12 | Soubory | Storage RLS, cesta `{user_id}/…`, MIME allowlist bez SVG, limit velikosti | DB test Storage |
-| S13 | Iframes | jen Flourish/World Bank/YouTube, `sandbox` bez `allow-same-origin`, `loading="lazy"`, CSP `frame-src` | smoke test |
+| S13 | Iframes | jen Flourish/World Bank/YouTube/Datawrapper, `sandbox` bez `allow-same-origin`, `loading="lazy"`, CSP `frame-src`. Datawrapper: z vloženého embed kódu server uloží jen ověřenou URL grafu (`lib/embeds.ts`, přesný host `datawrapper.dwcdn.net`, DB CHECK), iframe je náš; `allow-same-origin` výjimečně ano — graf načítá data ze svého originu, který nikdy není náš | unit + DB test |
 | S14 | SSRF | server nikdy nestahuje URL zadanou uživatelem (výjimka: importní skript s allowlistem hostů) | code review |
 | S15 | Chyby a logy | uživateli obecná hláška + ID; detail do logu; v logu žádné tokeny, hesla, celé e-maily | code review |
 | S16 | Soukromí (GDPR) | privacy policy před newsletterem/platbami; minimalizace osobních údajů; retence audit logu 12 měsíců; `page_views_daily` jen agregovaně | checklist 13.5 |
@@ -43,7 +43,7 @@ font-src 'self' https://fonts.gstatic.com data:;
 connect-src 'self' https://<ref>.supabase.co wss://<ref>.supabase.co https://*.arcgisonline.com
             https://fonts.openmaptiles.org https://api.maptiler.com https://challenges.cloudflare.com;
 frame-src https://flo.uri.sh https://public.flourish.studio https://*.worldbank.org
-          https://www.youtube-nocookie.com https://challenges.cloudflare.com;
+          https://www.youtube-nocookie.com https://datawrapper.dwcdn.net https://challenges.cloudflare.com;
 worker-src 'self' blob:;
 object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
 ```

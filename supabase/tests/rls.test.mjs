@@ -940,6 +940,50 @@ test("portrait: only permitted editors replace a collection, in one transaction"
   );
 });
 
+test("visuals: a Datawrapper chart only as its exact chart URL; portrait() says which is which", async () => {
+  const call = "select replace_portrait_items('region', 'east-asia', 'visuals', $1::jsonb)";
+  const chart = "https://datawrapper.dwcdn.net/aB3dE/2/";
+  await as(id.editor, () =>
+    q(call, [
+      JSON.stringify([
+        { provider: "datawrapper", title: "Refugees", url: chart },
+        { provider: "image", title: "Map", url: "https://example.org/map.png" },
+      ]),
+    ]),
+  );
+
+  // Whatever the app sends, the database stores no other host and no pasted HTML.
+  for (const url of [
+    "https://datawrapper.dwcdn.net.evil.com/aB3dE/2/",
+    "https://evil.example/aB3dE/2/",
+    "https://datawrapper.dwcdn.net/aB3dE/2/?x=1",
+    `https://datawrapper.dwcdn.net/aB3dE/2/"><script>alert(1)</script>`,
+    `<iframe src="${chart}"></iframe>`,
+  ]) {
+    await as(id.editor, () =>
+      refused(
+        q(call, [JSON.stringify([{ provider: "datawrapper", title: "x", url }])]),
+        /visual_embeds_datawrapper_url|visual_embeds_url_check/,
+      ),
+    );
+  }
+  await as(id.editor, () =>
+    refused(
+      q(call, [JSON.stringify([{ provider: "youtube", title: "x", url: chart }])]),
+      /visual_embeds_provider_check/,
+    ),
+  );
+
+  const portrait = await as(null, () => one("select portrait('region', 'east-asia') p"));
+  assert.deepEqual(
+    portrait.p.visuals.map((v) => [v.provider, v.image]),
+    [
+      ["datawrapper", chart],
+      ["image", "https://example.org/map.png"],
+    ],
+  );
+});
+
 test("role change: permission admin can't promote to account management, admin can", async () => {
   await as(id.permAdmin, () =>
     refused(

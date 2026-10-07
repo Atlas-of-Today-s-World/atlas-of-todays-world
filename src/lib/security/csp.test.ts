@@ -42,6 +42,15 @@ describe("buildCsp", () => {
     expect(directive(prod, "script-src")).not.toMatch(/https:(\s|$)/);
   });
 
+  it("frames Datawrapper charts only from their exact CDN host", () => {
+    const frames = directive(prod, "frame-src").split(" ");
+    expect(frames).toContain("https://datawrapper.dwcdn.net");
+    expect(frames.filter((source) => source.includes("datawrapper"))).toEqual([
+      "https://datawrapper.dwcdn.net",
+    ]);
+    expect(frames).not.toContain("https:");
+  });
+
   it("forbids framing and plugins", () => {
     expect(directive(prod, "frame-ancestors")).toBe("frame-ancestors 'none'");
     expect(directive(prod, "object-src")).toBe("object-src 'none'");
