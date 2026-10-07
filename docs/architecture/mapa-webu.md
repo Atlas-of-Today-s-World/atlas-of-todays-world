@@ -17,15 +17,15 @@ flowchart TD
   Home["Glóbus (domovská stránka /)"]
   Home --> M1["Režim Countries"]
   Home --> M2["Režim Regions"]
-  Home --> M3["Režim Global issues<br/>(dnes ještě „Special Regions“)"]
+  Home --> M3["Režim Global issues<br/>(nabídka témat pod přepínačem)"]
   Home --> Metrics["World metrics<br/>/view/[indicator]"]
   Home --> Featured["Doporučená podtémata<br/>(pod vyhledáváním)"]
   Home --> Search["Vyhledávání /search"]
 
-  M1 --> Country["Panel země /country/[slug]<br/>údaje země + profil + témata"]
+  M1 --> Country["Panel země /country/[slug]<br/>údaje země + profil<br/>+ regionální profil pod zemí"]
   M2 --> Region["Portrét regionu /region/[slug]"]
-  M3 --> Issue["Portrét globálního tématu<br/>/global-issue/[slug]"]
-  Country -->|"Explore the region"| Region
+  M3 --> Issue["Portrét globálního tématu<br/>/global-issue/[slug]<br/>(zapojené země svítí, zbytek šedý)"]
+  Country -->|"View the whole region"| Region
   Region -->|"země regionu"| Country
   Issue -->|"zapojené země"| Country
 
@@ -44,8 +44,10 @@ flowchart TD
   Topic --> TopicFaq["FAQ tématu"]
   Topic --> Author["Autor /authors/[slug]"]
 
-  Region --> Portrait["Sekce portrétu: Key indicators · Timeline ·<br/>témata po kategoriích · Maps & infographics ·<br/>News · Learn more · FAQ · země · témata"]
+  Region --> Portrait["Sekce profilu: Timeline · témata po kategoriích<br/>(karusely) · Maps & charts (i Datawrapper) ·<br/>News · Learn more · FAQ · výzva Atlas Patrons"]
   Issue --> Portrait
+  Country --> Portrait
+  Issue -.->|"jen globální téma"| KeyInd["Key indicators (data)"]
 
   News["Novinky /news"] --> NewsItem["Novinka /news/[slug]"]
 
@@ -111,7 +113,7 @@ erDiagram
 |---|---|---|---|
 | Region | `regions` | Admin → Regions & countries | Úvod, hero foto, timeline nadpis, `portrait_status` (`populated` = napsaný, `skeleton` = šedý „v přípravě" s výzvou k podpoře). |
 | Země | `countries` | Admin → Regions & countries → země | Patří do jednoho regionu (`region_slug`); profil `profile_html`, tagline, doporučené ukazatele. |
-| Globální téma (dnes „Special region") | `special_regions` (`kind = 'issue'`) | Admin → Special regions | Skupina zemí přes `special_region_countries` (např. Migration, War in Ukraine). `kind = 'region'` je vlastní skupina zemí. |
+| Globální téma (Global issue) | `special_regions` (`kind = 'issue'`) | Admin → Special regions (`/admin/global-issues`) | Skupina zemí přes `special_region_countries` (např. Migration, War in Ukraine). `kind = 'region'` je vlastní skupina zemí. |
 | Vlastní mapová oblast | `map_areas` | Admin → Custom map areas | Polygon na mapě, téma se k ní může vázat (`entries.area_id`). |
 | Ukazatel (World metrics) | `indicators` + `indicator_values` | Admin → Map data layers | Hodnoty po zemích a letech; barvení glóbu `/view/[indicator]`, karty v panelu země. |
 
@@ -189,3 +191,19 @@ k jednotlivému tématu; téma má podtémata, Learn more a FAQ.
 | Accounts & invitations, Roles & permissions | `/admin/accounts`, `/admin/roles` | účty, pozvánky, role (viz [Autentizace a role](06-autentizace-role.md)) |
 | Volunteer editors | `/admin/volunteers` | přihlášky dobrovolníků |
 | Patron memberships | `/admin/members` | `memberships` |
+
+## Stav k 7. 10. 2026 (po schůzce s týmem Atlasu)
+
+- **Regionální profil pod zemí:** obsah se píše za region a zobrazí se pod každou jeho
+  zemí (tmavá hlavička s fotkou regionu, pak stejné sekce jako na stránce regionu —
+  `ProfileSections`); zapisuje se jednou, zobrazuje se na obou místech.
+- **Bez regionálních dat:** stránka regionu nemá Key indicators (národní data jsou u
+  zemí); globální témata data mají.
+- **Global issues** místo „Special regions" ve veřejném webu; výběr tématu rozsvítí jeho
+  země, ostatní zešednou.
+- **Stav zpracování** (`content_status`: none / preparing / ready) u regionů i globálních
+  témat — v adminu, na glóbu fajfka nebo přesýpací hodiny, nezpracované regiony šedé,
+  v portrétu štítek s výzvou k podpoře.
+- **Infografiky z Datawrapperu:** v adminu se vloží embed kód, uloží se jen ověřená adresa
+  grafu (`datawrapper.dwcdn.net`).
+- **Write a topic** vede na formulář dobrovolných editorů s předvyplněným místem.
