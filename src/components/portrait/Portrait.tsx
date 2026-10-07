@@ -92,9 +92,7 @@ export default function Portrait({
   const t = getT();
   const wording = wordingFor(subject.kind, t, subject.groupKind);
   const hero = cssBackgroundImage(subject.hero, PHOTO_WIDTH.card);
-  const complete = Boolean(
-    dossier.timeline?.length && dossier.resources?.length && dossier.faq?.length,
-  );
+  const complete = profileComplete(dossier);
 
   return (
     <article>
@@ -153,41 +151,20 @@ export default function Portrait({
         />
       </header>
 
-      {subject.showMetrics === false ? null : (
+      {/* Data only for a global issue: regional averages confused readers (decision of
+          2026-10-07); national figures live on each country. */}
+      {subject.kind === "issue" && subject.showMetrics !== false ? (
         <IndicatorCards stats={stats} metrics={dossier.metrics} />
-      )}
+      ) : null}
 
-      {dossier.timeline?.length ? (
-        <Timeline
-          items={dossier.timeline}
-          title={dossier.timelineTitle}
-          subtitle={dossier.timelineSubtitle}
-        />
-      ) : (
-        <EmptySection title={t.portrait.timeline} lead={wording.timelineEmpty} />
-      )}
-
-      <ThematicEntries entries={plannedEntries(subject.name, entries, t)} />
-
-      {dossier.visuals?.length ? (
-        <VisualCarousel visuals={dossier.visuals} />
-      ) : (
-        <EmptySection title={t.portrait.maps} lead={wording.mapsEmpty} rows={2} />
-      )}
-
-      {news.length ? <NewsTabs newsItems={news} /> : null}
-
-      {dossier.resources?.length ? (
-        <ResourceLibrary resources={dossier.resources} />
-      ) : (
-        <EmptySection title={t.portrait.learnMore} lead={t.portrait.learnMoreEmpty} rows={2} />
-      )}
-
-      {dossier.faq?.length ? (
-        <FaqList items={dossier.faq} />
-      ) : (
-        <EmptySection title={t.portrait.faq} lead={wording.faqEmpty} rows={3} />
-      )}
+      <ProfileSections
+        kind={subject.kind}
+        groupKind={subject.groupKind}
+        name={subject.name}
+        dossier={dossier}
+        entries={entries}
+        news={news}
+      />
 
       <PortraitSection title={wording.countriesTitle}>
         <ul className="mt-4 flex flex-wrap gap-1.5">
@@ -223,6 +200,72 @@ export default function Portrait({
     </article>
   );
 }
+
+/**
+ * The body of a regional profile, the same wherever it is shown: on the
+ * region's or global issue's own page and under each of the region's
+ * countries (RegionalProfile) — written once, shown in both places.
+ * Timeline, topics by theme, infographics, news, further resources and FAQ;
+ * what the editors haven't written yet is grey with the support call.
+ */
+export function ProfileSections({
+  kind,
+  groupKind,
+  name,
+  dossier,
+  entries,
+  news = [],
+}: {
+  kind: "region" | "issue";
+  groupKind?: "issue" | "region";
+  /** Name used in the titles of planned topics ("Society in Middle East (1)"). */
+  name: string;
+  dossier: RegionDossier;
+  entries: PlannedEntry[];
+  news?: NewsCard[];
+}) {
+  const t = getT();
+  const wording = wordingFor(kind, t, groupKind);
+  return (
+    <>
+      {dossier.timeline?.length ? (
+        <Timeline
+          items={dossier.timeline}
+          title={dossier.timelineTitle}
+          subtitle={dossier.timelineSubtitle}
+        />
+      ) : (
+        <EmptySection title={t.portrait.timeline} lead={wording.timelineEmpty} />
+      )}
+
+      <ThematicEntries entries={plannedEntries(name, entries, t)} />
+
+      {dossier.visuals?.length ? (
+        <VisualCarousel visuals={dossier.visuals} />
+      ) : (
+        <EmptySection title={t.portrait.maps} lead={wording.mapsEmpty} rows={2} />
+      )}
+
+      {news.length ? <NewsTabs newsItems={news} /> : null}
+
+      {dossier.resources?.length ? (
+        <ResourceLibrary resources={dossier.resources} />
+      ) : (
+        <EmptySection title={t.portrait.learnMore} lead={t.portrait.learnMoreEmpty} rows={2} />
+      )}
+
+      {dossier.faq?.length ? (
+        <FaqList items={dossier.faq} />
+      ) : (
+        <EmptySection title={t.portrait.faq} lead={wording.faqEmpty} rows={3} />
+      )}
+    </>
+  );
+}
+
+/** Whether the editors finished the regional profile (the support call changes its words). */
+export const profileComplete = (dossier: RegionDossier) =>
+  Boolean(dossier.timeline?.length && dossier.resources?.length && dossier.faq?.length);
 
 /** News item → portrait card (only what the client component needs). */
 export function newsCards(

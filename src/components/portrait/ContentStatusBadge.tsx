@@ -60,7 +60,7 @@ export function ContentStatusBadge({ status, t }: { status: ContentStatus; t: Me
     >
       <StatusMark status={status} />
       <span className="sr-only">{t.portrait.statusLabel}: </span>
-      {status === "ready" ? t.portrait.statusReady : t.portrait.statusPreparing}
+      {status === "ready" ? t.portrait.statusReady : t.portrait.inPreparation}
     </span>
   );
 }

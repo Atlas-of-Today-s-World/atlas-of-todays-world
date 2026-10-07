@@ -31,3 +31,5 @@ dál platí: kapitola 6 je v souboru Databáze, oddíl 6.3 v něm.
 
 **Aktuální stav a technický dluh:** [analýza architektury (říjen 2026)](docs/architecture/analyza-2026-10.md)
 — mapa vrstev a datových toků, porušení hranic modulů, deset hlavních rizik a co už je uklizené.
+
+**Mapa webu:** [objekty, vztahy a navigace](docs/architecture/mapa-webu.md) — glóbus → místa → témata → podtémata a kde se co plní v adminu (pro prezentaci a editory).

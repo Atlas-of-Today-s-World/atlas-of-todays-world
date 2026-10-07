@@ -11,14 +11,18 @@
 -- The same for global issues (`special_regions`). Editors change it in the
 -- region / issue admin; writes are guarded by the existing policies
 -- regions_change (`regions` e) and special_regions_change (`specials` e).
+--
+-- Safe to run twice: atlas-dev first got it as 20261008000010, then it was
+-- renamed to sort after 20261008000020, which production already has. Columns
+-- are added only if missing, starting statuses only where none is set yet.
 -- =============================================================================
 
 alter table public.regions
-  add column content_status text not null default 'none'
+  add column if not exists content_status text not null default 'none'
     constraint regions_content_status check (content_status in ('none', 'preparing', 'ready'));
 
 alter table public.special_regions
-  add column content_status text not null default 'none'
+  add column if not exists content_status text not null default 'none'
     constraint special_regions_content_status check (content_status in ('none', 'preparing', 'ready'));
 
 comment on column public.regions.content_status is
@@ -32,5 +36,7 @@ grant select (content_status) on public.special_regions to anon;
 
 -- Starting point from the meeting: Middle East is done, Eastern Europe in preparation.
 -- Only where regions with these slugs exist (otherwise the UPDATE changes nothing).
-update public.regions set content_status = 'ready' where slug = 'middle-east-north-africa';
-update public.regions set content_status = 'preparing' where slug = 'eastern-europe-central-asia';
+update public.regions set content_status = 'ready'
+  where slug = 'middle-east-north-africa' and content_status = 'none';
+update public.regions set content_status = 'preparing'
+  where slug = 'eastern-europe-central-asia' and content_status = 'none';

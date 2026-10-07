@@ -79,7 +79,9 @@ async function main() {
     const { status, body } = await get("/region/middle-east-north-africa");
     assert(status === 200, `status ${status}`);
     const text = visible(body);
-    assert(text.includes("Key indicators"), "missing Key indicators section");
+    assert(text.includes("Topics"), "missing the topics section");
+    // No regional averages (decision of 2026-10-07): national data live on each country.
+    assert(!text.includes("Key indicators"), "regional indicators should be gone");
     assert(
       !text.includes("A Comprehensive Portrait"),
       "portrait label that should be gone is still there",
@@ -99,11 +101,11 @@ async function main() {
     assert(text.includes("Not written yet"), "missing empty-section marker");
   });
 
-  await check("indicators have data even for an empty region", async () => {
-    const text = visible((await get("/region/east-asia")).body);
-    assert(text.includes("Key indicators"), "missing indicators");
-    assert(/\d+ of \d+ countries/.test(text), "missing country coverage on indicator");
-    assert(text.includes("Human Development Index"), "missing HDI");
+  await check("a country shows its region's profile below its own data", async () => {
+    const text = visible((await get("/country/turkey")).body);
+    assert(text.includes("Human Development Index"), "missing the country's own data");
+    assert(text.includes("Regional profile"), "missing the regional profile");
+    assert(text.includes("Middle East & North Africa"), "missing the region's name");
   });
 
   await check("old /full URL redirects", async () => {

@@ -1,4 +1,5 @@
-import { RESOURCE_KINDS } from "../constants";
+import { RESOURCE_KINDS, VISUAL_PROVIDERS } from "../constants";
+import { MAX_EMBED_LENGTH } from "@/lib/embeds";
 import type { Collection } from "../schema";
 
 export interface ItemField {
@@ -49,18 +50,25 @@ export const COLLECTION_UI: Record<
   },
   visuals: {
     title: "Maps & charts",
-    lead: "Images or embedded visualizations (Flourish, World Bank).",
+    lead: "Images or interactive charts. For a Datawrapper chart, paste its responsive iframe embed code (or the chart URL) — only the chart link is kept.",
     itemLabel: "Visual",
     fields: [
       {
         name: "provider",
         label: "Type",
         kind: "select",
-        options: ["image", "flourish", "worldbank"],
+        options: VISUAL_PROVIDERS,
         required: true,
       },
       { name: "title", label: "Title", required: true, max: 200 },
-      { name: "url", label: "URL (https)", kind: "url", required: true, full: true },
+      {
+        name: "url",
+        label: "URL (https) or Datawrapper embed code",
+        kind: "url",
+        required: true,
+        max: MAX_EMBED_LENGTH,
+        full: true,
+      },
       { name: "caption", label: "Caption", max: 500, full: true },
     ],
   },

@@ -42,6 +42,7 @@ import Link from "@/components/i18n/Link";
 import { cn } from "@/lib/cn";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { isSpinEvent, useIdleSpin } from "./useIdleSpin";
+import { Starfield } from "./Starfield";
 import { type ContentStatus, unprocessedCountries } from "@/features/geography/content-status";
 import {
   openIssueSlug,
@@ -788,6 +789,7 @@ export default function AtlasGlobe({
           : "h-dvh w-full",
       )}
     >
+      <Starfield />
       <div ref={containerRef} className="h-full w-full" />
 
       {/* Until MapLibre (~300 kB) has loaded, a quiet sphere of the same size holds

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { ActionForm } from "@/components/ui/action-form";
@@ -8,6 +8,7 @@ import { buttonVariants } from "@/components/ui/button";
 import type { ActionState } from "@/lib/actions";
 import { cn } from "@/lib/cn";
 import { applyAsVolunteer } from "../actions";
+import { topicPrefill } from "../prefill";
 
 const FIELD =
   "min-h-11 w-full rounded-lg border border-[var(--color-field-border)] bg-white px-3 text-[14px] text-[var(--color-ink)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none";
@@ -26,6 +27,14 @@ export function VolunteerForm() {
   const texts: Record<string, string> = t.messages;
   const code = state.error ?? state.message;
   const message = code ? (texts[code] ?? texts.failed) : null;
+  const topicsRef = useRef<HTMLInputElement>(null);
+
+  // "Write a topic about X" links here with ?topic=X. Read on the client so the
+  // page stays static; filled only into an empty field, never over typed text.
+  useEffect(() => {
+    const field = topicsRef.current;
+    if (field && !field.value) field.value = topicPrefill(window.location.search);
+  }, []);
 
   if (state.ok) {
     return (
@@ -72,6 +81,7 @@ export function VolunteerForm() {
           {t.topics}
         </label>
         <input
+          ref={topicsRef}
           id="volunteer-topics"
           name="topics"
           maxLength={300}

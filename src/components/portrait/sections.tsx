@@ -8,6 +8,8 @@ import { buttonVariants } from "@/components/ui/button";
 import type { RegionStat } from "@/lib/region-stats";
 import type { FaqItem, MetricCard, ResourceItem, TimelineItem } from "@/lib/content-types";
 import { cssBackgroundImage, safeUrl } from "@/lib/security/urls";
+import { datawrapperChartUrl } from "@/lib/embeds";
+import { DatawrapperChart } from "./DatawrapperChart";
 import { PHOTO_WIDTH } from "@/lib/images";
 import { format } from "@/features/i18n/messages";
 import { MEMBERSHIP_PATH } from "@/features/membership/config";
@@ -79,12 +81,18 @@ export function PortraitSection({
   );
 }
 
-function PatronsLink({ arrow = true }: { arrow?: boolean }) {
+/**
+ * The support call as a button in the patrons colour. The site is used for
+ * fundraising first: wherever content is missing, this is what should catch the eye.
+ */
+function PatronsButton() {
   const t = getT();
   return (
-    <Link href={MEMBERSHIP_PATH} className="font-medium text-[var(--color-link)] hover:underline">
-      {t.portrait.patronsCta}
-      {arrow ? " →" : ""}
+    <Link
+      href={MEMBERSHIP_PATH}
+      className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-[var(--color-patron)] px-4 text-[12.5px] font-semibold text-white shadow-sm transition hover:bg-[var(--color-patron-strong)] focus-visible:ring-2 focus-visible:ring-[var(--color-patron)] focus-visible:ring-offset-2 focus-visible:outline-none"
+    >
+      {t.portrait.patronsCta} →
     </Link>
   );
 }
@@ -113,9 +121,10 @@ export function EmptySection({
           />
         ))}
       </div>
-      <p className="mt-4 text-[12px] text-[var(--color-ink-muted)]">
-        {t.portrait.notWrittenYet}. <PatronsLink />
-      </p>
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <p className="text-[12px] text-[var(--color-ink-muted)]">{t.portrait.notWrittenYet}.</p>
+        <PatronsButton />
+      </div>
     </PortraitSection>
   );
 }
@@ -195,9 +204,21 @@ export function Timeline({
               <span className="h-3 w-3 rounded-full bg-[var(--color-accent)]" />
               <span className="h-px flex-1 bg-[var(--color-line)]" />
             </div>
-            <p className="text-[12.5px] leading-relaxed text-[var(--color-ink-soft)]">
-              {item.text}
-            </p>
+            {item.text ? (
+              // Folded by default: the row of ~20 events stays scannable, each opens on demand.
+              <details className="group">
+                <summary className="flex min-h-8 cursor-pointer list-none items-center gap-1 text-[12px] font-medium text-[var(--color-link)] [&::-webkit-details-marker]:hidden">
+                  <span className="group-open:hidden">{t.portrait.timelineMore}</span>
+                  <span className="hidden group-open:inline">{t.portrait.timelineLess}</span>
+                  <span aria-hidden className="transition group-open:rotate-180">
+                    ▾
+                  </span>
+                </summary>
+                <p className="mt-1 text-[12.5px] leading-relaxed text-[var(--color-ink-soft)]">
+                  {item.text}
+                </p>
+              </details>
+            ) : null}
           </div>
         ))}
       </Rail>
@@ -209,11 +230,15 @@ export interface PlannedEntry {
   title: string;
   category: string;
   slug: string | null;
+  /** Cover photo of a written topic (tiles in the theme carousel). */
+  hero?: string | null;
 }
 
 /**
- * Four topic categories of entries. Unwritten entries are grey and non-clickable;
- * per the brief this applies even to a portrait that already has some entries.
+ * Topics in the four themes, each a horizontal carousel of tiles (like rows of
+ * albums): written topics with their photo, planned ones grey and
+ * non-clickable — per the brief even next to written ones — with the support
+ * call under them.
  */
 export function ThematicEntries({ entries }: { entries: PlannedEntry[] }) {
   const t = getT();
@@ -228,27 +253,43 @@ export function ThematicEntries({ entries }: { entries: PlannedEntry[] }) {
                 {t.categories[category]}
               </h3>
               {group.length ? (
-                <Rail label={t.categories[category]} gap="sm" layout="grid" className="mt-2.5">
-                  {group.map((entry) =>
-                    entry.slug ? (
+                <Rail label={t.categories[category]} gap="sm" className="mt-2.5">
+                  {group.map((entry) => {
+                    if (!entry.slug) {
+                      return (
+                        <span
+                          key={entry.title}
+                          aria-disabled="true"
+                          title={t.portrait.notWrittenYet}
+                          className="pointer-events-none flex h-32 w-48 shrink-0 snap-start flex-col justify-between rounded-xl border border-dashed border-[var(--color-line)] bg-[var(--color-line)]/20 p-3 text-[var(--color-ink-muted)]"
+                        >
+                          <span className="text-[10px] font-semibold tracking-[0.1em] uppercase">
+                            {t.portrait.inPreparation}
+                          </span>
+                          <span className="text-[12.5px] leading-snug break-words">
+                            {entry.title}
+                          </span>
+                        </span>
+                      );
+                    }
+                    const photo = cssBackgroundImage(entry.hero, PHOTO_WIDTH.thumb);
+                    return (
                       <Link
                         key={entry.title}
                         href={`/topics/${entry.slug}`}
-                        className="min-w-0 rounded-xl border border-[var(--color-line)] p-3 text-[13px] leading-snug font-medium break-words text-[var(--color-ink)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+                        className="group relative flex h-32 w-48 shrink-0 snap-start flex-col justify-end overflow-hidden rounded-xl bg-[var(--color-ink)] bg-cover bg-center p-3 text-white shadow-sm transition hover:shadow-lg focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:outline-none"
+                        style={photo ? { backgroundImage: photo } : undefined}
                       >
-                        {entry.title}
+                        <span
+                          aria-hidden
+                          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/5 transition group-hover:from-black/90"
+                        />
+                        <span className="font-display relative text-[13px] leading-snug font-bold break-words">
+                          {entry.title}
+                        </span>
                       </Link>
-                    ) : (
-                      <span
-                        key={entry.title}
-                        aria-disabled="true"
-                        title={t.portrait.notWrittenYet}
-                        className="pointer-events-none min-w-0 rounded-xl border border-dashed border-[var(--color-line)] bg-[var(--color-line)]/20 p-3 text-[13px] leading-snug break-words text-[var(--color-ink-muted)]"
-                      >
-                        {entry.title}
-                      </span>
-                    ),
-                  )}
+                    );
+                  })}
                 </Rail>
               ) : (
                 <p className="mt-2.5 text-[12px] text-[var(--color-ink-muted)]">
@@ -259,36 +300,48 @@ export function ThematicEntries({ entries }: { entries: PlannedEntry[] }) {
           );
         })}
       </div>
-      <p className="mt-3 text-[12px] text-[var(--color-ink-muted)]">
-        <PatronsLink />
-      </p>
+      <div className="mt-4">
+        <PatronsButton />
+      </div>
     </PortraitSection>
   );
 }
 
-/** Karusel infografik a map. */
+/**
+ * Carousel of infographics and maps: images, and interactive Datawrapper charts in our
+ * own sandboxed iframe — the chart URL is checked again here, so only the one
+ * allowed origin is ever framed whatever the database holds.
+ */
 export function VisualCarousel({
   visuals,
 }: {
-  visuals: { title: string; image: string; caption: string }[];
+  visuals: { title: string; image: string; caption: string; provider?: string }[];
 }) {
   const t = getT();
   const safe = visuals.flatMap((visual) => {
-    const image = safeUrl(visual.image);
-    return image ? [{ ...visual, image }] : [];
+    const chart = visual.provider === "datawrapper";
+    const image = chart ? datawrapperChartUrl(visual.image) : safeUrl(visual.image);
+    return image ? [{ ...visual, image, chart }] : [];
   });
   return (
     <PortraitSection title={t.portrait.maps} lead={t.portrait.mapsLead}>
       <Rail label={t.portrait.maps}>
-        {safe.map((visual) => (
-          <figure key={visual.title} className="w-[22rem] max-w-[80vw] shrink-0 snap-start">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={visual.image}
-              alt={visual.title}
-              loading="lazy"
-              className="h-48 w-full rounded-xl object-cover"
-            />
+        {safe.map((visual, index) => (
+          <figure
+            key={`${index}-${visual.image}`}
+            className={`${visual.chart ? "w-[30rem] max-w-[85vw]" : "w-[22rem] max-w-[80vw]"} shrink-0 snap-start`}
+          >
+            {visual.chart ? (
+              <DatawrapperChart src={visual.image} title={visual.title} />
+            ) : (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={visual.image}
+                alt={visual.title}
+                loading="lazy"
+                className="h-48 w-full rounded-xl object-cover"
+              />
+            )}
             <figcaption className="mt-2 text-[11px] text-[var(--color-ink-muted)]">
               {visual.caption}
             </figcaption>
@@ -332,7 +385,12 @@ export function ResourceLibrary({ resources }: { resources: ResourceItem[] }) {
                         className="block h-24 w-full bg-cover bg-center"
                         style={{ backgroundImage: image }}
                       />
-                    ) : null}
+                    ) : (
+                      // No preview from the source: the category as a calm header, so the row stays visual.
+                      <span className="flex h-24 w-full items-end bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-space)] p-3 text-[10px] font-semibold tracking-[0.1em] text-white/85 uppercase">
+                        {category}
+                      </span>
+                    )}
                     <span className="block p-3">
                       <span className="font-display block text-[13px] leading-snug font-bold">
                         {resource.title}

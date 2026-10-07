@@ -3,7 +3,13 @@ import { notFound } from "next/navigation";
 import ContentRail from "@/components/ContentRail";
 import CountryCard from "@/components/CountryCard";
 import MapFocus from "@/components/map/MapFocus";
-import { entriesOfCountry, getEntries } from "@/features/entries/queries";
+import {
+  entriesOfCountry,
+  entriesOfRegion,
+  getEntries,
+  getPlannedEntries,
+  thematicEntries,
+} from "@/features/entries/queries";
 import { getAtlas } from "@/features/geography/queries";
 import { format, type Messages } from "@/features/i18n/messages";
 import { getRequestLocale, getT, localeFrom } from "@/features/i18n/request";
@@ -15,6 +21,8 @@ import { breadcrumbNode, countryNode, graph, ids, pageUrl, webPageNode } from "@
 import { JsonLd } from "@/components/JsonLd";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
 import { RelatedTopics } from "@/components/topics/RelatedTopics";
+import { RegionalProfile } from "@/components/portrait/RegionalProfile";
+import { getPortrait } from "@/features/portraits/queries";
 import { relatedTopics } from "@/features/topics/related";
 
 // true: with false, Next returns 404 after revalidateTag (an admin write) even for
@@ -105,11 +113,18 @@ export default async function CountryPage({
   const country = atlas.countryBySlug.get(slug);
   if (!country) notFound();
 
-  const topics = await relatedTopics(atlas, locale, "country", country.iso3);
-  const newsItems = entriesOfCountry(await getEntries(getRequestLocale()), country.iso3);
+  const region = country.region;
+  // The region's own record (photo, summary) for its profile under the country.
+  const regionData = region ? atlas.regionBySlug.get(region.slug) : undefined;
+  const [topics, entries, dossier, upcoming] = await Promise.all([
+    relatedTopics(atlas, locale, "country", country.iso3),
+    getEntries(getRequestLocale()),
+    regionData ? getPortrait("region", regionData.slug) : null,
+    getPlannedEntries(),
+  ]);
+  const newsItems = entriesOfCountry(entries, country.iso3);
   const profile = country.profile;
   const description = profile.summary || fallbackDescription(country, getT().countryText);
-  const region = country.region;
 
   return (
     <>
@@ -135,12 +150,23 @@ export default async function CountryPage({
           topics={topics}
         />
         {profile.html ? <SafeHtml className="prose-atlas px-6 pb-10" html={profile.html} /> : null}
-        <RelatedTopics
-          items={topics.items}
-          href={topics.href}
-          place={country.name}
-          className="mt-0 px-6 pb-10"
-        />
+        {regionData && dossier ? (
+          // Topics in the profile are the country's (own, region's, groups') by theme,
+          // next to what the region has planned.
+          <RegionalProfile
+            country={country.name}
+            region={regionData}
+            dossier={dossier}
+            entries={thematicEntries(topics.items, entriesOfRegion(upcoming, regionData.slug))}
+          />
+        ) : (
+          <RelatedTopics
+            items={topics.items}
+            href={topics.href}
+            place={country.name}
+            className="mt-0 px-6 pb-10"
+          />
+        )}
       </ContentRail>
 
       <JsonLd

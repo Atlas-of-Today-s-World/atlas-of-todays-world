@@ -1,13 +1,13 @@
 import { HandHeart, PenLine } from "lucide-react";
 import Link from "@/components/i18n/Link";
-import { ORGANIZATION } from "@/config/organization";
 import { format } from "@/features/i18n/messages";
 import { MEMBERSHIP_PATH } from "@/features/membership/config";
+import { volunteerHref } from "@/features/volunteers/prefill";
 import { cn } from "@/lib/cn";
 
 /** The texts it needs from the `topics` messages (server getT or client useMessages). */
 type InviteMessages = Record<
-  "inviteTitle" | "inviteText" | "inviteMore" | "inviteWrite" | "inviteSupport" | "inviteSubject",
+  "inviteTitle" | "inviteText" | "inviteMore" | "inviteWrite" | "inviteSupport",
   string
 >;
 
@@ -16,8 +16,9 @@ const PILL =
 
 /**
  * Invitation to take part where a place has few or no topics: write one as an
- * editor (an e-mail to the editors, the place in the subject) or support the
- * Atlas as a patron. `full` for a place without topics, otherwise one line.
+ * editor (the volunteer application form with the place filled in; no mail
+ * client needed, the team sees it in the admin) or support the Atlas as a
+ * patron. `full` for a place without topics, otherwise one line.
  */
 export function TopicsInvite({
   t,
@@ -30,16 +31,14 @@ export function TopicsInvite({
   full?: boolean;
   className?: string;
 }) {
-  const write = `mailto:${ORGANIZATION.email}?subject=${encodeURIComponent(
-    format(t.inviteSubject, { place }),
-  )}`;
+  const write = volunteerHref(place);
   if (!full) {
     return (
       <p className={cn("text-[12.5px] leading-relaxed text-[var(--color-ink-muted)]", className)}>
         {format(t.inviteMore, { place })}{" "}
-        <a href={write} className="font-medium text-[var(--color-link)] hover:underline">
+        <Link href={write} className="font-medium text-[var(--color-link)] hover:underline">
           {t.inviteWrite}
-        </a>
+        </Link>
         {" · "}
         <Link
           href={MEMBERSHIP_PATH}
@@ -64,13 +63,13 @@ export function TopicsInvite({
         {format(t.inviteText, { place })}
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
-        <a
+        <Link
           href={write}
           className={cn(PILL, "bg-[var(--color-ink)] text-white hover:bg-[var(--color-accent)]")}
         >
           <PenLine aria-hidden className="size-4" />
           {t.inviteWrite}
-        </a>
+        </Link>
         <Link
           href={MEMBERSHIP_PATH}
           className={cn(
