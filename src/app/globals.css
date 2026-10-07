@@ -382,6 +382,27 @@ body {
   }
 }
 
+/* Starfield behind the globe: a few stars breathe slowly; still with reduced motion. */
+@keyframes star-twinkle {
+  from {
+    opacity: 0.2;
+  }
+  to {
+    opacity: 0.85;
+  }
+}
+
+.star-twinkle {
+  opacity: 0.5;
+  box-shadow: 0 0 4px 1px rgba(255, 255, 255, 0.35);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .star-twinkle {
+    animation: star-twinkle 4.5s ease-in-out infinite alternate;
+  }
+}
+
 /*
  * Topic count pulse over the idle globe (AtlasGlobe): a copy of the badge pill
  * grows to almost twice its size with a soft red glow and settles back.
