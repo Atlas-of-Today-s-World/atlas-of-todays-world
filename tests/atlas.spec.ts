@@ -109,11 +109,27 @@ test.describe("panel s obsahem", () => {
   });
 });
 
+test.describe("regional profile under a country", () => {
+  test("a country of a region shows the region's profile below its own data", async ({ page }) => {
+    await page.goto("/country/turkey");
+
+    const profile = page.getByRole("region", { name: "Middle East & North Africa" });
+    await expect(profile.getByText("Regional profile")).toBeVisible();
+    await expect(profile.getByRole("heading", { name: "Topics", exact: true })).toBeVisible();
+    await expect(profile.getByRole("link", { name: /View the whole region/ })).toHaveAttribute(
+      "href",
+      "/region/middle-east-north-africa",
+    );
+  });
+});
+
 test.describe("region portrait", () => {
   test("opens in full right away and offers no second version", async ({ page }) => {
     await page.goto("/region/middle-east-north-africa");
 
-    await expect(page.getByRole("heading", { name: "Key indicators" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Topics", exact: true })).toBeVisible();
+    // No regional averages (decision of 2026-10-07): national data live on each country.
+    await expect(page.getByRole("heading", { name: "Key indicators" })).toHaveCount(0);
     await expect(page.getByText("A Comprehensive Portrait")).toHaveCount(0);
     await expect(page.getByText(/news items? published/)).toHaveCount(0);
   });

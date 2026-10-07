@@ -641,7 +641,7 @@ export const getPlannedEntries = unstable_cache(
 /** Entries for the portrait section: published with a link, planned without (greyed out). */
 export function thematicEntries(published: EntrySummary[], upcoming: UpcomingEntry[]) {
   return [
-    ...published.map(({ title, category, slug }) => ({ title, category, slug })),
+    ...published.map(({ title, category, slug, hero }) => ({ title, category, slug, hero })),
     ...upcoming.map(({ title, category }) => ({ title, category, slug: null })),
   ];
 }
