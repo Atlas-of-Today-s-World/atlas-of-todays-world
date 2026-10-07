@@ -35,3 +35,16 @@ test("full-text search shows excerpts that link into the topic", async ({ page }
   await expect(first.locator("mark").first()).toBeVisible();
   await expect(first).toHaveAttribute("href", /^\/topics\/[a-z0-9-]+(#topic-\d+)?$/);
 });
+
+test("“Write a topic” opens the volunteer form with the place filled in", async ({ page }) => {
+  // East Asia has no topics yet, so its portrait shows the full invitation.
+  await page.goto("/region/east-asia");
+  const write = page.getByRole("link", { name: "Write a topic" }).first();
+  test.skip((await write.count()) === 0, "East Asia already has topics");
+  await expect(write).toHaveAttribute("href", /^\/membership\?topic=[^#]+#volunteer$/);
+
+  await write.click();
+  await expect(page).toHaveURL(/\/membership\?topic=.+#volunteer$/);
+  const section = page.getByRole("region", { name: "Write for the Atlas as a volunteer" });
+  await expect(section.getByLabel("What would you like to write about?")).toHaveValue(/East Asia/);
+});

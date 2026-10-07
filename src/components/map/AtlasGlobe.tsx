@@ -43,6 +43,7 @@ import { cn } from "@/lib/cn";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { splitLocale, withoutDefaultPrefix } from "@/features/i18n/config";
 import { isSpinEvent, useIdleSpin } from "./useIdleSpin";
+import { Starfield } from "./Starfield";
 
 interface GlobeColorSets {
   /** ISO3 -> color for each layer, precomputed on the server. */
@@ -718,6 +719,7 @@ export default function AtlasGlobe({
           : "h-dvh w-full",
       )}
     >
+      <Starfield />
       <div ref={containerRef} className="h-full w-full" />
 
       {/* Until MapLibre (~300 kB) has loaded, a quiet sphere of the same size holds
