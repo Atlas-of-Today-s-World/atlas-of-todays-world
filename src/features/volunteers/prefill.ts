@@ -23,7 +23,6 @@ export function volunteerHref(place: string): string {
  */
 export function topicPrefill(search: string): string {
   const raw = new URLSearchParams(search).get(TOPIC_PARAM) ?? "";
-
   const clean = raw.replace(/[\u0000-\u001f\u007f-\u009f]/g, " ");
   return clean.replace(/\s+/g, " ").trim().slice(0, MAX_PREFILL).trim();
 }
