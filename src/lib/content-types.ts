@@ -72,7 +72,8 @@ export interface RegionDossier {
   timelineTitle?: string;
   timelineSubtitle?: string;
   timeline?: TimelineItem[];
-  visuals?: { title: string; image: string; caption: string }[];
+  /** `provider`: "datawrapper" = an interactive chart (`image` is its URL), otherwise an image. */
+  visuals?: { title: string; image: string; caption: string; provider?: string }[];
   resources?: ResourceItem[];
   faq?: FaqItem[];
 }

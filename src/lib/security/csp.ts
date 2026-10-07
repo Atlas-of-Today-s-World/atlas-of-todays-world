@@ -1,3 +1,5 @@
+import { DATAWRAPPER_ORIGIN } from "@/lib/embeds";
+
 /**
  * Content Security Policy (ARCHITEKTURA 8.2). A new external service = a change
  * here + a test in csp.test.ts; otherwise the browser silently blocks it.
@@ -47,6 +49,8 @@ export function buildCsp({ dev, supabaseUrl }: { dev: boolean; supabaseUrl?: str
       "https://*.worldbank.org",
       "https://www.youtube-nocookie.com",
       "https://www.youtube.com",
+      // Interactive charts in portrait carousels; lib/embeds.ts lets through only this origin.
+      DATAWRAPPER_ORIGIN,
       TURNSTILE,
     ],
     "frame-ancestors": ["'none'"],
