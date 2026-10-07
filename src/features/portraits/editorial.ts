@@ -64,7 +64,7 @@ export async function regionForEdit(slug: string) {
   const { data, error } = await supabase
     .from("regions")
     .select(
-      "slug, name, tagline, summary, intro, hero_url, hero_credit, fill, stroke, timeline_title, timeline_subtitle",
+      "slug, name, tagline, summary, intro, hero_url, hero_credit, fill, stroke, timeline_title, timeline_subtitle, content_status",
     )
     .eq("slug", slug)
     .maybeSingle();
@@ -77,7 +77,7 @@ export async function issueForEdit(slug: string) {
   const { data, error } = await supabase
     .from("special_regions")
     .select(
-      "slug, kind, name, subtitle, summary, intro, hero_url, hero_credit, fill, stroke, center_lon, center_lat, zoom, timeline_title, timeline_subtitle, special_region_countries(country_iso3)",
+      "slug, kind, name, subtitle, summary, intro, hero_url, hero_credit, fill, stroke, center_lon, center_lat, zoom, timeline_title, timeline_subtitle, content_status, special_region_countries(country_iso3)",
     )
     .eq("slug", slug)
     .maybeSingle();

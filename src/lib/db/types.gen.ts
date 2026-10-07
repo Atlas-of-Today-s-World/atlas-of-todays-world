@@ -1555,6 +1555,7 @@ export type Database = {
           show_metrics: boolean
           center_lat: number
           center_lon: number
+          content_status: string
           fill: string
           hero_credit: string
           hero_url: string | null
@@ -1575,6 +1576,7 @@ export type Database = {
           show_metrics?: boolean
           center_lat: number
           center_lon: number
+          content_status?: string
           fill: string
           hero_credit?: string
           hero_url?: string | null
@@ -1595,6 +1597,7 @@ export type Database = {
           show_metrics?: boolean
           center_lat?: number
           center_lon?: number
+          content_status?: string
           fill?: string
           hero_credit?: string
           hero_url?: string | null
@@ -1831,6 +1834,7 @@ export type Database = {
         Row: {
           center_lat: number
           center_lon: number
+          content_status: string
           created_by: string | null
           fill: string
           hero_credit: string
@@ -1850,6 +1854,7 @@ export type Database = {
         Insert: {
           center_lat: number
           center_lon: number
+          content_status?: string
           created_by?: string | null
           fill: string
           hero_credit?: string
@@ -1869,6 +1874,7 @@ export type Database = {
         Update: {
           center_lat?: number
           center_lon?: number
+          content_status?: string
           created_by?: string | null
           fill?: string
           hero_credit?: string

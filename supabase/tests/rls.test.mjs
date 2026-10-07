@@ -2293,3 +2293,65 @@ test("approval stamps and creators are set by the database, not the client", asy
 test("staff names: not for a blocked team member", async () => {
   assert.equal((await as(id.blocked, () => one("select staff_name($1) as n", [id.admin]))).n, null);
 });
+
+test("content status: everyone reads it, only the region / issue editors change it", async () => {
+  // The migration's starting statuses touch only existing slugs; other regions start untouched.
+  assert.equal(
+    (await as(null, () => one("select content_status from regions where slug = 'east-asia'")))
+      .content_status,
+    "none",
+  );
+
+  // Atlas regions: the `regions` e right (data editor), not a publisher with view only.
+  const changed = await as(id.dataEditor, () =>
+    q(`update regions set content_status = 'ready' where slug = 'east-asia' returning slug`),
+  );
+  assert.equal(changed.length, 1);
+  const blocked = await as(id.pubA, () =>
+    q(`update regions set content_status = 'none' where slug = 'east-asia' returning slug`),
+  );
+  assert.equal(blocked.length, 0);
+  await as(id.dataEditor, () =>
+    refused(
+      q(`update regions set content_status = 'done' where slug = 'east-asia'`),
+      /content_status/,
+    ),
+  );
+  assert.equal(
+    (await as(null, () => one("select content_status from regions where slug = 'east-asia'")))
+      .content_status,
+    "ready",
+  );
+
+  // Global issues: the `specials` e right; a new one starts untouched.
+  await as(id.dataEditor, () =>
+    q(`insert into special_regions (slug, name, fill, stroke, center_lon, center_lat)
+       values ('status-war', 'War', '#336699', '#224466', 30, 50)`),
+  );
+  assert.equal(
+    (
+      await as(null, () =>
+        one("select content_status from special_regions where slug = 'status-war'"),
+      )
+    ).content_status,
+    "none",
+  );
+  await as(id.dataEditor, () =>
+    q(`update special_regions set content_status = 'preparing' where slug = 'status-war'`),
+  );
+  const notAllowed = await as(id.editor, () =>
+    q(
+      `update special_regions set content_status = 'ready' where slug = 'status-war' returning slug`,
+    ),
+  );
+  assert.equal(notAllowed.length, 0);
+  assert.equal(
+    (
+      await as(null, () =>
+        one("select content_status from special_regions where slug = 'status-war'"),
+      )
+    ).content_status,
+    "preparing",
+  );
+  await as(null, () => refused(q(`update special_regions set content_status = 'ready'`)));
+});

@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { GROUP_KIND_LABEL } from "../constants";
+import { CONTENT_STATUS_LABEL, GROUP_KIND_LABEL } from "../constants";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { CountryPicker, type CountryOption } from "@/components/admin/CountryPicker";
 import { SubmitButton } from "@/components/admin/SubmitButton";
@@ -11,6 +11,7 @@ import { RichTextEditor } from "@/features/entries/components/RichTextEditor";
 import type { ActionState } from "@/lib/actions";
 import { slugify } from "@/lib/validation/common";
 import { saveCountry, saveIssue, saveRegion } from "../actions";
+import { CONTENT_STATUSES, type ContentStatus } from "@/features/geography/content-status";
 import { ActionForm } from "@/components/ui/action-form";
 
 type Errors = Record<string, string[] | undefined>;
@@ -30,6 +31,29 @@ function ColorFields({ fill, stroke, errors }: { fill: string; stroke: string; e
         <Input id="stroke" name="stroke" type="color" defaultValue={stroke} className="h-11 p-1" />
       </FormField>
     </div>
+  );
+}
+
+/**
+ * How far the content is: drives the mark next to the topic count on the
+ * globe, the grey fill of untouched places and the badge in the portrait.
+ */
+function ContentStatusField({ value, errors }: { value: string; errors: Errors }) {
+  return (
+    <FormField
+      id="content_status"
+      label="Content status"
+      hint="Shown on the globe and in the portrait header, so visitors see what is done and what needs support."
+      errors={errors.content_status}
+    >
+      <Select id="content_status" name="content_status" defaultValue={value}>
+        {CONTENT_STATUSES.map((status) => (
+          <option key={status} value={status}>
+            {CONTENT_STATUS_LABEL[status]}
+          </option>
+        ))}
+      </Select>
+    </FormField>
   );
 }
 
@@ -116,6 +140,7 @@ export function RegionForm({
     stroke: string;
     timeline_title: string | null;
     timeline_subtitle: string | null;
+    content_status: string;
   };
 }) {
   const [state, action] = useSave(saveRegion);
@@ -132,6 +157,7 @@ export function RegionForm({
         </FormField>
       </div>
       <ColorFields fill={region.fill} stroke={region.stroke} errors={errors} />
+      <ContentStatusField value={region.content_status} errors={errors} />
       <PortraitHead values={region} errors={errors} />
       <ActionStatus state={state} />
       <div>
@@ -157,6 +183,7 @@ export interface IssueValues {
   zoom: number;
   timeline_title: string | null;
   timeline_subtitle: string | null;
+  content_status: ContentStatus;
   countries: string[];
 }
 
@@ -190,6 +217,7 @@ export function IssueForm({
     zoom: 2.6,
     timeline_title: null,
     timeline_subtitle: null,
+    content_status: "none",
     countries: [],
   };
 
@@ -310,6 +338,7 @@ export function IssueForm({
           />
         </FormField>
       </div>
+      <ContentStatusField value={values.content_status} errors={errors} />
       <PortraitHead values={values} errors={errors} />
       <ActionStatus state={state} />
       <div>

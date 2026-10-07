@@ -10,6 +10,8 @@ import { cssBackgroundImage } from "@/lib/security/urls";
 import { PHOTO_WIDTH } from "@/lib/images";
 import { format, type Messages } from "@/features/i18n/messages";
 import { getRequestLocale, getT } from "@/features/i18n/request";
+import type { ContentStatus } from "@/features/geography/content-status";
+import { ContentStatusBadge } from "./ContentStatusBadge";
 import NewsTabs, { type NewsCard } from "./NewsTabs";
 import { PortraitCounts } from "./PortraitCounts";
 import {
@@ -42,6 +44,8 @@ export interface PortraitSubject {
   population: number;
   /** Without country data (Antarctica): the indicator cards are left out. */
   showMetrics?: boolean;
+  /** How far the editors are; untouched places ask for support. Left out = no badge. */
+  status?: ContentStatus;
 }
 
 /** Texts that differ for a region and for a group of countries (global issue). */
@@ -114,6 +118,11 @@ export default function Portrait({
           <p className="font-display mt-1 text-[15px] font-bold text-[var(--color-link)]">
             {subject.subtitle}
           </p>
+        ) : null}
+        {subject.status ? (
+          <div className="mt-3">
+            <ContentStatusBadge status={subject.status} t={t} />
+          </div>
         ) : null}
         {subject.accent ? (
           <div

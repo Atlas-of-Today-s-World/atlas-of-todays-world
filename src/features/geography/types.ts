@@ -4,6 +4,7 @@
  * client component may import them too.
  */
 import type { MetricCard } from "@/lib/content-types";
+import type { ContentStatus } from "./content-status";
 
 export interface Region {
   /** Same as slug; kept for readability of "same region" comparisons. */
@@ -23,6 +24,8 @@ export interface Region {
   heroCredit: string;
   /** False for a region no country data describe (Antarctica): no indicator cards. */
   showMetrics: boolean;
+  /** How far the editors are with the region's content (grey on the globe until started). */
+  contentStatus: ContentStatus;
   /** Lead – shown in the map panel and as the meta description. */
   summary: string;
   /** ISO3 codes of the region's countries, most populous first. */
@@ -119,6 +122,8 @@ export interface GlobalIssue {
   hero: string | null;
   /** Global issue (war, migration…), or a custom region made of countries. */
   kind: "issue" | "region";
+  /** How far the editors are with the group's content. */
+  contentStatus: ContentStatus;
   countries: string[];
 }
 

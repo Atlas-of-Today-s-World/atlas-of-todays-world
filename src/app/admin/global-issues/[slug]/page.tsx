@@ -15,6 +15,7 @@ import { listGroupArticles } from "@/features/entries/editorial";
 import { DeleteIssue } from "@/features/portraits/components/DeleteIssue";
 import { issueForEdit, portraitItems, portraitRights } from "@/features/portraits/editorial";
 import { COLLECTION_NAMES } from "@/features/portraits/schema";
+import { contentStatus } from "@/features/geography/content-status";
 
 export const metadata: Metadata = { title: "Special region" };
 
@@ -54,6 +55,7 @@ export default async function IssueEditPage({ params }: { params: Promise<{ slug
           issue={{
             ...issue,
             kind,
+            content_status: contentStatus(issue.content_status),
             center_lon: Number(issue.center_lon),
             center_lat: Number(issue.center_lat),
             zoom: Number(issue.zoom),

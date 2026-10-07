@@ -22,7 +22,7 @@ export const ORGANIZATION = {
     addressCountry: "CZ",
   },
   description:
-    "Atlas of Today's World is a non-profit, open-access encyclopedia of the present: every country, world region and special region on an interactive 3D globe, with data from international sources and articles by experts.",
+    "Atlas of Today's World is a non-profit, open-access encyclopedia of the present: every country, world region and global issue on an interactive 3D globe, with data from international sources and articles by experts.",
   /**
    * Same legal entity under its former name (Online Encyclopedia of Migration, z.s.;
    * IČO matches). Update when the Atlas gets its own Wikidata item.

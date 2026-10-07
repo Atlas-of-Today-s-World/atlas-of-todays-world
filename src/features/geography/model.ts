@@ -1,5 +1,6 @@
 import type { Locale } from "@/features/i18n/config";
 import { formatValue } from "@/lib/indicators";
+import { contentStatus } from "./content-status";
 import type {
   Atlas,
   Country,
@@ -30,6 +31,7 @@ export interface AtlasSnapshot {
     hero_url: string | null;
     hero_credit: string;
     show_metrics?: boolean;
+    content_status?: string;
   }[];
   countries: {
     iso3: string;
@@ -88,6 +90,7 @@ export interface AtlasSnapshot {
     zoom: number;
     hero_url: string | null;
     kind: string;
+    content_status?: string;
   }[];
   issueCountries: { special_slug: string; country_iso3: string }[];
   theme: { saturation: number; border: number } | null;
@@ -217,6 +220,7 @@ export function buildAtlas(snapshot: AtlasSnapshot, geo: GeoFacts[], locale: Loc
     hero: row.hero_url,
     heroCredit: row.hero_credit,
     showMetrics: row.show_metrics ?? true,
+    contentStatus: contentStatus(row.content_status),
     summary: row.summary,
     countries: sortedCountries
       .filter((country) => country.region_slug === row.slug)
@@ -278,6 +282,7 @@ export function buildAtlas(snapshot: AtlasSnapshot, geo: GeoFacts[], locale: Loc
     zoom: Number(row.zoom),
     hero: row.hero_url,
     kind: row.kind === "region" ? "region" : "issue",
+    contentStatus: contentStatus(row.content_status),
     countries: members.get(row.slug) ?? [],
   }));
 

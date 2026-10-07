@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useLocalizedRouter } from "@/components/i18n/useLocalizedRouter";
 import type {
@@ -41,9 +41,16 @@ import {
 import Link from "@/components/i18n/Link";
 import { cn } from "@/lib/cn";
 import { useMessages } from "@/components/i18n/LocaleProvider";
-import { splitLocale, withoutDefaultPrefix } from "@/features/i18n/config";
 import { isSpinEvent, useIdleSpin } from "./useIdleSpin";
 import { Starfield } from "./Starfield";
+import { type ContentStatus, unprocessedCountries } from "@/features/geography/content-status";
+import {
+  openIssueSlug,
+  STATUS_IMAGES,
+  statusesOf,
+  statusMarkImage,
+  withStatusMark,
+} from "./global-issues";
 
 interface GlobeColorSets {
   /** ISO3 -> color for each layer, precomputed on the server. */
@@ -53,8 +60,11 @@ interface GlobeColorSets {
 export interface RegionLookup {
   /** ISO3 -> slug regionu. */
   slugByCountry: Record<string, string>;
-  /** region slug -> its countries and name. */
-  bySlug: Record<string, { name: string; countries: string[] }>;
+  /** region slug -> its countries, name, map fill and content status. */
+  bySlug: Record<
+    string,
+    { name: string; countries: string[]; fill: string; status: ContentStatus }
+  >;
 }
 
 /** Metric id → its short name and each country's formatted value and year (hover label). */
@@ -69,6 +79,8 @@ interface HoverLabel {
   /** The active metric for this country (countries mode with a metric on). */
   metric?: { label: string; value: string | null; year?: number };
   topics?: string;
+  /** How far the group's content is (group modes). */
+  status?: string;
 }
 
 interface Props {
@@ -193,6 +205,10 @@ function pulseTopicBadges(
 }
 
 const NEUTRAL = "#7d8aa8";
+/** Countries outside the open global issue: grey and faint, so its members stand out. */
+const DIMMED = "#5b6273";
+/** Places whose content nobody has started yet: a light grey wash instead of the region colour. */
+const UNPROCESSED = "#c9ced8";
 /** Closest zoom on the full map; the corner window on full-width pages goes below it. */
 const MIN_ZOOM = 0.8;
 /** Globe ↔ corner window transition (matches the wrapper's CSS transition). */
@@ -300,6 +316,12 @@ export default function AtlasGlobe({
   const topicLabelRef = useLatest((count: number) =>
     count === 1 ? t.map.topicsOne : format(t.map.topicsCount, { count: String(count) }),
   );
+  const statusLabelRef = useLatest(
+    (status: ContentStatus) =>
+      ({ ready: t.map.statusReady, preparing: t.map.statusPreparing, none: t.map.statusNone })[
+        status
+      ],
+  );
   const activeRef = useLatest(focus.activeIso3);
   /** URLs we've already prefetched – so we don't prefetch the same on every move. */
   const prefetchedRef = useRef(new Set<string>());
@@ -313,6 +335,17 @@ export default function AtlasGlobe({
   const pathname = usePathname();
   /** Full-width page (Topics, entry): the globe waits in a small window bottom left. */
   const mini = isFullPage(pathname);
+  /** The global issue whose panel is open: its countries are lit, the rest of the world greys out. */
+  const openIssue = openIssueSlug(pathname);
+  const openIssueRef = useLatest(openIssue);
+  // Content status per group (marks in the pills) and the countries of regions
+  // nobody has started on (grey in Regions mode). Issues keep their colours: one
+  // spanning the whole world (Migration) would otherwise grey the entire globe.
+  const statuses = useMemo(
+    () => ({ regions: statusesOf(regions.bySlug), issue: statusesOf(issue.bySlug) }),
+    [regions, issue],
+  );
+  const unprocessed = useMemo(() => unprocessedCountries(Object.values(regions.bySlug)), [regions]);
 
   // On the home map (and in the corner window) the globe turns slowly until the user grabs it,
   // and now and then two topic counts pulse to invite a click.
@@ -371,6 +404,12 @@ export default function AtlasGlobe({
         });
 
         map.on("load", () => {
+          // Status marks inside the topic pills (check mark, hourglass) go in before any
+          // pill names them: an image inside text isn't laid out again once it arrives.
+          for (const id of Object.values(STATUS_IMAGES)) {
+            const mark = statusMarkImage(id);
+            if (mark && !map.hasImage(id)) map.addImage(id, mark.image, mark.options);
+          }
           readyRef.current = true;
           setReady(true);
         });
@@ -412,7 +451,12 @@ export default function AtlasGlobe({
           if (modeRef.current === "regions" || modeRef.current === "issue") {
             const isIssue = modeRef.current === "issue";
             const lookup = isIssue ? issueRef.current : regionsRef.current;
-            const slug = lookup.slugByCountry[iso3];
+            // A country can be in several issues: over the open one's members it stays that issue.
+            const open = isIssue ? openIssueRef.current : undefined;
+            const slug =
+              open && lookup.bySlug[open]?.countries.includes(iso3)
+                ? open
+                : lookup.slugByCountry[iso3];
             const group = slug ? lookup.bySlug[slug] : undefined;
             if (!group) return null;
             const topics = topicCountsRef.current[isIssue ? "issue" : "regions"][slug ?? ""] ?? 0;
@@ -421,6 +465,7 @@ export default function AtlasGlobe({
               label: {
                 name: group.name,
                 topics: topics ? topicLabelRef.current(topics) : undefined,
+                status: statusLabelRef.current(group.status),
               } as HoverLabel,
               href: isIssue ? `/global-issue/${slug}` : `/region/${slug}`,
               countries: group.countries,
@@ -544,20 +589,43 @@ export default function AtlasGlobe({
       mode === "issue" && view === "encyclopedia"
         ? (colorSets.issue ?? {})
         : (colorSets[view] ?? colorSets.encyclopedia ?? {});
-    map.setPaintProperty(LAYERS.fill, "fill-color", matchExpression(colors));
-
     const isData = view !== "encyclopedia";
-    map.setPaintProperty(LAYERS.fill, "fill-opacity", isData ? 0.88 : 0.55);
+    let fillColor = matchExpression(colors);
+    let fillOpacity: number | ExpressionSpecification = isData ? 0.88 : 0.55;
+    const focused = mode === "issue" && openIssue ? issue.bySlug[openIssue] : undefined;
+    if (focused) {
+      // An open global issue: its countries lit (in the issue's colour, or the data
+      // layer's), every other country greyed out over a desaturated globe. One paint
+      // update when the issue changes; nothing is redone while the globe moves.
+      const member: ExpressionSpecification = [
+        "in",
+        ["get", "iso3"],
+        ["literal", focused.countries],
+      ];
+      fillColor = ["case", member, isData ? fillColor : focused.fill, DIMMED];
+      fillOpacity = ["case", member, isData ? 0.9 : 0.72, 0.55];
+    } else if (mode === "regions" && !isData && unprocessed.length) {
+      // Regions nobody has started on yet: a light grey wash, "not processed yet".
+      const pending: ExpressionSpecification = ["in", ["get", "iso3"], ["literal", unprocessed]];
+      fillColor = ["case", pending, UNPROCESSED, fillColor];
+      fillOpacity = ["case", pending, 0.32, fillOpacity];
+    }
+    map.setPaintProperty(LAYERS.fill, "fill-color", fillColor);
+    map.setPaintProperty(LAYERS.fill, "fill-opacity", fillOpacity);
 
     // Data layers want legible fills, the encyclopedia wants to see the terrain.
     map.setPaintProperty(LAYERS.satellite, "raster-opacity", isData ? 0.28 : 1);
-    map.setPaintProperty(LAYERS.satellite, "raster-saturation", isData ? -0.6 : -0.35);
+    map.setPaintProperty(
+      LAYERS.satellite,
+      "raster-saturation",
+      focused ? -0.9 : isData ? -0.6 : -0.35,
+    );
     map.setPaintProperty(
       LAYERS.border,
       "line-color",
       isData ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.4)",
     );
-  }, [colorSets, view, mode, ready]);
+  }, [colorSets, view, mode, openIssue, issue, unprocessed, ready]);
 
   // --- selection mode: countries vs. regions ---
   useEffect(() => {
@@ -583,9 +651,6 @@ export default function AtlasGlobe({
   }, [mode, ready]);
 
   // --- topic counts: one badge layer per mode, numbers from the server ---
-  const openIssue = /^\/global-issue\/([^/]+)/.exec(
-    splitLocale(withoutDefaultPrefix(pathname)).path,
-  )?.[1];
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
@@ -612,7 +677,12 @@ export default function AtlasGlobe({
                 ["all", has, ["==", ["get", "slug"], openIssue]]
               : has,
       );
-      map.setLayoutProperty(layer, "text-field", text);
+      // Group pills carry the content status: a check mark when ready, an hourglass in preparation.
+      map.setLayoutProperty(
+        layer,
+        "text-field",
+        key === "countries" ? text : withStatusMark(text, statuses[key], property),
+      );
       // The small globe window on full-width pages shows no counts.
       map.setLayoutProperty(layer, "visibility", key === mode && !mini ? "visible" : "none");
       // The same pill everywhere: solid with linked topics, soft and faint at 0.
@@ -626,7 +696,7 @@ export default function AtlasGlobe({
       map.setPaintProperty(layer, "icon-opacity", ["case", has, 0.92, 0.5]);
       map.setPaintProperty(layer, "text-opacity", ["case", has, 1, 0.7]);
     }
-  }, [topicCounts, mode, openIssue, mini, ready]);
+  }, [topicCounts, statuses, mode, openIssue, mini, ready]);
 
   // --- highlight of the active country / region ---
   useEffect(() => {
@@ -806,6 +876,14 @@ export default function AtlasGlobe({
                 {" · "}
               </span>
               {hoverLabel.topics}
+            </>
+          ) : null}
+          {hoverLabel.status ? (
+            <>
+              <span aria-hidden className="text-white/45">
+                {" · "}
+              </span>
+              <span className="text-white/70">{hoverLabel.status}</span>
             </>
           ) : null}
         </div>

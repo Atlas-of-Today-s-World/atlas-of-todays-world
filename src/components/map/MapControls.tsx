@@ -6,24 +6,26 @@ import { RAIL_OFFSET, isFullPage, isHome, railKind } from "@/config/layout";
 import { cn } from "@/lib/cn";
 import type { SubtopicTile } from "@/features/topics/featured";
 import { FeaturedSubtopics } from "./FeaturedSubtopics";
+import { IssueMenu, type IssueMenuItem } from "./IssueMenu";
 import ModeSwitch from "./ModeSwitch";
 import ViewSwitcher, { type ViewOption } from "./ViewSwitcher";
 
 /**
- * Bar over the map, top right: countries/regions switcher, data layer
- * switcher and search. When a region or country profile is
- * open, it moves left so the white panel doesn't cover it. On phones the bar
+ * Bar over the map, top right: countries/regions/global issues switcher (with
+ * the list of issues in that mode), data layer switcher and search. When a
+ * region or country profile is open, it moves left so the white panel doesn't cover it. On phones the bar
  * spans the width (switches on one row, search under them) and steps aside
  * while a panel is open: the bottom sheet needs the room, the globe above it
  * shows the place.
  */
 export default function MapControls({
   options,
-  hasIssues,
+  issues,
   featured,
 }: {
   options: ViewOption[];
-  hasIssues: boolean;
+  /** Global issues on the map (listed under the switch in that mode). */
+  issues: IssueMenuItem[];
   /** Subtopic tiles under the search field (home map only). */
   featured: SubtopicTile[];
 }) {
@@ -47,9 +49,10 @@ export default function MapControls({
       )}
     >
       <div className="flex items-start justify-between gap-2 sm:flex-wrap sm:justify-end sm:gap-2.5">
-        <ModeSwitch hasIssues={hasIssues} />
+        <ModeSwitch hasIssues={issues.length > 0} />
         <ViewSwitcher options={options} />
       </div>
+      <IssueMenu items={issues} />
       <EncyclopediaDock />
       {isHome(pathname) ? <FeaturedSubtopics items={featured} /> : null}
     </div>

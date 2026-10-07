@@ -17,3 +17,10 @@ export const GROUP_KIND_LABEL = { region: "Custom region", issue: "Special regio
  * The first one is preselected for a new item.
  */
 export const VISUAL_PROVIDERS = ["image", "datawrapper", "flourish", "worldbank"] as const;
+
+/** Content status of a region / global issue (DB `content_status`) — labels in the admin form. */
+export const CONTENT_STATUS_LABEL = {
+  none: "Not started (grey on the globe, asks for support)",
+  preparing: "In preparation (hourglass)",
+  ready: "Ready (check mark)",
+} as const;
