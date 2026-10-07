@@ -98,6 +98,7 @@ export default async function GlobalIssuePage({
           subject={{
             kind: "issue",
             groupKind: region.kind,
+            status: region.contentStatus,
             name: region.name,
             subtitle: region.subtitle,
             summary: region.summary,

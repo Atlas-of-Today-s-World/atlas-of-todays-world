@@ -11,3 +11,10 @@ export const RESOURCE_KINDS = [
 
 /** Special region type (special_regions.kind) — labels in the form and in lists. */
 export const GROUP_KIND_LABEL = { region: "Custom region", issue: "Special region" } as const;
+
+/** Content status of a region / global issue (DB `content_status`) — labels in the admin form. */
+export const CONTENT_STATUS_LABEL = {
+  none: "Not started (grey on the globe, asks for support)",
+  preparing: "In preparation (hourglass)",
+  ready: "Ready (check mark)",
+} as const;

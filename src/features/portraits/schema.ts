@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { RESOURCE_KINDS } from "./constants";
+import { CONTENT_STATUSES } from "@/features/geography/content-status";
 import {
   blankToUndefined,
   hexColor,
@@ -73,6 +74,8 @@ export const RegionInput = z.object({
   stroke: hexColor,
   timeline_title: text(120),
   timeline_subtitle: text(300),
+  // Left out by a form without the field: the stored status stays as it is.
+  content_status: z.enum(CONTENT_STATUSES).optional(),
 });
 
 /** Global issue (special_regions + its countries). */
@@ -94,6 +97,8 @@ export const IssueInput = z.object({
   zoom: z.coerce.number().min(0.5).max(9),
   timeline_title: text(120),
   timeline_subtitle: text(300),
+  // Left out by a form without the field: the stored status stays as it is.
+  content_status: z.enum(CONTENT_STATUSES).optional(),
   countries: z.array(z.string().regex(/^[A-Z]{3}$/)).max(250),
 });
 

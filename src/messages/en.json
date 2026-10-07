@@ -61,7 +61,7 @@
     "emailSoon": "Signing in with an e-mail code will be available soon."
   },
   "portrait": {
-    "globalIssue": "Special Region",
+    "globalIssue": "Global Issue",
     "countriesInRegion": "Countries in this region",
     "countriesInGroup": "Countries in this group",
     "countries": "Countries",
@@ -96,7 +96,11 @@
     "patronsCompleteText": "Atlas Patrons fund the writing, the data work and the independence of this encyclopedia.",
     "patronsTodoTitle": "This portrait is not finished",
     "patronsTodoText": "The sections above are waiting for authors. Atlas Patrons pay for the research and the writing that fills them in.",
-    "customRegion": "Region"
+    "customRegion": "Region",
+    "statusReady": "Ready",
+    "statusPreparing": "In preparation",
+    "statusNone": "Not started yet — support us",
+    "statusLabel": "Content status"
   },
   "categories": {
     "Living Conditions": "Living Conditions",
@@ -116,7 +120,11 @@
     "modes": "Map selection mode",
     "modeCountries": "Countries",
     "modeRegions": "Regions",
-    "modeIssues": "Special Regions",
+    "modeIssues": "Global issues",
+    "issuesMenu": "Global issues on the map",
+    "statusReady": "ready",
+    "statusPreparing": "in preparation",
+    "statusNone": "not started yet",
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out",
     "spinStart": "Rotate the globe",
@@ -149,7 +157,7 @@
     "kindCountry": "Country",
     "kindNews": "News",
     "kindTopic": "Topic",
-    "kindIssue": "Special region"
+    "kindIssue": "Global issue"
   },
   "country": {
     "disputed": "Disputed territory.",
@@ -411,7 +419,7 @@
     "site": "Atlas of Today's World",
     "country": "Country profile",
     "region": "World region",
-    "issue": "Special region",
+    "issue": "Global issue",
     "news": "News",
     "entry": "Topic",
     "patrons": "Atlas Patrons"
@@ -519,13 +527,13 @@
     "feedTitle": "Atlas of Today’s World — news and encyclopedia",
     "feedDescription": "New articles from Atlas of Today’s World, the non-profit encyclopedia of the present: news analysis and encyclopedia dossiers on every world region.",
     "llmsIntro": "Atlas of Today’s World is published by {legalName}, a non-profit registered association in Prague, Czech Republic, founded in 2016. Everything is free to read without an account.",
-    "llmsUse": "Country, region and special-region pages combine editorial text with indicators from international sources (UNDP, World Bank, V-Dem, Transparency International and others via Our World in Data); every value states its source and year. Articles show their author, publication date and last update.",
+    "llmsUse": "Country, region and global-issue pages combine editorial text with indicators from international sources (UNDP, World Bank, V-Dem, Transparency International and others via Our World in Data); every value states its source and year. Articles show their author, publication date and last update.",
     "llmsCite": "Cite as: Atlas of Today’s World, “<page title>”, <URL> (accessed <date>).",
     "llmsFormats": "Language: English. Markdown version of any article: add .md to its URL. Full text of all articles: {full}. Feeds: {rss} (RSS) and {atom} (Atom). Sitemap: {sitemap}.",
     "sectionEntries": "Encyclopedia dossiers",
     "sectionNews": "News and analysis",
     "sectionRegions": "World regions",
-    "sectionIssues": "Special regions",
+    "sectionIssues": "Global issues",
     "sectionData": "Data layers (datasets by country)",
     "sectionAbout": "About the Atlas",
     "countryData": "Country data: latest values of all indicators",
@@ -552,7 +560,7 @@
     "relatedWithRegion": "Topics related to {name} or {region}",
     "allCountries": "All countries",
     "allRegions": "All regions",
-    "allSpecial": "All special regions",
+    "allSpecial": "All global issues",
     "filterNone": "No topic about {name} yet.",
     "inviteTitle": "No topics about {place} yet",
     "inviteText": "Do you know {place} well? Write a topic for the Atlas as an editor, or help us commission one with a donation.",
@@ -567,7 +575,7 @@
     "filters": "Filter topics",
     "filterCountry": "Country",
     "filterRegion": "Region",
-    "filterSpecial": "Special region",
+    "filterSpecial": "Global issue",
     "filterHint": "One filter at a time — choosing one clears the others.",
     "search": "Search in topics",
     "searchPlaceholder": "Search the text of all topics…",

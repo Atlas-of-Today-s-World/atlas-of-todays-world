@@ -32,6 +32,7 @@ const snapshot: AtlasSnapshot = {
       summary: "",
       hero_url: null,
       hero_credit: "",
+      content_status: "ready",
     },
   ],
   countries: [
@@ -151,5 +152,10 @@ describe("buildAtlas", () => {
     expect(countriesOf(atlas, ["CZE", "XXX", "DEU"]).map((c) => c.iso3)).toEqual(["DEU", "CZE"]);
     expect(regionColorMap(atlas.regions)).toMatchObject({ CZE: "#aabbcc", DEU: "#aabbcc" });
     expect(atlas.theme).toEqual({ saturation: 0.8, border: 1.5 });
+  });
+
+  it("reads the content status, a group without one is not started", () => {
+    expect(atlas.regionBySlug.get("europe")?.contentStatus).toBe("ready");
+    expect(atlas.issueBySlug.get("central")?.contentStatus).toBe("none");
   });
 });

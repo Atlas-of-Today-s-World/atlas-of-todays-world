@@ -134,7 +134,7 @@ test.describe("region portrait", () => {
 test.describe("global issues", () => {
   test("third switch position opens the topic portrait", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("radio", { name: "Special Regions" })).toBeVisible();
+    await expect(page.getByRole("radio", { name: "Global issues" })).toBeVisible();
 
     await page.goto("/global-issue/russia-ukraine-war");
     await expect(page.getByRole("heading", { name: "Russia–Ukraine War" })).toBeVisible();

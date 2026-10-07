@@ -67,7 +67,15 @@ function lookup(groups: (Region | GlobalIssue)[]): RegionLookup {
   return {
     slugByCountry: firstByCountry(groups, (group) => group.slug),
     bySlug: Object.fromEntries(
-      groups.map((group) => [group.slug, { name: group.name, countries: group.countries }]),
+      groups.map((group) => [
+        group.slug,
+        {
+          name: group.name,
+          countries: group.countries,
+          fill: group.fill,
+          status: group.contentStatus,
+        },
+      ]),
     ),
   };
 }
@@ -156,7 +164,12 @@ export default async function MapLayout({
           />
           <MapControls
             options={viewOptions}
-            hasIssues={Object.keys(issue.bySlug).length > 0}
+            issues={atlas.issues.map(({ slug, name, contentStatus }) => ({
+              slug,
+              name,
+              topics: topicCounts.issue[slug] ?? 0,
+              status: contentStatus,
+            }))}
             featured={featured}
           />
           <MapLegend options={viewOptions} />
