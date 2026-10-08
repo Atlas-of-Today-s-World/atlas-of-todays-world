@@ -39,6 +39,18 @@ export function invalid(error: ZodError): ActionState {
   };
 }
 
+/**
+ * Public forms whose Zod messages are message codes (the form picks the text in
+ * the page language): the first code as the error, every code under its field.
+ */
+export function invalidCodes(error: ZodError): ActionState {
+  return {
+    ok: false,
+    error: firstIssue(error),
+    fieldErrors: error.flatten().fieldErrors as ActionState["fieldErrors"],
+  };
+}
+
 export function failed(error: { code?: string; message?: string }): ActionState {
   return { ok: false, error: mapDbError(error) };
 }

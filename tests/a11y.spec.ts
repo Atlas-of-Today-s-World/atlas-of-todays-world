@@ -72,3 +72,23 @@ test("skip-link vede k obsahu", async ({ page, isMobile }) => {
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/#content$/);
 });
+
+// The sign-up form is on /newsletter twice once the mobile menu is open; its
+// ids come from useId, so each e-mail field keeps its own label and errors.
+test("/newsletter: both sign-up forms have their own e-mail field ids", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 800 });
+  await page.goto("/newsletter");
+  const emails = page.locator('input[name="email"]');
+  test.skip((await emails.count()) === 0, "the newsletter flag is off");
+  await page.getByRole("button", { name: "Open menu" }).click();
+  await expect(page.getByRole("dialog", { name: "Menu" })).toBeVisible();
+  await expect(emails).toHaveCount(2);
+
+  const ids = await emails.evaluateAll((inputs) => inputs.map((input) => input.id));
+  expect(new Set(ids).size).toBe(2);
+  const duplicates = await page.evaluate(() => {
+    const all = [...document.querySelectorAll("[id]")].map((node) => node.id);
+    return all.filter((id, index) => all.indexOf(id) !== index);
+  });
+  expect(duplicates).toEqual([]);
+});

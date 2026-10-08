@@ -22,7 +22,8 @@
   },
   "common": {
     "close": "Close",
-    "backToGlobe": "Back to the globe"
+    "backToGlobe": "Back to the globe",
+    "sending": "Sending…"
   },
   "auth": {
     "title": "Sign in",
@@ -360,6 +361,7 @@
       "consent": "I agree that the Atlas may keep these details to contact me about volunteering, as described in the",
       "privacyLink": "privacy policy",
       "submit": "Apply as a volunteer editor",
+      "requiredNote": "Required field",
       "messages": {
         "thanks": "Thank you! We have your application and will get in touch.",
         "rateLimited": "Too many attempts. Try again in an hour.",
