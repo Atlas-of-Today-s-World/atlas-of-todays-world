@@ -184,6 +184,16 @@ test.describe("search shortcut", () => {
     }).toPass({ timeout: 30_000 });
   });
 
+  test("a failed search over the map says so instead of “nothing found”", async ({ page }) => {
+    await page.route("**/api/search?*", (route) =>
+      route.fulfill({ status: 429, json: { error: "Too many requests." } }),
+    );
+    await page.goto("/");
+    await page.getByRole("searchbox", { name: /Search places/ }).fill("Japan");
+    await expect(page.getByText(/Search is unavailable right now/)).toBeVisible();
+    await expect(page.getByText("Nothing found in the Atlas yet.")).toHaveCount(0);
+  });
+
   test("search results use full country names", async ({ page }) => {
     await page.goto("/search?q=Congo");
     await expect(page.getByText("Democratic Republic of the Congo").first()).toBeVisible();

@@ -2,14 +2,16 @@
 
 import { Search, X } from "lucide-react";
 import { TopicsInvite } from "@/components/topics/TopicsInvite";
-import { type ReactNode, useEffect, useState, useSyncExternalStore } from "react";
+import { type ReactNode, useSyncExternalStore } from "react";
 import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
+import { Button } from "@/components/ui/button";
 import { TOPICS_PATH } from "@/config/navigation";
 import { format } from "@/features/i18n/messages";
 import { cn } from "@/lib/cn";
 import { cssBackgroundImage } from "@/lib/security/urls";
 import { PHOTO_WIDTH } from "@/lib/images";
+import { useDebouncedSearch } from "@/lib/use-debounced-search";
 import { queryWords, type TopicHit } from "../text-search";
 
 export interface TopicCard {
@@ -96,7 +98,8 @@ export function TopicsBrowser({
   /** ISO3 → name of the country's region, for "related to Poland or Western & Central Europe". */
   regionOf?: Record<string, string>;
 }) {
-  const t = useMessages().topics;
+  const messages = useMessages();
+  const t = messages.topics;
   const search = useSyncExternalStore(subscribe, readSearch, noSearch);
   const params = new URLSearchParams(search);
   const filter = filterFrom(params);
@@ -110,30 +113,12 @@ export function TopicsBrowser({
   const shown = inFilter ? items.filter((item) => inFilter.has(item.slug)) : items;
   const allowed = new Set(shown.map((topic) => topic.slug));
 
-  const [result, setResult] = useState<{ query: string; hits: TopicHit[] } | null>(null);
-  useEffect(() => {
-    const trimmed = query.trim();
-    if (!queryWords(trimmed).length) return;
-    const controller = new AbortController();
-    const timer = setTimeout(async () => {
-      try {
-        const response = await fetch(`/api/topics/search?q=${encodeURIComponent(trimmed)}`, {
-          signal: controller.signal,
-        });
-        const data = (await response.json()) as { results?: TopicHit[] };
-        setResult({ query: trimmed, hits: data.results ?? [] });
-      } catch {
-        // Aborted while typing, or the limit was hit: the previous results stay.
-      }
-    }, 250);
-    return () => {
-      controller.abort();
-      clearTimeout(timer);
-    };
-  }, [query]);
-
-  const loading = searching && result?.query !== query.trim();
-  const hits = (result?.hits ?? []).filter((hit) => allowed.has(hit.slug));
+  const { loading, failed, results, retry } = useDebouncedSearch<TopicHit>(
+    "/api/topics/search",
+    query.trim(),
+    { delay: 250, enabled: searching },
+  );
+  const hits = results.filter((hit) => allowed.has(hit.slug));
   const labels: Record<Kind, string> = {
     country: t.filterCountry,
     region: t.filterRegion,
@@ -233,11 +218,17 @@ export function TopicsBrowser({
           <h2 className="text-[13px] font-medium text-[var(--color-ink-muted)]">
             {loading
               ? t.searching
-              : hits.length === 1
-                ? t.resultsOne
-                : format(t.resultsCount, { count: String(hits.length) })}
+              : failed
+                ? messages.search.failed
+                : hits.length === 1
+                  ? t.resultsOne
+                  : format(t.resultsCount, { count: String(hits.length) })}
           </h2>
-          {!loading && !hits.length ? (
+          {failed ? (
+            <Button variant="outline" size="sm" onClick={retry} className="mt-3">
+              {messages.panel.tryAgain}
+            </Button>
+          ) : !loading && !hits.length ? (
             <p className="mt-3 text-[14px] text-[var(--color-ink-soft)]">{t.noResults}</p>
           ) : (
             <ul className="mt-3 grid gap-3">

@@ -316,9 +316,11 @@ function TopicPanel({ chapter, index }: { chapter: Chapter; index: number }) {
       <p className="inline-flex rounded-full bg-[var(--color-ink)] px-2.5 py-0.5 text-[12px] font-semibold text-white">
         {format(t.topic, { number: String(index + 1) })}
       </p>
+      {/* Focusable from script: leaving another panel from inside it (Previous / Next) lands here. */}
       <h2
         id={`${id}-title`}
-        className="font-display mt-3 text-[26px] leading-snug font-bold text-[var(--color-ink)] sm:text-[30px]"
+        tabIndex={-1}
+        className="font-display mt-3 text-[26px] leading-snug font-bold text-[var(--color-ink)] focus:outline-none sm:text-[30px]"
       >
         {chapter.title}
       </h2>
@@ -356,9 +358,11 @@ function TilePanel({ tile }: { tile: LearnMoreTile }) {
   const titleId = `${tileId(tile)}-title`;
   return (
     <section aria-labelledby={titleId} className="mt-12">
+      {/* Focusable from script, like a subtopic's heading. */}
       <h2
         id={titleId}
-        className="font-display text-[22px] leading-snug font-bold text-[var(--color-ink)]"
+        tabIndex={-1}
+        className="font-display text-[22px] leading-snug font-bold text-[var(--color-ink)] focus:outline-none"
       >
         {tile.label}
       </h2>

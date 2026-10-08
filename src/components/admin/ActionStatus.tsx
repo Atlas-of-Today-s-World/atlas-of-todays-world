@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import type { ActionState } from "@/lib/actions";
+import { scrollBehavior } from "@/lib/motion";
 
 /**
  * Form submission result: error (alert) or confirmation (status), placed right
@@ -20,7 +21,7 @@ export function ActionStatus({ state, success }: { state: ActionState; success?:
       ? box.current?.closest("form")?.querySelector<HTMLElement>('[aria-invalid="true"]')
       : null;
     if (invalid) invalid.focus();
-    else box.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    else box.current?.scrollIntoView({ block: "nearest", behavior: scrollBehavior() });
     // A new result object = a new submission, even with the same text.
   }, [state, message]);
 

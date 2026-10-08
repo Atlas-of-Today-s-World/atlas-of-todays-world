@@ -2,6 +2,7 @@
 
 import { Search } from "lucide-react";
 import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import { useDebouncedSearch } from "@/lib/use-debounced-search";
 import Link from "@/components/i18n/Link";
 import { searchKindKey } from "@/lib/search-kind";
 import { useLocalizedRouter } from "@/components/i18n/useLocalizedRouter";
@@ -29,36 +30,18 @@ function moveFocus(event: ReactKeyboardEvent, list: HTMLElement | null, input: H
 export default function EncyclopediaPanel() {
   const t = useMessages();
   const [query, setQuery] = useState("");
-  const [hits, setHits] = useState<SearchHit[]>([]);
-  const [searching, setSearching] = useState(false);
+  const trimmed = query.trim();
+  const {
+    loading: searching,
+    failed,
+    results: hits,
+  } = useDebouncedSearch<SearchHit>("/api/search", trimmed, {
+    delay: 180,
+    enabled: trimmed.length >= 2,
+  });
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const router = useLocalizedRouter();
-
-  useEffect(() => {
-    const trimmed = query.trim();
-    if (trimmed.length < 2) return;
-    const controller = new AbortController();
-    const timer = setTimeout(async () => {
-      setSearching(true);
-      try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(trimmed)}`, {
-          signal: controller.signal,
-        });
-        const data = await res.json();
-        setHits(data.results ?? []);
-      } catch {
-        /* request aborted while typing */
-      } finally {
-        setSearching(false);
-      }
-    }, 180);
-
-    return () => {
-      controller.abort();
-      clearTimeout(timer);
-    };
-  }, [query]);
 
   // "/" jumps to the search, as on GitHub or YouTube — unless the visitor is
   // typing elsewhere or holds a modifier (Shift is how some layouts type "/").
@@ -86,7 +69,6 @@ export default function EncyclopediaPanel() {
         role="search"
         onSubmit={(event) => {
           event.preventDefault();
-          const trimmed = query.trim();
           if (trimmed) router.push(searchHref(trimmed));
         }}
       >
@@ -123,15 +105,16 @@ export default function EncyclopediaPanel() {
         </label>
       </form>
 
-      {query.trim().length >= 2 ? (
+      {trimmed.length >= 2 ? (
         <div
           ref={listRef}
           onKeyDown={(event) => moveFocus(event, listRef.current, inputRef.current)}
           className="panel-scroll mt-3 max-h-[min(50vh,22rem)] overflow-y-auto"
         >
           {hits.length === 0 ? (
-            <p className="px-1 py-3 text-[12.5px] text-white/70">
-              {searching ? t.search.searching : t.search.nothing}
+            // Stays in place from "Searching…" on, so the outcome is announced.
+            <p role="status" className="px-1 py-3 text-[12.5px] text-white/70">
+              {searching ? t.search.searching : failed ? t.search.failed : t.search.nothing}
             </p>
           ) : (
             <ul className="space-y-1">

@@ -175,9 +175,42 @@ test("SEO & GEO: valid Article graph, author profile and a Markdown version", as
   await expect(page.getByRole("link", { name: title })).toBeVisible();
 });
 
-test("a shared link to a topic opens it", async ({ page }) => {
+test("a shared link to a topic opens it and scrolls to it", async ({ page }) => {
   await page.goto(`/topics/${slug}#topic-2`);
-  await expect(page.getByRole("heading", { level: 2, name: "Smuggling routes" })).toBeVisible();
+  const heading = page.getByRole("heading", { level: 2, name: "Smuggling routes" });
+  await expect(heading).toBeVisible();
+  // The server renders it hidden, so the browser alone can't scroll there.
+  await expect(heading).toBeInViewport();
+});
+
+test("a later link to a topic opens it, even after a tile was chosen", async ({ page }) => {
+  await page.goto(`/topics/${slug}`);
+  await page
+    .getByRole("region", { name: "Learn more" })
+    .getByRole("button", { name: /Field notes/ })
+    .click();
+  await expect(page.getByText("Notes from the Libyan coast.")).toBeVisible();
+  // As an in-text link `<a href="#topic-2">` would.
+  await page.evaluate(() => (window.location.hash = "topic-2"));
+  await expect(page.getByRole("heading", { level: 2, name: "Smuggling routes" })).toBeInViewport();
+  await expect(page.getByText("Notes from the Libyan coast.")).toBeHidden();
+});
+
+test("Previous / Next keep the keyboard focus in the new subtopic", async ({ page }) => {
+  await page.goto(`/topics/${slug}`);
+  const next = page.getByRole("button", { name: "Next subtopic: Smuggling routes" });
+  await next.focus();
+  await page.keyboard.press("Enter");
+  const panel = page.locator("#topic-2");
+  await expect(panel.getByRole("heading", { level: 2, name: "Smuggling routes" })).toBeFocused();
+  await expect(page).toHaveURL(/#topic-2$/);
+  await expect(page.locator("#topic-1")).toBeHidden();
+
+  await panel.getByRole("button", { name: "Previous subtopic: Brief overview" }).focus();
+  await page.keyboard.press("Enter");
+  await expect(
+    page.locator("#topic-1").getByRole("heading", { level: 2, name: "Brief overview" }),
+  ).toBeFocused();
 });
 
 test("admin: topic tabs, SEO and a new tile with its own icon", async ({ page }) => {
