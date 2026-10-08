@@ -40,7 +40,9 @@ export default defineConfig({
         },
       ],
     },
-    trace: "retain-on-failure",
+    // CI uploads its reports as artifacts of a public repository; a trace holds the
+    // test users' session cookies, so it's kept only locally.
+    trace: process.env.CI ? "off" : "retain-on-failure",
   },
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"] } },
