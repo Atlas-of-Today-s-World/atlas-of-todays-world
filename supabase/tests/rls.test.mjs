@@ -2432,6 +2432,7 @@ test("daily housekeeping trims what only grows, and only the database runs it", 
   );
   assert.deepEqual(left, { limits: 1, audit: 1 });
   await as(id.admin, () => refused(q("select public.db_housekeeping()"), /permission denied/));
+});
 
 test("policies call constant permission helpers once per query, not per row", async () => {
   // Migration 20261008000050: has_perm('…','…'), is_admin(), auth.uid()… inside
