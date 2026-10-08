@@ -2416,3 +2416,19 @@ test("portrait: a section save without the right is refused even when the list i
   const metrics = "select replace_portrait_items('country', 'JPN', 'metrics', '[]'::jsonb)";
   await as(id.pubA, () => refused(q(metrics), /may not edit/));
 });
+
+test("policies call constant permission helpers once per query, not per row", async () => {
+  // Migration 20261008000050: has_perm('…','…'), is_admin(), auth.uid()… inside
+  // "(SELECT …)" are evaluated once per query. A new policy that calls them bare
+  // would again run them for every row — write `(select public.has_perm(…))`.
+  const bare = await q(
+    String.raw`select tablename || '.' || policyname as policy
+     from pg_policies, lateral (select coalesce(qual, '') || ' ' || coalesce(with_check, '') as expr) e
+     where schemaname = 'public'
+       and e.expr ~ $re$(?<!SELECT )\m(has_perm\('[^']*'::text, '[^']*'::text\)|is_admin\(\)|is_active\(\)|is_staff\(\)|mfa_ok\(\)|can_edit_entry\(NULL::uuid\)|auth\.uid\(\))$re$`,
+  );
+  assert.deepEqual(
+    bare.map((row) => row.policy),
+    [],
+  );
+});
