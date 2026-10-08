@@ -23,7 +23,8 @@
   },
   "common": {
     "close": "Close",
-    "backToGlobe": "Back to the globe"
+    "backToGlobe": "Back to the globe",
+    "sending": "Sending…"
   },
   "auth": {
     "title": "Sign in",
@@ -132,7 +133,7 @@
     "modeCountries": "Countries",
     "modeRegions": "Regions",
     "modeIssues": "Global issues",
-    "issuesMenu": "Global issues on the map",
+    "issuesMenu": "Global issues",
     "statusReady": "ready",
     "statusPreparing": "in preparation",
     "statusNone": "not started yet",
@@ -152,6 +153,7 @@
   },
   "panel": {
     "content": "Content panel",
+    "loading": "Loading…",
     "show": "Show panel",
     "hide": "Hide panel",
     "expand": "Expand panel",
@@ -365,6 +367,7 @@
       "consent": "I agree that the Atlas may keep these details to contact me about volunteering, as described in the",
       "privacyLink": "privacy policy",
       "submit": "Apply as a volunteer editor",
+      "requiredNote": "Required field",
       "messages": {
         "thanks": "Thank you! We have your application and will get in touch.",
         "rateLimited": "Too many attempts. Try again in an hour.",

@@ -16,7 +16,7 @@
     "verify": "node scripts/verify-build.mjs",
     "data:optimise": "node scripts/optimise-geodata.mjs",
     "test:smoke": "node scripts/smoke-test.mjs",
-    "test:db": "node --test supabase/tests/rls.test.mjs supabase/tests/seed.test.mjs supabase/tests/admin-queries.test.mjs",
+    "test:db": "node --test supabase/tests/rls.test.mjs supabase/tests/rls-unpublished.test.mjs supabase/tests/seed.test.mjs supabase/tests/admin-queries.test.mjs",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",

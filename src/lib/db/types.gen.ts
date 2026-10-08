@@ -2226,6 +2226,7 @@ export type Database = {
         Args: { p_special: string }
         Returns: boolean
       }
+      can_read_any_unpublished: { Args: never; Returns: boolean }
       can_read_entry: { Args: { p_entry: string }; Returns: boolean }
       can_read_unpublished: { Args: { p_owner: string }; Returns: boolean }
       can_write_entry: { Args: { p_entry: string }; Returns: boolean }
@@ -2273,6 +2274,7 @@ export type Database = {
           tiles: Json
         }[]
       }
+      entry_published_or_own: { Args: { p_entry: string }; Returns: boolean }
       has_perm: {
         Args: { p_action: string; p_section: string }
         Returns: boolean

@@ -6,9 +6,9 @@ import { headers } from "next/headers";
 import { z } from "zod";
 import {
   failed,
-  firstIssue,
   formObject,
   invalid,
+  invalidCodes,
   NOT_SIGNED_IN,
   signedIn,
   type ActionState,
@@ -42,7 +42,7 @@ export async function applyAsVolunteer(
     message: formData.get("message") ?? "",
     consent: formData.get("consent"),
   });
-  if (!parsed.success) return { ok: false, error: firstIssue(parsed.error) };
+  if (!parsed.success) return invalidCodes(parsed.error);
   // Only the server may submit (after the per-IP limit above); the RPC is not public.
   if (!serverEnv.SUPABASE_SERVICE_ROLE_KEY) return { ok: false, error: "failed" };
   const { error } = await createServiceClient().rpc("submit_volunteer_application", {
