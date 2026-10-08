@@ -729,7 +729,6 @@ export default function AtlasGlobe({
         center: focus.center ?? map.getCenter(),
         zoom,
         duration: WINDOW_MS,
-        essential: true,
       });
       return;
     }
@@ -737,7 +736,7 @@ export default function AtlasGlobe({
     if (map.getMinZoom() < MIN_ZOOM) {
       map.once("moveend", () => map.setMinZoom(MIN_ZOOM));
       if (!focus.bbox && !focus.center) {
-        map.easeTo({ zoom: globeFillZoom(), duration: WINDOW_MS, essential: true });
+        map.easeTo({ zoom: globeFillZoom(), duration: WINDOW_MS });
         return;
       }
     }
@@ -755,7 +754,6 @@ export default function AtlasGlobe({
           padding: railPadding(),
           maxZoom: 6,
           duration: 1600,
-          essential: true,
         },
       );
       return;
@@ -767,7 +765,6 @@ export default function AtlasGlobe({
       center: focus.center ?? lastPlaceRef.current ?? map.getCenter(),
       zoom: focus.zoom ?? 3,
       duration: 1600,
-      essential: true,
     });
   }, [focus.bbox, focus.center, focus.zoom, mini, ready]);
 

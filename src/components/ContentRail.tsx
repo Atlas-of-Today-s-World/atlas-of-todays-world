@@ -56,6 +56,8 @@ export default function ContentRail({
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape" || event.defaultPrevented || belongsToField(event)) return;
+      // An open dialog (the menu) takes Esc for itself, wherever focus is.
+      if (document.querySelector('[role="dialog"][aria-modal="true"]')) return;
       router.push(closeHref);
     };
     window.addEventListener("keydown", onKey);
