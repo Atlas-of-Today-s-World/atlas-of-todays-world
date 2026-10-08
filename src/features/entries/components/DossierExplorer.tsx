@@ -1,11 +1,13 @@
 "use client";
 
-import { type ReactNode, useRef, useState, useSyncExternalStore } from "react";
+import { type ReactNode, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { flushSync } from "react-dom";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { format } from "@/features/i18n/messages";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { scrollBehavior } from "@/lib/motion";
+import { useLatest } from "@/lib/use-latest";
 import type { TileIcon as TileIconName } from "../constants";
 import { tileStyle } from "./TileFace";
 import { TileIcon } from "./TileIcon";
@@ -38,7 +40,8 @@ const subscribe = (onChange: () => void) => {
 };
 const readHash = () => window.location.hash.slice(1);
 const noHash = () => "";
-
+/** Older links pointed at `#chapter-3`; topics took their place. */
+const panelOf = (hash: string) => hash.replace(/^chapter-/, "topic-");
 /** Shared look of both tile kinds: photo or dark field, gradient for legible text. */
 const TILE =
   "group relative flex w-full flex-col justify-end overflow-hidden rounded-xl bg-[var(--color-ink)] bg-cover bg-center p-3.5 text-left text-white shadow-md transition hover:-translate-y-0.5 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2";
@@ -84,17 +87,43 @@ export function DossierExplorer({
   const [chosen, setChosen] = useState<string | null>(null);
   const tilesRef = useRef<HTMLDivElement>(null);
   const fallback = topics[0]?.id ?? tiles.find((tile) => !tile.empty)?.id ?? null;
-  // Older links pointed at `#chapter-3`; topics took their place.
-  const wanted = hash.replace(/^chapter-/, "topic-");
+  const wanted = panelOf(hash);
   const open = chosen ?? (wanted in topicPanels || wanted in tilePanels ? wanted : fallback);
 
   const choose = (id: string, block: ScrollLogicalPosition = "nearest") => {
+    // Focus inside the panel being closed (Previous / Next, a link in its text)
+    // would drop to <body> once it is hidden — it moves to the new panel instead.
+    const from = document.activeElement?.closest<HTMLElement>("[data-dossier-panel]");
     // Show the panel first: a hidden one can't be scrolled to, and the page would
     // stay where the previous subtopic ended (Previous / Next at its bottom).
     flushSync(() => setChosen(id));
     window.history.replaceState(null, "", `#${id}`);
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block });
+    const panel = document.getElementById(id);
+    panel?.scrollIntoView({ behavior: scrollBehavior(), block });
+    if (panel && from && from !== panel) {
+      // Its heading (`tabIndex={-1}`), so reading continues from the top.
+      (panel.querySelector<HTMLElement>("h2[tabindex]") ?? panel).focus({ preventScroll: true });
+    }
   };
+
+  // A link to a panel (`#topic-3`) — shared, from the search on /topics, or in
+  // the text — names a panel the server rendered hidden, so the browser had
+  // nothing to scroll to: open it and bring it into view, on load and whenever
+  // the hash changes later (also after a tile was chosen).
+  const reveal = useLatest(() => {
+    const id = panelOf(readHash());
+    if (id in topicPanels || id in tilePanels) choose(id, "start");
+  });
+  useEffect(() => {
+    const onHash = () => reveal.current();
+    // After hydration has committed: the panel can then be shown and scrolled to.
+    const frame = requestAnimationFrame(onHash);
+    window.addEventListener("hashchange", onHash);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("hashchange", onHash);
+    };
+  }, [reveal]);
 
   /** Previous / next subtopic under the open one, as tiles of the same size as above. */
   const stepper = (id: string) => {
@@ -146,6 +175,7 @@ export function DossierExplorer({
         <div
           key={id}
           id={id}
+          data-dossier-panel
           className={cn(
             "scroll-mt-32 md:scroll-mt-24",
             open === id ? "block" : "hidden print:block",

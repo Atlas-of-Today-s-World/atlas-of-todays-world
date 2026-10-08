@@ -163,6 +163,7 @@
     "placeholder": "Search places, regions, news…",
     "searching": "Searching…",
     "nothing": "Nothing found in the Atlas yet.",
+    "failed": "Search is unavailable right now — try again in a moment.",
     "kindRegion": "Region",
     "kindCountry": "Country",
     "kindNews": "News",
