@@ -2416,3 +2416,20 @@ test("portrait: a section save without the right is refused even when the list i
   const metrics = "select replace_portrait_items('country', 'JPN', 'metrics', '[]'::jsonb)";
   await as(id.pubA, () => refused(q(metrics), /may not edit/));
 });
+
+test("daily housekeeping trims what only grows, and only the database runs it", async () => {
+  await q(
+    "insert into rate_limits (key, window_start, hits) values ('old', now() - interval '2 days', 1), ('now', now(), 1)",
+  );
+  await q(
+    "insert into audit_log (at, action) values (now() - interval '13 months', 'test.old'), (now(), 'test.new')",
+  );
+  const result = await one("select public.db_housekeeping() as r");
+  assert.ok(result.r.rate_limits >= 1 && result.r.audit_log >= 1);
+  const left = await one(
+    `select (select count(*)::int from rate_limits where key in ('old', 'now')) as limits,
+            (select count(*)::int from audit_log where action in ('test.old', 'test.new')) as audit`,
+  );
+  assert.deepEqual(left, { limits: 1, audit: 1 });
+  await as(id.admin, () => refused(q("select public.db_housekeeping()"), /permission denied/));
+});
