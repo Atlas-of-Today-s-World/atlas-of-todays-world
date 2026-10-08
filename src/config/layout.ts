@@ -42,8 +42,11 @@ export const TOUCH_MIN_PX = 44;
 
 const REM_PX = 16;
 const WIDE_RAIL = /^\/(news|region|global-issue)\//;
-/** Full-width pages over the map (Topics, encyclopedia entries): the globe shrinks to a corner window. */
-const FULL_PAGE = /^\/(topics|entry)(\/|$)/;
+/**
+ * Full-width pages over the map (Topics and topic pages): the globe shrinks to a
+ * corner window. Old /entry/ links redirect (next.config) before they render.
+ */
+const FULL_PAGE = /^\/topics(\/|$)/;
 
 export type RailKind = "none" | "normal" | "wide";
 
