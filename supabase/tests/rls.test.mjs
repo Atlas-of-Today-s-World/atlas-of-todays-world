@@ -596,6 +596,30 @@ test("images are uploaded only by writers and only into their own folder", async
   );
 });
 
+test("an uploaded file can't be overwritten or removed by its uploader", async () => {
+  const path = `${id.pubA}/locked.jpg`;
+  // Updates and deletes only reach rows a SELECT policy shows; none exists for
+  // these buckets today, so add one (as a file listing would) to test the
+  // UPDATE/DELETE policies themselves.
+  await q(
+    "create policy test_storage_list on storage.objects for select to authenticated using (true)",
+  );
+  await as(id.pubA, () =>
+    q("insert into storage.objects (bucket_id, name) values ('entry-images', $1)", [path]),
+  );
+  await as(id.pubA, async () => {
+    await q("update storage.objects set name = $2 where name = $1", [
+      path,
+      `${id.pubA}/swapped.jpg`,
+    ]);
+    await q("delete from storage.objects where name = $1", [path]);
+  });
+  // Still there, unchanged: approved articles keep the very file that was reviewed.
+  const left = await q("select count(*)::int as n from storage.objects where name = $1", [path]);
+  assert.equal(left[0].n, 1);
+  await q("drop policy test_storage_list on storage.objects");
+});
+
 // ---------------------------------------------------------------------------
 // Security fixes (migration 20260930000001) and invitations (…0002)
 // ---------------------------------------------------------------------------
