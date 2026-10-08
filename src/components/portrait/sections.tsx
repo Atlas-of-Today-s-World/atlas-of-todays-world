@@ -99,31 +99,24 @@ function PatronsButton() {
 }
 
 /**
- * Grey section for content the editors haven't written yet. Nothing inside reacts
- * to clicks (`pointer-events-none`), so it's immediately clear there's nothing here yet.
+ * The parts of a portrait the editors haven't written yet, together in one quiet
+ * section at the end — instead of a grey placeholder for each (they read like a
+ * page still loading and pushed the real content down).
  */
-export function EmptySection({
-  title,
-  lead,
-  rows = 3,
-}: {
-  title: string;
-  lead: string;
-  rows?: number;
-}) {
+export function ComingSections({ items }: { items: { title: string; lead: string }[] }) {
   const t = getT();
+  if (!items.length) return null;
   return (
-    <PortraitSection title={title} lead={lead} muted>
-      <div aria-hidden className="pointer-events-none mt-5 space-y-2 opacity-55 select-none">
-        {Array.from({ length: rows }).map((_, index) => (
-          <div
-            key={index}
-            className="h-16 rounded-xl border border-dashed border-[var(--color-line)] bg-[var(--color-line)]/25"
-          />
+    <PortraitSection title={t.portrait.comingTitle} lead={t.portrait.comingLead} muted>
+      <ul className="mt-4 space-y-3">
+        {items.map((item) => (
+          <li key={item.title} className="text-[13px] leading-relaxed">
+            <span className="font-medium text-[var(--color-ink)]">{item.title}</span>
+            <span className="text-[var(--color-ink-muted)]"> — {item.lead}</span>
+          </li>
         ))}
-      </div>
-      <div className="mt-4 flex flex-wrap items-center gap-3">
-        <p className="text-[12px] text-[var(--color-ink-muted)]">{t.portrait.notWrittenYet}.</p>
+      </ul>
+      <div className="mt-5">
         <PatronsButton />
       </div>
     </PortraitSection>
