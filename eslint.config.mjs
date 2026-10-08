@@ -10,7 +10,6 @@ const config = [
       ".next-build/**",
       ".next-dev/**",
       "node_modules/**",
-      "demo/**",
       "public/maplibre/**",
       "storybook-static/**",
       "test-results/**",
