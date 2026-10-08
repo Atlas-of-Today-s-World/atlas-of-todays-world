@@ -2,10 +2,9 @@ import { cva } from "class-variance-authority";
 import {
   cloneElement,
   isValidElement,
+  type ComponentProps,
   type InputHTMLAttributes,
   type ReactNode,
-  type SelectHTMLAttributes,
-  type TextareaHTMLAttributes,
 } from "react";
 import { cn } from "@/lib/cn";
 
@@ -118,15 +117,15 @@ export function describedBy(id: string, { hint, errors }: { hint?: string; error
   };
 }
 
-export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {
+export function Input({ className, ...props }: ComponentProps<"input">) {
   return <input className={cn(control({ kind: "input" }), className)} {...props} />;
 }
 
-export function Textarea({ className, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+export function Textarea({ className, ...props }: ComponentProps<"textarea">) {
   return <textarea className={cn(control({ kind: "textarea" }), className)} {...props} />;
 }
 
-export function Select({ className, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
+export function Select({ className, ...props }: ComponentProps<"select">) {
   return <select className={cn(control({ kind: "select" }), className)} {...props} />;
 }
 
