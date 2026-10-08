@@ -6,8 +6,6 @@ export const dynamic = "force-dynamic";
 /**
  * Service status for the uptime monitor and keep-alive (F2): whether the database
  * responds and which version is running. No secrets; 503 when the DB is down.
- * The answer is cached on the CDN for 30 s, so a flood of requests can't turn
- * into a flood of database queries; the daily keep-alive still reaches the DB.
  */
 export async function GET() {
   const started = Date.now();
@@ -27,6 +25,6 @@ export async function GET() {
   };
   return NextResponse.json(body, {
     status: db === "ok" ? 200 : 503,
-    headers: { "cache-control": "public, s-maxage=30" },
+    headers: { "cache-control": "no-store" },
   });
 }
