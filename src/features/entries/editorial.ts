@@ -284,16 +284,12 @@ export async function listRevisions(entryId: string): Promise<Revision[]> {
   const supabase = await createServerClient();
   const { data, error } = await supabase
     .from("entry_revisions")
-    .select("id, saved_at, snapshot")
+    .select("id, saved_at, title:snapshot->>title")
     .eq("entry_id", entryId)
     .order("saved_at", { ascending: false })
     .limit(30);
   if (error) throw new Error(`[revisions] ${error.message}`);
-  return data.map((row) => ({
-    id: row.id,
-    saved_at: row.saved_at,
-    title: (row.snapshot as { title?: string }).title ?? "",
-  }));
+  return data.map((row) => ({ id: row.id, saved_at: row.saved_at, title: row.title ?? "" }));
 }
 
 /** Approval queue: pending articles this person may approve. */
@@ -319,20 +315,25 @@ export async function approvalQueue(): Promise<(EditorialRow & { canApprove: boo
   return rows.map((row) => ({ ...row, canApprove: allowed.has(row.id) }));
 }
 
-/** Published version (last approved revision) for comparison in the approval detail. */
-export async function publishedVersion(entryId: string) {
+/**
+ * Published version (newest revision saved while the article was live) for
+ * comparison in the approval detail — picked in the database, not by downloading snapshots.
+ */
+export async function publishedVersion(
+  entryId: string,
+): Promise<{ title: string; summary: string; body_html: string } | null> {
   const supabase = await createServerClient();
   const { data } = await supabase
     .from("entry_revisions")
-    .select("saved_at, snapshot")
+    .select("title:snapshot->>title, summary:snapshot->>summary, body_html:snapshot->>body_html")
     .eq("entry_id", entryId)
+    .eq("snapshot->>status", "published")
     .order("saved_at", { ascending: false })
-    .limit(50);
-  const published = (data ?? []).find(
-    (row) => (row.snapshot as { status?: string }).status === "published",
-  );
-  return published
-    ? (published.snapshot as { title: string; summary: string; body_html: string })
+    .order("id", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return data
+    ? { title: data.title ?? "", summary: data.summary ?? "", body_html: data.body_html ?? "" }
     : null;
 }
 
