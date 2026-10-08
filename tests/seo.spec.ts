@@ -50,6 +50,7 @@ for (const path of [
   "/global-issue/russia-ukraine-war",
   "/country/czechia",
   "/view/hdi",
+  "/countries",
   "/news",
   "/news/sahel-coup-belt",
   "/about",

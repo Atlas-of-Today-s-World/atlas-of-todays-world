@@ -4,6 +4,12 @@ import { MEMBERSHIP_PATH } from "@/features/membership/config";
 /** Overview of all encyclopedia entries (full-width page, the globe in a corner window). */
 export const TOPICS_PATH = "/topics";
 
+/**
+ * Every region, country and global issue as a plain list: the way in without
+ * the globe (keyboard, screen readers, browsers without WebGL).
+ */
+export const COUNTRIES_PATH = "/countries";
+
 /** Newsletter sign-up page (the "Newsletter" button bottom right). */
 export const NEWSLETTER_PATH = "/newsletter";
 
@@ -34,6 +40,8 @@ export interface NavItem {
 
 const MAIN_NAV: readonly NavItem[] = [
   { href: TOPICS_PATH, key: "topics" },
+  // Over the globe the map itself leads to a country; the list waits in the full menu.
+  { href: COUNTRIES_PATH, key: "countries", compactHidden: true },
   { href: "/news", key: "news", compactHidden: true },
   { href: "/about", key: "about" },
   { href: MEMBERSHIP_PATH, key: "support" },

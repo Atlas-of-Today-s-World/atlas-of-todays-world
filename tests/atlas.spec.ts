@@ -249,3 +249,29 @@ test.describe("sign-in", () => {
     await expect(page.getByRole("heading", { name: "Invitation to the Atlas team" })).toBeVisible();
   });
 });
+
+test.describe("country list", () => {
+  test("lists every region with its countries, linked to their profiles", async ({ page }) => {
+    await page.goto("/countries");
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Countries and regions" }),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Ukraine", exact: true })).toHaveAttribute(
+      "href",
+      "/country/ukraine",
+    );
+    const region = page.getByRole("heading", { level: 2 }).getByRole("link").first();
+    await expect(region).toHaveAttribute("href", /^\/region\//);
+    await page.getByRole("link", { name: "Czechia", exact: true }).click();
+    await expect(page).toHaveURL(/\/country\/czechia$/);
+  });
+
+  test("the home map offers the list to keyboard users instead of hidden links", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const browse = page.getByRole("link", { name: "Browse all countries and regions" });
+    await expect(browse).toHaveAttribute("href", "/countries");
+    await expect(page.locator("#content").getByRole("link")).toHaveCount(1);
+  });
+});

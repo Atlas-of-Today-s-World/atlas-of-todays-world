@@ -12,7 +12,13 @@ import { getAtlas } from "@/features/geography/queries";
 import type { Atlas } from "@/features/geography/types";
 import { DEFAULT_LOCALE, localePath, type Locale } from "@/features/i18n/config";
 import { format, getMessages } from "@/features/i18n/messages";
-import { articlePath, LEGAL_NAV, NEWSLETTER_PATH, TOPICS_PATH } from "@/config/navigation";
+import {
+  articlePath,
+  COUNTRIES_PATH,
+  LEGAL_NAV,
+  NEWSLETTER_PATH,
+  TOPICS_PATH,
+} from "@/config/navigation";
 import { ORGANIZATION } from "@/config/organization";
 import { MEMBERSHIP_PATH } from "@/features/membership/config";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
@@ -113,6 +119,13 @@ export async function getSitemaps(now = Date.now()): Promise<Record<SitemapName,
       { path: "/", lastmod: latest([dataChanged, ...articles.map(articleDate)]) },
       { path: "/news", lastmod: latest(news.map(articleDate)) },
       { path: TOPICS_PATH, lastmod: latest(entries.map(articleDate)) },
+      // The list of every place changes with the places themselves (names, slugs).
+      {
+        path: COUNTRIES_PATH,
+        lastmod: latest(
+          [stamps.region, stamps.issue, stamps.country].flatMap((group) => Object.values(group)),
+        ),
+      },
       { path: "/about", lastmod: dataChanged },
       { path: NEWSLETTER_PATH },
       { path: MEMBERSHIP_PATH },
