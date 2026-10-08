@@ -1,3 +1,4 @@
+import { getT } from "@/features/i18n/request";
 import ContentRail from "./ContentRail";
 
 /**
@@ -5,9 +6,14 @@ import ContentRail from "./ContentRail";
  * Without it nothing at all would happen for a moment after the click.
  */
 export default function RailSkeleton({ wide = false }: { wide?: boolean }) {
+  const t = getT();
   return (
     <ContentRail wide={wide} placeholder>
-      <div className="animate-pulse px-6 pt-6 pb-10">
+      {/* The grey bars say nothing to a screen reader; this does. */}
+      <p role="status" className="sr-only">
+        {t.panel.loading}
+      </p>
+      <div aria-hidden className="animate-pulse px-6 pt-6 pb-10">
         <div className="h-40 w-full rounded-xl bg-[var(--color-line)]" />
         <div className="mt-5 h-7 w-2/3 rounded bg-[var(--color-line)]" />
         <div className="mt-2.5 h-4 w-1/2 rounded bg-[var(--color-line)]" />
