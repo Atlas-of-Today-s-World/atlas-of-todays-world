@@ -527,7 +527,12 @@
   "newsletterForm": {
     "label": "New Atlas content in your inbox",
     "placeholder": "you@example.org",
-    "consent": "Send me occasional emails about new Atlas entries. I can unsubscribe at any time. See our",
+    "interestsLabel": "What would you like to receive?",
+    "interests": {
+      "topics": "New topics and subtopics",
+      "organisation": "News about the Atlas (fundraising, team)"
+    },
+    "consent": "Send me the emails I picked above. I can unsubscribe at any time. See our",
     "privacyLink": "privacy policy",
     "messages": {
       "confirm": "Almost there — confirm the email we just sent.",
@@ -536,7 +541,8 @@
       "consent": "Please tick the consent box.",
       "rateLimited": "Too many attempts. Try again later.",
       "notConnected": "The newsletter is not connected yet.",
-      "failed": "Sign-up failed. Try again later."
+      "failed": "Sign-up failed. Try again later.",
+      "interests": "Pick at least one kind of email."
     }
   },
   "authorPage": {

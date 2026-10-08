@@ -65,7 +65,9 @@ const form = (fields: Record<string, string | string[]>) => {
 
 const colours = { fill: "#336699", stroke: "#224466" };
 
-describe("no cache refresh without a confirmed write", () => {
+// Each test imports a whole actions module for the first time; under the full
+// suite with coverage that alone can pass the default 5 s, so allow more.
+describe("no cache refresh without a confirmed write", { timeout: 30_000 }, () => {
   beforeEach(() => {
     updateTag.mockReset();
     notifyIndexNow.mockReset();

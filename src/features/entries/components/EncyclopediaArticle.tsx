@@ -176,7 +176,7 @@ export function EncyclopediaArticle({
           ) : null}
           {item.authorProfile ? <AuthorBio author={item.authorProfile} /> : null}
 
-          <p className="mt-14 border-t border-[var(--color-line)] pt-6">
+          <div className="mt-14 flex flex-wrap items-center gap-3 border-t border-[var(--color-line)] pt-6">
             <Link
               href={TOPICS_PATH}
               className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--color-ink)] px-5 text-[14px] font-medium text-white transition hover:bg-[var(--color-accent)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:outline-none"
@@ -184,7 +184,9 @@ export function EncyclopediaArticle({
               <ArrowLeft aria-hidden className="size-4" />
               {getT().article.allTopics}
             </Link>
-          </p>
+            {/* Finished reading: the moment to pass it on. */}
+            <ShareButton title={item.title} />
+          </div>
         </div>
       </article>
       <OpenOnHash />
@@ -331,6 +333,7 @@ function TopicPanel({ chapter, index }: { chapter: Chapter; index: number }) {
           {chapter.illustrationCredit}
         </p>
       ) : null}
+      <ShareButton title={chapter.title} hash={id} className="mt-3" />
       {chapter.summaryPoints.length ? (
         <ul className="mt-4 list-disc space-y-1 pl-5 text-[14px] leading-relaxed text-[var(--color-ink-soft)]">
           {chapter.summaryPoints.map((point) => (

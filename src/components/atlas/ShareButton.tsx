@@ -11,17 +11,27 @@ const FEEDBACK_MS = 2_000;
 
 type Status = "idle" | "copied" | "failed";
 
-/** The page address without the query or hash — what a reader means to pass on. */
-const pageUrl = () => `${window.location.origin}${window.location.pathname}`;
+/** The page address without the query (and with the given part of the page, if any). */
+const pageUrl = (hash?: string) =>
+  `${window.location.origin}${window.location.pathname}${hash ? `#${hash}` : ""}`;
 
 const isAbort = (error: unknown) => error instanceof DOMException && error.name === "AbortError";
 
 /**
  * "Share" on a country, region, global issue or topic page. Phones get the
  * system share sheet (Web Share API); elsewhere the link is copied and a short
- * note, announced to screen readers, confirms it.
+ * note, announced to screen readers, confirms it. `hash` shares one part of
+ * the page (a subtopic) rather than its top.
  */
-export function ShareButton({ title, className }: { title: string; className?: string }) {
+export function ShareButton({
+  title,
+  hash,
+  className,
+}: {
+  title: string;
+  hash?: string;
+  className?: string;
+}) {
   const t = useMessages().share;
   const [status, setStatus] = useState<Status>("idle");
 
@@ -41,7 +51,7 @@ export function ShareButton({ title, className }: { title: string; className?: s
   };
 
   const share = async () => {
-    const url = pageUrl();
+    const url = pageUrl(hash);
     if (typeof navigator.share === "function") {
       try {
         await navigator.share({ title, url });
