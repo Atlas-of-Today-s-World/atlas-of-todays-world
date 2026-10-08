@@ -1,3 +1,6 @@
+// MapLibre's stylesheet only where the globe lives (83 kB of it, mostly control
+// icons): before, every page — admin included — loaded it as render-blocking CSS.
+import "maplibre-gl/dist/maplibre-gl.css";
 import Header from "@/components/Header";
 import AtlasGlobe, { type RegionLookup } from "@/components/map/AtlasGlobe";
 import MapControls from "@/components/map/MapControls";

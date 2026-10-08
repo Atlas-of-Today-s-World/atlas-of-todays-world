@@ -121,6 +121,10 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // No need to guard static files and images.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|data/).*)"],
+  // No need to guard static files and images — the proxy runs as a function, so
+  // each file it touches costs a call and delays it (the logo is on the LCP path).
+  // Their headers come from next.config `headers()`.
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|data/|maplibre/|brand/|images/|icon\.svg).*)",
+  ],
 };

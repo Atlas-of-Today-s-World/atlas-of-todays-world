@@ -73,6 +73,22 @@ const nextConfig: NextConfig = {
         source: "/maplibre/:path*",
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
+      // Static files the proxy no longer touches (its matcher): no MIME sniffing.
+      ...["/maplibre/:path*", "/brand/:path*", "/images/:path*", "/data/:path*"].map((source) => ({
+        source,
+        headers: [{ key: "X-Content-Type-Options", value: "nosniff" }],
+      })),
+      // Images and logos (SVG among them) opened on their own can't run anything.
+      // Not for /maplibre: a worker takes its CSP from its own script's response.
+      ...["/brand/:path*", "/images/:path*"].map((source) => ({
+        source,
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: "default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:",
+          },
+        ],
+      })),
     ];
   },
   // Editorial photos are resized by /_next/image (lib/images.ts photoUrl) —

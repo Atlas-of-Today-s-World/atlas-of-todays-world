@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "maplibre-gl/dist/maplibre-gl.css";
 
 /*
  * Design tokens derived from the Figma file "Atlas MVP Design".
@@ -108,8 +107,12 @@ body {
   border-color: rgba(255, 255, 255, 0.28);
 }
 
-/* Otherwise MapLibre renders its own white background and light controls. */
-.maplibregl-map {
+/*
+ * Otherwise MapLibre renders its own white background and light controls.
+ * Its stylesheet now loads after this one (only in the map layout), so the
+ * overrides below without !important repeat the class to win on specificity.
+ */
+.maplibregl-map.maplibregl-map {
   font-family: var(--font-sans);
 }
 
@@ -129,11 +132,11 @@ body {
 }
 
 /* The globe is keyboard-operable too (arrows, +/−) — so focus must be visible. */
-.maplibregl-canvas:focus {
+.maplibregl-canvas.maplibregl-canvas:focus {
   outline: none;
 }
 
-.maplibregl-canvas:focus-visible {
+.maplibregl-canvas.maplibregl-canvas:focus-visible {
   outline: 3px solid rgba(255, 255, 255, 0.85);
   outline-offset: -3px;
 }

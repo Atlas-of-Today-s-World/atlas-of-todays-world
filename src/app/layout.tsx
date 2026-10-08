@@ -7,14 +7,16 @@ import { serverEnv } from "@/lib/env.server";
 import { DEFAULT_OG_IMAGE, TITLE_SUFFIX } from "@/lib/seo/metadata";
 import { SITE_URL } from "@/lib/site";
 
+// Only the basic Latin files are preloaded; accented letters (latin-ext) still
+// load on demand through the @font-face unicode-range rules Next writes.
 const inter = Inter({
-  subsets: ["latin", "latin-ext"],
+  subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
 });
 
 const manrope = Manrope({
-  subsets: ["latin", "latin-ext"],
+  subsets: ["latin"],
   variable: "--font-manrope",
   display: "swap",
 });
