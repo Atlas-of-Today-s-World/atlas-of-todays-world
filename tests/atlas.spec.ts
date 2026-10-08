@@ -184,6 +184,12 @@ test.describe("search shortcut", () => {
     }).toPass({ timeout: 30_000 });
   });
 
+  test("search results use full country names", async ({ page }) => {
+    await page.goto("/search?q=Congo");
+    await expect(page.getByText("Democratic Republic of the Congo").first()).toBeVisible();
+    await expect(page.getByText("Dem. Rep. Congo")).toHaveCount(0);
+  });
+
   test("the panel can be hidden and shown again", async ({ page }) => {
     await page.goto("/country/ukraine");
     const panelLeft = () =>

@@ -62,6 +62,9 @@ export async function search(query: string, limit = 12): Promise<SearchHit[]> {
       Object.assign(hit, { body: region?.summary, center: region?.center, zoom: region?.zoom });
     } else if (row.kind === "country") {
       const country = atlas.countryByIso3.get(key);
+      // The full name, as in the country's heading ("Democratic Republic of the
+      // Congo", not the map label "Dem. Rep. Congo" the database returns).
+      if (country) hit.title = country.name;
       if (country?.labelLon != null && country.labelLat != null) {
         hit.center = [country.labelLon, country.labelLat];
         hit.zoom = 3.4;
