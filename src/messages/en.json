@@ -1,6 +1,7 @@
 {
   "nav": {
     "topics": "Topics",
+    "countries": "Countries",
     "news": "News",
     "about": "About",
     "support": "Support the Atlas",
@@ -144,7 +145,10 @@
     "maintenanceTitle": "The Atlas is being updated",
     "maintenanceText": "We are working on the site right now. Please come back in a little while.",
     "latestSubtopics": "Latest subtopics",
-    "noData": "no data"
+    "noData": "no data",
+    "globeUnavailable": "The 3D globe can't run in this browser",
+    "globeUnavailableText": "Your browser or device can't draw the globe (it needs WebGL). Every region and country is still one click away.",
+    "globeUnavailableLink": "Browse countries and regions"
   },
   "panel": {
     "content": "Content panel",
@@ -380,6 +384,15 @@
     "count": "{count} published so far.",
     "byRegion": "Browse by region"
   },
+  "countriesIndex": {
+    "title": "All countries and regions",
+    "heading": "Countries and regions",
+    "description": "Every country, world region and global issue of Atlas of Today's World in one list: open any profile without the 3D globe.",
+    "intro": "Every place on the globe as a plain list. Open a world region, a country profile or a global issue.",
+    "count": "{countries} countries in {regions} world regions.",
+    "issues": "Global issues",
+    "specialRegions": "Special regions"
+  },
   "searchPage": {
     "title": "Search the Atlas",
     "description": "Search every region, country and encyclopedia item of the Atlas.",
@@ -454,7 +467,7 @@
     "description": "Spin the satellite globe, click any country and read its profile: human development, political regime, living conditions and the news behind them.",
     "intro": "An interactive encyclopedia of the present. Explore the world on a 3D satellite globe, switch between data layers such as the Human Development Index, political regime or corruption perceptions, and open the profile of any region or country.",
     "regions": "World regions",
-    "countries": "Countries",
+    "browseAll": "Browse all countries and regions",
     "support": "Support the Atlas"
   },
   "view": {

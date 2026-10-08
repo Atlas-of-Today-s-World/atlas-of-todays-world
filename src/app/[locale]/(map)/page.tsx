@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import HomeFocus from "@/components/map/HomeFocus";
 import { getAtlas } from "@/features/geography/queries";
 import Link from "@/components/i18n/Link";
+import { SKIP_LINK } from "@/config/layout";
+import { COUNTRIES_PATH } from "@/config/navigation";
 import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import { pageMetadata } from "@/lib/seo/metadata";
@@ -78,26 +80,17 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     <>
       <HomeFocus centers={homeCenters} />
 
-      {/* Text for search engines and screen readers – visually hidden, the map is in the layout. */}
-      <div id="content" tabIndex={-1} className="sr-only">
-        <h1>Atlas of Today&rsquo;s World</h1>
-        <p>{t.intro}</p>
-        <h2>{t.regions}</h2>
-        <ul>
-          {regions.map((region) => (
-            <li key={region.slug}>
-              <Link href={`/region/${region.slug}`}>{region.name}</Link>
-            </li>
-          ))}
-        </ul>
-        <h2>{t.countries}</h2>
-        <ul>
-          {countries.map((country) => (
-            <li key={country.iso3}>
-              <Link href={`/country/${country.slug}`}>{country.name}</Link>
-            </li>
-          ))}
-        </ul>
+      {/*
+        Where "Skip to content" lands (the map is in the layout): the heading and intro
+        for search engines and screen readers, then one link to the plain list of every
+        place, hidden until a keyboard user tabs onto it.
+      */}
+      <div id="content" tabIndex={-1} className="outline-none">
+        <h1 className="sr-only">Atlas of Today&rsquo;s World</h1>
+        <p className="sr-only">{t.intro}</p>
+        <Link href={COUNTRIES_PATH} className={SKIP_LINK}>
+          {t.browseAll}
+        </Link>
       </div>
 
       <JsonLd data={jsonLd} />
