@@ -1,5 +1,12 @@
 version: 2
 updates:
+  # Actions pinned to a commit (supabase/setup-cli) still get update PRs.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
   - package-ecosystem: npm
     directory: /
     schedule:
