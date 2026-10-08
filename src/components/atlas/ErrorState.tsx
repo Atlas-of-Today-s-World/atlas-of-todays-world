@@ -12,6 +12,7 @@ export function ErrorState({
   lead,
   action,
   backLabel = "Back to the globe",
+  live = false,
 }: {
   code?: string;
   title: string;
@@ -19,9 +20,15 @@ export function ErrorState({
   action?: ReactNode;
   /** Text of the back-to-globe link in the page language (`common.backToGlobe`); the default is for the admin. */
   backLabel?: string;
+  /**
+   * Announce it as soon as it appears — for an error that happens while the visitor
+   * is on the page (error boundaries). A 404 or maintenance page is simply the page:
+   * no alert role, which made screen readers read the whole block out of turn.
+   */
+  live?: boolean;
 }) {
   return (
-    <div className="px-6 pt-10 pb-12" role="alert" aria-live="polite">
+    <div className="px-6 pt-10 pb-12" role={live ? "alert" : undefined}>
       {code ? (
         <p className="text-[12px] font-medium tracking-[0.12em] text-[var(--color-ink-muted)] uppercase">
           {code}

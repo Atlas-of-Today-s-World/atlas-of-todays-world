@@ -19,6 +19,7 @@ export default function PagesError({
   }, [error]);
   return (
     <ErrorState
+      live
       code={error.digest ? format(t.errors.errorCode, { digest: error.digest }) : t.panel.error}
       title={t.errors.pageErrorTitle}
       lead={t.errors.pageErrorLead}

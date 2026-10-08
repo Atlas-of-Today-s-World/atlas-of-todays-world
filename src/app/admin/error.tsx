@@ -17,6 +17,7 @@ export default function AdminError({
   }, [error]);
   return (
     <ErrorState
+      live
       code={error.digest ? `Error ${error.digest}` : "Error"}
       title="This section failed to load"
       lead="Try again. If the error persists, send the error code to an administrator."
