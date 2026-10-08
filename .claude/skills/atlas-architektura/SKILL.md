@@ -84,6 +84,7 @@ po dokončení zaškrtni úkol a doplň odkaz na PR.
   explicitní granty (`anon` jen select veřejných dat), `CHECK` délek, `^https://` u URL, `updated_at` + `stamp_row`,
   **index na každý FK**.
 - Funkce: `set search_path = public, pg_temp`; definer jen když nutné; `revoke execute … from public, anon`.
+- **V RLS politikách volej helpery s konstantními argumenty v sub-selectu** — `(select public.has_perm('users','v'))`, `(select auth.uid())`, `(select public.is_admin())` — jinak běží pro každý řádek; hlídá to test v `supabase/tests/rls.test.mjs` (migrace 20261008000050). Helpery s argumentem z řádku (`can_edit_entry(owner_id)`) zůstávají holé.
 - **Guard triggery čtoucí RLS tabulky musí být `SECURITY DEFINER`** (jinak se kontrola tiše přeskočí).
 - Interní sloupce (`owner_id`, `review_note`, `approved_by`, `profile_id`) anon nevidí — **sloupcová práva**;
   veřejný web se proto ptá na vyjmenované sloupce, **nikdy `select *` přes anon klienta**.
