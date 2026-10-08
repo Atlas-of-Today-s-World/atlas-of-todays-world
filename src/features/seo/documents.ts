@@ -6,7 +6,7 @@ import { ORGANIZATION } from "@/config/organization";
 import { absoluteUrl } from "@/lib/seo";
 import { htmlToMarkdown } from "@/lib/seo/markdown";
 import type { LlmsDocument } from "@/lib/seo/llms";
-import { articlePath } from "@/config/navigation";
+import { routes } from "@/config/routes";
 
 /**
  * Articles as Markdown documents (answer-first: summary, key facts, then the
@@ -17,7 +17,7 @@ import { articlePath } from "@/config/navigation";
 
 export type ArticleKind = "news" | "entry";
 
-const pathOf = (kind: ArticleKind, slug: string) => articlePath(kind, slug);
+const pathOf = (kind: ArticleKind, slug: string) => routes.article(kind, slug);
 
 /** Canonical URL of the article in the language its text is in. */
 export const articleUrl = (kind: ArticleKind, item: Entry) =>
@@ -31,7 +31,7 @@ function facts(item: Entry, atlas: Atlas, locale: Locale): string[] {
     .filter(Boolean)
     .join(", ");
   const author = item.authorSlug
-    ? `${item.author} (${absoluteUrl(`/authors/${item.authorSlug}`)})`
+    ? `${item.author} (${absoluteUrl(routes.author(item.authorSlug))})`
     : (item.author ?? getMessages(locale).article.editorialTeam);
   return [
     item.published ? `${t.published}: ${item.published}` : "",

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo/metadata";
 import Link from "@/components/i18n/Link";
 import { ContactLink } from "@/components/atlas/ContactLink";
+import { routes } from "@/config/routes";
 
 const TITLE = "Terms of use";
 const DESCRIPTION = "The rules for using Atlas of Today's World.";
@@ -14,7 +15,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   return pageMetadata({
     locale: await localeFrom(params),
-    path: "/terms",
+    path: routes.terms,
     title: TITLE,
     description: DESCRIPTION,
   });
@@ -50,7 +51,7 @@ export default async function TermsPage({ params }: { params: Promise<{ locale: 
       <h2>Accounts</h2>
       <p>
         Keep your sign-in to yourself. We may suspend accounts that are used to abuse the site. How
-        we handle your data is described in the <Link href="/privacy">privacy policy</Link>.
+        we handle your data is described in the <Link href={routes.privacy}>privacy policy</Link>.
       </p>
     </main>
   );

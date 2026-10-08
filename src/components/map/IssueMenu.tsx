@@ -8,6 +8,7 @@ import { StatusMark } from "@/components/portrait/ContentStatusBadge";
 import { cn } from "@/lib/cn";
 import { useMapState } from "./MapContext";
 import { openIssueSlug } from "./global-issues";
+import { routes } from "@/config/routes";
 
 export interface IssueMenuItem {
   slug: string;
@@ -39,7 +40,7 @@ export function IssueMenu({ items }: { items: IssueMenuItem[] }) {
           return (
             <li key={item.slug} className="shrink-0">
               <Link
-                href={`/global-issue/${item.slug}`}
+                href={routes.issue(item.slug)}
                 aria-current={current ? "page" : undefined}
                 className={cn(
                   "flex min-h-9 items-center gap-1.5 rounded-full py-1 pr-1.5 pl-3 text-[12.5px] whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:outline-none pointer-coarse:min-h-(--touch-min)",

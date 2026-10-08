@@ -9,6 +9,7 @@ import type { ActionState } from "@/lib/actions";
 import { cn } from "@/lib/cn";
 import { applyAsVolunteer } from "../actions";
 import { topicPrefill } from "../prefill";
+import { routes } from "@/config/routes";
 
 const FIELD =
   "min-h-11 w-full rounded-lg border border-[var(--color-field-border)] bg-white px-3 text-[14px] text-[var(--color-ink)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none";
@@ -111,7 +112,7 @@ export function VolunteerForm() {
         />
         <span>
           {t.consent}{" "}
-          <Link href="/privacy" className="text-[var(--color-link)] underline">
+          <Link href={routes.privacy} className="text-[var(--color-link)] underline">
             {t.privacyLink}
           </Link>
           .

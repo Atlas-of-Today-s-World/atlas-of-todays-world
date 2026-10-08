@@ -10,13 +10,19 @@ import { JsonLd } from "@/components/JsonLd";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { breadcrumbNode, graph, itemListNode, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { NEWS_CATEGORIES } from "@/lib/content-types";
+import { routes } from "@/config/routes";
 
 type Params = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const locale = await localeFrom(params);
   const t = getMessages(locale).newsIndex;
-  return pageMetadata({ locale, path: "/news", title: t.title, description: t.description });
+  return pageMetadata({
+    locale,
+    path: routes.newsIndex,
+    title: t.title,
+    description: t.description,
+  });
 }
 
 export default async function NewsIndexPage({ params }: Params) {
@@ -42,7 +48,7 @@ export default async function NewsIndexPage({ params }: Params) {
               {group.map((item) => (
                 <li key={item.slug}>
                   <Link
-                    href={`/news/${item.slug}`}
+                    href={routes.news(item.slug)}
                     className="group block h-full rounded-xl border border-[var(--color-line)] p-4 transition hover:border-[var(--color-accent)]"
                   >
                     <span className="text-[11px] tracking-wide text-[var(--color-ink-muted)] uppercase">
@@ -73,7 +79,7 @@ export default async function NewsIndexPage({ params }: Params) {
       <JsonLd
         data={graph(
           webPageNode({
-            url: pageUrl("/news", locale),
+            url: pageUrl(routes.newsIndex, locale),
             name: t.heading,
             description: t.description,
             locale,
@@ -81,7 +87,7 @@ export default async function NewsIndexPage({ params }: Params) {
             breadcrumb: breadcrumbNode(
               [
                 { name: "Atlas of Today's World", path: "/" },
-                { name: t.heading, path: "/news" },
+                { name: t.heading, path: routes.newsIndex },
               ],
               locale,
             ),
@@ -92,7 +98,7 @@ export default async function NewsIndexPage({ params }: Params) {
               name: item.title,
               // The canonical URL: this language if the item exists in it, else its original.
               url: pageUrl(
-                `/news/${item.slug}`,
+                routes.news(item.slug),
                 item.languages.includes(locale) ? locale : (item.languages[0] ?? locale),
               ),
             })),
@@ -106,7 +112,7 @@ export default async function NewsIndexPage({ params }: Params) {
           {atlas.regions.map((region) => (
             <Link
               key={region.slug}
-              href={`/region/${region.slug}`}
+              href={routes.region(region.slug)}
               className={cn(buttonVariants({ variant: "outline", size: "chip" }), "text-[13px]")}
             >
               {region.name}

@@ -9,6 +9,7 @@ import { supabaseConfig } from "@/lib/supabase/config";
 import { currentUser } from "@/lib/supabase/server";
 import { EmailSignIn } from "./EmailSignIn";
 import GoogleSignIn from "./GoogleSignIn";
+import { routes } from "@/config/routes";
 
 export const dynamic = "force-dynamic";
 
@@ -36,7 +37,7 @@ export default async function LoginPage({
   const locale = await localeFrom(params);
   const t = getMessages(locale).auth;
   const { next, error } = await searchParams;
-  const target = safeRedirect(next, localePath(locale, "/ucet"));
+  const target = safeRedirect(next, localePath(locale, routes.account));
   const configured = supabaseConfig() !== null;
   const emailAuth = configured && (await getFlags()).emailAuth;
 

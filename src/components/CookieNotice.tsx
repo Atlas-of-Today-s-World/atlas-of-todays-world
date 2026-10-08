@@ -8,6 +8,7 @@ import { COOKIE_NOTICE_KEY, COOKIE_NOTICE_SECONDS } from "@/config/cookies";
 import { format } from "@/features/i18n/messages";
 import { useHydrated } from "@/lib/use-hydrated";
 import { useLatest } from "@/lib/use-latest";
+import { routes } from "@/config/routes";
 
 const seen = () => {
   try {
@@ -79,7 +80,7 @@ export function CookieNotice() {
           <p className="text-[13px] leading-relaxed text-white/85">
             {t.text}{" "}
             <Link
-              href="/privacy"
+              href={routes.privacy}
               className="font-medium text-white underline underline-offset-2 hover:text-[var(--color-gold-light)]"
             >
               {t.privacy}

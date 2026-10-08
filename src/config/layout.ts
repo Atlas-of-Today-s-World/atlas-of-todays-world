@@ -5,6 +5,7 @@
  */
 
 import { splitLocale, withoutDefaultPrefix } from "@/features/i18n/config";
+import { ROUTE_PREFIX, isAtOrUnder, routes } from "./routes";
 
 /** Right content panel: min(vw, rem). */
 export const RAIL = { vw: 38, rem: 27 } as const;
@@ -47,12 +48,14 @@ export const SKIP_LINK =
 export const TOUCH_MIN_PX = 44;
 
 const REM_PX = 16;
-const WIDE_RAIL = /^\/(news|region|global-issue)\//;
+/** Pages with the wide panel: a news item, a region and a global issue (not the /news index). */
+const WIDE_RAIL = [ROUTE_PREFIX.news, ROUTE_PREFIX.region, ROUTE_PREFIX.issue];
+const isWideRail = (path: string) => WIDE_RAIL.some((prefix) => path.startsWith(`${prefix}/`));
 /**
  * Full-width pages over the map (Topics and topic pages): the globe shrinks to a
  * corner window. Old /entry/ links redirect (next.config) before they render.
  */
-const FULL_PAGE = /^\/topics(\/|$)/;
+const isFullPagePath = (path: string) => isAtOrUnder(path, routes.topics);
 
 export type RailKind = "none" | "normal" | "wide";
 
@@ -60,16 +63,16 @@ export type RailKind = "none" | "normal" | "wide";
 const pagePath = (pathname: string) => splitLocale(withoutDefaultPrefix(pathname)).path;
 
 /** The home map: the only page whose header stays transparent over the globe. */
-export const isHome = (pathname: string): boolean => pagePath(pathname) === "/";
+export const isHome = (pathname: string): boolean => pagePath(pathname) === routes.home;
 
 /** A full-width page: the globe waits in a small window bottom left. */
-export const isFullPage = (pathname: string): boolean => FULL_PAGE.test(pagePath(pathname));
+export const isFullPage = (pathname: string): boolean => isFullPagePath(pagePath(pathname));
 
 /** Which panel is open on the given path (a full-width page has none). */
 export function railKind(pathname: string): RailKind {
   const path = pagePath(pathname);
-  if (path === "/" || FULL_PAGE.test(path)) return "none";
-  return WIDE_RAIL.test(path) ? "wide" : "normal";
+  if (path === routes.home || isFullPagePath(path)) return "none";
+  return isWideRail(path) ? "wide" : "normal";
 }
 
 /** Panel width in px for the given window (0 on mobile or without a panel). */

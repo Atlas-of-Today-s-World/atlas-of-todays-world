@@ -6,13 +6,13 @@ import { type ReactNode, useSyncExternalStore } from "react";
 import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { Button } from "@/components/ui/button";
-import { TOPICS_PATH } from "@/config/navigation";
 import { format } from "@/features/i18n/messages";
 import { cn } from "@/lib/cn";
 import { cssBackgroundImage } from "@/lib/security/urls";
 import { PHOTO_WIDTH } from "@/lib/images";
 import { useDebouncedSearch } from "@/lib/use-debounced-search";
 import { queryWords, type TopicHit } from "../text-search";
+import { routes } from "@/config/routes";
 
 export interface TopicCard {
   slug: string;
@@ -235,7 +235,7 @@ export function TopicsBrowser({
               {hits.map((hit) => (
                 <li key={`${hit.slug}#${hit.anchor ?? ""}`}>
                   <Link
-                    href={`${TOPICS_PATH}/${hit.slug}${hit.anchor ? `#${hit.anchor}` : ""}`}
+                    href={routes.topic(hit.slug, hit.anchor)}
                     className="group block rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/5 transition hover:shadow-md focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none sm:p-5"
                   >
                     <span className={LABEL}>{format(t.inTopic, { topic: hit.topicTitle })}</span>
@@ -277,7 +277,7 @@ export function TopicsBrowser({
               return (
                 <li key={item.slug}>
                   <Link
-                    href={`${TOPICS_PATH}/${item.slug}`}
+                    href={routes.topic(item.slug)}
                     className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none"
                   >
                     <span

@@ -41,7 +41,6 @@ import {
 } from "@/config/layout";
 import Link from "@/components/i18n/Link";
 import { buttonVariants } from "@/components/ui/button";
-import { COUNTRIES_PATH } from "@/config/navigation";
 import { cn } from "@/lib/cn";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { isSpinEvent, useIdleSpin } from "./useIdleSpin";
@@ -54,6 +53,7 @@ import {
   statusMarkImage,
   withStatusMark,
 } from "./global-issues";
+import { routes } from "@/config/routes";
 
 interface GlobeColorSets {
   /** ISO3 -> color for each layer, precomputed on the server. */
@@ -458,8 +458,8 @@ export default function AtlasGlobe({
                 ? open
                 : lookup.slugByCountry[iso3];
             const group = slug ? lookup.bySlug[slug] : undefined;
-            if (!group) return null;
-            const topics = topicCountsRef.current[isIssue ? "issue" : "regions"][slug ?? ""] ?? 0;
+            if (!slug || !group) return null;
+            const topics = topicCountsRef.current[isIssue ? "issue" : "regions"][slug] ?? 0;
             return {
               iso3,
               label: {
@@ -467,7 +467,7 @@ export default function AtlasGlobe({
                 topics: topics ? topicLabelRef.current(topics) : undefined,
                 status: statusLabelRef.current(group.status),
               } as HoverLabel,
-              href: isIssue ? `/global-issue/${slug}` : `/region/${slug}`,
+              href: isIssue ? routes.issue(slug) : routes.region(slug),
               countries: group.countries,
             };
           }
@@ -483,7 +483,7 @@ export default function AtlasGlobe({
               metric: metricFor(iso3),
               topics: topics ? topicLabelRef.current(topics) : undefined,
             } as HoverLabel,
-            href: `/country/${slug}`,
+            href: routes.country(slug),
             countries: [iso3],
           };
         };
@@ -838,7 +838,7 @@ export default function AtlasGlobe({
             <p className="mt-2 text-[14px] leading-relaxed text-white/80">
               {t.map.globeUnavailableText}
             </p>
-            <Link href={COUNTRIES_PATH} className={cn(buttonVariants({ size: "sm" }), "mt-4")}>
+            <Link href={routes.countries} className={cn(buttonVariants({ size: "sm" }), "mt-4")}>
               {t.map.globeUnavailableLink}
             </Link>
           </div>

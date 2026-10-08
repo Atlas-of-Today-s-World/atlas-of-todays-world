@@ -24,6 +24,7 @@ import { RelatedTopics } from "@/components/topics/RelatedTopics";
 import { RegionalProfile } from "@/components/portrait/RegionalProfile";
 import { getPortrait } from "@/features/portraits/queries";
 import { relatedTopics } from "@/features/topics/related";
+import { routes } from "@/config/routes";
 
 // true: with false, Next returns 404 after revalidateTag (an admin write) even for
 // existing pages (NoFallbackError). An unknown slug ends up in notFound().
@@ -80,7 +81,7 @@ export async function generateMetadata({
 
   return pageMetadata({
     locale,
-    path: `/country/${country.slug}`,
+    path: routes.country(country.slug),
     title: pageTitle(format(getT().countryCard.title, { name: country.name })),
     description,
     type: "profile",
@@ -172,7 +173,7 @@ export default async function CountryPage({
       <JsonLd
         data={graph(
           webPageNode({
-            url: pageUrl(`/country/${country.slug}`, locale),
+            url: pageUrl(routes.country(country.slug), locale),
             name: country.name,
             description,
             locale,
@@ -181,8 +182,8 @@ export default async function CountryPage({
             breadcrumb: breadcrumbNode(
               [
                 { name: "Atlas of Today's World", path: "/" },
-                ...(region ? [{ name: region.name, path: `/region/${region.slug}` }] : []),
-                { name: country.name, path: `/country/${country.slug}` },
+                ...(region ? [{ name: region.name, path: routes.region(region.slug) }] : []),
+                { name: country.name, path: routes.country(country.slug) },
               ],
               locale,
             ),
@@ -205,7 +206,7 @@ export default async function CountryPage({
             subjectOf: newsItems.map((item) => ({
               "@type": "NewsArticle",
               headline: item.title,
-              url: pageUrl(`/news/${item.slug}`, locale),
+              url: pageUrl(routes.news(item.slug), locale),
             })),
           },
         )}

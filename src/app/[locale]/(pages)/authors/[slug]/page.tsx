@@ -10,7 +10,6 @@ import { formatLongDate } from "@/lib/format";
 import { cssBackgroundImage } from "@/lib/security/urls";
 import { PHOTO_WIDTH } from "@/lib/images";
 import { pageMetadata } from "@/lib/seo/metadata";
-import { articlePath } from "@/config/navigation";
 import {
   breadcrumbNode,
   graph,
@@ -20,6 +19,7 @@ import {
   personNode,
   webPageNode,
 } from "@/lib/seo/jsonld";
+import { routes } from "@/config/routes";
 
 /**
  * Public author profile (G8): who writes the Atlas and from what position,
@@ -37,7 +37,7 @@ export async function generateStaticParams() {
 async function articlesOf(slug: string) {
   return (await getArticlesByAuthor(slug)).map((item) => ({
     ...item,
-    path: articlePath(item.kind, item.slug),
+    path: routes.article(item.kind, item.slug),
   }));
 }
 
@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const articles = await articlesOf(slug);
   return pageMetadata({
     locale,
-    path: `/authors/${slug}`,
+    path: routes.author(slug),
     title: author.name,
     description: author.bio || format(t.description, { name: author.name }),
     image: author.photo,
@@ -69,7 +69,7 @@ export default async function AuthorPage({ params }: Params) {
   const t = messages.authorPage;
   const articles = await articlesOf(slug);
   const photo = cssBackgroundImage(author.photo, PHOTO_WIDTH.avatar);
-  const url = pageUrl(`/authors/${slug}`, locale);
+  const url = pageUrl(routes.author(slug), locale);
 
   return (
     <main className="max-w-2xl">
@@ -145,8 +145,8 @@ export default async function AuthorPage({ params }: Params) {
             breadcrumb: breadcrumbNode(
               [
                 { name: "Atlas of Today's World", path: "/" },
-                { name: messages.about.title, path: "/about" },
-                { name: author.name, path: `/authors/${slug}` },
+                { name: messages.about.title, path: routes.about },
+                { name: author.name, path: routes.author(slug) },
               ],
               locale,
             ),

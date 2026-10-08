@@ -28,6 +28,7 @@ import {
   webPageNode,
 } from "@/lib/seo/jsonld";
 import { JsonLd } from "@/components/JsonLd";
+import { routes } from "@/config/routes";
 
 // true: with false, Next returns 404 after revalidateTag (an admin write) even for
 // existing pages (NoFallbackError). An unknown slug ends up in notFound().
@@ -49,7 +50,7 @@ export async function generateMetadata({
   if (!region) return {};
   return pageMetadata({
     locale,
-    path: `/region/${region.slug}`,
+    path: routes.region(region.slug),
     title: region.name,
     description: region.summary,
     ownImage: true,
@@ -116,7 +117,7 @@ export default async function RegionPage({
       <JsonLd
         data={graph(
           webPageNode({
-            url: pageUrl(`/region/${region.slug}`, locale),
+            url: pageUrl(routes.region(region.slug), locale),
             name: region.name,
             description: region.summary,
             locale,
@@ -125,7 +126,7 @@ export default async function RegionPage({
             breadcrumb: breadcrumbNode(
               [
                 { name: "Atlas of Today's World", path: "/" },
-                { name: region.name, path: `/region/${region.slug}` },
+                { name: region.name, path: routes.region(region.slug) },
               ],
               locale,
             ),
@@ -144,10 +145,10 @@ export default async function RegionPage({
             subjectOf: newsItems.map((item) => ({
               "@type": "NewsArticle",
               headline: item.title,
-              url: pageUrl(`/news/${item.slug}`, locale),
+              url: pageUrl(routes.news(item.slug), locale),
             })),
           },
-          faqNode(pageUrl(`/region/${region.slug}`, locale), dossier.faq ?? []),
+          faqNode(pageUrl(routes.region(region.slug), locale), dossier.faq ?? []),
         )}
       />
     </>

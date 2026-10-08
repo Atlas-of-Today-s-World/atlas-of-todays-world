@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import { firstParam } from "@/lib/query-params";
+import { routes } from "@/config/routes";
 
 export const dynamic = "force-dynamic";
 
@@ -47,7 +48,7 @@ export default async function ConfirmSignInPage({
         </>
       ) : (
         <p role="alert" className="mt-6 rounded-lg bg-red-50 px-3 py-2 text-[13px] text-red-700">
-          {messages.errors.callback} <Link href="/login">{messages.title}</Link>
+          {messages.errors.callback} <Link href={routes.login}>{messages.title}</Link>
         </p>
       )}
     </main>

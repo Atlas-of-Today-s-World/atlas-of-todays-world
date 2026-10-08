@@ -2,6 +2,7 @@ import { localeFrom } from "@/features/i18n/request";
 import type { ReactNode } from "react";
 import { redirectOrNotFound } from "@/features/redirects/queries";
 import { getEncyclopediaEntry } from "@/features/entries/queries";
+import { routes } from "@/config/routes";
 
 /**
  * Unknown URL → redirect (managed in the admin), otherwise a real 404,
@@ -17,6 +18,6 @@ export default async function EntryLayout({
 }) {
   const { slug } = await params;
   if (!(await getEncyclopediaEntry(slug, await localeFrom(params))))
-    return redirectOrNotFound(`/topics/${slug}`, await localeFrom(params));
+    return redirectOrNotFound(routes.topic(slug), await localeFrom(params));
   return children;
 }

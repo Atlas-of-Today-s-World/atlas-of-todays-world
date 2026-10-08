@@ -4,8 +4,8 @@ import { localePath } from "@/features/i18n/config";
 import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import { DemoCheckout } from "@/features/membership/components/DemoCheckout";
-import { MEMBERSHIP_PATH } from "@/features/membership/config";
 import { parseDonation } from "@/features/membership/schema";
+import { routes } from "@/config/routes";
 
 // Rendered per request: the proxy sends it a nonce CSP (ADR-025), which a static page couldn't carry.
 export const dynamic = "force-dynamic";
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CheckoutPage({ params, searchParams }: Props) {
   const locale = await localeFrom(params);
   const donation = parseDonation(await searchParams);
-  if (!donation) redirect(localePath(locale, MEMBERSHIP_PATH));
+  if (!donation) redirect(localePath(locale, routes.membership));
   return (
     <main>
       <DemoCheckout donation={donation} />

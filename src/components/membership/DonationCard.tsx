@@ -11,13 +11,13 @@ import {
   AMOUNTS,
   DEFAULT_AMOUNT,
   DEFAULT_PERIOD,
-  MANAGE_PATH,
   OTHER_AMOUNT,
   OTHER_AMOUNT_PERIODS,
   type Period,
 } from "@/features/membership/config";
 import { cn } from "@/lib/cn";
 import { formatEuro } from "@/lib/format";
+import { routes } from "@/config/routes";
 
 /** Tab order as on the original page: One-time | Monthly. */
 const PERIOD_ORDER: readonly Period[] = ["one-time", "monthly"];
@@ -221,7 +221,7 @@ export function DonationCard({
       <p className="mt-4 text-center text-[12px] text-white">{t.processedBy}</p>
       <p className="text-center">
         <Link
-          href={MANAGE_PATH}
+          href={routes.manageMembership}
           className="inline-flex min-h-(--touch-min) items-center text-[12px] font-semibold underline underline-offset-2 hover:no-underline"
         >
           {t.manage}

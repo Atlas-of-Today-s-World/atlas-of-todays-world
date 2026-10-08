@@ -20,7 +20,7 @@ import { STATUS_OPTIONS } from "@/features/entries/components/StatusBadge";
 import { deleteEntry, unpublishEntry } from "@/features/entries/actions";
 import { listEntries } from "@/features/entries/editorial";
 import { ENTRY_STATUSES, type EntryStatus } from "@/features/entries/schema";
-import { articlePath } from "@/config/navigation";
+import { routes } from "@/config/routes";
 
 export const metadata: Metadata = { title: "Articles" };
 
@@ -127,7 +127,7 @@ export default async function EntriesPage({
               actions={[
                 editAction(`/admin/content/${row.id}`),
                 ...(row.status === "published" && !row.translation_of
-                  ? [openAction(articlePath(row.kind, row.slug))]
+                  ? [openAction(routes.article(row.kind, row.slug))]
                   : []),
                 ...(row.status === "published" && canUnpublish
                   ? [

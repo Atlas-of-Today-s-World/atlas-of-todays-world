@@ -4,8 +4,8 @@ import "server-only";
 import { redirect } from "next/navigation";
 import { DEFAULT_LOCALE, isLocale, localePath } from "@/features/i18n/config";
 import { formObject } from "@/lib/actions";
-import { MEMBERSHIP_PATH } from "./config";
 import { checkoutHref, donationFromForm } from "./schema";
+import { routes } from "@/config/routes";
 
 /**
  * "Donate & Join" on the donation card.
@@ -22,6 +22,6 @@ export async function startCheckout(formData: FormData): Promise<void> {
   const locale =
     typeof input.locale === "string" && isLocale(input.locale) ? input.locale : DEFAULT_LOCALE;
   const donation = donationFromForm(input);
-  if (!donation) redirect(localePath(locale, MEMBERSHIP_PATH));
+  if (!donation) redirect(localePath(locale, routes.membership));
   redirect(localePath(locale, checkoutHref(donation)));
 }

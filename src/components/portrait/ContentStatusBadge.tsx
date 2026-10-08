@@ -1,9 +1,9 @@
 import { Check, Hourglass, HeartHandshake } from "lucide-react";
 import Link from "@/components/i18n/Link";
 import type { ContentStatus } from "@/features/geography/content-status";
-import { MEMBERSHIP_PATH } from "@/features/membership/config";
 import type { Messages } from "@/features/i18n/messages";
 import { cn } from "@/lib/cn";
+import { routes } from "@/config/routes";
 
 /**
  * Check mark for ready content, hourglass for content in preparation, nothing
@@ -38,7 +38,7 @@ export function ContentStatusBadge({ status, t }: { status: ContentStatus; t: Me
   if (status === "none") {
     return (
       <Link
-        href={MEMBERSHIP_PATH}
+        href={routes.membership}
         className={cn(
           badge,
           // A link, so a full touch target (the quiet badges below are just text).

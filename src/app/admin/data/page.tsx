@@ -10,6 +10,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { navIcon } from "@/config/admin-nav";
 import { can, sectionAccess } from "@/features/auth/access";
 import { getAtlas } from "@/features/geography/queries";
+import { routes } from "@/config/routes";
 
 export const metadata: Metadata = { title: "Map data layers" };
 
@@ -97,7 +98,7 @@ export default async function DataPage() {
             <RowActions
               actions={[
                 editAction(`/admin/data/${indicator.id}`),
-                openAction(`/view/${indicator.id}`),
+                openAction(routes.view(indicator.id)),
               ]}
             />
           ),

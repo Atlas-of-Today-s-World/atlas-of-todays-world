@@ -28,6 +28,7 @@ import {
   VisualCarousel,
   type PlannedEntry,
 } from "./sections";
+import { routes } from "@/config/routes";
 
 /** What the portrait shows — an Atlas region, or an editorial global issue. */
 export interface PortraitSubject {
@@ -172,7 +173,7 @@ export default function Portrait({
           {subject.countries.map((country) => (
             <li key={country.slug}>
               <Link
-                href={`/country/${country.slug}`}
+                href={routes.country(country.slug)}
                 className={buttonVariants({ variant: "outline", size: "chip" })}
               >
                 {country.name}

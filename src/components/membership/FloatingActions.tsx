@@ -5,10 +5,10 @@ import { usePathname } from "next/navigation";
 import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { RAIL_OFFSET, railKind } from "@/config/layout";
-import { NEWSLETTER_PATH } from "@/config/navigation";
 import { splitLocale, withoutDefaultPrefix } from "@/features/i18n/config";
 import { cn } from "@/lib/cn";
 import { DonateCoin } from "./DonateCoin";
+import { routes } from "@/config/routes";
 
 /**
  * Bottom right on every public page (the map and pages layouts render it; not
@@ -27,7 +27,7 @@ export function FloatingActions({
   const pathname = usePathname();
   const t = useMessages();
   const rail = onMap ? railKind(pathname) : "none";
-  const onNewsletter = splitLocale(withoutDefaultPrefix(pathname)).path === NEWSLETTER_PATH;
+  const onNewsletter = splitLocale(withoutDefaultPrefix(pathname)).path === routes.newsletter;
 
   return (
     <div
@@ -38,7 +38,7 @@ export function FloatingActions({
     >
       {newsletter && !onNewsletter ? (
         <Link
-          href={NEWSLETTER_PATH}
+          href={routes.newsletter}
           data-print="hide"
           className="glass glass-hover pointer-events-auto relative flex h-[35px] min-w-[35px] items-center gap-2 rounded-full px-[4.5px] text-[11px] font-medium text-white transition before:absolute before:-inset-[4.5px] before:rounded-full before:content-[''] hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:pr-[13px]"
         >

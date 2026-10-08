@@ -12,15 +12,8 @@ import { getAtlas } from "@/features/geography/queries";
 import type { Atlas } from "@/features/geography/types";
 import { DEFAULT_LOCALE, localePath, type Locale } from "@/features/i18n/config";
 import { format, getMessages } from "@/features/i18n/messages";
-import {
-  articlePath,
-  COUNTRIES_PATH,
-  LEGAL_NAV,
-  NEWSLETTER_PATH,
-  TOPICS_PATH,
-} from "@/config/navigation";
+import { LEGAL_NAV } from "@/config/navigation";
 import { ORGANIZATION } from "@/config/organization";
-import { MEMBERSHIP_PATH } from "@/features/membership/config";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import { formatValue } from "@/lib/indicators";
 import { absoluteUrl } from "@/lib/seo";
@@ -29,6 +22,7 @@ import { clampText } from "@/lib/seo/metadata";
 import { latest, type FeedItem, type SitemapUrl } from "@/lib/seo/xml";
 import { createPublicClient } from "@/lib/supabase/public";
 import { articleDocument, articleUrl, type ArticleKind } from "./documents";
+import { routes } from "@/config/routes";
 
 /**
  * Data for the machine-readable views of the Atlas: sitemaps, feeds and
@@ -108,7 +102,7 @@ export async function getSitemaps(now = Date.now()): Promise<Record<SitemapName,
     ]);
   }
   const article = (kind: ArticleKind) => (item: EntrySummary) => ({
-    path: articlePath(kind, item.slug),
+    path: routes.article(kind, item.slug),
     languages: item.languages,
     lastmod: articleDate(item),
     images: [item.hero],
@@ -117,38 +111,38 @@ export async function getSitemaps(now = Date.now()): Promise<Record<SitemapName,
   return {
     pages: [
       { path: "/", lastmod: latest([dataChanged, ...articles.map(articleDate)]) },
-      { path: "/news", lastmod: latest(news.map(articleDate)) },
-      { path: TOPICS_PATH, lastmod: latest(entries.map(articleDate)) },
+      { path: routes.newsIndex, lastmod: latest(news.map(articleDate)) },
+      { path: routes.topics, lastmod: latest(entries.map(articleDate)) },
       // The list of every place changes with the places themselves (names, slugs).
       {
-        path: COUNTRIES_PATH,
+        path: routes.countries,
         lastmod: latest(
           [stamps.region, stamps.issue, stamps.country].flatMap((group) => Object.values(group)),
         ),
       },
-      { path: "/about", lastmod: dataChanged },
-      { path: NEWSLETTER_PATH },
-      { path: MEMBERSHIP_PATH },
+      { path: routes.about, lastmod: dataChanged },
+      { path: routes.newsletter },
+      { path: routes.membership },
       ...LEGAL_NAV.map((item) => ({ path: item.href, languages: [DEFAULT_LOCALE] })),
     ],
     regions: [
       ...atlas.regions.map((region) => ({
-        path: `/region/${region.slug}`,
+        path: routes.region(region.slug),
         lastmod: latest([stamps.region[region.slug], dataChanged]),
         images: [region.hero],
       })),
       ...atlas.issues.map((issue) => ({
-        path: `/global-issue/${issue.slug}`,
+        path: routes.issue(issue.slug),
         lastmod: latest([stamps.issue[issue.slug], dataChanged]),
         images: [issue.hero],
       })),
     ],
     countries: atlas.countries.map((country) => ({
-      path: `/country/${country.slug}`,
+      path: routes.country(country.slug),
       lastmod: latest([stamps.country[country.slug], dataChanged]),
     })),
     data: atlas.indicators.map((indicator) => ({
-      path: `/view/${indicator.id}`,
+      path: routes.view(indicator.id),
       lastmod: stamps.indicator[indicator.id],
     })),
     news: news.map(article("news")),
@@ -156,13 +150,13 @@ export async function getSitemaps(now = Date.now()): Promise<Record<SitemapName,
     authors: authors
       .filter((author) => byAuthor.has(author.slug))
       .map((author) => ({
-        path: `/authors/${author.slug}`,
+        path: routes.author(author.slug),
         lastmod: latest(byAuthor.get(author.slug) ?? []),
       })),
     "google-news": news
       .filter((item) => item.published && now - Date.parse(item.published) < NEWS_WINDOW_MS)
       .map((item) => ({
-        path: `/news/${item.slug}`,
+        path: routes.news(item.slug),
         languages: [item.languages[0] ?? DEFAULT_LOCALE],
         news: {
           title: item.title,
@@ -228,7 +222,7 @@ function sections(atlas: Atlas, news: EntrySummary[], entries: EntrySummary[], l
       title: s.sectionEntries,
       links: entries.map((item) => ({
         name: item.title,
-        url: url(locale, articlePath("entry", item.slug)),
+        url: url(locale, routes.article("entry", item.slug)),
         note: `${date(item)}${clampText(item.summary, 300)}`,
       })),
     },
@@ -236,7 +230,7 @@ function sections(atlas: Atlas, news: EntrySummary[], entries: EntrySummary[], l
       title: s.sectionNews,
       links: news.slice(0, 50).map((item) => ({
         name: item.title,
-        url: url(locale, `/news/${item.slug}`),
+        url: url(locale, routes.news(item.slug)),
         note: `${date(item)}${clampText(item.summary, 300)}`,
       })),
     },
@@ -244,7 +238,7 @@ function sections(atlas: Atlas, news: EntrySummary[], entries: EntrySummary[], l
       title: s.sectionRegions,
       links: atlas.regions.map((region) => ({
         name: region.name,
-        url: url(locale, `/region/${region.slug}`),
+        url: url(locale, routes.region(region.slug)),
         note: clampText(region.summary, 300),
       })),
     },
@@ -252,7 +246,7 @@ function sections(atlas: Atlas, news: EntrySummary[], entries: EntrySummary[], l
       title: s.sectionIssues,
       links: atlas.issues.map((issue) => ({
         name: issue.name,
-        url: url(locale, `/global-issue/${issue.slug}`),
+        url: url(locale, routes.issue(issue.slug)),
         note: clampText(`${issue.subtitle}. ${issue.summary}`, 300),
       })),
     },
@@ -260,7 +254,7 @@ function sections(atlas: Atlas, news: EntrySummary[], entries: EntrySummary[], l
       title: s.sectionData,
       links: atlas.indicators.map((indicator) => ({
         name: indicator.label,
-        url: url(locale, `/view/${indicator.id}`),
+        url: url(locale, routes.view(indicator.id)),
         note: format(s.dataNote, {
           description: clampText(indicator.description, 240),
           source: indicator.source,
@@ -272,9 +266,9 @@ function sections(atlas: Atlas, news: EntrySummary[], entries: EntrySummary[], l
     {
       title: s.sectionAbout,
       links: [
-        { name: t.about.title, url: url(locale, "/about"), note: t.about.description },
-        { name: t.topics.title, url: url(locale, TOPICS_PATH), note: t.topics.description },
-        { name: t.patrons.title, url: url(locale, MEMBERSHIP_PATH), note: t.patrons.description },
+        { name: t.about.title, url: url(locale, routes.about), note: t.about.description },
+        { name: t.topics.title, url: url(locale, routes.topics), note: t.topics.description },
+        { name: t.patrons.title, url: url(locale, routes.membership), note: t.patrons.description },
         { name: "RSS", url: url(locale, "/feed.xml") },
         { name: "Sitemap", url: absoluteUrl("/sitemap.xml") },
       ],
@@ -286,7 +280,7 @@ function sections(atlas: Atlas, news: EntrySummary[], entries: EntrySummary[], l
 const countryLinks = (atlas: Atlas, locale: Locale): LlmsLink[] =>
   atlas.countries.map((country) => ({
     name: country.name,
-    url: url(locale, `/country/${country.slug}`),
+    url: url(locale, routes.country(country.slug)),
     note: country.region?.name,
   }));
 
@@ -331,7 +325,7 @@ function countryData(atlas: Atlas, locale: Locale): LlmsDocument {
       const value = indicator.values[country.iso3];
       return value ? `${formatValue(indicator, value.value, locale)} (${value.year})` : "—";
     });
-    return `| [${country.name}](${url(locale, `/country/${country.slug}`)}) | ${country.region?.name ?? ""} | ${cells.join(" | ")} |`;
+    return `| [${country.name}](${url(locale, routes.country(country.slug))}) | ${country.region?.name ?? ""} | ${cells.join(" | ")} |`;
   });
   const sources = columns.map(
     (indicator) =>
@@ -364,7 +358,7 @@ export async function getLlmsFullTxt(locale: Locale): Promise<string> {
     ...fullNews.flatMap((item) => (item ? [articleDocument("news", item, atlas)] : [])),
     ...atlas.regions.map((region) => ({
       title: region.name,
-      url: url(locale, `/region/${region.slug}`),
+      url: url(locale, routes.region(region.slug)),
       facts: [],
       markdown: [
         region.summary,
@@ -376,7 +370,7 @@ export async function getLlmsFullTxt(locale: Locale): Promise<string> {
     })),
     ...atlas.issues.map((issue) => ({
       title: `${issue.name} — ${issue.subtitle}`,
-      url: url(locale, `/global-issue/${issue.slug}`),
+      url: url(locale, routes.issue(issue.slug)),
       facts: [],
       markdown: [
         issue.summary,

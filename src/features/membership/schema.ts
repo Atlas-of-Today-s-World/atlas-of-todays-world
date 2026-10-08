@@ -1,13 +1,6 @@
 import { z } from "zod";
-import {
-  AMOUNTS,
-  CHECKOUT_PATH,
-  OTHER_AMOUNT,
-  OTHER_AMOUNT_PERIODS,
-  PERIODS,
-  THANK_YOU_PATH,
-  type Period,
-} from "./config";
+import { AMOUNTS, OTHER_AMOUNT, OTHER_AMOUNT_PERIODS, PERIODS, type Period } from "./config";
+import { routes } from "@/config/routes";
 
 /** A validated donation: whole euros and a period from config.ts. */
 export interface Donation {
@@ -48,5 +41,5 @@ export function donationFromForm(input: Record<string, unknown>): Donation | nul
 const query = ({ period, amount }: Donation) =>
   new URLSearchParams({ period, amount: String(amount) }).toString();
 
-export const checkoutHref = (donation: Donation) => `${CHECKOUT_PATH}?${query(donation)}`;
-export const thankYouHref = (donation: Donation) => `${THANK_YOU_PATH}?${query(donation)}`;
+export const checkoutHref = (donation: Donation) => `${routes.checkout}?${query(donation)}`;
+export const thankYouHref = (donation: Donation) => `${routes.thankYou}?${query(donation)}`;

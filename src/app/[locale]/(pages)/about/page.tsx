@@ -7,13 +7,14 @@ import { JsonLd } from "@/components/JsonLd";
 import { ORGANIZATION } from "@/config/organization";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { breadcrumbNode, graph, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import { routes } from "@/config/routes";
 
 type Params = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const locale = await localeFrom(params);
   const t = getMessages(locale).about;
-  return pageMetadata({ locale, path: "/about", title: t.title, description: t.description });
+  return pageMetadata({ locale, path: routes.about, title: t.title, description: t.description });
 }
 
 export default async function AboutPage({ params }: Params) {
@@ -69,7 +70,7 @@ export default async function AboutPage({ params }: Params) {
       <JsonLd
         data={graph(
           webPageNode({
-            url: pageUrl("/about", locale),
+            url: pageUrl(routes.about, locale),
             name: t.title,
             description: t.description,
             locale,
@@ -78,7 +79,7 @@ export default async function AboutPage({ params }: Params) {
             breadcrumb: breadcrumbNode(
               [
                 { name: "Atlas of Today's World", path: "/" },
-                { name: t.title, path: "/about" },
+                { name: t.title, path: routes.about },
               ],
               locale,
             ),

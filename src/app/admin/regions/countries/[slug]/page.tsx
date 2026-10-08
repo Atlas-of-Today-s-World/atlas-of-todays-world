@@ -10,6 +10,7 @@ import { CollectionEditor } from "@/features/portraits/components/CollectionEdit
 import { savePortraitSection } from "@/features/portraits/actions";
 import { CountryForm } from "@/features/portraits/components/HeaderForms";
 import { countryForEdit, portraitItems, portraitRights } from "@/features/portraits/editorial";
+import { routes } from "@/config/routes";
 
 export const metadata: Metadata = { title: "Country profile" };
 
@@ -32,7 +33,7 @@ export default async function CountryEditPage({ params }: { params: Promise<{ sl
         lead={
           <>
             Editorial country profile.{" "}
-            <Link href={`/country/${slug}`} className="text-[var(--color-link)] underline">
+            <Link href={routes.country(slug)} className="text-[var(--color-link)] underline">
               View on site
             </Link>
           </>

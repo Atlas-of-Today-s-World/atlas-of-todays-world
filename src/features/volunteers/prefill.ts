@@ -1,4 +1,5 @@
-import { MEMBERSHIP_PATH, VOLUNTEER_ID } from "@/features/membership/config";
+import { VOLUNTEER_ID } from "@/features/membership/config";
+import { routes } from "@/config/routes";
 
 /**
  * "Write a topic about X" leads to the volunteer form on /membership with the
@@ -13,7 +14,7 @@ const MAX_PREFILL = 120;
 /** Link to the volunteer application form, prefilled with `place`. */
 export function volunteerHref(place: string): string {
   const query = new URLSearchParams({ [TOPIC_PARAM]: place });
-  return `${MEMBERSHIP_PATH}?${query.toString()}#${VOLUNTEER_ID}`;
+  return `${routes.membership}?${query.toString()}#${VOLUNTEER_ID}`;
 }
 
 /**

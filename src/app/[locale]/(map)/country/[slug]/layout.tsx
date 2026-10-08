@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { redirectOrNotFound } from "@/features/redirects/queries";
 import { getAtlas } from "@/features/geography/queries";
 import { localeFrom } from "@/features/i18n/request";
+import { routes } from "@/config/routes";
 
 /**
  * Unknown URL → redirect (managed in the admin), otherwise a real 404,
@@ -17,6 +18,6 @@ export default async function CountryLayout({
 }) {
   const { slug } = await params;
   if (!(await getAtlas(await localeFrom(params))).countryBySlug.has(slug))
-    return redirectOrNotFound(`/country/${slug}`, await localeFrom(params));
+    return redirectOrNotFound(routes.country(slug), await localeFrom(params));
   return children;
 }

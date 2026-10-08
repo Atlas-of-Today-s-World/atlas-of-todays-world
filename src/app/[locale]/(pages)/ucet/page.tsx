@@ -7,6 +7,7 @@ import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import DeleteAccount from "./DeleteAccount";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { routes } from "@/config/routes";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +28,7 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
   const access = await getAccess();
   if (!access) {
     redirect(
-      `${localePath(locale, "/login")}?next=${encodeURIComponent(localePath(locale, "/ucet"))}`,
+      `${localePath(locale, routes.login)}?next=${encodeURIComponent(localePath(locale, routes.account))}`,
     );
   }
   const staff = isStaff(access.permissions);

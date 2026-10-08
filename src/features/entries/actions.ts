@@ -34,7 +34,7 @@ import {
   TopicLabelsInput,
 } from "./schema";
 import { MAX_CHAPTERS, PREVIEW_HOURS } from "./constants";
-import { articlePath } from "@/config/navigation";
+import { routes } from "@/config/routes";
 
 /** After published content changes, revalidate lists, detail and portraits. */
 function refresh(slug?: string | null, region?: string | null, issue?: string | null) {
@@ -50,7 +50,7 @@ function refresh(slug?: string | null, region?: string | null, issue?: string | 
  */
 function pingSearchEngines(row: { slug: string; kind: string; locale: string }) {
   const locale = isLocale(row.locale) ? row.locale : DEFAULT_LOCALE;
-  const path = localePath(locale, articlePath(row.kind, row.slug));
+  const path = localePath(locale, routes.article(row.kind, row.slug));
   notifyIndexNow([path]);
 }
 

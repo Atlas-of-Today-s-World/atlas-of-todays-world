@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { ArrowRight, Mail, PenLine } from "lucide-react";
 import { DevelogiCredit } from "@/components/DevelogiCredit";
 import Link from "@/components/i18n/Link";
-import { NEWSLETTER_PATH } from "@/config/navigation";
 import { getFlags } from "@/features/flags/queries";
 import { VolunteerForm } from "@/features/volunteers/components/VolunteerForm";
 import { VOLUNTEER_ID } from "@/features/membership/config";
@@ -15,7 +14,7 @@ import { format, getMessages, type Messages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import { startCheckout } from "@/features/membership/actions";
 import { PatronsEmail } from "@/features/membership/components/PatronsEmail";
-import { GOAL, GOAL_COUNTS_FROM_PATRONS, MEMBERSHIP_PATH } from "@/features/membership/config";
+import { GOAL, GOAL_COUNTS_FROM_PATRONS } from "@/features/membership/config";
 import { getPatronStats, type PatronStats } from "@/features/membership/queries";
 import { cn } from "@/lib/cn";
 import { formatEuro, formatNumber, formatPercent } from "@/lib/format";
@@ -23,6 +22,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { ORGANIZATION } from "@/config/organization";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { breadcrumbNode, faqNode, graph, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import { routes } from "@/config/routes";
 
 type Params = { params: Promise<{ locale: string }> };
 
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const t = getMessages(locale).patrons;
   return pageMetadata({
     locale,
-    path: MEMBERSHIP_PATH,
+    path: routes.membership,
     title: t.title,
     description: t.description,
     ownImage: true,
@@ -66,7 +66,7 @@ const CARD = "rounded-[var(--radius-panel)] border border-[var(--color-line)] bg
 function NewsletterBanner({ t }: { t: Messages["patrons"]["newsletter"] }) {
   return (
     <Link
-      href={NEWSLETTER_PATH}
+      href={routes.newsletter}
       aria-labelledby="newsletter-banner-title"
       className="group relative isolate mt-20 flex flex-col gap-6 overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_85%_20%,var(--color-patron-bright)_0%,var(--color-patron)_35%,var(--color-space)_90%)] p-7 text-white shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:outline-none sm:flex-row sm:items-center sm:justify-between sm:p-10"
     >
@@ -331,7 +331,7 @@ export default async function MembershipPage({ params }: Params) {
         data={graph(
           {
             ...webPageNode({
-              url: pageUrl(MEMBERSHIP_PATH, locale),
+              url: pageUrl(routes.membership, locale),
               name: t.title,
               description: t.description,
               locale,
@@ -339,7 +339,7 @@ export default async function MembershipPage({ params }: Params) {
               breadcrumb: breadcrumbNode(
                 [
                   { name: "Atlas of Today's World", path: "/" },
-                  { name: t.title, path: MEMBERSHIP_PATH },
+                  { name: t.title, path: routes.membership },
                 ],
                 locale,
               ),
@@ -347,12 +347,12 @@ export default async function MembershipPage({ params }: Params) {
             potentialAction: {
               "@type": "DonateAction",
               name: t.heroCta,
-              target: pageUrl(MEMBERSHIP_PATH, locale),
+              target: pageUrl(routes.membership, locale),
               recipient: { "@id": ids.organization },
             },
           },
           faqNode(
-            pageUrl(MEMBERSHIP_PATH, locale),
+            pageUrl(routes.membership, locale),
             // Plain text for robots: the {email} placeholder filled in, **bold** markers dropped.
             t.faq.map((item) => ({
               question: item.question,

@@ -1,5 +1,4 @@
 import "server-only";
-import { TOPICS_PATH } from "@/config/navigation";
 import {
   getEncyclopediaEntries,
   getTopicPlaces,
@@ -7,6 +6,7 @@ import {
 } from "@/features/entries/queries";
 import type { Atlas } from "@/features/geography/types";
 import { countTopics, type TopicCounts } from "./map-counts";
+import { routes } from "@/config/routes";
 
 export type PlaceKind = "country" | "region" | "issue";
 
@@ -40,6 +40,6 @@ export async function relatedTopics(
   const slugs = new Set(listOf(counts, kind)[key] ?? []);
   return {
     items: entries.filter((entry) => slugs.has(entry.slug)),
-    href: `${TOPICS_PATH}?${TOPIC_FILTER[kind]}=${encodeURIComponent(key.toLowerCase())}`,
+    href: `${routes.topics}?${TOPIC_FILTER[kind]}=${encodeURIComponent(key.toLowerCase())}`,
   };
 }

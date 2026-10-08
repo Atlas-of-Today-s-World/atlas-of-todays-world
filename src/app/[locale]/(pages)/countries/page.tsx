@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import Link from "@/components/i18n/Link";
 import { JsonLd } from "@/components/JsonLd";
 import { buttonVariants } from "@/components/ui/button";
-import { COUNTRIES_PATH } from "@/config/navigation";
 import { getAtlas } from "@/features/geography/queries";
 import type { Country } from "@/features/geography/types";
 import { format, getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { breadcrumbNode, graph, itemListNode, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import { routes } from "@/config/routes";
 
 type Params = { params: Promise<{ locale: string }> };
 
@@ -18,7 +18,12 @@ const CHIP = buttonVariants({ variant: "outline", size: "chip" });
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const locale = await localeFrom(params);
   const t = getMessages(locale).countriesIndex;
-  return pageMetadata({ locale, path: COUNTRIES_PATH, title: t.title, description: t.description });
+  return pageMetadata({
+    locale,
+    path: routes.countries,
+    title: t.title,
+    description: t.description,
+  });
 }
 
 /**
@@ -59,7 +64,7 @@ export default async function CountriesPage({ params }: Params) {
           <section key={region.slug} aria-labelledby={`region-${region.slug}`} className="mt-10">
             <h2 id={`region-${region.slug}`} className="font-display text-[18px] font-bold">
               <Link
-                href={`/region/${region.slug}`}
+                href={routes.region(region.slug)}
                 className="inline-flex min-h-(--touch-min) items-center hover:text-[var(--color-accent)] hover:underline"
               >
                 {region.name}
@@ -72,7 +77,7 @@ export default async function CountriesPage({ params }: Params) {
               <ul className="mt-4 flex flex-wrap gap-1.5">
                 {countries.map((country) => (
                   <li key={country.iso3}>
-                    <Link href={`/country/${country.slug}`} className={CHIP}>
+                    <Link href={routes.country(country.slug)} className={CHIP}>
                       {country.name}
                     </Link>
                   </li>
@@ -95,7 +100,7 @@ export default async function CountriesPage({ params }: Params) {
           <ul className="mt-4 flex flex-wrap gap-1.5">
             {[...group.items].sort(byName).map((issue) => (
               <li key={issue.slug}>
-                <Link href={`/global-issue/${issue.slug}`} className={CHIP}>
+                <Link href={routes.issue(issue.slug)} className={CHIP}>
                   {issue.name}
                 </Link>
               </li>
@@ -107,7 +112,7 @@ export default async function CountriesPage({ params }: Params) {
       <JsonLd
         data={graph(
           webPageNode({
-            url: pageUrl(COUNTRIES_PATH, locale),
+            url: pageUrl(routes.countries, locale),
             name: t.heading,
             description: t.description,
             locale,
@@ -115,7 +120,7 @@ export default async function CountriesPage({ params }: Params) {
             breadcrumb: breadcrumbNode(
               [
                 { name: "Atlas of Today's World", path: "/" },
-                { name: t.heading, path: COUNTRIES_PATH },
+                { name: t.heading, path: routes.countries },
               ],
               locale,
             ),
@@ -123,15 +128,15 @@ export default async function CountriesPage({ params }: Params) {
           itemListNode(t.heading, [
             ...atlas.regions.map((region) => ({
               name: region.name,
-              url: pageUrl(`/region/${region.slug}`, locale),
+              url: pageUrl(routes.region(region.slug), locale),
             })),
             ...[...atlas.countries].sort(byName).map((country) => ({
               name: country.name,
-              url: pageUrl(`/country/${country.slug}`, locale),
+              url: pageUrl(routes.country(country.slug), locale),
             })),
             ...atlas.issues.map((issue) => ({
               name: issue.name,
-              url: pageUrl(`/global-issue/${issue.slug}`, locale),
+              url: pageUrl(routes.issue(issue.slug), locale),
             })),
           ]),
         )}

@@ -9,6 +9,7 @@ import { navIcon } from "@/config/admin-nav";
 import { sectionAccess } from "@/features/auth/access";
 import { getAtlas } from "@/features/geography/queries";
 import { formatPopulation } from "@/lib/format";
+import { routes } from "@/config/routes";
 
 export const metadata: Metadata = { title: "Regions & countries" };
 
@@ -52,7 +53,7 @@ export default async function RegionsPage() {
             <RowActions
               actions={[
                 editAction(`/admin/regions/${region.slug}`),
-                openAction(`/region/${region.slug}`),
+                openAction(routes.region(region.slug)),
               ]}
             />
           ),
@@ -112,7 +113,7 @@ export default async function RegionsPage() {
             <RowActions
               actions={[
                 editAction(`/admin/regions/countries/${country.slug}`),
-                openAction(`/country/${country.slug}`),
+                openAction(routes.country(country.slug)),
               ]}
             />
           ),

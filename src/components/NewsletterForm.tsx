@@ -7,6 +7,7 @@ import { subscribe } from "@/features/newsletter/actions";
 import { NEWSLETTER_INTERESTS } from "@/features/newsletter/schema";
 import type { ActionState } from "@/lib/actions";
 import { useMessages } from "@/components/i18n/LocaleProvider";
+import { routes } from "@/config/routes";
 
 /**
  * Newsletter subscription (Server Action `subscribe`). Consent is explicit
@@ -76,7 +77,7 @@ export default function NewsletterForm() {
         <input type="checkbox" name="consent" required className="mt-0.5 h-4 w-4 shrink-0" />
         <span>
           {t.newsletterForm.consent}{" "}
-          <Link href="/privacy" className="underline">
+          <Link href={routes.privacy} className="underline">
             {t.newsletterForm.privacyLink}
           </Link>
           .

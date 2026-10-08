@@ -17,6 +17,7 @@ import {
 } from "@/features/indicators/components/IndicatorForms";
 import { DeleteIndicator } from "@/features/indicators/components/DeleteIndicator";
 import { indicatorForEdit } from "@/features/indicators/editorial";
+import { routes } from "@/config/routes";
 
 export const metadata: Metadata = { title: "Indicator" };
 
@@ -42,7 +43,7 @@ export default async function IndicatorPage({ params }: { params: Promise<{ id: 
         lead={
           <>
             {indicator.is_custom ? "Custom editorial indicator." : "Imported indicator."}{" "}
-            <Link href={`/view/${indicator.id}`} className="text-[var(--color-link)] underline">
+            <Link href={routes.view(indicator.id)} className="text-[var(--color-link)] underline">
               View on site
             </Link>
           </>

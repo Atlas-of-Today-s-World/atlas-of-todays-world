@@ -5,6 +5,7 @@ import { createBrowserClient } from "@/lib/supabase/browser";
 import { safeRedirect } from "@/lib/security/redirect";
 import { Button } from "@/components/ui/button";
 import { useMessages } from "@/components/i18n/LocaleProvider";
+import { routes } from "@/config/routes";
 
 /** Redirects to Google (PKCE); the return is handled by /auth/callback. */
 export default function GoogleSignIn({ next }: { next: string }) {
@@ -16,7 +17,7 @@ export default function GoogleSignIn({ next }: { next: string }) {
     setBusy(true);
     setError("");
     const callback = new URL("/auth/callback", window.location.origin);
-    callback.searchParams.set("next", safeRedirect(next, "/ucet"));
+    callback.searchParams.set("next", safeRedirect(next, routes.account));
     const { error: failure } = await createBrowserClient().auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: callback.toString() },

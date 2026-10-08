@@ -11,6 +11,7 @@ import { can, sectionAccess } from "@/features/auth/access";
 import { getAtlas } from "@/features/geography/queries";
 import { deleteIssue } from "@/features/portraits/actions";
 import { GROUP_KIND_LABEL } from "@/features/portraits/constants";
+import { routes } from "@/config/routes";
 
 export const metadata: Metadata = { title: "Global issues" };
 
@@ -88,7 +89,7 @@ export default async function IssuesPage() {
             <RowActions
               actions={[
                 editAction(`/admin/global-issues/${issue.slug}`),
-                openAction(`/global-issue/${issue.slug}`),
+                openAction(routes.issue(issue.slug)),
                 ...(canDelete
                   ? [
                       deleteAction(

@@ -1,15 +1,13 @@
 import "server-only";
 import { NextResponse } from "next/server";
+import { routes } from "@/config/routes";
 import { splitLocale } from "@/features/i18n/config";
 import { safeRedirect } from "@/lib/security/redirect";
 import type { createServerClient } from "@/lib/supabase/server";
 
 type Client = Awaited<ReturnType<typeof createServerClient>>;
 
-const DEFAULT_AFTER_SIGN_IN = "/ucet";
-
-/** The page an e-mail link leads to; its button posts the token to /auth/confirm. */
-export const CONFIRM_PAGE = "/login/confirm";
+const DEFAULT_AFTER_SIGN_IN = routes.account;
 
 /**
  * Finishing sign-in (Google and email link): accepts a pending invitation
@@ -32,11 +30,11 @@ export async function signInDestination(supabase: Client, next: string | null) {
   // Default destination in any language (/ucet, /cs/ucet) = the team member has nowhere else to go.
   if (splitLocale(target).path === DEFAULT_AFTER_SIGN_IN) {
     const { data: role } = await supabase.rpc("my_role");
-    if (role && role.id !== "reader") return "/admin";
+    if (role && role.id !== "reader") return routes.admin;
   }
   return target;
 }
 
 export function signInFailed(origin: string) {
-  return NextResponse.redirect(new URL("/login?error=callback", origin), 303);
+  return NextResponse.redirect(new URL(`${routes.login}?error=callback`, origin), 303);
 }

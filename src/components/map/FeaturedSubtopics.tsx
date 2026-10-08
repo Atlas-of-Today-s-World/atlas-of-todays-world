@@ -2,10 +2,10 @@
 
 import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
-import { TOPICS_PATH } from "@/config/navigation";
 import type { SubtopicTile } from "@/features/topics/featured";
 import { tileBackground } from "@/lib/tile-style";
 import { PHOTO_WIDTH } from "@/lib/images";
+import { routes } from "@/config/routes";
 
 // Photo, else the tile colour from the admin (kept light: no icon set on the home map).
 const tileStyle = (item: SubtopicTile) =>
@@ -35,7 +35,7 @@ export function FeaturedSubtopics({ items }: { items: SubtopicTile[] }) {
         {items.map((item) => (
           <li key={item.id}>
             <Link
-              href={`${TOPICS_PATH}/${item.topicSlug}#${item.anchor}`}
+              href={routes.topic(item.topicSlug, item.anchor)}
               // A topic page is a heavy route: fetched once pointed at, not on arrival.
               prefetchOnIntent
               className="group relative flex h-20 flex-col justify-end overflow-hidden rounded-xl bg-[var(--color-ink)] bg-cover bg-center p-2 text-white transition hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:outline-none sm:h-32 sm:p-2.5"

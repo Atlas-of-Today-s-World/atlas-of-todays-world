@@ -16,6 +16,7 @@ import { DeleteIssue } from "@/features/portraits/components/DeleteIssue";
 import { issueForEdit, portraitItems, portraitRights } from "@/features/portraits/editorial";
 import { COLLECTION_NAMES } from "@/features/portraits/schema";
 import { contentStatus } from "@/features/geography/content-status";
+import { routes } from "@/config/routes";
 
 export const metadata: Metadata = { title: "Global issue" };
 
@@ -40,7 +41,7 @@ export default async function IssueEditPage({ params }: { params: Promise<{ slug
         lead={
           <>
             {GROUP_KIND_LABEL[kind]}.{" "}
-            <Link href={`/global-issue/${slug}`} className="text-[var(--color-link)] underline">
+            <Link href={routes.issue(slug)} className="text-[var(--color-link)] underline">
               View on site
             </Link>
           </>

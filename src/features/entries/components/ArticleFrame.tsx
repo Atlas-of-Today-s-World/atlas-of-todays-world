@@ -7,6 +7,7 @@ import { getT } from "@/features/i18n/request";
 import { PHOTO_WIDTH, photoSrcSet, photoUrl } from "@/lib/images";
 import { safeUrl } from "@/lib/security/urls";
 import type { EntrySummary } from "../queries";
+import { routes } from "@/config/routes";
 
 /**
  * Shared frame for news items and encyclopedia entries: a map focused on the region,
@@ -98,7 +99,7 @@ export function PlaceLinks({ item, atlas }: { item: EntrySummary; atlas: Atlas }
     <>
       {region ? (
         <Link
-          href={`/region/${region.slug}`}
+          href={routes.region(region.slug)}
           className="font-medium text-[var(--color-link)] hover:underline"
         >
           {region.name}
@@ -106,7 +107,7 @@ export function PlaceLinks({ item, atlas }: { item: EntrySummary; atlas: Atlas }
       ) : null}
       {issue ? (
         <Link
-          href={`/global-issue/${issue.slug}`}
+          href={routes.issue(issue.slug)}
           className="rounded-full border border-[var(--color-line)] px-2 py-0.5 font-medium text-[var(--color-link)] transition hover:border-[var(--color-accent)]"
         >
           {issue.name}

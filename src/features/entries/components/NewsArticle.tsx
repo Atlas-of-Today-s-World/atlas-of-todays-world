@@ -6,6 +6,7 @@ import { format } from "@/features/i18n/messages";
 import { formatLongDate } from "@/lib/format";
 import type { Entry } from "../queries";
 import { ArticleFrame, META_LINE, PlaceLinks } from "./ArticleFrame";
+import { routes } from "@/config/routes";
 
 /**
  * A news item as the reader sees it (map focused on the region + article).
@@ -30,7 +31,7 @@ export function NewsArticle({
         {item.author ? (
           item.authorSlug ? (
             <Link
-              href={`/authors/${item.authorSlug}`}
+              href={routes.author(item.authorSlug)}
               rel="author"
               className="font-medium text-[var(--color-link)] hover:underline"
             >

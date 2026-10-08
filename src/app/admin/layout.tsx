@@ -9,6 +9,7 @@ import { ADMIN_NAV, navVisible } from "@/config/admin-nav";
 import { getAccess, isStaff } from "@/features/auth/access";
 import { MfaGate } from "@/features/auth/components/MfaGate";
 import { mfaGate } from "@/features/auth/mfa";
+import { routes } from "@/config/routes";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +25,7 @@ export const metadata: Metadata = {
  */
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const access = await getAccess();
-  if (!access) redirect("/login?next=/admin");
+  if (!access) redirect(`${routes.login}?next=${routes.admin}`);
 
   // A role with mandatory 2FA has no permissions in the DB without the second factor (E10).
   const mfa = await mfaGate();
@@ -47,7 +48,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </p>
           <p className="mt-6 text-[13px] text-[var(--color-ink-muted)]">
             Signed in as {access.email}.{" "}
-            <Link href="/ucet" className="underline">
+            <Link href={routes.account} className="underline">
               Your account
             </Link>
           </p>
