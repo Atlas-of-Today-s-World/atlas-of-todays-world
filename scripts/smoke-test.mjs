@@ -95,7 +95,7 @@ async function main() {
   await check("unwritten sections have a call for support", async () => {
     const text = visible((await get("/region/east-asia")).body);
     assert(
-      text.includes("Help Us Complete It By Joining Atlas Patrons"),
+      text.includes("Help us complete it – join Atlas Patrons"),
       "missing call to action on an empty portrait",
     );
     assert(text.includes("Not written yet"), "missing empty-section marker");
