@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import Link from "@/components/i18n/Link";
-import { search } from "@/lib/search";
+import { firstParam } from "@/lib/query-params";
+import { search, SEARCH_LIMIT } from "@/lib/search";
+import { allowRequest } from "@/lib/security/rate-limit";
 import { buttonVariants } from "@/components/ui/button";
 import { localePath } from "@/features/i18n/config";
 import { format, getMessages } from "@/features/i18n/messages";
@@ -38,14 +41,16 @@ export default async function SearchPage({
   params,
   searchParams,
 }: Params & {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string | string[] }>;
 }) {
   const locale = await localeFrom(params);
   const messages = getMessages(locale);
   const t = messages.searchPage;
   const { q } = await searchParams;
-  const query = (q ?? "").trim();
-  const results = query ? await search(query, 40) : [];
+  const query = firstParam(q).trim().slice(0, 200);
+  // The same per-address limit as /api/search — the page must not be a way around it.
+  const limited = query ? !(await allowRequest("search", await headers(), SEARCH_LIMIT)) : false;
+  const results = query && !limited ? await search(query, 40) : [];
 
   return (
     <main>
@@ -65,7 +70,11 @@ export default async function SearchPage({
         </button>
       </form>
 
-      {query ? (
+      {limited ? (
+        <p role="status" className="mt-5 text-[13px] text-[var(--color-ink-muted)]">
+          {t.tooMany}
+        </p>
+      ) : query ? (
         <p className="mt-5 text-[13px] text-[var(--color-ink-muted)]">
           {format(results.length === 1 ? t.resultsOne : t.resultsMany, {
             count: String(results.length),
@@ -99,7 +108,7 @@ export default async function SearchPage({
         ))}
       </ul>
 
-      {query && !results.length ? (
+      {query && !limited && !results.length ? (
         <p className="mt-6 text-[14px] text-[var(--color-ink-soft)]">{t.nothing}</p>
       ) : null}
     </main>

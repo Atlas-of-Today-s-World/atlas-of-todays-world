@@ -6,7 +6,7 @@ const rpc = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/env.server", () => ({ serverEnv: env }));
 vi.mock("@/lib/supabase/service", () => ({ createServiceClient: () => ({ rpc }) }));
 
-const { allowKey, allowRequest } = await import("./rate-limit");
+const { allowEmail, allowKey, allowRequest } = await import("./rate-limit");
 
 const opts = { limit: 3, windowSeconds: 60 };
 const headers = (ip?: string) => new Headers(ip ? { "x-forwarded-for": ip } : {});
@@ -66,6 +66,46 @@ describe("allowRequest", () => {
     expect(await allowRequest("email-code", headers("1.2.3.4"), opts)).toBe(false);
     expect(await allowRequest("email-verify", headers("1.2.3.4"), opts)).toBe(false);
     log.mockRestore();
+  });
+
+  it("a database outage also refuses the public forms that send mail or write rows", async () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    rpc.mockResolvedValue({ data: null, error: { message: "down" } });
+    expect(await allowRequest("newsletter", headers("1.2.3.4"), opts)).toBe(false);
+    expect(await allowRequest("volunteer", headers("1.2.3.4"), opts)).toBe(false);
+    log.mockRestore();
+  });
+});
+
+describe("allowEmail", () => {
+  beforeEach(() => {
+    env.SUPABASE_SERVICE_ROLE_KEY = "service";
+    rpc.mockReset();
+  });
+
+  it("counts one address under one key whatever its case, never storing the address", async () => {
+    rpc.mockResolvedValue({ data: true, error: null });
+    expect(await allowEmail("email-verify-address", " Ana@Example.org", opts)).toBe(true);
+    await allowEmail("email-verify-address", "ana@example.org", opts);
+    const [first, second] = rpc.mock.calls.map((call) => call[1].p_key as string);
+    expect(first).toMatch(/^email-verify-address:[0-9a-f]{32}$/);
+    expect(first).toBe(second);
+    expect(first).not.toContain("ana");
+  });
+
+  it("refuses over the limit and when the store is down", async () => {
+    rpc.mockResolvedValue({ data: false, error: null });
+    expect(await allowEmail("email-verify-address", "ana@example.org", opts)).toBe(false);
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    rpc.mockResolvedValue({ data: null, error: { message: "down" } });
+    expect(await allowEmail("email-verify-address", "ana@example.org", opts)).toBe(false);
+    log.mockRestore();
+  });
+
+  it("without a service key (locally) has no limit", async () => {
+    env.SUPABASE_SERVICE_ROLE_KEY = undefined;
+    expect(await allowEmail("email-verify-address", "ana@example.org", opts)).toBe(true);
+    expect(rpc).not.toHaveBeenCalled();
   });
 });
 

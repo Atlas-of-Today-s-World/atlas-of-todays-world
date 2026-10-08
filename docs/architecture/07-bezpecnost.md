@@ -20,7 +20,7 @@ Každý bod má kontrolu v testech nebo v CI (sloupec „Ověření“).
 | S5 | URL | `safeUrl()` pro `href`/`src`/CSS; DB CHECK `^https://` na URL sloupcích | unit + DB test |
 | S6 | Open redirect | `safeRedirect()` pro `next`/`redirectTo` | unit test |
 | S7 | CSRF | Server Actions (Next ověřuje Origin); Route Handlers s cookie auth ověřují `Origin`; cookies `SameSite=Lax` | e2e test cizího Origin |
-| S8 | Hlavičky | CSP z `lib/security/csp.ts` (v produkci bez `unsafe-eval`; `unsafe-inline` ve script-src viz ADR-012), HSTS, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `Cross-Origin-Opener-Policy`, `frame-ancestors 'none'` | unit test CSP + smoke test hlaviček |
+| S8 | Hlavičky | CSP z `lib/security/csp.ts` (v produkci bez `unsafe-eval`; dynamické stránky se session nonce + `'strict-dynamic'`, statické/ISR `unsafe-inline` — ADR-025), HSTS, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `Cross-Origin-Opener-Policy`, `frame-ancestors 'none'` | unit test CSP + smoke test hlaviček |
 | S9 | Rate limiting | sdílené úložiště (tabulka `rate_limits` v Postgres nebo Upstash Free) — ne paměť procesu | integrační test |
 | S10 | Tajné údaje | jen server; `server-only`; GitHub secret scanning + push protection; `grep` bundlu v CI | CI krok |
 | S11 | Závislosti | Dependabot (týdně), `npm audit --audit-level=high` v CI, CodeQL (zdarma pro veřejné repo), zamčené verze | CI |
@@ -36,7 +36,8 @@ Každý bod má kontrolu v testech nebo v CI (sloupec „Ověření“).
 
 ```
 default-src 'self';
-script-src 'self' 'unsafe-inline' blob:;                           # bez nonce — ADR-012
+script-src 'self' 'unsafe-inline' blob:;                           # statické/ISR stránky — ADR-025
+script-src 'self' 'nonce-<nová>' 'strict-dynamic' 'sha256-<pre-paint>' blob:;  # admin, přihlášení, účet, pozvánka, checkout
 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;      # Tailwind/MapLibre inline styly
 img-src 'self' data: blob: https://*.supabase.co https://server.arcgisonline.com https://api.maptiler.com;
 font-src 'self' https://fonts.gstatic.com data:;
@@ -48,8 +49,13 @@ worker-src 'self' blob:;
 object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
 ```
 
-CSP skládá `buildCsp()` v `lib/security/csp.ts`; middleware ji posílá s každou odpovědí. Nonce záměrně
-nepoužíváme (ADR-012). Nová externí služba = změna CSP v `lib/security/csp.ts` + test.
+CSP skládá `buildCsp()` v `lib/security/csp.ts`; proxy ji posílá s každou odpovědí. Stránky renderované
+na každý požadavek, které drží session (`NONCE_PATHS` v `proxy.ts`: `/admin`, `/auth`, `/login`, `/ucet`,
+`/pozvanka`, `/membership/checkout`), dostanou při každém požadavku nový nonce: proxy ho pošle v hlavičce
+odpovědi i v předané hlavičce požadavku, odkud ho Next dá na své skripty; jediný vlastní inline skript
+(`PrePaintScript`) projde podle hashe (`lib/pre-paint.ts`, test hlídá shodu). Taková stránka musí být
+dynamická (`force-dynamic`) — statická by nonce neměla a nespustila by se. Veřejné statické/ISR stránky
+zůstávají na `unsafe-inline` (ADR-025). Nová externí služba = změna CSP v `lib/security/csp.ts` + test.
 
 ### 8.3 Sanitizace HTML (jediná allowlist)
 

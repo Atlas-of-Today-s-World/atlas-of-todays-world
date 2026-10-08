@@ -41,11 +41,15 @@ export function failed(error: { code?: string; message?: string }): ActionState 
   return { ok: false, error: mapDbError(error) };
 }
 
+/** Field names that would reach the object's prototype instead of a field. */
+const PROTOTYPE_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+
 /** FormData fields as a plain object (repeated fields as arrays of values). */
 export function formObject(formData: FormData, arrays: string[] = []): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const key of new Set(formData.keys())) {
     if (key.startsWith("$")) continue; // React internal field
+    if (PROTOTYPE_KEYS.has(key)) continue;
     out[key] = arrays.includes(key) ? formData.getAll(key) : formData.get(key);
   }
   for (const key of arrays) out[key] ??= [];

@@ -2355,3 +2355,40 @@ test("content status: everyone reads it, only the region / issue editors change 
   );
   await as(null, () => refused(q(`update special_regions set content_status = 'ready'`)));
 });
+
+test("readers: team metadata of published entries and author accounts stay with the team", async () => {
+  const entry = await newEntry(id.pubA, "team-metadata", [], "published");
+  const internal =
+    "select owner_id, approved_by, approved_at, scheduled_by, publish_at from entries";
+  // A fresh sign-up (the shared test reader has joined the team by now).
+  const reader = "00000000-0000-4000-8000-0000000000f1";
+  await q("insert into auth.users (id, email) values ($1, 'fresh.reader@example.org')", [reader]);
+
+  // A self-registered reader reads the public site as anon does, not through the session.
+  await as(reader, async () => {
+    assert.equal((await q(`${internal} where id = $1`, [entry])).length, 0);
+    await refused(q("select profile_id from authors limit 1"), /permission denied/);
+    assert.ok(Array.isArray(await q("select id, name, slug, bio from authors limit 1")));
+  });
+  // A blocked team member sees no more than a reader.
+  assert.equal((await as(id.blocked, () => q(`${internal} where id = $1`, [entry]))).length, 0);
+
+  // The team keeps what the admin needs — also a team member without the news right.
+  for (const member of [id.editor, id.dataEditor]) {
+    const rows = await as(member, () => q("select owner_id from entries where id = $1", [entry]));
+    assert.equal(rows[0]?.owner_id, id.pubA);
+  }
+  // Anyone still reads the public columns of a published entry anonymously.
+  const open = await as(null, () => q("select slug from entries where id = $1", [entry]));
+  assert.equal(open.length, 1);
+});
+
+test("portrait: a section save without the right is refused even when the list is empty", async () => {
+  const call = "select replace_portrait_items('region', 'east-asia', 'faq', '[]'::jsonb)";
+  // Before, an empty list "succeeded" for anyone (RLS removed nothing) and the app refreshed caches.
+  await as(id.newcomer, () => refused(q(call), /may not edit/));
+  await as(id.pubA, () => refused(q(call), /may not edit/));
+  await as(id.editor, () => q(call));
+  const metrics = "select replace_portrait_items('country', 'JPN', 'metrics', '[]'::jsonb)";
+  await as(id.pubA, () => refused(q(metrics), /may not edit/));
+});

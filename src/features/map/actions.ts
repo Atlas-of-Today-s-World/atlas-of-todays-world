@@ -41,10 +41,20 @@ export async function saveArea(_prev: ActionState, formData: FormData): Promise<
   const { supabase, user } = session;
   const { original_slug, country_iso3, ...fields } = parsed.data;
   const row = { ...fields, country_iso3: country_iso3 ?? null };
-  const { error } = original_slug
-    ? await supabase.from("map_areas").update(row).eq("slug", original_slug)
-    : await supabase.from("map_areas").insert({ ...row, created_by: user.id });
-  if (error) return failed(error);
+  if (original_slug) {
+    // An update RLS filters out is no error — only the rows it returns prove the write.
+    const { data, error } = await supabase
+      .from("map_areas")
+      .update(row)
+      .eq("slug", original_slug)
+      .select("slug");
+    if (error) return failed(error);
+    if (!data.length) return { ok: false, error: "You can't edit this area." };
+  } else {
+    // An insert RLS refuses fails with an error.
+    const { error } = await supabase.from("map_areas").insert({ ...row, created_by: user.id });
+    if (error) return failed(error);
+  }
   updateTag(tags.atlas);
   if (original_slug !== fields.slug) redirect(`/admin/areas/${fields.slug}`);
   return { ok: true, message: "Area saved." };

@@ -122,10 +122,20 @@ export async function saveIssue(_prev: ActionState, formData: FormData): Promise
     timeline_subtitle: fields.timeline_subtitle || null,
   };
 
-  const { error } = original_slug
-    ? await supabase.from("special_regions").update(row).eq("slug", original_slug)
-    : await supabase.from("special_regions").insert(row);
-  if (error) return failed(error);
+  if (original_slug) {
+    // An update RLS filters out is no error — only the rows it returns prove the write.
+    const { data, error } = await supabase
+      .from("special_regions")
+      .update(row)
+      .eq("slug", original_slug)
+      .select("slug");
+    if (error) return failed(error);
+    if (!data.length) return { ok: false, error: "You can't edit this global issue." };
+  } else {
+    // An insert RLS refuses fails with an error.
+    const { error } = await supabase.from("special_regions").insert(row);
+    if (error) return failed(error);
+  }
 
   // The unit's countries: diff against the current state (the foreign key renames itself).
   const { data: current, error: readError } = await supabase

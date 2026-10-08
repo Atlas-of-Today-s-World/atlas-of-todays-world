@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { search } from "@/lib/search";
+import { search, SEARCH_LIMIT } from "@/lib/search";
 import { allowRequest } from "@/lib/security/rate-limit";
 
 export const dynamic = "force-dynamic";
 
 /** Full-text search across all of Atlas: regions, countries, global issues and news. */
 export async function GET(request: Request) {
-  if (!(await allowRequest("search", request.headers, { limit: 60, windowSeconds: 60 }))) {
+  if (!(await allowRequest("search", request.headers, SEARCH_LIMIT))) {
     return NextResponse.json(
       { error: "Too many searches. Try again in a minute." },
       { status: 429 },

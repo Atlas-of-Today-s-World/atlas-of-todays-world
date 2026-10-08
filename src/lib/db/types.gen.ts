@@ -2277,6 +2277,7 @@ export type Database = {
       is_active: { Args: never; Returns: boolean }
       is_admin: { Args: never; Returns: boolean }
       is_polygon: { Args: { g: Json }; Returns: boolean }
+      is_staff: { Args: never; Returns: boolean }
       may_approve_entry_as: {
         Args: { p_entry: string; p_user: string }
         Returns: boolean

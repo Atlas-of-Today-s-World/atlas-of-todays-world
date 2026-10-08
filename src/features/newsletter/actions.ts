@@ -2,20 +2,10 @@
 
 import "server-only";
 import { headers } from "next/headers";
-import { z } from "zod";
 import { firstIssue, type ActionState } from "@/lib/actions";
 import { serverEnv } from "@/lib/env.server";
 import { allowRequest } from "@/lib/security/rate-limit";
-
-const Input = z.object({
-  email: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .max(254, "invalidEmail")
-    .regex(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, "invalidEmail"),
-  consent: z.literal("on", { message: "consent" }),
-});
+import { SubscribeInput } from "./schema";
 
 /**
  * Results are codes (messages: newsletterForm.messages) — the form picks the
@@ -34,7 +24,7 @@ export async function subscribe(_prev: ActionState, formData: FormData): Promise
   if (!(await allowRequest("newsletter", await headers(), { limit: 5, windowSeconds: 600 }))) {
     return { ok: false, error: "rateLimited" };
   }
-  const parsed = Input.safeParse({
+  const parsed = SubscribeInput.safeParse({
     email: formData.get("email"),
     consent: formData.get("consent"),
   });

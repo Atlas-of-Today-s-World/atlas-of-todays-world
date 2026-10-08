@@ -58,7 +58,13 @@
       }
     },
     "privacy": "We only use your name and e-mail address to run your account.",
-    "emailSoon": "Signing in with an e-mail code will be available soon."
+    "emailSoon": "Signing in with an e-mail code will be available soon.",
+    "confirm": {
+      "title": "Finish signing in",
+      "lead": "You opened a sign-in link from Atlas of Today's World. Continue to sign in on this device.",
+      "continue": "Continue signing in",
+      "notYou": "If you did not ask for this link, close this page and nothing happens."
+    }
   },
   "portrait": {
     "globalIssue": "Global Issue",
@@ -372,7 +378,8 @@
     "submit": "Search",
     "resultsOne": "1 result for “{query}”",
     "resultsMany": "{count} results for “{query}”",
-    "nothing": "Nothing in the Atlas matches that yet."
+    "nothing": "Nothing in the Atlas matches that yet.",
+    "tooMany": "Too many searches from your connection. Try again in a minute."
   },
   "legal": {
     "englishOnly": ""
@@ -471,7 +478,8 @@
     "errors": {
       "signIn": "Sign in first.",
       "confirm": "Type your email address to confirm.",
-      "failed": "The account could not be deleted. If you are the last admin, hand the role over first."
+      "failed": "The account could not be deleted. If you are the last admin, hand the role over first.",
+      "mfa": "Your role signs in with a second factor. Open the administration, enter the code from your authenticator app, then come back to delete the account."
     }
   },
   "invite": {

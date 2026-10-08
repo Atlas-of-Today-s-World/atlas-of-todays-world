@@ -62,7 +62,10 @@ export async function invite(email: string, roleId: string) {
   invited.push(email);
 }
 
-/** Sign-in via a one-time link → /auth/confirm (same path as the e-mail). */
+/**
+ * Sign-in via a one-time link → /auth/confirm (same path as the e-mail), then
+ * the "continue" button of the confirmation page, as a person would.
+ */
 export async function signIn(page: Page, email: string, next = "/ucet") {
   const { data, error } = await service.auth.admin.generateLink({ type: "magiclink", email });
   if (error) throw error;
@@ -72,6 +75,8 @@ export async function signIn(page: Page, email: string, next = "/ucet") {
     next,
   });
   await page.goto(`/auth/confirm?${params}`);
+  await page.getByRole("button", { name: "Continue signing in" }).click();
+  await page.waitForURL((url) => !url.pathname.startsWith("/login/confirm"));
 }
 
 /**

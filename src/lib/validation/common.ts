@@ -42,12 +42,17 @@ export const hexColor = z
 export const iso3 = z.string().regex(/^[A-Z]{3}$/);
 
 /** Email in the same shape as the DB CHECK (invitations); no nested quantifiers (no ReDoS). */
-export const emailAddress = z
-  .string()
-  .trim()
-  .toLowerCase()
-  .max(254)
-  .regex(/^[^@\s]+@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/, "Enter a valid email address.");
+const EMAIL = /^[^@\s]+@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/;
+
+/**
+ * Email field with its own error text (public forms answer with message codes).
+ * The length check aborts: Zod would otherwise still run the pattern on a
+ * megabyte-long string after `max` failed.
+ */
+export const emailAddressWith = (message: string) =>
+  z.string().trim().toLowerCase().max(254, { message, abort: true }).regex(EMAIL, message);
+
+export const emailAddress = emailAddressWith("Enter a valid email address.");
 
 export const uuid = z.string().uuid();
 
