@@ -4,6 +4,7 @@ import Link from "@/components/i18n/Link";
 import { useActionState } from "react";
 import { ActionForm } from "@/components/ui/action-form";
 import { subscribe } from "@/features/newsletter/actions";
+import { NEWSLETTER_INTERESTS } from "@/features/newsletter/schema";
 import type { ActionState } from "@/lib/actions";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 
@@ -46,6 +47,30 @@ export default function NewsletterForm() {
           {pending ? "…" : t.newsletter.signUp}
         </button>
       </div>
+
+      {/* What to receive: new content by default, organisation news on request. */}
+      <fieldset className="mt-3">
+        <legend className="text-[11.5px] font-medium text-white/75">
+          {t.newsletterForm.interestsLabel}
+        </legend>
+        <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1.5">
+          {NEWSLETTER_INTERESTS.map((interest) => (
+            <label
+              key={interest}
+              className="flex min-h-8 items-center gap-2 text-[12px] text-white/80"
+            >
+              <input
+                type="checkbox"
+                name="interests"
+                value={interest}
+                defaultChecked={interest === "topics"}
+                className="h-4 w-4 shrink-0"
+              />
+              {t.newsletterForm.interests[interest]}
+            </label>
+          ))}
+        </div>
+      </fieldset>
 
       <label className="mt-2.5 flex items-start gap-2 text-[11.5px] leading-relaxed text-white/60">
         <input type="checkbox" name="consent" required className="mt-0.5 h-4 w-4 shrink-0" />

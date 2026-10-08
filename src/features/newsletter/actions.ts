@@ -5,7 +5,7 @@ import { headers } from "next/headers";
 import { firstIssue, type ActionState } from "@/lib/actions";
 import { serverEnv } from "@/lib/env.server";
 import { allowRequest } from "@/lib/security/rate-limit";
-import { SubscribeInput } from "./schema";
+import { INTEREST_TAGS, SubscribeInput } from "./schema";
 
 /**
  * Results are codes (messages: newsletterForm.messages) — the form picks the
@@ -27,6 +27,7 @@ export async function subscribe(_prev: ActionState, formData: FormData): Promise
   const parsed = SubscribeInput.safeParse({
     email: formData.get("email"),
     consent: formData.get("consent"),
+    interests: formData.getAll("interests"),
   });
   if (!parsed.success) return { ok: false, error: firstIssue(parsed.error) };
 
@@ -43,7 +44,11 @@ export async function subscribe(_prev: ActionState, formData: FormData): Promise
         Authorization: `Basic ${Buffer.from(`anystring:${key}`).toString("base64")}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email_address: parsed.data.email, status: "pending" }),
+      body: JSON.stringify({
+        email_address: parsed.data.email,
+        status: "pending",
+        tags: parsed.data.interests.map((interest) => INTEREST_TAGS[interest]),
+      }),
     },
   );
   if (!response.ok) {
