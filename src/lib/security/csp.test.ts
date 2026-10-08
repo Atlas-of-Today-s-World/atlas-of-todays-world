@@ -1,5 +1,7 @@
+import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { buildCsp, securityHeaderEntries } from "./csp";
+import { PRE_PAINT_CODE, PRE_PAINT_HASH } from "@/lib/pre-paint";
+import { buildCsp, newNonce, securityHeaderEntries } from "./csp";
 
 function directive(csp: string, name: string) {
   return csp.split("; ").find((part) => part.startsWith(`${name} `)) ?? "";
@@ -54,6 +56,47 @@ describe("buildCsp", () => {
   it("forbids framing and plugins", () => {
     expect(directive(prod, "frame-ancestors")).toBe("frame-ancestors 'none'");
     expect(directive(prod, "object-src")).toBe("object-src 'none'");
+  });
+
+  it("static pages keep inline scripts without a nonce (ADR-025)", () => {
+    expect(directive(prod, "script-src")).toContain("'unsafe-inline'");
+    expect(directive(prod, "script-src")).not.toContain("nonce-");
+  });
+});
+
+describe("buildCsp with a nonce (dynamic pages)", () => {
+  const csp = buildCsp({ dev: false, supabaseUrl: "https://abc.supabase.co", nonce: "n0nce" });
+  const scripts = directive(csp, "script-src").split(" ");
+
+  it("runs only scripts with the nonce, those they load and the pre-paint script", () => {
+    expect(scripts).toContain("'nonce-n0nce'");
+    expect(scripts).toContain("'strict-dynamic'");
+    expect(scripts).toContain(`'${PRE_PAINT_HASH}'`);
+    expect(scripts).not.toContain("'unsafe-inline'");
+    expect(scripts).not.toContain("'unsafe-eval'");
+  });
+
+  it("keeps every other directive of the shared policy", () => {
+    const rest = (policy: string) =>
+      policy.split("; ").filter((part) => !part.startsWith("script-src "));
+    expect(rest(csp)).toEqual(
+      rest(buildCsp({ dev: false, supabaseUrl: "https://abc.supabase.co" })),
+    );
+  });
+});
+
+describe("newNonce", () => {
+  it("is 128 random bits in base64, new each time", () => {
+    const nonce = newNonce();
+    expect(nonce).toMatch(/^[A-Za-z0-9+/]{22}==$/);
+    expect(newNonce()).not.toBe(nonce);
+  });
+});
+
+describe("PRE_PAINT_HASH", () => {
+  it("is the SHA-256 of the inline pre-paint script", () => {
+    const hash = createHash("sha256").update(PRE_PAINT_CODE).digest("base64");
+    expect(PRE_PAINT_HASH).toBe(`sha256-${hash}`);
   });
 });
 

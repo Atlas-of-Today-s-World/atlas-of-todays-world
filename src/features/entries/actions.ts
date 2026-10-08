@@ -106,11 +106,14 @@ export async function saveEntry(_prev: ActionState, formData: FormData): Promise
           ? "planned"
           : "draft"
         : current.status;
-    const { error } = await supabase
+    const { data: updated, error } = await supabase
       .from("entries")
       .update({ ...update, status: nextStatus as "draft" | "planned" | "pending" | "published" })
-      .eq("id", entryId);
+      .eq("id", entryId)
+      .select("id");
     if (error) return failed(error);
+    // Readable but not editable: RLS filtered the update without an error.
+    if (!updated.length) return { ok: false, error: "You can't edit this article." };
     status = nextStatus;
   } else {
     const { data, error } = await supabase

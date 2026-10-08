@@ -7,6 +7,9 @@ import { DemoCheckout } from "@/features/membership/components/DemoCheckout";
 import { MEMBERSHIP_PATH } from "@/features/membership/config";
 import { parseDonation } from "@/features/membership/schema";
 
+// Rendered per request: the proxy sends it a nonce CSP (ADR-025), which a static page couldn't carry.
+export const dynamic = "force-dynamic";
+
 type Props = {
   params: Promise<{ locale: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;

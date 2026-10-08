@@ -131,8 +131,13 @@ export async function saveCategories(_prev: ActionState, formData: FormData): Pr
   const keep = items.data.map((item) => item.value);
   let remove = supabase.from("indicator_categories").delete().eq("indicator_id", id.data);
   if (keep.length) remove = remove.not("value", "in", `(${keep.join(",")})`);
-  const { error: removeError } = await remove;
+  const { data: removed, error: removeError } = await remove.select("value");
   if (removeError) return failed(removeError);
+  // An empty list that removed nothing changed nothing (RLS filters a delete
+  // without an error) — no reason to rebuild the map.
+  if (!keep.length && !removed.length) {
+    return { ok: false, error: "Nothing changed (no categories, or you can't edit them)." };
+  }
   if (keep.length) {
     const { error } = await supabase
       .from("indicator_categories")

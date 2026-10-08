@@ -4,6 +4,9 @@ import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import GoogleSignIn from "../login/GoogleSignIn";
 
+// Rendered per request: the proxy sends it a nonce CSP (ADR-025), which a static page couldn't carry.
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({
   params,
 }: {

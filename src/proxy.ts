@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { publicEnv } from "@/lib/env";
-import { buildCsp, securityHeaderEntries } from "@/lib/security/csp";
+import { buildCsp, newNonce, securityHeaderEntries } from "@/lib/security/csp";
 import {
   DEFAULT_LOCALE,
   localePath,
@@ -18,15 +18,24 @@ import { refreshSession } from "@/lib/supabase/middleware";
  * by the admin layout (permissions from the DB) and above all by RLS.
  */
 const dev = process.env.NODE_ENV !== "production";
-const CSP = buildCsp({ dev, supabaseUrl: publicEnv.NEXT_PUBLIC_SUPABASE_URL });
+const supabaseUrl = publicEnv.NEXT_PUBLIC_SUPABASE_URL;
+const CSP = buildCsp({ dev, supabaseUrl });
 const HEADERS = securityHeaderEntries(CSP, { dev });
 
-function securityHeaders(response: NextResponse): NextResponse {
+/** `csp`: the per-request nonce policy of a dynamic page instead of the shared one. */
+function securityHeaders(response: NextResponse, csp?: string): NextResponse {
   for (const [name, value] of HEADERS) response.headers.set(name, value);
+  if (csp) response.headers.set("Content-Security-Policy", csp);
   return response;
 }
 
 const SESSION_PATHS = ["/admin", "/api/admin", "/ucet", "/login", "/auth", "/pozvanka"];
+/**
+ * Pages rendered for each request that hold a session worth protecting: their
+ * scripts run only with this response's nonce (ADR-025). Each must be
+ * dynamically rendered — a static page would carry no nonce and not start.
+ */
+const NONCE_PATHS = ["/admin", "/auth", "/login", "/ucet", "/pozvanka", "/membership/checkout"];
 const PROTECTED_PATHS = ["/admin", "/api/admin", "/ucet"];
 
 const matches = (pathname: string, prefixes: string[]) =>
@@ -76,25 +85,32 @@ export async function proxy(request: NextRequest) {
     localized &&
     (pathname === `/${DEFAULT_LOCALE}` || pathname.startsWith(`/${DEFAULT_LOCALE}/`))
   ) {
-    const canonical = new URL(
-      `${pathname.slice(DEFAULT_LOCALE.length + 1) || "/"}${search}`,
-      request.url,
-    );
+    // On a clone, like the lowercase redirect: "/en//host" must not become "//host".
+    const canonical = request.nextUrl.clone();
+    canonical.pathname = (pathname.slice(DEFAULT_LOCALE.length + 1) || "/").replace(/^\/{2,}/, "/");
+    canonical.search = search;
     return securityHeaders(NextResponse.redirect(canonical, 308));
   }
+
+  // Next takes the nonce from the forwarded request's CSP header for its own scripts.
+  const csp = matches(path, NONCE_PATHS)
+    ? buildCsp({ dev, supabaseUrl, nonce: newNonce() })
+    : undefined;
+  const forwarded = new Headers(request.headers);
+  if (csp) forwarded.set("Content-Security-Policy", csp);
 
   // English without a prefix → route [locale]=en (the browser URL stays the same).
   const response =
     localized && locale === DEFAULT_LOCALE
       ? NextResponse.rewrite(new URL(`/${DEFAULT_LOCALE}${pathname}${search}`, request.url), {
-          request,
+          request: { headers: forwarded },
         })
-      : NextResponse.next({ request });
+      : NextResponse.next({ request: { headers: forwarded } });
 
-  if (!matches(path, SESSION_PATHS)) return securityHeaders(response);
+  if (!matches(path, SESSION_PATHS)) return securityHeaders(response, csp);
 
   const user = await refreshSession(request, response);
-  if (user || !matches(path, PROTECTED_PATHS)) return securityHeaders(response);
+  if (user || !matches(path, PROTECTED_PATHS)) return securityHeaders(response, csp);
 
   if (path.startsWith("/api/")) {
     return securityHeaders(NextResponse.json({ error: "Sign in first." }, { status: 401 }));

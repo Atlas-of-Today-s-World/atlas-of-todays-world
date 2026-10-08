@@ -1,31 +1,45 @@
 import { DATAWRAPPER_ORIGIN } from "@/lib/embeds";
+import { PRE_PAINT_HASH } from "@/lib/pre-paint";
 
 /**
  * Content Security Policy (ARCHITEKTURA 8.2). A new external service = a change
  * here + a test in csp.test.ts; otherwise the browser silently blocks it.
  *
- * script-src keeps 'unsafe-inline': Next injects inline bootstrap scripts and a
- * nonce would mean dynamic rendering of every page, which would kill static/ISR
- * pages (ADR-012). 'unsafe-eval' is only in development (React dev overlay).
+ * Two script policies (ADR-025, which narrows ADR-012):
+ * - Pages rendered per request that hold a session worth protecting (admin,
+ *   sign-in, account, invitation, checkout — `NONCE_PATHS` in proxy.ts) get a
+ *   fresh `nonce` from the proxy: scripts run only with it ('strict-dynamic'
+ *   passes trust on to the scripts they load), plus the one fixed inline
+ *   script of the root layout by its hash. Next reads the nonce from the
+ *   forwarded request header and puts it on its own scripts.
+ * - Static/ISR public pages keep 'unsafe-inline': a nonce there would make every
+ *   page dynamic and end the caching.
+ * 'unsafe-eval' is only in development (React dev overlay).
  */
 /** Cloudflare Turnstile (script and challenge iframe) for sign-in with an email code. */
 const TURNSTILE = "https://challenges.cloudflare.com";
 
-export function buildCsp({ dev, supabaseUrl }: { dev: boolean; supabaseUrl?: string }): string {
+export function buildCsp({
+  dev,
+  supabaseUrl,
+  nonce,
+}: {
+  dev: boolean;
+  supabaseUrl?: string;
+  nonce?: string;
+}): string {
   const supabase = supabaseUrl ? new URL(supabaseUrl) : null;
   const supabaseHttp = supabase ? supabase.origin : "";
   const supabaseWs = supabase ? `wss://${supabase.host}` : "";
+  const inline = nonce
+    ? [`'nonce-${nonce}'`, "'strict-dynamic'", `'${PRE_PAINT_HASH}'`]
+    : ["'unsafe-inline'"];
 
   const directives: Record<string, string[]> = {
     "default-src": ["'self'"],
     // blob: is needed by MapLibre for web workers; Turnstile protects email sign-in (G1).
-    "script-src": [
-      "'self'",
-      "'unsafe-inline'",
-      "blob:",
-      TURNSTILE,
-      ...(dev ? ["'unsafe-eval'"] : []),
-    ],
+    // With 'strict-dynamic' browsers ignore 'self' and the hosts (kept for older ones).
+    "script-src": ["'self'", ...inline, "blob:", TURNSTILE, ...(dev ? ["'unsafe-eval'"] : [])],
     "worker-src": ["'self'", "blob:"],
     "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
     "font-src": ["'self'", "https://fonts.gstatic.com", "data:"],
@@ -64,6 +78,11 @@ export function buildCsp({ dev, supabaseUrl }: { dev: boolean; supabaseUrl?: str
   );
   if (!dev) parts.push("upgrade-insecure-requests");
   return parts.join("; ");
+}
+
+/** A fresh nonce for one response: 128 random bits in base64. */
+export function newNonce(): string {
+  return btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(16))));
 }
 
 /** Security headers for every response (ARCHITEKTURA 8.1, S8). */

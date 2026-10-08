@@ -11,6 +11,9 @@ import { createPublicClient } from "@/lib/supabase/public";
 
 type SearchKind = "region" | "country" | "issue" | "news";
 
+/** How often one address may search; the /search page and /api/search share the limit. */
+export const SEARCH_LIMIT = { limit: 60, windowSeconds: 60 };
+
 export interface SearchHit {
   id: string;
   kind: SearchKind;
