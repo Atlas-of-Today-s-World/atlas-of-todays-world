@@ -376,10 +376,11 @@ function TilePanel({ tile }: { tile: LearnMoreTile }) {
                   rel="noreferrer"
                   className="flex h-full gap-3 rounded-xl border border-[var(--color-line)] p-3 transition hover:border-[var(--color-accent)]"
                 >
+                  {/* The source's own preview (og:image or a video thumbnail), loaded straight from it. */}
                   {image ? (
                     <span
                       aria-hidden
-                      className="size-16 shrink-0 rounded-lg bg-cover bg-center"
+                      className="h-20 w-32 shrink-0 rounded-lg bg-[var(--color-line)] bg-cover bg-center"
                       style={{ backgroundImage: image }}
                     />
                   ) : null}

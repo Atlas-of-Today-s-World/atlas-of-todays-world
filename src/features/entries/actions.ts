@@ -18,6 +18,7 @@ import { tags } from "@/lib/cache/tags";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { DEFAULT_LOCALE, isLocale, localePath } from "@/features/i18n/config";
 import { notifyIndexNow } from "@/lib/seo/indexnow";
+import { previewNote, storePreviewImages } from "@/lib/previews/store";
 import { requiredText, slug as slugSchema, uuid } from "@/lib/validation/common";
 import { COLLECTIONS } from "@/features/portraits/schema";
 import {
@@ -308,8 +309,13 @@ export async function saveLearnMore(_prev: ActionState, formData: FormData): Pro
     p_items: notes,
   });
   if (noted.error) return failed(noted.error);
+  const previews = await storePreviewImages(
+    session.supabase,
+    { column: "entry_id", value: entryId },
+    links,
+  );
   await refreshEntry(session.supabase, entryId, true);
-  return { ok: true, message: "Learn more saved." };
+  return { ok: true, message: `Learn more saved.${previewNote(previews)}`, previews };
 }
 
 /** SEO & GEO overrides; an empty field means the default derived from the article. */

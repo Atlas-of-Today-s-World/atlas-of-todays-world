@@ -12,6 +12,7 @@ import type { Collection } from "../schema";
 import { COLLECTION_UI } from "./fields";
 import { ActionForm } from "@/components/ui/action-form";
 import { swap } from "@/lib/array";
+import { withPreviews } from "@/lib/previews/merge";
 
 type Item = Record<string, string>;
 
@@ -34,7 +35,15 @@ export function CollectionEditor({
 }) {
   const ui = COLLECTION_UI[collection];
   const [items, setItems] = useState<Item[]>(initial);
-  const [state, action] = useActionState<ActionState, FormData>(save, { ok: false });
+  const [state, action] = useActionState<ActionState, FormData>(
+    async (previous, formData) => {
+      const result = await save(previous, formData);
+      // Preview images the server found for links without one appear in the form.
+      if (result.previews) setItems((current) => withPreviews(current, result.previews));
+      return result;
+    },
+    { ok: false },
+  );
   const blank = () => Object.fromEntries(ui.fields.map((f) => [f.name, f.options?.[0] ?? ""]));
 
   const update = (index: number, name: string, value: string) =>

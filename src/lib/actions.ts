@@ -14,6 +14,8 @@ export interface ActionState {
   message?: string;
   fieldErrors?: Record<string, string[] | undefined>;
   id?: string;
+  /** Preview images the server found for saved links ({ link → image }), for the editor to show. */
+  previews?: Record<string, string>;
 }
 
 type Client = Awaited<ReturnType<typeof createServerClient>>;

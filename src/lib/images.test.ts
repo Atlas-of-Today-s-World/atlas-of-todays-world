@@ -23,6 +23,9 @@ describe("photo URLs", () => {
   it("leaves other hosts, relative and invalid URLs alone (no open proxy)", () => {
     for (const src of [
       "https://example.com/a.jpg",
+      // Resource previews (og:image, video thumbnails) load straight from their source.
+      "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+      "https://cdn.prod.website-files.com.example.org/a.jpg",
       "http://cdn.prod.website-files.com/a.jpg",
       "/brand/world-map.svg",
       "not a url",

@@ -15,6 +15,7 @@ import {
 } from "@/lib/actions";
 import { tags } from "@/lib/cache/tags";
 import { notifyIndexNow } from "@/lib/seo/indexnow";
+import { previewNote, storePreviewImages } from "@/lib/previews/store";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { slug as slugSchema } from "@/lib/validation/common";
 import { COLLECTIONS, CountryInput, IssueInput, PortraitKind, RegionInput } from "./schema";
@@ -80,8 +81,17 @@ export async function savePortraitSection(
     p_items: items.data,
   });
   if (error) return failed(error);
+  // Links of a region or global issue without an image get their page's preview.
+  const previews =
+    collection === "resources" && kind !== "country"
+      ? await storePreviewImages(
+          session.supabase,
+          { column: kind === "region" ? "region_slug" : "special_slug", value: slug },
+          items.data as { url: string; image_url?: string }[],
+        )
+      : {};
   refresh(kind, slug);
-  return { ok: true, message: "Section saved." };
+  return { ok: true, message: `Section saved.${previewNote(previews)}`, previews };
 }
 
 export async function saveRegion(_prev: ActionState, formData: FormData): Promise<ActionState> {
