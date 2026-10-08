@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { SITE_URL } from "@/lib/site";
 import { photoSrcSet, photoUrl } from "./images";
 
-const WEBFLOW = "https://cdn.prod.website-files.com/635f/65e9_big%20picture.jpg";
+const WEBFLOW =
+  "https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65e9_big%20picture.jpg";
 
 describe("photo URLs", () => {
   it("resizes photos from the old site's CDN through the optimizer", () => {
@@ -24,6 +25,8 @@ describe("photo URLs", () => {
     for (const src of [
       "https://example.com/a.jpg",
       "http://cdn.prod.website-files.com/a.jpg",
+      // Another Webflow site's folder on the same shared CDN.
+      "https://cdn.prod.website-files.com/5f00aa11bb22cc33dd44ee55/a.jpg",
       "/brand/world-map.svg",
       "not a url",
     ]) {

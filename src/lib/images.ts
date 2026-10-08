@@ -20,8 +20,11 @@ export const LOCAL_PHOTOS = "/images/";
 
 /** Hosts and path prefixes of photos worth resizing. */
 export const PHOTO_ORIGINS: readonly { hostname: string; pathname: string }[] = [
-  // Images of the topics imported from the original atlasoftodaysworld.org.
-  { hostname: "cdn.prod.website-files.com", pathname: "/" },
+  // The original atlasoftodaysworld.org's own folder on the Webflow CDN (its photos
+  // now live in public/images/webflow; this is for any link left behind). Only that
+  // folder: the CDN is shared by every Webflow site, and /_next/image must not
+  // resize (and spend the image quota on) anybody else's pictures.
+  { hostname: "cdn.prod.website-files.com", pathname: "/635faa1d6c0ae075b5716e40/" },
   // Uploads from the admin (public Storage buckets) of this deployment's project.
   ...(SUPABASE_URL
     ? [{ hostname: new URL(SUPABASE_URL).hostname, pathname: "/storage/v1/object/public/" }]
