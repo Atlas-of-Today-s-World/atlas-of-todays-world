@@ -1,9 +1,12 @@
+import type { Metadata } from "next";
 import { ErrorState } from "@/components/atlas/ErrorState";
 import { FloatingActions } from "@/components/membership/FloatingActions";
 import { PagesShell } from "@/components/PagesShell";
 import { getFlags } from "@/features/flags/queries";
 import { getT } from "@/features/i18n/request";
 import { LazyCountryQuiz } from "@/features/quiz/LazyCountryQuiz";
+
+export const metadata: Metadata = { title: "Page not found" };
 
 /**
  * 404 for unknown addresses of the public site (the catch-all `[...path]`

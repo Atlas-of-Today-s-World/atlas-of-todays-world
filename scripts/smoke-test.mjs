@@ -353,6 +353,11 @@ async function main() {
     const { status, body } = await get("/country/atlantis");
     assert(status === 404, `status ${status}`);
     assert(/Back to the globe/.test(body), "missing way back");
+    // Both 404 pages (in the map panel and outside the map) name themselves in the tab.
+    assert(/<title>Page not found/.test(body), "map 404 without its own title");
+    const outside = await get("/this-page-does-not-exist");
+    assert(outside.status === 404, `status ${outside.status}`);
+    assert(/<title>Page not found/.test(outside.body), "404 without its own title");
   });
 
   process.stdout.write(`\n${passed} passed, ${failures.length} failed\n`);
