@@ -20,8 +20,7 @@ import { format, type Messages } from "@/features/i18n/messages";
 import { getRequestLocale, getT, localeFrom } from "@/features/i18n/request";
 import type { GlobalIssue, Indicator, Region } from "@/features/geography/types";
 import { saturate, saturateMap } from "@/lib/color";
-import { colorMapFor, formatValue, legendFor } from "@/lib/indicators";
-import type { MetricValues } from "@/components/map/AtlasGlobe";
+import { legendFor } from "@/lib/indicators";
 
 /** Options for the layer switcher – generated from imported indicators. */
 function buildViewOptions(indicators: Indicator[], saturation: number, t: Messages): ViewOption[] {
@@ -98,11 +97,13 @@ export default async function MapLayout({
   ]);
   const slugs = Object.fromEntries(atlas.countries.map((country) => [country.iso3, country.slug]));
 
+  // Only the two always-on layers travel with the page; each metric's colours and
+  // values come from /api/globe-layer/[id] once it is switched on (they were
+  // ~70 kB of every map page's HTML).
   const colorSets: Record<string, Record<string, string>> = {
     encyclopedia: regionColorMap(atlas.regions),
     issue: firstByCountry(atlas.issues, (issue) => issue.fill),
   };
-  for (const indicator of atlas.indicators) colorSets[indicator.id] = colorMapFor(indicator);
   // Sytost barev ze vzhledu webu (administrace → Vzhled mapy).
   for (const [key, colors] of Object.entries(colorSets)) {
     colorSets[key] = saturateMap(colors, atlas.theme.saturation);
@@ -112,21 +113,6 @@ export default async function MapLayout({
   const issue = lookup(atlas.issues);
   const t = getT();
   const viewOptions = buildViewOptions(atlas.indicators, atlas.theme.saturation, t);
-  // Each metric's value per country, formatted like the legend, for the hover label.
-  const metricValues: MetricValues = Object.fromEntries(
-    atlas.indicators.map((indicator) => [
-      indicator.id,
-      {
-        label: indicator.shortLabel || indicator.label,
-        values: Object.fromEntries(
-          Object.entries(indicator.values).map(([iso3, { value, year }]) => [
-            iso3,
-            [formatValue(indicator, value, getRequestLocale()), year],
-          ]),
-        ),
-      },
-    ]),
-  );
   const regionLabels = atlas.regions.map(({ slug, name, center }) => ({ slug, name, center }));
   // Topic counts over places (ADR-024): computed here once, the globe only draws them.
   const counts = countTopics(places, {
@@ -146,7 +132,6 @@ export default async function MapLayout({
         <FloatingActions onMap newsletter={flags.newsletter} />
         <MapStage>
           <AtlasGlobe
-            metricValues={metricValues}
             colorSets={colorSets}
             slugs={slugs}
             regions={regionLookup}
