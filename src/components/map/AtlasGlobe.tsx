@@ -1,5 +1,6 @@
 "use client";
 
+import type { GlobeLayer } from "@/features/geography/globe-layer";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useLocalizedRouter } from "@/components/i18n/useLocalizedRouter";
@@ -67,12 +68,6 @@ export interface RegionLookup {
   >;
 }
 
-/** Metric id → its short name and each country's formatted value and year (hover label). */
-export type MetricValues = Record<
-  string,
-  { label: string; values: Record<string, [value: string, year: number]> }
->;
-
 /** What the label under the cursor says. */
 interface HoverLabel {
   name: string;
@@ -84,8 +79,8 @@ interface HoverLabel {
 }
 
 interface Props {
+  /** The always-on layers (regions, special regions); metric layers load on demand. */
   colorSets: GlobeColorSets;
-  metricValues: MetricValues;
   /** ISO3 -> country slug, for navigation on click. */
   slugs: Record<string, string>;
   regions: RegionLookup;
@@ -279,7 +274,6 @@ function matchExpression(colors: Record<string, string>): ExpressionSpecificatio
 
 export default function AtlasGlobe({
   colorSets,
-  metricValues,
   slugs,
   regions,
   issue,
@@ -311,7 +305,9 @@ export default function AtlasGlobe({
   const issueRef = useLatest(issue);
   const slugsRef = useLatest(slugs);
   const topicCountsRef = useLatest(topicCounts);
-  const metricValuesRef = useLatest(metricValues);
+  // Metric layers (colours + hover values) fetched the first time each is switched on.
+  const [layers, setLayers] = useState<Record<string, GlobeLayer>>({});
+  const layersRef = useLatest(layers);
   const viewRef = useLatest(view);
   const topicLabelRef = useLatest((count: number) =>
     count === 1 ? t.map.topicsOne : format(t.map.topicsCount, { count: String(count) }),
@@ -433,7 +429,7 @@ export default function AtlasGlobe({
 
         /** The active metric's value for a country (none in the default view). */
         const metricFor = (iso3: string): HoverLabel["metric"] => {
-          const metric = metricValuesRef.current[viewRef.current];
+          const metric = layersRef.current[viewRef.current];
           if (!metric) return undefined;
           const entry = metric.values[iso3];
           return { label: metric.label, value: entry?.[0] ?? null, year: entry?.[1] };
@@ -580,16 +576,33 @@ export default function AtlasGlobe({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // --- a metric layer, loaded when it is first switched on ---
+  useEffect(() => {
+    if (view === "encyclopedia" || colorSets[view] || layers[view]) return;
+    const controller = new AbortController();
+    fetch(`/api/globe-layer/${encodeURIComponent(view)}`, { signal: controller.signal })
+      .then((response) => (response.ok ? (response.json() as Promise<GlobeLayer>) : null))
+      .then((layer) => {
+        if (layer) setLayers((loaded) => ({ ...loaded, [view]: layer }));
+      })
+      // Offline or a removed layer: the globe keeps its current colours.
+      .catch(() => {});
+    return () => controller.abort();
+  }, [view, colorSets, layers]);
+
   // --- coloring by the selected layer ---
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
 
-    const colors =
-      mode === "issue" && view === "encyclopedia"
-        ? (colorSets.issue ?? {})
-        : (colorSets[view] ?? colorSets.encyclopedia ?? {});
     const isData = view !== "encyclopedia";
+    const layerColors = colorSets[view] ?? layers[view]?.colors;
+    // A metric still on its way: keep the current colours until it arrives.
+    if (isData && !layerColors) return;
+    const colors =
+      mode === "issue" && !isData
+        ? (colorSets.issue ?? {})
+        : (layerColors ?? colorSets.encyclopedia ?? {});
     let fillColor = matchExpression(colors);
     let fillOpacity: number | ExpressionSpecification = isData ? 0.88 : 0.55;
     const focused = mode === "issue" && openIssue ? issue.bySlug[openIssue] : undefined;
@@ -625,7 +638,7 @@ export default function AtlasGlobe({
       "line-color",
       isData ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.4)",
     );
-  }, [colorSets, view, mode, openIssue, issue, unprocessed, ready]);
+  }, [colorSets, layers, view, mode, openIssue, issue, unprocessed, ready]);
 
   // --- selection mode: countries vs. regions ---
   useEffect(() => {
