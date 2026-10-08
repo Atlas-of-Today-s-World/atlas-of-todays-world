@@ -2416,3 +2416,20 @@ test("portrait: a section save without the right is refused even when the list i
   const metrics = "select replace_portrait_items('country', 'JPN', 'metrics', '[]'::jsonb)";
   await as(id.pubA, () => refused(q(metrics), /may not edit/));
 });
+
+test("the approval queue's batch check answers exactly like the per-article one", async () => {
+  const ids = (await q("select id from entries order by id limit 20")).map((row) => row.id);
+  for (const user of [id.admin, id.pubA]) {
+    await as(user, async () => {
+      const batch = await q("select entry_id, can_approve from can_approve_entries($1)", [ids]);
+      for (const row of batch) {
+        const single = await one("select can_approve_entry($1) as ok", [row.entry_id]);
+        assert.equal(row.can_approve, single.ok);
+      }
+      assert.equal(batch.length, ids.length);
+    });
+  }
+  await as(null, () =>
+    refused(q("select * from can_approve_entries($1)", [ids]), /permission denied/),
+  );
+});
