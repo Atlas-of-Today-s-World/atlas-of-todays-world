@@ -2328,6 +2328,7 @@ export type Database = {
         }[]
       }
       portrait: { Args: { p_kind: string; p_slug: string }; Returns: Json }
+      prune_entry_revisions: { Args: never; Returns: number }
       publish_due_entries: { Args: never; Returns: number }
       purge_audit_log: { Args: never; Returns: number }
       record_page_view: { Args: never; Returns: undefined }
@@ -2360,6 +2361,13 @@ export type Database = {
           p_slug: string
         }
         Returns: undefined
+      }
+      role_holder_counts: {
+        Args: never
+        Returns: {
+          holders: number
+          role_id: string
+        }[]
       }
       schedule_entry: {
         Args: { p_at: string; p_entry: string }
