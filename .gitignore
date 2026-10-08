@@ -16,13 +16,6 @@ next-env.d.ts
 .next-build
 .next-dev
 
-# sestavená ukázka (npm run demo:build)
-demo/atlas.html
-demo/site.html
-demo/atlas-texture.js
-demo/blue-marble-src.jpg
-demo/blue-marble-8k.tif
-demo/blue-marble.jpg
 test-results/
 playwright-report/
 .env.local

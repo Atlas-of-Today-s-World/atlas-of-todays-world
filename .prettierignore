@@ -2,7 +2,6 @@
 .next-build
 .next-dev
 node_modules
-demo
 docs
 coverage
 test-results

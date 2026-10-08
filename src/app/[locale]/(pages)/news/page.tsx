@@ -23,7 +23,7 @@ export default async function NewsIndexPage({ params }: Params) {
   const locale = await localeFrom(params);
   const messages = getMessages(locale);
   const t = messages.newsIndex;
-  const [newsItems, atlas] = await Promise.all([getEntries(locale), getAtlas(locale)]);
+  const [newsItems, atlas] = await Promise.all([getEntries(), getAtlas(locale)]);
 
   return (
     <main>

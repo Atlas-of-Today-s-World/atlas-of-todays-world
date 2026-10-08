@@ -88,25 +88,6 @@ export async function getEditableEntry(id: string): Promise<EditableEntry | null
   };
 }
 
-/** Language versions of an article for the admin: the original and all its translations. */
-export async function listLanguageVersions(entry: { id: string; translation_of: string | null }) {
-  const supabase = await createServerClient();
-  const original = entry.translation_of ?? entry.id;
-  const { data, error } = await supabase
-    .from("entries")
-    .select("id, locale, title, status, translation_of")
-    .or(`id.eq.${original},translation_of.eq.${original}`)
-    .order("locale");
-  if (error) throw new Error(`[entries] ${error.message}`);
-  return data as {
-    id: string;
-    locale: string;
-    title: string;
-    status: EntryStatus;
-    translation_of: string | null;
-  }[];
-}
-
 /** A chapter in the editor (order = position). */
 export interface EditableChapter {
   /** Kept across saves, so the subtopic keeps who created it and when. */
@@ -326,10 +307,16 @@ export async function approvalQueue(): Promise<(EditorialRow & { canApprove: boo
     .limit(200);
   if (error) throw new Error(`[approvals] ${error.message}`);
   const rows = data as EditorialRow[];
-  const checks = await Promise.all(
-    rows.map((row) => supabase.rpc("can_approve_entry", { p_entry: row.id })),
+  if (!rows.length) return [];
+  // One call for the whole queue (it used to be one request per article).
+  const { data: checks, error: checkError } = await supabase.rpc("can_approve_entries", {
+    p_entries: rows.map((row) => row.id),
+  });
+  if (checkError) throw new Error(`[approvals] ${checkError.message}`);
+  const allowed = new Set(
+    (checks ?? []).filter((check) => check.can_approve).map((check) => check.entry_id),
   );
-  return rows.map((row, index) => ({ ...row, canApprove: checks[index]?.data === true }));
+  return rows.map((row) => ({ ...row, canApprove: allowed.has(row.id) }));
 }
 
 /** Published version (last approved revision) for comparison in the approval detail. */

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { NewsArticle } from "@/features/entries/components/NewsArticle";
-import { NotTranslated } from "@/features/entries/components/NotTranslated";
 import { redirectOrNotFound } from "@/features/redirects/queries";
 import { getEntries, getEntry } from "@/features/entries/queries";
 import { countriesOf } from "@/features/geography/model";
@@ -74,11 +73,7 @@ export default async function NewsPage({
 
   return (
     <>
-      <NewsArticle
-        item={item}
-        atlas={atlas}
-        banner={<NotTranslated page={locale} text={item.locale} />}
-      />
+      <NewsArticle item={item} atlas={atlas} />
 
       <JsonLd
         data={graph(

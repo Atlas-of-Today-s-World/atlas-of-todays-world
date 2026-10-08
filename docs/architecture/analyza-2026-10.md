@@ -34,7 +34,8 @@ počty topiců a geometrii oblastí a předá je jako props do `AtlasGlobe` (Map
 z `public/maplibre`). Klidová rotace s pulzujícími čísly je výchozí stav domovské mapy.
 
 **i18n:** `LOCALES = ["en"]`. Server: `localeFrom()` uloží jazyk do per-request stavu, `getT()`
-ho čte; klient: `useMessages()`. Překryv překladů z DB: `features/i18n/translatable.ts`.
+ho čte; klient: `useMessages()`. Překladový kód (překryv z tabulky `translations`, jazykové
+verze hesel v administraci) je odstraněný; tabulky a sloupce v DB zůstávají (ADR-022).
 
 ## 3. Porušení hranic modulů (ověřeno)
 

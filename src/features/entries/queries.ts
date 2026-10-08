@@ -27,10 +27,8 @@ export interface EntrySummary {
   published?: string;
   updated?: string;
   readingMinutes?: number;
-  /** Languages it is published in (original + translations) — for hreflang. */
+  /** Languages it is published in — for hreflang. */
   languages: Locale[];
-  /** Title and lead come from the translation into the page language (G5.3). */
-  translated?: boolean;
 }
 
 export interface Entry extends EntrySummary {
@@ -90,23 +88,7 @@ type Kind = "news" | "entry";
 
 const toLocale = (value: string): Locale => (isLocale(value) ? value : DEFAULT_LOCALE);
 
-/** Published translations (title and lead only) — for lists and hreflang. */
-const getPublishedTranslations = unstable_cache(
-  async () => {
-    const { data, error } = await createPublicClient()
-      .from("entries")
-      .select("slug, kind, locale, title, summary")
-      .eq("status", "published")
-      .not("translation_of", "is", null)
-      .limit(5000);
-    if (error) throw new Error(`[entries] ${error.message}`);
-    return data;
-  },
-  ["entry-translations"],
-  { tags: [tags.entries], revalidate: PUBLIC_REVALIDATE_SECONDS },
-);
-
-/** Originals of the given kind (translations appear in lists only as a title, not twice). */
+/** Published originals of the given kind, newest first (language versions never list twice). */
 function listPublished(kind: Kind) {
   return unstable_cache(
     async (): Promise<EntrySummary[]> => {
@@ -126,34 +108,11 @@ function listPublished(kind: Kind) {
   );
 }
 
-/**
- * List of originals in the page language: where a published translation exists,
- * it has the translated title and lead (`translated`); `languages` serves hreflang.
- */
-function localized(kind: Kind) {
-  const originals = listPublished(kind);
-  return async (locale: Locale = DEFAULT_LOCALE): Promise<EntrySummary[]> => {
-    const [list, translations] = await Promise.all([originals(), getPublishedTranslations()]);
-    const mine = translations.filter((row) => row.kind === kind);
-    return list.map((item) => {
-      const versions = mine.filter((row) => row.slug === item.slug);
-      const languages = LOCALES.filter(
-        (code) => item.languages.includes(code) || versions.some((row) => row.locale === code),
-      );
-      const own =
-        locale === item.languages[0] ? null : versions.find((row) => row.locale === locale);
-      return own
-        ? { ...item, languages, title: own.title, summary: own.summary, translated: true }
-        : { ...item, languages };
-    });
-  };
-}
-
-/** Published news (originals), newest first; titles in the page language. */
-export const getEntries = localized("news");
+/** Published news (originals), newest first. */
+export const getEntries = listPublished("news");
 
 /** Published encyclopedia entries (originals), newest first. */
-export const getEncyclopediaEntries = localized("entry");
+export const getEncyclopediaEntries = listPublished("entry");
 
 /** An author's published articles (originals) for the profile page, newest first. */
 export interface AuthorArticle {
@@ -230,7 +189,6 @@ export async function getEntry(
     ...toSummary(version.row, version.languages),
     html: sanitizeRichHtml(version.row.body_html),
     locale: version.locale,
-    translated: version.locale !== DEFAULT_LOCALE,
   };
 }
 
@@ -600,7 +558,6 @@ export async function getEncyclopediaEntry(
       ...toSummary(row, version.languages),
       html: sanitizeRichHtml(row.body_html),
       locale: version.locale,
-      translated: version.locale !== DEFAULT_LOCALE,
     },
     {
       summary_points: row.summary_points,

@@ -6,7 +6,6 @@ import {
   type EntrySummary,
 } from "@/features/entries/queries";
 import type { Atlas } from "@/features/geography/types";
-import type { Locale } from "@/features/i18n/config";
 import { countTopics, type TopicCounts } from "./map-counts";
 
 export type PlaceKind = "country" | "region" | "issue";
@@ -19,8 +18,8 @@ const TOPIC_FILTER: Record<PlaceKind, string> = {
 };
 
 /** Which topics belong to which place — the same rule as the counts on the globe. */
-export async function topicIndex(atlas: Atlas, locale: Locale) {
-  const [places, entries] = await Promise.all([getTopicPlaces(), getEncyclopediaEntries(locale)]);
+export async function topicIndex(atlas: Atlas) {
+  const [places, entries] = await Promise.all([getTopicPlaces(), getEncyclopediaEntries()]);
   const counts = countTopics(places, {
     regionOf: Object.fromEntries(atlas.countries.map((c) => [c.iso3, c.region?.slug])),
     issues: atlas.issues,
@@ -34,11 +33,10 @@ const listOf = (counts: TopicCounts, kind: PlaceKind) =>
 /** Related topics of one place, with the link to the filtered Topics list. */
 export async function relatedTopics(
   atlas: Atlas,
-  locale: Locale,
   kind: PlaceKind,
   key: string,
 ): Promise<{ items: EntrySummary[]; href: string }> {
-  const { counts, entries } = await topicIndex(atlas, locale);
+  const { counts, entries } = await topicIndex(atlas);
   const slugs = new Set(listOf(counts, kind)[key] ?? []);
   return {
     items: entries.filter((entry) => slugs.has(entry.slug)),

@@ -179,7 +179,7 @@ export async function getSitemaps(now = Date.now()): Promise<Record<SitemapName,
 
 /** Latest news and entries (full text) for the RSS and Atom feeds of a language. */
 export async function getFeedItems(locale: Locale, limit = 30): Promise<FeedItem[]> {
-  const [news, entries] = await Promise.all([getEntries(locale), getEncyclopediaEntries(locale)]);
+  const [news, entries] = await Promise.all([getEntries(), getEncyclopediaEntries()]);
   const t = getMessages(locale);
   const recent = [
     ...news.map((item) => ({ kind: "news" as const, item })),
@@ -315,8 +315,8 @@ function head(atlas: Atlas, news: EntrySummary[], entries: EntrySummary[], local
 export async function getLlmsTxt(locale: Locale): Promise<string> {
   const [atlas, news, entries] = await Promise.all([
     getAtlas(locale),
-    getEntries(locale),
-    getEncyclopediaEntries(locale),
+    getEntries(),
+    getEncyclopediaEntries(),
   ]);
   return head(atlas, news, entries, locale);
 }
@@ -352,8 +352,8 @@ function countryData(atlas: Atlas, locale: Locale): LlmsDocument {
 export async function getLlmsFullTxt(locale: Locale): Promise<string> {
   const [atlas, news, entries] = await Promise.all([
     getAtlas(locale),
-    getEntries(locale),
-    getEncyclopediaEntries(locale),
+    getEntries(),
+    getEncyclopediaEntries(),
   ]);
   const [fullEntries, fullNews] = await Promise.all([
     Promise.all(entries.map((item) => getEncyclopediaEntry(item.slug, locale))),

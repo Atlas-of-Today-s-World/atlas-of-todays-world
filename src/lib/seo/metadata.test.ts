@@ -3,7 +3,6 @@ import { SITE_URL } from "@/lib/site";
 import {
   clampText,
   DEFAULT_OG_IMAGE,
-  englishOnlyMetadata,
   fullTitle,
   pageMetadata,
   pageTitle,
@@ -83,12 +82,5 @@ describe("pageMetadata", () => {
     });
     expect(meta.description).toBe(description.trim());
     expect(meta.robots).toMatchObject({ index: false, follow: true });
-  });
-
-  it("English-only pages point every language to the English URL", () => {
-    const meta = englishOnlyMetadata("en", "/privacy", "Privacy policy", "Data we process.");
-    expect(meta.alternates?.canonical).toBe("/privacy");
-    expect(meta.alternates?.languages).toEqual({ en: "/privacy", "x-default": "/privacy" });
-    expect(meta.openGraph).toMatchObject({ locale: "en_US" });
   });
 });
