@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildAtlas, countriesOf, regionColorMap, type AtlasSnapshot } from "./model";
+import { buildAtlas, countriesOf, displayName, regionColorMap, type AtlasSnapshot } from "./model";
 
 const country = (iso3: string, region: string | null, population: number) => ({
   iso3,
@@ -157,5 +157,27 @@ describe("buildAtlas", () => {
   it("reads the content status, a group without one is not started", () => {
     expect(atlas.regionBySlug.get("europe")?.contentStatus).toBe("ready");
     expect(atlas.issueBySlug.get("central")?.contentStatus).toBe("none");
+  });
+});
+
+describe("displayName", () => {
+  it("spells out abbreviated Natural Earth names from the formal name", () => {
+    expect(displayName("Dem. Rep. Congo", "Democratic Republic of the Congo")).toBe(
+      "Democratic Republic of the Congo",
+    );
+    expect(displayName("Bosnia and Herz.", "Bosnia and Herzegovina")).toBe(
+      "Bosnia and Herzegovina",
+    );
+    expect(displayName("S. Sudan", "Republic of South Sudan")).toBe("South Sudan");
+    expect(displayName("Marshall Is.", "Republic of the Marshall Islands")).toBe(
+      "Marshall Islands",
+    );
+  });
+
+  it("keeps names that are not abbreviated, or without a usable formal name", () => {
+    expect(displayName("Germany", "Federal Republic of Germany")).toBe("Germany");
+    expect(displayName("Syria", "Syrian Arab Republic")).toBe("Syria");
+    expect(displayName("Eq. Guinea", null)).toBe("Eq. Guinea");
+    expect(displayName("Faeroe Is.", "Føroyar Is. (Faeroe Is.)")).toBe("Faeroe Is.");
   });
 });

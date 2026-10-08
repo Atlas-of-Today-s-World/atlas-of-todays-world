@@ -28,12 +28,14 @@ export function PagesShell({
   const width = bleed ? "max-w-6xl" : "max-w-4xl";
 
   return (
-    <div className="min-h-dvh bg-white text-[var(--color-ink)]">
+    // A column at least the window's height: on short pages (no search results,
+    // sign-in) the footer stays at the bottom instead of floating mid-screen.
+    <div className="flex min-h-dvh flex-col bg-white text-[var(--color-ink)]">
       <Header bar showNews={showNews} newsletter={newsletter} />
       <div
         id="content"
         tabIndex={-1}
-        className={cn("outline-none", !bleed && "mx-auto max-w-4xl px-6 py-12")}
+        className={cn("w-full flex-1 outline-none", !bleed && "mx-auto max-w-4xl px-6 py-12")}
       >
         {children}
       </div>
@@ -58,7 +60,7 @@ export function LegalFooter({ t, width }: { t: Messages; width: string }) {
           <Link
             key={item.href}
             href={item.href}
-            className="flex min-h-11 items-center hover:text-[var(--color-accent)]"
+            className="flex min-h-11 min-w-11 items-center justify-center hover:text-[var(--color-accent)]"
           >
             {t.nav[item.key]}
           </Link>

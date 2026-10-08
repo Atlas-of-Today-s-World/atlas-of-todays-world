@@ -94,7 +94,7 @@ export function EncyclopediaArticle({
                 <li>
                   <Link
                     href="/"
-                    className="inline-flex min-h-8 items-center hover:text-white hover:underline"
+                    className="inline-flex min-h-(--touch-min) min-w-(--touch-min) items-center hover:text-white hover:underline"
                   >
                     {getT().article.breadcrumbAtlas}
                   </Link>
@@ -105,7 +105,7 @@ export function EncyclopediaArticle({
                 <li>
                   <Link
                     href={TOPICS_PATH}
-                    className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-white/15 px-3.5 text-white ring-1 ring-white/25 backdrop-blur transition hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+                    className="inline-flex min-h-(--touch-min) items-center gap-1.5 rounded-full bg-white/15 px-3.5 text-white ring-1 ring-white/25 backdrop-blur transition hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
                   >
                     <LayoutGrid aria-hidden className="size-3.5" />
                     {getT().topics.title}

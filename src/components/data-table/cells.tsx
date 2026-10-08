@@ -96,9 +96,11 @@ export function renderCell(column: ColumnDef, row: DataTableRow): ReactNode {
   if (own !== undefined) return own;
   const content = renderValue(column, row.values[column.key]);
   if (column.link && row.href) {
+    // The full text as a tooltip: the cell truncates long titles and e-mails.
     return (
       <Link
         href={row.href}
+        title={displayText(column, row.values[column.key]) || undefined}
         className="truncate font-medium text-[var(--color-ink)] underline-offset-2 hover:text-[var(--color-accent)] hover:underline"
       >
         {content}

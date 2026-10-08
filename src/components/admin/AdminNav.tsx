@@ -2,15 +2,35 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 import { ADMIN_NAV } from "@/config/admin-nav";
 import { cn } from "@/lib/cn";
 
-/** Admin side menu; the server filters items by permissions. */
+/**
+ * Admin side menu; the server filters items by permissions. Below `md` it is a
+ * strip that scrolls sideways: its edges fade out (so it is clear there is more)
+ * and the current section is scrolled into the middle on arrival.
+ */
 export function AdminNav({ allowed }: { allowed: string[] }) {
   const pathname = usePathname();
+  const nav = useRef<HTMLElement>(null);
   const items = ADMIN_NAV.filter((item) => allowed.includes(item.href));
+
+  useEffect(() => {
+    const strip = nav.current;
+    const current = strip?.querySelector<HTMLElement>('[aria-current="page"]');
+    // Only the horizontal strip scrolls; the desktop column must not move the page.
+    if (!strip || !current || strip.scrollWidth <= strip.clientWidth) return;
+    strip.scrollLeft = current.offsetLeft - (strip.clientWidth - current.offsetWidth) / 2;
+  }, [pathname]);
+
   return (
-    <nav aria-label="Administration" className="flex gap-1 overflow-x-auto md:flex-col">
+    <nav
+      ref={nav}
+      aria-label="Administration"
+      // relative: the items' offsetLeft is measured from the strip.
+      className="relative flex [scrollbar-width:none] gap-1 overflow-x-auto [mask-image:linear-gradient(90deg,transparent,#000_1rem,#000_calc(100%-1rem),transparent)] px-2 md:flex-col md:[mask-image:none] md:px-0"
+    >
       {items.map((item) => {
         const active =
           item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href);

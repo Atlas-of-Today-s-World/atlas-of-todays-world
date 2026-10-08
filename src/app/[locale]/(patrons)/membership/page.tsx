@@ -15,7 +15,7 @@ import { format, getMessages, type Messages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import { startCheckout } from "@/features/membership/actions";
 import { PatronsEmail } from "@/features/membership/components/PatronsEmail";
-import { GOAL, MEMBERSHIP_PATH } from "@/features/membership/config";
+import { GOAL, GOAL_COUNTS_FROM_PATRONS, MEMBERSHIP_PATH } from "@/features/membership/config";
 import { getPatronStats, type PatronStats } from "@/features/membership/queries";
 import { cn } from "@/lib/cn";
 import { formatEuro, formatNumber, formatPercent } from "@/lib/format";
@@ -106,7 +106,6 @@ function Goal({
   locale: Locale;
   stats: PatronStats | null;
 }) {
-  const percent = stats ? Math.min(100, Math.round((stats.monthlyEur / GOAL.monthlyEur) * 100)) : 0;
   const goalEur = formatEuro(GOAL.monthlyEur, locale);
   return (
     <section aria-labelledby="goal-title" className="mt-20">
@@ -132,47 +131,78 @@ function Goal({
           </ol>
         </div>
 
-        <div className={cn(CARD, "grid gap-8 p-6 sm:grid-cols-2 sm:p-8 lg:my-6")}>
-          <div>
-            <h3 className="text-[13px] font-semibold tracking-wide uppercase">{t.patronsLabel}</h3>
-            <p className="mt-2 text-[28px] font-bold">
-              {stats ? formatNumber(stats.patrons, 0, locale) : "—"}
-              <span className="font-normal text-[var(--color-ink-muted)]">
-                {" "}
-                / {formatNumber(GOAL.patrons, 0, locale)}
-              </span>
+        {stats && stats.patrons >= GOAL_COUNTS_FROM_PATRONS ? (
+          <GoalProgress t={t} locale={locale} stats={stats} goalEur={goalEur} />
+        ) : (
+          <div className={cn(CARD, "p-6 sm:p-8 lg:self-start")}>
+            <h3 className="font-display text-[22px] leading-tight font-bold">{t.earlyTitle}</h3>
+            <p className="mt-3 text-[15px] leading-relaxed text-[var(--color-ink-soft)]">
+              {format(t.earlyText, { amount: goalEur })}
             </p>
-            <p className="mt-1 text-[14px] text-[var(--color-ink-soft)]">{t.joined}</p>
-          </div>
-          <div>
-            <h3 className="text-[13px] font-semibold tracking-wide uppercase">{t.progressLabel}</h3>
-            <p className="mt-2 text-[28px] font-bold">
-              {stats ? formatEuro(stats.monthlyEur, locale) : "—"}
-            </p>
-            <p className="text-[18px] text-[var(--color-ink-muted)]">
-              {format(t.ofMonthly, { amount: goalEur })}
-            </p>
-            <div
-              role="progressbar"
-              aria-label={t.progressAria}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={percent}
-              className="mt-5 h-3 overflow-hidden rounded-full bg-[var(--color-line)]/60"
+            <Link
+              href={`#${JOIN_ID}`}
+              className={buttonVariants({ variant: "patron", className: "mt-6" })}
             >
-              <div
-                className="h-full rounded-full bg-[var(--color-patron)]"
-                style={{ width: `${percent}%` }}
-              />
-            </div>
-            <p className="mt-1 text-[13px] font-semibold text-[var(--color-patron)]">
-              {formatPercent(percent, locale)}
-            </p>
-            <p className="mt-4 text-[13px] text-[var(--color-ink-soft)]">{t.note}</p>
+              {t.earlyCta}
+            </Link>
           </div>
-        </div>
+        )}
       </div>
     </section>
+  );
+}
+
+/** Patrons so far and the monthly sum against the goal (once there are enough to show). */
+function GoalProgress({
+  t,
+  locale,
+  stats,
+  goalEur,
+}: {
+  t: Messages["patrons"]["goal"];
+  locale: Locale;
+  stats: PatronStats;
+  goalEur: string;
+}) {
+  const percent = Math.min(100, Math.round((stats.monthlyEur / GOAL.monthlyEur) * 100));
+  return (
+    <div className={cn(CARD, "grid gap-8 p-6 sm:grid-cols-2 sm:p-8 lg:self-start")}>
+      <div>
+        <h3 className="text-[13px] font-semibold tracking-wide uppercase">{t.patronsLabel}</h3>
+        <p className="mt-2 text-[28px] font-bold">
+          {formatNumber(stats.patrons, 0, locale)}
+          <span className="font-normal text-[var(--color-ink-muted)]">
+            {" "}
+            / {formatNumber(GOAL.patrons, 0, locale)}
+          </span>
+        </p>
+        <p className="mt-1 text-[14px] text-[var(--color-ink-soft)]">{t.joined}</p>
+      </div>
+      <div>
+        <h3 className="text-[13px] font-semibold tracking-wide uppercase">{t.progressLabel}</h3>
+        <p className="mt-2 text-[28px] font-bold">{formatEuro(stats.monthlyEur, locale)}</p>
+        <p className="text-[18px] text-[var(--color-ink-muted)]">
+          {format(t.ofMonthly, { amount: goalEur })}
+        </p>
+        <div
+          role="progressbar"
+          aria-label={t.progressAria}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={percent}
+          className="mt-5 h-3 overflow-hidden rounded-full bg-[var(--color-line)]/60"
+        >
+          <div
+            className="h-full rounded-full bg-[var(--color-patron)]"
+            style={{ width: `${percent}%` }}
+          />
+        </div>
+        <p className="mt-1 text-[13px] font-semibold text-[var(--color-patron)]">
+          {formatPercent(percent, locale)}
+        </p>
+        <p className="mt-4 text-[13px] text-[var(--color-ink-soft)]">{t.note}</p>
+      </div>
+    </div>
   );
 }
 

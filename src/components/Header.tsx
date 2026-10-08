@@ -124,7 +124,7 @@ export default function Header({
                   <Link
                     key={item.key}
                     href={item.href}
-                    className="flex min-h-9 items-center rounded-md bg-white/10 px-3 font-medium transition hover:bg-white/20"
+                    className="flex min-h-(--touch-min) items-center rounded-md bg-white/10 px-3 font-medium whitespace-nowrap transition hover:bg-white/20"
                   >
                     {t.nav[item.key]}
                   </Link>
@@ -162,11 +162,16 @@ export default function Header({
         />
       </Link>
 
-      {/* Desktop */}
+      {/*
+        Desktop: from lg up — below that the links ran over the logo (768 px). The
+        social badges need still more room (and are small targets), so they wait
+        for xl; they are in the mobile menu either way. A shadow keeps the white
+        text readable over the light parts of the globe (Greenland, Sahara).
+      */}
       <nav
         aria-label={t.header.main}
-        className={`pointer-events-auto absolute top-5 hidden items-center gap-6 text-sm text-white/90 ${
-          wideRail ? "xl:flex" : "md:flex"
+        className={`pointer-events-auto absolute top-3 hidden items-center gap-4 text-sm text-white/90 [text-shadow:0_1px_3px_rgba(0,0,0,0.8)] sm:top-4 xl:gap-6 ${
+          wideRail ? "xl:flex" : "lg:flex"
         } ${RAIL_OFFSET[rail]}`}
       >
         {nav
@@ -177,19 +182,19 @@ export default function Header({
               href={item.href}
               className={
                 item.primary
-                  ? "rounded-md bg-[var(--color-patron)] px-3.5 py-1.5 font-medium text-white transition hover:bg-[var(--color-patron-strong)]"
-                  : "transition hover:text-white"
+                  ? "flex min-h-(--touch-min) items-center rounded-full bg-[var(--color-patron)] px-4 font-medium whitespace-nowrap text-white transition [text-shadow:none] hover:bg-[var(--color-patron-strong)]"
+                  : "flex min-h-(--touch-min) min-w-(--touch-min) items-center justify-center whitespace-nowrap transition hover:text-white"
               }
             >
               {t.nav[item.key]}
             </Link>
           ))}
-        <span className="flex items-center gap-2">
-          <SocialLinks className="h-7 w-7 text-[10px]" />
+        <span className="hidden items-center gap-2 [text-shadow:none] xl:flex">
+          <SocialLinks className="size-(--touch-min) text-[11px]" />
         </span>
         <Link
           href={ACCOUNT_NAV.href}
-          className="grid min-h-11 min-w-11 place-items-center text-white/60 transition hover:text-white"
+          className="grid min-h-11 min-w-11 place-items-center text-white/80 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] transition hover:text-white"
           title={t.header.accountTitle}
           aria-label={t.header.account}
         >
@@ -204,7 +209,7 @@ export default function Header({
         aria-label={t.header.openMenu}
         aria-expanded={menuOpen}
         className={`glass glass-hover pointer-events-auto absolute top-3 right-4 grid h-11 w-11 place-items-center rounded-full text-white ${
-          wideRail ? "xl:hidden" : "md:hidden"
+          wideRail ? "xl:hidden" : "lg:hidden"
         }`}
       >
         <Menu size={18} strokeWidth={1.8} aria-hidden />
@@ -265,7 +270,11 @@ function MenuDialog({
 
         <nav aria-label={t.header.legal} className="flex gap-4 text-[12.5px] text-white/60">
           {LEGAL_NAV.map((item) => (
-            <Link key={item.key} href={item.href} className="flex min-h-11 items-center">
+            <Link
+              key={item.key}
+              href={item.href}
+              className="flex min-h-11 min-w-11 items-center justify-center"
+            >
               {t.nav[item.key]}
             </Link>
           ))}
@@ -275,7 +284,7 @@ function MenuDialog({
           <SocialLinks className="h-11 w-11 text-[12px]" />
           <Link
             href={ACCOUNT_NAV.href}
-            className="ml-auto flex min-h-11 items-center text-[13px] text-white/60"
+            className="ml-auto flex min-h-11 min-w-11 items-center justify-center text-[13px] whitespace-nowrap text-white/70"
           >
             {t.nav[ACCOUNT_NAV.key]}
           </Link>

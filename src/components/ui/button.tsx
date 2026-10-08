@@ -29,8 +29,8 @@ export const buttonVariants = cva(
       size: {
         md: "min-h-(--touch-min) px-6 text-[14px]",
         sm: "min-h-(--touch-min) px-4 text-[13px]",
-        /** Chip (country, category) — smaller, but always with the row's 44px touch target. */
-        chip: "px-3 py-1 text-[12px] font-normal",
+        /** Chip (country, category) — 32 px with a mouse, 44 px on a touch screen. */
+        chip: "min-h-8 px-3 py-1 text-[12px] font-normal pointer-coarse:min-h-(--touch-min)",
         icon: "size-(--touch-min)",
         /**
          * Dense controls above and inside tables (32 px / 24 px with a mouse). On a touch

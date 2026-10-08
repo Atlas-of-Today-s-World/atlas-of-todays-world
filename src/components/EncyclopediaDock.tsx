@@ -8,7 +8,8 @@ import EncyclopediaPanel from "./EncyclopediaPanel";
  */
 export default function EncyclopediaDock() {
   return (
-    <div className="pointer-events-none flex flex-col items-end gap-2">
+    // max-w-full: never wider than the controls bar (between zoom and panel).
+    <div className="pointer-events-none flex max-w-full flex-col items-end gap-2">
       <EncyclopediaPanel />
     </div>
   );

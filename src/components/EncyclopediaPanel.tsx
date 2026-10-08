@@ -1,12 +1,28 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import Link from "@/components/i18n/Link";
-import { TOPICS_PATH } from "@/config/navigation";
+import { useLocalizedRouter } from "@/components/i18n/useLocalizedRouter";
+import { TOPICS_PATH, searchHref } from "@/config/navigation";
 import type { SearchHit } from "@/lib/search";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { belongsToField } from "@/lib/keyboard";
+
+/**
+ * ↑ / ↓ move between the field and the result links (and back up to the field),
+ * so the list can be walked without Tab-ing through the page.
+ */
+function moveFocus(event: ReactKeyboardEvent, list: HTMLElement | null, input: HTMLElement | null) {
+  if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+  const links = Array.from(list?.querySelectorAll<HTMLElement>("a[href]") ?? []);
+  if (!links.length) return;
+  const index = links.indexOf(document.activeElement as HTMLElement);
+  const next = event.key === "ArrowDown" ? index + 1 : index - 1;
+  event.preventDefault();
+  if (next < 0) input?.focus();
+  else links[Math.min(next, links.length - 1)]?.focus();
+}
 
 const KIND_KEY = {
   region: "kindRegion",
@@ -30,6 +46,8 @@ export default function EncyclopediaPanel() {
   const [hits, setHits] = useState<SearchHit[]>([]);
   const [searching, setSearching] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const router = useLocalizedRouter();
 
   useEffect(() => {
     const trimmed = query.trim();
@@ -75,40 +93,56 @@ export default function EncyclopediaPanel() {
     // No visible heading (compact block); the name stays for screen readers.
     <section
       aria-label={t.encyclopedia.heading}
-      className="glass pointer-events-auto w-full rounded-[var(--radius-panel)] p-2 shadow-2xl shadow-black/40 sm:w-[min(92vw,22rem)] sm:p-3"
+      className="glass pointer-events-auto w-full max-w-full rounded-[var(--radius-panel)] p-2 shadow-2xl shadow-black/40 sm:w-[min(92vw,22rem)] sm:p-3"
     >
-      <label className="group/search flex items-center gap-2 rounded-full border border-white/15 bg-black/25 px-3.5 py-2">
-        <Search size={15} strokeWidth={1.7} className="text-white/60" aria-hidden />
-        <input
-          ref={inputRef}
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          // Esc empties the field; the content panel leaves Esc in fields alone.
-          onKeyDown={(event) => {
-            if (event.key === "Escape" && query) {
-              event.preventDefault();
-              setQuery("");
-            }
-          }}
-          placeholder={t.search.placeholder}
-          aria-label={t.search.placeholder}
-          aria-keyshortcuts="/"
-          // 16 px on phones: smaller text makes iOS zoom the page on focus.
-          className="w-full bg-transparent text-base text-white placeholder:text-white/60 focus:outline-none sm:text-[13px]"
-        />
-        {/* Shortcut hint for keyboard users; aria-keyshortcuts tells screen readers. */}
-        {query ? null : (
-          <kbd
-            aria-hidden
-            className="flex shrink-0 rounded border border-white/40 px-1.5 py-0.5 font-sans text-[11px] leading-none text-white/70 group-focus-within/search:hidden max-sm:hidden"
-          >
-            /
-          </kbd>
-        )}
-      </label>
+      {/* A search form: Enter opens the full results page. */}
+      <form
+        role="search"
+        onSubmit={(event) => {
+          event.preventDefault();
+          const trimmed = query.trim();
+          if (trimmed) router.push(searchHref(trimmed));
+        }}
+      >
+        <label className="group/search flex min-h-(--touch-min) items-center gap-2 rounded-full border border-white/15 bg-black/25 px-3.5 focus-within:border-white/60 focus-within:ring-2 focus-within:ring-white/70">
+          <Search size={15} strokeWidth={1.7} className="shrink-0 text-white/60" aria-hidden />
+          <input
+            ref={inputRef}
+            type="search"
+            enterKeyHint="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            // Esc empties the field; the content panel leaves Esc in fields alone.
+            onKeyDown={(event) => {
+              if (event.key === "Escape" && query) {
+                event.preventDefault();
+                setQuery("");
+              } else moveFocus(event, listRef.current, inputRef.current);
+            }}
+            placeholder={t.search.placeholder}
+            aria-label={t.search.placeholder}
+            aria-keyshortcuts="/"
+            // 16 px on phones: smaller text makes iOS zoom the page on focus.
+            className="min-h-10 w-full min-w-0 bg-transparent text-base text-white placeholder:text-white/60 focus:outline-none sm:text-[13px] [&::-webkit-search-cancel-button]:hidden"
+          />
+          {/* Shortcut hint for keyboard users; aria-keyshortcuts tells screen readers. */}
+          {query ? null : (
+            <kbd
+              aria-hidden
+              className="flex shrink-0 rounded border border-white/40 px-1.5 py-0.5 font-sans text-[11px] leading-none text-white/70 group-focus-within/search:hidden max-sm:hidden"
+            >
+              /
+            </kbd>
+          )}
+        </label>
+      </form>
 
       {query.trim().length >= 2 ? (
-        <div className="panel-scroll mt-3 max-h-[min(50vh,22rem)] overflow-y-auto">
+        <div
+          ref={listRef}
+          onKeyDown={(event) => moveFocus(event, listRef.current, inputRef.current)}
+          className="panel-scroll mt-3 max-h-[min(50vh,22rem)] overflow-y-auto"
+        >
           {hits.length === 0 ? (
             <p className="px-1 py-3 text-[12.5px] text-white/70">
               {searching ? t.search.searching : t.search.nothing}
@@ -120,10 +154,10 @@ export default function EncyclopediaPanel() {
                   <Link
                     href={hit.url}
                     onClick={() => setQuery("")}
-                    className="block rounded-xl px-3 py-2 transition hover:bg-white/10"
+                    className="block rounded-xl px-3 py-2 transition hover:bg-white/10 focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:outline-none"
                   >
                     <span className="flex items-center gap-2">
-                      <span className="rounded-full bg-white/12 px-1.5 py-0.5 text-[9.5px] tracking-wide text-white/90 uppercase">
+                      <span className="shrink-0 rounded-full bg-white/12 px-1.5 py-0.5 text-[9.5px] tracking-wide text-white/90 uppercase">
                         {(() => {
                           const key = kindKey(hit);
                           return key ? t.search[key] : hit.kind;

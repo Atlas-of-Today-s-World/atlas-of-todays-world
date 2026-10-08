@@ -59,10 +59,15 @@ export default function CountryCard({
   return (
     <article className="px-6 pt-6 pb-10">
       {region ? (
-        <nav aria-label={t.ui.breadcrumb} className="text-[12px] text-[var(--color-ink-muted)]">
+        // pr-12: a long trail must not run under the panel's close button (×).
+        <nav
+          aria-label={t.ui.breadcrumb}
+          className="pr-12 text-[12px] text-[var(--color-ink-muted)]"
+        >
           <Link
             href={`/region/${region.slug}`}
-            className="font-medium text-[var(--color-link)] hover:underline"
+            // The hit area reaches above and below the small text (44 px row).
+            className="relative font-medium text-[var(--color-link)] after:absolute after:inset-x-0 after:-inset-y-4 after:content-[''] hover:underline"
           >
             {region.name}
           </Link>

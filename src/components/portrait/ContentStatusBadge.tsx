@@ -41,7 +41,8 @@ export function ContentStatusBadge({ status, t }: { status: ContentStatus; t: Me
         href={MEMBERSHIP_PATH}
         className={cn(
           badge,
-          "border-[var(--color-accent)] text-[var(--color-accent)] transition hover:bg-[var(--color-accent)] hover:text-white",
+          // A link, so a full touch target (the quiet badges below are just text).
+          "min-h-(--touch-min) border-[var(--color-accent)] px-3.5 text-[var(--color-accent)] transition hover:bg-[var(--color-accent)] hover:text-white",
         )}
       >
         <HeartHandshake size={14} aria-hidden />

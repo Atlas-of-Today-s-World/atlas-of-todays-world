@@ -1,5 +1,6 @@
 import { ShareButton } from "@/components/atlas/ShareButton";
 import Link from "@/components/i18n/Link";
+import { buttonVariants } from "@/components/ui/button";
 import { RelatedTopics, TopicsLink } from "@/components/topics/RelatedTopics";
 import type { EntrySummary } from "@/features/entries/queries";
 import { NewsBadge, SectionLabel } from "@/components/atlas/ui";
@@ -172,7 +173,7 @@ export default function Portrait({
             <li key={country.slug}>
               <Link
                 href={`/country/${country.slug}`}
-                className="inline-flex min-h-8 items-center rounded-full border border-[var(--color-line)] px-2.5 text-[12px] text-[var(--color-ink-soft)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+                className={buttonVariants({ variant: "outline", size: "chip" })}
               >
                 {country.name}
               </Link>
@@ -218,7 +219,7 @@ export function ProfileSections({
 }: {
   kind: "region" | "issue";
   groupKind?: "issue" | "region";
-  /** Name used in the titles of planned topics ("Society in Middle East (1)"). */
+  /** Name used in the titles of planned topics ("Society in Middle East"). */
   name: string;
   dossier: RegionDossier;
   entries: PlannedEntry[];
@@ -295,19 +296,15 @@ function plannedEntries(name: string, entries: PlannedEntry[], t: Messages): Pla
     ...entry,
     category: entryCategory(entry.category),
   }));
+  // One greyed placeholder per empty group — numbered copies ("… (1)", "(2)",
+  // "(3)") read like filler text on a public page.
   for (const category of ENTRY_CATEGORIES) {
-    const have = planned.filter((entry) => entry.category === category).length;
-    for (let index = have; index < 3; index += 1) {
-      planned.push({
-        title: format(t.portrait.plannedTitle, {
-          category: t.categories[category],
-          place: name,
-          index: String(index + 1),
-        }),
-        category,
-        slug: null,
-      });
-    }
+    if (planned.some((entry) => entry.category === category)) continue;
+    planned.push({
+      title: format(t.portrait.plannedTitle, { category: t.categories[category], place: name }),
+      category,
+      slug: null,
+    });
   }
   return planned;
 }

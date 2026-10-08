@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "@/components/i18n/Link";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/cn";
 import { getEntries } from "@/features/entries/queries";
 import { getAtlas } from "@/features/geography/queries";
 import { format, getMessages } from "@/features/i18n/messages";
@@ -105,7 +107,7 @@ export default async function NewsIndexPage({ params }: Params) {
             <Link
               key={region.slug}
               href={`/region/${region.slug}`}
-              className="rounded-full border border-[var(--color-line)] px-3.5 py-1.5 text-[13px] transition hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+              className={cn(buttonVariants({ variant: "outline", size: "chip" }), "text-[13px]")}
             >
               {region.name}
             </Link>

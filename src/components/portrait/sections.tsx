@@ -5,6 +5,7 @@ import { MetricCards, SourceLink, StatGrid, StatIcon, StatItem } from "@/compone
 import { Rail } from "@/components/atlas/Rail";
 import { Accordion } from "@/components/atlas/Accordion";
 import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/cn";
 import type { RegionStat } from "@/lib/region-stats";
 import type { FaqItem, MetricCard, ResourceItem, TimelineItem } from "@/lib/content-types";
 import { cssBackgroundImage, safeUrl } from "@/lib/security/urls";
@@ -90,7 +91,7 @@ function PatronsButton() {
   return (
     <Link
       href={MEMBERSHIP_PATH}
-      className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-[var(--color-patron)] px-4 text-[12.5px] font-semibold text-white shadow-sm transition hover:bg-[var(--color-patron-strong)] focus-visible:ring-2 focus-visible:ring-[var(--color-patron)] focus-visible:ring-offset-2 focus-visible:outline-none"
+      className="inline-flex min-h-(--touch-min) items-center gap-1.5 rounded-full bg-[var(--color-patron)] px-4 text-[12.5px] font-semibold text-white shadow-sm transition hover:bg-[var(--color-patron-strong)] focus-visible:ring-2 focus-visible:ring-[var(--color-patron)] focus-visible:ring-offset-2 focus-visible:outline-none"
     >
       {t.portrait.patronsCta} →
     </Link>
@@ -207,7 +208,7 @@ export function Timeline({
             {item.text ? (
               // Folded by default: the row of ~20 events stays scannable, each opens on demand.
               <details className="group">
-                <summary className="flex min-h-8 cursor-pointer list-none items-center gap-1 text-[12px] font-medium text-[var(--color-link)] [&::-webkit-details-marker]:hidden">
+                <summary className="flex min-h-(--touch-min) cursor-pointer list-none items-center gap-1 text-[12px] font-medium text-[var(--color-link)] [&::-webkit-details-marker]:hidden">
                   <span className="group-open:hidden">{t.portrait.timelineMore}</span>
                   <span className="hidden group-open:inline">{t.portrait.timelineLess}</span>
                   <span aria-hidden className="transition group-open:rotate-180">
@@ -261,7 +262,7 @@ export function ThematicEntries({ entries }: { entries: PlannedEntry[] }) {
                           key={entry.title}
                           aria-disabled="true"
                           title={t.portrait.notWrittenYet}
-                          className="pointer-events-none flex h-32 w-48 shrink-0 snap-start flex-col justify-between rounded-xl border border-dashed border-[var(--color-line)] bg-[var(--color-line)]/20 p-3 text-[var(--color-ink-muted)]"
+                          className="pointer-events-none flex h-32 w-48 shrink-0 snap-start flex-col justify-between rounded-xl border border-dashed border-[var(--color-line)] bg-[var(--color-line)]/20 p-3 text-[var(--color-ink-soft)]"
                         >
                           <span className="text-[10px] font-semibold tracking-[0.1em] uppercase">
                             {t.portrait.inPreparation}
@@ -433,7 +434,14 @@ export function PatronsCallout({ complete }: { complete: boolean }) {
         {complete ? t.portrait.patronsCompleteText : t.portrait.patronsTodoText}
       </p>
       <div className="mt-6">
-        <Link href={MEMBERSHIP_PATH} className={buttonVariants({ className: "text-[13px]" })}>
+        {/* Patron colour (it leads to Atlas Patrons); may wrap on a narrow phone. */}
+        <Link
+          href={MEMBERSHIP_PATH}
+          className={cn(
+            buttonVariants({ variant: "patron" }),
+            "max-w-full py-2.5 text-center text-[13px] leading-snug whitespace-normal",
+          )}
+        >
           {t.portrait.patronsCta}
         </Link>
       </div>

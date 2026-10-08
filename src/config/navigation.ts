@@ -7,6 +7,9 @@ export const TOPICS_PATH = "/topics";
 /** Newsletter sign-up page (the "Newsletter" button bottom right). */
 export const NEWSLETTER_PATH = "/newsletter";
 
+/** Full search results page (`?q=`); Enter in the search over the map goes there. */
+export const searchHref = (query: string) => `/search?q=${encodeURIComponent(query)}`;
+
 /**
  * Public address of an article: a news item under /news, an encyclopedia entry
  * (a topic) under /topics. The only place that knows the mapping (old /entry/…

@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import { redirectOrNotFound } from "@/features/redirects/queries";
 
@@ -11,11 +13,14 @@ import { redirectOrNotFound } from "@/features/redirects/queries";
  */
 export const dynamic = "force-dynamic";
 
-export default async function UnknownPath({
-  params,
-}: {
-  params: Promise<{ locale: string; path: string[] }>;
-}) {
+type Params = { params: Promise<{ locale: string; path: string[] }> };
+
+/** The 404 page's title (a redirect never shows it); not-found.tsx can't set one. */
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  return { title: getMessages(await localeFrom(params)).errors.pageNotFoundTitle };
+}
+
+export default async function UnknownPath({ params }: Params) {
   const { path } = await params;
   return redirectOrNotFound(`/${path.join("/")}`, await localeFrom(params));
 }

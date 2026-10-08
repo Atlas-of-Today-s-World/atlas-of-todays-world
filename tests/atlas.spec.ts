@@ -138,7 +138,7 @@ test.describe("region portrait", () => {
     await page.goto("/region/east-asia");
 
     await expect(page.getByText("Not written yet").first()).toBeVisible();
-    await expect(page.getByRole("link", { name: /Help Us Complete It/ }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: /Help us complete it/ }).first()).toBeVisible();
 
     // Planned entries must not link anywhere.
     const planned = page.locator('[aria-disabled="true"]').first();
@@ -172,6 +172,28 @@ test.describe("search shortcut", () => {
       await expect(search).toBeFocused({ timeout: 2_000 });
     }).toPass({ timeout: 25_000 });
     await expect(search).toHaveValue("");
+  });
+
+  test("Enter in the search over the map opens the full results page", async ({ page }) => {
+    await page.goto("/");
+    const search = page.getByRole("searchbox", { name: /Search places/ });
+    await search.fill("Japan");
+    await expect(async () => {
+      await search.press("Enter");
+      await expect(page).toHaveURL(/\/search\?q=Japan$/, { timeout: 5_000 });
+    }).toPass({ timeout: 30_000 });
+  });
+
+  test("the panel can be hidden and shown again", async ({ page }) => {
+    await page.goto("/country/ukraine");
+    const panelLeft = () =>
+      page.locator("aside#content").evaluate((aside) => aside.getBoundingClientRect().left);
+    const width = page.viewportSize()?.width ?? 1280;
+    // The tab must be clickable (it used to be clipped by the panel itself).
+    await page.getByRole("button", { name: "Hide panel" }).click();
+    await expect.poll(panelLeft).toBeGreaterThanOrEqual(width - 1);
+    await page.getByRole("button", { name: "Show panel" }).click();
+    await expect.poll(panelLeft).toBeLessThan(width - 100);
   });
 });
 
