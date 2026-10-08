@@ -21,7 +21,6 @@ on:
       - ".github/*.md"
       - ".github/CODEOWNERS"
       - ".github/dependabot.yml"
-      - "demo/**"
       - "tests/**"
       - "supabase/tests/**"
   workflow_dispatch:

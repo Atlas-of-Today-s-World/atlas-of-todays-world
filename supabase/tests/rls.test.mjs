@@ -2433,3 +2433,36 @@ test("the approval queue's batch check answers exactly like the per-article one"
     refused(q("select * from can_approve_entries($1)", [ids]), /permission denied/),
   );
 });
+
+test("daily housekeeping trims what only grows, and only the database runs it", async () => {
+  await q(
+    "insert into rate_limits (key, window_start, hits) values ('old', now() - interval '2 days', 1), ('now', now(), 1)",
+  );
+  await q(
+    "insert into audit_log (at, action) values (now() - interval '13 months', 'test.old'), (now(), 'test.new')",
+  );
+  const result = await one("select public.db_housekeeping() as r");
+  assert.ok(result.r.rate_limits >= 1 && result.r.audit_log >= 1);
+  const left = await one(
+    `select (select count(*)::int from rate_limits where key in ('old', 'now')) as limits,
+            (select count(*)::int from audit_log where action in ('test.old', 'test.new')) as audit`,
+  );
+  assert.deepEqual(left, { limits: 1, audit: 1 });
+  await as(id.admin, () => refused(q("select public.db_housekeeping()"), /permission denied/));
+});
+
+test("policies call constant permission helpers once per query, not per row", async () => {
+  // Migration 20261008000050: has_perm('…','…'), is_admin(), auth.uid()… inside
+  // "(SELECT …)" are evaluated once per query. A new policy that calls them bare
+  // would again run them for every row — write `(select public.has_perm(…))`.
+  const bare = await q(
+    String.raw`select tablename || '.' || policyname as policy
+     from pg_policies, lateral (select coalesce(qual, '') || ' ' || coalesce(with_check, '') as expr) e
+     where schemaname = 'public'
+       and e.expr ~ $re$(?<!SELECT )\m(has_perm\('[^']*'::text, '[^']*'::text\)|is_admin\(\)|is_active\(\)|is_staff\(\)|mfa_ok\(\)|can_edit_entry\(NULL::uuid\)|auth\.uid\(\))$re$`,
+  );
+  assert.deepEqual(
+    bare.map((row) => row.policy),
+    [],
+  );
+});

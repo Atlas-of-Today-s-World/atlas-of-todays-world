@@ -90,9 +90,9 @@ oprávnění potřebují dvoufázové ověření (TOTP).
 | Role a práva | matice oprávnění, vlastní role, bezpečnost, přepínače (režim údržby), záznam změn |
 | Členové | Atlas Patrons, členství zdarma |
 
-**Dva druhy ukazatelů.** Automatické počítá `npm run data:indicators` z Our
-World in Data pro všech 228 zemí (HDI, politický režim, korupce, chudoba…) —
-v administraci se u nich jen vybírá, které se u země ukážou. Ruční píše redakce
+**Dva druhy ukazatelů.** Automatické (HDI, politický režim, korupce, chudoba…
+z Our World in Data pro všech 228 zemí) jsou v databázi; v administraci (Data)
+se u nich jen vybírá, které se u země ukážou. Ruční píše redakce
 tam, kde OWID data nemá: etnické skupiny, míra svobody, vysídlení, dětská
 chudoba. **Ruční ukazatel bez uvedeného zdroje se nepublikuje** — filtr je
 v databázi (`portrait_metrics.source` je povinný), ne až ve vykreslování, takže se neúplná karta nedostane
@@ -137,13 +137,10 @@ Všechno je hromadné, nic se neklika ručně.
 
 ```bash
 npm run data:geo          # hranice a číselník zemí (Natural Earth)
-npm run data:indicators   # datové vrstvy (Our World in Data) – jednou ročně
 ```
 
-Přidání desáté datové vrstvy = jeden záznam v
-[`scripts/indicators.config.mjs`](scripts/indicators.config.mjs) a nové spuštění
-importu. Legenda, obarvení globusu, přepínač i karta země se z těch metadat
-vygenerují samy.
+Nová datová vrstva se přidává v administraci (Data); legenda, obarvení globusu,
+přepínač i karta země se z jejích metadat vygenerují samy.
 
 Když jeden zdroj spadne, ostatní se doimportují a stará data se nepřepíší.
 
