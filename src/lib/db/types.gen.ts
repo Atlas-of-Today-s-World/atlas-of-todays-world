@@ -2214,6 +2214,13 @@ export type Database = {
       accept_invitation_for: { Args: { p_user: string }; Returns: string }
       approve_entry: { Args: { p_entry: string }; Returns: undefined }
       can_approve_entry: { Args: { p_entry: string }; Returns: boolean }
+      can_approve_entries: {
+        Args: { p_entries: string[] }
+        Returns: {
+          can_approve: boolean
+          entry_id: string
+        }[]
+      }
       can_edit_entry: { Args: { p_owner: string }; Returns: boolean }
       can_edit_portrait_metric: {
         Args: { p_special: string }
