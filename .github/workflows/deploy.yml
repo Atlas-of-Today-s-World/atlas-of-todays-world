@@ -55,15 +55,14 @@ jobs:
         github.event.workflow_run.head_repository.full_name == github.repository) ||
       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
-    env:
-      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+    # Production credentials only in the step that runs the migrations (below),
+    # not in the job: no other step or action sees them.
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
-      - uses: supabase/setup-cli@v3
+      - uses: supabase/setup-cli@45a513f8c64c0bc8e0e3dfe572b5c95be85f6359 # v3 (pinned: runs next to production credentials)
         with:
           version: 2.120.0
       # --include-seed: supabase/seed.sql (a frozen snapshot of the initial content)
@@ -71,6 +70,9 @@ jobs:
       # supabase_migrations.seed_files and won't rerun an already applied seed, so
       # it doesn't overwrite what editors have since changed in the admin.
       - name: Migrace do produkce
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
         run: |
           supabase link --project-ref "${{ vars.SUPABASE_PROJECT_REF }}" --password "$SUPABASE_DB_PASSWORD"
           supabase db push --include-seed --password "$SUPABASE_DB_PASSWORD" --yes

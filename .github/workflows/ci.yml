@@ -39,6 +39,9 @@ jobs:
       - run: npm run lint
       - run: npm run format:check
       - run: npm test
+      # Known high or critical vulnerabilities in production dependencies stop
+      # the deploy (audit-ci.jsonc; the full report also runs in full-tests.yml).
+      - run: npm run check:audit
 
   build:
     name: Build, smoke a e2e
