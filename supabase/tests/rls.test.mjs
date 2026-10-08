@@ -2417,6 +2417,23 @@ test("portrait: a section save without the right is refused even when the list i
   await as(id.pubA, () => refused(q(metrics), /may not edit/));
 });
 
+test("daily housekeeping trims what only grows, and only the database runs it", async () => {
+  await q(
+    "insert into rate_limits (key, window_start, hits) values ('old', now() - interval '2 days', 1), ('now', now(), 1)",
+  );
+  await q(
+    "insert into audit_log (at, action) values (now() - interval '13 months', 'test.old'), (now(), 'test.new')",
+  );
+  const result = await one("select public.db_housekeeping() as r");
+  assert.ok(result.r.rate_limits >= 1 && result.r.audit_log >= 1);
+  const left = await one(
+    `select (select count(*)::int from rate_limits where key in ('old', 'now')) as limits,
+            (select count(*)::int from audit_log where action in ('test.old', 'test.new')) as audit`,
+  );
+  assert.deepEqual(left, { limits: 1, audit: 1 });
+  await as(id.admin, () => refused(q("select public.db_housekeeping()"), /permission denied/));
+});
+
 test("policies call constant permission helpers once per query, not per row", async () => {
   // Migration 20261008000050: has_perm('…','…'), is_admin(), auth.uid()… inside
   // "(SELECT …)" are evaluated once per query. A new policy that calls them bare
