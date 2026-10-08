@@ -73,6 +73,14 @@ const nextConfig: NextConfig = {
         source: "/maplibre/:path*",
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
+      // Country borders and labels change only with `npm run data:geo`: a day in the
+      // browser, a week served stale while it revalidates (was: revalidated on every visit).
+      {
+        source: "/data/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" },
+        ],
+      },
       // Static files the proxy no longer touches (its matcher): no MIME sniffing.
       ...["/maplibre/:path*", "/brand/:path*", "/images/:path*", "/data/:path*"].map((source) => ({
         source,
