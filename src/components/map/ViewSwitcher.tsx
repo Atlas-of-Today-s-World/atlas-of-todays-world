@@ -24,6 +24,7 @@ export default function ViewSwitcher({ options }: { options: ViewOption[] }) {
   const { view, setView } = useMapState();
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const active = options.find((option) => option.id === view) ?? options[0];
 
@@ -37,8 +38,20 @@ export default function ViewSwitcher({ options }: { options: ViewOption[] }) {
   }, [open]);
 
   return (
-    <div ref={wrapperRef} className="pointer-events-auto relative">
+    <div
+      ref={wrapperRef}
+      className="pointer-events-auto relative"
+      // Esc closes the open list and returns to its button — and stops there, so
+      // the content panel (which also listens for Esc) stays open.
+      onKeyDown={(event) => {
+        if (event.key !== "Escape" || !open) return;
+        event.preventDefault();
+        setOpen(false);
+        buttonRef.current?.focus();
+      }}
+    >
       <button
+        ref={buttonRef}
         type="button"
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}

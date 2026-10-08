@@ -3,8 +3,9 @@
 import { Search } from "lucide-react";
 import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import Link from "@/components/i18n/Link";
+import { searchKindKey } from "@/lib/search-kind";
 import { useLocalizedRouter } from "@/components/i18n/useLocalizedRouter";
-import { TOPICS_PATH, searchHref } from "@/config/navigation";
+import { searchHref } from "@/config/navigation";
 import type { SearchHit } from "@/lib/search";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { belongsToField } from "@/lib/keyboard";
@@ -23,21 +24,6 @@ function moveFocus(event: ReactKeyboardEvent, list: HTMLElement | null, input: H
   if (next < 0) input?.focus();
   else links[Math.min(next, links.length - 1)]?.focus();
 }
-
-const KIND_KEY = {
-  region: "kindRegion",
-  country: "kindCountry",
-  issue: "kindIssue",
-  news: "kindNews",
-} as const;
-
-/** Topics and news items share the "news" kind; the address tells them apart. */
-const kindKey = (hit: SearchHit) =>
-  hit.kind === "news" && hit.url.startsWith(TOPICS_PATH + "/")
-    ? "kindTopic"
-    : hit.kind in KIND_KEY
-      ? KIND_KEY[hit.kind as keyof typeof KIND_KEY]
-      : null;
 
 /** "Global Encyclopedia" from Figma: full-text search across all of Atlas. */
 export default function EncyclopediaPanel() {
@@ -159,7 +145,7 @@ export default function EncyclopediaPanel() {
                     <span className="flex items-center gap-2">
                       <span className="shrink-0 rounded-full bg-white/12 px-1.5 py-0.5 text-[9.5px] tracking-wide text-white/90 uppercase">
                         {(() => {
-                          const key = kindKey(hit);
+                          const key = searchKindKey(hit);
                           return key ? t.search[key] : hit.kind;
                         })()}
                       </span>

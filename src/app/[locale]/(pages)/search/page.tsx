@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { searchKindKey } from "@/lib/search-kind";
 import { headers } from "next/headers";
 import Link from "@/components/i18n/Link";
 import { firstParam } from "@/lib/query-params";
@@ -29,13 +30,6 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     noindex: true,
   });
 }
-
-const KIND_KEY = {
-  region: "kindRegion",
-  country: "kindCountry",
-  issue: "kindIssue",
-  news: "kindNews",
-} as const;
 
 export default async function SearchPage({
   params,
@@ -89,9 +83,10 @@ export default async function SearchPage({
             <Link href={hit.url} className="group block">
               <span className="flex items-center gap-2">
                 <span className="rounded-full bg-[var(--color-accent-soft)] px-2 py-0.5 text-[10px] tracking-wide text-[var(--color-accent)] uppercase">
-                  {hit.kind in KIND_KEY
-                    ? messages.search[KIND_KEY[hit.kind as keyof typeof KIND_KEY]]
-                    : hit.kind}
+                  {(() => {
+                    const key = searchKindKey(hit);
+                    return key ? messages.search[key] : hit.kind;
+                  })()}
                 </span>
                 <span className="font-display text-[16px] font-bold text-[var(--color-ink)] group-hover:text-[var(--color-accent)]">
                   {hit.title}
