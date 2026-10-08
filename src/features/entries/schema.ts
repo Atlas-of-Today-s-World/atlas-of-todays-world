@@ -20,7 +20,7 @@ import {
   SEO_TITLE_MAX,
   TILE_ICONS,
 } from "./constants";
-import { HEX_COLOR } from "@/lib/tile-style";
+import { HEX_COLOR } from "@/lib/validation/hex-color";
 
 /** Tile background colour (DB `is_hex_color`); empty = none. */
 const hexColor = z.preprocess(

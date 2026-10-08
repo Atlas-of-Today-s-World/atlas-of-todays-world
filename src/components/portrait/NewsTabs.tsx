@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Link from "@/components/i18n/Link";
+import { PhotoCard } from "@/components/atlas/PhotoCard";
 import { Rail } from "@/components/atlas/Rail";
 import { NEWS_CATEGORIES, type NewsCategory } from "@/lib/content-types";
-import { cssBackgroundImage } from "@/lib/security/urls";
-import { PHOTO_WIDTH } from "@/lib/images";
+import { safeUrl } from "@/lib/security/urls";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { routes } from "@/config/routes";
 
@@ -56,28 +55,15 @@ export default function NewsTabs({ newsItems }: { newsItems: NewsCard[] }) {
       {visible.length ? (
         <Rail label={t.portrait.news} tone="dark">
           {visible.map((item) => (
-            <Link
+            <PhotoCard
               key={item.slug}
               href={routes.news(item.slug)}
-              className="group w-56 shrink-0 snap-start overflow-hidden rounded-xl bg-white text-[var(--color-ink)] transition hover:-translate-y-0.5"
-            >
-              <div
-                className="h-28 w-full bg-cover bg-center"
-                style={{
-                  backgroundImage:
-                    cssBackgroundImage(item.hero, PHOTO_WIDTH.tile) ??
-                    cssBackgroundImage(FALLBACK_HERO),
-                }}
-              />
-              <div className="p-3">
-                <h3 className="font-display text-[13.5px] leading-snug font-bold group-hover:text-[var(--color-accent)]">
-                  {item.title}
-                </h3>
-                <p className="mt-1 line-clamp-3 text-[11.5px] leading-snug text-[var(--color-ink-muted)]">
-                  {item.summary}
-                </p>
-              </div>
-            </Link>
+              size="md"
+              image={safeUrl(item.hero) ? item.hero : FALLBACK_HERO}
+              title={item.title}
+              titleAs="h3"
+              description={item.summary}
+            />
           ))}
         </Rail>
       ) : (

@@ -4,11 +4,13 @@ import { cva } from "class-variance-authority";
 import { MetricCards, SourceLink, StatGrid, StatIcon, StatItem } from "@/components/atlas/ui";
 import { Rail } from "@/components/atlas/Rail";
 import { Accordion } from "@/components/atlas/Accordion";
+import { PhotoCard } from "@/components/atlas/PhotoCard";
+import { PhotoTile } from "@/components/atlas/PhotoTile";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import type { RegionStat } from "@/lib/region-stats";
 import type { FaqItem, MetricCard, ResourceItem, TimelineItem } from "@/lib/content-types";
-import { cssBackgroundImage, safeUrl } from "@/lib/security/urls";
+import { safeUrl } from "@/lib/security/urls";
 import { datawrapperChartUrl } from "@/lib/embeds";
 import { DatawrapperChart } from "./DatawrapperChart";
 import { PHOTO_WIDTH } from "@/lib/images";
@@ -273,22 +275,16 @@ export function ThematicEntries({ entries }: { entries: PlannedEntry[] }) {
                         </span>
                       );
                     }
-                    const photo = cssBackgroundImage(entry.hero, PHOTO_WIDTH.thumb);
                     return (
-                      <Link
+                      <PhotoTile
                         key={entry.title}
                         href={routes.topic(entry.slug)}
-                        className="group relative flex h-32 w-48 shrink-0 snap-start flex-col justify-end overflow-hidden rounded-xl bg-[var(--color-ink)] bg-cover bg-center p-3 text-white shadow-sm transition hover:shadow-lg focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:outline-none"
-                        style={photo ? { backgroundImage: photo } : undefined}
-                      >
-                        <span
-                          aria-hidden
-                          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/5 transition group-hover:from-black/90"
-                        />
-                        <span className="font-display relative text-[13px] leading-snug font-bold break-words">
-                          {entry.title}
-                        </span>
-                      </Link>
+                        effect="shadow"
+                        className="h-32 w-48 shrink-0 snap-start"
+                        image={entry.hero}
+                        width={PHOTO_WIDTH.thumb}
+                        title={entry.title}
+                      />
                     );
                   })}
                 </Rail>
@@ -371,38 +367,20 @@ export function ResourceLibrary({ resources }: { resources: ResourceItem[] }) {
           <Rail label={category} tone="dark" className="mt-2.5">
             {safe
               .filter((item) => (item.kind ?? t.portrait.furtherReading) === category)
-              .map((resource) => {
-                const image = cssBackgroundImage(resource.image, PHOTO_WIDTH.thumb);
-                return (
-                  <a
-                    key={resource.url}
-                    href={resource.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-52 shrink-0 snap-start overflow-hidden rounded-xl bg-white text-[var(--color-ink)] transition hover:ring-2 hover:ring-[var(--color-accent)]"
-                  >
-                    {image ? (
-                      <span
-                        className="block h-24 w-full bg-cover bg-center"
-                        style={{ backgroundImage: image }}
-                      />
-                    ) : (
-                      // No preview from the source: the category as a calm header, so the row stays visual.
-                      <span className="flex h-24 w-full items-end bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-space)] p-3 text-[10px] font-semibold tracking-[0.1em] text-white/85 uppercase">
-                        {category}
-                      </span>
-                    )}
-                    <span className="block p-3">
-                      <span className="font-display block text-[13px] leading-snug font-bold">
-                        {resource.title}
-                      </span>
-                      <span className="mt-1 block text-[11px] text-[var(--color-ink-muted)]">
-                        {resource.source}
-                      </span>
-                    </span>
-                  </a>
-                );
-              })}
+              .map((resource) => (
+                <PhotoCard
+                  key={resource.url}
+                  href={resource.url}
+                  external
+                  size="sm"
+                  image={resource.image}
+                  width={PHOTO_WIDTH.thumb}
+                  // No preview from the source: the category as a calm header, so the row stays visual.
+                  placeholder={category}
+                  title={resource.title}
+                  description={resource.source}
+                />
+              ))}
           </Rail>
         </div>
       ))}

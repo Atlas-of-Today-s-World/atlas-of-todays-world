@@ -3,12 +3,12 @@
 import { Search, X } from "lucide-react";
 import { TopicsInvite } from "@/components/topics/TopicsInvite";
 import { type ReactNode, useSyncExternalStore } from "react";
+import { PhotoCard } from "@/components/atlas/PhotoCard";
 import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { Button } from "@/components/ui/button";
 import { format } from "@/features/i18n/messages";
 import { cn } from "@/lib/cn";
-import { cssBackgroundImage } from "@/lib/security/urls";
 import { PHOTO_WIDTH } from "@/lib/images";
 import { useDebouncedSearch } from "@/lib/use-debounced-search";
 import { queryWords, type TopicHit } from "../text-search";
@@ -272,34 +272,19 @@ export function TopicsBrowser({
             </h2>
           ) : null}
           <ul className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {shown.map((item) => {
-              const image = cssBackgroundImage(item.hero, PHOTO_WIDTH.card);
-              return (
-                <li key={item.slug}>
-                  <Link
-                    href={routes.topic(item.slug)}
-                    className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none"
-                  >
-                    <span
-                      aria-hidden
-                      className="relative block aspect-[16/10] bg-[var(--color-ink)] bg-cover bg-center"
-                      style={image ? { backgroundImage: image } : undefined}
-                    >
-                      <span className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-80 transition group-hover:opacity-100" />
-                    </span>
-                    <span className="flex flex-1 flex-col p-5">
-                      {item.place ? <span className={LABEL}>{item.place}</span> : null}
-                      <span className="font-display mt-1.5 text-[19px] leading-snug font-bold group-hover:text-[var(--color-accent)]">
-                        {item.title}
-                      </span>
-                      <span className="mt-2 line-clamp-3 text-[13.5px] leading-relaxed text-[var(--color-ink-soft)]">
-                        {item.summary}
-                      </span>
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
+            {shown.map((item) => (
+              <li key={item.slug}>
+                <PhotoCard
+                  href={routes.topic(item.slug)}
+                  image={item.hero}
+                  width={PHOTO_WIDTH.card}
+                  shade
+                  kicker={item.place}
+                  title={item.title}
+                  description={item.summary}
+                />
+              </li>
+            ))}
           </ul>
         </>
       ) : (
