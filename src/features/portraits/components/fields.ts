@@ -81,7 +81,11 @@ export const COLLECTION_UI: Record<
       { name: "title", label: "Title", required: true, max: 200 },
       { name: "source", label: "Publisher", max: 120 },
       { name: "url", label: "URL (https)", kind: "url", required: true },
-      { name: "image_url", label: "Thumbnail image (https)", kind: "url" },
+      {
+        name: "image_url",
+        label: "Thumbnail image (https; empty = taken from the page)",
+        kind: "url",
+      },
       { name: "description", label: "Description", kind: "textarea", max: 600, full: true },
     ],
   },

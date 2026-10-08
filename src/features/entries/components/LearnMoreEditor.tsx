@@ -10,6 +10,7 @@ import { FormField, Input, Textarea } from "@/components/ui/field";
 import { IconAction } from "@/features/portraits/components/CollectionEditor";
 import type { ActionState } from "@/lib/actions";
 import { swap } from "@/lib/array";
+import { withPreviews } from "@/lib/previews/merge";
 import { saveLearnMore } from "../actions";
 import { MAX_LINKS } from "../constants";
 import type { EditableLink, EditableTile } from "../editorial";
@@ -27,7 +28,12 @@ const LINK_FIELDS: { name: keyof EditableLink; label: string; max: number; url?:
   { name: "title", label: "Title", max: 200 },
   { name: "source", label: "Publisher", max: 120 },
   { name: "url", label: "URL (https)", max: 1000, url: true },
-  { name: "image_url", label: "Thumbnail image (https)", max: 1000, url: true },
+  {
+    name: "image_url",
+    label: "Thumbnail image (https; empty = taken from the page)",
+    max: 1000,
+    url: true,
+  },
 ];
 
 /**
@@ -47,7 +53,22 @@ export function LearnMoreEditor({
   notes: Record<string, string>;
 }) {
   const [links, setLinks] = useState(initialLinks);
-  const [state, action] = useActionState<ActionState, FormData>(saveLearnMore, { ok: false });
+  const [state, action] = useActionState<ActionState, FormData>(
+    async (previous, formData) => {
+      const result = await saveLearnMore(previous, formData);
+      // Preview images the server found for links without one appear in the form.
+      const { previews } = result;
+      if (previews) {
+        setLinks((current) =>
+          Object.fromEntries(
+            Object.entries(current).map(([tile, list]) => [tile, withPreviews(list, previews)]),
+          ),
+        );
+      }
+      return result;
+    },
+    { ok: false },
+  );
   const total = Object.values(links).reduce((sum, list) => sum + list.length, 0);
 
   const change = (tileId: string, update: (list: EditableLink[]) => EditableLink[]) =>

@@ -16,6 +16,7 @@ noc:  zašifrovaná záloha DB · npm audit · CodeQL
 ```
 
 - Workflow soubory: `ci.yml` (PR), `deploy.yml` (main), `nightly.yml`.
+- Ruční jednorázové workflow s volbou `dev`/`prod` (produkce jen z `main`, přes heslo DB a psql): `import-topics.yml` (témata ze starého webu), `backfill-resource-previews.yml` (náhledové obrázky zdrojů bez obrázku; bez volby „apply" jen výpis).
 - `main` je chráněná: merge jen přes PR se zelenými checky; žádné force-push (výjimka jen s dohodou vlastníka).
 - Nasazení na Vercel jde **výhradně** z Actions přes `VERCEL_TOKEN` (Vercel Git integrace je vypnutá).
 - Pořadí na `main`: **migrace před nasazením aplikace**; proto musí být migrace zpětně kompatibilní (6.3).
