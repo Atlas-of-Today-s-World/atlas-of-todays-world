@@ -7,12 +7,14 @@ import { cn } from "@/lib/cn";
 import type { SubtopicTile } from "@/features/topics/featured";
 import { FeaturedSubtopics } from "./FeaturedSubtopics";
 import { IssueMenu, type IssueMenuItem } from "./IssueMenu";
+import { useMapState } from "./MapContext";
 import ModeSwitch from "./ModeSwitch";
 import ViewSwitcher, { type ViewOption } from "./ViewSwitcher";
 
 /**
- * Bar over the map, top right: countries/regions/global issues switcher (with
- * the list of issues in that mode), data layer switcher and search. When a
+ * Bar over the map, top right: countries/regions/global issues switcher, data
+ * layer switcher and search; under them the latest subtopics (home), or the
+ * global issues as tiles while that mode is on. When a
  * region or country profile is open, it moves left so the white panel doesn't cover it. On phones the bar
  * spans the width (switches on one row, search under them) and steps aside
  * while a panel is open: the bottom sheet needs the room, the globe above it
@@ -24,12 +26,13 @@ export default function MapControls({
   featured,
 }: {
   options: ViewOption[];
-  /** Global issues on the map (listed under the switch in that mode). */
+  /** Global issues on the map (tiles under the search in that mode). */
   issues: IssueMenuItem[];
   /** Subtopic tiles under the search field (home map only). */
   featured: SubtopicTile[];
 }) {
   const pathname = usePathname();
+  const { mode } = useMapState();
   const rail = railKind(pathname);
   // Without the panel the bar keeps the same margin on mobile and desktop.
   const offset = rail === "none" ? "right-4 sm:right-5" : `right-4 sm:right-5 ${RAIL_OFFSET[rail]}`;
@@ -55,9 +58,13 @@ export default function MapControls({
         <ModeSwitch hasIssues={issues.length > 0} />
         <ViewSwitcher options={options} />
       </div>
-      <IssueMenu items={issues} />
       <EncyclopediaDock />
-      {isHome(pathname) ? <FeaturedSubtopics items={featured} /> : null}
+      {/* Global issues mode: the issues as tiles in the place of the latest subtopics. */}
+      {mode === "issue" && issues.length ? (
+        <IssueMenu items={issues} />
+      ) : isHome(pathname) ? (
+        <FeaturedSubtopics items={featured} />
+      ) : null}
     </div>
   );
 }

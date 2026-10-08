@@ -39,6 +39,17 @@ function regionLabelSource(regions: RegionLabel[]): GeoJSONSourceSpecification {
   };
 }
 
+/** Where the globe's first requests go once it starts (preconnected early, maplibre.ts). */
+export const GLOBE_DATA = {
+  origins: [
+    publicEnv.NEXT_PUBLIC_MAPTILER_KEY
+      ? "https://api.maptiler.com"
+      : "https://server.arcgisonline.com",
+    "https://fonts.openmaptiles.org",
+  ],
+  countries: "/data/countries.geo.json",
+} as const;
+
 /**
  * Satellite basemap. With a MapTiler key we use their tiles, without a key
  * Esri World Imagery (free, requires attribution).
@@ -156,7 +167,7 @@ export function buildStyle(regions: RegionLabel[], options: StyleOptions): Style
       satellite: { type: "raster", tileSize: 256, ...satellite },
       countries: {
         type: "geojson",
-        data: "/data/countries.geo.json",
+        data: GLOBE_DATA.countries,
         promoteId: "iso3",
       },
       // One point per country: otherwise a MultiPolygon would place a label on every island.

@@ -4,10 +4,11 @@ import { expect, test, type Page } from "@playwright/test";
 /**
  * Automated accessibility check (F8, WCAG 2.1 AA) on the main page types.
  * axe cannot assess the globe canvas (WebGL), so it is excluded; its content
- * is available in other ways too (search, layer tables, screen-reader list).
+ * is available in other ways too (search, layer tables, the /countries list).
  */
 const PAGES = [
   "/",
+  "/countries",
   "/country/ukraine",
   "/region/eastern-europe-central-asia",
   "/global-issue/russia-ukraine-war",

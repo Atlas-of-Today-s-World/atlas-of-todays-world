@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo/metadata";
 import Link from "@/components/i18n/Link";
 import { ContactLink } from "@/components/atlas/ContactLink";
+import { COUNTRIES_PATH } from "@/config/navigation";
 
 const TITLE = "Accessibility";
 const DESCRIPTION = "How accessible Atlas of Today's World is, and how to reach us about barriers.";
@@ -51,8 +52,8 @@ export default async function AccessibilityPage({
       <p>
         The 3D globe itself is a visual map. Everything on it is also reachable without it: use{" "}
         <Link href="/search">search</Link> or the ranked tables of each{" "}
-        <Link href="/view/hdi">data layer</Link>. Screen readers also get a full list of regions and
-        countries on the home page.
+        <Link href="/view/hdi">data layer</Link>, or the{" "}
+        <Link href={COUNTRIES_PATH}>list of all countries and regions</Link>.
       </p>
 
       <h2>Tell us about a barrier</h2>

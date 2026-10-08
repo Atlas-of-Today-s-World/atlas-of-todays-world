@@ -21,6 +21,7 @@ export default function MapError({
   return (
     <ContentRail>
       <ErrorState
+        live
         code={error.digest ? `${t.panel.error} ${error.digest}` : t.panel.error}
         title={t.panel.errorTitle}
         lead={t.panel.errorText}

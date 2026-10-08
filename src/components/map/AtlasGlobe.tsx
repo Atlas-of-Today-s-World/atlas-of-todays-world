@@ -40,6 +40,8 @@ import {
   railWidthPx,
 } from "@/config/layout";
 import Link from "@/components/i18n/Link";
+import { buttonVariants } from "@/components/ui/button";
+import { COUNTRIES_PATH } from "@/config/navigation";
 import { cn } from "@/lib/cn";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { isSpinEvent, useIdleSpin } from "./useIdleSpin";
@@ -294,6 +296,8 @@ export default function AtlasGlobe({
   // Country borders are on the globe: the placeholder sphere may go ("load" can
   // come much later, after every satellite tile).
   const [painted, setPainted] = useState(false);
+  // MapLibre failed to load or the browser has no WebGL: a message replaces the globe.
+  const [failed, setFailed] = useState(false);
   /** The country just clicked – we highlight it before the content arrives. */
   // Valid until the active country changes (since) — then the page takes over.
   const [pending, setPending] = useState<{ iso3: string; since: string | null } | null>(null);
@@ -360,8 +364,8 @@ export default function AtlasGlobe({
     let cancelled = false;
     let cleanup: (() => void) | undefined;
     // MapLibre and its worker from public/ (loadMapLibre, ADR-017).
-    const start = () =>
-      void loadMapLibre().then(({ Map: MapLibreMap, AttributionControl }) => {
+    const init = () =>
+      loadMapLibre().then(({ Map: MapLibreMap, AttributionControl }) => {
         if (cancelled || !containerRef.current) return;
         const map = new MapLibreMap({
           container: containerRef.current,
@@ -543,6 +547,14 @@ export default function AtlasGlobe({
           mapRef.current = null;
           readyRef.current = false;
         };
+      });
+    // The library didn't load, or `new MapLibreMap` threw (no WebGL): a message
+    // with the way to the country list replaces the globe.
+    const start = () =>
+      void init().catch((error: unknown) => {
+        if (cancelled) return;
+        console.error("[atlas-globe]", error instanceof Error ? error.message : error);
+        setFailed(true);
       });
 
     // The globe waits for its turn: once the browser is idle (the page's text is
@@ -804,7 +816,7 @@ export default function AtlasGlobe({
 
       {/* Until MapLibre (~300 kB) has loaded, a quiet sphere of the same size holds
           the globe's place on the home page, so the first frame isn't an empty sky. */}
-      {isHome(pathname) && !mini ? (
+      {isHome(pathname) && !mini && !failed ? (
         <div
           aria-hidden
           style={{ width: GLOBE_FILL_SIZE_CSS }}
@@ -814,6 +826,24 @@ export default function AtlasGlobe({
           )}
         />
       ) : null}
+
+      {/* Always in the DOM, so screen readers announce the message when it appears. */}
+      <div
+        role="status"
+        className="pointer-events-none absolute inset-0 flex items-center justify-center p-4"
+      >
+        {failed && !mini ? (
+          <div className="glass pointer-events-auto max-w-md rounded-3xl px-6 py-5 text-center text-white">
+            <p className="font-display text-[18px] font-bold">{t.map.globeUnavailable}</p>
+            <p className="mt-2 text-[14px] leading-relaxed text-white/80">
+              {t.map.globeUnavailableText}
+            </p>
+            <Link href={COUNTRIES_PATH} className={cn(buttonVariants({ size: "sm" }), "mt-4")}>
+              {t.map.globeUnavailableLink}
+            </Link>
+          </div>
+        ) : null}
+      </div>
 
       {mini ? (
         <Link
@@ -828,7 +858,7 @@ export default function AtlasGlobe({
       ) : null}
 
       <div
-        hidden={mini}
+        hidden={mini || failed}
         // Phones zoom with two fingers: the buttons would only crowd the controls there.
         className="pointer-events-none absolute top-24 left-5 hidden flex-col gap-1.5 md:flex"
       >
