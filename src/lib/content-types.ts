@@ -63,7 +63,7 @@ export interface MetricCard {
   year?: string;
 }
 
-/** Editorial additions to a region portrait (src/content/regions/<slug>.json). */
+/** Editorial additions to a region portrait (from the database, `portrait()` RPC). */
 export interface RegionDossier {
   /** Intro paragraph on the region's socio-political situation (P6, first section). */
   intro?: string;
