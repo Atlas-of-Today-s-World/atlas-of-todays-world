@@ -22,8 +22,7 @@
   },
   "common": {
     "close": "Close",
-    "backToGlobe": "Back to the globe",
-    "notTranslated": "This text is not translated yet — showing the English original."
+    "backToGlobe": "Back to the globe"
   },
   "auth": {
     "title": "Sign in",
@@ -389,9 +388,6 @@
     "resultsMany": "{count} results for “{query}”",
     "nothing": "Nothing in the Atlas matches that yet.",
     "tooMany": "Too many searches from your connection. Try again in a minute."
-  },
-  "legal": {
-    "englishOnly": ""
   },
   "countryText": {
     "intro": "{name} is a country in {area}, covered by the Atlas as part of {region}.",

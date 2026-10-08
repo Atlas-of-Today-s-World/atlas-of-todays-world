@@ -10,7 +10,6 @@ import { ChaptersEditor } from "@/features/entries/components/ChaptersEditor";
 import { LearnMoreEditor } from "@/features/entries/components/LearnMoreEditor";
 import { SeoForm } from "@/features/entries/components/SeoForm";
 import { TemplateTools, TopicTilesForm } from "@/features/entries/components/TopicTileForms";
-import { LanguageVersions } from "@/features/entries/components/LanguageVersions";
 import { DEFAULT_LOCALE, isLocale, localePath } from "@/features/i18n/config";
 import { EditStamp } from "@/features/entries/components/EditStamp";
 import { EntryForm } from "@/features/entries/components/EntryForm";
@@ -21,7 +20,6 @@ import { VersionDiff } from "@/features/entries/components/VersionDiff";
 import {
   getEditableEntry,
   getEntryParts,
-  listLanguageVersions,
   listRevisions,
   listTemplates,
   publishedVersion,
@@ -78,7 +76,7 @@ export default async function EditEntryPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ saved?: string; translation?: string; tab?: string }>;
+  searchParams: Promise<{ saved?: string; tab?: string }>;
 }) {
   const access = await sectionAccess("news");
   if (!access) return <NoAccess />;
@@ -90,7 +88,7 @@ export default async function EditEntryPage({
 
   const supabase = await createServerClient();
   const isEntry = entry.kind === "entry";
-  const [options, revisions, approve, edit, published, authors, parts, versions, templates] =
+  const [options, revisions, approve, edit, published, authors, parts, templates] =
     await Promise.all([
       getPickerOptions(),
       listRevisions(id),
@@ -100,12 +98,11 @@ export default async function EditEntryPage({
       entry.status === "pending" ? publishedVersion(id) : Promise.resolve(null),
       listAuthors(),
       isEntry ? getEntryParts(id) : Promise.resolve(null),
-      listLanguageVersions(entry),
       isEntry ? listTemplates() : Promise.resolve([]),
     ]);
   const canApprove = approve.data === true;
   const canEdit = edit.data === true && (entry.status !== "published" || canApprove);
-  const { saved, translation, tab: tabParam } = await searchParams;
+  const { saved, tab: tabParam } = await searchParams;
   const tab: Tab =
     isEntry && TABS.some((item) => item.key === tabParam) ? (tabParam as Tab) : "article";
 
@@ -128,12 +125,6 @@ export default async function EditEntryPage({
               </Link>
             ) : null}
             {saved ? <span role="status">Draft created.</span> : null}
-            {translation ? (
-              <span role="alert" className="text-red-700">
-                Couldn&apos;t create the translation (you lack write permission, or it already
-                exists).
-              </span>
-            ) : null}
           </span>
         }
       />
@@ -242,14 +233,6 @@ export default async function EditEntryPage({
               canDelete={canEdit && can(access.permissions, "news", "d")}
               reviewNote={entry.review_note}
               publishAt={entry.publish_at}
-            />
-          </section>
-          <section>
-            <h2 className="font-display mb-3 text-[16px] font-bold">Language versions</h2>
-            <LanguageVersions
-              currentId={entry.id}
-              versions={versions}
-              canCreate={can(access.permissions, "news", "c")}
             />
           </section>
           {canEdit || canApprove ? (

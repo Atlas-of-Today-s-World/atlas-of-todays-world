@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DEFAULT_LOCALE, LOCALES, localePath, type Locale } from "@/features/i18n/config";
+import { LOCALES, localePath, type Locale } from "@/features/i18n/config";
 import { ORGANIZATION } from "@/config/organization";
 import { absoluteUrl, alternates } from "./index";
 
@@ -136,24 +136,4 @@ export function pageMetadata(seo: PageSeo): Metadata {
       : {}),
     ...(seo.other ? { other: seo.other } : {}),
   };
-}
-
-/**
- * English-only page (legal texts): /cs shows the English original under a note,
- * so the Czech URL canonicalizes to the English one and has no hreflang of its own.
- */
-export function englishOnlyMetadata(
-  locale: Locale,
-  path: string,
-  title: string,
-  description: string,
-): Metadata {
-  return pageMetadata({
-    locale,
-    path,
-    title,
-    description,
-    contentLocale: DEFAULT_LOCALE,
-    languages: [DEFAULT_LOCALE],
-  });
 }

@@ -88,25 +88,6 @@ export async function getEditableEntry(id: string): Promise<EditableEntry | null
   };
 }
 
-/** Language versions of an article for the admin: the original and all its translations. */
-export async function listLanguageVersions(entry: { id: string; translation_of: string | null }) {
-  const supabase = await createServerClient();
-  const original = entry.translation_of ?? entry.id;
-  const { data, error } = await supabase
-    .from("entries")
-    .select("id, locale, title, status, translation_of")
-    .or(`id.eq.${original},translation_of.eq.${original}`)
-    .order("locale");
-  if (error) throw new Error(`[entries] ${error.message}`);
-  return data as {
-    id: string;
-    locale: string;
-    title: string;
-    status: EntryStatus;
-    translation_of: string | null;
-  }[];
-}
-
 /** A chapter in the editor (order = position). */
 export interface EditableChapter {
   /** Kept across saves, so the subtopic keeps who created it and when. */

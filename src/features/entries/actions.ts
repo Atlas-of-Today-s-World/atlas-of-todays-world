@@ -429,26 +429,6 @@ export async function unscheduleEntry(id: string): Promise<ActionState> {
 }
 
 /**
- * New language version of an article (G5.3): a DB function copies the original
- * as the caller's draft in the target language; it then goes through the same approval.
- */
-export async function createTranslation(formData: FormData): Promise<void> {
-  const entryId = String(formData.get("entry_id") ?? "");
-  const locale = String(formData.get("locale") ?? "");
-  if (!uuid.safeParse(entryId).success || !isLocale(locale) || locale === DEFAULT_LOCALE) {
-    redirect("/admin/content");
-  }
-  const session = await signedIn();
-  if (!session) redirect(`/login?next=/admin/content/${entryId}`);
-  const { data, error } = await session.supabase.rpc("create_entry_translation", {
-    p_entry: entryId,
-    p_locale: locale,
-  });
-  if (error) redirect(`/admin/content/${entryId}?translation=error`);
-  redirect(`/admin/content/${data}?saved=1`);
-}
-
-/**
  * Assigns an article to a country group (global issue or custom region), or
  * detaches it (`slug` null) — from the group page, not just the article editor.
  * RLS decides who may change the article, as on save (published: approver only).

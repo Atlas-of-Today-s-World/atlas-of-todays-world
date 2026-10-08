@@ -8,9 +8,6 @@ export const LOCALES = ["en"] as const;
 export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = "en";
 
-/** Language name in the language itself (language switcher). */
-export const LOCALE_NAMES: Record<Locale, string> = { en: "English" };
-
 export const isLocale = (value: string | undefined | null): value is Locale =>
   (LOCALES as readonly string[]).includes(value ?? "");
 

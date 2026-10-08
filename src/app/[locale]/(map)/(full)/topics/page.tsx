@@ -30,7 +30,7 @@ export default async function TopicsPage({ params }: Params) {
   const locale = await localeFrom(params);
   const t = getMessages(locale).topics;
   const atlas = await getAtlas(locale);
-  const { counts, entries } = await topicIndex(atlas, locale);
+  const { counts, entries } = await topicIndex(atlas);
   const cards = entries.map((item) => ({
     slug: item.slug,
     title: item.title,

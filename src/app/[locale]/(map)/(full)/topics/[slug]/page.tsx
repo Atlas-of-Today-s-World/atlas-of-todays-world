@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { EncyclopediaArticle } from "@/features/entries/components/EncyclopediaArticle";
-import { NotTranslated } from "@/features/entries/components/NotTranslated";
 import { getEncyclopediaEntries, getEncyclopediaEntry } from "@/features/entries/queries";
 import { redirectOrNotFound } from "@/features/redirects/queries";
 import { countriesOf } from "@/features/geography/model";
@@ -93,12 +92,7 @@ export default async function EntryPage({
 
   return (
     <>
-      <EncyclopediaArticle
-        item={item}
-        atlas={atlas}
-        share
-        banner={<NotTranslated page={locale} text={item.locale} />}
-      />
+      <EncyclopediaArticle item={item} atlas={atlas} share />
 
       <JsonLd
         data={graph(

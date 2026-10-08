@@ -396,8 +396,6 @@ export function articleNode(input: {
   /** Sources the article cites (resources of the dossier). */
   citations?: { title: string; url: string; source?: string }[];
   parts?: { name: string; url: string; audio?: string }[];
-  /** Original when this is a translation. */
-  translationOf?: string;
 }): JsonLdNode {
   const images = input.images.filter((image): image is string => Boolean(image));
   return {
@@ -442,7 +440,6 @@ export function articleNode(input: {
         ? { "@type": "AudioObject", contentUrl: part.audio, name: part.name }
         : undefined,
     })),
-    translationOfWork: input.translationOf ? ref(`${input.translationOf}#article`) : undefined,
     copyrightHolder: ref(ids.organization),
   };
 }
