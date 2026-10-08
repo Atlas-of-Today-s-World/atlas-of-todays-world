@@ -7,6 +7,7 @@ import { getT } from "@/features/i18n/request";
 import { cn } from "@/lib/cn";
 import { cssBackgroundImage } from "@/lib/security/urls";
 import { PHOTO_WIDTH } from "@/lib/images";
+import { routes } from "@/config/routes";
 
 /**
  * "See all 5 topics →" — to the Topics list filtered to this place. A spark
@@ -76,7 +77,7 @@ export function RelatedTopics({
           return (
             <li key={item.slug}>
               <Link
-                href={`/topics/${item.slug}`}
+                href={routes.topic(item.slug)}
                 className="group relative flex min-h-28 flex-col justify-end overflow-hidden rounded-xl bg-[var(--color-ink)] bg-cover bg-center p-3 text-white focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:outline-none"
                 style={image ? { backgroundImage: image } : undefined}
               >

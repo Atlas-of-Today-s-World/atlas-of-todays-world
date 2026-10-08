@@ -13,6 +13,7 @@ import { slugify } from "@/lib/validation/common";
 import { saveCountry, saveIssue, saveRegion } from "../actions";
 import { CONTENT_STATUSES, type ContentStatus } from "@/features/geography/content-status";
 import { ActionForm } from "@/components/ui/action-form";
+import { routes } from "@/config/routes";
 
 type Errors = Record<string, string[] | undefined>;
 
@@ -270,7 +271,7 @@ export function IssueForm({
           id="slug"
           label="URL (slug)"
           required
-          hint={`/global-issue/${slug || "…"}`}
+          hint={routes.issue(slug || "…")}
           errors={errors.slug}
         >
           <Input

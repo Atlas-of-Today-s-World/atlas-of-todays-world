@@ -6,6 +6,7 @@ import { format } from "@/features/i18n/messages";
 import { getT } from "@/features/i18n/request";
 import { PatronsCallout, type PlannedEntry } from "./sections";
 import { ProfileSections, profileComplete } from "./Portrait";
+import { routes } from "@/config/routes";
 
 /**
  * The region's profile shown right under a country (decision of 2026-10-07):
@@ -50,7 +51,7 @@ export function RegionalProfile({
           {format(t.portrait.regionalProfileLead, { country, region: region.name })}
         </p>
         <Link
-          href={`/region/${region.slug}`}
+          href={routes.region(region.slug)}
           className="mt-4 inline-flex min-h-(--touch-min) items-center rounded-full bg-white/15 px-4 text-[12.5px] font-medium text-white ring-1 ring-white/25 backdrop-blur transition hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
         >
           {t.portrait.regionalProfileOpen} →

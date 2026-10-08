@@ -1,4 +1,4 @@
-import { TOPICS_PATH } from "@/config/navigation";
+import { routes } from "@/config/routes";
 
 const KIND_KEY = {
   region: "kindRegion",
@@ -16,6 +16,6 @@ export function searchKindKey(hit: {
   kind: string;
   url: string;
 }): (typeof KIND_KEY)[keyof typeof KIND_KEY] | "kindTopic" | null {
-  if (hit.kind === "news" && hit.url.startsWith(`${TOPICS_PATH}/`)) return "kindTopic";
+  if (hit.kind === "news" && hit.url.startsWith(`${routes.topics}/`)) return "kindTopic";
   return hit.kind in KIND_KEY ? KIND_KEY[hit.kind as keyof typeof KIND_KEY] : null;
 }

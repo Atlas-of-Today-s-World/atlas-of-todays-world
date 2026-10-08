@@ -1,7 +1,8 @@
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
-import { CONFIRM_PAGE, finishSignIn, signInFailed } from "@/features/auth/sign-in";
+import { finishSignIn, signInFailed } from "@/features/auth/sign-in";
 import { createServerClient } from "@/lib/supabase/server";
+import { routes } from "@/config/routes";
 
 export const dynamic = "force-dynamic";
 
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
   const params = readParams((name) => searchParams.get(name));
   if (!params) return signInFailed(origin);
-  const page = new URL(CONFIRM_PAGE, origin);
+  const page = new URL(routes.loginConfirm, origin);
   page.searchParams.set("token_hash", params.tokenHash);
   page.searchParams.set("type", params.type);
   if (params.next) page.searchParams.set("next", params.next);

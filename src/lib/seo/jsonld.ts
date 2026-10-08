@@ -2,6 +2,7 @@ import { DEFAULT_LOCALE, localePath, type Locale } from "@/features/i18n/config"
 import { ORGANIZATION } from "@/config/organization";
 import wikidataCountries from "@/config/wikidata-countries.json";
 import { absoluteUrl } from "./index";
+import { routes } from "@/config/routes";
 
 /**
  * Structured data (schema.org JSON-LD) — the single builder for every public
@@ -24,10 +25,10 @@ export const ids = {
   website: absoluteUrl("/#website"),
   logo: absoluteUrl("/#logo"),
   page: (url: string) => `${url}#webpage`,
-  country: (slug: string) => absoluteUrl(`/country/${slug}#place`),
-  region: (slug: string) => absoluteUrl(`/region/${slug}#place`),
-  issue: (slug: string) => absoluteUrl(`/global-issue/${slug}#place`),
-  author: (slug: string) => absoluteUrl(`/authors/${slug}#person`),
+  country: (slug: string) => absoluteUrl(`${routes.country(slug)}#place`),
+  region: (slug: string) => absoluteUrl(`${routes.region(slug)}#place`),
+  issue: (slug: string) => absoluteUrl(`${routes.issue(slug)}#place`),
+  author: (slug: string) => absoluteUrl(`${routes.author(slug)}#person`),
 };
 
 const ref = (id: string) => ({ "@id": id });
@@ -116,11 +117,11 @@ export function organizationNode(): JsonLdNode {
     areaServed: "Worldwide",
     knowsLanguage: ["en"],
     sameAs: [...org.socials, org.wikidata],
-    publishingPrinciples: absoluteUrl("/about#editorial-standards"),
+    publishingPrinciples: absoluteUrl(`${routes.about}#editorial-standards`),
     potentialAction: {
       "@type": "DonateAction",
       name: "Become an Atlas Patron",
-      target: absoluteUrl("/membership"),
+      target: absoluteUrl(routes.membership),
       recipient: ref(ids.organization),
     },
   };
@@ -141,7 +142,7 @@ export function websiteNode(locale: Locale): JsonLdNode {
       "@type": "SearchAction",
       target: {
         "@type": "EntryPoint",
-        urlTemplate: `${pageUrl("/search", locale)}?q={search_term_string}`,
+        urlTemplate: `${pageUrl(routes.search, locale)}?q={search_term_string}`,
       },
       "query-input": "required name=search_term_string",
     },
@@ -245,7 +246,7 @@ function countryRef(country: { slug: string; name: string; iso3: string }) {
     "@type": "Country",
     "@id": ids.country(country.slug),
     name: country.name,
-    url: absoluteUrl(`/country/${country.slug}`),
+    url: absoluteUrl(routes.country(country.slug)),
     sameAs: countrySameAs(country.iso3),
   };
 }
@@ -285,7 +286,7 @@ export function countryNode(input: {
     ...countryRef(input),
     alternateName: input.nameFormal ?? undefined,
     description: input.description,
-    url: pageUrl(`/country/${input.slug}`, input.locale),
+    url: pageUrl(routes.country(input.slug), input.locale),
     identifier: [
       { "@type": "PropertyValue", propertyID: "ISO 3166-1 alpha-3", value: input.iso3 },
       ...(input.iso2
@@ -293,13 +294,13 @@ export function countryNode(input: {
         : []),
     ],
     geo: coordinates(input.lat, input.lon),
-    hasMap: pageUrl(`/country/${input.slug}`, input.locale),
+    hasMap: pageUrl(routes.country(input.slug), input.locale),
     containedInPlace: input.region
       ? {
           "@type": "Place",
           "@id": ids.region(input.region.slug),
           name: input.region.name,
-          url: absoluteUrl(`/region/${input.region.slug}`),
+          url: absoluteUrl(routes.region(input.region.slug)),
         }
       : undefined,
     // Indicators as machine-readable values with their source and year.
@@ -331,7 +332,7 @@ export function groupPlaceNode(input: {
   image?: string | null;
   countries: { slug: string; name: string; iso3: string }[];
 }): JsonLdNode {
-  const path = input.kind === "region" ? `/region/${input.slug}` : `/global-issue/${input.slug}`;
+  const path = input.kind === "region" ? routes.region(input.slug) : routes.issue(input.slug);
   return {
     "@type": "Place",
     "@id": input.kind === "region" ? ids.region(input.slug) : ids.issue(input.slug),
@@ -362,14 +363,14 @@ export interface AuthorInfo {
 function authorRef(author: AuthorInfo | null | undefined) {
   if (!author || !author.slug) {
     return author && !/editorial|redakce|team/i.test(author.name)
-      ? { "@type": "Person", name: author.name, url: absoluteUrl("/about") }
+      ? { "@type": "Person", name: author.name, url: absoluteUrl(routes.about) }
       : ref(ids.organization);
   }
   return {
     "@type": "Person",
     "@id": ids.author(author.slug),
     name: author.name,
-    url: absoluteUrl(`/authors/${author.slug}`),
+    url: absoluteUrl(routes.author(author.slug)),
     description: author.description || undefined,
     image: author.image,
   };
@@ -422,7 +423,7 @@ export function articleNode(input: {
           "@type": "Place",
           "@id": ids.region(input.location.slug),
           name: input.location.name,
-          url: absoluteUrl(`/region/${input.location.slug}`),
+          url: absoluteUrl(routes.region(input.location.slug)),
           geo: coordinates(input.location.center[1], input.location.center[0]),
         }
       : undefined,
@@ -470,7 +471,7 @@ export function personNode(input: {
     "@type": "Person",
     "@id": ids.author(input.slug),
     name: input.name,
-    url: absoluteUrl(`/authors/${input.slug}`),
+    url: absoluteUrl(routes.author(input.slug)),
     description: input.description || undefined,
     image: input.image,
     knowsAbout: input.knowsAbout,
@@ -495,7 +496,7 @@ export function datasetNode(input: {
   sourceUrl: string;
   modified?: string;
 }): JsonLdNode {
-  const url = pageUrl(`/view/${input.id}`, input.locale);
+  const url = pageUrl(routes.view(input.id), input.locale);
   const years =
     input.earliestYear && input.latestYear && input.earliestYear !== input.latestYear
       ? `${input.earliestYear}/${input.latestYear}`
@@ -520,7 +521,7 @@ export function datasetNode(input: {
     includedInDataCatalog: {
       "@type": "DataCatalog",
       name: `${ORGANIZATION.name} data layers`,
-      url: absoluteUrl("/about#data"),
+      url: absoluteUrl(`${routes.about}#data`),
     },
     isBasedOn: input.sourceUrl,
     citation: `${input.source}. ${input.name}. ${input.sourceUrl}`,

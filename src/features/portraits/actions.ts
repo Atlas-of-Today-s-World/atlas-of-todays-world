@@ -20,6 +20,7 @@ import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { slug as slugSchema } from "@/lib/validation/common";
 import { GROUP_KIND_LABEL } from "./constants";
 import { COLLECTIONS, CountryInput, IssueInput, PortraitKind, RegionInput } from "./schema";
+import { routes } from "@/config/routes";
 
 const FIELD_LABEL: Record<string, string> = {
   date_label: "date",
@@ -115,7 +116,7 @@ export async function saveRegion(_prev: ActionState, formData: FormData): Promis
   if (!data.length) return { ok: false, error: "You can't edit this region." };
   updateTag(tags.atlas);
   updateTag(tags.portrait("region", slug));
-  notifyIndexNow([`/region/${slug}`], { everyLanguage: true });
+  notifyIndexNow([routes.region(slug)], { everyLanguage: true });
   return { ok: true, message: "Region saved." };
 }
 
@@ -176,7 +177,7 @@ export async function saveIssue(_prev: ActionState, formData: FormData): Promise
   updateTag(tags.atlas);
   updateTag(tags.portrait("issue", fields.slug));
   updateTag(tags.entries);
-  notifyIndexNow([`/global-issue/${fields.slug}`], { everyLanguage: true });
+  notifyIndexNow([routes.issue(fields.slug)], { everyLanguage: true });
   if (!original_slug || original_slug !== fields.slug) {
     redirect(`/admin/global-issues/${fields.slug}`);
   }
@@ -221,6 +222,6 @@ export async function saveCountry(_prev: ActionState, formData: FormData): Promi
   const [country] = data;
   if (!country) return { ok: false, error: "You can't edit this country." };
   updateTag(tags.atlas);
-  notifyIndexNow([`/country/${country.slug}`], { everyLanguage: true });
+  notifyIndexNow([routes.country(country.slug)], { everyLanguage: true });
   return { ok: true, message: "Country profile saved." };
 }

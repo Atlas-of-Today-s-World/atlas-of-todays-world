@@ -3,7 +3,6 @@ import { preload } from "react-dom";
 import { PHOTO_WIDTH, photoUrl } from "@/lib/images";
 import { safeUrl } from "@/lib/security/urls";
 import { JsonLd } from "@/components/JsonLd";
-import { TOPICS_PATH } from "@/config/navigation";
 import { getAtlas } from "@/features/geography/queries";
 import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
@@ -11,6 +10,7 @@ import { TopicsBrowser } from "@/features/topics/components/TopicsBrowser";
 import { topicIndex } from "@/features/topics/related";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { breadcrumbNode, graph, itemListNode, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import { routes } from "@/config/routes";
 
 type Params = { params: Promise<{ locale: string }> };
 
@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const t = getMessages(locale).topics;
   return pageMetadata({
     locale,
-    path: TOPICS_PATH,
+    path: routes.topics,
     title: t.metaTitle,
     description: t.description,
   });
@@ -80,7 +80,7 @@ export default async function TopicsPage({ params }: Params) {
       <JsonLd
         data={graph(
           webPageNode({
-            url: pageUrl(TOPICS_PATH, locale),
+            url: pageUrl(routes.topics, locale),
             name: t.title,
             description: t.description,
             locale,
@@ -88,7 +88,7 @@ export default async function TopicsPage({ params }: Params) {
             breadcrumb: breadcrumbNode(
               [
                 { name: "Atlas of Today's World", path: "/" },
-                { name: t.title, path: TOPICS_PATH },
+                { name: t.title, path: routes.topics },
               ],
               locale,
             ),
@@ -97,7 +97,7 @@ export default async function TopicsPage({ params }: Params) {
             t.title,
             entries.map((item) => ({
               name: item.title,
-              url: pageUrl(`/topics/${item.slug}`, locale),
+              url: pageUrl(routes.topic(item.slug), locale),
             })),
           ),
         )}

@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useId, useRef } from "react";
 import Link from "@/components/i18n/Link";
+import { routes } from "@/config/routes";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { ActionForm } from "@/components/ui/action-form";
 import { buttonVariants } from "@/components/ui/button";
@@ -122,7 +123,7 @@ export function VolunteerForm() {
           />
           <span>
             {t.consent}{" "}
-            <Link href="/privacy" className="text-[var(--color-link)] underline">
+            <Link href={routes.privacy} className="text-[var(--color-link)] underline">
               {t.privacyLink}
             </Link>
             .

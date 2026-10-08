@@ -28,10 +28,10 @@ export const GOAL_COUNTS_FROM_PATRONS = 10;
 
 export const PATRONS_EMAIL = "info@atlasoftodaysworld.org";
 
-/** Routes of the donation flow (locale prefix is added by Link / localePath). */
-export const MEMBERSHIP_PATH = "/membership";
-export const CHECKOUT_PATH = "/membership/checkout";
-export const THANK_YOU_PATH = "/membership/thank-you";
-export const MANAGE_PATH = "/membership/manage";
+/*
+ * The donation flow's addresses (membership, checkout, thank-you, manage) are
+ * in config/routes.ts with every other public URL.
+ */
+
 /** Anchor of the volunteer editors section on the membership page. */
 export const VOLUNTEER_ID = "volunteer";

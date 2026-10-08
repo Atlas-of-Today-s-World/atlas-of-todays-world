@@ -3,12 +3,12 @@ import HomeFocus from "@/components/map/HomeFocus";
 import { getAtlas } from "@/features/geography/queries";
 import Link from "@/components/i18n/Link";
 import { SKIP_LINK } from "@/config/layout";
-import { COUNTRIES_PATH } from "@/config/navigation";
 import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { datasetNode, graph, itemListNode, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { JsonLd } from "@/components/JsonLd";
+import { routes } from "@/config/routes";
 
 export async function generateMetadata({
   params,
@@ -57,7 +57,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         t.regions,
         regions.map((region) => ({
           name: region.name,
-          url: pageUrl(`/region/${region.slug}`, locale),
+          url: pageUrl(routes.region(region.slug), locale),
         })),
       ),
       "@id": `${url}#regions`,
@@ -88,7 +88,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <div id="content" tabIndex={-1} className="outline-none">
         <h1 className="sr-only">Atlas of Today&rsquo;s World</h1>
         <p className="sr-only">{t.intro}</p>
-        <Link href={COUNTRIES_PATH} className={SKIP_LINK}>
+        <Link href={routes.countries} className={SKIP_LINK}>
           {t.browseAll}
         </Link>
       </div>

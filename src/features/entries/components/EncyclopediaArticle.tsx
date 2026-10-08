@@ -3,7 +3,6 @@ import Link from "@/components/i18n/Link";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
 import { ShareButton } from "@/components/atlas/ShareButton";
 import MapFocus from "@/components/map/MapFocus";
-import { TOPICS_PATH } from "@/config/navigation";
 import { FaqList } from "@/components/portrait/sections";
 import type { Atlas } from "@/features/geography/types";
 import { format } from "@/features/i18n/messages";
@@ -16,6 +15,7 @@ import { META_LINE, PlaceLinks } from "./ArticleFrame";
 import { DossierExplorer } from "./DossierExplorer";
 import { OpenOnHash } from "./OpenOnHash";
 import { ReadingProgress } from "./ReadingProgress";
+import { routes } from "@/config/routes";
 
 const AUTHOR_ID = "about-the-author";
 /** Panel ids double as URL hashes: `#topic-2`, `#learn-videos`. */
@@ -104,7 +104,7 @@ export function EncyclopediaArticle({
                 </li>
                 <li>
                   <Link
-                    href={TOPICS_PATH}
+                    href={routes.topics}
                     className="inline-flex min-h-(--touch-min) items-center gap-1.5 rounded-full bg-white/15 px-3.5 text-white ring-1 ring-white/25 backdrop-blur transition hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
                   >
                     <LayoutGrid aria-hidden className="size-3.5" />
@@ -178,7 +178,7 @@ export function EncyclopediaArticle({
 
           <div className="mt-14 flex flex-wrap items-center gap-3 border-t border-[var(--color-line)] pt-6">
             <Link
-              href={TOPICS_PATH}
+              href={routes.topics}
               className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--color-ink)] px-5 text-[14px] font-medium text-white transition hover:bg-[var(--color-accent)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               <ArrowLeft aria-hidden className="size-4" />
@@ -448,7 +448,7 @@ function AuthorBio({ author }: { author: EntryAuthor }) {
       ) : null}
       {author.slug ? (
         <Link
-          href={`/authors/${author.slug}`}
+          href={routes.author(author.slug)}
           rel="author"
           className="mt-4 flex min-h-11 items-center text-[13px] font-medium text-[var(--color-link)] hover:underline"
         >

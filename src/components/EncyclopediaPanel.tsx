@@ -6,10 +6,10 @@ import { useDebouncedSearch } from "@/lib/use-debounced-search";
 import Link from "@/components/i18n/Link";
 import { searchKindKey } from "@/lib/search-kind";
 import { useLocalizedRouter } from "@/components/i18n/useLocalizedRouter";
-import { searchHref } from "@/config/navigation";
 import type { SearchHit } from "@/lib/search";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { belongsToField } from "@/lib/keyboard";
+import { routes } from "@/config/routes";
 
 /**
  * ↑ / ↓ move between the field and the result links (and back up to the field),
@@ -69,7 +69,7 @@ export default function EncyclopediaPanel() {
         role="search"
         onSubmit={(event) => {
           event.preventDefault();
-          if (trimmed) router.push(searchHref(trimmed));
+          if (trimmed) router.push(routes.searchFor(trimmed));
         }}
       >
         <label className="group/search flex min-h-(--touch-min) items-center gap-2 rounded-full border border-white/15 bg-black/25 px-3.5 focus-within:border-white/60 focus-within:ring-2 focus-within:ring-white/70">

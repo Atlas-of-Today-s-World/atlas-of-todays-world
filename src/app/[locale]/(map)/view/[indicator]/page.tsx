@@ -12,6 +12,7 @@ import { formatValue } from "@/lib/indicators";
 import { pageMetadata, pageTitle } from "@/lib/seo/metadata";
 import { breadcrumbNode, datasetNode, graph, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { JsonLd } from "@/components/JsonLd";
+import { routes } from "@/config/routes";
 
 // true: with false, Next returns 404 after revalidateTag (an admin write) even for
 // existing pages (NoFallbackError). An unknown slug ends up in notFound().
@@ -40,7 +41,7 @@ export async function generateMetadata({
   });
   return pageMetadata({
     locale,
-    path: `/view/${indicator.id}`,
+    path: routes.view(indicator.id),
     title: pageTitle(format(t.title, { label: indicator.label })),
     description,
     keywords: [
@@ -115,7 +116,7 @@ export default async function IndicatorViewPage({
                 </span>
                 {/* The whole row is the link's hit area (44 px), not just the name. */}
                 <Link
-                  href={`/country/${row.country.slug}`}
+                  href={routes.country(row.country.slug)}
                   className="flex min-h-(--touch-min) flex-1 items-center text-[13.5px] text-[var(--color-ink)] after:absolute after:inset-0 after:rounded-md after:content-[''] hover:text-[var(--color-accent)] focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-[var(--color-accent)]"
                 >
                   {row.country.name}
@@ -135,7 +136,7 @@ export default async function IndicatorViewPage({
                 <span key={item.id}>
                   {i > 0 ? ", " : ""}
                   <Link
-                    href={`/view/${item.id}`}
+                    href={routes.view(item.id)}
                     className="text-[var(--color-link)] hover:underline"
                   >
                     {item.shortLabel}
@@ -149,15 +150,15 @@ export default async function IndicatorViewPage({
       <JsonLd
         data={graph(
           webPageNode({
-            url: pageUrl(`/view/${indicator.id}`, locale),
+            url: pageUrl(routes.view(indicator.id), locale),
             name: indicator.label,
             description: indicator.description,
             locale,
-            about: `${pageUrl(`/view/${indicator.id}`, locale)}#dataset`,
+            about: `${pageUrl(routes.view(indicator.id), locale)}#dataset`,
             breadcrumb: breadcrumbNode(
               [
                 { name: "Atlas of Today's World", path: "/" },
-                { name: indicator.label, path: `/view/${indicator.id}` },
+                { name: indicator.label, path: routes.view(indicator.id) },
               ],
               locale,
             ),

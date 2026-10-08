@@ -10,6 +10,7 @@ import { tileBackground } from "@/lib/tile-style";
 import { PHOTO_WIDTH } from "@/lib/images";
 import { cn } from "@/lib/cn";
 import { openIssueSlug } from "./global-issues";
+import { routes } from "@/config/routes";
 
 export interface IssueMenuItem {
   slug: string;
@@ -52,7 +53,7 @@ export function IssueMenu({ items }: { items: IssueMenuItem[] }) {
           return (
             <li key={item.slug}>
               <Link
-                href={`/global-issue/${item.slug}`}
+                href={routes.issue(item.slug)}
                 aria-current={current ? "page" : undefined}
                 className={cn(
                   "group relative flex h-20 flex-col justify-end overflow-hidden rounded-xl bg-[var(--color-ink)] bg-cover bg-center p-2 text-white transition hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:outline-none sm:h-24 sm:p-2.5",

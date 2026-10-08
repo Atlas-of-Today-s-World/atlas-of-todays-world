@@ -1,4 +1,5 @@
 import type { ExpressionSpecification } from "maplibre-gl";
+import { ROUTE_PREFIX, segmentAfter } from "@/config/routes";
 import { splitLocale, withoutDefaultPrefix } from "@/features/i18n/config";
 import type { ContentStatus } from "@/features/geography/content-status";
 
@@ -10,7 +11,7 @@ import type { ContentStatus } from "@/features/geography/content-status";
 
 /** Slug of the global issue whose panel is open (`/global-issue/<slug>` in any language). */
 export function openIssueSlug(pathname: string): string | undefined {
-  return /^\/global-issue\/([^/]+)/.exec(splitLocale(withoutDefaultPrefix(pathname)).path)?.[1];
+  return segmentAfter(splitLocale(withoutDefaultPrefix(pathname)).path, ROUTE_PREFIX.issue);
 }
 
 /** Images of the status marks inside a topic-count pill (drawn on `styleimagemissing`). */

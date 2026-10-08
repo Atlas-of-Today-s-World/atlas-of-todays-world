@@ -5,7 +5,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import { PatronsEmail } from "@/features/membership/components/PatronsEmail";
-import { MEMBERSHIP_PATH } from "@/features/membership/config";
+import { routes } from "@/config/routes";
 
 type Params = { params: Promise<{ locale: string }> };
 
@@ -32,7 +32,7 @@ export default async function ManageDonationPage({ params }: Params) {
         <RichText text={t.help} values={{ email: <PatronsEmail /> }} />
       </p>
       <Link
-        href={MEMBERSHIP_PATH}
+        href={routes.membership}
         className={buttonVariants({ variant: "outline", className: "mt-10" })}
       >
         {messages.patrons.checkout.back}

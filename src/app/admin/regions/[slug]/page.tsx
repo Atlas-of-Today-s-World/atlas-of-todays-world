@@ -10,6 +10,7 @@ import { savePortraitSection } from "@/features/portraits/actions";
 import { RegionForm } from "@/features/portraits/components/HeaderForms";
 import { portraitItems, portraitRights, regionForEdit } from "@/features/portraits/editorial";
 import { COLLECTION_NAMES } from "@/features/portraits/schema";
+import { routes } from "@/config/routes";
 
 export const metadata: Metadata = { title: "Region portrait" };
 
@@ -31,7 +32,7 @@ export default async function RegionEditPage({ params }: { params: Promise<{ slu
         lead={
           <>
             Region portrait.{" "}
-            <Link href={`/region/${slug}`} className="text-[var(--color-link)] underline">
+            <Link href={routes.region(slug)} className="text-[var(--color-link)] underline">
               View on site
             </Link>
           </>

@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { describedBy, FormField, Input, RequiredNote, Select } from "@/components/ui/field";
 import { format } from "@/features/i18n/messages";
 import { formatEuro } from "@/lib/format";
-import { MEMBERSHIP_PATH } from "../config";
 import {
   cardErrors,
   demoPayment,
@@ -18,6 +17,7 @@ import {
   type CardField,
 } from "../demo-card";
 import { thankYouHref, type Donation } from "../schema";
+import { routes } from "@/config/routes";
 
 /** A short list is enough for the demo; names come from Intl in the page language. */
 const COUNTRIES = ["CZ", "SK", "DE", "AT", "PL", "FR", "IT", "ES", "NL", "GB", "US", "CA"] as const;
@@ -101,7 +101,7 @@ export function DemoCheckout({ donation }: { donation: Donation }) {
       <div className="mx-auto grid max-w-5xl gap-10 px-6 py-10 lg:grid-cols-2 lg:gap-16 lg:py-16">
         <section aria-labelledby={`${id}-summary`}>
           <Link
-            href={MEMBERSHIP_PATH}
+            href={routes.membership}
             className="inline-flex min-h-(--touch-min) items-center gap-2 text-[14px] text-[var(--color-ink-soft)] hover:text-[var(--color-ink)]"
           >
             <ArrowLeft size={16} aria-hidden />

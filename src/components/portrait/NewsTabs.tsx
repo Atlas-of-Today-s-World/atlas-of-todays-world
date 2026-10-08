@@ -7,6 +7,7 @@ import { NEWS_CATEGORIES, type NewsCategory } from "@/lib/content-types";
 import { cssBackgroundImage } from "@/lib/security/urls";
 import { PHOTO_WIDTH } from "@/lib/images";
 import { useMessages } from "@/components/i18n/LocaleProvider";
+import { routes } from "@/config/routes";
 
 const FALLBACK_HERO = "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&q=60";
 
@@ -57,7 +58,7 @@ export default function NewsTabs({ newsItems }: { newsItems: NewsCard[] }) {
           {visible.map((item) => (
             <Link
               key={item.slug}
-              href={`/news/${item.slug}`}
+              href={routes.news(item.slug)}
               className="group w-56 shrink-0 snap-start overflow-hidden rounded-xl bg-white text-[var(--color-ink)] transition hover:-translate-y-0.5"
             >
               <div

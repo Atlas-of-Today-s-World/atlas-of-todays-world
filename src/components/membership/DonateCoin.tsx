@@ -1,7 +1,7 @@
 import { Globe, Heart } from "lucide-react";
 import Link from "@/components/i18n/Link";
-import { MEMBERSHIP_PATH } from "@/features/membership/config";
 import { cn } from "@/lib/cn";
+import { routes } from "@/config/routes";
 
 /** Edge discs between the two faces: they give the turning coin its thickness. */
 const EDGE = [-1, -0.5, 0, 0.5, 1];
@@ -15,7 +15,7 @@ const EDGE = [-1, -0.5, 0, 0.5, 1];
 export function DonateCoin({ label, className }: { label: string; className?: string }) {
   return (
     <Link
-      href={MEMBERSHIP_PATH}
+      href={routes.membership}
       data-print="hide"
       className={cn(
         "glass glass-hover group pointer-events-auto flex h-[35px] min-w-[35px] items-center gap-2 rounded-full px-[4.5px] text-[11px] font-medium text-white transition sm:pr-[13px]",

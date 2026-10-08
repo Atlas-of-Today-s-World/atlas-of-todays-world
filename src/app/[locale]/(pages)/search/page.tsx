@@ -10,6 +10,7 @@ import { localePath } from "@/features/i18n/config";
 import { format, getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import { pageMetadata } from "@/lib/seo/metadata";
+import { routes } from "@/config/routes";
 
 /**
  * Server-rendered results page. It exists because of SearchAction in structured
@@ -24,7 +25,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   // Result pages are thin and endless: out of the index, links still followed.
   return pageMetadata({
     locale,
-    path: "/search",
+    path: routes.search,
     title: t.title,
     description: t.description,
     noindex: true,
@@ -50,7 +51,7 @@ export default async function SearchPage({
     <main>
       <h1 className="font-display text-[34px] font-bold">{t.title}</h1>
 
-      <form action={localePath(locale, "/search")} method="get" className="mt-6 flex gap-2">
+      <form action={localePath(locale, routes.search)} method="get" className="mt-6 flex gap-2">
         <input
           name="q"
           type="search"

@@ -3,6 +3,19 @@ import nextTs from "eslint-config-next/typescript";
 import security from "eslint-plugin-security";
 
 // Rules follow ARCHITEKTURA.md ch. 8 (security) and 15 (deduplication).
+
+// HTML only via <SafeHtml> (ARCHITEKTURA 5.1, 8.3).
+const NO_RAW_HTML = {
+  selector: "JSXAttribute[name.name='dangerouslySetInnerHTML']",
+  message: "Vkládej HTML jen přes <SafeHtml> (ARCHITEKTURA 8.3).",
+};
+// Public URLs only via config/routes.ts (ARCHITEKTURA 15): no `/country/${slug}` by hand.
+const NO_HAND_BUILT_ROUTE = {
+  selector:
+    "TemplateLiteral > TemplateElement:first-child[value.raw=/^[/](country|region|global-issue|news|authors|view|topics)[/]/]",
+  message: "Build public URLs with routes.* from @/config/routes (ARCHITEKTURA 15).",
+};
+
 const config = [
   {
     ignores: [
@@ -50,15 +63,13 @@ const config = [
           ],
         },
       ],
-      // HTML only via <SafeHtml> (ARCHITEKTURA 5.1, 8.3).
-      "no-restricted-syntax": [
-        "error",
-        {
-          selector: "JSXAttribute[name.name='dangerouslySetInnerHTML']",
-          message: "Vkládej HTML jen přes <SafeHtml> (ARCHITEKTURA 8.3).",
-        },
-      ],
+      "no-restricted-syntax": ["error", NO_RAW_HTML, NO_HAND_BUILT_ROUTE],
     },
+  },
+  {
+    // Tests spell the expected URLs out on purpose.
+    files: ["src/**/*.test.{ts,tsx}"],
+    rules: { "no-restricted-syntax": ["error", NO_RAW_HTML] },
   },
   {
     // Places where injecting HTML is legitimate: SafeHtml itself, JSON-LD

@@ -29,6 +29,7 @@ import {
   webPageNode,
 } from "@/lib/seo/jsonld";
 import { JsonLd } from "@/components/JsonLd";
+import { routes } from "@/config/routes";
 
 // Global Issues are created in the admin, so the route must also handle a slug
 // that didn't exist at build time.
@@ -51,7 +52,7 @@ export async function generateMetadata({
 
   return pageMetadata({
     locale,
-    path: `/global-issue/${region.slug}`,
+    path: routes.issue(region.slug),
     // The subtitle only when it fits next to the name (≤ 60 characters with the brand).
     title: pageTitle(region.name, region.subtitle),
     description: region.summary,
@@ -70,7 +71,7 @@ export default async function GlobalIssuePage({
   const atlas = await getAtlas(locale);
   const region = atlas.issueBySlug.get(slug);
   // Unknown URL: redirect (changed slug), otherwise 404.
-  if (!region) return redirectOrNotFound(`/global-issue/${slug}`, locale);
+  if (!region) return redirectOrNotFound(routes.issue(slug), locale);
 
   const countries = countriesOf(atlas, region.countries);
   const [entries, encyclopedia, upcoming, dossier, topics] = await Promise.all([
@@ -120,7 +121,7 @@ export default async function GlobalIssuePage({
       <JsonLd
         data={graph(
           webPageNode({
-            url: pageUrl(`/global-issue/${region.slug}`, locale),
+            url: pageUrl(routes.issue(region.slug), locale),
             name: `${region.name} — ${region.subtitle}`,
             description: region.summary,
             locale,
@@ -129,7 +130,7 @@ export default async function GlobalIssuePage({
             breadcrumb: breadcrumbNode(
               [
                 { name: "Atlas of Today's World", path: "/" },
-                { name: region.name, path: `/global-issue/${region.slug}` },
+                { name: region.name, path: routes.issue(region.slug) },
               ],
               locale,
             ),
@@ -145,7 +146,7 @@ export default async function GlobalIssuePage({
             image: region.hero,
             countries,
           }),
-          faqNode(pageUrl(`/global-issue/${region.slug}`, locale), dossier.faq ?? []),
+          faqNode(pageUrl(routes.issue(region.slug), locale), dossier.faq ?? []),
         )}
       />
     </>

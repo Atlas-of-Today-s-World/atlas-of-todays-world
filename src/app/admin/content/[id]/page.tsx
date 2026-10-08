@@ -29,7 +29,7 @@ import { CollectionEditor } from "@/features/portraits/components/CollectionEdit
 import { cn } from "@/lib/cn";
 import { uuid } from "@/lib/validation/common";
 import { createServerClient } from "@/lib/supabase/server";
-import { articlePath } from "@/config/navigation";
+import { routes } from "@/config/routes";
 
 export const metadata: Metadata = { title: "Edit article" };
 
@@ -117,7 +117,7 @@ export default async function EditEntryPage({
               <Link
                 href={localePath(
                   isLocale(entry.locale) ? entry.locale : DEFAULT_LOCALE,
-                  articlePath(entry.kind, entry.slug),
+                  routes.article(entry.kind, entry.slug),
                 )}
                 className="text-[var(--color-link)] underline"
               >

@@ -4,9 +4,9 @@ import Link from "@/components/i18n/Link";
 import { buttonVariants } from "@/components/ui/button";
 import { format, getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
-import { MEMBERSHIP_PATH } from "@/features/membership/config";
 import { parseDonation } from "@/features/membership/schema";
 import { formatEuro } from "@/lib/format";
+import { routes } from "@/config/routes";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -50,7 +50,7 @@ export default async function ThankYouPage({ params, searchParams }: Props) {
         <Link href="/" className={buttonVariants({ variant: "patron" })}>
           {t.backToAtlas}
         </Link>
-        <Link href={MEMBERSHIP_PATH} className={buttonVariants({ variant: "outline" })}>
+        <Link href={routes.membership} className={buttonVariants({ variant: "outline" })}>
           {messages.patrons.checkout.back}
         </Link>
       </div>

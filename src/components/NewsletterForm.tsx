@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "@/components/i18n/Link";
+import { routes } from "@/config/routes";
 import { useActionState, useId } from "react";
 import { ActionForm } from "@/components/ui/action-form";
 import { describedBy } from "@/components/ui/field";
@@ -108,7 +109,7 @@ export default function NewsletterForm() {
         />
         <span>
           {t.newsletterForm.consent}{" "}
-          <Link href="/privacy" className="underline">
+          <Link href={routes.privacy} className="underline">
             {t.newsletterForm.privacyLink}
           </Link>
           .

@@ -22,6 +22,7 @@ import {
 } from "@/lib/seo/jsonld";
 import { getMessages } from "@/features/i18n/messages";
 import { JsonLd } from "@/components/JsonLd";
+import { routes } from "@/config/routes";
 
 // true, so an entry published in the admin shows up immediately, without a new build.
 export const dynamicParams = true;
@@ -47,7 +48,7 @@ export async function generateMetadata({
   // The writer's SEO fields win; otherwise defaults derived from the article.
   return pageMetadata({
     locale,
-    path: `/topics/${item.slug}`,
+    path: routes.topic(item.slug),
     title: pageTitle(item.seo.title ?? item.title),
     description: item.seo.description ?? seoDescription(item),
     authoredDescription: Boolean(item.seo.description),
@@ -79,11 +80,11 @@ export default async function EntryPage({
   const locale = await localeFrom(params);
   const [item, atlas] = await Promise.all([getEncyclopediaEntry(slug, locale), getAtlas(locale)]);
   // Unknown URL: redirect (changed slug), otherwise 404.
-  if (!item) return redirectOrNotFound(`/topics/${slug}`, locale);
+  if (!item) return redirectOrNotFound(routes.topic(slug), locale);
 
   const region = item.region ? atlas.regionBySlug.get(item.region) : undefined;
   // Canonical URL: the language the text is in (an untranslated original under /cs points to it).
-  const url = pageUrl(`/topics/${item.slug}`, item.locale);
+  const url = pageUrl(routes.topic(item.slug), item.locale);
   const words = [item.html, ...item.chapters.map((chapter) => chapter.html)]
     .join(" ")
     .replace(/<[^>]+>/g, " ")
@@ -109,8 +110,8 @@ export default async function EntryPage({
             breadcrumb: breadcrumbNode(
               [
                 { name: "Atlas of Today's World", path: "/" },
-                ...(region ? [{ name: region.name, path: `/region/${region.slug}` }] : []),
-                { name: item.title, path: `/topics/${item.slug}` },
+                ...(region ? [{ name: region.name, path: routes.region(region.slug) }] : []),
+                { name: item.title, path: routes.topic(item.slug) },
               ],
               locale,
             ),

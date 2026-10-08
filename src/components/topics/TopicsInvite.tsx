@@ -1,9 +1,9 @@
 import { HandHeart, PenLine } from "lucide-react";
 import Link from "@/components/i18n/Link";
 import { format } from "@/features/i18n/messages";
-import { MEMBERSHIP_PATH } from "@/features/membership/config";
 import { volunteerHref } from "@/features/volunteers/prefill";
 import { cn } from "@/lib/cn";
+import { routes } from "@/config/routes";
 
 /** The texts it needs from the `topics` messages (server getT or client useMessages). */
 type InviteMessages = Record<
@@ -41,7 +41,7 @@ export function TopicsInvite({
         </Link>
         {" · "}
         <Link
-          href={MEMBERSHIP_PATH}
+          href={routes.membership}
           className="font-medium text-[var(--color-link)] hover:underline"
         >
           {t.inviteSupport}
@@ -71,7 +71,7 @@ export function TopicsInvite({
           {t.inviteWrite}
         </Link>
         <Link
-          href={MEMBERSHIP_PATH}
+          href={routes.membership}
           className={cn(
             PILL,
             "border border-[var(--color-line)] bg-white text-[var(--color-ink)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]",

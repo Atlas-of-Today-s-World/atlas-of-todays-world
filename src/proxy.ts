@@ -8,6 +8,7 @@ import {
   withoutDefaultPrefix,
 } from "@/features/i18n/config";
 import { refreshSession } from "@/lib/supabase/middleware";
+import { ROUTE_PREFIX, isAtOrUnder, routes } from "@/config/routes";
 
 /**
  * Security headers for all responses, plus sign-in handling (ARCHITEKTURA 7).
@@ -29,17 +30,31 @@ function securityHeaders(response: NextResponse, csp?: string): NextResponse {
   return response;
 }
 
-const SESSION_PATHS = ["/admin", "/api/admin", "/ucet", "/login", "/auth", "/pozvanka"];
+const SESSION_PATHS = [
+  routes.admin,
+  "/api/admin",
+  routes.account,
+  routes.login,
+  "/auth",
+  routes.invitation,
+];
 /**
  * Pages rendered for each request that hold a session worth protecting: their
  * scripts run only with this response's nonce (ADR-025). Each must be
  * dynamically rendered — a static page would carry no nonce and not start.
  */
-const NONCE_PATHS = ["/admin", "/auth", "/login", "/ucet", "/pozvanka", "/membership/checkout"];
-const PROTECTED_PATHS = ["/admin", "/api/admin", "/ucet"];
+const NONCE_PATHS = [
+  routes.admin,
+  "/auth",
+  routes.login,
+  routes.account,
+  routes.invitation,
+  routes.checkout,
+];
+const PROTECTED_PATHS = [routes.admin, "/api/admin", routes.account];
 
 const matches = (pathname: string, prefixes: string[]) =>
-  prefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+  prefixes.some((prefix) => isAtOrUnder(pathname, prefix));
 
 /** Paths without language versions: admin, API, callbacks and files (robots.txt…). */
 const UNLOCALIZED = ["/admin", "/api", "/auth", "/_next", "/.well-known"];
@@ -47,7 +62,18 @@ const isFile = (pathname: string) => /\.[a-z0-9]+$/i.test(pathname);
 /** Files that do have language versions (feeds, llms.txt) — routed like pages. */
 const LOCALIZED_FILES = new Set(["/feed.xml", "/atom.xml", "/llms.txt", "/llms-full.txt"]);
 /** Markdown version of an article: /news/<slug>.md → /[locale]/md/news/<slug>, /topics/<slug>.md → …/md/entry/<slug>. */
-const MARKDOWN = /^\/(news|topics)\/([a-z0-9-]+)\.md$/;
+const MARKDOWN_KINDS = [
+  [ROUTE_PREFIX.news, "news"],
+  [ROUTE_PREFIX.topics, "entry"],
+] as const;
+const MARKDOWN_FILE = /^([a-z0-9-]+)\.md$/;
+function markdownArticle(path: string) {
+  for (const [prefix, kind] of MARKDOWN_KINDS) {
+    if (!path.startsWith(`${prefix}/`)) continue;
+    const slug = MARKDOWN_FILE.exec(path.slice(prefix.length + 1))?.[1];
+    return slug ? { kind, slug } : undefined;
+  }
+}
 const METADATA_IMAGE = /\/(opengraph|twitter)-image[a-z0-9-]*$/;
 
 export async function proxy(request: NextRequest) {
@@ -64,10 +90,9 @@ export async function proxy(request: NextRequest) {
   }
 
   const split = splitLocale(pathname);
-  const markdown = MARKDOWN.exec(split.path);
+  const markdown = markdownArticle(split.path);
   if (markdown && !matches(pathname, UNLOCALIZED)) {
-    const kind = markdown[1] === "topics" ? "entry" : markdown[1];
-    const target = `/${split.locale}/md/${kind}/${markdown[2]}`;
+    const target = `/${split.locale}/md/${markdown.kind}/${markdown.slug}`;
     return securityHeaders(NextResponse.rewrite(new URL(target, request.url)));
   }
 
@@ -115,7 +140,7 @@ export async function proxy(request: NextRequest) {
   if (path.startsWith("/api/")) {
     return securityHeaders(NextResponse.json({ error: "Sign in first." }, { status: 401 }));
   }
-  const login = new URL(localized ? localePath(locale, "/login") : "/login", request.url);
+  const login = new URL(localized ? localePath(locale, routes.login) : routes.login, request.url);
   login.searchParams.set("next", `${pathname}${search}`);
   return securityHeaders(NextResponse.redirect(login));
 }

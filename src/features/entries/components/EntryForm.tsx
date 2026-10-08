@@ -17,7 +17,7 @@ import { RichTextEditor } from "./RichTextEditor";
 import { useDraftBackup } from "./useDraftBackup";
 import { ActionForm } from "@/components/ui/action-form";
 import { MAP_LAYER_LABEL, MAP_LAYERS } from "../constants";
-import { articlePath } from "@/config/navigation";
+import { routes } from "@/config/routes";
 
 interface Option {
   slug: string;
@@ -126,7 +126,7 @@ export function EntryForm({
             ? "A translation has the same URL as the original, just with a language prefix."
             : published
               ? "A published article keeps its URL — links to it are already out there."
-              : `atlasoftodaysworld.org${articlePath(isEntry ? "entry" : "news", slug || "…")}`
+              : `atlasoftodaysworld.org${routes.article(isEntry ? "entry" : "news", slug || "…")}`
         }
         errors={errors.slug}
       >

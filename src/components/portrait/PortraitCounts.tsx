@@ -6,6 +6,7 @@ import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
+import { routes } from "@/config/routes";
 
 const COUNTRY_CHIP = buttonVariants({ variant: "outline", size: "chip" });
 
@@ -59,7 +60,7 @@ export function PortraitCounts({
       <ul id={listId} hidden={!open} className="mt-3 flex flex-wrap gap-1.5">
         {countries.map((country) => (
           <li key={country.slug}>
-            <Link href={`/country/${country.slug}`} className={COUNTRY_CHIP}>
+            <Link href={routes.country(country.slug)} className={COUNTRY_CHIP}>
               {country.name}
             </Link>
           </li>

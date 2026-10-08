@@ -1,4 +1,5 @@
 import "server-only";
+import { routes } from "@/config/routes";
 import { getEntries } from "@/features/entries/queries";
 import { getAtlas } from "@/features/geography/queries";
 import { createPublicClient } from "@/lib/supabase/public";
@@ -54,7 +55,7 @@ export async function search(query: string, limit = 12): Promise<SearchHit[]> {
       subtitle: row.subtitle,
       body: "",
       // Topics moved from /entry/ to /topics/ (the old path only redirects).
-      url: row.url.replace(/^\/entry\//, "/topics/"),
+      url: row.url.replace(/^\/entry\//, `${routes.topics}/`),
       score: row.rank,
     };
     if (row.kind === "region") {

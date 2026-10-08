@@ -3,13 +3,13 @@ import { ArrowRight, Check, HandHeart, Mail, PenLine } from "lucide-react";
 import Link from "@/components/i18n/Link";
 import { JsonLd } from "@/components/JsonLd";
 import NewsletterForm from "@/components/NewsletterForm";
-import { NEWSLETTER_PATH } from "@/config/navigation";
 import { getFlags } from "@/features/flags/queries";
 import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
-import { MEMBERSHIP_PATH, VOLUNTEER_ID } from "@/features/membership/config";
+import { VOLUNTEER_ID } from "@/features/membership/config";
 import { breadcrumbNode, graph, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { pageMetadata } from "@/lib/seo/metadata";
+import { routes } from "@/config/routes";
 
 type Params = { params: Promise<{ locale: string }> };
 
@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const t = getMessages(locale).newsletterPage;
   return pageMetadata({
     locale,
-    path: NEWSLETTER_PATH,
+    path: routes.newsletter,
     title: t.metaTitle,
     description: t.description,
   });
@@ -85,7 +85,7 @@ export default async function NewsletterPage({ params }: Params) {
       <h2 className="font-display mt-14 text-[24px] font-bold">{t.moreTitle}</h2>
       <div className="mt-5 grid gap-5 sm:grid-cols-2">
         <Link
-          href={MEMBERSHIP_PATH}
+          href={routes.membership}
           className={`${CARD} bg-[radial-gradient(circle_at_80%_15%,var(--color-gold-light)_0%,var(--color-gold)_30%,var(--color-gold-deep)_75%)]`}
         >
           <HandHeart
@@ -100,7 +100,7 @@ export default async function NewsletterPage({ params }: Params) {
           </span>
         </Link>
         <Link
-          href={`${MEMBERSHIP_PATH}#${VOLUNTEER_ID}`}
+          href={`${routes.membership}#${VOLUNTEER_ID}`}
           className={`${CARD} bg-[radial-gradient(circle_at_80%_15%,var(--color-patron-bright)_0%,var(--color-patron)_40%,var(--color-space)_95%)]`}
         >
           <PenLine
@@ -118,7 +118,7 @@ export default async function NewsletterPage({ params }: Params) {
       <JsonLd
         data={graph(
           webPageNode({
-            url: pageUrl(NEWSLETTER_PATH, locale),
+            url: pageUrl(routes.newsletter, locale),
             name: t.title,
             description: t.description,
             locale,
@@ -126,7 +126,7 @@ export default async function NewsletterPage({ params }: Params) {
             breadcrumb: breadcrumbNode(
               [
                 { name: "Atlas of Today's World", path: "/" },
-                { name: t.title, path: NEWSLETTER_PATH },
+                { name: t.title, path: routes.newsletter },
               ],
               locale,
             ),

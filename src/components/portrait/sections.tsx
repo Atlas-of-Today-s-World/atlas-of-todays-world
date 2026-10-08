@@ -13,8 +13,8 @@ import { datawrapperChartUrl } from "@/lib/embeds";
 import { DatawrapperChart } from "./DatawrapperChart";
 import { PHOTO_WIDTH } from "@/lib/images";
 import { format } from "@/features/i18n/messages";
-import { MEMBERSHIP_PATH } from "@/features/membership/config";
 import { getT } from "@/features/i18n/request";
+import { routes } from "@/config/routes";
 
 /**
  * Portrait building blocks. Used by both the region portrait and the global issue
@@ -90,7 +90,7 @@ function PatronsButton() {
   const t = getT();
   return (
     <Link
-      href={MEMBERSHIP_PATH}
+      href={routes.membership}
       className="inline-flex min-h-(--touch-min) items-center gap-1.5 rounded-full bg-[var(--color-patron)] px-4 text-[12.5px] font-semibold text-white shadow-sm transition hover:bg-[var(--color-patron-strong)] focus-visible:ring-2 focus-visible:ring-[var(--color-patron)] focus-visible:ring-offset-2 focus-visible:outline-none"
     >
       {t.portrait.patronsCta} →
@@ -277,7 +277,7 @@ export function ThematicEntries({ entries }: { entries: PlannedEntry[] }) {
                     return (
                       <Link
                         key={entry.title}
-                        href={`/topics/${entry.slug}`}
+                        href={routes.topic(entry.slug)}
                         className="group relative flex h-32 w-48 shrink-0 snap-start flex-col justify-end overflow-hidden rounded-xl bg-[var(--color-ink)] bg-cover bg-center p-3 text-white shadow-sm transition hover:shadow-lg focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:outline-none"
                         style={photo ? { backgroundImage: photo } : undefined}
                       >
@@ -436,7 +436,7 @@ export function PatronsCallout({ complete }: { complete: boolean }) {
       <div className="mt-6">
         {/* Patron colour (it leads to Atlas Patrons); may wrap on a narrow phone. */}
         <Link
-          href={MEMBERSHIP_PATH}
+          href={routes.membership}
           className={cn(
             buttonVariants({ variant: "patron" }),
             "max-w-full py-2.5 text-center text-[13px] leading-snug whitespace-normal",

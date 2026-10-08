@@ -9,6 +9,7 @@ import { PHOTO_WIDTH } from "@/lib/images";
 import { cssBackgroundImage } from "@/lib/security/urls";
 import { format } from "@/features/i18n/messages";
 import { MetricCards, SourceLink, StatGrid, StatIcon, StatItem } from "./atlas/ui";
+import { routes } from "@/config/routes";
 
 /**
  * Country card after clicking the globe (Figma: "Country View").
@@ -65,7 +66,7 @@ export default function CountryCard({
           className="pr-12 text-[12px] text-[var(--color-ink-muted)]"
         >
           <Link
-            href={`/region/${region.slug}`}
+            href={routes.region(region.slug)}
             // The hit area reaches above and below the small text (44 px row).
             className="relative font-medium text-[var(--color-link)] after:absolute after:inset-x-0 after:-inset-y-4 after:content-[''] hover:underline"
           >
@@ -104,7 +105,7 @@ export default function CountryCard({
           >
             {/* The rank opens the layer's ranking of all countries with this one picked. */}
             <Link
-              href={`/view/${stat.id}#${country.iso3.toLowerCase()}`}
+              href={routes.view(stat.id, country.iso3.toLowerCase())}
               className="text-[var(--color-link)] hover:underline"
             >
               {stat.rank
@@ -129,7 +130,7 @@ export default function CountryCard({
 
       {region ? (
         <Link
-          href={`/region/${region.slug}`}
+          href={routes.region(region.slug)}
           className="group mt-7 block overflow-hidden rounded-xl border border-[var(--color-line)] transition hover:border-[var(--color-accent)]"
         >
           <span
@@ -180,7 +181,7 @@ export default function CountryCard({
               <>
                 {" · "}
                 <Link
-                  href={`/region/${region.slug}`}
+                  href={routes.region(region.slug)}
                   className="font-normal text-[var(--color-link)] hover:underline"
                 >
                   {region.name}
@@ -219,7 +220,7 @@ export default function CountryCard({
             {newsItems.map((item) => (
               <li key={item.slug}>
                 <Link
-                  href={`/news/${item.slug}`}
+                  href={routes.news(item.slug)}
                   className="group block rounded-xl border border-[var(--color-line)] p-3 transition hover:border-[var(--color-accent)]"
                 >
                   <span className="text-[10.5px] tracking-wide text-[var(--color-ink-muted)] uppercase">

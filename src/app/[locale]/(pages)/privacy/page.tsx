@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo/metadata";
 import Link from "@/components/i18n/Link";
 import { ContactLink } from "@/components/atlas/ContactLink";
+import { routes } from "@/config/routes";
 
 const TITLE = "Privacy policy";
 const DESCRIPTION = "What personal data Atlas of Today's World processes, why, and your rights.";
@@ -14,7 +15,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   return pageMetadata({
     locale: await localeFrom(params),
-    path: "/privacy",
+    path: routes.privacy,
     title: TITLE,
     description: DESCRIPTION,
   });
@@ -74,8 +75,9 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         without personal details.
       </p>
       <p>
-        You can delete your account at any time on the <Link href="/ucet">account page</Link>. That
-        removes your profile and personal data from our database.
+        You can delete your account at any time on the{" "}
+        <Link href={routes.account}>account page</Link>. That removes your profile and personal data
+        from our database.
       </p>
 
       <h2>Newsletter</h2>

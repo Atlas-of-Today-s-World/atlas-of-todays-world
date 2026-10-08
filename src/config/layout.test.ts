@@ -36,6 +36,44 @@ describe("layout tokens", () => {
     expect(railKind("/en/region/sub-saharan-africa")).toBe("wide");
   });
 
+  it("classifies the same paths as the former route regexes", () => {
+    // Before config/routes.ts: wide = /^\/(news|region|global-issue)\//, full = /^\/topics(\/|$)/.
+    const wide = /^\/(news|region|global-issue)\//;
+    const full = /^\/topics(\/|$)/;
+    const paths = [
+      "/",
+      "/news",
+      "/news/",
+      "/news/x",
+      "/newsletter",
+      "/region",
+      "/region/x",
+      "/region/x/full",
+      "/regions/x",
+      "/global-issue",
+      "/global-issue/sahel",
+      "/global-issues/sahel",
+      "/country/ukraine",
+      "/countries",
+      "/view/hdi",
+      "/authors/x",
+      "/topics",
+      "/topics/",
+      "/topics/x",
+      "/topicsx",
+      "/membership",
+      "/search",
+      "/about",
+    ];
+    for (const path of paths) {
+      const expected =
+        path === "/" || full.test(path) ? "none" : wide.test(path) ? "wide" : "normal";
+      expect([path, railKind(path)]).toEqual([path, expected]);
+      expect([path, railKind(`/en${path === "/" ? "" : path}`)]).toEqual([path, expected]);
+      expect([path, isFullPage(path)]).toEqual([path, full.test(path)]);
+    }
+  });
+
   it("detects full-width pages", () => {
     expect(isFullPage("/topics")).toBe(true);
     expect(isFullPage("/topics/migrant-smuggling")).toBe(true);
