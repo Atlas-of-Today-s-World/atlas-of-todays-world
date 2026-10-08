@@ -37,6 +37,12 @@ export const MOBILE_SHEET = {
  * `bar`, `h-16`): the reading progress and the chapters bar of a topic.
  */
 export const UNDER_HEADER_BAR = "top-16";
+/**
+ * A link only keyboard users see: hidden until it takes focus, then a white pill
+ * top left above everything ("Skip to content", the home's way to the country list).
+ */
+export const SKIP_LINK =
+  "sr-only z-[100] rounded-full bg-white px-5 py-3 text-[14px] font-medium text-[#0d1324] focus:not-sr-only focus:fixed focus:top-3 focus:left-3";
 /** Minimum touch target (WCAG 2.5.5). */
 export const TOUCH_MIN_PX = 44;
 

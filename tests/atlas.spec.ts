@@ -184,6 +184,16 @@ test.describe("search shortcut", () => {
     }).toPass({ timeout: 30_000 });
   });
 
+  test("a failed search over the map says so instead of “nothing found”", async ({ page }) => {
+    await page.route("**/api/search?*", (route) =>
+      route.fulfill({ status: 429, json: { error: "Too many requests." } }),
+    );
+    await page.goto("/");
+    await page.getByRole("searchbox", { name: /Search places/ }).fill("Japan");
+    await expect(page.getByText(/Search is unavailable right now/)).toBeVisible();
+    await expect(page.getByText("Nothing found in the Atlas yet.")).toHaveCount(0);
+  });
+
   test("search results use full country names", async ({ page }) => {
     await page.goto("/search?q=Congo");
     await expect(page.getByText("Democratic Republic of the Congo").first()).toBeVisible();
@@ -247,5 +257,31 @@ test.describe("sign-in", () => {
   test("invitation page explains how to sign in", async ({ page }) => {
     await page.goto("/pozvanka");
     await expect(page.getByRole("heading", { name: "Invitation to the Atlas team" })).toBeVisible();
+  });
+});
+
+test.describe("country list", () => {
+  test("lists every region with its countries, linked to their profiles", async ({ page }) => {
+    await page.goto("/countries");
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Countries and regions" }),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Ukraine", exact: true })).toHaveAttribute(
+      "href",
+      "/country/ukraine",
+    );
+    const region = page.getByRole("heading", { level: 2 }).getByRole("link").first();
+    await expect(region).toHaveAttribute("href", /^\/region\//);
+    await page.getByRole("link", { name: "Czechia", exact: true }).click();
+    await expect(page).toHaveURL(/\/country\/czechia$/);
+  });
+
+  test("the home map offers the list to keyboard users instead of hidden links", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const browse = page.getByRole("link", { name: "Browse all countries and regions" });
+    await expect(browse).toHaveAttribute("href", "/countries");
+    await expect(page.locator("#content").getByRole("link")).toHaveCount(1);
   });
 });

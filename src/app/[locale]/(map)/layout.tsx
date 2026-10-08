@@ -152,11 +152,13 @@ export default async function MapLayout({
           />
           <MapControls
             options={viewOptions}
-            issues={atlas.issues.map(({ slug, name, contentStatus }) => ({
+            issues={atlas.issues.map(({ slug, name, contentStatus, hero, fill }) => ({
               slug,
               name,
               topics: topicCounts.issue[slug] ?? 0,
               status: contentStatus,
+              hero,
+              fill,
             }))}
             featured={featured}
           />
