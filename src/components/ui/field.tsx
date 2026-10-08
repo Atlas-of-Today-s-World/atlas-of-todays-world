@@ -1,9 +1,11 @@
 import { cva } from "class-variance-authority";
-import type {
-  InputHTMLAttributes,
-  ReactNode,
-  SelectHTMLAttributes,
-  TextareaHTMLAttributes,
+import {
+  cloneElement,
+  isValidElement,
+  type InputHTMLAttributes,
+  type ReactNode,
+  type SelectHTMLAttributes,
+  type TextareaHTMLAttributes,
 } from "react";
 import { cn } from "@/lib/cn";
 
@@ -12,7 +14,7 @@ import { cn } from "@/lib/cn";
  * controls and one `FormField` (label + control + hint + error from Zod).
  */
 const control = cva(
-  "w-full rounded-lg border border-[var(--color-field-border)] bg-white px-3 text-[14px] text-[var(--color-ink)] transition placeholder:text-[var(--color-ink-muted)] focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent-soft)] focus:outline-none disabled:opacity-60 aria-[invalid=true]:border-red-500",
+  "w-full rounded-lg border border-[var(--color-field-border)] bg-white px-3 text-[14px] text-[var(--color-ink)] transition placeholder:text-[var(--color-ink-muted)] focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent-soft)] focus:outline-none disabled:opacity-60 aria-[invalid=true]:border-[var(--color-danger)]",
   {
     variants: {
       kind: {
@@ -42,24 +44,68 @@ export function FormField({
   className?: string;
   children: ReactNode;
 }) {
+  // A required field says so to assistive tech too (the "*" is only visual),
+  // unless the control already carries `required` / `aria-required` itself.
+  const control =
+    required &&
+    isValidElement<{ required?: boolean; "aria-required"?: boolean }>(children) &&
+    children.props.required === undefined &&
+    children.props["aria-required"] === undefined
+      ? cloneElement(children, { "aria-required": true })
+      : children;
   return (
     <div className={cn("grid gap-1.5", className)}>
       <label htmlFor={id} className="text-[12.5px] font-medium text-[var(--color-ink-soft)]">
         {label}
-        {required ? <span className="text-red-700"> *</span> : null}
+        {required ? (
+          <span aria-hidden className="text-[var(--color-danger)]">
+            {" "}
+            *
+          </span>
+        ) : null}
       </label>
-      {children}
+      {control}
       {hint ? (
         <p id={`${id}-hint`} className="text-[12px] text-[var(--color-ink-muted)]">
           {hint}
         </p>
       ) : null}
       {errors?.length ? (
-        <p id={`${id}-error`} className="text-[12px] text-red-700">
+        <p id={`${id}-error`} className="text-[12px] text-[var(--color-danger)]">
           {errors[0]}
         </p>
       ) : null}
     </div>
+  );
+}
+
+/**
+ * What the "*" next to a label means. With `onlyWithRequiredFields` it shows
+ * only on a page that has a required field (CSS :has), so a layout can render
+ * it once for every screen.
+ */
+export function RequiredNote({
+  label = "Required field",
+  onlyWithRequiredFields = false,
+  className,
+}: {
+  label?: string;
+  onlyWithRequiredFields?: boolean;
+  className?: string;
+}) {
+  return (
+    <p
+      className={cn(
+        "text-[12px] text-[var(--color-ink-muted)]",
+        onlyWithRequiredFields && "hidden [main:has([aria-required=true],[required])_&]:block",
+        className,
+      )}
+    >
+      <span aria-hidden className="text-[var(--color-danger)]">
+        *
+      </span>{" "}
+      {label}
+    </p>
   );
 }
 

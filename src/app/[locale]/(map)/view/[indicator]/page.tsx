@@ -108,14 +108,15 @@ export default async function IndicatorViewPage({
                 key={row.country.iso3}
                 id={row.country.iso3.toLowerCase()}
                 // The country picked from its card (#hun) is highlighted and scrolled to.
-                className="-mx-2 flex scroll-mt-24 items-center gap-3 rounded-md px-2 py-2 target:bg-[var(--color-accent-soft)] target:font-semibold"
+                className="relative -mx-2 flex scroll-mt-24 items-center gap-3 rounded-md px-2 target:bg-[var(--color-accent-soft)] target:font-semibold"
               >
                 <span className="w-7 shrink-0 text-[11.5px] text-[var(--color-ink-muted)] tabular-nums">
                   {indicator.type === "categorical" ? "·" : index + 1}
                 </span>
+                {/* The whole row is the link's hit area (44 px), not just the name. */}
                 <Link
                   href={`/country/${row.country.slug}`}
-                  className="flex-1 text-[13.5px] text-[var(--color-ink)] hover:text-[var(--color-accent)]"
+                  className="flex min-h-(--touch-min) flex-1 items-center text-[13.5px] text-[var(--color-ink)] after:absolute after:inset-0 after:rounded-md after:content-[''] hover:text-[var(--color-accent)] focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-[var(--color-accent)]"
                 >
                   {row.country.name}
                 </Link>

@@ -74,7 +74,7 @@ export default function ModeSwitch({
             aria-checked={mode === option.id}
             onClick={() => choose(option.id)}
             // On phones the three share the row evenly.
-            className={`min-h-9 flex-1 rounded-full px-2 py-1.5 whitespace-nowrap transition sm:min-h-0 sm:flex-none sm:px-3.5 ${
+            className={`min-h-(--touch-min) flex-1 rounded-full px-2 py-1.5 whitespace-nowrap transition sm:flex-none sm:px-3.5 ${
               mode === option.id
                 ? "bg-white font-medium text-[#0d1324]"
                 : "text-white/75 hover:text-white"

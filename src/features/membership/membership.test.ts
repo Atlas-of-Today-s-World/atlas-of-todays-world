@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { AMOUNTS, DEFAULT_AMOUNT, OTHER_AMOUNT } from "./config";
 import {
   DEMO_CARDS,
+  cardErrors,
   demoPayment,
   expiryValid,
   formatCardNumber,
@@ -113,6 +114,21 @@ describe("demo card checks", () => {
     expect(
       demoPayment({ number: DEMO_CARDS.success, expiry: "12 / 30", cvc: "1" }, now),
     ).toMatchObject({ field: "cvc" });
+  });
+
+  it("lists every invalid card field at once", () => {
+    expect(cardErrors({ number: "", expiry: "", cvc: "" }, now)).toEqual([
+      "number",
+      "expiry",
+      "cvc",
+    ]);
+    expect(cardErrors({ number: DEMO_CARDS.success, expiry: "01 / 20", cvc: "12" }, now)).toEqual([
+      "expiry",
+      "cvc",
+    ]);
+    expect(cardErrors({ number: DEMO_CARDS.declined, expiry: "12 / 30", cvc: "123" }, now)).toEqual(
+      [],
+    );
   });
 
   it("formats input while typing", () => {

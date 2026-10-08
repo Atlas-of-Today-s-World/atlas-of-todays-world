@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import EncyclopediaDock from "@/components/EncyclopediaDock";
-import { RAIL_OFFSET, isFullPage, isHome, railKind } from "@/config/layout";
+import { MAP_CONTROLS_LEFT, RAIL_OFFSET, isFullPage, isHome, railKind } from "@/config/layout";
 import { cn } from "@/lib/cn";
 import type { SubtopicTile } from "@/features/topics/featured";
 import { FeaturedSubtopics } from "./FeaturedSubtopics";
@@ -41,6 +41,9 @@ export default function MapControls({
       data-print="hide"
       className={cn(
         "pointer-events-none absolute left-4 z-30 flex flex-col items-stretch gap-2.5 sm:left-auto sm:items-end",
+        // Never wider than the room between the zoom buttons and the panel: the
+        // switches wrap instead of covering "+" / "−" (768–1024 px with a panel).
+        MAP_CONTROLS_LEFT,
         rail !== "none" && "max-md:hidden",
         // Home: below the transparent header over the globe. Elsewhere the map
         // already starts under the dark bar (MapStage), so the controls sit right at its top.

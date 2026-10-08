@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { BrandLogo } from "@/components/atlas/BrandLogo";
 import { Button } from "@/components/ui/button";
+import { RequiredNote } from "@/components/ui/field";
 import { ADMIN_NAV, navVisible } from "@/config/admin-nav";
 import { getAccess, isStaff } from "@/features/auth/access";
 import { MfaGate } from "@/features/auth/components/MfaGate";
@@ -66,7 +67,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <BrandLogo className="h-5" />
         </Link>
         <span className="text-[13px] font-medium">Administration</span>
-        <span className="ml-auto text-[12.5px] text-[var(--color-ink-muted)]">
+        {/* A long address is cut, not wrapped onto a third header row on phones. */}
+        <span
+          title={`${access.email} · ${access.roleName}`}
+          className="ml-auto max-w-[min(60vw,28rem)] min-w-0 truncate text-[12.5px] text-[var(--color-ink-muted)]"
+        >
           {access.email} · {access.roleName}
         </span>
         <form action="/auth/signout" method="post">
@@ -80,6 +85,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <AdminNav allowed={allowed} />
         </aside>
         <main id="content" tabIndex={-1} className="min-w-0 px-4 py-8 outline-none md:px-10">
+          <RequiredNote onlyWithRequiredFields className="mb-3 text-right" />
           {children}
         </main>
       </div>

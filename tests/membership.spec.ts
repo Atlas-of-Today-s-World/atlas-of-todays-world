@@ -53,6 +53,29 @@ test.describe("Atlas Patrons", () => {
     await expect(page).toHaveURL(/\/membership\/checkout/);
   });
 
+  test("an empty checkout marks every missing field at once", async ({ page }) => {
+    await page.goto("/membership/checkout?period=monthly&amount=10");
+    await expect(page.getByText("Required field")).toBeVisible();
+    await expect(page.getByLabel("Card number")).toHaveAttribute("aria-required", "true");
+    await page.getByRole("button", { name: "Subscribe" }).click();
+    for (const label of ["Email", "Card number", "Expiry (MM / YY)", "CVC", "Name on card"]) {
+      await expect(page.getByLabel(label)).toHaveAttribute("aria-invalid", "true");
+    }
+    await expect(page.getByLabel("Email")).toBeFocused();
+  });
+
+  test("an own amount out of range is explained under the field", async ({ page }) => {
+    await page.goto("/membership");
+    const card = page.locator("main form").first();
+    await card.getByText("One-time", { exact: true }).click();
+    await card.getByText("Other amount", { exact: true }).click();
+    await card.getByRole("button", { name: "Donate & Join" }).click();
+    const field = card.getByLabel("Your amount in euros");
+    await expect(field).toHaveAttribute("aria-invalid", "true");
+    await expect(field).toBeFocused();
+    await expect(page).toHaveURL(/\/membership$/);
+  });
+
   test("an amount that is not offered goes back to /membership", async ({ page }) => {
     await page.goto("/membership/checkout?period=monthly&amount=7");
     await expect(page).toHaveURL(/\/membership$/);

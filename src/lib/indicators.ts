@@ -56,16 +56,21 @@ function hexToRgb(hex: string): [number, number, number] {
   ];
 }
 
+/** Currency units written before the number in English ("$4,579", not "4,579 $"). */
+const CURRENCY_PREFIX = new Set(["$", "€", "£"]);
+
 /** Formats a value for the country card and the legend. */
 export function formatValue(indicator: Indicator, value: number, locale: Locale = "en"): string {
   if (indicator.type === "categorical") {
     const match = indicator.categories?.find((c) => c.value === Math.round(value));
     return match?.label ?? "—";
   }
-  if (indicator.id === "gdp-per-capita") {
-    return `${formatNumber(Math.round(value), 0, locale)}${indicator.unit}`;
-  }
-  return `${formatNumber(value, indicator.decimals, locale)}${indicator.unit}`;
+  const number =
+    indicator.id === "gdp-per-capita"
+      ? formatNumber(Math.round(value), 0, locale)
+      : formatNumber(value, indicator.decimals, locale);
+  const unit = indicator.unit.trim();
+  return CURRENCY_PREFIX.has(unit) ? `${unit}${number}` : `${number}${indicator.unit}`;
 }
 
 /**

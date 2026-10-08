@@ -77,7 +77,7 @@ export default function ContentRail({
       tabIndex={-1}
       aria-label={t.panel.content}
       className={cn(
-        "pointer-events-auto absolute inset-x-0 bottom-0 z-20 overflow-hidden rounded-t-3xl bg-white text-[var(--color-ink)] shadow-[0_-8px_40px_rgba(0,0,0,0.45)] transition-[transform,max-height] duration-300 outline-none md:inset-x-auto md:inset-y-0 md:right-0 md:left-auto md:max-h-none md:rounded-none md:shadow-[0_0_60px_rgba(0,0,0,0.45)]",
+        "pointer-events-auto absolute inset-x-0 bottom-0 z-20 rounded-t-3xl bg-white text-[var(--color-ink)] shadow-[0_-8px_40px_rgba(0,0,0,0.45)] transition-[transform,max-height] duration-300 outline-none md:inset-x-auto md:inset-y-0 md:right-0 md:left-auto md:max-h-none md:rounded-none md:shadow-[0_0_60px_rgba(0,0,0,0.45)]",
         expanded ? MOBILE_SHEET.expandedClassName : MOBILE_SHEET.className,
         wide ? "md:w-(--rail-width-wide)" : "md:w-(--rail-width)",
         collapsed ? "md:translate-x-full" : "md:translate-x-0",
@@ -110,12 +110,19 @@ export default function ContentRail({
         <span aria-hidden className="h-1.5 w-12 rounded-full bg-[var(--color-line)]" />
       </button>
 
-      {/* Panel collapse on desktop */}
+      {/*
+        Panel collapse on desktop: a tab on the panel's left edge. The aside doesn't
+        clip (no overflow-hidden), so the tab stays visible next to the panel — and,
+        once collapsed, at the window's right edge to bring the panel back. It sits low,
+        above the floating buttons: the controls over the map (mode switch, global
+        issues list, search) grow down from the top and covered it mid-height.
+      */}
       <button
         type="button"
         aria-label={collapsed ? t.panel.show : t.panel.hide}
+        aria-expanded={!collapsed}
         onClick={() => setCollapsed((value) => !value)}
-        className="absolute top-1/2 -left-7 hidden h-14 w-7 -translate-y-1/2 items-center justify-center rounded-l-lg bg-[#1b2233] text-white/80 transition hover:bg-[#283148] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] md:flex"
+        className="absolute bottom-32 -left-11 hidden h-14 w-11 items-center justify-center rounded-l-xl bg-[#1b2233] text-white/80 shadow-[-4px_0_16px_rgba(0,0,0,0.35)] transition hover:bg-[#283148] hover:text-white focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none md:flex"
       >
         {collapsed ? <ChevronLeft size={16} aria-hidden /> : <ChevronRight size={16} aria-hidden />}
       </button>
@@ -131,8 +138,12 @@ export default function ContentRail({
       </Link>
 
       <div
+        // Collapsed off-screen on desktop: out of the Tab and reading order.
+        inert={collapsed || undefined}
         className={cn(
-          "panel-scroll overflow-y-auto overscroll-contain pb-6 md:h-full md:max-h-none md:pb-0",
+          // The aside doesn't clip (that hid the collapse tab), so this does:
+          // a too-wide child never scrolls the panel sideways.
+          "panel-scroll overflow-x-hidden overflow-y-auto overscroll-contain pb-6 md:h-full md:max-h-none md:pb-0",
           expanded ? MOBILE_SHEET.expandedScrollClassName : MOBILE_SHEET.scrollClassName,
         )}
       >

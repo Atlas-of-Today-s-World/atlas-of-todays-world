@@ -79,3 +79,20 @@ export const RAIL_OFFSET: Record<RailKind, string> = {
   normal: "md:right-[calc(var(--rail-width)+1.25rem)]",
   wide: "md:right-[calc(var(--rail-width-wide)+1.25rem)]",
 };
+
+/**
+ * Left edge of the controls bar over the map (MapControls) from `md` up: clear of
+ * the zoom buttons (AtlasGlobe: `left-5`, one 44 px column) plus a gap.
+ */
+export const MAP_CONTROLS_LEFT = "md:left-20";
+
+/**
+ * Widest the map legend may be (ViewSwitcher `MapLegend`): it starts after the
+ * attribution (ⓘ) bottom left and must stop before the floating buttons
+ * ("Newsletter", "Support the Atlas" — about 10 rem), which sit left of an open panel.
+ */
+export const LEGEND_MAX_WIDTH: Record<RailKind, string> = {
+  none: "md:max-w-[calc(100vw-15rem)]",
+  normal: "md:max-w-[calc(100vw-var(--rail-width)-15rem)]",
+  wide: "md:max-w-[calc(100vw-var(--rail-width-wide)-15rem)]",
+};

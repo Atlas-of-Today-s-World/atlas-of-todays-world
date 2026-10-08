@@ -102,10 +102,33 @@ export function DonationCard({
   };
   const hasOther = OTHER_AMOUNT_PERIODS.includes(period);
   const options = [...AMOUNTS[period].map(String), ...(hasOther ? [OTHER] : [])];
+  // Own amount checked here, in the Atlas style (no browser bubble): the server
+  // would only send an invalid amount silently back to this page.
+  const [otherError, setOtherError] = useState(false);
+  const otherInvalid = (value: string) => {
+    const euros = Number(value);
+    return (
+      !value.trim() ||
+      !Number.isInteger(euros) ||
+      euros < OTHER_AMOUNT.min ||
+      euros > OTHER_AMOUNT.max
+    );
+  };
 
   return (
     <form
       action={action}
+      noValidate
+      onSubmit={(event) => {
+        const field = event.currentTarget.elements.namedItem("other");
+        if (amount !== OTHER || !(field instanceof HTMLInputElement)) return;
+        const invalid = otherInvalid(field.value);
+        setOtherError(invalid);
+        if (invalid) {
+          event.preventDefault();
+          field.focus();
+        }
+      }}
       aria-labelledby={`${id}-intro`}
       className={cn(
         "rounded-[var(--radius-panel)] bg-[var(--color-patron)] p-5 text-white shadow-xl shadow-blue-900/20 sm:p-8",
@@ -173,10 +196,18 @@ export function DonationCard({
             min={OTHER_AMOUNT.min}
             max={OTHER_AMOUNT.max}
             step={1}
+            aria-invalid={otherError || undefined}
             aria-describedby={`${id}-other-hint`}
-            className="mt-1 block min-h-(--touch-min) w-full rounded-lg border-0 bg-white px-3 text-[15px] text-[var(--color-ink)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            onChange={() => setOtherError(false)}
+            className="mt-1 block min-h-(--touch-min) w-full rounded-lg border-0 bg-white px-3 text-[15px] text-[var(--color-ink)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[var(--color-warning-soft)]"
           />
-          <p id={`${id}-other-hint`} className="mt-1 text-[12px] text-white">
+          {/* The range is the hint and, after a wrong amount, the error (announced). */}
+          <p
+            id={`${id}-other-hint`}
+            role={otherError ? "alert" : undefined}
+            className={cn("mt-1 text-[12px] text-white", otherError && "font-semibold")}
+          >
+            {otherError ? `${t.otherError} ` : null}
             {format(t.otherHint, {
               min: formatEuro(OTHER_AMOUNT.min, locale),
               max: formatEuro(OTHER_AMOUNT.max, locale),

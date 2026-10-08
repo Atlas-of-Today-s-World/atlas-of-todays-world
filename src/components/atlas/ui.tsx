@@ -15,6 +15,10 @@ import type { MetricCard } from "@/lib/content-types";
 import { safeUrl } from "@/lib/security/urls";
 import { format } from "@/features/i18n/messages";
 import { getT } from "@/features/i18n/request";
+import { cn } from "@/lib/cn";
+
+/** A value that reads as a figure ("0.564", "$4,579", "12/100"), not as words. */
+const isFigure = (value: ReactNode) => typeof value !== "string" || /^[\d$€£−+—-]/.test(value);
 
 export function SectionLabel({ children }: { children: ReactNode }) {
   return (
@@ -65,8 +69,17 @@ export function StatItem({
         {label}
       </dt>
       <dd className="order-1 flex items-center gap-2.5 text-[var(--color-ink)]">
-        {icon}
-        <span className="font-display text-[21px] leading-none font-semibold">{value}</span>
+        {icon ? <span className="flex shrink-0">{icon}</span> : null}
+        {/* A category ("Electoral autocracy") is words, not a figure: smaller, so
+            it wraps less and never squeezes the icon. */}
+        <span
+          className={cn(
+            "font-display min-w-0 font-semibold",
+            isFigure(value) ? "text-[21px] leading-none" : "text-[16px] leading-snug",
+          )}
+        >
+          {value}
+        </span>
       </dd>
       {children ? (
         <dd className="order-3 mt-1 text-[11px] leading-relaxed text-[var(--color-ink-muted)]">

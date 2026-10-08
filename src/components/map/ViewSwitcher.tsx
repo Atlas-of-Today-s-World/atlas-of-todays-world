@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Layers } from "lucide-react";
-import { isFullPage, railKind } from "@/config/layout";
+import { LEGEND_MAX_WIDTH, isFullPage, railKind } from "@/config/layout";
 import { cn } from "@/lib/cn";
 import { useMapState } from "./MapContext";
 
@@ -43,7 +43,7 @@ export default function ViewSwitcher({ options }: { options: ViewOption[] }) {
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         // On phones an icon, so the mode switch keeps the row (the legend names the metric).
-        className="glass glass-hover flex size-10 items-center justify-center gap-2 rounded-full text-[13px] whitespace-nowrap text-white/90 transition sm:size-auto sm:px-4 sm:py-2"
+        className="glass glass-hover flex size-(--touch-min) items-center justify-center gap-2 rounded-full text-[13px] whitespace-nowrap text-white/90 transition sm:size-auto sm:min-h-(--touch-min) sm:px-4"
       >
         <Layers aria-hidden className="size-[18px] sm:hidden" />
         <span className="sr-only sm:not-sr-only">{active?.shortLabel}</span>
@@ -56,7 +56,7 @@ export default function ViewSwitcher({ options }: { options: ViewOption[] }) {
       </button>
 
       {open ? (
-        <div className="glass absolute top-11 right-0 z-40 w-72 overflow-hidden rounded-2xl p-1.5 shadow-2xl shadow-black/50">
+        <div className="glass absolute top-12 right-0 z-40 w-72 overflow-hidden rounded-2xl p-1.5 shadow-2xl shadow-black/50">
           {options.map((option) => (
             <button
               key={option.id}
@@ -65,7 +65,7 @@ export default function ViewSwitcher({ options }: { options: ViewOption[] }) {
                 setView(option.id);
                 setOpen(false);
               }}
-              className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-[13px] transition ${
+              className={`flex min-h-(--touch-min) w-full items-center gap-2.5 rounded-xl px-3 py-1.5 text-left text-[13px] transition ${
                 option.id === view
                   ? "bg-white/15 text-white"
                   : "text-white/75 hover:bg-white/10 hover:text-white"
@@ -104,14 +104,16 @@ export function MapLegend({ options }: { options: ViewOption[] }) {
   const pathname = usePathname();
   const option = options.find((item) => item.id === view) ?? options[0];
   if (!option || isFullPage(pathname)) return null;
+  const rail = railKind(pathname);
   // On phones an open panel (bottom sheet) covers the bottom of the map.
-  const hidden = railKind(pathname) !== "none" && "max-md:hidden";
+  const hidden = rail !== "none" && "max-md:hidden";
 
   if (!option.swatches.length) {
     return (
       <p
         className={cn(
           "pointer-events-none absolute bottom-3.5 left-[42px] z-20 max-w-[calc(100vw-120px)] text-[11px] text-white/75 sm:max-w-[70vw]",
+          LEGEND_MAX_WIDTH[rail],
           hidden,
         )}
       >
@@ -127,6 +129,7 @@ export function MapLegend({ options }: { options: ViewOption[] }) {
     <div
       className={cn(
         "pointer-events-none absolute bottom-3.5 left-[42px] z-20 w-[min(calc(100vw-110px),31.25rem)]",
+        LEGEND_MAX_WIDTH[rail],
         hidden,
       )}
     >

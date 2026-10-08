@@ -2,16 +2,21 @@
 
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { ArrowLeft, Lock } from "lucide-react";
-import { BrandLogo } from "@/components/atlas/BrandLogo";
 import Link from "@/components/i18n/Link";
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import { useLocalizedRouter } from "@/components/i18n/useLocalizedRouter";
 import { Button } from "@/components/ui/button";
-import { describedBy, FormField, Input, Select } from "@/components/ui/field";
+import { describedBy, FormField, Input, RequiredNote, Select } from "@/components/ui/field";
 import { format } from "@/features/i18n/messages";
 import { formatEuro } from "@/lib/format";
 import { MEMBERSHIP_PATH } from "../config";
-import { demoPayment, formatCardNumber, formatExpiry, type CardField } from "../demo-card";
+import {
+  cardErrors,
+  demoPayment,
+  formatCardNumber,
+  formatExpiry,
+  type CardField,
+} from "../demo-card";
 import { thankYouHref, type Donation } from "../schema";
 
 /** A short list is enough for the demo; names come from Intl in the page language. */
@@ -58,10 +63,16 @@ export function DemoCheckout({ donation }: { donation: Donation }) {
     const next: Errors = {};
     if (!EMAIL.test(email.trim())) next.email = email.trim() ? t.errors.email : t.errors.required;
     if (!name.trim()) next.name = t.errors.required;
-    const result = demoPayment({ number, expiry, cvc });
-    if (!result.ok) {
-      next[result.field] =
-        result.reason === "declined" ? t.errors.declined : t.errors[result.field];
+    // Every card field at once — not the expiry only after the number is fixed.
+    const card = { number, expiry, cvc };
+    const invalid = cardErrors(card);
+    for (const key of invalid) next[key] = card[key].trim() ? t.errors[key] : t.errors.required;
+    if (!invalid.length) {
+      const result = demoPayment(card);
+      if (!result.ok) {
+        next[result.field] =
+          result.reason === "declined" ? t.errors.declined : t.errors[result.field];
+      }
     }
     setErrors(next);
     const first = (["email", "number", "expiry", "cvc", "name"] as const).find((key) => next[key]);
@@ -96,7 +107,6 @@ export function DemoCheckout({ donation }: { donation: Donation }) {
             <ArrowLeft size={16} aria-hidden />
             {t.back}
           </Link>
-          <BrandLogo className="mt-6 h-5" />
           <h1 id={`${id}-summary`} className="mt-8 text-[15px] text-[var(--color-ink-soft)]">
             {t.product} – {monthly ? t.monthly : t.oneTime}
           </h1>
@@ -110,6 +120,7 @@ export function DemoCheckout({ donation }: { donation: Donation }) {
         </section>
 
         <form ref={form} noValidate onSubmit={onSubmit} aria-label={t.title} className="grid gap-5">
+          <RequiredNote label={t.requiredNote} />
           <fieldset className="grid gap-4" disabled={processing}>
             <legend className="font-display mb-1 text-[17px] font-bold">{t.contact}</legend>
             <FormField id={`${id}-email`} label={t.email} errors={fieldErrors("email")} required>

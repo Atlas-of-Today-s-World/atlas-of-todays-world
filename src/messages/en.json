@@ -84,7 +84,7 @@
     "entriesLead": "In-depth topics in four themes. Grey titles are planned but not written yet.",
     "notWrittenYet": "Not written yet",
     "nothingPlanned": "Nothing planned here yet.",
-    "plannedTitle": "{category} in {place} ({index})",
+    "plannedTitle": "{category} in {place}",
     "maps": "Maps & charts",
     "mapsLead": "Selected visualisations from organisations that track this part of the world.",
     "mapsEmptyRegion": "A carousel of interactive infographics and maps for this region.",
@@ -97,7 +97,7 @@
     "faqEmptyRegion": "The five questions people ask most often about this region.",
     "faqEmptyGroup": "The five questions people ask most often about this group.",
     "news": "News",
-    "patronsCta": "Help Us Complete It By Joining Atlas Patrons",
+    "patronsCta": "Help us complete it – join Atlas Patrons",
     "patronsCompleteTitle": "Together We Can Build a New Encyclopedia",
     "patronsCompleteText": "Atlas Patrons fund the writing, the data work and the independence of this encyclopedia.",
     "patronsTodoTitle": "This portrait is not finished",
@@ -221,6 +221,7 @@
       "other": "Other amount",
       "otherLabel": "Your amount in euros",
       "otherHint": "From {min} to {max}",
+      "otherError": "Enter a whole amount in euros.",
       "submit": "Donate & Join",
       "processedBy": "All donations are processed by the secure Stripe platform.",
       "manage": "(Manage Existing Donation)"
@@ -259,7 +260,10 @@
       "progressLabel": "How far we are?",
       "ofMonthly": "From {amount} per month",
       "progressAria": "Progress towards the monthly goal",
-      "note": "This calculator visualises how far we are from achieving our current goal."
+      "note": "This calculator visualises how far we are from achieving our current goal.",
+      "earlyTitle": "We are just getting started",
+      "earlyText": "Atlas Patrons has only just opened. Be among the first to help us reach {amount} a month — every patron counts at the start.",
+      "earlyCta": "Become one of the first patrons"
     },
     "faqTitle": "FAQ",
     "faq": [
@@ -298,6 +302,7 @@
       "subscribe": "Subscribe",
       "pay": "Pay {amount}",
       "processing": "Processing…",
+      "requiredNote": "Required field",
       "privacy": "In this demo, card details stay in your browser — nothing is sent or stored.",
       "errors": {
         "required": "This field is required.",
@@ -315,10 +320,14 @@
       "leadOneTime": "Thank you for your donation of {amount}.",
       "demoNote": "This was a demo — no payment was taken.",
       "nextTitle": "What happens next",
-      "next": [
+      "nextMonthly": [
         "You will receive a confirmation email with your receipt.",
         "The patron-only monthly newsletter will bring you internal news about our development, polls and invitations to online meetings.",
         "You can cancel or change your donation anytime — the link is at the bottom of every newsletter."
+      ],
+      "nextOneTime": [
+        "You will receive a confirmation email with your receipt.",
+        "Want to keep supporting the Atlas? You can turn your gift into a monthly donation anytime on the Atlas Patrons page."
       ],
       "backToAtlas": "Back to the Atlas"
     },

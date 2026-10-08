@@ -36,12 +36,12 @@ export default function NewsletterForm() {
           required
           autoComplete="email"
           placeholder={t.newsletterForm.placeholder}
-          className="min-h-11 flex-1 rounded-lg border border-white/25 bg-white/10 px-3 text-[14px] text-white placeholder:text-white/40 focus:border-white/70 focus:outline-none"
+          className="min-h-11 min-w-0 flex-1 rounded-lg border border-white/25 bg-white/10 px-3 text-[14px] text-white placeholder:text-white/40 focus:border-white/70 focus:ring-2 focus:ring-white/60 focus:outline-none"
         />
         <button
           type="submit"
           disabled={pending}
-          className="min-h-11 rounded-lg bg-white px-4 text-[13px] font-medium text-[#0d1324] transition hover:bg-white/85 disabled:opacity-60"
+          className="min-h-11 shrink-0 rounded-lg bg-white px-4 text-[13px] font-medium whitespace-nowrap text-[#0d1324] transition hover:bg-white/85 disabled:opacity-60"
         >
           {pending ? "…" : t.newsletter.signUp}
         </button>

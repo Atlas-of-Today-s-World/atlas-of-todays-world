@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { CircleCheck } from "lucide-react";
-import { BrandLogo } from "@/components/atlas/BrandLogo";
 import Link from "@/components/i18n/Link";
 import { buttonVariants } from "@/components/ui/button";
 import { format, getMessages } from "@/features/i18n/messages";
@@ -28,8 +27,7 @@ export default async function ThankYouPage({ params, searchParams }: Props) {
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-16">
-      <BrandLogo className="h-5" />
-      <CircleCheck aria-hidden size={44} className="mt-10 text-[var(--color-success)]" />
+      <CircleCheck aria-hidden size={44} className="text-[var(--color-success)]" />
       <h1 className="font-display mt-4 text-[34px] leading-tight font-bold">{t.heading}</h1>
       {donation ? (
         <p className="mt-4 text-[17px] text-[var(--color-ink-soft)]">
@@ -42,7 +40,8 @@ export default async function ThankYouPage({ params, searchParams }: Props) {
 
       <h2 className="font-display mt-10 text-[20px] font-bold">{t.nextTitle}</h2>
       <ul className="mt-4 list-disc space-y-2 pl-5 text-[15px] leading-relaxed text-[var(--color-ink-soft)]">
-        {t.next.map((item) => (
+        {/* Without a valid donation in the address, the general (monthly) list. */}
+        {(donation?.period === "one-time" ? t.nextOneTime : t.nextMonthly).map((item) => (
           <li key={item}>{item}</li>
         ))}
       </ul>

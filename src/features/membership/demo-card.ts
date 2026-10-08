@@ -45,14 +45,21 @@ export type CardField = "number" | "expiry" | "cvc";
 export type DemoPayment =
   { ok: true } | { ok: false; field: CardField; reason: "invalid" | "declined" };
 
+type Card = { number: string; expiry: string; cvc: string };
+
+/** Every card field that fails its format check, in form order (all shown at once). */
+export function cardErrors(card: Card, now?: Date): CardField[] {
+  const invalid: CardField[] = [];
+  if (!luhnValid(card.number)) invalid.push("number");
+  if (!expiryValid(card.expiry, now)) invalid.push("expiry");
+  if (!cvcValid(card.cvc)) invalid.push("cvc");
+  return invalid;
+}
+
 /** What the demo "payment" does with the entered card. */
-export function demoPayment(
-  card: { number: string; expiry: string; cvc: string },
-  now?: Date,
-): DemoPayment {
-  if (!luhnValid(card.number)) return { ok: false, field: "number", reason: "invalid" };
-  if (!expiryValid(card.expiry, now)) return { ok: false, field: "expiry", reason: "invalid" };
-  if (!cvcValid(card.cvc)) return { ok: false, field: "cvc", reason: "invalid" };
+export function demoPayment(card: Card, now?: Date): DemoPayment {
+  const [field] = cardErrors(card, now);
+  if (field) return { ok: false, field, reason: "invalid" };
   if (digitsOnly(card.number) === DEMO_CARDS.declined) {
     return { ok: false, field: "number", reason: "declined" };
   }

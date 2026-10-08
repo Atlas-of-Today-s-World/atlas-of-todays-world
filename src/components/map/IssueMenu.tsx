@@ -33,7 +33,7 @@ export function IssueMenu({ items }: { items: IssueMenuItem[] }) {
   const status = { ready: t.map.statusReady, preparing: t.map.statusPreparing, none: "" };
   return (
     <nav aria-label={t.map.issuesMenu} className="pointer-events-auto min-w-0">
-      <ul className="-mx-4 flex [scrollbar-width:none] gap-1.5 overflow-x-auto px-4 pb-1 sm:mx-0 sm:max-w-[min(92vw,28rem)] sm:flex-wrap sm:justify-end sm:overflow-visible sm:px-0 sm:pb-0">
+      <ul className="-mx-4 flex [scrollbar-width:none] gap-1.5 overflow-x-auto px-4 pb-1 sm:mx-0 sm:max-w-[min(92vw,28rem,100%)] sm:flex-wrap sm:justify-end sm:overflow-visible sm:px-0 sm:pb-0">
         {items.map((item) => {
           const current = item.slug === open;
           return (
@@ -42,7 +42,7 @@ export function IssueMenu({ items }: { items: IssueMenuItem[] }) {
                 href={`/global-issue/${item.slug}`}
                 aria-current={current ? "page" : undefined}
                 className={cn(
-                  "flex min-h-9 items-center gap-1.5 rounded-full py-1 pr-1.5 pl-3 text-[12.5px] whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:outline-none",
+                  "flex min-h-9 items-center gap-1.5 rounded-full py-1 pr-1.5 pl-3 text-[12.5px] whitespace-nowrap transition focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:outline-none pointer-coarse:min-h-(--touch-min)",
                   current
                     ? "bg-white font-medium text-[#0d1324] shadow-lg shadow-black/30"
                     : "glass glass-hover text-white/90",

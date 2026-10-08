@@ -118,6 +118,24 @@ const HIDDEN_FROM_INDEX = new Set(["ATA", "ATF", "HMD", "BVT", "SGS", "UMI"]);
 
 const num = (value: number | string | null) => (value === null ? null : Number(value));
 
+/** An abbreviated word in a Natural Earth short name: "Rep.", "Herz.", "S.", "Is."… */
+const ABBREVIATION = /(^|\s)\p{L}{1,5}\.(\s|$)/u;
+/** Leading state forms dropped from a formal name ("Republic of South Sudan" → "South Sudan"). */
+const STATE_FORM = /^(?:(?:Republic|Territory|Federation|Commonwealth|Kingdom) of (?:the )?)/;
+
+/**
+ * The name shown in headings, titles and lists. Natural Earth short names are
+ * map labels ("Dem. Rep. Congo", "Bosnia and Herz."); where one is abbreviated,
+ * the formal name without its state form reads better ("Democratic Republic of
+ * the Congo", "Bosnia and Herzegovina"). The globe keeps the short labels.
+ */
+export function displayName(name: string, formal: string | null): string {
+  if (!ABBREVIATION.test(name) || !formal) return name;
+  const full = formal.replace(STATE_FORM, "");
+  // A formal name that is itself abbreviated or annotated ("Føroyar Is. (Faeroe Is.)").
+  return ABBREVIATION.test(full) || full.includes("(") ? name : full;
+}
+
 function buildIndicators(snapshot: AtlasSnapshot): Indicator[] {
   return snapshot.indicators.map((row) => {
     const values: Indicator["values"] = {};
@@ -237,7 +255,7 @@ export function buildAtlas(snapshot: AtlasSnapshot, geo: GeoFacts[], locale: Loc
         iso3: row.iso3,
         iso2: fact?.iso2 ?? null,
         slug: row.slug,
-        name: row.name,
+        name: displayName(row.name, row.name_formal),
         nameFormal: row.name_formal,
         continent: fact?.continent ?? null,
         unSubregion: row.un_subregion,

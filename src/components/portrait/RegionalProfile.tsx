@@ -51,7 +51,7 @@ export function RegionalProfile({
         </p>
         <Link
           href={`/region/${region.slug}`}
-          className="mt-4 inline-flex min-h-10 items-center rounded-full bg-white/15 px-4 text-[12.5px] font-medium text-white ring-1 ring-white/25 backdrop-blur transition hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+          className="mt-4 inline-flex min-h-(--touch-min) items-center rounded-full bg-white/15 px-4 text-[12.5px] font-medium text-white ring-1 ring-white/25 backdrop-blur transition hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
         >
           {t.portrait.regionalProfileOpen} →
         </Link>
