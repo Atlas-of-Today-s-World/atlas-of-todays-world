@@ -16,7 +16,7 @@ import { ContentStatusBadge } from "./ContentStatusBadge";
 import NewsTabs, { type NewsCard } from "./NewsTabs";
 import { PortraitCounts } from "./PortraitCounts";
 import {
-  EmptySection,
+  ComingSections,
   ENTRY_CATEGORIES,
   FaqList,
   IndicatorCards,
@@ -228,6 +228,13 @@ export function ProfileSections({
 }) {
   const t = getT();
   const wording = wordingFor(kind, t, groupKind);
+  // Sections without content yet: listed once at the end, not as grey placeholders.
+  const coming = [
+    !dossier.timeline?.length && { title: t.portrait.timeline, lead: wording.timelineEmpty },
+    !dossier.visuals?.length && { title: t.portrait.maps, lead: wording.mapsEmpty },
+    !dossier.resources?.length && { title: t.portrait.learnMore, lead: t.portrait.learnMoreEmpty },
+    !dossier.faq?.length && { title: t.portrait.faq, lead: wording.faqEmpty },
+  ].filter((item): item is { title: string; lead: string } => Boolean(item));
   return (
     <>
       {dossier.timeline?.length ? (
@@ -236,31 +243,19 @@ export function ProfileSections({
           title={dossier.timelineTitle}
           subtitle={dossier.timelineSubtitle}
         />
-      ) : (
-        <EmptySection title={t.portrait.timeline} lead={wording.timelineEmpty} />
-      )}
+      ) : null}
 
       <ThematicEntries entries={plannedEntries(name, entries, t)} />
 
-      {dossier.visuals?.length ? (
-        <VisualCarousel visuals={dossier.visuals} />
-      ) : (
-        <EmptySection title={t.portrait.maps} lead={wording.mapsEmpty} rows={2} />
-      )}
+      {dossier.visuals?.length ? <VisualCarousel visuals={dossier.visuals} /> : null}
 
       {news.length ? <NewsTabs newsItems={news} /> : null}
 
-      {dossier.resources?.length ? (
-        <ResourceLibrary resources={dossier.resources} />
-      ) : (
-        <EmptySection title={t.portrait.learnMore} lead={t.portrait.learnMoreEmpty} rows={2} />
-      )}
+      {dossier.resources?.length ? <ResourceLibrary resources={dossier.resources} /> : null}
 
-      {dossier.faq?.length ? (
-        <FaqList items={dossier.faq} />
-      ) : (
-        <EmptySection title={t.portrait.faq} lead={wording.faqEmpty} rows={3} />
-      )}
+      {dossier.faq?.length ? <FaqList items={dossier.faq} /> : null}
+
+      <ComingSections items={coming} />
     </>
   );
 }

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { EmptySection, FaqList, PatronsCallout, PortraitSection, Timeline } from "./sections";
+import { ComingSections, FaqList, PatronsCallout, PortraitSection, Timeline } from "./sections";
 
 const meta = {
   title: "portrait/Sections",
@@ -19,7 +19,17 @@ export const Section: Story = {
 };
 
 export const NotWrittenYet: Story = {
-  render: () => <EmptySection title="Political system" lead="Coming soon." />,
+  render: () => (
+    <ComingSections
+      items={[
+        {
+          title: "Timeline",
+          lead: "An interactive timeline of the events behind the region's situation.",
+        },
+        { title: "FAQ", lead: "The five questions people ask most often about this region." },
+      ]}
+    />
+  ),
 };
 
 export const TimelineRail: Story = {
