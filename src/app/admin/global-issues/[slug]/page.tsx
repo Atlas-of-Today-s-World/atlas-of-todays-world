@@ -17,7 +17,7 @@ import { issueForEdit, portraitItems, portraitRights } from "@/features/portrait
 import { COLLECTION_NAMES } from "@/features/portraits/schema";
 import { contentStatus } from "@/features/geography/content-status";
 
-export const metadata: Metadata = { title: "Special region" };
+export const metadata: Metadata = { title: "Global issue" };
 
 export default async function IssueEditPage({ params }: { params: Promise<{ slug: string }> }) {
   const access = await sectionAccess("specials");
@@ -45,11 +45,13 @@ export default async function IssueEditPage({ params }: { params: Promise<{ slug
             </Link>
           </>
         }
-        actions={can(access.permissions, "specials", "d") ? <DeleteIssue slug={slug} /> : null}
+        actions={
+          can(access.permissions, "specials", "d") ? <DeleteIssue slug={slug} kind={kind} /> : null
+        }
       />
       <ReadOnly
         readOnly={!rights.head}
-        reason="Only roles allowed to edit special regions can edit this."
+        reason="Only roles allowed to edit global issues can edit this."
       >
         <IssueForm
           issue={{
@@ -70,7 +72,7 @@ export default async function IssueEditPage({ params }: { params: Promise<{ slug
             readOnly={collection === "metrics" ? !rights.metrics : !rights.text}
             reason={
               collection === "metrics"
-                ? "Indicators of a special region are edited by roles allowed to edit special regions."
+                ? "Indicators of a global issue are edited by roles allowed to edit global issues."
                 : "Portrait texts (timeline, FAQ, sources, visuals) are edited by editors with rights to all articles."
             }
           >

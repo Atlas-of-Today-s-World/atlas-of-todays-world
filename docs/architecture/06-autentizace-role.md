@@ -39,7 +39,7 @@
 ### 7.2 Role a oprávnění (model v DB)
 
 - **Matice** `role × sekce × {v,c,e,d}` v `role_permissions`; sekce: `news`, `approvals`, `areas`, `regions`,
-  `layers`, `appearance`, `specials`, `users`, `members`, `permissions`.
+  `layers`, `appearance`, `specials` (v adminu „Global issues"), `users`, `members`, `permissions`.
 - **Rozsahy mimo matici**: `roles.news_scope` (`none|own|all`), `roles.approval_scope` (`none|assigned|global`),
   per-uživatel `profiles.approval_global`, přiřazení `approver_countries` / `approver_authors`.
 - **Výchozí role**: `admin` (zamčená, vše), `permission-admin`, `content-editor`, `content-approver`, `publisher`,
