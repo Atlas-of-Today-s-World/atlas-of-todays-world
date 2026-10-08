@@ -2214,6 +2214,13 @@ export type Database = {
       accept_invitation_for: { Args: { p_user: string }; Returns: string }
       approve_entry: { Args: { p_entry: string }; Returns: undefined }
       can_approve_entry: { Args: { p_entry: string }; Returns: boolean }
+      can_approve_entries: {
+        Args: { p_entries: string[] }
+        Returns: {
+          can_approve: boolean
+          entry_id: string
+        }[]
+      }
       can_edit_entry: { Args: { p_owner: string }; Returns: boolean }
       can_edit_portrait_metric: {
         Args: { p_special: string }
@@ -2328,6 +2335,7 @@ export type Database = {
         }[]
       }
       portrait: { Args: { p_kind: string; p_slug: string }; Returns: Json }
+      prune_entry_revisions: { Args: never; Returns: number }
       publish_due_entries: { Args: never; Returns: number }
       purge_audit_log: { Args: never; Returns: number }
       record_page_view: { Args: never; Returns: undefined }
@@ -2360,6 +2368,13 @@ export type Database = {
           p_slug: string
         }
         Returns: undefined
+      }
+      role_holder_counts: {
+        Args: never
+        Returns: {
+          holders: number
+          role_id: string
+        }[]
       }
       schedule_entry: {
         Args: { p_at: string; p_entry: string }

@@ -16,13 +16,14 @@ export async function rolesOverview() {
       .select("session_hours, lock_after, invite_only, require_2fa_roles")
       .eq("id", 1)
       .maybeSingle(),
-    supabase.from("profiles").select("role_id").is("deleted_at", null).limit(5000),
+    // Counted in the database (security definer, `permissions` view): profiles RLS
+    // would hide other accounts from an access manager without `users` view.
+    supabase.rpc("role_holder_counts"),
   ]);
-  for (const result of [roles, permissions, security]) {
+  for (const result of [roles, permissions, security, holders]) {
     if (result.error) throw new Error(`[roles] ${result.error.message}`);
   }
-  const count = new Map<string, number>();
-  for (const row of holders.data ?? []) count.set(row.role_id, (count.get(row.role_id) ?? 0) + 1);
+  const count = new Map((holders.data ?? []).map((row) => [row.role_id, Number(row.holders)]));
   return {
     roles: (roles.data ?? []).map((role) => ({ ...role, holders: count.get(role.id) ?? 0 })),
     permissions: permissions.data ?? [],
@@ -40,8 +41,8 @@ export interface AuditRow {
 }
 
 /**
- * Last 1000 changes; `q` searches the action, target and the change author's email
- * in the DB (the table then filters only within the loaded rows).
+ * Last 1000 changes; `q` searches the action and target in the DB (the table then
+ * filters only within the loaded rows). Not actor_email: write_audit no longer fills it.
  */
 export async function auditLog(q?: string): Promise<AuditRow[]> {
   const supabase = await createServerClient();
@@ -50,7 +51,7 @@ export async function auditLog(q?: string): Promise<AuditRow[]> {
     .select("id, at, actor_email, action, target, detail")
     .order("at", { ascending: false })
     .limit(1000);
-  const search = ilikeAny(["action", "target", "actor_email"], q);
+  const search = ilikeAny(["action", "target"], q);
   if (search) query = query.or(search);
   const { data, error } = await query;
   if (error) throw new Error(`[audit] ${error.message}`);
