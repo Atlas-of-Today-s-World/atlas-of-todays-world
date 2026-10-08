@@ -17,6 +17,7 @@ import { tags } from "@/lib/cache/tags";
 import { notifyIndexNow } from "@/lib/seo/indexnow";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { slug as slugSchema } from "@/lib/validation/common";
+import { GROUP_KIND_LABEL } from "./constants";
 import { COLLECTIONS, CountryInput, IssueInput, PortraitKind, RegionInput } from "./schema";
 
 const FIELD_LABEL: Record<string, string> = {
@@ -169,7 +170,7 @@ export async function saveIssue(_prev: ActionState, formData: FormData): Promise
   if (!original_slug || original_slug !== fields.slug) {
     redirect(`/admin/global-issues/${fields.slug}`);
   }
-  return { ok: true, message: "Special region saved." };
+  return { ok: true, message: `${GROUP_KIND_LABEL[fields.kind]} saved.` };
 }
 
 export async function deleteIssue(slug: string): Promise<ActionState> {

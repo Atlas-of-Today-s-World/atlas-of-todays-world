@@ -318,7 +318,7 @@ export type MapLayer = (typeof MAP_LAYERS)[number];
 export const MAP_LAYER_LABEL: Record<MapLayer, string> = {
   countries: "Countries",
   regions: "Regions",
-  issues: "Special regions",
+  issues: "Global issues",
 };
 
 /** Search engine limits for the SEO fields (DB checks on `entries`). */

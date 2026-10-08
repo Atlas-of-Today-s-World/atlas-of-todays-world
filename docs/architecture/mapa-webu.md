@@ -113,7 +113,7 @@ erDiagram
 |---|---|---|---|
 | Region | `regions` | Admin → Regions & countries | Úvod, hero foto, timeline nadpis, `portrait_status` (`populated` = napsaný, `skeleton` = šedý „v přípravě" s výzvou k podpoře). |
 | Země | `countries` | Admin → Regions & countries → země | Patří do jednoho regionu (`region_slug`); profil `profile_html`, tagline, doporučené ukazatele. |
-| Globální téma (Global issue) | `special_regions` (`kind = 'issue'`) | Admin → Special regions (`/admin/global-issues`) | Skupina zemí přes `special_region_countries` (např. Migration, War in Ukraine). `kind = 'region'` je vlastní skupina zemí. |
+| Globální téma (Global issue) | `special_regions` (`kind = 'issue'`) | Admin → Global issues (`/admin/global-issues`) | Skupina zemí přes `special_region_countries` (např. Migration, War in Ukraine). `kind = 'region'` je vlastní skupina zemí. |
 | Vlastní mapová oblast | `map_areas` | Admin → Custom map areas | Polygon na mapě, téma se k ní může vázat (`entries.area_id`). |
 | Ukazatel (World metrics) | `indicators` + `indicator_values` | Admin → Map data layers | Hodnoty po zemích a letech; barvení glóbu `/view/[indicator]`, karty v panelu země. |
 
@@ -184,7 +184,7 @@ k jednotlivému tématu; téma má podtémata, Learn more a FAQ.
 | Home page | `/admin/home` | `home_featured` |
 | URL redirects | `/admin/redirects` | `redirects` |
 | Regions & countries | `/admin/regions` | `regions`, `countries`, portrét regionu (timeline, infografiky, FAQ, zdroje, metriky) |
-| Special regions (Global issues) | `/admin/global-issues` | `special_regions` a jejich portrét |
+| Global issues | `/admin/global-issues` | `special_regions` (global issues i vlastní regiony — skupiny zemí) a jejich portrét |
 | Map data layers | `/admin/data` | `indicators`, `indicator_values` |
 | Custom map areas | `/admin/areas` | `map_areas` |
 | Map appearance | `/admin/appearance` | `site_theme` |
@@ -199,7 +199,8 @@ k jednotlivému tématu; téma má podtémata, Learn more a FAQ.
   `ProfileSections`); zapisuje se jednou, zobrazuje se na obou místech.
 - **Bez regionálních dat:** stránka regionu nemá Key indicators (národní data jsou u
   zemí); globální témata data mají.
-- **Global issues** místo „Special regions" ve veřejném webu; výběr tématu rozsvítí jeho
+- **Global issues** místo „Special regions" ve veřejném webu i v administraci (popisky; tabulky,
+  URL a klíč sekce `specials` zůstaly); výběr tématu rozsvítí jeho
   země, ostatní zešednou.
 - **Stav zpracování** (`content_status`: none / preparing / ready) u regionů i globálních
   témat — v adminu, na glóbu fajfka nebo přesýpací hodiny, nezpracované regiony šedé,

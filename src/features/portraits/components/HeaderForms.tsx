@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { CONTENT_STATUS_LABEL, GROUP_KIND_LABEL } from "../constants";
+import { CONTENT_STATUS_LABEL, GROUP_KIND_LABEL, GROUP_KIND_OPTION } from "../constants";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { CountryPicker, type CountryOption } from "@/components/admin/CountryPicker";
 import { SubmitButton } from "@/components/admin/SubmitButton";
@@ -234,9 +234,9 @@ export function IssueForm({
               value="region"
               defaultChecked={values.kind === "region"}
             />
-            {GROUP_KIND_LABEL.region}
+            {GROUP_KIND_OPTION.region}
             <span className="text-[12px] text-[var(--color-ink-muted)]">
-              — your own region from selected countries
+              — your own selection, not tied to a theme
             </span>
           </label>
           <label className="flex min-h-11 items-center gap-2">
@@ -246,7 +246,7 @@ export function IssueForm({
               value="issue"
               defaultChecked={values.kind !== "region"}
             />
-            {GROUP_KIND_LABEL.issue}
+            {GROUP_KIND_OPTION.issue}
             <span className="text-[12px] text-[var(--color-ink-muted)]">
               — a topic across regions (war, migration, climate…)
             </span>

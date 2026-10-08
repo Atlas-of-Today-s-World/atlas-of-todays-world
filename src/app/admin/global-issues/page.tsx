@@ -12,7 +12,7 @@ import { getAtlas } from "@/features/geography/queries";
 import { deleteIssue } from "@/features/portraits/actions";
 import { GROUP_KIND_LABEL } from "@/features/portraits/constants";
 
-export const metadata: Metadata = { title: "Special regions" };
+export const metadata: Metadata = { title: "Global issues" };
 
 export default async function IssuesPage() {
   const access = await sectionAccess("specials");
@@ -24,8 +24,8 @@ export default async function IssuesPage() {
     <>
       <PageHeader
         icon={navIcon("/admin/global-issues")}
-        title="Special regions"
-        lead="Made by hand from selected countries: special regions around a theme (routes, conflicts, crises) and custom regions."
+        title="Global issues"
+        lead="Made by hand from selected countries: global issues around a theme (routes, conflicts, crises) and custom regions."
         actions={
           can(access.permissions, "specials", "c") ? (
             <div className="flex flex-wrap gap-2">
@@ -39,7 +39,7 @@ export default async function IssuesPage() {
                 href="/admin/global-issues/new"
                 className={buttonVariants({ size: "sm", variant: "outline" })}
               >
-                New special region
+                New global issue
               </Link>
             </div>
           ) : null
@@ -47,8 +47,8 @@ export default async function IssuesPage() {
       />
       <DataTable
         tableKey="admin-issues"
-        caption="Special regions"
-        emptyTitle="No special regions yet"
+        caption="Global issues and custom regions"
+        emptyTitle="No global issues yet"
         initialSort={{ key: "name", dir: "asc" }}
         actionsWidth={canDelete ? "96px" : "72px"}
         columns={[

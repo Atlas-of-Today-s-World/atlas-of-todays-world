@@ -6,7 +6,7 @@ import { getPickerOptions } from "@/features/geography/queries";
 import { IssueForm } from "@/features/portraits/components/HeaderForms";
 import { GROUP_KIND_LABEL } from "@/features/portraits/constants";
 
-export const metadata: Metadata = { title: "New special region" };
+export const metadata: Metadata = { title: "New global issue" };
 
 export default async function NewIssuePage({
   searchParams,
