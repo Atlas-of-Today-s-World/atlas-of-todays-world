@@ -94,13 +94,6 @@ export default async function EntriesPage({
             width: "minmax(240px, 3fr)",
           },
           {
-            key: "locale",
-            label: "Language",
-            sortable: true,
-            filter: "select",
-            width: "120px",
-          },
-          {
             key: "status",
             label: "Status",
             kind: "badge",
@@ -124,8 +117,6 @@ export default async function EntriesPage({
           href: `/admin/content/${row.id}`,
           values: {
             title: row.title,
-            // Translations (G5.3) show their language; the original stays blank.
-            locale: row.translation_of ? row.locale.toUpperCase() : null,
             status: row.status,
             category: row.category,
             author: row.author_name,

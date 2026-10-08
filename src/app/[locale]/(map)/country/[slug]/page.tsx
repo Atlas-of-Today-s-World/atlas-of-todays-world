@@ -117,8 +117,8 @@ export default async function CountryPage({
   // The region's own record (photo, summary) for its profile under the country.
   const regionData = region ? atlas.regionBySlug.get(region.slug) : undefined;
   const [topics, entries, dossier, upcoming] = await Promise.all([
-    relatedTopics(atlas, locale, "country", country.iso3),
-    getEntries(getRequestLocale()),
+    relatedTopics(atlas, "country", country.iso3),
+    getEntries(),
     regionData ? getPortrait("region", regionData.slug) : null,
     getPlannedEntries(),
   ]);

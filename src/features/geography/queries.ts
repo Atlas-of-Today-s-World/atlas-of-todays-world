@@ -3,7 +3,6 @@ import { unstable_cache } from "next/cache";
 import { cache } from "react";
 import generated from "@/data/countries.generated.json";
 import { DEFAULT_LOCALE, type Locale } from "@/features/i18n/config";
-import { localizeSnapshot, type TranslationRow } from "@/features/i18n/translatable";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import { createPublicClient } from "@/lib/supabase/public";
 import { buildAtlas, type AtlasSnapshot, type GeoFacts } from "./model";
@@ -144,34 +143,13 @@ const GEO: GeoFacts[] = (generated as GeneratedCountry[]).map(
   ({ iso3, iso2, continent, territoryNote }) => ({ iso3, iso2, continent, territoryNote }),
 );
 
-/** Text translations into one language (G5); revalidated with the same tag as the Atlas. */
-const loadTranslations = unstable_cache(
-  async (locale: string): Promise<TranslationRow[]> => {
-    const db = createPublicClient();
-    return all("translations", (a, b) =>
-      db
-        .from("translations")
-        .select("entity, entity_key, field, value")
-        .eq("locale", locale)
-        .order("entity")
-        .order("entity_key")
-        .order("field")
-        .range(a, b),
-    );
-  },
-  ["atlas-translations"],
-  { tags: [tags.atlas], revalidate: PUBLIC_REVALIDATE_SECONDS },
-);
-
 /**
  * Atlas model for one request and language (the snapshot is cached, assembly
- * happens only once). Untranslated texts stay in English.
+ * happens only once). The texts are English (ADR-022).
  */
-export const getAtlas = cache(async (locale: Locale = DEFAULT_LOCALE): Promise<Atlas> => {
-  const snapshot = await loadSnapshot();
-  if (locale === DEFAULT_LOCALE) return buildAtlas(snapshot, GEO);
-  return buildAtlas(localizeSnapshot(snapshot, await loadTranslations(locale)), GEO, locale);
-});
+export const getAtlas = cache(async (locale: Locale = DEFAULT_LOCALE): Promise<Atlas> =>
+  buildAtlas(await loadSnapshot(), GEO, locale),
+);
 
 /** Options for admin selects (regions, global issues, countries alphabetically). */
 export async function getPickerOptions() {

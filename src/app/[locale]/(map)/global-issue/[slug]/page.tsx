@@ -74,11 +74,11 @@ export default async function GlobalIssuePage({
 
   const countries = countriesOf(atlas, region.countries);
   const [entries, encyclopedia, upcoming, dossier, topics] = await Promise.all([
-    getEntries(getRequestLocale()),
-    getEncyclopediaEntries(getRequestLocale()),
+    getEntries(),
+    getEncyclopediaEntries(),
     getPlannedEntries(),
     getPortrait("issue", region.slug),
-    relatedTopics(atlas, locale, "issue", region.slug),
+    relatedTopics(atlas, "issue", region.slug),
   ]);
   const related = entriesOfIssue(entries, region.slug, region.countries);
 
