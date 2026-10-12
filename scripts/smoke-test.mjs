@@ -98,7 +98,8 @@ async function main() {
       text.includes("Help us complete it – join Atlas Patrons"),
       "missing call to action on an empty portrait",
     );
-    assert(text.includes("Not written yet"), "missing empty-section marker");
+    // Unwritten parts are listed once, in one section at the end (U13).
+    assert(text.includes("Coming to this portrait"), "missing the coming-soon section");
   });
 
   await check("a country shows its region's profile below its own data", async () => {
