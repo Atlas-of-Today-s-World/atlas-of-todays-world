@@ -1,32 +1,36 @@
 "use client";
 
-import { Search } from "lucide-react";
-import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import { ArrowRight, Search } from "lucide-react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from "react";
 import { useDebouncedSearch } from "@/lib/use-debounced-search";
 import Link from "@/components/i18n/Link";
 import { searchKindKey } from "@/lib/search-kind";
 import { useLocalizedRouter } from "@/components/i18n/useLocalizedRouter";
 import type { SearchHit } from "@/lib/search";
 import { useMessages } from "@/components/i18n/LocaleProvider";
+import { format } from "@/features/i18n/messages";
 import { belongsToField } from "@/lib/keyboard";
 import { routes } from "@/config/routes";
+import { cn } from "@/lib/cn";
+
+/** One row of the result list: highlighted by the arrow keys, opened by Enter. */
+const OPTION_CLASS =
+  "block rounded-xl px-3 py-2 transition hover:bg-white/10 aria-selected:bg-white/10 aria-selected:ring-2 aria-selected:ring-white/70";
 
 /**
- * ↑ / ↓ move between the field and the result links (and back up to the field),
- * so the list can be walked without Tab-ing through the page.
+ * "Global Encyclopedia" from Figma: full-text search across all of Atlas.
+ *
+ * The field is a WAI-ARIA combobox: focus stays in it while ↑ / ↓ highlight a
+ * result (aria-activedescendant), Enter opens the highlighted one — or, with
+ * nothing highlighted, submits the form to the full results page. The last
+ * row of the list leads there too.
  */
-function moveFocus(event: ReactKeyboardEvent, list: HTMLElement | null, input: HTMLElement | null) {
-  if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
-  const links = Array.from(list?.querySelectorAll<HTMLElement>("a[href]") ?? []);
-  if (!links.length) return;
-  const index = links.indexOf(document.activeElement as HTMLElement);
-  const next = event.key === "ArrowDown" ? index + 1 : index - 1;
-  event.preventDefault();
-  if (next < 0) input?.focus();
-  else links[Math.min(next, links.length - 1)]?.focus();
-}
-
-/** "Global Encyclopedia" from Figma: full-text search across all of Atlas. */
 export default function EncyclopediaPanel() {
   const t = useMessages();
   const [query, setQuery] = useState("");
@@ -39,9 +43,20 @@ export default function EncyclopediaPanel() {
     delay: 180,
     enabled: trimmed.length >= 2,
   });
+  // The highlight belongs to one set of results: new results start without one.
+  const [highlight, setHighlight] = useState<{ hits: SearchHit[]; index: number }>({
+    hits,
+    index: -1,
+  });
   const inputRef = useRef<HTMLInputElement>(null);
-  const listRef = useRef<HTMLDivElement>(null);
   const router = useLocalizedRouter();
+  const listId = useId();
+  const optionId = (index: number) => `${listId}-option-${index}`;
+
+  const open = trimmed.length >= 2 && hits.length > 0;
+  // The results plus the closing "See all results" row.
+  const options = open ? [...hits.map((hit) => hit.url), routes.searchFor(trimmed)] : [];
+  const active = open && highlight.hits === hits ? highlight.index : -1;
 
   // "/" jumps to the search, as on GitHub or YouTube — unless the visitor is
   // typing elsewhere or holds a modifier (Shift is how some layouts type "/").
@@ -58,15 +73,60 @@ export default function EncyclopediaPanel() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  const onKeyDown = (event: ReactKeyboardEvent<HTMLInputElement>) => {
+    // Keys confirming an input method's composition (Japanese, Chinese…) aren't ours.
+    if (event.nativeEvent.isComposing) return;
+    // Esc empties the field (closing the list); the content panel's own Esc
+    // leaves keys pressed in fields alone, so it doesn't close the panel too.
+    if (event.key === "Escape") {
+      if (!query) return;
+      event.preventDefault();
+      setQuery("");
+      return;
+    }
+    if (event.key === "Enter" && active >= 0) {
+      // Opens the highlighted row instead of submitting the form.
+      event.preventDefault();
+      const href = options[active];
+      if (href) router.push(href);
+      setQuery("");
+      return;
+    }
+    if ((event.key !== "ArrowDown" && event.key !== "ArrowUp") || !options.length) return;
+    event.preventDefault();
+    // ↓ from the last row wraps to the first; ↑ from the first returns to the
+    // field without a highlight, ↑ from there goes to the last row.
+    const next =
+      event.key === "ArrowDown"
+        ? (active + 1) % options.length
+        : active < 0
+          ? options.length - 1
+          : active - 1;
+    setHighlight({ hits, index: next });
+    if (next >= 0) document.getElementById(optionId(next))?.scrollIntoView({ block: "nearest" });
+  };
+
+  const status = searching
+    ? t.search.searching
+    : failed
+      ? t.search.failed
+      : hits.length === 0
+        ? t.search.nothing
+        : hits.length === 1
+          ? t.search.countOne
+          : format(t.search.countMany, { count: String(hits.length) });
+
   return (
     // No visible heading (compact block); the name stays for screen readers.
     <section
       aria-label={t.encyclopedia.heading}
       className="glass pointer-events-auto w-full max-w-full rounded-[var(--radius-panel)] p-2 shadow-2xl shadow-black/40 sm:w-[min(92vw,22rem)] sm:p-3"
     >
-      {/* A search form: Enter opens the full results page. */}
+      {/* A search form: Enter opens the full results page (a plain GET before
+          React hydrates, a client-side navigation after). */}
       <form
         role="search"
+        action={routes.search}
         onSubmit={(event) => {
           event.preventDefault();
           if (trimmed) router.push(routes.searchFor(trimmed));
@@ -77,16 +137,17 @@ export default function EncyclopediaPanel() {
           <input
             ref={inputRef}
             type="search"
+            name="q"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={open}
+            aria-controls={open ? listId : undefined}
+            aria-activedescendant={active >= 0 ? optionId(active) : undefined}
+            autoComplete="off"
             enterKeyHint="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            // Esc empties the field; the content panel leaves Esc in fields alone.
-            onKeyDown={(event) => {
-              if (event.key === "Escape" && query) {
-                event.preventDefault();
-                setQuery("");
-              } else moveFocus(event, listRef.current, inputRef.current);
-            }}
+            onKeyDown={onKeyDown}
             placeholder={t.search.placeholder}
             aria-label={t.search.placeholder}
             aria-keyshortcuts="/"
@@ -106,40 +167,61 @@ export default function EncyclopediaPanel() {
       </form>
 
       {trimmed.length >= 2 ? (
-        <div
-          ref={listRef}
-          onKeyDown={(event) => moveFocus(event, listRef.current, inputRef.current)}
-          className="panel-scroll mt-3 max-h-[min(50vh,22rem)] overflow-y-auto"
-        >
-          {hits.length === 0 ? (
-            // Stays in place from "Searching…" on, so the outcome is announced.
-            <p role="status" className="px-1 py-3 text-[12.5px] text-white/70">
-              {searching ? t.search.searching : failed ? t.search.failed : t.search.nothing}
-            </p>
-          ) : (
-            <ul className="space-y-1">
-              {hits.map((hit) => (
-                <li key={hit.id}>
-                  <Link
-                    href={hit.url}
-                    onClick={() => setQuery("")}
-                    className="block rounded-xl px-3 py-2 transition hover:bg-white/10 focus-visible:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:outline-none"
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className="shrink-0 rounded-full bg-white/12 px-1.5 py-0.5 text-[9.5px] tracking-wide text-white/90 uppercase">
-                        {(() => {
-                          const key = searchKindKey(hit);
-                          return key ? t.search[key] : hit.kind;
-                        })()}
-                      </span>
-                      <span className="text-[13.5px] font-medium text-white">{hit.title}</span>
+        <div className="panel-scroll mt-3 max-h-[min(50vh,22rem)] overflow-y-auto">
+          {/* Stays in place from "Searching…" on, so the outcome — the number of
+              results too — is announced; visible only while there's no list. */}
+          <p role="status" className={open ? "sr-only" : "px-1 py-3 text-[12.5px] text-white/70"}>
+            {status}
+          </p>
+          {/* The rows are links (they work with a mouse, a middle click, before
+              hydration) that keyboard users reach with the arrow keys, not Tab. */}
+          {open ? (
+            <div
+              id={listId}
+              role="listbox"
+              aria-label={t.encyclopedia.heading}
+              className="space-y-1"
+            >
+              {hits.map((hit, index) => (
+                <Link
+                  key={hit.id}
+                  id={optionId(index)}
+                  href={hit.url}
+                  role="option"
+                  aria-selected={active === index}
+                  tabIndex={-1}
+                  onClick={() => setQuery("")}
+                  className={OPTION_CLASS}
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="shrink-0 rounded-full bg-white/12 px-1.5 py-0.5 text-[9.5px] tracking-wide text-white/90 uppercase">
+                      {(() => {
+                        const key = searchKindKey(hit);
+                        return key ? t.search[key] : hit.kind;
+                      })()}
                     </span>
-                    <span className="mt-0.5 block text-[11.5px] text-white/70">{hit.subtitle}</span>
-                  </Link>
-                </li>
+                    <span className="text-[13.5px] font-medium text-white">{hit.title}</span>
+                  </span>
+                  <span className="mt-0.5 block text-[11.5px] text-white/70">{hit.subtitle}</span>
+                </Link>
               ))}
-            </ul>
-          )}
+              <Link
+                id={optionId(hits.length)}
+                href={routes.searchFor(trimmed)}
+                role="option"
+                aria-selected={active === hits.length}
+                tabIndex={-1}
+                onClick={() => setQuery("")}
+                className={cn(
+                  OPTION_CLASS,
+                  "flex items-center gap-1.5 text-[12.5px] font-medium text-white/90",
+                )}
+              >
+                {t.search.seeAll}
+                <ArrowRight size={13} aria-hidden />
+              </Link>
+            </div>
+          ) : null}
         </div>
       ) : (
         <p className="mt-2.5 hidden px-1 text-[11.5px] leading-relaxed text-white/70 sm:block">

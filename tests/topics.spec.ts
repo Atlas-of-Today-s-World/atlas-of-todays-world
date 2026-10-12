@@ -51,6 +51,50 @@ test("a failed search shows an error and can be tried again", async ({ page }) =
   await expect(page.getByText(/match(es)? in the text|Nothing found in the text/)).toBeVisible();
 });
 
+test("Back from a topic returns to the same place in the list", async ({ page }) => {
+  await page.goto("/topics");
+  // Full-width pages scroll their own frame, not the window.
+  const frame = page.locator("#content");
+  test.skip((await frame.locator('a[href^="/topics/"]').count()) === 0, "no published topics");
+  const room = await frame.evaluate((el) => el.scrollHeight - el.clientHeight);
+  test.skip(room < 400, "the list is too short to scroll");
+
+  // Scroll halfway; the position is saved only once React listens, so retry.
+  const half = Math.round(room / 2);
+  await expect(async () => {
+    await frame.evaluate((el, to) => {
+      el.scrollTop = el.scrollTop === to ? to - 1 : to;
+    }, half);
+    await expect
+      .poll(() => page.evaluate(() => Number(sessionStorage.getItem("atlas:scroll:/topics"))), {
+        timeout: 2_000,
+      })
+      .toBeGreaterThan(half - 10);
+  }).toPass({ timeout: 30_000 });
+  const before = await frame.evaluate((el) => el.scrollTop);
+
+  // A topic link in view, so clicking it doesn't scroll the list first.
+  const href = await frame.evaluate((el) => {
+    const inView = Array.from(el.querySelectorAll<HTMLAnchorElement>('a[href^="/topics/"]')).find(
+      (link) => {
+        const box = link.getBoundingClientRect();
+        return box.top > 120 && box.bottom < window.innerHeight - 120;
+      },
+    );
+    return inView?.getAttribute("href") ?? null;
+  });
+  test.skip(href === null, "no topic link in view halfway down the list");
+  await frame.locator(`a[href="${href}"]`).first().click();
+  await expect.poll(() => new URL(page.url()).pathname).toBe(href);
+  // A fresh link starts the topic at the top.
+  await expect.poll(() => frame.evaluate((el) => el.scrollTop)).toBeLessThan(50);
+
+  await page.goBack();
+  await expect(page).toHaveURL(/\/topics$/);
+  await expect.poll(() => frame.evaluate((el) => el.scrollTop)).toBeGreaterThan(before - 60);
+  expect(await frame.evaluate((el) => el.scrollTop)).toBeLessThan(before + 60);
+});
+
 test("“Write a topic” opens the volunteer form with the place filled in", async ({ page }) => {
   // East Asia has no topics yet, so its portrait shows the full invitation.
   await page.goto("/region/east-asia");
