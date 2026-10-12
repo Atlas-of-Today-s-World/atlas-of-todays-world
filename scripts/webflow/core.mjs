@@ -123,7 +123,10 @@ export function text(value) {
 
 /** Plain text from rich text (for a summary, FAQ answer…). */
 export function plain(html) {
-  return htmlToText(text(html), { lineBreaks: true })
+  // Quotes and captions run on with the next paragraph, as the import has always
+  // done (re-importing must not change stored texts).
+  const source = text(html).replace(/<\/(?:blockquote|figcaption)\s*>/gi, " ");
+  return htmlToText(source, { blockEnd: "\n" })
     .replace(/[ \t]+/g, " ")
     .replace(/ ?\n ?/g, "\n")
     .replace(/\n{2,}/g, "\n")

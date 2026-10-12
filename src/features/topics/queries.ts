@@ -2,7 +2,8 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import { createPublicClient } from "@/lib/supabase/public";
-import { htmlToText, type TopicText } from "./text-search";
+import { htmlToText } from "@/lib/text/html";
+import type { TopicText } from "./text-search";
 
 interface Row {
   slug: string;
@@ -11,6 +12,10 @@ interface Row {
   body_html: string | null;
   entry_chapters: { position: number; title: string; body_html: string | null }[] | null;
 }
+
+/** Body HTML → one line of plain text; inline markup never splits a word. */
+const plainText = (html: string | null) =>
+  htmlToText(html ?? "", { blockEnd: " ", tagGap: "", collapse: true });
 
 /**
  * Plain text of every published topic for the Topics search: the introduction
@@ -35,14 +40,14 @@ export const getTopicTexts = unstable_cache(
         {
           anchor: null,
           heading: row.title,
-          text: [row.summary ?? "", htmlToText(row.body_html ?? "")].filter(Boolean).join(" "),
+          text: [row.summary ?? "", plainText(row.body_html)].filter(Boolean).join(" "),
         },
         ...[...(row.entry_chapters ?? [])]
           .sort((a, b) => a.position - b.position)
           .map((chapter, index) => ({
             anchor: `topic-${index + 1}`,
             heading: chapter.title,
-            text: htmlToText(chapter.body_html ?? ""),
+            text: plainText(chapter.body_html),
           })),
       ],
     }));

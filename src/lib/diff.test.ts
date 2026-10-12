@@ -7,6 +7,14 @@ describe("paragraphs", () => {
       paragraphs("<h2>Nadpis</h2><p>První &amp; <strong>druhý</strong></p><ul><li>A</li></ul>"),
     ).toEqual(["Nadpis", "První & druhý", "A"]);
   });
+
+  it("keeps a <br> inside its paragraph and splits quotes and captions", () => {
+    expect(
+      paragraphs(
+        "<p>one<br>two &lt;b&gt;</p><blockquote><p>Quote</p></blockquote><figure><figcaption>Cap</figcaption></figure>",
+      ),
+    ).toEqual(["onetwo <b>", "Quote", "Cap"]);
+  });
 });
 
 describe("diffParagraphs", () => {

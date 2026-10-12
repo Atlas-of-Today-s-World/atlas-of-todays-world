@@ -4,20 +4,44 @@
  * runtime dependencies, so client code may import it.
  */
 
-export type NewsCategory =
-  | "Living Conditions"
-  | "Political System"
-  | "Society"
-  | "International Relations"
-  | "Historical Roots";
-
-export const NEWS_CATEGORIES: NewsCategory[] = [
+/**
+ * The four topic groups of a portrait (brief), in display order. Labels:
+ * `messages.categories[group]`.
+ */
+export const ENTRY_CATEGORIES = [
   "Living Conditions",
-  "Political System",
   "Society",
-  "International Relations",
+  "Politics & International Relations",
   "Historical Roots",
-];
+] as const;
+
+type EntryCategory = (typeof ENTRY_CATEGORIES)[number];
+
+/**
+ * The one definition of content categories: every entry (news or topic) has one
+ * of these — the keys, in display order, are exactly the DB `CHECK` on
+ * `entries.category` — and each belongs to one portrait topic group ("Political
+ * System" and "International Relations" share one). Labels:
+ * `messages.categories[category]`.
+ */
+const CATEGORY_GROUP = {
+  "Living Conditions": "Living Conditions",
+  "Political System": "Politics & International Relations",
+  Society: "Society",
+  "International Relations": "Politics & International Relations",
+  "Historical Roots": "Historical Roots",
+} as const satisfies Record<string, EntryCategory>;
+
+export type NewsCategory = keyof typeof CATEGORY_GROUP;
+
+export const NEWS_CATEGORIES = Object.keys(CATEGORY_GROUP) as NewsCategory[];
+
+/** The portrait topic group of a category; an unknown one counts as "Society". */
+export function entryCategory(category: string): EntryCategory {
+  return Object.hasOwn(CATEGORY_GROUP, category)
+    ? CATEGORY_GROUP[category as NewsCategory]
+    : "Society";
+}
 
 export interface TimelineItem {
   title: string;
