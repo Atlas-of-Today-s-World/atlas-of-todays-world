@@ -204,7 +204,7 @@ describe("a confirmed write refreshes exactly its tags", { timeout: 30_000 }, ()
         locale: "en",
       },
     });
-    const { approveEntry } = await import("@/features/entries/actions");
+    const { approveEntry } = await import("@/features/entries/workflow-actions");
     const result = await approveEntry("00000000-0000-4000-8000-000000000123");
     expect(result).toMatchObject({ ok: true });
     expect(updatedTags()).toEqual(["entries", "entry:water", "portrait:region:europe"]);

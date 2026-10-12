@@ -11,7 +11,12 @@ import { getRequestLocale, getT } from "@/features/i18n/request";
 import { formatLongDate } from "@/lib/format";
 import { cssBackgroundImage, safeUrl } from "@/lib/security/urls";
 import { PHOTO_WIDTH, photoSrcSet, photoUrl } from "@/lib/images";
-import type { Encyclopedia, EntryAuthor, EntryChapter as Chapter, LearnMoreTile } from "../queries";
+import type {
+  Encyclopedia,
+  EntryAuthor,
+  EntryChapter as Chapter,
+  LearnMoreTile,
+} from "@/features/entries/topic-queries";
 import { META_LINE, PlaceLinks } from "./ArticleFrame";
 import { DossierExplorer } from "./DossierExplorer";
 import { OpenOnHash } from "./OpenOnHash";

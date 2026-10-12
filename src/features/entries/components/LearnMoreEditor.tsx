@@ -11,7 +11,7 @@ import { IconAction } from "@/components/admin/IconAction";
 import type { ActionState } from "@/lib/actions";
 import { swap } from "@/lib/array";
 import { withPreviews } from "@/lib/previews/merge";
-import { saveLearnMore } from "../actions";
+import { saveLearnMore } from "../parts-actions";
 import { MAX_LINKS } from "../constants";
 import type { EditableLink, EditableTile } from "../editorial";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";

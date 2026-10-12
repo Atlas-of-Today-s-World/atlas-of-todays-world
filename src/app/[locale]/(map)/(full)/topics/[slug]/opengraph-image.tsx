@@ -1,4 +1,4 @@
-import { getEncyclopediaEntry } from "@/features/entries/queries";
+import { getEncyclopediaEntry } from "@/features/entries/topic-queries";
 import { ogImage } from "@/features/seo/og-image";
 import { OG_SIZE } from "@/lib/og";
 

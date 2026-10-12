@@ -6,7 +6,7 @@ import { SubmitButton } from "@/components/admin/SubmitButton";
 import { ActionForm } from "@/components/ui/action-form";
 import { Checkbox, FormField, Input, Select, Textarea } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
-import { saveTopicTiles } from "../actions";
+import { saveTopicTiles } from "../parts-actions";
 import type { EditableTile, TemplateSummary } from "../editorial";
 import { applyTemplate, saveTemplate, saveTopicAsTemplate } from "../template-actions";
 import { TilesEditor } from "./TilesEditor";

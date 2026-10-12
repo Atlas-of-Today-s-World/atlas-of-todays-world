@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { Encyclopedia, Entry } from "@/features/entries/queries";
+import type { Entry } from "@/features/entries/queries";
+import type { Encyclopedia } from "@/features/entries/topic-queries";
 import type { Atlas } from "@/features/geography/types";
 import { SITE_URL } from "@/lib/site";
 import { articleMarkdown } from "./documents";

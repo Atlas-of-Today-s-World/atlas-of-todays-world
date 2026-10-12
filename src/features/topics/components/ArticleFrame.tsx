@@ -6,7 +6,7 @@ import type { Atlas } from "@/features/geography/types";
 import { getT } from "@/features/i18n/request";
 import { PHOTO_WIDTH, photoSrcSet, photoUrl } from "@/lib/images";
 import { safeUrl } from "@/lib/security/urls";
-import type { EntrySummary } from "../queries";
+import type { EntrySummary } from "@/features/entries/queries";
 import { routes } from "@/config/routes";
 
 /**

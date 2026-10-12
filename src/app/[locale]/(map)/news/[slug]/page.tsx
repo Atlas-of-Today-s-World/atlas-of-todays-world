@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { NewsArticle } from "@/features/entries/components/NewsArticle";
+import { NewsArticle } from "@/features/topics/components/NewsArticle";
 import { redirectOrNotFound } from "@/features/redirects/queries";
 import { getEntries, getEntry } from "@/features/entries/queries";
 import { countriesOf } from "@/features/geography/model";

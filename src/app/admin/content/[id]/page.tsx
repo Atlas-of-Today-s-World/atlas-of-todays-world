@@ -5,7 +5,7 @@ import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { can, sectionAccess } from "@/features/auth/access";
 import { listAuthors } from "@/features/authors/editorial";
-import { saveEntryFaq } from "@/features/entries/actions";
+import { saveEntryFaq } from "@/features/entries/parts-actions";
 import { ChaptersEditor } from "@/features/entries/components/ChaptersEditor";
 import { LearnMoreEditor } from "@/features/entries/components/LearnMoreEditor";
 import { SeoForm } from "@/features/entries/components/SeoForm";
@@ -17,13 +17,8 @@ import { EntryWorkflow, RevisionList } from "@/features/entries/components/Entry
 import { PreviewShare } from "@/features/entries/components/PreviewShare";
 import { StatusBadge } from "@/features/entries/components/StatusBadge";
 import { VersionDiff } from "@/features/entries/components/VersionDiff";
-import {
-  getEditableEntry,
-  getEntryParts,
-  listRevisions,
-  listTemplates,
-  publishedVersion,
-} from "@/features/entries/editorial";
+import { getEditableEntry, getEntryParts, listTemplates } from "@/features/entries/editorial";
+import { listRevisions, publishedVersion } from "@/features/entries/revisions";
 import { getPickerOptions } from "@/features/geography/queries";
 import { CollectionEditor } from "@/components/admin/CollectionEditor";
 import { COLLECTION_UI } from "@/features/portraits/components/fields";
