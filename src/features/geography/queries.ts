@@ -23,7 +23,11 @@ async function all<T>(label: string, page: (from: number, to: number) => Page<T>
   }
 }
 
-/** Everything the map is drawn from, in one pass; the result goes into the Next data cache. */
+/**
+ * Everything the map is drawn from, in one pass; the result goes into the Next
+ * data cache as one item. Next skips caching an item over 2 MB, so long
+ * per-country text stays out of it (`getCountryProfileHtml`).
+ */
 const loadSnapshot = unstable_cache(
   async (): Promise<AtlasSnapshot> => {
     const db = createPublicClient();
@@ -52,7 +56,7 @@ const loadSnapshot = unstable_cache(
         db
           .from("countries")
           .select(
-            "iso3, slug, name, name_formal, region_slug, un_subregion, population, lon, lat, bbox, blurb, tagline, profile_html, featured_indicators",
+            "iso3, slug, name, name_formal, region_slug, un_subregion, population, lon, lat, bbox, blurb, tagline, featured_indicators",
           )
           .order("iso3")
           .range(a, b),
@@ -150,6 +154,27 @@ const GEO: GeoFacts[] = (generated as GeneratedCountry[]).map(
 export const getAtlas = cache(async (locale: Locale = DEFAULT_LOCALE): Promise<Atlas> =>
   buildAtlas(await loadSnapshot(), GEO, locale),
 );
+
+/**
+ * A country's editorial profile text (sanitized HTML, "" when unwritten), cached
+ * per country: only its own page shows it, and saving the profile revalidates
+ * `tags.country` together with the map snapshot.
+ */
+export function getCountryProfileHtml(iso3: string): Promise<string> {
+  return unstable_cache(
+    async () => {
+      const { data, error } = await createPublicClient()
+        .from("countries")
+        .select("profile_html")
+        .eq("iso3", iso3)
+        .maybeSingle();
+      if (error) throw new Error(`[atlas] country profile: ${error.message}`);
+      return data?.profile_html ?? "";
+    },
+    ["country-profile", iso3],
+    { tags: [tags.country(iso3)], revalidate: PUBLIC_REVALIDATE_SECONDS },
+  )();
+}
 
 /** Options for admin selects (regions, global issues, countries alphabetically). */
 export async function getPickerOptions() {

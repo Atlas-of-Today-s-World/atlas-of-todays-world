@@ -344,6 +344,19 @@ body {
   display: none;
 }
 
+/*
+ * Phones (below DESKTOP_MIN_PX in src/config/layout.ts) with a content panel open:
+ * the panel is a bottom sheet, so the notice moves from the bottom to just under
+ * the header bar (h-16) and never covers the sheet's text. Pure CSS, so it is
+ * right from the first (server-rendered) paint.
+ */
+@media (width < 48rem) {
+  :root:has([data-content-rail]) [data-cookie-notice] {
+    top: 4.75rem;
+    bottom: auto;
+  }
+}
+
 /* Content panels: subtle scrollbar so it doesn't cut into the design. */
 .panel-scroll {
   scrollbar-width: thin;

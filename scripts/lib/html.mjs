@@ -1,9 +1,14 @@
 /**
  * HTML → plain text for scripts (smoke test, link check, Webflow import).
  * Not meant for sanitising rendered output — use src/lib/security/sanitize.ts.
+ *
+ * Mirrors `decodeEntities` and `htmlToText` of src/lib/text/html.ts, which the
+ * app uses: scripts run under plain Node and cannot import TypeScript.
+ * tests/unit/html-text.test.ts checks that both give the same output — change
+ * them together.
  */
 
-const ENTITIES = {
+const NAMED_ENTITIES = {
   amp: "&",
   lt: "<",
   gt: ">",
@@ -29,7 +34,7 @@ export function decodeEntities(value) {
         ? String.fromCodePoint(code)
         : match;
     }
-    return ENTITIES[name.toLowerCase()] ?? match;
+    return NAMED_ENTITIES[name.toLowerCase()] ?? match;
   });
 }
 
@@ -44,17 +49,28 @@ function untilStable(value, pattern, replacement) {
   return current;
 }
 
+const LINE_BREAK = /<br\b[^>]*>/gi;
+const BLOCK_END = /<\/(?:p|li|h[1-6]|blockquote|figcaption|div)\s*>/gi;
+
 /**
- * Text without scripts, styles, comments and tags. Block ends (`</p>`, `<br>`)
- * optionally become newlines; entities are decoded only at the very end.
+ * Text without scripts, styles, comments and tags; entities are decoded only at
+ * the very end. Options as in src/lib/text/html.ts: `blockEnd` (what `</p>`,
+ * `</li>`, `<br>`… become; unset = ordinary tags), `lineBreak` (`<br>` when it
+ * differs), `tagGap` (other tags, default " "), `collapse` (one trimmed line).
+ *
+ * @param {unknown} html
+ * @param {{ blockEnd?: string, lineBreak?: string, tagGap?: string, collapse?: boolean }} [options]
+ * @returns {string}
  */
-export function htmlToText(html, { lineBreaks = false } = {}) {
-  let text = String(html ?? "");
-  text = untilStable(text, /<(script|style)\b[\s\S]*?<\/\1\s*>/gi, " ");
+export function htmlToText(
+  html,
+  { blockEnd, lineBreak = blockEnd, tagGap = " ", collapse = false } = {},
+) {
+  let text = untilStable(String(html ?? ""), /<(script|style)\b[\s\S]*?<\/\1\s*>/gi, tagGap);
   text = untilStable(text, /<!--[\s\S]*?-->/g, "");
-  if (lineBreaks) text = text.replace(/<br\s*\/?>|<\/(p|li|h[1-6]|div)\s*>/gi, "\n");
-  text = untilStable(text, /<[^<>]*>/g, " ");
+  if (lineBreak !== undefined) text = text.replace(LINE_BREAK, lineBreak);
+  if (blockEnd !== undefined) text = text.replace(BLOCK_END, blockEnd);
   // Drop stray "<" or ">" left from tags so decoding cannot assemble anything from them.
-  text = text.replace(/[<>]/g, " ");
-  return decodeEntities(text);
+  text = decodeEntities(untilStable(text, /<[^<>]*>/g, tagGap).replace(/[<>]/g, tagGap));
+  return collapse ? text.replace(/\s+/g, " ").trim() : text;
 }

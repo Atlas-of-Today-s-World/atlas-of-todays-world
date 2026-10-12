@@ -15,7 +15,7 @@ import {
 import { EUROPE_CENTER, globeFillZoom } from "@/lib/home-location";
 import { useMapState } from "./MapContext";
 import { useLatest } from "@/lib/use-latest";
-import { GLOBE, isFullPage, isHome, railKind } from "@/config/layout";
+import { GLOBE, GLOBE_LABEL_MOBILE, isFullPage, isHome, railKind } from "@/config/layout";
 import { cn } from "@/lib/cn";
 import { useIdleSpin } from "./useIdleSpin";
 import { Starfield } from "./Starfield";
@@ -109,21 +109,23 @@ export default function AtlasGlobe({
   );
   const unprocessed = useMemo(() => unprocessedCountries(Object.values(regions.bySlug)), [regions]);
 
-  const { hoverLabel, pendingIso3, bind, clearHover } = useGlobeInteractions({
-    mode,
-    regions,
-    issue,
-    slugs,
-    topicCounts,
-    layers,
-    view,
-    openIssue,
-    activeIso3: focus.activeIso3,
-  });
+  const { hoverLabel, previewHref, openPreview, pendingIso3, bind, clearHover } =
+    useGlobeInteractions({
+      mode,
+      regions,
+      issue,
+      slugs,
+      topicCounts,
+      layers,
+      view,
+      openIssue,
+      activeIso3: focus.activeIso3,
+    });
 
   // On the home map (and in the corner window) the globe turns slowly until the user grabs it,
   // and now and then two topic counts pulse to invite a click.
-  const spin = useIdleSpin(mapRef, surfaceRef, ready, railKind(pathname) === "none", () => {
+  const noPanel = railKind(pathname) === "none";
+  const spin = useIdleSpin(mapRef, surfaceRef, ready, noPanel, () => {
     const map = mapRef.current;
     if (!map || document.hidden) return;
     const key = modeRef.current;
@@ -344,7 +346,14 @@ export default function AtlasGlobe({
         onZoomOut={() => mapRef.current?.zoomOut({ duration: GLOBE.zoomStepMs })}
         spin={spin}
       />
-      {hoverLabel && !mini ? <GlobeHoverLabel label={hoverLabel} /> : null}
+      {hoverLabel && !mini ? (
+        <GlobeHoverLabel
+          label={hoverLabel}
+          href={previewHref}
+          onOpen={openPreview}
+          className={noPanel ? GLOBE_LABEL_MOBILE.map : GLOBE_LABEL_MOBILE.sheet}
+        />
+      ) : null}
     </div>
   );
 }

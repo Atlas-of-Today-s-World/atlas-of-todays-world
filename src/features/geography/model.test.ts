@@ -14,7 +14,6 @@ const country = (iso3: string, region: string | null, population: number) => ({
   bbox: [1, 2, 3, 4],
   blurb: null,
   tagline: "",
-  profile_html: "",
   featured_indicators: [],
 });
 

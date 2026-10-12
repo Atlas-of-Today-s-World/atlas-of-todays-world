@@ -9,7 +9,7 @@ import type { ActionState } from "@/lib/actions";
 import { saveEntrySeo } from "../actions";
 import { GEO_SUMMARY_MAX, SEO_DESCRIPTION_MAX, SEO_TITLE_MAX } from "../constants";
 import type { EditableSeo } from "../editorial";
-import { UploadField } from "./UploadField";
+import { UploadField } from "@/components/admin/UploadField";
 
 /** Characters used / allowed; turns amber close to the limit search engines show. */
 function Counter({ value, max }: { value: string; max: number }) {

@@ -149,6 +149,7 @@
     "maintenanceText": "We are working on the site right now. Please come back in a little while.",
     "latestSubtopics": "Latest subtopics",
     "noData": "no data",
+    "openPlace": "Open {name}",
     "globeUnavailable": "The 3D globe can't run in this browser",
     "globeUnavailableText": "Your browser or device can't draw the globe (it needs WebGL). Every region and country is still one click away.",
     "globeUnavailableLink": "Browse countries and regions"

@@ -2340,7 +2340,6 @@ export type Database = {
       prune_entry_revisions: { Args: never; Returns: number }
       publish_due_entries: { Args: never; Returns: number }
       purge_audit_log: { Args: never; Returns: number }
-      record_page_view: { Args: never; Returns: undefined }
       apply_topic_template: {
         Args: { p_entry: string; p_remove_missing?: boolean; p_template: string }
         Returns: undefined

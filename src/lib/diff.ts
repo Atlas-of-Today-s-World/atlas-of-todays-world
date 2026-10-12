@@ -3,6 +3,8 @@
  * (revision history). Pure functions, no DOM: HTML is reduced to text first.
  */
 
+import { htmlToText } from "@/lib/text/html";
+
 export interface DiffPart {
   type: "same" | "added" | "removed";
   text: string;
@@ -10,21 +12,9 @@ export interface DiffPart {
 
 /** Article HTML → plain-text paragraphs (for comparing versions). */
 export function paragraphs(html: string): string[] {
-  let text = html.replace(/<\/(p|h[2-4]|li|blockquote|figcaption)>/gi, "\n");
-  // Repeat while something changes — otherwise "<<b>i>" would leave a tag behind.
-  for (let previous = ""; previous !== text;) {
-    previous = text;
-    text = text.replace(/<[^>]*>/g, "");
-  }
-  // The output is plain text for comparison (React escapes it); &amp; goes last
-  // so that "&amp;lt;" is not decoded twice.
-  return text
-    .replace(/&nbsp;/g, " ")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&amp;/g, "&")
+  // The output is plain text for comparison (React escapes it). A <br> stays
+  // inside its paragraph.
+  return htmlToText(html, { blockEnd: "\n", lineBreak: "", tagGap: "" })
     .split("\n")
     .map((line) => line.trim())
     .filter(Boolean);

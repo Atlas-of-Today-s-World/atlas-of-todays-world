@@ -4,7 +4,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { RelatedTopics, TopicsLink } from "@/components/topics/RelatedTopics";
 import type { EntrySummary } from "@/features/entries/queries";
 import { NewsBadge, SectionLabel } from "@/components/atlas/ui";
-import type { RegionDossier } from "@/lib/content-types";
+import { ENTRY_CATEGORIES, entryCategory, type RegionDossier } from "@/lib/content-types";
 import type { RegionStat } from "@/lib/region-stats";
 import { formatPopulation } from "@/lib/format";
 import { cssBackgroundImage } from "@/lib/security/urls";
@@ -17,7 +17,6 @@ import NewsTabs, { type NewsCard } from "./NewsTabs";
 import { PortraitCounts } from "./PortraitCounts";
 import {
   ComingSections,
-  ENTRY_CATEGORIES,
   FaqList,
   IndicatorCards,
   PatronsCallout,
@@ -303,19 +302,4 @@ function plannedEntries(name: string, entries: PlannedEntry[], t: Messages): Pla
     });
   }
   return planned;
-}
-
-/** Atlas news categories mapped to the four topic groups from the brief. */
-function entryCategory(category: string): string {
-  switch (category) {
-    case "Living Conditions":
-    case "Society":
-    case "Historical Roots":
-      return category;
-    case "Political System":
-    case "International Relations":
-      return "Politics & International Relations";
-    default:
-      return "Society";
-  }
 }

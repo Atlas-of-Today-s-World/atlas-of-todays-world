@@ -50,36 +50,6 @@ export function fold(value: string): string {
   return out;
 }
 
-const ENTITIES: Record<string, string> = {
-  amp: "&",
-  lt: "<",
-  gt: ">",
-  quot: '"',
-  apos: "'",
-  nbsp: " ",
-};
-
-/** Sanitized HTML → readable plain text. */
-export function htmlToText(html: string): string {
-  let text = html.replace(/<(br|\/p|\/li|\/h[1-6]|\/blockquote)\b[^>]*>/gi, " ");
-  // Strip tags until none is left (removing one can't join two halves into a new
-  // tag), then drop any stray angle bracket: the result is plain text, never markup.
-  for (let previous = ""; previous !== text;) {
-    previous = text;
-    text = text.replace(/<[^<>]*>/g, "");
-  }
-  return text
-    .replace(/[<>]/g, "")
-    .replace(/&(#\d+|#x[\da-f]+|[a-z]+);/gi, (entity, code: string) => {
-      if (code.startsWith("#x") || code.startsWith("#X"))
-        return String.fromCodePoint(parseInt(code.slice(2), 16));
-      if (code.startsWith("#")) return String.fromCodePoint(Number(code.slice(1)));
-      return ENTITIES[code.toLowerCase()] ?? entity;
-    })
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 /** Query → folded words (at least 2 characters), at most a few. */
 export function queryWords(query: string): string[] {
   const words = fold(query)

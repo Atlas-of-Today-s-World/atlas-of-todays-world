@@ -6,7 +6,8 @@ import { ReadOnly } from "@/components/admin/ReadOnly";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { can, sectionAccess } from "@/features/auth/access";
 import { getPickerOptions } from "@/features/geography/queries";
-import { CollectionEditor } from "@/features/portraits/components/CollectionEditor";
+import { CollectionEditor } from "@/components/admin/CollectionEditor";
+import { COLLECTION_UI } from "@/features/portraits/components/fields";
 import { savePortraitSection } from "@/features/portraits/actions";
 import { IssueForm } from "@/features/portraits/components/HeaderForms";
 import { GROUP_KIND_LABEL } from "@/features/portraits/constants";
@@ -81,6 +82,7 @@ export default async function IssueEditPage({ params }: { params: Promise<{ slug
               save={savePortraitSection}
               target={{ kind: "issue", slug }}
               collection={collection}
+              ui={COLLECTION_UI[collection]}
               initial={items[collection] ?? []}
             />
           </ReadOnly>

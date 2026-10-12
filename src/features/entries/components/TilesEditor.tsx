@@ -6,14 +6,14 @@ import { PhotoTile } from "@/components/atlas/PhotoTile";
 import { Button } from "@/components/ui/button";
 import { ColorField } from "@/components/ui/color-field";
 import { FormField, Input } from "@/components/ui/field";
-import { IconAction } from "@/features/portraits/components/CollectionEditor";
+import { IconAction } from "@/components/admin/IconAction";
 import { swap } from "@/lib/array";
 import { slugify } from "@/lib/validation/common";
 import { MAX_TILES } from "../constants";
 import type { EditableTile } from "../editorial";
 import { IconPicker } from "./IconPicker";
 import { TileIcon } from "./TileIcon";
-import { UploadField } from "./UploadField";
+import { UploadField } from "@/components/admin/UploadField";
 
 /** A tile while editing; `key` keeps React rows stable, `id` is empty for a new one. */
 type Row = Omit<EditableTile, "id"> & { id: string; key: string };

@@ -34,6 +34,16 @@ export const MOBILE_SHEET = {
   expandedScrollClassName: "max-h-[calc(100dvh-8.25rem)]",
 } as const;
 /**
+ * The globe's place label (GlobeHoverLabel) on phones, where on touch it is the
+ * tappable preview of a place: above the map legend and the floating buttons,
+ * or — with a panel open — above the bottom sheet (MOBILE_SHEET.ratio), which
+ * would otherwise cover it. From `md` up it stays at the bottom of the globe.
+ */
+export const GLOBE_LABEL_MOBILE = {
+  map: "max-md:bottom-24",
+  sheet: "max-md:bottom-[calc(58dvh+0.75rem)]",
+} as const;
+/**
  * Sticky offset right under the dark header bar of full-width pages (Header
  * `bar`, `h-16`): the reading progress and the chapters bar of a topic.
  */

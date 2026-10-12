@@ -79,12 +79,13 @@ export interface CountryStat {
   rankOf: number | null;
 }
 
-/** Editorial country profile — text, subtitle, manual cards, indicator selection. */
+/**
+ * Editorial country profile — summary, subtitle, manual cards, indicator
+ * selection. The long text is not here: `getCountryProfileHtml` loads it per country.
+ */
 export interface CountryProfile {
   summary: string;
   tagline: string;
-  /** Sanitized HTML; rendered via <SafeHtml>. */
-  html: string;
   metrics: MetricCard[];
   /** Which automatic indicators to show and in what order; empty = the first six. */
   featured: string[];
