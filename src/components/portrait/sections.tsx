@@ -9,7 +9,13 @@ import { PhotoTile } from "@/components/atlas/PhotoTile";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import type { RegionStat } from "@/lib/region-stats";
-import type { FaqItem, MetricCard, ResourceItem, TimelineItem } from "@/lib/content-types";
+import {
+  ENTRY_CATEGORIES,
+  type FaqItem,
+  type MetricCard,
+  type ResourceItem,
+  type TimelineItem,
+} from "@/lib/content-types";
 import { safeUrl } from "@/lib/security/urls";
 import { datawrapperChartUrl } from "@/lib/embeds";
 import { DatawrapperChart } from "./DatawrapperChart";
@@ -25,13 +31,6 @@ import { routes } from "@/config/routes";
  * Unwritten sections aren't skipped: they're drawn grey and non-clickable, so it's
  * visible what Atlas is planning, with a call for support right next to them.
  */
-
-export const ENTRY_CATEGORIES = [
-  "Living Conditions",
-  "Society",
-  "Politics & International Relations",
-  "Historical Roots",
-] as const;
 
 const section = cva("border-t px-6 py-8 sm:px-10", {
   variants: {

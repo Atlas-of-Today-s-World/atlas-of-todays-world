@@ -1,12 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  excerpt,
-  fold,
-  htmlToText,
-  queryWords,
-  searchTopicTexts,
-  type TopicText,
-} from "./text-search";
+import { excerpt, fold, queryWords, searchTopicTexts, type TopicText } from "./text-search";
 
 const topics: TopicText[] = [
   {
@@ -45,14 +38,6 @@ describe("topic text search", () => {
   it("folds case and accents without shifting positions", () => {
     expect(fold("Côte d'Ivoire")).toBe("cote d'ivoire");
     expect(fold("Žluťoučký").length).toBe("Žluťoučký".length);
-  });
-
-  it("turns sanitized HTML into plain text", () => {
-    expect(htmlToText("<p>Rock &amp; roll</p><p>Next&nbsp;line&#8217;s</p>")).toBe(
-      "Rock & roll Next line’s",
-    );
-    // Nested or broken tags leave no markup behind.
-    expect(htmlToText("<scr<script>ipt>alert(1)</script> a < b")).toBe("alert(1) a b");
   });
 
   it("needs every word, in the heading or the text", () => {

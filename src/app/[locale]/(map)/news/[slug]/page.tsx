@@ -8,6 +8,7 @@ import { localeFrom } from "@/features/i18n/request";
 import { geoMeta } from "@/lib/seo";
 import { DEFAULT_OG_IMAGE, pageMetadata, pageTitle } from "@/lib/seo/metadata";
 import { articleNode, breadcrumbNode, graph, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import { wordCount } from "@/lib/text/html";
 import { getMessages } from "@/features/i18n/messages";
 import { JsonLd } from "@/components/JsonLd";
 import { routes } from "@/config/routes";
@@ -108,10 +109,7 @@ export default async function NewsPage({
             locale: item.locale,
             author: item.author ? { name: item.author, slug: item.authorSlug } : null,
             section: getMessages(item.locale).categories[item.category] ?? item.category,
-            wordCount: item.html
-              .replace(/<[^>]+>/g, " ")
-              .split(/\s+/)
-              .filter(Boolean).length,
+            wordCount: wordCount(item.html),
             about: countriesCovered,
             location: region ?? null,
           }),

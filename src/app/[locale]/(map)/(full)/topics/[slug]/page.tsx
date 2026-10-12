@@ -20,6 +20,7 @@ import {
   pageUrl,
   webPageNode,
 } from "@/lib/seo/jsonld";
+import { wordCount } from "@/lib/text/html";
 import { getMessages } from "@/features/i18n/messages";
 import { JsonLd } from "@/components/JsonLd";
 import { routes } from "@/config/routes";
@@ -85,11 +86,7 @@ export default async function EntryPage({
   const region = item.region ? atlas.regionBySlug.get(item.region) : undefined;
   // Canonical URL: the language the text is in (an untranslated original under /cs points to it).
   const url = pageUrl(routes.topic(item.slug), item.locale);
-  const words = [item.html, ...item.chapters.map((chapter) => chapter.html)]
-    .join(" ")
-    .replace(/<[^>]+>/g, " ")
-    .split(/\s+/)
-    .filter(Boolean).length;
+  const words = wordCount([item.html, ...item.chapters.map((chapter) => chapter.html)].join(" "));
 
   return (
     <>
