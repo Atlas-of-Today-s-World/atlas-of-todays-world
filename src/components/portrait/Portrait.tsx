@@ -195,7 +195,7 @@ export default function Portrait({
       <PatronsCallout complete={complete} />
 
       <p className="px-6 pb-8 text-center text-[11.5px] text-[var(--color-ink-muted)] sm:px-10">
-        <Link href="/" className="inline-flex min-h-11 items-center hover:underline">
+        <Link href="/" className="inline-flex min-h-(--touch-min) items-center hover:underline">
           ← {t.common.backToGlobe}
         </Link>
       </p>

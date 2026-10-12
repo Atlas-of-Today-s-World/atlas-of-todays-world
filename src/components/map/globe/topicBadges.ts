@@ -3,6 +3,7 @@ import { loadMapLibre } from "../maplibre";
 import { COUNTRY_RANK_FILTER, TOPIC_BADGE_IMAGES, TOPIC_LAYERS } from "../mapStyle";
 import { withStatusMark } from "../global-issues";
 import type { ContentStatus } from "@/features/geography/content-status";
+import { GLOBE_COLORS } from "@/config/palette";
 
 export type SelectionModeKey = keyof typeof TOPIC_LAYERS;
 
@@ -109,7 +110,7 @@ export function applyTopicBadges(
       TOPIC_BADGE_IMAGES.some,
       TOPIC_BADGE_IMAGES.none,
     ]);
-    map.setPaintProperty(layer, "text-color", ["case", has, "#0b1220", "#ffffff"]);
+    map.setPaintProperty(layer, "text-color", ["case", has, GLOBE_COLORS.badgeText, "#ffffff"]);
     map.setPaintProperty(layer, "icon-opacity", ["case", has, 0.92, 0.5]);
     map.setPaintProperty(layer, "text-opacity", ["case", has, 1, 0.7]);
   }

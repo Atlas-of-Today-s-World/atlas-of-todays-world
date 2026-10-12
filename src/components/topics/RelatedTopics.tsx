@@ -27,7 +27,7 @@ export function TopicsLink({
     <Link
       href={href}
       className={cn(
-        "spark-ring inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--color-ink)] px-4 text-[13px] font-medium text-white transition hover:bg-[var(--color-accent)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:outline-none",
+        "spark-ring inline-flex min-h-(--touch-min) items-center gap-2 rounded-full bg-[var(--color-ink)] px-4 text-[13px] font-medium text-white transition hover:bg-[var(--color-accent)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:outline-none",
         className,
       )}
     >

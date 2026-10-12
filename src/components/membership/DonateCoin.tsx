@@ -1,4 +1,5 @@
 import { Globe, Heart } from "lucide-react";
+import { glassVariants } from "@/components/atlas/glass";
 import Link from "@/components/i18n/Link";
 import { cn } from "@/lib/cn";
 import { routes } from "@/config/routes";
@@ -18,9 +19,8 @@ export function DonateCoin({ label, className }: { label: string; className?: st
       href={routes.membership}
       data-print="hide"
       className={cn(
-        "glass glass-hover group pointer-events-auto flex h-[35px] min-w-[35px] items-center gap-2 rounded-full px-[4.5px] text-[11px] font-medium text-white transition sm:pr-[13px]",
-        "before:absolute before:-inset-[4.5px] before:rounded-full before:content-['']",
-        "hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gold)]",
+        glassVariants({ kind: "pill" }),
+        "group focus-visible:outline-[var(--color-gold)]",
         className,
       )}
     >

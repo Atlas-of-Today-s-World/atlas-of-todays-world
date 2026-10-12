@@ -1,3 +1,4 @@
+import { kickerVariants } from "@/components/atlas/kicker";
 import { ShareButton } from "@/components/atlas/ShareButton";
 import Link from "@/components/i18n/Link";
 import { TopicsLink } from "@/components/topics/RelatedTopics";
@@ -121,9 +122,7 @@ export default function CountryCard({
 
       {metrics.length ? (
         <section className="mt-7 border-t border-[var(--color-line)] pt-5">
-          <h2 className="text-[11px] font-medium tracking-[0.1em] text-[var(--color-ink-muted)] uppercase">
-            {t.country.whereStands}
-          </h2>
+          <h2 className={kickerVariants()}>{t.country.whereStands}</h2>
           <MetricCards metrics={metrics} className="mt-4" />
         </section>
       ) : null}
@@ -196,7 +195,7 @@ export default function CountryCard({
         // Atlas draws borders according to UN practice. Where that differs from de facto
         // control, the profile must say why and on what basis – otherwise readers
         // take it as Atlas's own claim.
-        <p className="mt-5 rounded-xl border border-[var(--color-line)] bg-[var(--color-paper-soft,#f6f7fb)] px-4 py-3 text-[12px] leading-relaxed text-[var(--color-ink-soft)]">
+        <p className="mt-5 rounded-xl border border-[var(--color-line)] bg-[var(--color-paper-soft)] px-4 py-3 text-[12px] leading-relaxed text-[var(--color-ink-soft)]">
           <span className="font-medium text-[var(--color-ink)]">
             {
               t.country[

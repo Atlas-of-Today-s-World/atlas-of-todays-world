@@ -1,6 +1,7 @@
 import Link from "@/components/i18n/Link";
 import type { ReactNode } from "react";
 import { cva } from "class-variance-authority";
+import { kickerVariants } from "@/components/atlas/kicker";
 import { MetricCards, SourceLink, StatGrid, StatIcon, StatItem } from "@/components/atlas/ui";
 import { Rail } from "@/components/atlas/Rail";
 import { Accordion } from "@/components/atlas/Accordion";
@@ -245,9 +246,7 @@ export function ThematicEntries({ entries }: { entries: PlannedEntry[] }) {
           const group = entries.filter((entry) => entry.category === category);
           return (
             <div key={category}>
-              <h3 className="text-[11px] font-medium tracking-[0.1em] text-[var(--color-ink-muted)] uppercase">
-                {t.categories[category]}
-              </h3>
+              <h3 className={kickerVariants()}>{t.categories[category]}</h3>
               {group.length ? (
                 <Rail label={t.categories[category]} gap="sm" className="mt-2.5">
                   {group.map((entry) => {

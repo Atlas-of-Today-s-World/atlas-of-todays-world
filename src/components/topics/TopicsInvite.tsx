@@ -12,7 +12,7 @@ type InviteMessages = Record<
 >;
 
 const PILL =
-  "inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-[13px] font-medium transition focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:outline-none";
+  "inline-flex min-h-(--touch-min) items-center gap-2 rounded-full px-4 text-[13px] font-medium transition focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:outline-none";
 
 /**
  * Invitation to take part where a place has few or no topics: write one as an

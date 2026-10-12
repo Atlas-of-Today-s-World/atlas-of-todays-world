@@ -40,9 +40,9 @@ export default function NewsTabs({ newsItems }: { newsItems: NewsCard[] }) {
               type="button"
               aria-pressed={active === category}
               onClick={() => setActive(category)}
-              className={`min-h-11 transition ${
+              className={`min-h-(--touch-min) transition ${
                 active === category
-                  ? "font-semibold text-[#7f97ff]"
+                  ? "font-semibold text-[var(--color-accent-bright)]"
                   : "text-white/65 hover:text-white"
               }`}
             >

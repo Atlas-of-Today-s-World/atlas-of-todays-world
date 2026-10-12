@@ -43,7 +43,7 @@ export default function MapControls({
     <div
       data-print="hide"
       className={cn(
-        "pointer-events-none absolute left-4 z-30 flex flex-col items-stretch gap-2.5 sm:left-auto sm:items-end",
+        "z-controls pointer-events-none absolute left-4 flex flex-col items-stretch gap-2.5 sm:left-auto sm:items-end",
         // Never wider than the room between the zoom buttons and the panel: the
         // switches wrap instead of covering "+" / "−" (768–1024 px with a panel).
         MAP_CONTROLS_LEFT,

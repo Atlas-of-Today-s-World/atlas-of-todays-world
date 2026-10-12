@@ -1,4 +1,5 @@
 import type { GeoJSONSourceSpecification, StyleSpecification } from "maplibre-gl";
+import { GLOBE_COLORS, THEME_COLORS } from "@/config/palette";
 import { publicEnv } from "@/lib/env";
 
 /** Plocha z administrace (map_areas) — GeoJSON Polygon s barvami. */
@@ -133,7 +134,7 @@ function topicBadgeLayer(id: string, source: string, { minzoom = 0, below = 1.35
       "icon-ignore-placement": true,
     },
     paint: {
-      "text-color": "#0b1220",
+      "text-color": GLOBE_COLORS.badgeText,
       "icon-opacity": 0.92,
     },
   };
@@ -184,14 +185,14 @@ export function buildStyle(regions: RegionLabel[], options: StyleOptions): Style
       "sky-horizon-blend": 0.5,
       "horizon-color": "#4a6fa5",
       "horizon-fog-blend": 0.6,
-      "fog-color": "#0a1020",
+      "fog-color": THEME_COLORS.space,
       "fog-ground-blend": 0.05,
       "atmosphere-blend": ["interpolate", ["linear"], ["zoom"], 0, 1, 4, 0.6, 6, 0],
     },
     // Even lighting: a day/night terminator would drown half the globe in darkness.
     light: { anchor: "viewport", position: [1.15, 210, 30], intensity: 0.05 },
     layers: [
-      { id: "space", type: "background", paint: { "background-color": "#070b16" } },
+      { id: "space", type: "background", paint: { "background-color": THEME_COLORS.spaceDeep } },
       {
         id: LAYERS.satellite,
         type: "raster",
@@ -207,7 +208,7 @@ export function buildStyle(regions: RegionLabel[], options: StyleOptions): Style
         id: LAYERS.fill,
         type: "fill",
         source: "countries",
-        paint: { "fill-color": "#7d8aa8", "fill-opacity": 0.61 },
+        paint: { "fill-color": GLOBE_COLORS.land, "fill-opacity": 0.61 },
       },
       {
         // Hover highlight. The layer is always rendered, just transparent –

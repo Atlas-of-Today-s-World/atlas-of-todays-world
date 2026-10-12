@@ -24,7 +24,7 @@ export function DevelogiCredit({
         href="https://develogi.cz"
         target="_blank"
         rel="noopener"
-        className="inline-flex min-h-11 items-center rounded-md px-1 transition hover:opacity-80 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none"
+        className="inline-flex min-h-(--touch-min) items-center rounded-md px-1 transition hover:opacity-80 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none"
       >
         {/* eslint-disable-next-line @next/next/no-img-element -- small static logo, no optimizer (next.config) */}
         <img

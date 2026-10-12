@@ -26,7 +26,7 @@ export function FullPage({
     <RememberedScroll
       id="content"
       tabIndex={-1}
-      className="panel-scroll fixed inset-0 z-[45] animate-[full-page-in_0.6s_cubic-bezier(0.22,1,0.36,1)_both] overflow-y-auto bg-[var(--color-paper)] text-[var(--color-ink)] outline-none"
+      className="panel-scroll z-full-page fixed inset-0 animate-[full-page-in_0.6s_cubic-bezier(0.22,1,0.36,1)_both] overflow-y-auto bg-[var(--color-paper)] text-[var(--color-ink)] outline-none"
     >
       <Header bar showNews={showNews} newsletter={newsletter} />
 
