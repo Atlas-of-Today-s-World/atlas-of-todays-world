@@ -7,7 +7,7 @@ import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { FormField, Input, Select, Textarea } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
-import { slugify } from "@/lib/validation/common";
+import { SlugField, useSlug } from "@/components/admin/SlugField";
 import { deleteArea, saveArea, saveTheme } from "../actions";
 import { ActionForm } from "@/components/ui/action-form";
 
@@ -92,8 +92,7 @@ export function AreaForm({
   countries: { iso3: string; name: string }[];
 }) {
   const [state, action] = useActionState<ActionState, FormData>(saveArea, { ok: false });
-  const [slug, setSlug] = useState(area?.slug ?? "");
-  const [slugTouched, setSlugTouched] = useState(Boolean(area));
+  const slug = useSlug(area?.slug);
   const errors = state.fieldErrors ?? {};
   return (
     <ActionForm action={action} className="grid max-w-3xl gap-5">
@@ -106,24 +105,10 @@ export function AreaForm({
             required
             maxLength={120}
             defaultValue={area?.name}
-            onChange={(event) => {
-              if (!slugTouched) setSlug(slugify(event.target.value));
-            }}
+            onChange={(event) => slug.follow(event.target.value)}
           />
         </FormField>
-        <FormField id="slug" label="Identifier" required errors={errors.slug}>
-          <Input
-            id="slug"
-            name="slug"
-            required
-            maxLength={120}
-            value={slug}
-            onChange={(event) => {
-              setSlugTouched(true);
-              setSlug(event.target.value);
-            }}
-          />
-        </FormField>
+        <SlugField slug={slug} label="Identifier" errors={errors.slug} />
         <FormField id="label" label="Map label" hint="Empty = name." errors={errors.label}>
           <Input id="label" name="label" maxLength={60} defaultValue={area?.label} />
         </FormField>

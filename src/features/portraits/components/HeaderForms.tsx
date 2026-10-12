@@ -1,15 +1,15 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState } from "react";
 import { CONTENT_STATUS_LABEL, GROUP_KIND_LABEL, GROUP_KIND_OPTION } from "../constants";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { CountryPicker, type CountryOption } from "@/components/admin/CountryPicker";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { Checkbox, FormField, Input, Select, Textarea } from "@/components/ui/field";
-import { UploadField } from "@/features/entries/components/UploadField";
-import { RichTextEditor } from "@/features/entries/components/RichTextEditor";
+import { UploadField } from "@/components/admin/UploadField";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import type { ActionState } from "@/lib/actions";
-import { slugify } from "@/lib/validation/common";
+import { SlugField, useSlug } from "@/components/admin/SlugField";
 import { saveCountry, saveIssue, saveRegion } from "../actions";
 import { CONTENT_STATUSES, type ContentStatus } from "@/features/geography/content-status";
 import { ActionForm } from "@/components/ui/action-form";
@@ -199,8 +199,7 @@ export function IssueForm({
   defaultKind?: "issue" | "region";
 }) {
   const [state, action] = useSave(saveIssue);
-  const [slug, setSlug] = useState(issue?.slug ?? "");
-  const [slugTouched, setSlugTouched] = useState(Boolean(issue));
+  const slug = useSlug(issue?.slug);
   const errors = state.fieldErrors ?? {};
   const values: IssueValues = issue ?? {
     kind: defaultKind,
@@ -262,30 +261,10 @@ export function IssueForm({
             required
             maxLength={120}
             defaultValue={values.name}
-            onChange={(event) => {
-              if (!slugTouched) setSlug(slugify(event.target.value));
-            }}
+            onChange={(event) => slug.follow(event.target.value)}
           />
         </FormField>
-        <FormField
-          id="slug"
-          label="URL (slug)"
-          required
-          hint={routes.issue(slug || "…")}
-          errors={errors.slug}
-        >
-          <Input
-            id="slug"
-            name="slug"
-            required
-            maxLength={120}
-            value={slug}
-            onChange={(event) => {
-              setSlugTouched(true);
-              setSlug(event.target.value);
-            }}
-          />
-        </FormField>
+        <SlugField slug={slug} hint={routes.issue(slug.value || "…")} errors={errors.slug} />
       </div>
       <FormField id="subtitle" label="Subtitle" errors={errors.subtitle}>
         <Input id="subtitle" name="subtitle" maxLength={200} defaultValue={values.subtitle} />

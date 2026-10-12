@@ -1,23 +1,10 @@
 import { RESOURCE_KINDS, VISUAL_PROVIDERS } from "../constants";
 import { MAX_EMBED_LENGTH } from "@/lib/embeds";
+import type { CollectionUi } from "@/components/admin/CollectionEditor";
 import type { Collection } from "../schema";
 
-export interface ItemField {
-  name: string;
-  label: string;
-  kind?: "text" | "textarea" | "url" | "select";
-  options?: readonly string[];
-  required?: boolean;
-  max?: number;
-  /** Spans the full row on a wide display. */
-  full?: boolean;
-}
-
 /** How each portrait section's item is shown in the editor (shape = schema.ts). */
-export const COLLECTION_UI: Record<
-  Collection,
-  { title: string; lead: string; itemLabel: string; fields: ItemField[] }
-> = {
+export const COLLECTION_UI: Record<Collection, CollectionUi> = {
   metrics: {
     title: "Key indicators",
     lead: "Manual cards take precedence over values computed from imported data. A card without a source isn't published.",

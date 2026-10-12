@@ -7,14 +7,14 @@ import { SubmitButton } from "@/components/admin/SubmitButton";
 import { ActionForm } from "@/components/ui/action-form";
 import { Button } from "@/components/ui/button";
 import { FormField, Input, Textarea } from "@/components/ui/field";
-import { IconAction } from "@/features/portraits/components/CollectionEditor";
+import { IconAction } from "@/components/admin/IconAction";
 import type { ActionState } from "@/lib/actions";
 import { swap } from "@/lib/array";
 import { withPreviews } from "@/lib/previews/merge";
 import { saveLearnMore } from "../actions";
 import { MAX_LINKS } from "../constants";
 import type { EditableLink, EditableTile } from "../editorial";
-import { RichTextEditor } from "./RichTextEditor";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
 
 const blankLink = (): EditableLink => ({
   title: "",

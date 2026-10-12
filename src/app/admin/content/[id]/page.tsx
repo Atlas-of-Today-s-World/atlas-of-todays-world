@@ -25,7 +25,8 @@ import {
   publishedVersion,
 } from "@/features/entries/editorial";
 import { getPickerOptions } from "@/features/geography/queries";
-import { CollectionEditor } from "@/features/portraits/components/CollectionEditor";
+import { CollectionEditor } from "@/components/admin/CollectionEditor";
+import { COLLECTION_UI } from "@/features/portraits/components/fields";
 import { cn } from "@/lib/cn";
 import { uuid } from "@/lib/validation/common";
 import { createServerClient } from "@/lib/supabase/server";
@@ -197,6 +198,7 @@ export default async function EditEntryPage({
                     save={saveEntryFaq}
                     target={{ entry_id: entry.id }}
                     collection="faq"
+                    ui={COLLECTION_UI.faq}
                     initial={parts.faq}
                   />
                 </>
