@@ -44,6 +44,34 @@ export const UNDER_HEADER_BAR = "top-16";
  */
 export const SKIP_LINK =
   "sr-only z-[100] rounded-full bg-white px-5 py-3 text-[14px] font-medium text-[#0d1324] focus:not-sr-only focus:fixed focus:top-3 focus:left-3";
+/**
+ * Globe camera (AtlasGlobe and components/map/globe/): zoom limits, timings and
+ * the padding that keeps a focused place clear of the content panel.
+ */
+export const GLOBE = {
+  /** Closest zoom on the full map; the corner window on full-width pages goes below it. */
+  minZoom: 0.8,
+  maxZoom: 9,
+  /** Globe ↔ corner window transition (matches the wrapper's `duration-700`). */
+  windowMs: 700,
+  /** Flight to the place a page focuses on. */
+  flightMs: 1600,
+  /** Closest a fit to a country's bounds zooms in (Luxembourg up close, Russia from afar). */
+  fitMaxZoom: 6,
+  /** Zoom of a flight to a centre that comes without one. */
+  fallbackZoom: 3,
+  /** One step of the + / − buttons. */
+  zoomStepMs: 300,
+  /** Camera padding in px around the focused place. */
+  padding: {
+    /** On the server, before there is a window to measure. */
+    server: 60,
+    /** From DESKTOP_MIN_PX up; `railGap` is added to the open panel's width on the right. */
+    desktop: { top: 110, bottom: 90, left: 60, railGap: 40 },
+    /** Phones: the place sits on the strip above the bottom sheet (MOBILE_SHEET.ratio). */
+    mobile: { top: 16, sheetGap: 16, side: 24 },
+  },
+} as const;
 /** Minimum touch target (WCAG 2.5.5). */
 export const TOUCH_MIN_PX = 44;
 
