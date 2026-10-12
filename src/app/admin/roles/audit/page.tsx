@@ -49,7 +49,7 @@ export default async function AuditPage({
           id: String(row.id),
           values: {
             at: row.at,
-            who: row.actor_email ?? "system",
+            who: row.who,
             action: row.action,
             target: row.target,
             detail: JSON.stringify(row.detail),

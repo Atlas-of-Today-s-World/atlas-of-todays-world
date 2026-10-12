@@ -467,12 +467,16 @@ test("patron_stats: anon sees only the aggregate, never individual memberships",
   await q("delete from memberships where user_id = $1", [id.pubB]);
 });
 
-test("page views count only towards yourself", async () => {
+test("page views are written only by the database, not by an account", async () => {
+  // record_page_view() was never called by the app and is gone (20261012000014).
   await as(id.reader, async () => {
-    await q("select record_page_view()");
-    await q("select record_page_view()");
+    await refused(q("select record_page_view()"), /does not exist/);
     await refused(q("insert into page_views_daily (user_id, views) values ($1, 1000)", [id.admin]));
+    await refused(
+      q("insert into page_views_daily (user_id, views) values ($1, 1000)", [id.reader]),
+    );
   });
+  await q("insert into page_views_daily (user_id, views) values ($1, 2)", [id.reader]);
   const row = await one("select views from page_views_daily where user_id = $1", [id.reader]);
   assert.equal(row.views, 2);
   const overview = await as(id.admin, () =>
