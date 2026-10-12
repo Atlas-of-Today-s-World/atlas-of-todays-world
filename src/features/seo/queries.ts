@@ -3,11 +3,11 @@ import { unstable_cache } from "next/cache";
 import { getAuthors } from "@/features/authors/queries";
 import {
   getEncyclopediaEntries,
-  getEncyclopediaEntry,
   getEntries,
   getEntry,
   type EntrySummary,
 } from "@/features/entries/queries";
+import { getEncyclopediaEntry } from "@/features/entries/topic-queries";
 import { getAtlas } from "@/features/geography/queries";
 import type { Atlas } from "@/features/geography/types";
 import { DEFAULT_LOCALE, localePath, type Locale } from "@/features/i18n/config";

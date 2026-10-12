@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { FullPage } from "@/components/FullPage";
 import { EncyclopediaArticle } from "@/features/topics/components/EncyclopediaArticle";
 import { NewsArticle } from "@/features/topics/components/NewsArticle";
-import { getPreview } from "@/features/entries/queries";
+import { getPreview } from "@/features/entries/preview-queries";
 import { getFlags } from "@/features/flags/queries";
 import { getAtlas } from "@/features/geography/queries";
 import { format, getMessages } from "@/features/i18n/messages";

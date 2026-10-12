@@ -192,7 +192,7 @@ test("anon: every public column is still readable", async () => {
 
 test("anon: the public site's own queries still work", async () => {
   // The column lists the app sends with the public client (features/geography/queries.ts,
-  // features/seo/queries.ts, features/entries/queries.ts, features/topics/*.ts).
+  // features/seo/queries.ts, features/entries/*queries.ts, features/topics/*.ts).
   const queries = [
     `select id, label, short_label, description, unit, decimals, source, source_url, type, scale,
             domain_min, domain_max, ramp, higher_is_better, latest_year
