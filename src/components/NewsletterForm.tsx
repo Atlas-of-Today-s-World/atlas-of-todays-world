@@ -57,12 +57,12 @@ export default function NewsletterForm() {
           inputMode="email"
           placeholder={t.newsletterForm.placeholder}
           {...describedBy(ids.email, { errors: errors.email })}
-          className="min-h-11 min-w-0 flex-1 rounded-lg border border-white/25 bg-white/10 px-3 text-[14px] text-white placeholder:text-white/40 focus:border-white/70 focus:ring-2 focus:ring-white/60 focus:outline-none aria-[invalid=true]:border-red-300"
+          className="min-h-(--touch-min) min-w-0 flex-1 rounded-lg border border-white/25 bg-white/10 px-3 text-[14px] text-white placeholder:text-white/40 focus:border-white/70 focus:ring-2 focus:ring-white/60 focus:outline-none aria-[invalid=true]:border-red-300"
         />
         <button
           type="submit"
           disabled={pending}
-          className="min-h-11 shrink-0 rounded-lg bg-white px-4 text-[13px] font-medium whitespace-nowrap text-[#0d1324] transition hover:bg-white/85 disabled:opacity-60"
+          className="min-h-(--touch-min) shrink-0 rounded-lg bg-white px-4 text-[13px] font-medium whitespace-nowrap text-[var(--color-ink-deep)] transition hover:bg-white/85 disabled:opacity-60"
         >
           {pending ? t.common.sending : t.newsletter.signUp}
         </button>

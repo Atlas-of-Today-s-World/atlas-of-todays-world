@@ -16,16 +16,13 @@ import { safeUrl } from "@/lib/security/urls";
 import { format } from "@/features/i18n/messages";
 import { getT } from "@/features/i18n/request";
 import { cn } from "@/lib/cn";
+import { kickerVariants } from "./kicker";
 
 /** A value that reads as a figure ("0.564", "$4,579", "12/100"), not as words. */
 const isFigure = (value: ReactNode) => typeof value !== "string" || /^[\d$€£−+—-]/.test(value);
 
 export function SectionLabel({ children }: { children: ReactNode }) {
-  return (
-    <span className="inline-block rounded-full bg-[#1b2233] px-3 py-1 text-[10.5px] font-medium tracking-[0.12em] text-white/85 uppercase">
-      {children}
-    </span>
-  );
+  return <span className={kickerVariants({ tone: "pill" })}>{children}</span>;
 }
 
 export function NewsBadge({ count }: { count: number }) {

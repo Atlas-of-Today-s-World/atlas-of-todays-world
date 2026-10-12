@@ -131,7 +131,7 @@ export function Popover({
               aria-label={label}
               style={position ?? { top: 0, left: 0, visibility: "hidden" }}
               className={cn(
-                "fixed z-50 w-64 rounded-xl border border-[var(--color-line)] bg-white p-2 text-[13px] text-[var(--color-ink)] scheme-light shadow-lg",
+                "z-overlay fixed w-64 rounded-xl border border-[var(--color-line)] bg-white p-2 text-[13px] text-[var(--color-ink)] scheme-light shadow-lg",
                 className,
               )}
             >

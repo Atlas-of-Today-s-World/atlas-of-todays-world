@@ -72,7 +72,7 @@ export function CookieNotice() {
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
-      className="glass fixed inset-x-4 bottom-4 z-[60] mx-auto max-w-md overflow-hidden rounded-2xl text-white shadow-2xl shadow-black/50"
+      className="glass z-notice fixed inset-x-4 bottom-4 mx-auto max-w-md overflow-hidden rounded-2xl text-white shadow-2xl shadow-black/50"
     >
       <div className="flex items-start gap-3 p-4">
         <Cookie aria-hidden className="mt-0.5 size-5 shrink-0 text-[var(--color-gold)]" />
@@ -93,7 +93,7 @@ export function CookieNotice() {
         <button
           type="button"
           onClick={close}
-          className="min-h-11 shrink-0 rounded-full bg-white px-4 text-[13px] font-semibold text-[var(--color-ink)] transition hover:bg-[var(--color-gold-light)] focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/40 focus-visible:outline-none"
+          className="min-h-(--touch-min) shrink-0 rounded-full bg-white px-4 text-[13px] font-semibold text-[var(--color-ink)] transition hover:bg-[var(--color-gold-light)] focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black/40 focus-visible:outline-none"
         >
           {t.ok}
         </button>

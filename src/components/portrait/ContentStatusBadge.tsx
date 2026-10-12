@@ -17,7 +17,9 @@ export function StatusMark({ status, className }: { status: ContentStatus; class
       aria-hidden
       className={cn(
         "inline-flex size-4 shrink-0 items-center justify-center rounded-full text-white",
-        status === "ready" ? "bg-[#1e9e5a]" : "bg-[#d98a00]",
+        status === "ready"
+          ? "bg-[var(--color-status-ready)]"
+          : "bg-[var(--color-status-preparing)]",
         className,
       )}
     >
@@ -55,8 +57,8 @@ export function ContentStatusBadge({ status, t }: { status: ContentStatus; t: Me
       className={cn(
         badge,
         status === "ready"
-          ? "border-[#1e9e5a]/40 text-[#16794a]"
-          : "border-[#d98a00]/45 text-[#9a6200]",
+          ? "border-[var(--color-status-ready)]/40 text-[var(--color-status-ready-text)]"
+          : "border-[var(--color-status-preparing)]/45 text-[var(--color-status-preparing-text)]",
       )}
     >
       <StatusMark status={status} />

@@ -69,7 +69,7 @@ export default function ViewSwitcher({ options }: { options: ViewOption[] }) {
       </button>
 
       {open ? (
-        <div className="glass absolute top-12 right-0 z-40 w-72 overflow-hidden rounded-2xl p-1.5 shadow-2xl shadow-black/50">
+        <div className="glass z-dropdown absolute top-12 right-0 w-72 overflow-hidden rounded-2xl p-1.5 shadow-2xl shadow-black/50">
           {options.map((option) => (
             <button
               key={option.id}
@@ -125,7 +125,7 @@ export function MapLegend({ options }: { options: ViewOption[] }) {
     return (
       <p
         className={cn(
-          "pointer-events-none absolute bottom-3.5 left-[42px] z-20 max-w-[calc(100vw-120px)] text-[11px] text-white/75 sm:max-w-[70vw]",
+          "z-panel pointer-events-none absolute bottom-3.5 left-[42px] max-w-[calc(100vw-120px)] text-[11px] text-white/75 sm:max-w-[70vw]",
           LEGEND_MAX_WIDTH[rail],
           hidden,
         )}
@@ -141,7 +141,7 @@ export function MapLegend({ options }: { options: ViewOption[] }) {
     // floating buttons (right).
     <div
       className={cn(
-        "pointer-events-none absolute bottom-3.5 left-[42px] z-20 w-[min(calc(100vw-110px),31.25rem)]",
+        "z-panel pointer-events-none absolute bottom-3.5 left-[42px] w-[min(calc(100vw-110px),31.25rem)]",
         LEGEND_MAX_WIDTH[rail],
         hidden,
       )}

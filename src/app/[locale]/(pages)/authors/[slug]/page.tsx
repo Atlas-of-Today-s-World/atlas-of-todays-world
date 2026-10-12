@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { kickerVariants } from "@/components/atlas/kicker";
 import Link from "@/components/i18n/Link";
 import { JsonLd } from "@/components/JsonLd";
 import { getAuthorBySlug, getAuthors } from "@/features/authors/queries";
@@ -73,9 +74,7 @@ export default async function AuthorPage({ params }: Params) {
 
   return (
     <main className="max-w-2xl">
-      <p className="text-[11px] font-medium tracking-[0.1em] text-[var(--color-ink-muted)] uppercase">
-        {t.kicker}
-      </p>
+      <p className={kickerVariants()}>{t.kicker}</p>
       <div className="mt-3 flex items-center gap-5">
         {photo ? (
           <span

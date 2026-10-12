@@ -60,7 +60,7 @@ export function LegalFooter({ t, width }: { t: Messages; width: string }) {
           <Link
             key={item.href}
             href={item.href}
-            className="flex min-h-11 min-w-11 items-center justify-center hover:text-[var(--color-accent)]"
+            className="flex min-h-(--touch-min) min-w-(--touch-min) items-center justify-center hover:text-[var(--color-accent)]"
           >
             {t.nav[item.key]}
           </Link>

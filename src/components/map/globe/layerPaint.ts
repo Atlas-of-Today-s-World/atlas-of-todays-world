@@ -1,9 +1,10 @@
 import type { ExpressionSpecification, Map as MapLibreMap } from "maplibre-gl";
 import type { SelectionMode } from "../MapContext";
+import { GLOBE_COLORS } from "@/config/palette";
 import { LAYERS } from "../mapStyle";
 import type { GlobeColorSets, RegionLookup } from "./types";
 
-const NEUTRAL = "#7d8aa8";
+const NEUTRAL = GLOBE_COLORS.land;
 /** Countries outside the open global issue: grey and faint, so its members stand out. */
 const DIMMED = "#5b6273";
 /** Places whose content nobody has started yet: a light grey wash instead of the region colour. */

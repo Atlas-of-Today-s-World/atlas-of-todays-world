@@ -1,4 +1,5 @@
 import type { ExpressionSpecification } from "maplibre-gl";
+import { THEME_COLORS } from "@/config/palette";
 import { ROUTE_PREFIX, segmentAfter } from "@/config/routes";
 import { splitLocale, withoutDefaultPrefix } from "@/features/i18n/config";
 import type { ContentStatus } from "@/features/geography/content-status";
@@ -80,7 +81,7 @@ export function statusMarkImage(id: string) {
   if (status !== "none") {
     const r = h / 2 - ratio / 2;
     const [cx, cy] = [gap + (w - gap) / 2, h / 2];
-    ctx.fillStyle = status === "ready" ? "#1e9e5a" : "#d98a00";
+    ctx.fillStyle = status === "ready" ? THEME_COLORS.statusReady : THEME_COLORS.statusPreparing;
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.fill();

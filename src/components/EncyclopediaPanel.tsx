@@ -9,6 +9,7 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
 import { useDebouncedSearch } from "@/lib/use-debounced-search";
+import { glassVariants } from "@/components/atlas/glass";
 import Link from "@/components/i18n/Link";
 import { searchKindKey } from "@/lib/search-kind";
 import { useLocalizedRouter } from "@/components/i18n/useLocalizedRouter";
@@ -120,7 +121,7 @@ export default function EncyclopediaPanel() {
     // No visible heading (compact block); the name stays for screen readers.
     <section
       aria-label={t.encyclopedia.heading}
-      className="glass pointer-events-auto w-full max-w-full rounded-[var(--radius-panel)] p-2 shadow-2xl shadow-black/40 sm:w-[min(92vw,22rem)] sm:p-3"
+      className={cn(glassVariants({ kind: "panel" }), "max-w-full")}
     >
       {/* A search form: Enter opens the full results page (a plain GET before
           React hydrates, a client-side navigation after). */}

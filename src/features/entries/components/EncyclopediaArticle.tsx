@@ -1,5 +1,6 @@
 import { ArrowLeft, ChevronDown, LayoutGrid } from "lucide-react";
 import Link from "@/components/i18n/Link";
+import { kickerVariants } from "@/components/atlas/kicker";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
 import { ShareButton } from "@/components/atlas/ShareButton";
 import MapFocus from "@/components/map/MapFocus";
@@ -24,9 +25,8 @@ const tileId = (tile: LearnMoreTile) => `learn-${tile.slug}`;
 
 /** Collapsible `<summary>` bar (44 px target); the arrow rotates with the state. */
 const SUMMARY =
-  "flex min-h-11 cursor-pointer list-none items-center gap-2 text-[13px] font-medium text-[var(--color-link)] [&::-webkit-details-marker]:hidden";
+  "flex min-h-(--touch-min) cursor-pointer list-none items-center gap-2 text-[13px] font-medium text-[var(--color-link)] [&::-webkit-details-marker]:hidden";
 const CHEVRON = "size-4 transition-transform group-open:rotate-180";
-const LABEL = "text-[11px] font-medium tracking-[0.1em] text-[var(--color-ink-muted)] uppercase";
 
 /**
  * Encyclopedia entry presented as a dossier on a full-width page (FullPage),
@@ -179,7 +179,7 @@ export function EncyclopediaArticle({
           <div className="mt-14 flex flex-wrap items-center gap-3 border-t border-[var(--color-line)] pt-6">
             <Link
               href={routes.topics}
-              className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--color-ink)] px-5 text-[14px] font-medium text-white transition hover:bg-[var(--color-accent)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:outline-none"
+              className="inline-flex min-h-(--touch-min) items-center gap-2 rounded-full bg-[var(--color-ink)] px-5 text-[14px] font-medium text-white transition hover:bg-[var(--color-accent)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               <ArrowLeft aria-hidden className="size-4" />
               {getT().article.allTopics}
@@ -213,7 +213,7 @@ function EntryHeader({ item, atlas, share }: { item: Encyclopedia; atlas: Atlas;
         {author ? (
           <a
             href={`#${AUTHOR_ID}`}
-            className="flex min-h-11 items-center gap-3 rounded-full pr-3 transition hover:bg-[var(--color-line)]/30"
+            className="flex min-h-(--touch-min) items-center gap-3 rounded-full pr-3 transition hover:bg-[var(--color-line)]/30"
           >
             {photo ? (
               <span
@@ -255,7 +255,7 @@ function EntryHeader({ item, atlas, share }: { item: Encyclopedia; atlas: Atlas;
 
       {item.seo.geoSummary ? (
         <section id="in-short" aria-label={t.inShort} className="mt-6">
-          <p className={LABEL}>{t.inShort}</p>
+          <p className={kickerVariants()}>{t.inShort}</p>
           <p className="mt-1.5 text-[14.5px] leading-relaxed text-[var(--color-ink)]">
             {item.seo.geoSummary}
           </p>
@@ -289,7 +289,7 @@ function EntryAudio({ src, title }: { src?: string; title: string }) {
   if (!url) return null;
   return (
     <figure className="mt-4">
-      <figcaption className={LABEL}>{t.listen}</figcaption>
+      <figcaption className={kickerVariants()}>{t.listen}</figcaption>
       <audio
         controls
         preload="none"
@@ -440,7 +440,7 @@ function AuthorBio({ author }: { author: EntryAuthor }) {
       </div>
       {author.positionality ? (
         <>
-          <h3 className={`mt-5 ${LABEL}`}>{t.positionality}</h3>
+          <h3 className={`mt-5 ${kickerVariants()}`}>{t.positionality}</h3>
           <p className="mt-2 text-[13.5px] leading-relaxed whitespace-pre-line text-[var(--color-ink-soft)]">
             {author.positionality}
           </p>
@@ -450,7 +450,7 @@ function AuthorBio({ author }: { author: EntryAuthor }) {
         <Link
           href={routes.author(author.slug)}
           rel="author"
-          className="mt-4 flex min-h-11 items-center text-[13px] font-medium text-[var(--color-link)] hover:underline"
+          className="mt-4 flex min-h-(--touch-min) items-center text-[13px] font-medium text-[var(--color-link)] hover:underline"
         >
           {format(getT().authorPage.articles, { name: author.name })}
         </Link>

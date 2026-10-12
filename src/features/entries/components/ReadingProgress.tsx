@@ -23,7 +23,11 @@ export function ReadingProgress() {
   });
 
   return (
-    <div ref={holder} aria-hidden className={cn("sticky z-40 h-0 print:hidden", UNDER_HEADER_BAR)}>
+    <div
+      ref={holder}
+      aria-hidden
+      className={cn("z-header sticky h-0 print:hidden", UNDER_HEADER_BAR)}
+    >
       <div
         ref={bar}
         className="absolute inset-x-0 top-0 h-1 origin-left [transform:scaleX(0)] bg-[var(--color-accent)]"

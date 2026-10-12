@@ -26,10 +26,22 @@ function ColorFields({ fill, stroke, errors }: { fill: string; stroke: string; e
   return (
     <div className="grid grid-cols-2 gap-5">
       <FormField id="fill" label="Map fill" required errors={errors.fill}>
-        <Input id="fill" name="fill" type="color" defaultValue={fill} className="h-11 p-1" />
+        <Input
+          id="fill"
+          name="fill"
+          type="color"
+          defaultValue={fill}
+          className="h-(--touch-min) p-1"
+        />
       </FormField>
       <FormField id="stroke" label="Outline" required errors={errors.stroke}>
-        <Input id="stroke" name="stroke" type="color" defaultValue={stroke} className="h-11 p-1" />
+        <Input
+          id="stroke"
+          name="stroke"
+          type="color"
+          defaultValue={stroke}
+          className="h-(--touch-min) p-1"
+        />
       </FormField>
     </div>
   );
@@ -227,7 +239,7 @@ export function IssueForm({
       <fieldset className="grid gap-2">
         <legend className="text-[12.5px] font-medium text-[var(--color-ink-soft)]">Type</legend>
         <div className="flex flex-wrap gap-x-6 gap-y-2 text-[14px]">
-          <label className="flex min-h-11 items-center gap-2">
+          <label className="flex min-h-(--touch-min) items-center gap-2">
             <input
               type="radio"
               name="kind"
@@ -239,7 +251,7 @@ export function IssueForm({
               — your own selection, not tied to a theme
             </span>
           </label>
-          <label className="flex min-h-11 items-center gap-2">
+          <label className="flex min-h-(--touch-min) items-center gap-2">
             <input
               type="radio"
               name="kind"

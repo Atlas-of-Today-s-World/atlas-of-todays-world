@@ -53,7 +53,7 @@ export const UNDER_HEADER_BAR = "top-16";
  * top left above everything ("Skip to content", the home's way to the country list).
  */
 export const SKIP_LINK =
-  "sr-only z-[100] rounded-full bg-white px-5 py-3 text-[14px] font-medium text-[#0d1324] focus:not-sr-only focus:fixed focus:top-3 focus:left-3";
+  "sr-only z-skip-link rounded-full bg-white px-5 py-3 text-[14px] font-medium text-[var(--color-ink-deep)] focus:not-sr-only focus:fixed focus:top-3 focus:left-3";
 /**
  * Globe camera (AtlasGlobe and components/map/globe/): zoom limits, timings and
  * the padding that keeps a focused place clear of the content panel.
@@ -70,6 +70,8 @@ export const GLOBE = {
   fitMaxZoom: 6,
   /** Zoom of a flight to a centre that comes without one. */
   fallbackZoom: 3,
+  /** Zoom of a country hit in the site search (a flight to its label point). */
+  searchCountryZoom: 3.4,
   /** One step of the + / − buttons. */
   zoomStepMs: 300,
   /** Camera padding in px around the focused place. */

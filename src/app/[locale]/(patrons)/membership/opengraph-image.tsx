@@ -1,3 +1,4 @@
+import { THEME_COLORS } from "@/config/palette";
 import { ogImage } from "@/features/seo/og-image";
 import { OG_SIZE } from "@/lib/og";
 
@@ -9,5 +10,5 @@ export default ogImage((_params, t) => ({
   kicker: t.og.patrons,
   title: `${t.patrons.heroTitle} ${t.patrons.heroTitleAccent}`,
   subtitle: t.patrons.description,
-  accent: "#2563eb",
+  accent: THEME_COLORS.patron,
 }));

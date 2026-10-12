@@ -1,11 +1,14 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { glassVariants } from "@/components/atlas/glass";
+import { kickerVariants } from "@/components/atlas/kicker";
 import { PhotoTile } from "@/components/atlas/PhotoTile";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import type { ContentStatus } from "@/features/geography/content-status";
 import { StatusMark } from "@/components/portrait/ContentStatusBadge";
 import { format } from "@/features/i18n/messages";
+import { cn } from "@/lib/cn";
 import { PHOTO_WIDTH } from "@/lib/images";
 import { openIssueSlug } from "./global-issues";
 import { routes } from "@/config/routes";
@@ -35,13 +38,10 @@ export function IssueMenu({ items }: { items: IssueMenuItem[] }) {
 
   const status = { ready: t.map.statusReady, preparing: t.map.statusPreparing, none: "" };
   return (
-    <section
-      aria-labelledby="global-issues-menu"
-      className="glass pointer-events-auto w-full rounded-[var(--radius-panel)] p-2 shadow-2xl shadow-black/40 sm:w-[min(92vw,22rem)] sm:p-3"
-    >
+    <section aria-labelledby="global-issues-menu" className={glassVariants({ kind: "panel" })}>
       <h2
         id="global-issues-menu"
-        className="px-1 text-[10.5px] font-medium tracking-[0.12em] text-white/75 uppercase max-sm:sr-only"
+        className={cn(kickerVariants({ tone: "glass" }), "max-sm:sr-only")}
       >
         {t.map.issuesMenu}
       </h2>

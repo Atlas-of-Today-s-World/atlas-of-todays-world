@@ -85,7 +85,7 @@ export default function ContentRail({
       tabIndex={-1}
       aria-label={t.panel.content}
       className={cn(
-        "pointer-events-auto absolute inset-x-0 bottom-0 z-20 rounded-t-3xl bg-white text-[var(--color-ink)] shadow-[0_-8px_40px_rgba(0,0,0,0.45)] transition-[transform,max-height] duration-300 outline-none md:inset-x-auto md:inset-y-0 md:right-0 md:left-auto md:max-h-none md:rounded-none md:shadow-[0_0_60px_rgba(0,0,0,0.45)]",
+        "z-panel pointer-events-auto absolute inset-x-0 bottom-0 rounded-t-3xl bg-white text-[var(--color-ink)] shadow-[0_-8px_40px_rgba(0,0,0,0.45)] transition-[transform,max-height] duration-300 outline-none md:inset-x-auto md:inset-y-0 md:right-0 md:left-auto md:max-h-none md:rounded-none md:shadow-[0_0_60px_rgba(0,0,0,0.45)]",
         expanded ? MOBILE_SHEET.expandedClassName : MOBILE_SHEET.className,
         wide ? "md:w-(--rail-width-wide)" : "md:w-(--rail-width)",
         collapsed ? "md:translate-x-full" : "md:translate-x-0",
@@ -113,7 +113,7 @@ export default function ContentRail({
           else if (expanded) setExpanded(false);
           else router.push(closeHref);
         }}
-        className="flex h-11 w-full touch-none items-center justify-center focus-visible:outline-none md:hidden [&:focus-visible>span]:bg-[var(--color-accent)]"
+        className="flex h-(--touch-min) w-full touch-none items-center justify-center focus-visible:outline-none md:hidden [&:focus-visible>span]:bg-[var(--color-accent)]"
       >
         <span aria-hidden className="h-1.5 w-12 rounded-full bg-[var(--color-line)]" />
       </button>
@@ -130,7 +130,7 @@ export default function ContentRail({
         aria-label={collapsed ? t.panel.show : t.panel.hide}
         aria-expanded={!collapsed}
         onClick={() => setCollapsed((value) => !value)}
-        className="absolute bottom-32 -left-11 hidden h-14 w-11 items-center justify-center rounded-l-xl bg-[#1b2233] text-white/80 shadow-[-4px_0_16px_rgba(0,0,0,0.35)] transition hover:bg-[#283148] hover:text-white focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none md:flex"
+        className="absolute bottom-32 -left-(--touch-min) hidden h-14 w-(--touch-min) items-center justify-center rounded-l-xl bg-[var(--color-space-raised)] text-white/80 shadow-[-4px_0_16px_rgba(0,0,0,0.35)] transition hover:bg-[var(--color-space-raised-hover)] hover:text-white focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none md:flex"
       >
         {collapsed ? <ChevronLeft size={16} aria-hidden /> : <ChevronRight size={16} aria-hidden />}
       </button>
@@ -140,7 +140,7 @@ export default function ContentRail({
         href={closeHref}
         aria-label={t.common.close}
         data-print="hide"
-        className="absolute top-2 right-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/85 text-[var(--color-ink-soft)] backdrop-blur transition hover:bg-[var(--color-line)] hover:text-[var(--color-ink)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] active:scale-95 md:top-3"
+        className="absolute top-2 right-3 z-10 flex size-(--touch-min) items-center justify-center rounded-full bg-white/85 text-[var(--color-ink-soft)] backdrop-blur transition hover:bg-[var(--color-line)] hover:text-[var(--color-ink)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] active:scale-95 md:top-3"
       >
         <X size={18} strokeWidth={1.8} aria-hidden />
       </Link>

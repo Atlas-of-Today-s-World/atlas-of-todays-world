@@ -81,7 +81,7 @@ export default function Header({
       <header
         data-print="hide"
         className={cn(
-          "z-40 bg-[var(--color-space-deep)] text-white",
+          "z-header bg-[var(--color-space-deep)] text-white",
           bar ? "sticky top-0" : "absolute inset-x-0 top-0",
         )}
       >
@@ -89,7 +89,7 @@ export default function Header({
           <Link
             href="/"
             aria-label={t.header.home}
-            className="flex min-h-11 items-center justify-self-start"
+            className="flex min-h-(--touch-min) items-center justify-self-start"
           >
             <BrandLogo tone="light" className="h-5 sm:h-6" />
           </Link>
@@ -98,7 +98,7 @@ export default function Header({
           <Link
             href="/"
             aria-label={t.topics.backToAtlas}
-            className="flex min-h-11 items-center gap-1.5 justify-self-center rounded-full border border-white/25 px-3 text-[12.5px] font-medium whitespace-nowrap transition hover:border-white/60 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:outline-none sm:gap-2 sm:px-4 sm:text-[13px]"
+            className="flex min-h-(--touch-min) items-center gap-1.5 justify-self-center rounded-full border border-white/25 px-3 text-[12.5px] font-medium whitespace-nowrap transition hover:border-white/60 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:outline-none sm:gap-2 sm:px-4 sm:text-[13px]"
           >
             <ArrowLeft aria-hidden className="size-4" />
             <span className="sm:hidden">{t.topics.backToAtlasShort}</span>
@@ -136,7 +136,7 @@ export default function Header({
             onClick={() => setMenuOpen(true)}
             aria-label={t.header.openMenu}
             aria-expanded={menuOpen}
-            className="grid h-11 w-11 place-items-center justify-self-end rounded-full border border-white/25 text-white transition hover:border-white/60 lg:hidden"
+            className="grid size-(--touch-min) place-items-center justify-self-end rounded-full border border-white/25 text-white transition hover:border-white/60 lg:hidden"
           >
             <Menu size={18} strokeWidth={1.8} aria-hidden />
           </button>
@@ -149,11 +149,11 @@ export default function Header({
   return (
     <header
       data-print="hide"
-      className="pointer-events-none absolute inset-x-0 top-0 z-40 px-4 py-3 sm:px-7 sm:py-4"
+      className="z-header pointer-events-none absolute inset-x-0 top-0 px-4 py-3 sm:px-7 sm:py-4"
     >
       <Link
         href="/"
-        className="pointer-events-auto inline-flex min-h-11 items-center"
+        className="pointer-events-auto inline-flex min-h-(--touch-min) items-center"
         aria-label={t.header.home}
       >
         <BrandLogo
@@ -194,7 +194,7 @@ export default function Header({
         </span>
         <Link
           href={ACCOUNT_NAV.href}
-          className="grid min-h-11 min-w-11 place-items-center text-white/80 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] transition hover:text-white"
+          className="grid min-h-(--touch-min) min-w-(--touch-min) place-items-center text-white/80 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] transition hover:text-white"
           title={t.header.accountTitle}
           aria-label={t.header.account}
         >
@@ -208,7 +208,7 @@ export default function Header({
         onClick={() => setMenuOpen(true)}
         aria-label={t.header.openMenu}
         aria-expanded={menuOpen}
-        className={`glass glass-hover pointer-events-auto absolute top-3 right-4 grid h-11 w-11 place-items-center rounded-full text-white ${
+        className={`glass glass-hover pointer-events-auto absolute top-3 right-4 grid size-(--touch-min) place-items-center rounded-full text-white ${
           wideRail ? "xl:hidden" : "lg:hidden"
         }`}
       >
@@ -239,7 +239,7 @@ function MenuDialog({
       role="dialog"
       aria-modal="true"
       aria-label={t.header.menu}
-      className="pointer-events-auto fixed inset-0 z-50 flex flex-col bg-[#0b101f]/97 px-6 py-5 text-white backdrop-blur"
+      className="z-overlay pointer-events-auto fixed inset-0 flex flex-col bg-[#0b101f]/97 px-6 py-5 text-white backdrop-blur"
     >
       <div className="flex items-center justify-between">
         <BrandLogo tone="light" className="h-5" />
@@ -247,7 +247,7 @@ function MenuDialog({
           type="button"
           onClick={onClose}
           aria-label={t.header.closeMenu}
-          className="grid h-11 w-11 place-items-center rounded-full border border-white/25 text-white transition hover:border-white/70"
+          className="grid size-(--touch-min) place-items-center rounded-full border border-white/25 text-white transition hover:border-white/70"
         >
           <X size={18} strokeWidth={1.8} aria-hidden />
         </button>
@@ -273,7 +273,7 @@ function MenuDialog({
             <Link
               key={item.key}
               href={item.href}
-              className="flex min-h-11 min-w-11 items-center justify-center"
+              className="flex min-h-(--touch-min) min-w-(--touch-min) items-center justify-center"
             >
               {t.nav[item.key]}
             </Link>
@@ -281,10 +281,10 @@ function MenuDialog({
         </nav>
 
         <div className="flex items-center gap-3">
-          <SocialLinks className="h-11 w-11 text-[12px]" />
+          <SocialLinks className="size-(--touch-min) text-[12px]" />
           <Link
             href={ACCOUNT_NAV.href}
-            className="ml-auto flex min-h-11 min-w-11 items-center justify-center text-[13px] whitespace-nowrap text-white/70"
+            className="ml-auto flex min-h-(--touch-min) min-w-(--touch-min) items-center justify-center text-[13px] whitespace-nowrap text-white/70"
           >
             {t.nav[ACCOUNT_NAV.key]}
           </Link>

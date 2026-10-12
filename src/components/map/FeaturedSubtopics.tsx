@@ -1,8 +1,11 @@
 "use client";
 
+import { glassVariants } from "@/components/atlas/glass";
+import { kickerVariants } from "@/components/atlas/kicker";
 import { PhotoTile } from "@/components/atlas/PhotoTile";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import type { SubtopicTile } from "@/features/topics/featured";
+import { cn } from "@/lib/cn";
 import { PHOTO_WIDTH } from "@/lib/images";
 import { routes } from "@/config/routes";
 
@@ -19,11 +22,11 @@ export function FeaturedSubtopics({ items }: { items: SubtopicTile[] }) {
   return (
     <section
       aria-labelledby="featured-subtopics"
-      className="glass pointer-events-auto w-full rounded-[var(--radius-panel)] p-2 shadow-2xl shadow-black/40 sm:w-[min(92vw,22rem)] sm:p-3 max-sm:[@media(max-height:699px)]:hidden"
+      className={cn(glassVariants({ kind: "panel" }), "max-sm:[@media(max-height:699px)]:hidden")}
     >
       <h2
         id="featured-subtopics"
-        className="px-1 text-[10.5px] font-medium tracking-[0.12em] text-white/75 uppercase max-sm:sr-only"
+        className={cn(kickerVariants({ tone: "glass" }), "max-sm:sr-only")}
       >
         {t.latestSubtopics}
       </h2>

@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { THEME_COLORS } from "@/config/palette";
 
 /** Web manifest – makes Atlas an installable app and complements SEO. */
 export default function manifest(): MetadataRoute.Manifest {
@@ -9,8 +10,8 @@ export default function manifest(): MetadataRoute.Manifest {
       "An interactive encyclopedia of the present on a 3D satellite globe: every country, every world region, and the data behind them.",
     start_url: "/",
     display: "standalone",
-    background_color: "#070b16",
-    theme_color: "#0a1020",
+    background_color: THEME_COLORS.spaceDeep,
+    theme_color: THEME_COLORS.space,
     categories: ["education", "news", "reference"],
     icons: [
       { src: "/icon.svg", sizes: "any", type: "image/svg+xml" },

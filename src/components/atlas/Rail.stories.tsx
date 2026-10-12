@@ -45,7 +45,7 @@ export const Dark: Story = {
   args: { tone: "dark" },
   decorators: [
     (Story) => (
-      <div className="bg-[#0d1324] p-6">
+      <div className="bg-[var(--color-ink-deep)] p-6">
         <Story />
       </div>
     ),
