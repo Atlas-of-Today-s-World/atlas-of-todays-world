@@ -203,7 +203,7 @@ export function IndicatorForm({ indicator }: { indicator: IndicatorValues | null
                         current.map((c, i) => (i === index ? event.target.value : c)),
                       )
                     }
-                    className="h-11 w-12 cursor-pointer rounded-lg border border-[var(--color-field-border)] p-1"
+                    className="h-(--touch-min) w-12 cursor-pointer rounded-lg border border-[var(--color-field-border)] p-1"
                   />
                   {ramp.length > 2 ? (
                     <Button

@@ -3,6 +3,7 @@
 import { Search, X } from "lucide-react";
 import { TopicsInvite } from "@/components/topics/TopicsInvite";
 import { type ReactNode, useSyncExternalStore } from "react";
+import { kickerVariants } from "@/components/atlas/kicker";
 import { PhotoCard } from "@/components/atlas/PhotoCard";
 import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
@@ -73,8 +74,7 @@ function setParams(update: Record<string, string | null>) {
 }
 
 const FIELD =
-  "min-h-11 w-full rounded-xl border border-[var(--color-field-border)] bg-white px-3 text-[14px] text-[var(--color-ink)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none";
-const LABEL = "text-[11px] font-medium tracking-[0.1em] text-[var(--color-ink-muted)] uppercase";
+  "min-h-(--touch-min) w-full rounded-xl border border-[var(--color-field-border)] bg-white px-3 text-[14px] text-[var(--color-ink)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none";
 
 /**
  * The Topics list: one place filter (country, region or special region — a
@@ -165,7 +165,7 @@ export function TopicsBrowser({
                   onClick={() => setParams({ country: null, region: null, issue: null })}
                   aria-label={t.clearFilter}
                   title={t.clearFilter}
-                  className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl px-3 text-[13px] font-medium whitespace-nowrap text-[var(--color-link)] hover:bg-[var(--color-accent-soft)]"
+                  className="inline-flex min-h-(--touch-min) shrink-0 items-center justify-center gap-1.5 rounded-xl px-3 text-[13px] font-medium whitespace-nowrap text-[var(--color-link)] hover:bg-[var(--color-accent-soft)]"
                 >
                   <X aria-hidden className="size-4" />
                   {t.clearFilter}
@@ -238,7 +238,9 @@ export function TopicsBrowser({
                     href={routes.topic(hit.slug, hit.anchor)}
                     className="group block rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/5 transition hover:shadow-md focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none sm:p-5"
                   >
-                    <span className={LABEL}>{format(t.inTopic, { topic: hit.topicTitle })}</span>
+                    <span className={kickerVariants()}>
+                      {format(t.inTopic, { topic: hit.topicTitle })}
+                    </span>
                     <span className="font-display mt-1 block text-[17px] leading-snug font-bold group-hover:text-[var(--color-accent)]">
                       {hit.anchor ? hit.heading : t.introPart}
                     </span>

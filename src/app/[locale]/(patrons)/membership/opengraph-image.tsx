@@ -1,5 +1,6 @@
 import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
+import { THEME_COLORS } from "@/config/palette";
 import { OG_SIZE, renderOg } from "@/lib/og";
 
 export const size = OG_SIZE;
@@ -12,6 +13,6 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
     kicker: t.og.patrons,
     title: `${t.patrons.heroTitle} ${t.patrons.heroTitleAccent}`,
     subtitle: t.patrons.description,
-    accent: "#2563eb",
+    accent: THEME_COLORS.patron,
   });
 }

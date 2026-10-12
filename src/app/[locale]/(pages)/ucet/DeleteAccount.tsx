@@ -32,7 +32,7 @@ export default function DeleteAccount({ email }: { email: string }) {
           type="email"
           required
           autoComplete="off"
-          className="min-h-11 rounded-lg border border-[var(--color-line)] px-3 text-[14px]"
+          className="min-h-(--touch-min) rounded-lg border border-[var(--color-line)] px-3 text-[14px]"
         />
         {state.error ? (
           <p role="alert" className="text-[13px] text-red-700">

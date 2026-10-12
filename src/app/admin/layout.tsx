@@ -64,7 +64,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <Shell>
       <header className="flex flex-wrap items-center gap-3 border-b border-[var(--color-line)] px-4 py-3 md:px-6">
-        <Link href="/" className="flex min-h-11 items-center">
+        <Link href="/" className="flex min-h-(--touch-min) items-center">
           <BrandLogo className="h-5" />
         </Link>
         <span className="text-[13px] font-medium">Administration</span>

@@ -56,7 +56,7 @@ function DossierTabs({ id, current }: { id: string; current: Tab }) {
               }
               aria-current={tab.key === current ? "page" : undefined}
               className={cn(
-                "inline-flex min-h-11 items-center border-b-2 px-3 text-[13.5px] font-medium transition",
+                "inline-flex min-h-(--touch-min) items-center border-b-2 px-3 text-[13.5px] font-medium transition",
                 tab.key === current
                   ? "border-[var(--color-accent)] text-[var(--color-ink)]"
                   : "border-transparent text-[var(--color-ink-muted)] hover:text-[var(--color-ink)]",

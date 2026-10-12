@@ -54,7 +54,10 @@ export function TopicJumpBar({
   const current = topics[index];
 
   return (
-    <div ref={holder} className={cn("sticky z-30 h-0 md:hidden print:hidden", UNDER_HEADER_BAR)}>
+    <div
+      ref={holder}
+      className={cn("z-controls sticky h-0 md:hidden print:hidden", UNDER_HEADER_BAR)}
+    >
       <nav
         aria-label={t.jumpToTopic}
         className={cn(
@@ -69,7 +72,7 @@ export function TopicJumpBar({
             <button
               type="button"
               {...props}
-              className="flex min-h-11 w-full min-w-0 items-center gap-2 px-4 text-left text-[var(--color-ink)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none focus-visible:ring-inset sm:px-8"
+              className="flex min-h-(--touch-min) w-full min-w-0 items-center gap-2 px-4 text-left text-[var(--color-ink)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none focus-visible:ring-inset sm:px-8"
             >
               {current ? (
                 <span className="shrink-0 text-[11px] font-semibold tracking-[0.08em] text-[var(--color-ink-muted)] uppercase">
@@ -98,7 +101,7 @@ export function TopicJumpBar({
                       onChoose(topic.id);
                     }}
                     className={cn(
-                      "flex min-h-11 w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition hover:bg-[var(--color-accent-soft)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none",
+                      "flex min-h-(--touch-min) w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left transition hover:bg-[var(--color-accent-soft)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none",
                       topic.id === open && "font-semibold",
                     )}
                   >

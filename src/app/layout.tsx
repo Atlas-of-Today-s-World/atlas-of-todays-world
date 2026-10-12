@@ -4,6 +4,7 @@ import { Inter, Manrope } from "next/font/google";
 import "./globals.css";
 import { PrePaintScript } from "@/components/PrePaintScript";
 import { SKIP_LINK } from "@/config/layout";
+import { THEME_COLORS } from "@/config/palette";
 import { serverEnv } from "@/lib/env.server";
 import { DEFAULT_OG_IMAGE, TITLE_SUFFIX } from "@/lib/seo/metadata";
 import { SITE_URL } from "@/lib/site";
@@ -75,7 +76,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a1020",
+  themeColor: THEME_COLORS.space,
   colorScheme: "dark",
 };
 

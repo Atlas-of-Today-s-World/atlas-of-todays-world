@@ -108,7 +108,8 @@ export function PlaceLinks({ item, atlas }: { item: EntrySummary; atlas: Atlas }
       {issue ? (
         <Link
           href={routes.issue(issue.slug)}
-          className="rounded-full border border-[var(--color-line)] px-2 py-0.5 font-medium text-[var(--color-link)] transition hover:border-[var(--color-accent)]"
+          // A small chip in the details row; touch-hit keeps a 44 px target around it.
+          className="touch-hit relative rounded-full border border-[var(--color-line)] px-2 py-0.5 font-medium text-[var(--color-link)] transition hover:border-[var(--color-accent)]"
         >
           {issue.name}
         </Link>

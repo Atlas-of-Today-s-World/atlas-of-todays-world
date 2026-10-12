@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { THEME_COLORS } from "@/config/palette";
 
 /**
  * Last resort when even the root layout fails. It must have its own <html>
@@ -21,7 +22,7 @@ export default function GlobalError({
       <body
         style={{
           margin: 0,
-          background: "#0a1020",
+          background: THEME_COLORS.space,
           color: "#fff",
           fontFamily: "system-ui, sans-serif",
         }}
