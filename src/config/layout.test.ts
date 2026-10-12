@@ -2,7 +2,10 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  DESKTOP_MIN_PX,
+  GLOBE_LABEL_MOBILE,
   MINI_GLOBE,
+  MOBILE_SHEET,
   RAIL,
   RAIL_WIDE,
   TOUCH_MIN_PX,
@@ -23,6 +26,15 @@ describe("layout tokens", () => {
     expect(css).toContain(`@media (min-width: ${MINI_GLOBE.desktopMinPx}px)`);
     expect(css).toContain(`--mini-globe-width: ${MINI_GLOBE.desktop.width}px;`);
     expect(css).toContain(`--mini-globe-height: ${MINI_GLOBE.desktop.height}px;`);
+  });
+
+  it("phone rules around the bottom sheet follow its height and the desktop breakpoint", () => {
+    const sheet = `${Math.round(MOBILE_SHEET.ratio * 100)}dvh`;
+    expect(MOBILE_SHEET.className).toContain(sheet);
+    // The globe's place label sits above the sheet, not under it.
+    expect(GLOBE_LABEL_MOBILE.sheet).toContain(`bottom-[calc(${sheet}+`);
+    // The cookie notice leaves the sheet below the same width as Tailwind `md`.
+    expect(css).toContain(`@media (width < ${DESKTOP_MIN_PX / 16}rem)`);
   });
 
   it("detects the panel kind from the path", () => {
