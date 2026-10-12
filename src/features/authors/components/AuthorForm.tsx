@@ -7,7 +7,7 @@ import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { ActionForm } from "@/components/ui/action-form";
 import { FormField, Input, Textarea, describedBy } from "@/components/ui/field";
-import { UploadField } from "@/features/entries/components/UploadField";
+import { UploadField } from "@/components/admin/UploadField";
 import type { ActionState } from "@/lib/actions";
 import { deleteAuthor, saveAuthor } from "../actions";
 import type { AuthorRow } from "../editorial";

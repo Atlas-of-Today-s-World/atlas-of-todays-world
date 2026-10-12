@@ -8,14 +8,14 @@ import { ActionForm } from "@/components/ui/action-form";
 import { Button } from "@/components/ui/button";
 import { ColorField } from "@/components/ui/color-field";
 import { FormField, Input, Textarea } from "@/components/ui/field";
-import { IconAction } from "@/features/portraits/components/CollectionEditor";
+import { IconAction } from "@/components/admin/IconAction";
 import type { ActionState } from "@/lib/actions";
 import { saveChapters } from "../actions";
 import type { EditableChapter } from "../editorial";
 import { MAX_CHAPTERS } from "../constants";
 import { EditStamp } from "./EditStamp";
-import { RichTextEditor } from "./RichTextEditor";
-import { UploadField } from "./UploadField";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
+import { UploadField } from "@/components/admin/UploadField";
 import { swap } from "@/lib/array";
 
 type Chapter = EditableChapter & { key: string };

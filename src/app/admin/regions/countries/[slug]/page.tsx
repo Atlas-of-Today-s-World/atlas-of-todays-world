@@ -6,7 +6,8 @@ import { ReadOnly } from "@/components/admin/ReadOnly";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { sectionAccess } from "@/features/auth/access";
 import { getAtlas } from "@/features/geography/queries";
-import { CollectionEditor } from "@/features/portraits/components/CollectionEditor";
+import { CollectionEditor } from "@/components/admin/CollectionEditor";
+import { COLLECTION_UI } from "@/features/portraits/components/fields";
 import { savePortraitSection } from "@/features/portraits/actions";
 import { CountryForm } from "@/features/portraits/components/HeaderForms";
 import { countryForEdit, portraitItems, portraitRights } from "@/features/portraits/editorial";
@@ -66,6 +67,7 @@ export default async function CountryEditPage({ params }: { params: Promise<{ sl
             save={savePortraitSection}
             target={{ kind: "country", slug: country.iso3 }}
             collection="metrics"
+            ui={COLLECTION_UI.metrics}
             initial={items.metrics ?? []}
           />
         </ReadOnly>

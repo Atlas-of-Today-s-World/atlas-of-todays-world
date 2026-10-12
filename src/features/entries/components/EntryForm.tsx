@@ -9,11 +9,11 @@ import { ColorField } from "@/components/ui/color-field";
 import { Checkbox, FormField, Input, Select, Textarea, describedBy } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
 import { NEWS_CATEGORIES } from "@/lib/content-types";
-import { slugify } from "@/lib/validation/common";
+import { SlugField, useSlug } from "@/components/admin/SlugField";
 import { saveEntry } from "../actions";
 import type { EditableEntry } from "../editorial";
-import { UploadField } from "./UploadField";
-import { RichTextEditor } from "./RichTextEditor";
+import { UploadField } from "@/components/admin/UploadField";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { useDraftBackup } from "./useDraftBackup";
 import { ActionForm } from "@/components/ui/action-form";
 import { MAP_LAYER_LABEL, MAP_LAYERS } from "../constants";
@@ -51,8 +51,7 @@ export function EntryForm({
   // Default field values: from the database, or from a restored backup (then the fields remount).
   const [values, setValues] = useState<Partial<EditableEntry> | null>(entry);
   const [generation, setGeneration] = useState(0);
-  const [slug, setSlug] = useState(entry?.slug ?? "");
-  const [slugTouched, setSlugTouched] = useState(Boolean(entry));
+  const slug = useSlug(entry?.slug);
   const [kind, setKind] = useState(entry?.kind ?? defaultKind);
   const isEntry = kind === "entry";
   const errors = state.fieldErrors ?? {};
@@ -70,9 +69,8 @@ export function EntryForm({
     if (!backup.offer) return;
     const restored = { ...entry, ...backup.offer.values };
     setValues(restored);
-    if (!published) setSlug(restored.slug ?? "");
+    slug.restore(published ? undefined : (restored.slug ?? ""));
     if (restored.kind) setKind(restored.kind);
-    setSlugTouched(true);
     setGeneration((n) => n + 1);
     backup.accept();
   };
@@ -110,40 +108,23 @@ export function EntryForm({
           required
           maxLength={200}
           defaultValue={values?.title}
-          onChange={(event) => {
-            if (!slugTouched) setSlug(slugify(event.target.value));
-          }}
+          onChange={(event) => slug.follow(event.target.value)}
           {...field("title")}
         />
       </FormField>
 
-      <FormField
-        id="slug"
-        label="URL (slug)"
-        required
+      <SlugField
+        slug={slug}
         hint={
           translation
             ? "A translation has the same URL as the original, just with a language prefix."
             : published
               ? "A published article keeps its URL — links to it are already out there."
-              : `atlasoftodaysworld.org${routes.article(isEntry ? "entry" : "news", slug || "…")}`
+              : `atlasoftodaysworld.org${routes.article(isEntry ? "entry" : "news", slug.value || "…")}`
         }
         errors={errors.slug}
-      >
-        <Input
-          id="slug"
-          name="slug"
-          required
-          maxLength={120}
-          value={slug}
-          readOnly={published || translation}
-          onChange={(event) => {
-            setSlugTouched(true);
-            setSlug(event.target.value);
-          }}
-          {...field("slug", "hint")}
-        />
-      </FormField>
+        readOnly={published || translation}
+      />
 
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField id="category" label="Category" required errors={errors.category}>

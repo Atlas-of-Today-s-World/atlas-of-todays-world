@@ -8,32 +8,52 @@ import { Button } from "@/components/ui/button";
 import { FormField, Input, Select, Textarea } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
 import { cn } from "@/lib/cn";
-import type { Collection } from "../schema";
-import { COLLECTION_UI } from "./fields";
 import { ActionForm } from "@/components/ui/action-form";
 import { swap } from "@/lib/array";
 import { withPreviews } from "@/lib/previews/merge";
+import { IconAction } from "./IconAction";
 
 type Item = Record<string, string>;
 
+interface ItemField {
+  name: string;
+  label: string;
+  kind?: "text" | "textarea" | "url" | "select";
+  options?: readonly string[];
+  required?: boolean;
+  max?: number;
+  /** Spans the full row on a wide display. */
+  full?: boolean;
+}
+
+/** How the items of one collection are shown in the editor. */
+export interface CollectionUi {
+  title: string;
+  lead: string;
+  itemLabel: string;
+  fields: ItemField[];
+}
+
 /**
- * Editor of one portrait section (or entry sources): add, remove and move
- * items (with buttons, so it works from the keyboard too). The whole section is
- * saved at once — in one transaction — via the Server Action `save`; `target`
- * says where it belongs (kind + slug for a portrait, entry_id for an entry).
+ * Editor of one list of items — a portrait section, an entry's FAQ: add,
+ * remove and move items (with buttons, so it works from the keyboard too). The
+ * whole list is saved at once — in one transaction — via the Server Action
+ * `save`; `target` says where it belongs (kind + slug for a portrait, entry_id
+ * for an entry), `collection` which list it is and `ui` how its items look.
  */
 export function CollectionEditor({
   save,
   target,
   collection,
+  ui,
   initial,
 }: {
   save: (prev: ActionState, formData: FormData) => Promise<ActionState>;
   target: Record<string, string>;
-  collection: Collection;
+  collection: string;
+  ui: CollectionUi;
   initial: Item[];
 }) {
-  const ui = COLLECTION_UI[collection];
   const [items, setItems] = useState<Item[]>(initial);
   const [state, action] = useActionState<ActionState, FormData>(
     async (previous, formData) => {
@@ -168,30 +188,5 @@ export function CollectionEditor({
         </div>
       </ActionForm>
     </section>
-  );
-}
-
-export function IconAction({
-  label,
-  icon,
-  onClick,
-  disabled,
-}: {
-  label: string;
-  icon: React.ReactNode;
-  onClick: () => void;
-  disabled?: boolean;
-}) {
-  return (
-    <Button
-      variant="ghost"
-      size="icon"
-      aria-label={label}
-      title={label}
-      disabled={disabled}
-      onClick={onClick}
-    >
-      {icon}
-    </Button>
   );
 }
