@@ -51,7 +51,7 @@ export const SubtopicActive: Story = {
 /** Over the home map: small, white focus ring, a kicker over the title. */
 export const OnTheMap: Story = {
   render: () => (
-    <div className="w-44 bg-[#0d1324] p-3">
+    <div className="w-44 bg-[var(--color-ink-deep)] p-3">
       <PhotoTile
         href={HREF}
         size="sm"

@@ -1,4 +1,5 @@
 import "server-only";
+import { GLOBE } from "@/config/layout";
 import { routes } from "@/config/routes";
 import { getEntries } from "@/features/entries/queries";
 import { getAtlas } from "@/features/geography/queries";
@@ -68,7 +69,7 @@ export async function search(query: string, limit = 12): Promise<SearchHit[]> {
       if (country) hit.title = country.name;
       if (country?.labelLon != null && country.labelLat != null) {
         hit.center = [country.labelLon, country.labelLat];
-        hit.zoom = 3.4;
+        hit.zoom = GLOBE.searchCountryZoom;
       }
       hit.body = country?.profile.summary || country?.nameFormal || "";
     } else if (row.kind === "issue") {

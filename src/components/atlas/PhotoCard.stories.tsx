@@ -36,7 +36,7 @@ export const News: Story = {
   args: { size: "md", titleAs: "h3", href: routes.news("sample-news") },
   decorators: [
     (Story) => (
-      <div className="bg-[#141a2b] p-6">
+      <div className="bg-[var(--color-band)] p-6">
         <Story />
       </div>
     ),
@@ -56,7 +56,7 @@ export const SourceWithoutPhoto: Story = {
   },
   decorators: [
     (Story) => (
-      <div className="bg-[#141a2b] p-6">
+      <div className="bg-[var(--color-band)] p-6">
         <Story />
       </div>
     ),

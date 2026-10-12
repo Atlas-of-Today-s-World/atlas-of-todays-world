@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { THEME_COLORS } from "@/config/palette";
 
 /** Preview image size for social networks (Open Graph, X, LinkedIn). */
 export const OG_SIZE = { width: 1200, height: 630 };
@@ -11,7 +12,7 @@ export function renderOg({
   kicker,
   title,
   subtitle,
-  accent = "#3b4ce0",
+  accent = THEME_COLORS.accent,
 }: {
   kicker: string;
   title: string;
@@ -27,7 +28,7 @@ export function renderOg({
         flexDirection: "column",
         justifyContent: "space-between",
         padding: "72px 80px",
-        background: "radial-gradient(circle at 80% 30%, #1d2a55 0%, #0a1020 55%, #070b16 100%)",
+        background: `radial-gradient(circle at 80% 30%, #1d2a55 0%, ${THEME_COLORS.space} 55%, ${THEME_COLORS.spaceDeep} 100%)`,
         color: "#fff",
         fontFamily: "sans-serif",
       }}
@@ -39,7 +40,7 @@ export function renderOg({
             padding: "8px 16px",
             borderRadius: 8,
             background: "#fff",
-            color: "#0d1324",
+            color: THEME_COLORS.inkDeep,
             fontSize: 24,
             fontWeight: 800,
             letterSpacing: 3,

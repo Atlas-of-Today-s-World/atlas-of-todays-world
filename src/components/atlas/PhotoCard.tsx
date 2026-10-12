@@ -4,6 +4,7 @@ import Link from "@/components/i18n/Link";
 import { cn } from "@/lib/cn";
 import { PHOTO_WIDTH } from "@/lib/images";
 import { cssBackgroundImage } from "@/lib/security/urls";
+import { kickerVariants } from "./kicker";
 
 const card = cva(
   "group overflow-hidden bg-white text-[var(--color-ink)] transition focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none",
@@ -121,11 +122,7 @@ export function PhotoCard({
       )}
       {/* A div: the title may be a heading. */}
       <div className={body({ size })}>
-        {kicker ? (
-          <span className="text-[11px] font-medium tracking-[0.1em] text-[var(--color-ink-muted)] uppercase">
-            {kicker}
-          </span>
-        ) : null}
+        {kicker ? <span className={kickerVariants()}>{kicker}</span> : null}
         <Title className={title({ size })}>{titleText}</Title>
         {text ? <span className={description({ size })}>{text}</span> : null}
       </div>

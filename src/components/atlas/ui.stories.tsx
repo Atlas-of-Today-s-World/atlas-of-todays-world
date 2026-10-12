@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { cn } from "@/lib/cn";
+import { kickerVariants } from "./kicker";
 import { MetricCards, NewsBadge, SectionLabel, StatGrid, StatIcon, StatItem } from "./ui";
 
 const meta = {
@@ -15,6 +17,19 @@ export const Labels: Story = {
     <div className="flex items-center gap-4">
       <SectionLabel>Society</SectionLabel>
       <NewsBadge count={3} />
+    </div>
+  ),
+};
+
+/** The kicker tones (kicker.ts): pill = SectionLabel, muted on light, glass over the map. */
+export const Kickers: Story = {
+  render: () => (
+    <div className="flex items-center gap-6">
+      <span className={kickerVariants({ tone: "pill" })}>Pill</span>
+      <span className={kickerVariants()}>In short</span>
+      <span className={cn("glass rounded-xl p-3", kickerVariants({ tone: "glass" }))}>
+        Latest subtopics
+      </span>
     </div>
   ),
 };

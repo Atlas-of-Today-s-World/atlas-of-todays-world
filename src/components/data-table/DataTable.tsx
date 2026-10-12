@@ -539,4 +539,4 @@ const bodyCell =
   "flex min-h-[29px] min-w-0 items-center overflow-hidden border-b border-[var(--color-line)]/70 bg-white px-2.5 py-1 leading-5 group-hover:bg-[var(--color-surface-hover)]";
 const selectedBg = "bg-[var(--color-accent-soft)] group-hover:bg-[var(--color-accent-soft)]";
 const stickyRight =
-  "sticky right-0 z-[1] border-l border-l-[var(--color-line)] shadow-[-6px_0_8px_-8px_var(--color-ink-muted)]";
+  "sticky right-0 z-1 border-l border-l-[var(--color-line)] shadow-[-6px_0_8px_-8px_var(--color-ink-muted)]";
