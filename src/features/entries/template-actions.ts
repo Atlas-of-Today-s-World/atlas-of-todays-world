@@ -14,7 +14,7 @@ import {
   signedIn,
   type ActionState,
 } from "@/lib/actions";
-import { tags } from "@/lib/cache/tags";
+import { entryChangedTags } from "@/lib/cache/tags";
 import { requiredText, uuid } from "@/lib/validation/common";
 import { TemplateInput, TILE_FIELD_LABEL, TilesInput } from "./schema";
 
@@ -109,8 +109,7 @@ export async function applyTemplate(_prev: ActionState, formData: FormData): Pro
     .eq("id", entry_id)
     .maybeSingle();
   if (data?.status === "published") {
-    updateTag(tags.entries);
-    updateTag(tags.entry(data.slug));
+    for (const tag of entryChangedTags(data.slug)) updateTag(tag);
   }
   revalidatePath(`/admin/content/${entry_id}`);
   return { ok: true, message: "Template applied." };

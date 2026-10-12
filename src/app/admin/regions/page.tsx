@@ -8,6 +8,7 @@ import { optionStats } from "@/components/data-table/stats";
 import { navIcon } from "@/config/admin-nav";
 import { sectionAccess } from "@/features/auth/access";
 import { getAtlas } from "@/features/geography/queries";
+import { countriesWithProfileText } from "@/features/portraits/editorial";
 import { formatPopulation } from "@/lib/format";
 import { routes } from "@/config/routes";
 
@@ -20,7 +21,7 @@ const PROFILE = [
 
 export default async function RegionsPage() {
   if (!(await sectionAccess("regions"))) return <NoAccess />;
-  const atlas = await getAtlas();
+  const [atlas, withText] = await Promise.all([getAtlas(), countriesWithProfileText()]);
 
   return (
     <>
@@ -105,7 +106,7 @@ export default async function RegionsPage() {
             name: country.name,
             iso3: country.iso3,
             region: country.region?.name ?? null,
-            profile: country.profile.html || country.profile.metrics.length ? "yes" : "no",
+            profile: withText.has(country.iso3) || country.profile.metrics.length ? "yes" : "no",
             population: country.population,
           },
           cells: { population: formatPopulation(country.population) },

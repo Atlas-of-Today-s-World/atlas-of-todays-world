@@ -10,7 +10,7 @@ import {
   getPlannedEntries,
   thematicEntries,
 } from "@/features/entries/queries";
-import { getAtlas } from "@/features/geography/queries";
+import { getAtlas, getCountryProfileHtml } from "@/features/geography/queries";
 import { format, type Messages } from "@/features/i18n/messages";
 import { getRequestLocale, getT, localeFrom } from "@/features/i18n/request";
 import type { Country } from "@/features/geography/types";
@@ -117,11 +117,12 @@ export default async function CountryPage({
   const region = country.region;
   // The region's own record (photo, summary) for its profile under the country.
   const regionData = region ? atlas.regionBySlug.get(region.slug) : undefined;
-  const [topics, entries, dossier, upcoming] = await Promise.all([
+  const [topics, entries, dossier, upcoming, profileHtml] = await Promise.all([
     relatedTopics(atlas, "country", country.iso3),
     getEntries(),
     regionData ? getPortrait("region", regionData.slug) : null,
     getPlannedEntries(),
+    getCountryProfileHtml(country.iso3),
   ]);
   const newsItems = entriesOfCountry(entries, country.iso3);
   const profile = country.profile;
@@ -150,7 +151,7 @@ export default async function CountryPage({
           profile={profile}
           topics={topics}
         />
-        {profile.html ? <SafeHtml className="prose-atlas px-6 pb-10" html={profile.html} /> : null}
+        {profileHtml ? <SafeHtml className="prose-atlas px-6 pb-10" html={profileHtml} /> : null}
         {regionData && dossier ? (
           // Topics in the profile are the country's (own, region's, groups') by theme,
           // next to what the region has planned.

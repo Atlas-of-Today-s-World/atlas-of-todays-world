@@ -18,7 +18,8 @@ import { AuthorInput } from "./schema";
 /**
  * Saves an author (RLS: anyone who may write can add a new one; someone else's
  * bio may only be changed by editors with access to all articles, DB-04). The
- * author appears in entry headers, so the article cache is revalidated too.
+ * author appears in entry headers, so the lists and every article page are
+ * revalidated too.
  */
 export async function saveAuthor(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = AuthorInput.safeParse(formObject(formData));
@@ -48,6 +49,7 @@ export async function saveAuthor(_prev: ActionState, formData: FormData): Promis
   if (error) return failed(error);
   if (!data.length) return { ok: false, error: "You can't edit this author (no permission)." };
   updateTag(tags.entries);
+  updateTag(tags.entryPages);
   revalidatePath("/admin/authors");
   return { ok: true, message: "Saved." };
 }
@@ -61,6 +63,7 @@ export async function deleteAuthor(id: string): Promise<ActionState> {
   if (error) return failed(error);
   if (!data.length) return { ok: false, error: "The author can't be deleted (no permission)." };
   updateTag(tags.entries);
+  updateTag(tags.entryPages);
   revalidatePath("/admin/authors");
   return { ok: true, message: "Deleted." };
 }

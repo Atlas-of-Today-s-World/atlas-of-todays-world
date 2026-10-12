@@ -1,7 +1,7 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { DEFAULT_LOCALE, isLocale, LOCALES, type Locale } from "@/features/i18n/config";
-import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
+import { entryPageTags, PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import type { FaqItem, NewsCategory, ResourceItem } from "@/lib/content-types";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { createPublicClient } from "@/lib/supabase/public";
@@ -164,7 +164,11 @@ function pickVersion<R extends Row & { translation_of: string | null }>(rows: R[
   return { row, languages, locale: toLocale(row.locale) };
 }
 
-/** A single published news item with text (in the page language, else the original); null if missing. */
+/**
+ * A single published news item with text (in the page language, else the
+ * original); null if missing. Cached per slug (`entryPageTags`), so editing
+ * another article leaves this one cached.
+ */
 export async function getEntry(
   slug: string,
   locale: Locale = DEFAULT_LOCALE,
@@ -181,7 +185,7 @@ export async function getEntry(
       return data as (Row & { body_html: string; translation_of: string | null })[];
     },
     ["entry", slug],
-    { tags: [tags.entries, tags.entry(slug)], revalidate: PUBLIC_REVALIDATE_SECONDS },
+    { tags: entryPageTags(slug), revalidate: PUBLIC_REVALIDATE_SECONDS },
   )();
   const version = pickVersion(rows, locale);
   if (!version) return null;
@@ -515,7 +519,8 @@ const ENCYCLOPEDIA_COLUMNS = `${BASE_COLUMNS}, body_html, summary_points,
 
 /**
  * A single published entry with everything the page shows — in the page
- * language, otherwise the original; null if it doesn't exist.
+ * language, otherwise the original; null if it doesn't exist. Cached per slug
+ * (`entryPageTags`), like `getEntry`.
  */
 export async function getEncyclopediaEntry(
   slug: string,
@@ -547,7 +552,7 @@ export async function getEncyclopediaEntry(
         })[];
     },
     ["encyclopedia", slug],
-    { tags: [tags.entries, tags.entry(slug)], revalidate: PUBLIC_REVALIDATE_SECONDS },
+    { tags: entryPageTags(slug), revalidate: PUBLIC_REVALIDATE_SECONDS },
   );
   const rows = await load();
   const version = pickVersion(rows, locale);
