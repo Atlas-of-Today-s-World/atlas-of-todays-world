@@ -12,7 +12,7 @@ import { slugify } from "@/lib/validation/common";
 import { MAX_TILES } from "../constants";
 import type { EditableTile } from "../editorial";
 import { IconPicker } from "./IconPicker";
-import { TileIcon } from "./TileIcon";
+import { TileIcon } from "@/components/topics/TileIcon";
 import { UploadField } from "@/components/admin/UploadField";
 
 /** A tile while editing; `key` keeps React rows stable, `id` is empty for a new one. */

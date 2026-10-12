@@ -9,8 +9,8 @@ import { PhotoTile } from "@/components/atlas/PhotoTile";
 import { cn } from "@/lib/cn";
 import { scrollBehavior } from "@/lib/motion";
 import { useLatest } from "@/lib/use-latest";
-import type { TileIcon as TileIconName } from "../constants";
-import { TileIcon } from "./TileIcon";
+import type { TileIcon as TileIconName } from "@/features/entries/constants";
+import { TileIcon } from "@/components/topics/TileIcon";
 import { TopicJumpBar } from "./TopicJumpBar";
 
 export interface TopicTileData {

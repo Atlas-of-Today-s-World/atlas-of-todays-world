@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/field";
 import { cn } from "@/lib/cn";
 import { TILE_ICON_LABEL, TILE_ICONS } from "../constants";
-import { TileIcon } from "./TileIcon";
+import { TileIcon } from "@/components/topics/TileIcon";
 
 /**
  * Picks one of the tile icons (well over a hundred): a search box over the

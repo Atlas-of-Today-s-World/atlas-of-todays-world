@@ -143,7 +143,7 @@ import {
   Zap,
   type LucideIcon,
 } from "lucide-react";
-import { toTileIcon, type TileIcon as TileIconName } from "../constants";
+import { toTileIcon, type TileIcon as TileIconName } from "@/features/entries/constants";
 
 const ICONS: Record<TileIconName, LucideIcon> = {
   video: Clapperboard,

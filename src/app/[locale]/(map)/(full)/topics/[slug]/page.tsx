@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { EncyclopediaArticle } from "@/features/entries/components/EncyclopediaArticle";
+import { EncyclopediaArticle } from "@/features/topics/components/EncyclopediaArticle";
 import { getEncyclopediaEntries, getEncyclopediaEntry } from "@/features/entries/queries";
 import { redirectOrNotFound } from "@/features/redirects/queries";
 import { countriesOf } from "@/features/geography/model";
