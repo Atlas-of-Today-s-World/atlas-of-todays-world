@@ -176,7 +176,7 @@ test.describe("search shortcut", () => {
 
   test("Enter in the search over the map opens the full results page", async ({ page }) => {
     await page.goto("/");
-    const search = page.getByRole("searchbox", { name: /Search places/ });
+    const search = page.getByRole("combobox", { name: /Search places/ });
     await search.fill("Japan");
     await expect(async () => {
       await search.press("Enter");
@@ -184,12 +184,63 @@ test.describe("search shortcut", () => {
     }).toPass({ timeout: 30_000 });
   });
 
+  test("arrow keys highlight a result and Enter opens it", async ({ page }) => {
+    await page.goto("/");
+    const search = page.getByRole("combobox", { name: /Search places/ });
+    const options = page.getByRole("listbox").getByRole("option");
+    // Typing before hydration doesn't reach React: retype until the list opens.
+    await expect(async () => {
+      await search.fill("");
+      await search.fill("Japan");
+      await expect(options.first()).toBeVisible({ timeout: 5_000 });
+    }).toPass({ timeout: 30_000 });
+    await expect(search).toHaveAttribute("aria-expanded", "true");
+    // The count is announced; the last row leads to all results.
+    await expect(
+      page.getByRole("region", { name: "Global Encyclopedia" }).getByRole("status"),
+    ).toHaveText(/^\d+ results?$/);
+    await expect(options.last()).toHaveText("See all results");
+    await expect(options.last()).toHaveAttribute("href", "/search?q=Japan");
+
+    // ↓ ↓ ↑ ends on the first result, with focus still in the field.
+    await search.press("ArrowDown");
+    await search.press("ArrowDown");
+    await search.press("ArrowUp");
+    const first = options.first();
+    await expect(first).toHaveAttribute("aria-selected", "true");
+    await expect(search).toHaveAttribute(
+      "aria-activedescendant",
+      (await first.getAttribute("id"))!,
+    );
+    await expect(search).toBeFocused();
+
+    const href = (await first.getAttribute("href"))!;
+    await search.press("Enter");
+    await expect.poll(() => new URL(page.url()).pathname).toBe(new URL(href, page.url()).pathname);
+  });
+
+  test("Esc empties the search field without closing the open panel", async ({ page }) => {
+    await page.goto("/country/ukraine");
+    const search = page.getByRole("combobox", { name: /Search places/ });
+    await expect(async () => {
+      await search.fill("");
+      await search.fill("Japan");
+      await expect(page.getByRole("listbox").getByRole("option").first()).toBeVisible({
+        timeout: 5_000,
+      });
+    }).toPass({ timeout: 30_000 });
+    await search.press("Escape");
+    await expect(search).toHaveValue("");
+    await expect(search).toHaveAttribute("aria-expanded", "false");
+    await expect(page).toHaveURL(/\/country\/ukraine$/);
+  });
+
   test("a failed search over the map says so instead of “nothing found”", async ({ page }) => {
     await page.route("**/api/search?*", (route) =>
       route.fulfill({ status: 429, json: { error: "Too many requests." } }),
     );
     await page.goto("/");
-    await page.getByRole("searchbox", { name: /Search places/ }).fill("Japan");
+    await page.getByRole("combobox", { name: /Search places/ }).fill("Japan");
     await expect(page.getByText(/Search is unavailable right now/)).toBeVisible();
     await expect(page.getByText("Nothing found in the Atlas yet.")).toHaveCount(0);
   });

@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { MOBILE_SHEET } from "@/config/layout";
 import { cn } from "@/lib/cn";
 import { belongsToField } from "@/lib/keyboard";
+import { useScrollMemory } from "@/lib/use-scroll-memory";
 import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 
@@ -50,6 +51,9 @@ export default function ContentRail({
   const swiped = useRef(false);
   const router = useLocalizedRouter();
   const panel = useRef<HTMLElement>(null);
+  const scroller = useRef<HTMLDivElement>(null);
+  // Back to a panel returns to where it was read; the skeleton stays out of it.
+  useScrollMemory(scroller, !placeholder);
 
   // The panel also closes with Esc – otherwise keyboard users couldn't get out of it.
   // Esc in a form field (search, newsletter) belongs to that field, not the panel.
@@ -140,6 +144,7 @@ export default function ContentRail({
       </Link>
 
       <div
+        ref={scroller}
         // Collapsed off-screen on desktop: out of the Tab and reading order.
         inert={collapsed || undefined}
         className={cn(
