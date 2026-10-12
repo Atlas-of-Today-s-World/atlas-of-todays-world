@@ -1,4 +1,6 @@
 import sanitizeHtml from "sanitize-html";
+// Relative import: the Webflow import scripts load this module with plain Node, without path aliases.
+import { isTrustedPhoto } from "../images";
 
 /**
  * The single allowlist for editorial HTML (ARCHITEKTURA 8.3). Used both on save
@@ -47,6 +49,11 @@ const OPTIONS: sanitizeHtml.IOptions = {
     a: sanitizeHtml.simpleTransform("a", { rel: "noopener noreferrer" }),
     img: sanitizeHtml.simpleTransform("img", { loading: "lazy" }),
   },
+  // Pictures only from our own photos and the photo origins the site already
+  // trusts (lib/images): one from anywhere else would be a tracking pixel in every
+  // reader's browser. The whole <img> goes, not just its src. `srcset` isn't
+  // allowed at all, so it can't bring in another host either.
+  exclusiveFilter: (frame) => frame.tag === "img" && !isTrustedPhoto(frame.attribs.src ?? ""),
 };
 
 export function sanitizeRichHtml(html: string): string {

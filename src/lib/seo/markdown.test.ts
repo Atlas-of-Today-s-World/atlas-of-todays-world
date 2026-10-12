@@ -18,10 +18,10 @@ describe("htmlToMarkdown", () => {
   it("lists, quotes, rules, images and line breaks", () => {
     expect(
       md(
-        '<ul><li>One</li><li>Two <a href="https://a.org">link</a></li></ul><ol><li>First</li><li>Second</li></ol><blockquote><p>Quoted</p></blockquote><hr><p>Line<br>break</p><figure><img src="https://x.org/i.jpg" alt="Map"><figcaption>Credit</figcaption></figure>',
+        '<ul><li>One</li><li>Two <a href="https://a.org">link</a></li></ul><ol><li>First</li><li>Second</li></ol><blockquote><p>Quoted</p></blockquote><hr><p>Line<br>break</p><figure><img src="/images/webflow/map.webp" alt="Map"><figcaption>Credit</figcaption></figure>',
       ),
     ).toBe(
-      "- One\n- Two [link](https://a.org)\n\n1. First\n2. Second\n\n> Quoted\n\n---\n\nLine  \nbreak\n\n![Map](https://x.org/i.jpg)\n\n_Credit_",
+      "- One\n- Two [link](https://a.org)\n\n1. First\n2. Second\n\n> Quoted\n\n---\n\nLine  \nbreak\n\n![Map](/images/webflow/map.webp)\n\n_Credit_",
     );
   });
 

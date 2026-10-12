@@ -29,6 +29,8 @@ import {
   rewriteFiles,
   webflowFiles,
 } from "./webflow/core.mjs";
+// Before the dynamic import of src/lib/security/sanitize.ts below.
+import "./lib/ts-imports.mjs";
 
 const PROJECTS = { dev: "bognwszwhxxyjafqzfuh", prod: "ewbzkxialhtwuqlenjof" };
 const IMAGE_TYPES = {

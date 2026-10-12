@@ -60,22 +60,38 @@ function isPhotoOrigin(url: URL): boolean {
   );
 }
 
+/** Our own photo by its absolute address (the database stores https URLs). */
+const isOwnPhoto = (url: URL) =>
+  url.origin === new URL(SITE_URL).origin && url.pathname.startsWith(LOCAL_PHOTOS);
+
+function parseUrl(src: string): URL | undefined {
+  try {
+    return new URL(src);
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Whether `src` is a photo the site trusts: ours under /images/ (as a path or
+ * this site's URL) or one from PHOTO_ORIGINS. Editorial HTML may show only
+ * these (lib/security/sanitize), so an article can't carry a tracking pixel.
+ */
+export function isTrustedPhoto(src: string): boolean {
+  if (src.startsWith(LOCAL_PHOTOS)) return true;
+  const url = parseUrl(src);
+  return url !== undefined && (isOwnPhoto(url) || isPhotoOrigin(url));
+}
+
 const optimized = (source: string, width: number) =>
   `/_next/image?url=${encodeURIComponent(source)}&w=${width}&q=${QUALITY}`;
 
 /** The optimizer's address for `src` at `width`, or `src` itself when it isn't ours to resize. */
 export function photoUrl(src: string, width: number): string {
   if (src.startsWith(LOCAL_PHOTOS)) return optimized(src, width);
-  let url: URL;
-  try {
-    url = new URL(src);
-  } catch {
-    return src;
-  }
-  // Our own photo by its absolute address (the database stores https URLs).
-  if (url.origin === new URL(SITE_URL).origin && url.pathname.startsWith(LOCAL_PHOTOS)) {
-    return optimized(url.pathname, width);
-  }
+  const url = parseUrl(src);
+  if (!url) return src;
+  if (isOwnPhoto(url)) return optimized(url.pathname, width);
   if (!isPhotoOrigin(url)) return src;
   return optimized(url.href, width);
 }

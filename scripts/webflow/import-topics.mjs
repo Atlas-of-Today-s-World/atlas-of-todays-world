@@ -24,6 +24,8 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { parseArgs } from "node:util";
+// Before the dynamic imports of src/lib/security/sanitize.ts below.
+import "../lib/ts-imports.mjs";
 
 const PROJECTS = { dev: "bognwszwhxxyjafqzfuh", prod: "ewbzkxialhtwuqlenjof" };
 const IMAGE_BUCKET = "entry-images";
