@@ -14,8 +14,18 @@ import { LAYERS } from "../mapStyle";
 import { isSpinEvent } from "../useIdleSpin";
 import { setHoverState } from "./featureState";
 import type { HoverLabel } from "./GlobeHoverLabel";
+import { isTouchPointer, tapStep } from "./tapPreview";
 import type { SelectionModeKey } from "./topicBadges";
 import type { RegionLookup } from "./types";
+
+/** A place on the globe: what its label says and where a click leads. */
+interface Target {
+  iso3: string;
+  label: HoverLabel;
+  href: string;
+  /** Countries lit with it (the whole group in group modes). */
+  countries: string[];
+}
 
 /**
  * Hover, click and prefetch on the globe. `bind(map)` attaches the handlers
@@ -23,6 +33,10 @@ import type { RegionLookup } from "./types";
  * the map is never recreated when the mode, the data or the language change.
  * Returns the label under the cursor and the place just clicked (`pendingIso3`,
  * highlighted until the page for it takes over the active country).
+ *
+ * A finger has no hover: on touch the first tap previews a place (highlight and
+ * label, with `previewHref` set so the label becomes a link), a second tap on it
+ * or on the label opens it (globe/tapPreview). Mouse and keyboard are unchanged.
  */
 export function useGlobeInteractions({
   mode,
@@ -48,12 +62,19 @@ export function useGlobeInteractions({
   const t = useMessages();
   const router = useLocalizedRouter();
   const [hoverLabel, setHoverLabel] = useState<HoverLabel | null>(null);
+  /** Touch only: where the previewed place leads (its label is then a link). */
+  const [previewHref, setPreviewHref] = useState<string | null>(null);
   /** The country just clicked – we highlight it before the content arrives. */
   // Valid until the active country changes (since) — then the page takes over.
   const [pending, setPending] = useState<{ iso3: string; since: string | null } | null>(null);
   const pendingIso3 = pending && pending.since === activeIso3 ? pending.iso3 : null;
 
   const hoveredRef = useRef<string | null>(null);
+  /** The place picked by a first tap, for the handlers (previewHref mirrors it for render). */
+  const previewRef = useRef<Target | null>(null);
+  /** The pointer last used on the globe ("touch", "mouse", "pen"): a finger previews first. */
+  const pointerRef = useRef<string | null>(null);
+  const mapRef = useRef<MapLibreMap | null>(null);
   // Mouse handling changes with the mode, but we don't recreate the map for that.
   const modeRef = useLatest(mode);
   const regionsRef = useLatest(regions);
@@ -80,14 +101,37 @@ export function useGlobeInteractions({
   // The countries lit under the cursor, so changes only touch the difference.
   const hoveredIsoRef = useRef<string[]>([]);
 
-  /** Turns off the highlight and label under the cursor. */
+  /** Turns off the highlight and label under the cursor (and a touch preview). */
   const clearHover = useCallback((map: MapLibreMap) => {
     hoveredRef.current = null;
+    previewRef.current = null;
     setHoverState(map, hoveredIsoRef, []);
     setHoverLabel(null);
+    setPreviewHref(null);
   }, []);
 
+  /** Fetches a place's panel ahead, so opening it is instant. */
+  const prefetch = (href: string) => {
+    if (prefetchedRef.current.has(href)) return;
+    prefetchedRef.current.add(href);
+    router.prefetch(href);
+  };
+
+  /** Highlights the place being opened until its page takes over the active country. */
+  const markPending = (target: Target) =>
+    setPending({ iso3: target.iso3, since: activeRef.current });
+
+  /** The previewed place's label was tapped: its link navigates, the globe marks the place. */
+  const openPreview = () => {
+    const target = previewRef.current;
+    if (!target) return;
+    markPending(target);
+    if (mapRef.current) clearHover(mapRef.current);
+  };
+
   const bind = (map: MapLibreMap) => {
+    mapRef.current = map;
+
     /** The active metric's value for a country (none in the default view). */
     const metricFor = (iso3: string): HoverLabel["metric"] => {
       const metric = layersRef.current[viewRef.current];
@@ -97,7 +141,7 @@ export function useGlobeInteractions({
     };
 
     /** What's under the cursor: country ISO3, its name and the target URL per mode. */
-    const targetAt = (point: MapMouseEvent["point"]) => {
+    const targetAt = (point: MapMouseEvent["point"]): Target | null => {
       const feature = map.queryRenderedFeatures(point, {
         layers: [LAYERS.fill],
       })[0];
@@ -121,7 +165,7 @@ export function useGlobeInteractions({
             name: group.name,
             topics: topics ? topicLabelRef.current(topics) : undefined,
             status: statusLabelRef.current(group.status),
-          } as HoverLabel,
+          },
           href: isIssue ? routes.issue(slug) : routes.region(slug),
           countries: group.countries,
         };
@@ -137,7 +181,7 @@ export function useGlobeInteractions({
           name,
           metric: metricFor(iso3),
           topics: topics ? topicLabelRef.current(topics) : undefined,
-        } as HoverLabel,
+        },
         href: routes.country(slug),
         countries: [iso3],
       };
@@ -159,21 +203,50 @@ export function useGlobeInteractions({
       map.getCanvas().style.cursor = target ? "pointer" : "grab";
 
       // Fetch the panel content already on hover, so the click is instant.
-      if (target && !prefetchedRef.current.has(target.href)) {
-        prefetchedRef.current.add(target.href);
-        router.prefetch(target.href);
-      }
+      if (target) prefetch(target.href);
     };
 
+    /** Touch: lights the tapped place and turns its label into a link (null clears it). */
+    const showPreview = (target: Target | null) => {
+      previewRef.current = target;
+      // A mouse used later recomputes its hover from scratch.
+      hoveredRef.current = null;
+      setHoverState(map, hoveredIsoRef, target ? target.countries : []);
+      setHoverLabel(target?.label ?? null);
+      setPreviewHref(target?.href ?? null);
+      if (target) prefetch(target.href);
+    };
+
+    // Which pointer is in use. Pointer events carry their type; the mouse events a
+    // browser fakes after a tap (mousemove, mouseout, click) can't be trusted to, so
+    // they are judged by the pointer that came before them. Captured on the
+    // container, so nothing inside the map can swallow it.
+    const notePointer = (event: PointerEvent) => {
+      pointerRef.current = event.pointerType;
+    };
+    const container = map.getContainer();
+    container.addEventListener("pointerdown", notePointer, { capture: true, passive: true });
+    container.addEventListener("pointermove", notePointer, { capture: true, passive: true });
+    const touch = () => isTouchPointer(pointerRef.current);
+
     const onMove = (event: MapMouseEvent) => {
+      // A tap's fake mousemove would light the place before the tap itself decides.
+      if (touch()) return;
+      // The mouse is back after a touch preview: plain hover takes over.
+      if (previewRef.current) clearHover(map);
       cursorRef.current = event.point;
       applyHover(event.point);
     };
 
     const onClick = (event: MapMouseEvent) => {
       const target = targetAt(event.point);
+      if (touch()) {
+        const step = tapStep(previewRef.current?.href ?? null, target?.href ?? null);
+        if (step !== "open") return showPreview(step === "preview" ? target : null);
+        showPreview(null);
+      }
       if (!target) return;
-      setPending({ iso3: target.iso3, since: activeRef.current });
+      markPending(target);
       router.push(target.href);
     };
 
@@ -181,19 +254,22 @@ export function useGlobeInteractions({
     // So we turn the highlight off when movement starts and recompute it when it ends,
     // otherwise a random country from mid-animation would stay highlighted.
     // The idle spin moves the camera every frame; the highlight stays on until the cursor moves.
+    // On touch there is no cursor to come back to: a drag or a flight drops the preview.
     const onMoveStart = (event: object) => {
       if (!isSpinEvent(event)) clearHover(map);
     };
     const onMoveEnd = (event: object) => {
-      if (!isSpinEvent(event)) applyHover(cursorRef.current);
+      if (!isSpinEvent(event) && !touch()) applyHover(cursorRef.current);
     };
 
     map.on("mousemove", onMove);
     map.on("click", onClick);
     map.on("movestart", onMoveStart);
     map.on("moveend", onMoveEnd);
-    map.on("mouseout", () => applyHover(null));
+    map.on("mouseout", () => {
+      if (!touch()) applyHover(null);
+    });
   };
 
-  return { hoverLabel, pendingIso3, bind, clearHover };
+  return { hoverLabel, previewHref, openPreview, pendingIso3, bind, clearHover };
 }
