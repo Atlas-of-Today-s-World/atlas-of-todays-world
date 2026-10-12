@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { HEX_COLOR } from "@/lib/tile-style";
+import { HEX_COLOR } from "@/lib/validation/hex-color";
 
 /**
  * Building blocks of the admin Zod schemas — same shapes as the CHECKs in the DB,

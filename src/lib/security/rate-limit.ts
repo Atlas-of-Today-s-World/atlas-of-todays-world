@@ -2,6 +2,7 @@ import "server-only";
 import { createHash, createHmac } from "node:crypto";
 import { serverEnv } from "@/lib/env.server";
 import { createServiceClient } from "@/lib/supabase/service";
+import { rateLimitAddress } from "./ip";
 
 type Limits = { limit: number; windowSeconds: number };
 
@@ -19,7 +20,7 @@ export async function allowRequest(
   headers: Headers,
   limits: Limits,
 ): Promise<boolean> {
-  const ip = headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const ip = rateLimitAddress(headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown");
   return allowKey(
     `${scope}:${createHash("sha256").update(ip).digest("hex").slice(0, 32)}`,
     limits,

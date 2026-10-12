@@ -5,11 +5,11 @@ import { flushSync } from "react-dom";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { format } from "@/features/i18n/messages";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { PhotoTile } from "@/components/atlas/PhotoTile";
 import { cn } from "@/lib/cn";
 import { scrollBehavior } from "@/lib/motion";
 import { useLatest } from "@/lib/use-latest";
 import type { TileIcon as TileIconName } from "../constants";
-import { tileStyle } from "./TileFace";
 import { TileIcon } from "./TileIcon";
 import { TopicJumpBar } from "./TopicJumpBar";
 
@@ -42,12 +42,6 @@ const readHash = () => window.location.hash.slice(1);
 const noHash = () => "";
 /** Older links pointed at `#chapter-3`; topics took their place. */
 const panelOf = (hash: string) => hash.replace(/^chapter-/, "topic-");
-/** Shared look of both tile kinds: photo or dark field, gradient for legible text. */
-const TILE =
-  "group relative flex w-full flex-col justify-end overflow-hidden rounded-xl bg-[var(--color-ink)] bg-cover bg-center p-3.5 text-left text-white shadow-md transition hover:-translate-y-0.5 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2";
-const SHADE =
-  "pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/5 transition group-hover:from-black/90";
-const ACTIVE = "ring-2 ring-[var(--color-accent)] ring-offset-2";
 const HEADING = "font-display text-[26px] font-semibold tracking-tight sm:text-[30px]";
 /**
  * One grid of four equal columns on wide screens: subtopics fill three, the
@@ -58,8 +52,6 @@ const GAP = "gap-3";
 const SUBTOPIC_HEIGHT = "h-30 sm:h-36";
 // (144 px − 12 px gap) / 2 = 66 px from `sm` up; on phones the columns stack, no pairing needed.
 const RESOURCE_HEIGHT = "h-16 sm:h-[4.125rem]";
-/** Half-height resource tile: icon beside the label instead of above it. */
-const RESOURCE = cn(RESOURCE_HEIGHT, "flex-row items-center justify-start gap-3 py-2");
 
 /**
  * The topic's two halves side by side: subtopic tiles on the left, "Learn
@@ -137,30 +129,26 @@ export function DossierExplorer({
       <nav aria-label={t.topicSteps} className="mt-12 grid grid-cols-2 gap-3 print:hidden">
         {steps.map(({ topic, label, back }) =>
           topic ? (
-            <button
+            <PhotoTile
               key={topic.id}
-              type="button"
               aria-label={format(label, { title: topic.title })}
               // Open it and start reading from its top.
               onClick={() => choose(topic.id, "start")}
-              className={cn(
-                TILE,
-                SUBTOPIC_HEIGHT,
-                "w-full max-w-72",
-                back ? "justify-self-start" : "items-end justify-self-end text-right",
-              )}
-              style={tileStyle(topic.image, topic.background)}
-            >
-              <span aria-hidden className={SHADE} />
-              <span className="relative mb-auto inline-flex w-fit items-center gap-1.5 rounded-full bg-black/45 px-3 py-1 text-[13px] font-semibold tracking-[0.08em] uppercase backdrop-blur-sm">
-                {back ? <ArrowLeft aria-hidden className="size-4" /> : null}
-                {back ? t.previous : t.next}
-                {back ? null : <ArrowRight aria-hidden className="size-4" />}
-              </span>
-              <span className="font-display relative line-clamp-3 text-[18px] leading-tight font-semibold text-balance sm:text-[19px]">
-                {topic.title}
-              </span>
-            </button>
+              size="xl"
+              effect="raised"
+              align={back ? "start" : "end"}
+              className={cn(SUBTOPIC_HEIGHT, "max-w-72")}
+              image={topic.image}
+              background={topic.background}
+              badge={
+                <span className="mb-auto inline-flex w-fit items-center gap-1.5 rounded-full bg-black/45 px-3 py-1 text-[13px] font-semibold tracking-[0.08em] uppercase backdrop-blur-sm">
+                  {back ? <ArrowLeft aria-hidden className="size-4" /> : null}
+                  {back ? t.previous : t.next}
+                  {back ? null : <ArrowRight aria-hidden className="size-4" />}
+                </span>
+              }
+              title={topic.title}
+            />
           ) : (
             <span key={back ? "none-back" : "none-next"} aria-hidden />
           ),
@@ -200,8 +188,7 @@ export function DossierExplorer({
               {topics.map((topic, index) => {
                 return (
                   <li key={topic.id}>
-                    <button
-                      type="button"
+                    <PhotoTile
                       aria-controls={topic.id}
                       aria-expanded={open === topic.id}
                       aria-label={format(t.showTopic, {
@@ -209,14 +196,14 @@ export function DossierExplorer({
                         title: topic.title,
                       })}
                       onClick={() => choose(topic.id)}
-                      className={cn(TILE, SUBTOPIC_HEIGHT, open === topic.id && ACTIVE)}
-                      style={tileStyle(topic.image, topic.background)}
-                    >
-                      <span aria-hidden className={SHADE} />
-                      <span className="font-display relative text-[15px] leading-tight font-semibold text-balance sm:text-[16px]">
-                        {topic.title}
-                      </span>
-                    </button>
+                      size="lg"
+                      effect="raised"
+                      active={open === topic.id}
+                      className={SUBTOPIC_HEIGHT}
+                      image={topic.image}
+                      background={topic.background}
+                      title={topic.title}
+                    />
                   </li>
                 );
               })}
@@ -231,14 +218,21 @@ export function DossierExplorer({
             </h2>
             <ul className={cn("mt-5 grid grid-cols-2 lg:grid-cols-1", GAP)}>
               {tiles.map((tile) => {
-                const style = tileStyle(tile.image, tile.background);
+                // Half-height: the icon beside the label instead of above it.
+                const resource = {
+                  size: "lg",
+                  layout: "row",
+                  effect: "raised",
+                  className: RESOURCE_HEIGHT,
+                  image: tile.image,
+                  background: tile.background,
+                } as const;
                 const body = (
                   <>
-                    <span aria-hidden className={SHADE} />
-                    <span className="relative grid size-9 shrink-0 place-items-center rounded-full bg-white/15 backdrop-blur-sm">
+                    <span className="grid size-9 shrink-0 place-items-center rounded-full bg-white/15 backdrop-blur-sm">
                       <TileIcon name={tile.icon} className="size-4.5" />
                     </span>
-                    <span className="relative flex min-w-0 flex-col">
+                    <span className="flex min-w-0 flex-col">
                       <span className="font-display line-clamp-2 text-[13.5px] leading-tight font-bold">
                         {tile.label}
                       </span>
@@ -257,23 +251,19 @@ export function DossierExplorer({
                 return (
                   <li key={tile.id}>
                     {tile.empty ? (
-                      <div
-                        className={cn(TILE, RESOURCE, "opacity-45 shadow-none grayscale")}
-                        style={style}
-                      >
+                      <PhotoTile {...resource} disabled>
                         {body}
-                      </div>
+                      </PhotoTile>
                     ) : (
-                      <button
-                        type="button"
+                      <PhotoTile
+                        {...resource}
                         aria-controls={tile.id}
                         aria-expanded={open === tile.id}
                         onClick={() => choose(tile.id)}
-                        className={cn(TILE, RESOURCE, open === tile.id && ACTIVE)}
-                        style={style}
+                        active={open === tile.id}
                       >
                         {body}
-                      </button>
+                      </PhotoTile>
                     )}
                   </li>
                 );

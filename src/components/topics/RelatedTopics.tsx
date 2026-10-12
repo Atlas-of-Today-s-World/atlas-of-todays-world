@@ -1,12 +1,11 @@
 import { ArrowRight } from "lucide-react";
+import { PhotoTile } from "@/components/atlas/PhotoTile";
 import Link from "@/components/i18n/Link";
 import { TopicsInvite } from "@/components/topics/TopicsInvite";
 import type { EntrySummary } from "@/features/entries/queries";
 import { format } from "@/features/i18n/messages";
 import { getT } from "@/features/i18n/request";
 import { cn } from "@/lib/cn";
-import { cssBackgroundImage } from "@/lib/security/urls";
-import { PHOTO_WIDTH } from "@/lib/images";
 import { routes } from "@/config/routes";
 
 /**
@@ -72,26 +71,16 @@ export function RelatedTopics({
         {t.related}
       </h2>
       <ul className="mt-3 grid grid-cols-2 gap-2.5">
-        {items.slice(0, 6).map((item) => {
-          const image = cssBackgroundImage(item.hero, PHOTO_WIDTH.tile);
-          return (
-            <li key={item.slug}>
-              <Link
-                href={routes.topic(item.slug)}
-                className="group relative flex min-h-28 flex-col justify-end overflow-hidden rounded-xl bg-[var(--color-ink)] bg-cover bg-center p-3 text-white focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:outline-none"
-                style={image ? { backgroundImage: image } : undefined}
-              >
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10 transition group-hover:from-black/90"
-                />
-                <span className="font-display relative text-[13px] leading-snug font-bold">
-                  {item.title}
-                </span>
-              </Link>
-            </li>
-          );
-        })}
+        {items.slice(0, 6).map((item) => (
+          <li key={item.slug}>
+            <PhotoTile
+              href={routes.topic(item.slug)}
+              className="min-h-28"
+              image={item.hero}
+              title={item.title}
+            />
+          </li>
+        ))}
       </ul>
       <TopicsLink count={items.length} href={href} className="mt-4" />
       <TopicsInvite t={t} place={place} className="mt-3" />

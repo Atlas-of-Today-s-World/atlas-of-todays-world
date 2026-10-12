@@ -2,6 +2,7 @@
 
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { PhotoTile } from "@/components/atlas/PhotoTile";
 import { Button } from "@/components/ui/button";
 import { ColorField } from "@/components/ui/color-field";
 import { FormField, Input } from "@/components/ui/field";
@@ -10,8 +11,8 @@ import { swap } from "@/lib/array";
 import { slugify } from "@/lib/validation/common";
 import { MAX_TILES } from "../constants";
 import type { EditableTile } from "../editorial";
-import { TILE, TileFace, tileStyle } from "./TileFace";
 import { IconPicker } from "./IconPicker";
+import { TileIcon } from "./TileIcon";
 import { UploadField } from "./UploadField";
 
 /** A tile while editing; `key` keeps React rows stable, `id` is empty for a new one. */
@@ -156,13 +157,24 @@ export function TilesEditor({ initial, note }: { initial: EditableTile[]; note?:
             </div>
             <div aria-hidden className="grid content-start gap-1.5">
               <span className="text-[12px] font-medium text-[var(--color-ink-muted)]">Preview</span>
-              <div className={TILE} style={tileStyle(row.image_url, row.background)}>
-                <TileFace
-                  icon={row.icon}
-                  label={row.label || "Label"}
-                  note={row.description || "Resources"}
-                />
-              </div>
+              <PhotoTile
+                className="min-h-32 sm:min-h-36"
+                image={row.image_url}
+                background={row.background}
+                badge={
+                  row.icon ? (
+                    <span className="mb-auto grid size-9 place-items-center rounded-full bg-white/15 backdrop-blur-sm">
+                      <TileIcon name={row.icon} className="size-4.5" />
+                    </span>
+                  ) : null
+                }
+                title={row.label || "Label"}
+                titleClassName={row.icon ? "mt-3" : undefined}
+              >
+                <span className="mt-0.5 text-[11px] text-white/70">
+                  {row.description || "Resources"}
+                </span>
+              </PhotoTile>
             </div>
           </fieldset>
         );

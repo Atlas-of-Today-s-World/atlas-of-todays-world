@@ -40,6 +40,9 @@ export function buildCsp({
     // blob: is needed by MapLibre for web workers; Turnstile protects email sign-in (G1).
     // With 'strict-dynamic' browsers ignore 'self' and the hosts (kept for older ones).
     "script-src": ["'self'", ...inline, "blob:", TURNSTILE, ...(dev ? ["'unsafe-eval'"] : [])],
+    // Inline event handlers (onclick="…") never run: React doesn't use them, so an
+    // injected attribute can't execute even though inline <script> stays allowed.
+    "script-src-attr": ["'none'"],
     "worker-src": ["'self'", "blob:"],
     "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
     "font-src": ["'self'", "https://fonts.gstatic.com", "data:"],
