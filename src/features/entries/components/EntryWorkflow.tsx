@@ -9,16 +9,15 @@ import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { FormField, Input, Textarea } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
+import { deleteEntry, restoreRevision } from "../actions";
 import {
   approveEntry,
-  deleteEntry,
-  restoreRevision,
   scheduleEntry,
   sendBackEntry,
   submitEntry,
   unpublishEntry,
   unscheduleEntry,
-} from "../actions";
+} from "../workflow-actions";
 import type { Revision } from "../revisions";
 import type { EntryStatus } from "../schema";
 import { ActionForm } from "@/components/ui/action-form";

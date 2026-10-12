@@ -6,7 +6,7 @@ import { SubmitButton } from "@/components/admin/SubmitButton";
 import { ActionForm } from "@/components/ui/action-form";
 import { Checkbox, FormField, Input, Textarea, describedBy } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
-import { saveEntrySeo } from "../actions";
+import { saveEntrySeo } from "../parts-actions";
 import { GEO_SUMMARY_MAX, SEO_DESCRIPTION_MAX, SEO_TITLE_MAX } from "../constants";
 import type { EditableSeo } from "../editorial";
 import { UploadField } from "@/components/admin/UploadField";

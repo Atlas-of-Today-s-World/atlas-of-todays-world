@@ -7,7 +7,7 @@ import { confirmAction } from "@/components/data-table/row-actions";
 import { optionStats } from "@/components/data-table/stats";
 import { navIcon } from "@/config/admin-nav";
 import { can, sectionAccess } from "@/features/auth/access";
-import { approveEntry } from "@/features/entries/actions";
+import { approveEntry } from "@/features/entries/workflow-actions";
 import { approvalQueue } from "@/features/entries/editorial";
 
 export const metadata: Metadata = { title: "Article approvals" };

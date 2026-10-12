@@ -5,7 +5,7 @@ import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { can, sectionAccess } from "@/features/auth/access";
 import { listAuthors } from "@/features/authors/editorial";
-import { saveEntryFaq } from "@/features/entries/actions";
+import { saveEntryFaq } from "@/features/entries/parts-actions";
 import { ChaptersEditor } from "@/features/entries/components/ChaptersEditor";
 import { LearnMoreEditor } from "@/features/entries/components/LearnMoreEditor";
 import { SeoForm } from "@/features/entries/components/SeoForm";

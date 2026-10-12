@@ -6,7 +6,7 @@ import { ActionStatus } from "@/components/admin/ActionStatus";
 import { Button } from "@/components/ui/button";
 import { FormField, Input, Select } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
-import { createPreviewLink } from "../actions";
+import { createPreviewLink } from "../workflow-actions";
 import { PREVIEW_HOURS } from "../constants";
 
 const LABELS: Record<(typeof PREVIEW_HOURS)[number], string> = {

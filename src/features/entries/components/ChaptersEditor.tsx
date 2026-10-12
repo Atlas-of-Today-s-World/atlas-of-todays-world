@@ -10,7 +10,7 @@ import { ColorField } from "@/components/ui/color-field";
 import { FormField, Input, Textarea } from "@/components/ui/field";
 import { IconAction } from "@/components/admin/IconAction";
 import type { ActionState } from "@/lib/actions";
-import { saveChapters } from "../actions";
+import { saveChapters } from "../parts-actions";
 import type { EditableChapter } from "../editorial";
 import { MAX_CHAPTERS } from "../constants";
 import { EditStamp } from "./EditStamp";
