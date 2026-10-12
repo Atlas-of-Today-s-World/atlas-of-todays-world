@@ -180,3 +180,52 @@ describe("no cache refresh without a confirmed write", { timeout: 30_000 }, () =
     expect(notifyIndexNow).not.toHaveBeenCalled();
   });
 });
+
+/** Every query answers with the table's rows: the write went through. */
+const written = (rows: Record<string, unknown>) =>
+  fakeSupabase((table) => ({ data: rows[table] ?? [], error: null }));
+
+const updatedTags = () => updateTag.mock.calls.map(([tag]) => tag as string);
+
+describe("a confirmed write refreshes exactly its tags", { timeout: 30_000 }, () => {
+  beforeEach(() => {
+    updateTag.mockReset();
+    notifyIndexNow.mockReset();
+  });
+
+  it("approveEntry: the lists and that article's page, not every article page", async () => {
+    client.current = written({
+      entries: {
+        slug: "water",
+        status: "published",
+        region_slug: "europe",
+        special_slug: null,
+        kind: "news",
+        locale: "en",
+      },
+    });
+    const { approveEntry } = await import("@/features/entries/actions");
+    const result = await approveEntry("00000000-0000-4000-8000-000000000123");
+    expect(result).toMatchObject({ ok: true });
+    expect(updatedTags()).toEqual(["entries", "entry:water", "portrait:region:europe"]);
+  });
+
+  it("saveCountry: the map snapshot and that country's profile text", async () => {
+    client.current = written({ countries: [{ iso3: "CZE", slug: "czechia" }] });
+    const { saveCountry } = await import("@/features/portraits/actions");
+    const result = await saveCountry(
+      { ok: false },
+      form({ iso3: "CZE", blurb: "", tagline: "", profile_html: "<p>x</p>", region_slug: "" }),
+    );
+    expect(result).toMatchObject({ ok: true });
+    expect(updatedTags()).toEqual(["atlas", "country:CZE"]);
+  });
+
+  it("deleteIssue: every article page, whose group link was cleared", async () => {
+    client.current = written({ special_regions: [{ slug: "sahel" }] });
+    const { deleteIssue } = await import("@/features/portraits/actions");
+    const result = await deleteIssue("sahel");
+    expect(result).toMatchObject({ ok: true });
+    expect(updatedTags()).toEqual(["atlas", "entries", "entry-pages"]);
+  });
+});

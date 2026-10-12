@@ -177,6 +177,8 @@ export async function saveIssue(_prev: ActionState, formData: FormData): Promise
   updateTag(tags.atlas);
   updateTag(tags.portrait("issue", fields.slug));
   updateTag(tags.entries);
+  // A renamed slug cascades into the articles' `special_slug`, which their pages embed.
+  if (original_slug && original_slug !== fields.slug) updateTag(tags.entryPages);
   notifyIndexNow([routes.issue(fields.slug)], { everyLanguage: true });
   if (!original_slug || original_slug !== fields.slug) {
     redirect(`/admin/global-issues/${fields.slug}`);
@@ -199,6 +201,8 @@ export async function deleteIssue(slug: string): Promise<ActionState> {
     return { ok: false, error: "Can't delete this global issue (you don't have permission)." };
   updateTag(tags.atlas);
   updateTag(tags.entries);
+  // The articles' `special_slug` was set to null (FK on delete set null).
+  updateTag(tags.entryPages);
   return { ok: true, message: "Deleted." };
 }
 
@@ -222,6 +226,7 @@ export async function saveCountry(_prev: ActionState, formData: FormData): Promi
   const [country] = data;
   if (!country) return { ok: false, error: "You can't edit this country." };
   updateTag(tags.atlas);
+  updateTag(tags.country(country.iso3));
   notifyIndexNow([routes.country(country.slug)], { everyLanguage: true });
   return { ok: true, message: "Country profile saved." };
 }

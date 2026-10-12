@@ -87,6 +87,14 @@ export async function issueForEdit(slug: string) {
   return { ...rest, countries: special_region_countries.map((row) => row.country_iso3) };
 }
 
+/** ISO3 codes of the countries whose profile text is written (the atlas snapshot leaves the text out). */
+export async function countriesWithProfileText(): Promise<Set<string>> {
+  const supabase = await createServerClient();
+  const { data, error } = await supabase.from("countries").select("iso3").neq("profile_html", "");
+  if (error) throw new Error(`[countries] ${error.message}`);
+  return new Set(data.map((row) => row.iso3));
+}
+
 export async function countryForEdit(slug: string) {
   const supabase = await createServerClient();
   const { data, error } = await supabase

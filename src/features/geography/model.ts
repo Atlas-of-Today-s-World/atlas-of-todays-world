@@ -46,7 +46,6 @@ export interface AtlasSnapshot {
     bbox: number[] | null;
     blurb: string | null;
     tagline: string;
-    profile_html: string;
     featured_indicators: string[];
   }[];
   countryMetrics: {
@@ -269,7 +268,6 @@ export function buildAtlas(snapshot: AtlasSnapshot, geo: GeoFacts[], locale: Loc
         profile: {
           summary: row.blurb ?? "",
           tagline: row.tagline,
-          html: row.profile_html,
           featured: row.featured_indicators,
           metrics: snapshot.countryMetrics
             .filter((metric) => metric.country_iso3 === row.iso3)

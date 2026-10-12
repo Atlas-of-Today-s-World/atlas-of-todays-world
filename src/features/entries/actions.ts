@@ -14,7 +14,7 @@ import {
   signedIn,
   type ActionState,
 } from "@/lib/actions";
-import { tags } from "@/lib/cache/tags";
+import { entryChangedTags, tags } from "@/lib/cache/tags";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { DEFAULT_LOCALE, isLocale, localePath } from "@/features/i18n/config";
 import { notifyIndexNow } from "@/lib/seo/indexnow";
@@ -38,8 +38,7 @@ import { routes } from "@/config/routes";
 
 /** After published content changes, revalidate lists, detail and portraits. */
 function refresh(slug?: string | null, region?: string | null, issue?: string | null) {
-  updateTag(tags.entries);
-  if (slug) updateTag(tags.entry(slug));
+  for (const tag of entryChangedTags(slug)) updateTag(tag);
   if (region) updateTag(tags.portrait("region", region));
   if (issue) updateTag(tags.portrait("issue", issue));
 }
