@@ -17,13 +17,8 @@ import { EntryWorkflow, RevisionList } from "@/features/entries/components/Entry
 import { PreviewShare } from "@/features/entries/components/PreviewShare";
 import { StatusBadge } from "@/features/entries/components/StatusBadge";
 import { VersionDiff } from "@/features/entries/components/VersionDiff";
-import {
-  getEditableEntry,
-  getEntryParts,
-  listRevisions,
-  listTemplates,
-  publishedVersion,
-} from "@/features/entries/editorial";
+import { getEditableEntry, getEntryParts, listTemplates } from "@/features/entries/editorial";
+import { listRevisions, publishedVersion } from "@/features/entries/revisions";
 import { getPickerOptions } from "@/features/geography/queries";
 import { CollectionEditor } from "@/components/admin/CollectionEditor";
 import { COLLECTION_UI } from "@/features/portraits/components/fields";

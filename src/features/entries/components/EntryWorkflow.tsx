@@ -19,7 +19,7 @@ import {
   unpublishEntry,
   unscheduleEntry,
 } from "../actions";
-import type { Revision } from "../editorial";
+import type { Revision } from "../revisions";
 import type { EntryStatus } from "../schema";
 import { ActionForm } from "@/components/ui/action-form";
 
