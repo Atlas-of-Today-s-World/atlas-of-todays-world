@@ -99,6 +99,21 @@ describe("sanitizeRichHtml", () => {
     expect(sanitizeRichHtml('<img srcset="https://tracker.example/p.gif 1x">')).toBe("");
   });
 
+  it("keeps a heading anchor in the safe shape and drops any other id", () => {
+    expect(sanitizeRichHtml('<h2 id="editorial-standards">a</h2>')).toBe(
+      '<h2 id="editorial-standards">a</h2>',
+    );
+    expect(sanitizeRichHtml('<h3 id="cite">b</h3><h4 id="x1">c</h4>')).toBe(
+      '<h3 id="cite">b</h3><h4 id="x1">c</h4>',
+    );
+    for (const id of ["__next", "Main", "1st", "a b", 'a"onclick="x', "x".repeat(64)]) {
+      expect(sanitizeRichHtml(`<h2 id='${id}'>t</h2>`)).toBe("<h2>t</h2>");
+    }
+    expect(sanitizeRichHtml("<h2>plain</h2>")).toBe("<h2>plain</h2>");
+    // Other tags never keep an id.
+    expect(sanitizeRichHtml('<p id="data">p</p>')).toBe("<p>p</p>");
+  });
+
   it("a mailto link passes", () => {
     expect(sanitizeRichHtml('<a href="mailto:a@b.cz">a</a>')).toContain('href="mailto:a@b.cz"');
   });

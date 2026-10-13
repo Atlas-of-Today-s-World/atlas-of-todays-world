@@ -7,6 +7,7 @@ describe("cache tags", () => {
     expect(tags.country("CZE")).toBe("country:CZE");
     expect(tags.indicator("hdi")).toBe("indicator:hdi");
     expect(tags.portrait("issue", "sahel")).toBe("portrait:issue:sahel");
+    expect(tags.sitePage("privacy")).toBe("page:privacy");
   });
 
   it("an article page is cached under its own tag, never the list tag", () => {

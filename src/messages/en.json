@@ -196,21 +196,11 @@
   "about": {
     "title": "About the Atlas",
     "description": "Atlas of Today’s World is an independent encyclopedia of the present, built around an interactive 3D globe.",
-    "intro": "Atlas of Today’s World is an independent encyclopedia of the present. Instead of an A–Z list, it starts from a satellite globe: you spin it, click a country, and the Atlas opens that country’s profile together with the portrait of the world region it belongs to. News opens inside the same map, so the geographic context never disappears.",
-    "dataTitle": "Where the data comes from",
-    "dataText": "Country borders and names come from Natural Earth. The data layers are imported in bulk from Our World in Data and refreshed with a single command, so a yearly update takes minutes rather than manual editing:",
-    "editorialTitle": "Editorial content",
-    "editorialText": "Region portraits, country profiles and news are written by the Atlas team in the Atlas’s own editorial system, where every change goes through review before it is published.",
-    "missionTitle": "Our mission",
-    "missionText": "Atlas of Today’s World helps anyone understand today’s world in its geographic context — free to read, without advertising and without an account. We are a non-profit, non-governmental organization registered in the Czech Republic since 2016, supported by our readers through Atlas Patrons.",
     "whoTitle": "Who publishes the Atlas",
-    "whoText": "{legalName}, a registered association (spolek) under Czech law, company ID (IČO) {companyId}, {address}. Contact: {email}.",
-    "standardsTitle": "Editorial standards and corrections",
-    "standardsText": "Every article names its author and shows when it was published and last updated. Facts link to their sources, and every number comes with the year and the institution that measured it. Each change is reviewed by an editor before it is published. If you find a mistake, write to {email}: we correct errors openly and update the article’s date.",
-    "citeTitle": "How to cite the Atlas",
-    "citeText": "Atlas of Today’s World, “page title”, page URL (date of access). Data layers can also be cited with their original source, which every page names.",
-    "machineTitle": "For researchers, search engines and AI tools",
-    "machineText": "The Atlas is open to search engines and AI assistants. A Markdown overview for language models is at /llms.txt (full text at /llms-full.txt), every article has a Markdown version (add .md to its address), and new articles appear in our RSS and Atom feeds."
+    "whoText": "{legalName}, a registered association (spolek) under Czech law, company ID (IČO) {companyId}, {address}. Contact: {email}."
+  },
+  "sitePages": {
+    "lastUpdated": "Last updated {date}"
   },
   "patrons": {
     "title": "Atlas Patrons",

@@ -1,65 +1,15 @@
-import { localeFrom } from "@/features/i18n/request";
-import type { Metadata } from "next";
-import { pageMetadata } from "@/lib/seo/metadata";
-import Link from "@/components/i18n/Link";
-import { ContactLink } from "@/components/atlas/ContactLink";
-import { routes } from "@/config/routes";
+import { SitePage, sitePageMetadata } from "@/features/site-pages/components/SitePage";
 
-const TITLE = "Accessibility";
-const DESCRIPTION = "How accessible Atlas of Today's World is, and how to reach us about barriers.";
+type Params = { params: Promise<{ locale: string }> };
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
-  return pageMetadata({
-    locale: await localeFrom(params),
-    path: routes.accessibility,
-    title: TITLE,
-    description: DESCRIPTION,
-  });
+export function generateMetadata({ params }: Params) {
+  return sitePageMetadata("accessibility", params);
 }
 
-/** Accessibility statement (F5, F8). Keep it in line with the actual state. */
-export default async function AccessibilityPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  await localeFrom(params);
-  return (
-    <main className="prose-atlas max-w-2xl">
-      <h1 className="font-display text-[34px] font-bold text-[var(--color-ink)]">
-        Accessibility statement
-      </h1>
-      <p className="text-[13px] text-[var(--color-ink-muted)]">Last updated 30 September 2026</p>
-
-      <p>
-        We want everyone to be able to use the Atlas. We aim for the Web Content Accessibility
-        Guidelines (WCAG) 2.1 at level AA, and every change is checked automatically with axe.
-      </p>
-
-      <h2>What works</h2>
-      <ul>
-        <li>A &ldquo;Skip to content&rdquo; link, keyboard navigation and visible focus.</li>
-        <li>Content panels that take focus when they open and close with Esc.</li>
-        <li>Carousels you can move with the arrow keys and read with a screen reader.</li>
-        <li>Touch targets of at least 44 × 44 pixels and respect for reduced motion.</li>
-      </ul>
-
-      <h2>Known limitations</h2>
-      <p>
-        The 3D globe itself is a visual map. Everything on it is also reachable without it: use{" "}
-        <Link href={routes.search}>search</Link> or the ranked tables of each{" "}
-        <Link href={routes.view("hdi")}>data layer</Link>, or the{" "}
-        <Link href={routes.countries}>list of all countries and regions</Link>.
-      </p>
-
-      <h2>Tell us about a barrier</h2>
-      <p>
-        If something does not work for you, write to us: <ContactLink />. We reply within 30 days.
-      </p>
-    </main>
-  );
+/**
+ * Accessibility statement (F5, F8) — text edited in the admin (Site pages).
+ * Keep it in line with the actual state.
+ */
+export default function AccessibilityPage({ params }: Params) {
+  return <SitePage slug="accessibility" params={params} />;
 }
