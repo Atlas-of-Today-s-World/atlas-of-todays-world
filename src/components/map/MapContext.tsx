@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import { sameFocus } from "./same-focus";
 
 export interface MapFocusState {
   /** [lon, lat] to rotate the globe to. null = leave it where it is. */
@@ -60,17 +61,7 @@ export function MapProvider({
   // Pages report focus in an effect; without the comparison the globe would re-fly
   // on every layout render.
   const setFocus = useCallback((next: MapFocusState) => {
-    setFocusState((current) =>
-      current.activeIso3 === next.activeIso3 &&
-      current.regionStroke === next.regionStroke &&
-      current.center?.[0] === next.center?.[0] &&
-      current.center?.[1] === next.center?.[1] &&
-      current.zoom === next.zoom &&
-      current.bbox?.join() === next.bbox?.join() &&
-      current.regionCountries.length === next.regionCountries.length
-        ? current
-        : next,
-    );
+    setFocusState((current) => (sameFocus(current, next) ? current : next));
   }, []);
 
   const value = useMemo(
