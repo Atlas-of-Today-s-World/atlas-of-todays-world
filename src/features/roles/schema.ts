@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { SECTIONS } from "@/features/auth/sections";
 import { checkbox, requiredText, slug, text } from "@/lib/validation/common";
+import { APPROVAL_SCOPES, NEWS_SCOPES } from "./labels";
 
 /** Actions of one section in DB form: "v", "vc", "vced"… (without "v" nothing else). */
 const actions = z
@@ -21,8 +22,8 @@ export const RoleInput = z.object({
   is_new: checkbox,
   name: requiredText(60),
   note: text(500),
-  news_scope: z.enum(["none", "own", "all"]),
-  approval_scope: z.enum(["none", "assigned", "global"]),
+  news_scope: z.enum(NEWS_SCOPES),
+  approval_scope: z.enum(APPROVAL_SCOPES),
 });
 
 export const SecurityInput = z.object({

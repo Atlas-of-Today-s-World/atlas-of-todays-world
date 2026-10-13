@@ -5,6 +5,18 @@
  */
 
 /**
+ * The two kinds of article (`entries.kind`): a news item, or a topic (an
+ * encyclopedia entry, P9). Labels for the editor in `ARTICLE_KIND_LABEL`.
+ */
+export const ARTICLE_KINDS = ["news", "entry"] as const;
+export type ArticleKind = (typeof ARTICLE_KINDS)[number];
+
+export const ARTICLE_KIND_LABEL: Record<ArticleKind, string> = {
+  news: "News article",
+  entry: "Topic (encyclopedia entry)",
+};
+
+/**
  * The four topic groups of a portrait (brief), in display order. Labels:
  * `messages.categories[group]`.
  */

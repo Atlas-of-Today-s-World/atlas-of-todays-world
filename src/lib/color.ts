@@ -1,4 +1,5 @@
 /** Map colors: saturation adjustment according to the site theme (site_theme.saturation). */
+import { HEX_COLOR } from "@/lib/validation/hex-color";
 
 function hexToHsl(hex: string): [number, number, number] {
   const n = parseInt(hex.slice(1), 16);
@@ -44,7 +45,7 @@ function hslToHex(h: number, s: number, l: number): string {
 
 /** Multiplies a color's saturation (1 = unchanged, 0 = grey); invalid input is returned as is. */
 export function saturate(hex: string, factor: number): string {
-  if (factor === 1 || !/^#[0-9a-fA-F]{6}$/.test(hex)) return hex;
+  if (factor === 1 || !HEX_COLOR.test(hex)) return hex;
   const [h, s, l] = hexToHsl(hex);
   return hslToHex(h, Math.min(1, Math.max(0, s * factor)), l);
 }

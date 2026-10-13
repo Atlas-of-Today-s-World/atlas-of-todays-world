@@ -2,10 +2,12 @@ import { z } from "zod";
 import { RESOURCE_KINDS, VISUAL_PROVIDERS } from "./constants";
 import { datawrapperChartUrl, extractDatawrapperUrl } from "@/lib/embeds";
 import { CONTENT_STATUSES } from "@/features/geography/content-status";
+import { GROUP_KINDS, PLACE_KINDS, type PlaceKind } from "@/features/geography/kinds";
 import {
   blankToUndefined,
   hexColor,
   httpsUrl,
+  iso3,
   optionalHttpsUrl,
   requiredText,
   slug,
@@ -94,8 +96,8 @@ export const COLLECTIONS = {
 export type Collection = keyof typeof COLLECTIONS;
 export const COLLECTION_NAMES = Object.keys(COLLECTIONS) as Collection[];
 
-export const PortraitKind = z.enum(["region", "issue", "country"]);
-export type PortraitKind = z.infer<typeof PortraitKind>;
+export const PortraitKind = z.enum(PLACE_KINDS);
+export type PortraitKind = PlaceKind;
 
 /** Region portrait header (regions table). */
 export const RegionInput = z.object({
@@ -118,7 +120,7 @@ export const RegionInput = z.object({
 export const IssueInput = z.object({
   original_slug: z.preprocess(blankToUndefined, slug(120).optional()),
   // Global issue, or a custom region made of countries (special_regions.kind).
-  kind: z.enum(["issue", "region"]).default("issue"),
+  kind: z.enum(GROUP_KINDS).default("issue"),
   slug: slug(120),
   name: requiredText(120),
   subtitle: text(200),
@@ -135,15 +137,22 @@ export const IssueInput = z.object({
   timeline_subtitle: text(300),
   // Left out by a form without the field: the stored status stays as it is.
   content_status: z.enum(CONTENT_STATUSES).optional(),
-  countries: z.array(z.string().regex(/^[A-Z]{3}$/)).max(250),
+  countries: z.array(iso3).max(250),
 });
+
+/**
+ * Longest country profile the DB takes (`countries.profile_html`). The action
+ * checks it again after sanitizing, which can lengthen the HTML (rel on links).
+ */
+export const PROFILE_HTML_MAX = 200_000;
+export const PROFILE_TOO_LONG = "The text is too long.";
 
 /** Editorial country profile. */
 export const CountryInput = z.object({
-  iso3: z.string().regex(/^[A-Z]{3}$/),
+  iso3,
   blurb: text(1000),
   tagline: text(300),
-  profile_html: z.string().max(200_000, "The text is too long."),
+  profile_html: z.string().max(PROFILE_HTML_MAX, PROFILE_TOO_LONG),
   featured_indicators: z.array(slug(60)).max(12),
   region_slug: z.preprocess(blankToUndefined, slug(120).optional()),
 });

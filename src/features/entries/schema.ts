@@ -1,8 +1,9 @@
 import { z } from "zod";
-import { NEWS_CATEGORIES } from "@/lib/content-types";
+import { ARTICLE_KINDS, NEWS_CATEGORIES } from "@/lib/content-types";
 import {
   blankToUndefined,
-  httpsUrl,
+  checkbox,
+  hexColor as hexColorValue,
   iso3,
   optionalHttpsUrl,
   optionalNumber,
@@ -11,6 +12,7 @@ import {
   text,
   uuid,
 } from "@/lib/validation/common";
+import { COLLECTIONS } from "@/features/portraits/schema";
 import {
   GEO_SUMMARY_MAX,
   MAP_LAYERS,
@@ -20,13 +22,20 @@ import {
   SEO_TITLE_MAX,
   TILE_ICONS,
 } from "./constants";
-import { HEX_COLOR } from "@/lib/validation/hex-color";
 
-/** Tile background colour (DB `is_hex_color`); empty = none. */
-const hexColor = z.preprocess(
-  blankToUndefined,
-  z.string().regex(HEX_COLOR, "Use a colour like #1f3a5f.").optional(),
-);
+/** Tile background colour (DB `is_hex_color`), stored lowercase; empty = none. */
+const hexColor = z.preprocess(blankToUndefined, hexColorValue.optional());
+
+/**
+ * Longest rich text the DB takes (`entries.body_html`, `entry_chapters.body_html`).
+ * The actions check it again after sanitizing: sanitizeRichHtml adds
+ * `rel="noopener noreferrer"` to links, so the stored HTML can outgrow what
+ * the form sent.
+ */
+export const BODY_HTML_MAX = 400_000;
+export const CHAPTER_HTML_MAX = 200_000;
+export const BODY_TOO_LONG = "The text is too long.";
+export const CHAPTER_TOO_LONG = "The chapter text is too long.";
 
 /** Section label of a topic ("Subtopics", "Learn more"); empty = the template's. */
 const sectionLabel = text(40).default("");
@@ -50,7 +59,7 @@ const summaryPoints = z.preprocess(
 export const EntryInput = z.object({
   id: z.preprocess(blankToUndefined, uuid.optional()),
   slug: slug(120),
-  kind: z.enum(["news", "entry"]).default("news"),
+  kind: z.enum(ARTICLE_KINDS).default("news"),
   title: requiredText(200),
   summary: text(600),
   category: z.enum(NEWS_CATEGORIES as [string, ...string[]], {
@@ -62,9 +71,9 @@ export const EntryInput = z.object({
   cover_credit: text(300),
   author_name: text(120),
   reading_minutes: optionalNumber(z.number().int().min(1).max(180)),
-  body_html: z.string().max(400_000, "The text is too long."),
+  body_html: z.string().max(BODY_HTML_MAX, BODY_TOO_LONG),
   countries: z.array(iso3).max(60, "At most 60 countries."),
-  planned: z.preprocess((value) => value === "on", z.boolean()),
+  planned: checkbox,
   // Encyclopedia entries only (P9); left empty for news.
   summary_points: summaryPoints.default([]),
   author_id: z.preprocess(blankToUndefined, uuid.optional()),
@@ -81,7 +90,7 @@ export const ChapterInput = z.object({
   id: z.preprocess(blankToUndefined, uuid.optional()),
   title: requiredText(200),
   summary_points: summaryPoints,
-  body_html: z.string().max(200_000, "The chapter text is too long."),
+  body_html: z.string().max(CHAPTER_HTML_MAX, CHAPTER_TOO_LONG),
   illustration_url: optionalHttpsUrl,
   illustration_credit: text(300).default(""),
   // Chapter audio version (R4) — per chapter, so the file fits within 50 MB.
@@ -205,17 +214,21 @@ export const SeoInput = z.object({
   og_image_url: optionalHttpsUrl,
   seo_keywords: keywords.default([]),
   geo_summary: text(GEO_SUMMARY_MAX).default(""),
-  noindex: z.preprocess((value) => value === "on", z.boolean()),
+  noindex: checkbox,
 });
 
-/** A link inside a learn-more tile (same limits as portrait resources). */
-const TileLink = z.object({
-  title: requiredText(200),
-  source: text(120).default(""),
-  description: text(600).default(""),
-  url: httpsUrl,
-  image_url: optionalHttpsUrl,
-});
+/** A link inside a learn-more tile: a portrait resource without its kind (same table). */
+const TileLink = COLLECTIONS.resources.omit({ kind: true });
+
+/**
+ * One question of a topic's FAQ. The answer is capped at 2,000 characters
+ * (DB `entry_faq`, since the table was created), a portrait's at 3,000
+ * (`faq_items`, the limit portrait answers — the Webflow import included —
+ * have always been written to). The DB CHECKs differ, so the schemas do too:
+ * one shared limit would either reject existing portrait answers or loosen
+ * `entry_faq`.
+ */
+export const EntryFaqItem = COLLECTIONS.faq.extend({ answer: requiredText(2000) });
 
 /** Learn-more content of one dossier: links per tile (notes come as rich-text fields). */
 export const LearnMoreInput = z

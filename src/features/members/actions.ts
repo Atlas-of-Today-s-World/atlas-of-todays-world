@@ -13,10 +13,11 @@ import {
 } from "@/lib/actions";
 import { tags } from "@/lib/cache/tags";
 import { uuid } from "@/lib/validation/common";
+import { MEMBERSHIP_PLANS } from "./labels";
 
 const GrantInput = z.object({
   user_id: uuid,
-  plan: z.enum(["patron", "founding", "institution"]),
+  plan: z.enum(MEMBERSHIP_PLANS),
 });
 
 /**

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { emailAddress, emailAddressWith } from "@/lib/validation/common";
+import { blankToUndefined, emailAddress, emailAddressWith } from "@/lib/validation/common";
 
 /**
  * Limits match the CHECKs in 20261006000050_volunteer_applications.sql (the shared
@@ -15,17 +15,9 @@ export const ApplicationInput = z.object({
   consent: z.literal("on", { message: "consent" }),
 });
 
-/** Where applications are sent; empty = nowhere yet. */
+/** Where applications are sent; empty = nowhere yet (undefined). */
 export const SettingsInput = z.object({
-  notify_email: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .max(254, { message: "Too long.", abort: true })
-    .refine(
-      (value) => value === "" || emailAddress.safeParse(value).success,
-      "Enter a valid e-mail address.",
-    ),
+  notify_email: z.preprocess(blankToUndefined, emailAddress.optional()),
 });
 
 export const APPLICATION_STATUSES = ["new", "contacted", "closed"] as const;

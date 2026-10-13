@@ -4,11 +4,10 @@ import {
   getTopicPlaces,
   type EntrySummary,
 } from "@/features/entries/queries";
+import type { PlaceKind } from "@/features/geography/kinds";
 import type { Atlas } from "@/features/geography/types";
 import { countTopics, type TopicCounts } from "./map-counts";
 import { routes } from "@/config/routes";
-
-export type PlaceKind = "country" | "region" | "issue";
 
 /** Query parameter of the Topics list filter, per kind of place. */
 const TOPIC_FILTER: Record<PlaceKind, string> = {

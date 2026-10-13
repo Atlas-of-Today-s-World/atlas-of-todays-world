@@ -5,6 +5,7 @@
  */
 import type { MetricCard } from "@/lib/content-types";
 import type { ContentStatus } from "./content-status";
+import type { GroupKind } from "./kinds";
 
 export interface Region {
   /** Same as slug; kept for readability of "same region" comparisons. */
@@ -129,7 +130,7 @@ export interface GlobalIssue {
   zoom: number;
   hero: string | null;
   /** Global issue (war, migration…), or a custom region made of countries. */
-  kind: "issue" | "region";
+  kind: GroupKind;
   /** How far the editors are with the group's content. */
   contentStatus: ContentStatus;
   countries: string[];

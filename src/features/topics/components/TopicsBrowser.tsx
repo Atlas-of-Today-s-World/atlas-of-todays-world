@@ -8,6 +8,7 @@ import { PhotoCard } from "@/components/atlas/PhotoCard";
 import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { Button } from "@/components/ui/button";
+import { PLACE_KINDS as KINDS, type PlaceKind as Kind } from "@/features/geography/kinds";
 import { format } from "@/features/i18n/messages";
 import { cn } from "@/lib/cn";
 import { PHOTO_WIDTH } from "@/lib/images";
@@ -23,10 +24,6 @@ export interface TopicCard {
   /** Name of the topic's region, over the title. */
   place?: string | null;
 }
-
-/** Places to filter by: country, region, or special region (global issue / custom region). */
-type Kind = "country" | "region" | "issue";
-const KINDS: readonly Kind[] = ["country", "region", "issue"];
 
 /** Place key → topic slugs and place key → name, per kind (as the counts on the globe). */
 export type TopicFilters = Record<Kind, Record<string, string[]>>;

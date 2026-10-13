@@ -12,6 +12,7 @@ import type { ActionState } from "@/lib/actions";
 import { SlugField, useSlug } from "@/components/admin/SlugField";
 import { saveCountry, saveIssue, saveRegion } from "../actions";
 import { CONTENT_STATUSES, type ContentStatus } from "@/features/geography/content-status";
+import type { GroupKind } from "@/features/geography/kinds";
 import { ActionForm } from "@/components/ui/action-form";
 import { routes } from "@/config/routes";
 
@@ -181,7 +182,7 @@ export function RegionForm({
 }
 
 export interface IssueValues {
-  kind: "issue" | "region";
+  kind: GroupKind;
   slug: string;
   name: string;
   subtitle: string;
@@ -208,7 +209,7 @@ export function IssueForm({
   issue: IssueValues | null;
   countries: CountryOption[];
   /** Type of the new group (button „New custom region" / „New global issue"). */
-  defaultKind?: "issue" | "region";
+  defaultKind?: GroupKind;
 }) {
   const [state, action] = useSave(saveIssue);
   const slug = useSlug(issue?.slug);
