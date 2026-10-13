@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { PGlite } from "@electric-sql/pglite";
 
 /**
- * Site settings and social links (migration 20261013000110_site_settings):
+ * Site settings and social links (migration 20261013000170_site_settings):
  * everyone reads the settings row and the visible links, section `site`
  * decides every write, the CHECKs match the admin's Zod schema, and the seed
  * carries today's values so nothing changes on the site at deploy.

@@ -10,7 +10,7 @@ import {
 
 /**
  * Admin forms of Site settings. Limits match the CHECKs in
- * 20261013000110_site_settings.sql (the shared e-mail shape is stricter than
+ * 20261013000170_site_settings.sql (the shared e-mail shape is stricter than
  * that CHECK, so anything it accepts the DB accepts too).
  */
 
