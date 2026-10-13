@@ -1,5 +1,6 @@
 import { DEFAULT_LOCALE, localePath, type Locale } from "@/features/i18n/config";
 import { ORGANIZATION } from "@/config/organization";
+import type { SiteSettings, SocialLink } from "@/features/site/model";
 import wikidataCountries from "@/config/wikidata-countries.json";
 import { absoluteUrl } from "./index";
 import { routes } from "@/config/routes";
@@ -90,34 +91,43 @@ export const pageUrl = (path: string, locale: Locale = DEFAULT_LOCALE) =>
 // Publisher and website
 // ---------------------------------------------------------------------------
 
-/** The publisher: a non-profit (NGO) with its registration, contact and profiles. */
-export function organizationNode(): JsonLdNode {
-  const org = ORGANIZATION;
+/** Wikidata page of an item (Q…). */
+const wikidataUrl = (qid: string) => `https://www.wikidata.org/wiki/${qid}`;
+
+/**
+ * The publisher: a non-profit (NGO) with its registration, contact and profiles
+ * (Admin → Site settings, read by features/site/queries.ts).
+ */
+export function organizationNode(site: SiteSettings, socials: readonly SocialLink[]): JsonLdNode {
+  const { logoPath, logoSize } = ORGANIZATION;
   return {
     "@type": "NGO",
     "@id": ids.organization,
-    name: org.name,
-    alternateName: [...org.alternateName],
-    legalName: org.legalName,
+    name: site.name,
+    alternateName: [...site.alternateNames],
+    legalName: site.legalName,
     url: absoluteUrl("/"),
     logo: {
       "@type": "ImageObject",
       "@id": ids.logo,
-      url: absoluteUrl(org.logoPath),
-      contentUrl: absoluteUrl(org.logoPath),
-      width: org.logoSize,
-      height: org.logoSize,
-      caption: org.name,
+      url: absoluteUrl(logoPath),
+      contentUrl: absoluteUrl(logoPath),
+      width: logoSize,
+      height: logoSize,
+      caption: site.name,
     },
     image: ref(ids.logo),
-    description: org.description,
-    email: org.email,
-    foundingDate: org.foundingDate,
-    identifier: { "@type": "PropertyValue", propertyID: "CZ-ICO", value: org.companyId },
-    address: { "@type": "PostalAddress", ...org.address },
+    description: site.description,
+    email: site.email,
+    foundingDate: site.foundingDate,
+    identifier: { "@type": "PropertyValue", propertyID: "CZ-ICO", value: site.companyId },
+    address: { "@type": "PostalAddress", ...site.address },
     areaServed: "Worldwide",
     knowsLanguage: ["en"],
-    sameAs: [...org.socials, org.wikidata],
+    sameAs: [
+      ...socials.map((social) => social.href),
+      site.wikidataId ? wikidataUrl(site.wikidataId) : undefined,
+    ],
     publishingPrinciples: absoluteUrl(`${routes.about}#editorial-standards`),
     potentialAction: {
       "@type": "DonateAction",
@@ -129,11 +139,11 @@ export function organizationNode(): JsonLdNode {
 }
 
 /** The website with its search (still read by Bing and answer engines). */
-export function websiteNode(locale: Locale): JsonLdNode {
+export function websiteNode(locale: Locale, site: Pick<SiteSettings, "name">): JsonLdNode {
   return {
     "@type": "WebSite",
     "@id": ids.website,
-    name: ORGANIZATION.name,
+    name: site.name,
     alternateName: "Atlas",
     url: absoluteUrl("/"),
     inLanguage: ["en"],
@@ -158,6 +168,12 @@ export interface Crumb {
   name: string;
   path: string;
 }
+
+/** First breadcrumb of every page: the site's name (Admin → Site settings), leading home. */
+export const homeCrumb = (site: Pick<SiteSettings, "name">): Crumb => ({
+  name: site.name,
+  path: "/",
+});
 
 /** Breadcrumbs (Google shows them instead of the URL); paths in the page language. */
 export function breadcrumbNode(crumbs: Crumb[], locale: Locale = DEFAULT_LOCALE): JsonLdNode {
@@ -236,7 +252,7 @@ export function countrySameAs(iso3: string): string[] {
   const [qid, wiki] = WIKIDATA[iso3] ?? [];
   if (!qid) return [];
   return [
-    `https://www.wikidata.org/wiki/${qid}`,
+    wikidataUrl(qid),
     ...(wiki ? [`https://en.wikipedia.org/wiki/${encodeURIComponent(wiki)}`] : []),
   ];
 }

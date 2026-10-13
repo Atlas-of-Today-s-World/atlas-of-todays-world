@@ -1,25 +1,20 @@
-import { publicEnv } from "@/lib/env";
-
-const FALLBACK = "https://github.com/Atlas-of-Today-s-World/atlas-of-todays-world/issues";
+import { getSiteSettings } from "@/features/site/queries";
 
 /**
- * Where "contact us" leads: e-mail from NEXT_PUBLIC_CONTACT_EMAIL, otherwise
- * GitHub. Also fills the {{contact}} placeholder of editable site pages.
+ * Where "contact us" leads: the one public contact address from the site
+ * settings (Admin → Site settings; the built-in one if they can't be read).
+ * Also fills the {{contact}} placeholder of editable site pages.
  */
-export function contactTarget(): { href: string; label: string } {
-  const email = publicEnv.NEXT_PUBLIC_CONTACT_EMAIL;
-  return email
-    ? { href: `mailto:${email}`, label: email }
-    : { href: FALLBACK, label: "our public issue tracker" };
+export async function contactTarget(): Promise<{ href: string; label: string }> {
+  const { email } = await getSiteSettings();
+  return { href: `mailto:${email}`, label: email };
 }
 
-/** How to contact the operator (see `contactTarget`). */
-export function ContactLink() {
-  const { href, label } = contactTarget();
-  return href.startsWith("mailto:") ? (
-    <a href={href}>{label}</a>
-  ) : (
-    <a href={href} rel="noreferrer">
+/** The contact address as a mail link (see `contactTarget`). */
+export async function ContactLink({ className }: { className?: string }) {
+  const { href, label } = await contactTarget();
+  return (
+    <a href={href} className={className}>
       {label}
     </a>
   );

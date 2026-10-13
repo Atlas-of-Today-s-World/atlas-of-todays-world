@@ -23,7 +23,7 @@ const pathOf = (kind: ArticleKind, slug: string) => routes.article(kind, slug);
 export const articleUrl = (kind: ArticleKind, item: Entry) =>
   absoluteUrl(localePath(item.locale, pathOf(kind, item.slug)));
 
-function facts(item: Entry, atlas: Atlas, locale: Locale): string[] {
+function facts(item: Entry, atlas: Atlas, locale: Locale, publisher: string): string[] {
   const t = getMessages(locale).seo;
   const region = item.region ? atlas.regionBySlug.get(item.region) : undefined;
   const countries = item.countries
@@ -40,7 +40,7 @@ function facts(item: Entry, atlas: Atlas, locale: Locale): string[] {
     `${t.category}: ${getMessages(locale).categories[item.category] ?? item.category}`,
     region ? `${t.region}: ${region.name}` : "",
     countries ? `${t.countries}: ${countries}` : "",
-    `${t.publisher}: ${ORGANIZATION.name} (${absoluteUrl("/")})`,
+    `${t.publisher}: ${publisher} (${absoluteUrl("/")})`,
   ].filter(Boolean);
 }
 
@@ -97,17 +97,27 @@ function body(item: Entry, locale: Locale): string {
  * Article as an llms-full.txt document (title, URL and facts, body). Labels
  * follow the language of the text, so an untranslated original stays one language.
  */
-export function articleDocument(kind: ArticleKind, item: Entry, atlas: Atlas): LlmsDocument {
+export function articleDocument(
+  kind: ArticleKind,
+  item: Entry,
+  atlas: Atlas,
+  publisher: string = ORGANIZATION.name,
+): LlmsDocument {
   return {
     title: item.title,
     url: articleUrl(kind, item),
-    facts: facts(item, atlas, item.locale),
+    facts: facts(item, atlas, item.locale, publisher),
     markdown: body(item, item.locale),
   };
 }
 
 /** The `.md` version of an article: title, facts as a list, body. */
-export function articleMarkdown(kind: ArticleKind, item: Entry, atlas: Atlas): string {
-  const doc = articleDocument(kind, item, atlas);
+export function articleMarkdown(
+  kind: ArticleKind,
+  item: Entry,
+  atlas: Atlas,
+  publisher: string = ORGANIZATION.name,
+): string {
+  const doc = articleDocument(kind, item, atlas, publisher);
   return `# ${doc.title}\n\n${[`URL: ${doc.url}`, ...doc.facts].map((fact) => `- ${fact}`).join("\n")}\n\n${doc.markdown}\n`;
 }

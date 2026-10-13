@@ -30,7 +30,11 @@ export async function GET(
   }
   const article = await getArticle(kind, slug, locale);
   if (!article) return new Response("Not found", { status: 404 });
-  return machineResponse(articleMarkdown(kind, article.item, article.atlas), "markdown", {
-    link: `<${articleUrl(kind, article.item)}>; rel="canonical"`,
-  });
+  return machineResponse(
+    articleMarkdown(kind, article.item, article.atlas, article.publisher),
+    "markdown",
+    {
+      link: `<${articleUrl(kind, article.item)}>; rel="canonical"`,
+    },
+  );
 }

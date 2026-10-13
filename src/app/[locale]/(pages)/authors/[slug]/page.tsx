@@ -1,3 +1,4 @@
+import { getSiteSettings } from "@/features/site/queries";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { kickerVariants } from "@/components/atlas/kicker";
@@ -14,6 +15,7 @@ import { pageMetadata } from "@/lib/seo/metadata";
 import {
   breadcrumbNode,
   graph,
+  homeCrumb,
   ids,
   itemListNode,
   pageUrl,
@@ -69,6 +71,7 @@ export default async function AuthorPage({ params }: Params) {
   const messages = getMessages(locale);
   const t = messages.authorPage;
   const articles = await articlesOf(slug);
+  const site = await getSiteSettings();
   const photo = cssBackgroundImage(author.photo, PHOTO_WIDTH.avatar);
   const url = pageUrl(routes.author(slug), locale);
 
@@ -143,7 +146,7 @@ export default async function AuthorPage({ params }: Params) {
             about: ids.author(slug),
             breadcrumb: breadcrumbNode(
               [
-                { name: "Atlas of Today's World", path: "/" },
+                homeCrumb(site),
                 { name: messages.about.title, path: routes.about },
                 { name: author.name, path: routes.author(slug) },
               ],

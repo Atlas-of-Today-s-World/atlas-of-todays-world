@@ -1,13 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { SITE_DEFAULTS, type SiteSettings } from "@/features/site/model";
 import { SITE_URL } from "@/lib/site";
-import {
-  clampText,
-  DEFAULT_OG_IMAGE,
-  fullTitle,
-  pageMetadata,
-  pageTitle,
-  TITLE_SUFFIX,
-} from "./metadata";
+
+const getSiteSettings = vi.hoisted(() => vi.fn());
+vi.mock("@/features/site/queries", () => ({ getSiteSettings }));
+
+const { clampText, fullTitle, pageMetadata, pageTitle, TITLE_SUFFIX } = await import("./metadata");
 
 const SITE = SITE_URL.replace(/\/$/, "");
 
@@ -45,8 +43,12 @@ describe("pageTitle", () => {
 });
 
 describe("pageMetadata", () => {
-  it("sets canonical, hreflang, og:url and og:locale", () => {
-    const meta = pageMetadata({
+  beforeEach(() => {
+    getSiteSettings.mockReset().mockResolvedValue(SITE_DEFAULTS);
+  });
+
+  it("sets canonical, hreflang, og:url and og:locale", async () => {
+    const meta = await pageMetadata({
       locale: "en",
       path: "/region/east-asia",
       title: "East Asia",
@@ -60,7 +62,9 @@ describe("pageMetadata", () => {
     expect(meta.openGraph).toMatchObject({
       url: `${SITE}/region/east-asia`,
       locale: "en_US",
-      images: [{ url: DEFAULT_OG_IMAGE }],
+      images: [{ url: "/og-image.png" }],
+      siteName: "Atlas of Today's World",
+      title: `East Asia${TITLE_SUFFIX}`,
     });
     expect(String(meta.description).length).toBeLessThanOrEqual(160);
     // Absent, not undefined: an undefined key would wipe the root layout's robots
@@ -70,9 +74,32 @@ describe("pageMetadata", () => {
     expect(Object.values(meta.openGraph ?? {})).not.toContain(undefined);
   });
 
-  it("keeps an editor's description whole and marks noindex pages", () => {
+  it("takes the brand and the default image from the site settings", async () => {
+    const site: SiteSettings = {
+      ...SITE_DEFAULTS,
+      name: "Atlas Org",
+      titleSuffix: "| Atlas Org",
+      ogImage: "https://cdn.example.org/og.png",
+    };
+    getSiteSettings.mockResolvedValue(site);
+    const meta = await pageMetadata({
+      locale: "en",
+      path: "/countries",
+      title: "Countries",
+      description: "All countries.",
+    });
+    expect(meta.openGraph).toMatchObject({
+      siteName: "Atlas Org",
+      title: "Countries | Atlas Org",
+      images: [{ url: "https://cdn.example.org/og.png" }],
+    });
+    expect(fullTitle("Countries", { ...site, titleSuffix: "" })).toBe("Countries");
+    expect(fullTitle(undefined, site)).toBe("Atlas Org");
+  });
+
+  it("keeps an editor's description whole and marks noindex pages", async () => {
     const description = `${"word ".repeat(33)}end`;
-    const meta = pageMetadata({
+    const meta = await pageMetadata({
       locale: "en",
       path: "/search",
       title: "Search",

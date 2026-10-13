@@ -3,11 +3,12 @@ import { format, getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import { DevelogiCredit } from "@/components/DevelogiCredit";
 import { JsonLd } from "@/components/JsonLd";
-import { ORGANIZATION } from "@/config/organization";
+import { postalAddress } from "@/features/site/model";
+import { getSiteSettings } from "@/features/site/queries";
 import { sitePageMetadata } from "@/features/site-pages/components/SitePage";
 import { SitePageView } from "@/features/site-pages/components/SitePageView";
 import { getSitePage } from "@/features/site-pages/queries";
-import { breadcrumbNode, graph, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import { breadcrumbNode, graph, homeCrumb, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { routes } from "@/config/routes";
 
 type Params = { params: Promise<{ locale: string }> };
@@ -25,7 +26,11 @@ export default async function AboutPage({ params }: Params) {
   const locale = await localeFrom(params);
   const messages = getMessages(locale);
   const t = messages.about;
-  const [page, { indicators }] = await Promise.all([getSitePage("about"), getAtlas(locale)]);
+  const [page, { indicators }, site] = await Promise.all([
+    getSitePage("about"),
+    getAtlas(locale),
+    getSiteSettings(),
+  ]);
   return (
     <SitePageView
       page={page}
@@ -43,10 +48,10 @@ export default async function AboutPage({ params }: Params) {
       <h2 id="publisher">{t.whoTitle}</h2>
       <p>
         {format(t.whoText, {
-          legalName: ORGANIZATION.legalName,
-          companyId: ORGANIZATION.companyId,
-          address: `${ORGANIZATION.address.streetAddress}, ${ORGANIZATION.address.postalCode} ${ORGANIZATION.address.addressLocality}`,
-          email: ORGANIZATION.email,
+          legalName: site.legalName,
+          companyId: site.companyId,
+          address: postalAddress(site),
+          email: site.email,
         })}
       </p>
 
@@ -66,10 +71,7 @@ export default async function AboutPage({ params }: Params) {
             type: "AboutPage",
             about: ids.organization,
             breadcrumb: breadcrumbNode(
-              [
-                { name: "Atlas of Today's World", path: "/" },
-                { name: page.title, path: routes.about },
-              ],
+              [homeCrumb(site), { name: page.title, path: routes.about }],
               locale,
             ),
           }),

@@ -1,3 +1,4 @@
+import { getSiteSettings } from "@/features/site/queries";
 import type { Metadata } from "next";
 import Link from "@/components/i18n/Link";
 import { notFound } from "next/navigation";
@@ -10,7 +11,14 @@ import { format, getMessages } from "@/features/i18n/messages";
 import { getRequestLocale, getT, localeFrom } from "@/features/i18n/request";
 import { formatValue } from "@/lib/indicators";
 import { pageMetadata, pageTitle } from "@/lib/seo/metadata";
-import { breadcrumbNode, datasetNode, graph, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import {
+  breadcrumbNode,
+  datasetNode,
+  graph,
+  homeCrumb,
+  pageUrl,
+  webPageNode,
+} from "@/lib/seo/jsonld";
 import { JsonLd } from "@/components/JsonLd";
 import { routes } from "@/config/routes";
 
@@ -61,6 +69,7 @@ export default async function IndicatorViewPage({
   const { indicator: id } = await params;
   const locale = await localeFrom(params);
   const [atlas, indicator] = await Promise.all([getAtlas(locale), getIndicator(id)]);
+  const site = await getSiteSettings();
   if (!indicator) notFound();
 
   const ranked = Object.entries(indicator.values)
@@ -155,10 +164,7 @@ export default async function IndicatorViewPage({
             locale,
             about: `${pageUrl(routes.view(indicator.id), locale)}#dataset`,
             breadcrumb: breadcrumbNode(
-              [
-                { name: "Atlas of Today's World", path: "/" },
-                { name: indicator.label, path: routes.view(indicator.id) },
-              ],
+              [homeCrumb(site), { name: indicator.label, path: routes.view(indicator.id) }],
               locale,
             ),
           }),

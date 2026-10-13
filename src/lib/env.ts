@@ -21,7 +21,6 @@ const minLength =
   (length: number): Check =>
   (value) =>
     value.length >= length;
-const isEmail: Check = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
 /** Empty value = not set; a filled-in one must pass the check, otherwise the build fails. */
 function optional(name: string, value: string | undefined, check: Check): string | undefined {
@@ -48,12 +47,6 @@ export const publicEnv = {
     "NEXT_PUBLIC_MAPTILER_KEY",
     process.env.NEXT_PUBLIC_MAPTILER_KEY,
     minLength(8),
-  ),
-  // Operator contact for the privacy policy and the accessibility statement.
-  NEXT_PUBLIC_CONTACT_EMAIL: optional(
-    "NEXT_PUBLIC_CONTACT_EMAIL",
-    process.env.NEXT_PUBLIC_CONTACT_EMAIL,
-    isEmail,
   ),
   // Cloudflare Turnstile for email sign-in (G1); Supabase Auth verifies the secret key (captcha).
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: optional(

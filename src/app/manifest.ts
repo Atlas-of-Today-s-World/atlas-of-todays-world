@@ -1,13 +1,14 @@
 import type { MetadataRoute } from "next";
 import { THEME_COLORS } from "@/config/palette";
+import { getSiteSettings } from "@/features/site/queries";
 
-/** Web manifest – makes Atlas an installable app and complements SEO. */
-export default function manifest(): MetadataRoute.Manifest {
+/** Web manifest – makes Atlas an installable app and complements SEO (name and description from the site settings). */
+export default async function manifest(): Promise<MetadataRoute.Manifest> {
+  const site = await getSiteSettings();
   return {
-    name: "Atlas of Today's World",
+    name: site.name,
     short_name: "Atlas",
-    description:
-      "An interactive encyclopedia of the present on a 3D satellite globe: every country, every world region, and the data behind them.",
+    description: site.seoDescription,
     start_url: "/",
     display: "standalone",
     background_color: THEME_COLORS.spaceDeep,
