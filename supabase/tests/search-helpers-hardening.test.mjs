@@ -503,6 +503,9 @@ const APP_RPCS = {
   unschedule_entry: ["authenticated"],
   create_preview_link: ["authenticated"],
   role_holder_counts: ["authenticated"],
+  restore_site_page: ["authenticated"],
+  move_patron_faq: ["authenticated"],
+  move_site_social_link: ["authenticated"],
   replace_portrait_items: ["authenticated", "service_role"],
   submit_volunteer_application: ["service_role"],
   hit_rate_limit: ["service_role"],
@@ -563,6 +566,58 @@ test("every RPC the app calls is executable by its role, with an explicit grant"
       assert.ok(!ok.ok, `${role} must not execute ${fns[0].sig}`);
     }
   }
+});
+
+// ---------------------------------------------------------------------------
+// Site content tables (20261013000140–170) after the revokes
+// ---------------------------------------------------------------------------
+
+test("site content: anon still reads it, site editors still write it and call its RPCs", async () => {
+  const reads = await as(null, async () => ({
+    notices: await q("select maintenance_title, maintenance_text from site_notices"),
+    pages: await q("select slug, title from site_pages where slug = 'about'"),
+    links: await q("select id, label, url from site_social_links"),
+    patron: await q("select monthly_amounts, goal_patrons from patron_settings"),
+    faq: await q("select id, question from patron_faq"),
+    settings: await q("select name, contact_email from site_settings"),
+  }));
+  for (const [table, rows] of Object.entries(reads))
+    assert.ok(rows.length > 0, `anon reads ${table}`);
+  await as(null, () =>
+    refused(q("update site_notices set maintenance_title = 'x'"), /permission denied/),
+  );
+
+  // The publisher role has the `site` section (vced) by default.
+  await as(id.publisher, async () => {
+    await q("update site_notices set maintenance_title = 'Back soon'");
+    await q("update site_settings set description = 'Hardening test description.'");
+    await q("update patron_settings set goal_patrons = goal_patrons + 1");
+    await q("update site_pages set title = 'About us (edited)' where slug = 'about'");
+    const revision = await one(
+      "select id from site_page_revisions where page_slug = 'about' order by id limit 1",
+    );
+    await q("select restore_site_page($1)", [revision.id]);
+
+    const link = await one(
+      `insert into site_social_links (label, url, icon, position)
+       values ('Test', 'https://example.org/hardening', 'T', 999) returning id`,
+    );
+    await q("select move_site_social_link($1, true)", [link.id]);
+    const faq = await one(
+      `insert into patron_faq (question, answer_html, sort)
+       values ('Hardening?', '<p>Yes.</p>', 9999) returning id`,
+    );
+    await q("select move_patron_faq($1, true)", [faq.id]);
+  });
+  assert.equal(
+    (await one("select maintenance_title from site_notices")).maintenance_title,
+    "Back soon",
+  );
+  assert.notEqual(
+    (await one("select title from site_pages where slug = 'about'")).title,
+    "About us (edited)",
+    "restored to the first revision",
+  );
 });
 
 // ---------------------------------------------------------------------------
