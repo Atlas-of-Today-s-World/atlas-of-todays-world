@@ -32,6 +32,8 @@ export const tags = {
   redirects: "redirects",
   /** Atlas Patrons progress (patron_stats) — payment webhook and admin grants. */
   patrons: "patrons",
+  /** One editable site page (site_pages: about, privacy, terms, accessibility). */
+  sitePage: (slug: string) => `page:${slug}`,
 } as const;
 
 /**

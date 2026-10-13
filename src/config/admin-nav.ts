@@ -1,6 +1,7 @@
 import {
   BadgeCheck,
   Brush,
+  FileText,
   Globe2,
   HandHeart,
   House,
@@ -46,6 +47,7 @@ export const ADMIN_NAV: readonly AdminNavItem[] = [
     icon: SignpostBig,
   },
   { href: "/admin/home", label: "Home page", section: "news", icon: House },
+  { href: "/admin/pages", label: "Site pages", section: "site", icon: FileText },
   { href: "/admin/regions", label: "Regions & countries", section: "regions", icon: Globe2 },
   { href: "/admin/global-issues", label: "Global issues", section: "specials", icon: Shapes },
   { href: "/admin/data", label: "Map data layers", section: "layers", icon: Layers },
