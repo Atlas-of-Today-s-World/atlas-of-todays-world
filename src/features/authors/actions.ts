@@ -3,17 +3,9 @@
 import "server-only";
 import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
-import {
-  failed,
-  formObject,
-  invalid,
-  NOT_SIGNED_IN,
-  signedIn,
-  type ActionState,
-} from "@/lib/actions";
+import { affected, failed, formAction, idAction } from "@/lib/actions";
 import { adminRoutes } from "@/config/routes";
 import { tags } from "@/lib/cache/tags";
-import { uuid } from "@/lib/validation/common";
 import { AuthorInput } from "./schema";
 
 /**
@@ -22,16 +14,12 @@ import { AuthorInput } from "./schema";
  * author appears in entry headers, so the lists and every article page are
  * revalidated too.
  */
-export async function saveAuthor(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  const parsed = AuthorInput.safeParse(formObject(formData));
-  if (!parsed.success) return invalid(parsed.error);
-  const session = await signedIn();
-  if (!session) return NOT_SIGNED_IN;
-  const { id, ...fields } = parsed.data;
+export const saveAuthor = formAction(AuthorInput, async ({ data: input, supabase }) => {
+  const { id, ...fields } = input;
   const row = { ...fields, photo_url: fields.photo_url ?? null };
 
   if (!id) {
-    const { data, error } = await session.supabase
+    const { data, error } = await supabase
       .from("authors")
       // Empty slug = the DB generates a unique one from the name (/authors/<slug>).
       .insert({ ...row, slug: "" })
@@ -42,29 +30,29 @@ export async function saveAuthor(_prev: ActionState, formData: FormData): Promis
     redirect(adminRoutes.authors(data.id, { saved: "1" }));
   }
 
-  const { data, error } = await session.supabase
-    .from("authors")
-    .update(row)
-    .eq("id", id)
-    .select("id");
-  if (error) return failed(error);
-  if (!data.length) return { ok: false, error: "You can't edit this author (no permission)." };
+  const denied = affected(
+    await supabase.from("authors").update(row).eq("id", id).select("id"),
+    "You can't edit this author (no permission).",
+  );
+  if (denied) return denied;
   updateTag(tags.entries);
   updateTag(tags.entryPages);
   revalidatePath(adminRoutes.authors.list);
   return { ok: true, message: "Saved." };
-}
+});
 
 /** Deletes an author; entries remain, just without an author profile (FK on delete set null). */
-export async function deleteAuthor(id: string): Promise<ActionState> {
-  if (!uuid.safeParse(id).success) return { ok: false, error: "Invalid author." };
-  const session = await signedIn();
-  if (!session) return NOT_SIGNED_IN;
-  const { data, error } = await session.supabase.from("authors").delete().eq("id", id).select("id");
-  if (error) return failed(error);
-  if (!data.length) return { ok: false, error: "The author can't be deleted (no permission)." };
-  updateTag(tags.entries);
-  updateTag(tags.entryPages);
-  revalidatePath(adminRoutes.authors.list);
-  return { ok: true, message: "Deleted." };
-}
+export const deleteAuthor = idAction(
+  async ({ id, supabase }) => {
+    const denied = affected(
+      await supabase.from("authors").delete().eq("id", id).select("id"),
+      "The author can't be deleted (no permission).",
+    );
+    if (denied) return denied;
+    updateTag(tags.entries);
+    updateTag(tags.entryPages);
+    revalidatePath(adminRoutes.authors.list);
+    return { ok: true, message: "Deleted." };
+  },
+  { invalid: "Invalid author." },
+);

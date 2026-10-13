@@ -2,44 +2,31 @@
 
 import "server-only";
 import { revalidatePath, updateTag } from "next/cache";
-import {
-  failed,
-  formObject,
-  invalid,
-  NOT_SIGNED_IN,
-  signedIn,
-  type ActionState,
-} from "@/lib/actions";
 import { adminRoutes } from "@/config/routes";
+import { affected, failed, formAction, idAction } from "@/lib/actions";
 import { tags } from "@/lib/cache/tags";
-import { RedirectId, RedirectInput } from "./schema";
+import { RedirectInput } from "./schema";
 
 /** Adds a redirect (RLS: section news "c"; the DB enforces loops and path shape). */
-export async function addRedirect(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  const parsed = RedirectInput.safeParse(formObject(formData));
-  if (!parsed.success) return invalid(parsed.error);
-  const session = await signedIn();
-  if (!session) return NOT_SIGNED_IN;
-  const { error } = await session.supabase.from("redirects").insert(parsed.data);
+export const addRedirect = formAction(RedirectInput, async ({ data, supabase }) => {
+  const { error } = await supabase.from("redirects").insert(data);
   if (error) return failed(error);
   updateTag(tags.redirects);
   revalidatePath(adminRoutes.redirects);
-  return { ok: true, message: `Redirect added: ${parsed.data.from_path} → ${parsed.data.to_path}` };
-}
+  return { ok: true, message: `Redirect added: ${data.from_path} → ${data.to_path}` };
+});
 
 /** Deletes a redirect (RLS: section news "d"). */
-export async function deleteRedirect(id: string): Promise<ActionState> {
-  if (!RedirectId.safeParse(id).success) return { ok: false, error: "Invalid redirect." };
-  const session = await signedIn();
-  if (!session) return NOT_SIGNED_IN;
-  const { data, error } = await session.supabase
-    .from("redirects")
-    .delete()
-    .eq("id", id)
-    .select("id");
-  if (error) return failed(error);
-  if (!data.length) return { ok: false, error: "The redirect can't be deleted (no permission)." };
-  updateTag(tags.redirects);
-  revalidatePath(adminRoutes.redirects);
-  return { ok: true, message: "Deleted." };
-}
+export const deleteRedirect = idAction(
+  async ({ id, supabase }) => {
+    const denied = affected(
+      await supabase.from("redirects").delete().eq("id", id).select("id"),
+      "The redirect can't be deleted (no permission).",
+    );
+    if (denied) return denied;
+    updateTag(tags.redirects);
+    revalidatePath(adminRoutes.redirects);
+    return { ok: true, message: "Deleted." };
+  },
+  { invalid: "Invalid redirect." },
+);

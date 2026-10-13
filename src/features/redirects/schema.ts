@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { checkbox, uuid } from "@/lib/validation/common";
+import { checkbox } from "@/lib/validation/common";
 
 /**
  * Redirects (table `redirects`) — shapes matching the CHECK in the DB: the source
@@ -31,8 +31,6 @@ export const RedirectInput = z
     message: "The target must be a different URL.",
   });
 export type RedirectInput = z.infer<typeof RedirectInput>;
-
-export const RedirectId = uuid;
 
 export interface RedirectRule {
   to: string;
