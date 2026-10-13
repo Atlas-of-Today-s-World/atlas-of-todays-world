@@ -6,6 +6,7 @@ import { CountryPicker, type CountryOption } from "@/components/admin/CountryPic
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { Checkbox, FormField, Input, Select } from "@/components/ui/field";
 import { createInvitation } from "@/features/invitations/actions";
+import { AdminOnlyRolesNote } from "@/features/roles/components/AdminOnlyRolesNote";
 import { ActionForm, useServerAction } from "@/components/ui/action-form";
 
 interface RoleOption {
@@ -35,6 +36,7 @@ export default function InvitationForm({
       className="grid max-w-xl gap-4 rounded-2xl border border-[var(--color-line)] p-5"
     >
       <h2 className="font-display text-[17px] font-bold">Invite to the team</h2>
+      {!isAdmin ? <AdminOnlyRolesNote /> : null}
       <FormField id="invite-email" label="Email (Google account)" required errors={errors.email}>
         <Input id="invite-email" name="email" type="email" required maxLength={254} />
       </FormField>

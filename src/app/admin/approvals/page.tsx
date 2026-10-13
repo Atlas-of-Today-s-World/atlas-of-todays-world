@@ -91,7 +91,8 @@ export default async function ApprovalsPage() {
                       confirmAction(
                         "approve",
                         "Approve and publish",
-                        approveEntry.bind(null, row.id),
+                        // The version listed here: refused if the article changed since.
+                        approveEntry.bind(null, row.id, row.updated_at),
                         `Publish ${row.title}?`,
                         "The article goes live on the site (or at its scheduled time). To ask for changes, open it and send it back with a note.",
                       ),

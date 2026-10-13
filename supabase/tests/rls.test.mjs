@@ -407,16 +407,28 @@ test("audit log captures permissions, roles and approvals", async () => {
 
 test("staff account only from an allowed address (if the list is set)", async () => {
   await as(id.permAdmin, async () => {
-    // The list limits staff to domains; an empty list doesn't (invitations protect staff).
-    await q("insert into allowed_emails (value, note) values ('@atlasoftodaysworld.org', 'test')");
+    // Invitation-only with an empty list: a reader joins the team only by invitation.
     await refused(
-      q("update profiles set kind = 'staff' where id = $1", [id.newcomer]),
-      /allowed e-mails/,
+      q("update profiles set role_id = 'observer' where id = $1", [id.newcomer]),
+      /join by invitation/,
     );
-    await q("insert into allowed_emails (value, note) values ('@example.org', 'test')");
-    await q("update profiles set kind = 'staff' where id = $1", [id.newcomer]);
-    await q("update profiles set kind = 'reader' where id = $1", [id.newcomer]);
-    await q("delete from allowed_emails");
+    // The list limits staff to domains (the kind of account follows the role).
+    await q("insert into allowed_emails (value, note) values ('@atlasoftodaysworld.org', 'test')");
+    try {
+      await refused(
+        q("update profiles set role_id = 'observer' where id = $1", [id.newcomer]),
+        /allowed e-mails/,
+      );
+      await q("insert into allowed_emails (value, note) values ('@example.org', 'test')");
+      await q("update profiles set role_id = 'observer' where id = $1", [id.newcomer]);
+      assert.equal(
+        (await one("select kind from profiles where id = $1", [id.newcomer])).kind,
+        "staff",
+      );
+      await q("update profiles set role_id = 'reader' where id = $1", [id.newcomer]);
+    } finally {
+      await q("delete from allowed_emails");
+    }
   });
 });
 
@@ -669,7 +681,10 @@ test("DB-01: a custom role without the permissions right can't bypass allowed e-
   await q("insert into allowed_emails (value) values ('@atlasoftodaysworld.org')");
   try {
     await as(helper, () =>
-      refused(q("update profiles set kind = 'staff' where id = $1", [target]), /allowed e-mails/),
+      refused(
+        q("update profiles set role_id = 'observer' where id = $1", [target]),
+        /allowed e-mails/,
+      ),
     );
   } finally {
     await q("delete from allowed_emails");
@@ -817,7 +832,7 @@ test("invitation: permission-admin invites a publisher, not an admin or account 
       q(
         "insert into invitations (email, role_id) values ('perm2@example.org', 'permission-admin')",
       ),
-      /manages accounts or permissions/,
+      /Only an admin can invite someone to a role/,
     );
     await refused(
       q("insert into invitations (email, role_id) values ('reader2@example.org', 'reader')"),
@@ -1035,12 +1050,19 @@ test("role change: permission admin can't promote to account management, admin c
   await as(id.permAdmin, () =>
     refused(
       q("update profiles set role_id = 'permission-admin' where id = $1", [id.pubB]),
-      /Only an admin can give a role that manages/,
+      /Only an admin can give a role that edits or approves .* manages accounts/,
     ),
   );
-  // A permission admin may grant an ordinary editorial role.
+  // Editorial reach (everyone's articles) is the admin's to give too…
   await as(id.permAdmin, () =>
-    q("update profiles set role_id = 'content-editor' where id = $1", [id.pubB]),
+    refused(
+      q("update profiles set role_id = 'content-editor' where id = $1", [id.pubB]),
+      /Only an admin can give a role/,
+    ),
+  );
+  // …an ordinary editorial role a permission admin may grant.
+  await as(id.permAdmin, () =>
+    q("update profiles set role_id = 'observer' where id = $1", [id.pubB]),
   );
   await as(id.admin, () =>
     q("update profiles set role_id = 'permission-admin' where id = $1", [id.pubB]),
@@ -1059,7 +1081,7 @@ test("permission matrix: only admin grants account and permission management", a
       q(
         "insert into role_permissions (role_id, section, actions) values ('publisher', 'users', 'v')",
       ),
-      /Only an admin can let a role manage/,
+      /Only an admin can let a role approve articles or manage accounts/,
     ),
   );
   // A permission admin may set content sections.
@@ -1171,7 +1193,10 @@ test("scheduled publishing: only an approver schedules, cron publishes", async (
 
   // A schedule can't be forged by a direct write or triggered from the app.
   await as(id.pubA, () =>
-    refused(q("update entries set publish_at = now() where id = $1", [entry]), /schedule_entry/),
+    refused(
+      q("update entries set publish_at = now() where id = $1", [entry]),
+      /schedule_entry|waiting for approval/,
+    ),
   );
   await as(id.editor, () =>
     refused(
@@ -1206,10 +1231,19 @@ test("scheduled publishing: schedule lapses after an edit, send-back or lost rig
   const planOf = (entry) =>
     one("select status, publish_at, scheduled_by from entries where id = $1", [entry]);
 
-  // Author edits text after scheduling → approved version is void, schedule gone.
+  // The author can't edit a pending entry; another approver's edit voids the schedule.
   const edited = await newEntry(id.pubA, "scheduled-edited", ["BRA"], "pending");
   await schedule(edited);
-  await as(id.pubA, () => q("update entries set body_html = '<p>new</p>' where id = $1", [edited]));
+  await as(id.pubA, () =>
+    refused(
+      q("update entries set body_html = '<p>new</p>' where id = $1", [edited]),
+      /waiting for approval/,
+    ),
+  );
+  assert.notEqual((await planOf(edited)).publish_at, null);
+  await as(id.editor, () =>
+    q("update entries set body_html = '<p>new</p>' where id = $1", [edited]),
+  );
   assert.equal((await planOf(edited)).publish_at, null);
 
   // Sending back to the author cancels the schedule.
@@ -2219,7 +2253,10 @@ test("admin accounts: only an admin changes, blocks or removes them", async () =
     "deleted_at = now()",
   ]) {
     await as(id.permAdmin, () =>
-      refused(q(`update profiles set ${change} where id = $1`, [second]), /Only an admin/),
+      refused(
+        q(`update profiles set ${change} where id = $1`, [second]),
+        /Only an admin|permission denied/,
+      ),
     );
   }
   // Removing the profile is refused (or matches no row under RLS); it stays.
@@ -2302,22 +2339,25 @@ test("invitations: a revoked one stays revoked, an extension is short", async ()
   await q("delete from invitations where id in ($1, $2)", [inv.id, live.id]);
 });
 
-test("scheduled publishing: an author's edit of subtopics or FAQ drops the schedule", async () => {
+test("scheduled publishing: another editor's edit of subtopics or FAQ drops the schedule", async () => {
   const entry = await newEntry(id.pubA, "scheduled-parts", ["BRA"], "pending");
   const schedule = () =>
     as(id.approverLatam, () => q("select schedule_entry($1, now() + interval '1 day')", [entry]));
   const planned = async () =>
     (await one("select publish_at from entries where id = $1", [entry])).publish_at !== null;
-
-  await schedule();
-  assert.equal(await planned(), true);
-  // The author rewrites a subtopic after approval was scheduled → the plan is void.
-  await as(id.pubA, () =>
+  const rewrite = () =>
     q("select replace_entry_parts($1, 'chapters', $2::jsonb)", [
       entry,
       JSON.stringify([{ title: "Rewritten", body_html: "<p>new text</p>" }]),
-    ]),
-  );
+    ]);
+
+  await schedule();
+  assert.equal(await planned(), true);
+  // The author can't touch a pending entry's subtopics at all…
+  await as(id.pubA, () => refused(rewrite(), /may not edit this entry/));
+  assert.equal(await planned(), true);
+  // …an editor who may approve it can, and that voids the plan.
+  await as(id.editor, rewrite);
   assert.equal(await planned(), false);
 
   // Scheduled again, it holds while nobody else touches the text.

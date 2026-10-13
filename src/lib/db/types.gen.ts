@@ -2677,7 +2677,10 @@ export type Database = {
     }
     Functions: {
       accept_invitation_for: { Args: { p_user: string }; Returns: string }
-      approve_entry: { Args: { p_entry: string }; Returns: undefined }
+      approve_entry: {
+        Args: { p_entry: string; p_expected_updated_at?: string }
+        Returns: undefined
+      }
       can_approve_entry: { Args: { p_entry: string }; Returns: boolean }
       can_approve_entries: {
         Args: { p_entries: string[] }
@@ -2858,6 +2861,7 @@ export type Database = {
           role_id: string
         }[]
       }
+      role_needs_admin: { Args: { p_role: string }; Returns: boolean }
       schedule_entry: {
         Args: { p_at: string; p_entry: string }
         Returns: undefined
@@ -2911,6 +2915,7 @@ export type Database = {
       unpublish_entry: { Args: { p_entry: string }; Returns: undefined }
       unschedule_entry: { Args: { p_entry: string }; Returns: undefined }
       valid_patron_amounts: { Args: { p_amounts: number[] }; Returns: boolean }
+      withdraw_entry: { Args: { p_entry: string }; Returns: undefined }
       write_audit: {
         Args: { p_action: string; p_detail?: Json; p_target: string }
         Returns: undefined

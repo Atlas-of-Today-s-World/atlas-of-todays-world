@@ -12,32 +12,44 @@ import {
   type ActionState,
 } from "@/lib/actions";
 import { uuid } from "@/lib/validation/common";
-import { ScheduleInput, SendBackInput } from "./schema";
+import { EntryVersion, ScheduleInput, SendBackInput } from "./schema";
 import { PREVIEW_HOURS } from "./constants";
 import { refreshEntry } from "./revalidate";
 
 /**
- * The article workflow: submit, approve, send back, unpublish, schedule, and
- * the shareable preview link for reviewers.
+ * The article workflow: submit, withdraw, approve, send back, unpublish,
+ * schedule, and the shareable preview link for reviewers.
  */
 
-type Transition = "submit_entry" | "approve_entry" | "unpublish_entry";
+type Transition = "submit_entry" | "withdraw_entry" | "approve_entry" | "unpublish_entry";
 
 const DONE: Record<Transition, string> = {
   submit_entry: "Submitted for approval.",
+  withdraw_entry: "Withdrawn from review; the article is a draft again.",
   approve_entry: "Approved and published.",
   unpublish_entry: "Unpublished; the article is a draft again.",
 };
 
 /** Status transitions only through an RPC function in the DB (ARCHITEKTURA 4.3) — never a direct UPDATE. */
-async function transition(fn: Transition, id: string): Promise<ActionState> {
+async function transition(
+  fn: Transition,
+  id: string,
+  expectedUpdatedAt?: string,
+): Promise<ActionState> {
   if (!uuid.safeParse(id).success) return { ok: false, error: "Invalid article." };
+  if (expectedUpdatedAt !== undefined && !EntryVersion.safeParse(expectedUpdatedAt).success) {
+    return { ok: false, error: "Invalid article version." };
+  }
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
   const { supabase } = session;
-  const { error } = await supabase.rpc(fn, { p_entry: id });
+  const { error } =
+    fn === "approve_entry"
+      ? await supabase.rpc(fn, { p_entry: id, p_expected_updated_at: expectedUpdatedAt })
+      : await supabase.rpc(fn, { p_entry: id });
   if (error) return failed(error);
-  if (fn !== "submit_entry") {
+  // Submitting or withdrawing touches only articles that aren't on the site.
+  if (fn === "approve_entry" || fn === "unpublish_entry") {
     const entry = await refreshEntry(supabase, id);
     // Publishing a news article can switch News into the menu (DB trigger
     // news_menu_on_publish → feature_flags.news_menu), which every page's header reads.
@@ -50,8 +62,21 @@ export async function submitEntry(id: string) {
   return transition("submit_entry", id);
 }
 
-export async function approveEntry(id: string) {
-  return transition("approve_entry", id);
+/**
+ * Takes a pending article back from review (DB `withdraw_entry`): while it waits
+ * for approval nobody but an approver may change it, so the author withdraws it
+ * to edit it again.
+ */
+export async function withdrawEntry(id: string) {
+  return transition("withdraw_entry", id);
+}
+
+/**
+ * Approves and publishes. `expectedUpdatedAt` is the version the approver saw;
+ * the DB refuses the approval if the article changed since.
+ */
+export async function approveEntry(id: string, expectedUpdatedAt?: string) {
+  return transition("approve_entry", id, expectedUpdatedAt);
 }
 
 export async function unpublishEntry(id: string) {
