@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { getTopicTexts } from "@/features/topics/queries";
-import { searchTopicTexts } from "@/features/topics/text-search";
+import { searchTopics } from "@/features/topics/queries";
 import { allowRequest } from "@/lib/security/rate-limit";
 
 export const dynamic = "force-dynamic";
@@ -15,6 +14,6 @@ export async function GET(request: Request) {
   }
 
   const query = (new URL(request.url).searchParams.get("q") ?? "").slice(0, 200);
-  const results = searchTopicTexts(await getTopicTexts(), query);
+  const results = await searchTopics(query);
   return NextResponse.json({ query, results });
 }

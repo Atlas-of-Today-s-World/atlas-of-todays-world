@@ -1,57 +1,28 @@
 import "server-only";
-import { unstable_cache } from "next/cache";
-import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import { createPublicClient } from "@/lib/supabase/public";
-import { htmlToText } from "@/lib/text/html";
-import type { TopicText } from "./text-search";
-
-interface Row {
-  slug: string;
-  title: string;
-  summary: string | null;
-  body_html: string | null;
-  entry_chapters: { position: number; title: string; body_html: string | null }[] | null;
-}
-
-/** Body HTML → one line of plain text; inline markup never splits a word. */
-const plainText = (html: string | null) =>
-  htmlToText(html ?? "", { blockEnd: " ", tagGap: "", collapse: true });
+import { markHits, queryWords, type TopicHit } from "./text-search";
 
 /**
- * Plain text of every published topic for the Topics search: the introduction
- * (summary + intro) and each chapter, in page order (chapter i = `#topic-i`).
- * Cached with the entries tag, so publishing in the admin refreshes it.
+ * Full-text search inside the published topics (intro and chapters) via the
+ * Postgres RPC `search_topics()`: matched, ranked and excerpted in the database
+ * (GIN indexes), so no request loads the text of every topic. The excerpt
+ * comes back as plain text; the hits are marked here and rendered as text.
  */
-export const getTopicTexts = unstable_cache(
-  async (): Promise<TopicText[]> => {
-    const { data, error } = await createPublicClient()
-      .from("entries")
-      // Anon may read only listed columns (DB-08).
-      .select("slug, title, summary, body_html, entry_chapters(position, title, body_html)")
-      .eq("status", "published")
-      .eq("kind", "entry")
-      .is("translation_of", null)
-      .limit(1000);
-    if (error) throw new Error(`[topics] ${error.message}`);
-    return (data as Row[]).map((row) => ({
-      slug: row.slug,
-      title: row.title,
-      parts: [
-        {
-          anchor: null,
-          heading: row.title,
-          text: [row.summary ?? "", plainText(row.body_html)].filter(Boolean).join(" "),
-        },
-        ...[...(row.entry_chapters ?? [])]
-          .sort((a, b) => a.position - b.position)
-          .map((chapter, index) => ({
-            anchor: `topic-${index + 1}`,
-            heading: chapter.title,
-            text: plainText(chapter.body_html),
-          })),
-      ],
-    }));
-  },
-  ["topic-texts"],
-  { tags: [tags.entries], revalidate: PUBLIC_REVALIDATE_SECONDS },
-);
+export async function searchTopics(query: string, limit = 30): Promise<TopicHit[]> {
+  const words = queryWords(query);
+  if (!words.length) return [];
+
+  const { data, error } = await createPublicClient().rpc("search_topics", {
+    p_text: query,
+    p_limit: limit,
+  });
+  if (error) throw new Error(`[topics] ${error.message}`);
+  return (data ?? []).map((row) => ({
+    slug: row.slug,
+    topicTitle: row.topic_title,
+    heading: row.heading,
+    anchor: row.anchor,
+    excerpt: markHits(row.snippet, words),
+    score: row.rank,
+  }));
+}
