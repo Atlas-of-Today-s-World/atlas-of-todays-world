@@ -1,3 +1,4 @@
+import { getSiteSettings } from "@/features/site/queries";
 import type { Metadata } from "next";
 import ContentRail from "@/components/ContentRail";
 import { JsonLd } from "@/components/JsonLd";
@@ -25,6 +26,7 @@ import {
   breadcrumbNode,
   faqNode,
   graph,
+  homeCrumb,
   groupPlaceNode,
   ids,
   pageUrl,
@@ -97,6 +99,7 @@ export function groupPortraitPage(kind: GroupKind) {
     const { slug } = await params;
     const locale = await localeFrom(params);
     const atlas = await getAtlas(locale);
+    const site = await getSiteSettings();
     const located = locate(atlas, kind, slug);
     // Unknown URL: redirect (changed slug), otherwise 404. The route's layout
     // answers it first; this only narrows the type.
@@ -191,13 +194,7 @@ export function groupPortraitPage(kind: GroupKind) {
               locale,
               about: kind === "region" ? ids.region(group.slug) : ids.issue(group.slug),
               image: group.hero,
-              breadcrumb: breadcrumbNode(
-                [
-                  { name: "Atlas of Today's World", path: "/" },
-                  { name: group.name, path },
-                ],
-                locale,
-              ),
+              breadcrumb: breadcrumbNode([homeCrumb(site), { name: group.name, path }], locale),
             }),
             // A region lists its news as what the place is the subject of.
             kind === "region"

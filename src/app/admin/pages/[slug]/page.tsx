@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ContactLink } from "@/components/atlas/ContactLink";
+import { ContactLink, contactTarget } from "@/components/atlas/ContactLink";
 import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { ReadOnly } from "@/components/admin/ReadOnly";
-import { ORGANIZATION } from "@/config/organization";
 import { can, sectionAccess } from "@/features/auth/access";
 import { PageRevisions } from "@/features/site-pages/components/PageRevisions";
 import { SitePageForm } from "@/features/site-pages/components/SitePageForm";
@@ -25,10 +24,11 @@ export default async function SitePageEditor({
   if (!access) return <NoAccess />;
   const { slug } = await params;
   if (!isSitePageSlug(slug)) notFound();
-  const [page, revisions, { saved }] = await Promise.all([
+  const [page, revisions, { saved }, contact] = await Promise.all([
     getEditableSitePage(slug),
     listPageRevisions(slug),
     searchParams,
+    contactTarget(),
   ]);
   const canEdit = can(access.permissions, "site", "e");
   const path = SITE_PAGE_PATH[slug];
@@ -79,7 +79,7 @@ export default async function SitePageEditor({
               </div>
               <div>
                 <dt className="font-mono text-[12px]">{PAGE_TOKENS.email}</dt>
-                <dd>The publisher’s e-mail as text: {ORGANIZATION.email}</dd>
+                <dd>The contact e-mail as text: {contact.label}</dd>
               </div>
               {slug === "about" ? (
                 <div>

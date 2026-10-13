@@ -1,3 +1,4 @@
+import { getSiteSettings } from "@/features/site/queries";
 import type { Metadata } from "next";
 import { NewsArticle } from "@/features/topics/components/NewsArticle";
 import { redirectOrNotFound } from "@/features/redirects/queries";
@@ -6,8 +7,15 @@ import { countriesOf } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
 import { localeFrom } from "@/features/i18n/request";
 import { geoMeta } from "@/lib/seo";
-import { DEFAULT_OG_IMAGE, pageMetadata, pageTitle } from "@/lib/seo/metadata";
-import { articleNode, breadcrumbNode, graph, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import { pageMetadata, pageTitle } from "@/lib/seo/metadata";
+import {
+  articleNode,
+  breadcrumbNode,
+  graph,
+  homeCrumb,
+  pageUrl,
+  webPageNode,
+} from "@/lib/seo/jsonld";
 import { wordCount } from "@/lib/text/html";
 import { getMessages } from "@/features/i18n/messages";
 import { JsonLd } from "@/components/JsonLd";
@@ -64,6 +72,7 @@ export default async function NewsPage({
   const { slug } = await params;
   const locale = await localeFrom(params);
   const [item, atlas] = await Promise.all([getEntry(slug, locale), getAtlas(locale)]);
+  const site = await getSiteSettings();
   // Unknown URL: redirect (changed slug), otherwise 404.
   if (!item) return redirectOrNotFound(routes.news(slug), locale);
 
@@ -89,7 +98,7 @@ export default async function NewsPage({
             about: `${url}#article`,
             breadcrumb: breadcrumbNode(
               [
-                { name: "Atlas of Today's World", path: "/" },
+                homeCrumb(site),
                 { name: getMessages(locale).newsIndex.heading, path: routes.newsIndex },
                 ...(region ? [{ name: region.name, path: routes.region(region.slug) }] : []),
                 ...(issue ? [{ name: issue.name, path: routes.issue(issue.slug) }] : []),
@@ -103,7 +112,7 @@ export default async function NewsPage({
             url,
             headline: item.title,
             description: item.summary,
-            images: [item.hero ?? DEFAULT_OG_IMAGE],
+            images: [item.hero ?? site.ogImage],
             published: item.published,
             modified: item.updated ?? item.published,
             locale: item.locale,

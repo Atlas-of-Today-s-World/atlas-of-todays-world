@@ -138,6 +138,8 @@ describe("adminRoutes", () => {
     expect(adminRoutes.sitePages("about")).toBe("/admin/pages/about");
     expect(adminRoutes.patronFaq.new).toBe("/admin/patrons/faq/new");
     expect(adminRoutes.patronFaq("q1")).toBe("/admin/patrons/faq/q1");
+    expect(adminRoutes.siteSettings).toBe("/admin/site");
+    expect(adminRoutes.socialLink("s1")).toBe("/admin/site/socials/s1");
     expect(adminRoutes.switches("maintenance")).toBe("/admin/switches/maintenance");
   });
 

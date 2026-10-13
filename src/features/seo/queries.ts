@@ -13,7 +13,8 @@ import type { Atlas, IndicatorData } from "@/features/geography/types";
 import { DEFAULT_LOCALE, localePath, type Locale } from "@/features/i18n/config";
 import { format, getMessages } from "@/features/i18n/messages";
 import { LEGAL_NAV } from "@/config/navigation";
-import { ORGANIZATION } from "@/config/organization";
+import type { SiteSettings } from "@/features/site/model";
+import { getSiteSettings } from "@/features/site/queries";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import { must } from "@/lib/db/result";
 import { formatValue } from "@/lib/indicators";
@@ -300,13 +301,19 @@ const countryLinks = (atlas: Atlas, locale: Locale): LlmsLink[] =>
     note: country.region?.name,
   }));
 
-function head(data: AtlasData, news: EntrySummary[], entries: EntrySummary[], locale: Locale) {
+function head(
+  data: AtlasData,
+  news: EntrySummary[],
+  entries: EntrySummary[],
+  locale: Locale,
+  site: SiteSettings,
+) {
   const s = getMessages(locale).seo;
   return llmsTxt({
-    title: ORGANIZATION.name,
-    summary: ORGANIZATION.description,
+    title: site.name,
+    summary: site.description,
     paragraphs: [
-      format(s.llmsIntro, { legalName: ORGANIZATION.legalName }),
+      format(s.llmsIntro, { legalName: site.legalName }),
       s.llmsUse,
       s.llmsCite,
       format(s.llmsFormats, {
@@ -323,12 +330,13 @@ function head(data: AtlasData, news: EntrySummary[], entries: EntrySummary[], lo
 
 /** /llms.txt — the map of the site for language models. */
 export async function getLlmsTxt(locale: Locale): Promise<string> {
-  const [data, news, entries] = await Promise.all([
+  const [data, news, entries, site] = await Promise.all([
     getAtlasData(),
     getEntries(),
     getEncyclopediaEntries(),
+    getSiteSettings(),
   ]);
-  return head(data, news, entries, locale);
+  return head(data, news, entries, locale, site);
 }
 
 /** One table of the latest value of every indicator for every country, with sources. */
@@ -359,10 +367,11 @@ function countryData({ atlas, indicators: columns }: AtlasData, locale: Locale):
 
 /** /llms-full.txt — llms.txt plus the full text of every article and the country data. */
 export async function getLlmsFullTxt(locale: Locale): Promise<string> {
-  const [data, news, entries] = await Promise.all([
+  const [data, news, entries, site] = await Promise.all([
     getAtlasData(),
     getEntries(),
     getEncyclopediaEntries(),
+    getSiteSettings(),
   ]);
   const { atlas } = data;
   const [fullEntries, fullNews] = await Promise.all([
@@ -370,8 +379,10 @@ export async function getLlmsFullTxt(locale: Locale): Promise<string> {
     Promise.all(news.map((item) => getEntry(item.slug, locale))),
   ]);
   const documents = [
-    ...fullEntries.flatMap((item) => (item ? [articleDocument("entry", item, atlas)] : [])),
-    ...fullNews.flatMap((item) => (item ? [articleDocument("news", item, atlas)] : [])),
+    ...fullEntries.flatMap((item) =>
+      item ? [articleDocument("entry", item, atlas, site.name)] : [],
+    ),
+    ...fullNews.flatMap((item) => (item ? [articleDocument("news", item, atlas, site.name)] : [])),
     ...atlas.regions.map((region) => ({
       title: region.name,
       url: url(locale, routes.region(region.slug)),
@@ -398,7 +409,7 @@ export async function getLlmsFullTxt(locale: Locale): Promise<string> {
     })),
     countryData(data, locale),
   ];
-  return llmsFullTxt(head(data, news, entries, locale), documents);
+  return llmsFullTxt(head(data, news, entries, locale, site), documents);
 }
 
 // ---------------------------------------------------------------------------
@@ -407,9 +418,10 @@ export async function getLlmsFullTxt(locale: Locale): Promise<string> {
 
 /** An article (in the page language, else the original) with the atlas it is placed in. */
 export async function getArticle(kind: ArticleKind, slug: string, locale: Locale) {
-  const [item, atlas] = await Promise.all([
+  const [item, atlas, site] = await Promise.all([
     kind === "news" ? getEntry(slug, locale) : getEncyclopediaEntry(slug, locale),
     getAtlas(locale),
+    getSiteSettings(),
   ]);
-  return item ? { item, atlas } : null;
+  return item ? { item, atlas, publisher: site.name } : null;
 }

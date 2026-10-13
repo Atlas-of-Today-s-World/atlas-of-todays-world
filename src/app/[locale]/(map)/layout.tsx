@@ -11,6 +11,7 @@ import { MapLegend, type ViewOption } from "@/components/map/ViewSwitcher";
 import { FloatingActions } from "@/components/membership/FloatingActions";
 import { MaintenanceGate } from "@/features/flags/components/MaintenanceGate";
 import { getFlags } from "@/features/flags/queries";
+import { getSocialLinks } from "@/features/site/queries";
 import { regionColorMap } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
 import { getTopicPlaces } from "@/features/entries/queries";
@@ -88,11 +89,12 @@ export default async function MapLayout({
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
-  const [atlas, flags, places, featured] = await Promise.all([
+  const [atlas, flags, places, featured, socials] = await Promise.all([
     getAtlas(await localeFrom(params)),
     getFlags(),
     getTopicPlaces(),
     featuredSubtopics(),
+    getSocialLinks(),
   ]);
   const slugs = Object.fromEntries(atlas.countries.map((country) => [country.iso3, country.slug]));
 
@@ -127,7 +129,7 @@ export default async function MapLayout({
   return (
     <MapProvider>
       <main className="relative h-dvh w-full overflow-hidden bg-[var(--color-space-deep)]">
-        <Header newsletter={flags.newsletter} showNews={flags.newsMenu} />
+        <Header newsletter={flags.newsletter} showNews={flags.newsMenu} socials={socials} />
         <FloatingActions onMap newsletter={flags.newsletter} />
         <MapStage>
           <AtlasGlobe

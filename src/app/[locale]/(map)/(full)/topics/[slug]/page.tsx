@@ -1,3 +1,4 @@
+import { getSiteSettings } from "@/features/site/queries";
 import type { Metadata } from "next";
 import { EncyclopediaArticle } from "@/features/topics/components/EncyclopediaArticle";
 import { getEncyclopediaEntries } from "@/features/entries/queries";
@@ -6,18 +7,13 @@ import { redirectOrNotFound } from "@/features/redirects/queries";
 import { countriesOf } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
 import { localeFrom } from "@/features/i18n/request";
-import {
-  clampText,
-  DEFAULT_OG_IMAGE,
-  DESCRIPTION_MAX,
-  pageMetadata,
-  pageTitle,
-} from "@/lib/seo/metadata";
+import { clampText, DESCRIPTION_MAX, pageMetadata, pageTitle } from "@/lib/seo/metadata";
 import {
   articleNode,
   breadcrumbNode,
   faqNode,
   graph,
+  homeCrumb,
   pageUrl,
   webPageNode,
 } from "@/lib/seo/jsonld";
@@ -81,6 +77,7 @@ export default async function EntryPage({
   const { slug } = await params;
   const locale = await localeFrom(params);
   const [item, atlas] = await Promise.all([getEncyclopediaEntry(slug, locale), getAtlas(locale)]);
+  const site = await getSiteSettings();
   // Unknown URL: redirect (changed slug), otherwise 404.
   if (!item) return redirectOrNotFound(routes.topic(slug), locale);
 
@@ -107,7 +104,7 @@ export default async function EntryPage({
             speakable: ["#in-short", "#key-points"],
             breadcrumb: breadcrumbNode(
               [
-                { name: "Atlas of Today's World", path: "/" },
+                homeCrumb(site),
                 ...(region ? [{ name: region.name, path: routes.region(region.slug) }] : []),
                 { name: item.title, path: routes.topic(item.slug) },
               ],
@@ -126,7 +123,7 @@ export default async function EntryPage({
             images: [
               item.seo.image,
               item.hero,
-              ...(item.seo.image || item.hero ? [] : [DEFAULT_OG_IMAGE]),
+              ...(item.seo.image || item.hero ? [] : [site.ogImage]),
             ],
             published: item.published,
             modified: item.updated ?? item.published,

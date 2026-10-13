@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "@/components/i18n/Link";
 import Header from "@/components/Header";
 import { LEGAL_NAV } from "@/config/navigation";
+import { getSiteSettings, getSocialLinks } from "@/features/site/queries";
 import type { Messages } from "@/features/i18n/messages";
 import { cn } from "@/lib/cn";
 
@@ -11,7 +12,7 @@ import { cn } from "@/lib/cn";
  * its own full-width bands (the membership page); otherwise the content sits
  * in the usual reading column.
  */
-export function PagesShell({
+export async function PagesShell({
   t,
   showNews,
   newsletter,
@@ -26,12 +27,13 @@ export function PagesShell({
 }) {
   // Header and footer line up with the content column.
   const width = bleed ? "max-w-6xl" : "max-w-4xl";
+  const [site, socials] = await Promise.all([getSiteSettings(), getSocialLinks()]);
 
   return (
     // A column at least the window's height: on short pages (no search results,
     // sign-in) the footer stays at the bottom instead of floating mid-screen.
     <div className="flex min-h-dvh flex-col bg-white text-[var(--color-ink)]">
-      <Header bar showNews={showNews} newsletter={newsletter} />
+      <Header bar showNews={showNews} newsletter={newsletter} socials={socials} />
       <div
         id="content"
         tabIndex={-1}
@@ -39,13 +41,22 @@ export function PagesShell({
       >
         {children}
       </div>
-      <LegalFooter t={t} width={width} />
+      <LegalFooter t={t} width={width} copyright={site.copyright} />
     </div>
   );
 }
 
 /** Footer of pages without the globe and of full-width pages: © and the legal pages. */
-export function LegalFooter({ t, width }: { t: Messages; width: string }) {
+export function LegalFooter({
+  t,
+  width,
+  copyright,
+}: {
+  t: Messages;
+  width: string;
+  /** Footer line from Admin → Site settings. */
+  copyright: string;
+}) {
   return (
     <footer className="border-t border-[var(--color-line)]">
       <nav
@@ -55,7 +66,7 @@ export function LegalFooter({ t, width }: { t: Messages; width: string }) {
           width,
         )}
       >
-        <span className="flex min-h-11 items-center">© Atlas of Today&rsquo;s World</span>
+        <span className="flex min-h-11 items-center">{copyright}</span>
         {LEGAL_NAV.map((item) => (
           <Link
             key={item.href}

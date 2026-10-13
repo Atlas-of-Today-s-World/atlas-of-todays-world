@@ -1,4 +1,10 @@
 import { describe, expect, it } from "vitest";
+import {
+  SITE_DEFAULTS,
+  SOCIAL_DEFAULTS,
+  settingsFromRow,
+  socialsFromRows,
+} from "@/features/site/model";
 import { jsonLdHtml } from "./index";
 import {
   articleNode,
@@ -34,7 +40,9 @@ describe("JSON-LD builders", () => {
   });
 
   it("publisher and website: an NGO with logo, profiles, registration and search", () => {
-    const data = parsed(graph(organizationNode(), websiteNode("en")));
+    const data = parsed(
+      graph(organizationNode(SITE_DEFAULTS, SOCIAL_DEFAULTS), websiteNode("en", SITE_DEFAULTS)),
+    );
     expect(validateJsonLd(data)).toEqual([]);
     const [org, site] = jsonLdNodes(data);
     expect(org).toMatchObject({
@@ -50,9 +58,50 @@ describe("JSON-LD builders", () => {
         "https://www.instagram.com/atlasoftodaysworld_official/",
         "https://www.linkedin.com/company/atlas-of-todays-world/",
         "https://bsky.app/profile/atlas-otw.bsky.social",
+        "https://www.wikidata.org/wiki/Q106194019",
       ]),
     );
     expect(JSON.stringify(site)).toContain("/search?q={search_term_string}");
+  });
+
+  it("publisher and website: built from the site settings in the database", () => {
+    const settings = settingsFromRow({
+      name: "Atlas Org",
+      alternate_names: ["AO"],
+      legal_name: "Atlas Org, z. s.",
+      company_id: "12345678",
+      founding_date: "2020-01-02",
+      street_address: "Main 1",
+      postal_code: "100 00",
+      address_locality: "Praha",
+      address_country: "CZ",
+      description: "An atlas.",
+      wikidata_id: null,
+      contact_email: "hello@atlas.example",
+      seo_title: "Atlas Org",
+      title_suffix: "| Atlas Org",
+      seo_description: "Explore.",
+      og_image_url: "/og.png",
+      copyright: "© Atlas Org",
+    });
+    const socials = socialsFromRows([
+      { label: "Mastodon", url: "https://mastodon.social/@atlas", icon: "M" },
+    ]);
+    const data = parsed(graph(organizationNode(settings, socials), websiteNode("en", settings)));
+    expect(validateJsonLd(data)).toEqual([]);
+    const [org, site] = jsonLdNodes(data);
+    expect(org).toMatchObject({
+      name: "Atlas Org",
+      alternateName: ["AO"],
+      legalName: "Atlas Org, z. s.",
+      email: "hello@atlas.example",
+      foundingDate: "2020-01-02",
+      identifier: { value: "12345678" },
+      address: { streetAddress: "Main 1", postalCode: "100 00", addressLocality: "Praha" },
+    });
+    // No Wikidata item: only the profiles, nothing empty.
+    expect(org?.sameAs).toEqual(["https://mastodon.social/@atlas"]);
+    expect(site).toMatchObject({ name: "Atlas Org" });
   });
 
   it("news article: NewsArticle with author profile, publisher, places and dates", () => {

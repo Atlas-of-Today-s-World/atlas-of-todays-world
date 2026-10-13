@@ -124,6 +124,10 @@ export const adminRoutes = {
   homePage: `${ADMIN}/home`,
   /** Editable site pages (about, privacy…) by slug. */
   sitePages: records(`${ADMIN}/pages`),
+  /** Site settings (name, contacts) and the list of social links. */
+  siteSettings: `${ADMIN}/site`,
+  /** A social link by id (new ones are added on the site settings page). */
+  socialLink: (id: string) => `${ADMIN}/site/socials/${id}`,
   /** Regions by slug; their countries are under `country(slug)`. */
   regions: records(`${ADMIN}/regions`),
   country: (slug: string) => `${ADMIN}/regions/countries/${slug}`,
