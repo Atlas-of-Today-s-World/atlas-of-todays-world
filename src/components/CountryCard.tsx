@@ -3,7 +3,7 @@ import { ShareButton } from "@/components/atlas/ShareButton";
 import Link from "@/components/i18n/Link";
 import { TopicsLink } from "@/components/topics/RelatedTopics";
 import type { EntrySummary } from "@/features/entries/queries";
-import type { Country, CountryProfile } from "@/features/geography/types";
+import type { Country, CountryProfile, CountryStat } from "@/features/geography/types";
 import { getRequestLocale, getT } from "@/features/i18n/request";
 import { formatPopulation } from "@/lib/format";
 import { PHOTO_WIDTH } from "@/lib/images";
@@ -28,12 +28,15 @@ const TERRITORY_STATUS_KEY = {
 
 export default function CountryCard({
   country,
+  stats,
   newsItems,
   description,
   profile,
   topics,
 }: {
   country: Country;
+  /** The country's value in every data layer (`getCountryStats`). */
+  stats: CountryStat[];
   newsItems: EntrySummary[];
   description: string;
   profile?: CountryProfile | null;
@@ -51,10 +54,10 @@ export default function CountryCard({
   const featured = profile?.featured ?? [];
   const highlights = featured.length
     ? featured
-        .map((id) => country.stats.find((stat) => stat.id === id))
-        .filter((stat): stat is (typeof country.stats)[number] => Boolean(stat))
+        .map((id) => stats.find((stat) => stat.id === id))
+        .filter((stat): stat is CountryStat => Boolean(stat))
         .slice(0, 6)
-    : country.stats.slice(0, 6);
+    : stats.slice(0, 6);
 
   const metrics = profile?.metrics ?? [];
 

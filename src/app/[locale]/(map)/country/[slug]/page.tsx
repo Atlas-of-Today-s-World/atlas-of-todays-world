@@ -10,10 +10,10 @@ import {
   getPlannedEntries,
   thematicEntries,
 } from "@/features/entries/queries";
-import { getAtlas, getCountryProfileHtml } from "@/features/geography/queries";
+import { getAtlas, getCountryProfileHtml, getCountryStats } from "@/features/geography/queries";
 import { format, type Messages } from "@/features/i18n/messages";
 import { getRequestLocale, getT, localeFrom } from "@/features/i18n/request";
-import type { Country } from "@/features/geography/types";
+import type { Country, CountryStat } from "@/features/geography/types";
 import { formatPopulation } from "@/lib/format";
 import { geoMeta } from "@/lib/seo";
 import { pageMetadata, pageTitle } from "@/lib/seo/metadata";
@@ -36,7 +36,11 @@ export async function generateStaticParams() {
 }
 
 /** Description for countries without editorial text – composed from imported data. */
-function fallbackDescription(country: Country, t: Messages["countryText"]): string {
+function fallbackDescription(
+  country: Country,
+  stats: CountryStat[],
+  t: Messages["countryText"],
+): string {
   const parts: string[] = [
     format(t.intro, {
       name: country.nameFormal ?? country.name,
@@ -51,7 +55,7 @@ function fallbackDescription(country: Country, t: Messages["countryText"]): stri
       }),
     );
   }
-  const hdi = country.stats.find((stat) => stat.id === "hdi");
+  const hdi = stats.find((stat) => stat.id === "hdi");
   if (hdi?.rank) {
     parts.push(
       format(t.hdi, {
@@ -62,7 +66,7 @@ function fallbackDescription(country: Country, t: Messages["countryText"]): stri
       }),
     );
   }
-  const regime = country.stats.find((stat) => stat.id === "political-regime");
+  const regime = stats.find((stat) => stat.id === "political-regime");
   if (regime) parts.push(format(t.regime, { regime: regime.value.toLowerCase() }));
   return parts.join(" ");
 }
@@ -77,7 +81,9 @@ export async function generateMetadata({
   const country = (await getAtlas(locale)).countryBySlug.get(slug);
   if (!country) return {};
 
-  const description = country.profile.summary || fallbackDescription(country, getT().countryText);
+  const description =
+    country.profile.summary ||
+    fallbackDescription(country, await getCountryStats(country.iso3, locale), getT().countryText);
 
   return pageMetadata({
     locale,
@@ -117,16 +123,17 @@ export default async function CountryPage({
   const region = country.region;
   // The region's own record (photo, summary) for its profile under the country.
   const regionData = region ? atlas.regionBySlug.get(region.slug) : undefined;
-  const [topics, entries, dossier, upcoming, profileHtml] = await Promise.all([
+  const [topics, entries, dossier, upcoming, profileHtml, stats] = await Promise.all([
     relatedTopics(atlas, "country", country.iso3),
     getEntries(),
     regionData ? getPortrait("region", regionData.slug) : null,
     getPlannedEntries(),
     getCountryProfileHtml(country.iso3),
+    getCountryStats(country.iso3, locale),
   ]);
   const newsItems = entriesOfCountry(entries, country.iso3);
   const profile = country.profile;
-  const description = profile.summary || fallbackDescription(country, getT().countryText);
+  const description = profile.summary || fallbackDescription(country, stats, getT().countryText);
 
   return (
     <>
@@ -146,6 +153,7 @@ export default async function CountryPage({
       <ContentRail>
         <CountryCard
           country={country}
+          stats={stats}
           newsItems={newsItems}
           description={description}
           profile={profile}
@@ -202,7 +210,7 @@ export default async function CountryPage({
               locale,
               region,
               population: country.population,
-              stats: country.stats,
+              stats,
             }),
             subjectOf: newsItems.map((item) => ({
               "@type": "NewsArticle",

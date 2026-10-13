@@ -7,6 +7,7 @@ import type {
   CountryStat,
   GlobalIssue,
   Indicator,
+  IndicatorData,
   MapArea,
   Region,
   TerritoryNote,
@@ -76,7 +77,6 @@ export interface AtlasSnapshot {
     latest_year: number | null;
   }[];
   categories: { indicator_id: string; value: number; label: string; color: string }[];
-  values: { indicator_id: string; country_iso3: string; value: number; year: number | null }[];
   issues: {
     slug: string;
     name: string;
@@ -103,6 +103,13 @@ export interface AtlasSnapshot {
     geometry: unknown;
   }[];
 }
+
+/**
+ * One indicator's values as the data cache keeps them, apart from the snapshot
+ * (they made up most of it and grow with every layer and year): ISO3 →
+ * [value, year], ordered by ISO3; a null year means the indicator's latest year.
+ */
+export type IndicatorValues = Record<string, [value: number, year: number | null]>;
 
 /** Geographic facts from Natural Earth that aren't edited in the admin (src/data). */
 export interface GeoFacts {
@@ -137,14 +144,6 @@ export function displayName(name: string, formal: string | null): string {
 
 function buildIndicators(snapshot: AtlasSnapshot): Indicator[] {
   return snapshot.indicators.map((row) => {
-    const values: Indicator["values"] = {};
-    for (const value of snapshot.values) {
-      if (value.indicator_id !== row.id) continue;
-      values[value.country_iso3] = {
-        value: Number(value.value),
-        year: value.year ?? row.latest_year ?? 0,
-      };
-    }
     const categories = snapshot.categories
       .filter((category) => category.indicator_id === row.id)
       .map(({ value, label, color }) => ({ value, label, color }))
@@ -167,36 +166,42 @@ function buildIndicators(snapshot: AtlasSnapshot): Indicator[] {
       categories: categories.length ? categories : undefined,
       higherIsBetter: row.higher_is_better,
       latestYear: row.latest_year,
-      countryCount: Object.keys(values).length,
-      values,
     };
   });
 }
 
-/** Country rank in each sequential layer (1 = best), computed once. */
-function rankings(indicators: Indicator[]): Map<string, Map<string, number>> {
-  const out = new Map<string, Map<string, number>>();
-  for (const indicator of indicators) {
-    if (indicator.type === "categorical") continue;
-    const sorted = Object.entries(indicator.values).sort((a, b) =>
-      indicator.higherIsBetter ? b[1].value - a[1].value : a[1].value - b[1].value,
-    );
-    out.set(indicator.id, new Map(sorted.map(([iso3], index) => [iso3, index + 1])));
+/** An indicator together with its cached values; a value without a year is from its latest year. */
+export function indicatorData(indicator: Indicator, cached: IndicatorValues): IndicatorData {
+  const values: IndicatorData["values"] = {};
+  for (const [iso3, [value, year]] of Object.entries(cached)) {
+    values[iso3] = { value: Number(value), year: year ?? indicator.latestYear ?? 0 };
   }
-  return out;
+  return { ...indicator, countryCount: Object.keys(values).length, values };
 }
 
-function statsFor(
+/** Country rank in a sequential layer (1 = best); none for a categorical one. */
+function ranking(indicator: IndicatorData): Map<string, number> | null {
+  if (indicator.type === "categorical") return null;
+  const sorted = Object.entries(indicator.values).sort((a, b) =>
+    indicator.higherIsBetter ? b[1].value - a[1].value : a[1].value - b[1].value,
+  );
+  return new Map(sorted.map(([iso3], index) => [iso3, index + 1]));
+}
+
+/**
+ * A country's value in every layer it has data in (in layer order), formatted,
+ * with its year, source and rank among all countries with a value.
+ */
+export function countryStats(
   iso3: string,
-  indicators: Indicator[],
-  ranks: Map<string, Map<string, number>>,
-  locale: Locale,
+  indicators: IndicatorData[],
+  locale: Locale = "en",
 ): CountryStat[] {
   const stats: CountryStat[] = [];
   for (const indicator of indicators) {
     const item = indicator.values[iso3];
     if (!item) continue;
-    const ranking = ranks.get(indicator.id);
+    const ranks = ranking(indicator);
     stats.push({
       id: indicator.id,
       label: indicator.label,
@@ -206,8 +211,8 @@ function statsFor(
       year: item.year,
       source: indicator.source,
       sourceUrl: indicator.sourceUrl,
-      rank: ranking?.get(iso3) ?? null,
-      rankOf: ranking ? ranking.size : null,
+      rank: ranks?.get(iso3) ?? null,
+      rankOf: ranks ? ranks.size : null,
     });
   }
   return stats;
@@ -216,9 +221,8 @@ function statsFor(
 const byPopulation = (a: { population: number | null }, b: { population: number | null }) =>
   (b.population ?? 0) - (a.population ?? 0);
 
-export function buildAtlas(snapshot: AtlasSnapshot, geo: GeoFacts[], locale: Locale = "en"): Atlas {
+export function buildAtlas(snapshot: AtlasSnapshot, geo: GeoFacts[]): Atlas {
   const indicators = buildIndicators(snapshot);
-  const ranks = rankings(indicators);
   const facts = new Map(geo.map((item) => [item.iso3, item]));
 
   const sortedCountries = [...snapshot.countries]
@@ -264,7 +268,6 @@ export function buildAtlas(snapshot: AtlasSnapshot, geo: GeoFacts[], locale: Loc
         bbox,
         territoryNote: fact?.territoryNote ?? null,
         region: regionBySlug.get(row.region_slug ?? "") ?? null,
-        stats: statsFor(row.iso3, indicators, ranks, locale),
         profile: {
           summary: row.blurb ?? "",
           tagline: row.tagline,

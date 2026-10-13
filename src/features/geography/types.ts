@@ -38,6 +38,10 @@ interface IndicatorCategory {
   color: string;
 }
 
+/**
+ * A data layer's definition: label, unit, scale, source. Small, so it travels
+ * with the atlas snapshot; its values are cached per layer (`IndicatorData`).
+ */
 export interface Indicator {
   id: string;
   label: string;
@@ -54,6 +58,10 @@ export interface Indicator {
   categories?: IndicatorCategory[];
   higherIsBetter: boolean;
   latestYear: number | null;
+}
+
+/** A data layer with its values: ISO3 → the value and the year it is from. */
+export interface IndicatorData extends Indicator {
   countryCount: number;
   values: Record<string, { value: number; year: number }>;
 }
@@ -106,7 +114,6 @@ export interface Country {
   bbox: [number, number, number, number] | null;
   territoryNote: TerritoryNote | null;
   region: Region | null;
-  stats: CountryStat[];
   profile: CountryProfile;
 }
 

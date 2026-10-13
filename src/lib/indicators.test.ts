@@ -14,8 +14,6 @@ const indicator = (patch: Partial<Indicator>): Indicator => ({
   type: "sequential",
   higherIsBetter: true,
   latestYear: 2024,
-  countryCount: 1,
-  values: {},
   ...patch,
 });
 
