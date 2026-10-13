@@ -14,12 +14,12 @@ import {
   thematicEntries,
 } from "@/features/entries/queries";
 import { countriesOf } from "@/features/geography/model";
-import { getAtlas } from "@/features/geography/queries";
+import { getAtlas, getIndicators } from "@/features/geography/queries";
 import type { Atlas, GlobalIssue, Region } from "@/features/geography/types";
 import { getRequestLocale, localeFrom } from "@/features/i18n/request";
 import { redirectOrNotFound } from "@/features/redirects/queries";
 import { relatedTopics } from "@/features/topics/related";
-import { groupStats, population } from "@/lib/region-stats";
+import { CARD_INDICATORS, groupStats, population } from "@/lib/region-stats";
 import { geoMeta } from "@/lib/seo";
 import {
   breadcrumbNode,
@@ -112,12 +112,13 @@ export function groupPortraitPage(kind: GroupKind) {
         : entriesOfIssue(entries, group.slug, group.countries);
 
     const countries = countriesOf(atlas, group.countries);
-    const [entries, encyclopedia, upcoming, dossier, topics] = await Promise.all([
+    const [entries, encyclopedia, upcoming, dossier, topics, indicators] = await Promise.all([
       getEntries(),
       getEncyclopediaEntries(),
       getPlannedEntries(),
       getPortrait(kind, group.slug),
       relatedTopics(atlas, kind, group.slug),
+      getIndicators(CARD_INDICATORS),
     ]);
     const newsItems = ofGroup(entries);
     const members = countries.map(({ slug, name }) => ({ slug, name }));
@@ -176,7 +177,7 @@ export function groupPortraitPage(kind: GroupKind) {
             news={newsCards(newsItems)}
             entries={thematicEntries(ofGroup(encyclopedia), ofGroup(upcoming))}
             dossier={dossier}
-            stats={groupStats(countries, atlas.indicatorById, getRequestLocale())}
+            stats={groupStats(countries, indicators, getRequestLocale())}
           />
         </ContentRail>
 

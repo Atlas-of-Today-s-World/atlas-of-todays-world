@@ -2,11 +2,18 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
 import generated from "@/data/countries.generated.json";
-import { DEFAULT_LOCALE, type Locale } from "@/features/i18n/config";
+import type { Locale } from "@/features/i18n/config";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import { createPublicClient } from "@/lib/supabase/public";
-import { buildAtlas, type AtlasSnapshot, type GeoFacts } from "./model";
-import type { Atlas } from "./types";
+import {
+  buildAtlas,
+  countryStats,
+  indicatorData,
+  type AtlasSnapshot,
+  type GeoFacts,
+  type IndicatorValues,
+} from "./model";
+import type { Atlas, CountryStat, IndicatorData } from "./types";
 
 const PAGE = 1000; // PostgREST returns at most 1000 rows per query.
 
@@ -25,8 +32,10 @@ async function all<T>(label: string, page: (from: number, to: number) => Page<T>
 
 /**
  * Everything the map is drawn from, in one pass; the result goes into the Next
- * data cache as one item. Next skips caching an item over 2 MB, so long
- * per-country text stays out of it (`getCountryProfileHtml`).
+ * data cache as one item that every page reads. Next skips caching an item over
+ * 2 MB, so what only some pages need and what grows stays out of it: long
+ * per-country text (`getCountryProfileHtml`) and indicator values
+ * (`getIndicator`).
  */
 const loadSnapshot = unstable_cache(
   async (): Promise<AtlasSnapshot> => {
@@ -37,7 +46,6 @@ const loadSnapshot = unstable_cache(
       countryMetrics,
       indicators,
       categories,
-      values,
       issues,
       members,
       themes,
@@ -86,14 +94,6 @@ const loadSnapshot = unstable_cache(
           .order("indicator_id")
           .range(a, b),
       ),
-      all("indicator_values", (a, b) =>
-        db
-          .from("indicator_values")
-          .select("indicator_id, country_iso3, value, year")
-          .order("indicator_id")
-          .order("country_iso3")
-          .range(a, b),
-      ),
       all("special_regions", (a, b) =>
         db
           .from("special_regions")
@@ -125,7 +125,6 @@ const loadSnapshot = unstable_cache(
       countryMetrics,
       indicators,
       categories,
-      values,
       issues,
       issueCountries: members,
       theme: themes[0] ?? null,
@@ -147,12 +146,67 @@ const GEO: GeoFacts[] = (generated as GeneratedCountry[]).map(
   ({ iso3, iso2, continent, territoryNote }) => ({ iso3, iso2, continent, territoryNote }),
 );
 
+/** The atlas model, assembled once per request from the cached snapshot. */
+const atlasOfRequest = cache(async (): Promise<Atlas> => buildAtlas(await loadSnapshot(), GEO));
+
 /**
- * Atlas model for one request and language (the snapshot is cached, assembly
- * happens only once). The texts are English (ADR-022).
+ * Atlas model for one request. It is the same in every language (the texts are
+ * English, ADR-022, and indicator values, formatted per language, aren't in
+ * it), so the locale the pages pass doesn't split it.
  */
-export const getAtlas = cache(async (locale: Locale = DEFAULT_LOCALE): Promise<Atlas> =>
-  buildAtlas(await loadSnapshot(), GEO, locale),
+export const getAtlas = (_locale?: Locale): Promise<Atlas> => atlasOfRequest();
+
+/**
+ * One indicator's values, a data cache item per indicator under its own tag:
+ * only the pages that show values read them (country cards, a layer's ranking,
+ * group averages, the globe layer, llms-full.txt), and saving a value refreshes
+ * that one layer.
+ */
+function loadIndicatorValues(id: string): Promise<IndicatorValues> {
+  return unstable_cache(
+    async () => {
+      const db = createPublicClient();
+      const rows = await all(`indicator_values ${id}`, (a, b) =>
+        db
+          .from("indicator_values")
+          .select("country_iso3, value, year")
+          .eq("indicator_id", id)
+          .order("country_iso3")
+          .range(a, b),
+      );
+      const values: IndicatorValues = {};
+      for (const row of rows) values[row.country_iso3] = [Number(row.value), row.year];
+      return values;
+    },
+    ["indicator-values", id],
+    { tags: [tags.indicator(id)], revalidate: PUBLIC_REVALIDATE_SECONDS },
+  )();
+}
+
+/**
+ * A data layer with its values, or null for an unknown id. The definition is
+ * looked up first, so an unknown id never reaches the database or the cache.
+ */
+export const getIndicator = cache(async (id: string): Promise<IndicatorData | null> => {
+  const definition = (await getAtlas()).indicatorById.get(id);
+  return definition ? indicatorData(definition, await loadIndicatorValues(id)) : null;
+});
+
+/** Data layers with their values in the atlas order: those with the given ids, or all. */
+export async function getIndicators(ids?: readonly string[]): Promise<IndicatorData[]> {
+  const { indicators } = await getAtlas();
+  const wanted = ids ? indicators.filter((indicator) => ids.includes(indicator.id)) : indicators;
+  const loaded = await Promise.all(wanted.map((indicator) => getIndicator(indicator.id)));
+  return loaded.filter((indicator): indicator is IndicatorData => indicator !== null);
+}
+
+/**
+ * A country's value in every layer, with its year, source and rank among all
+ * countries (its card, page description and JSON-LD). Ranks need every
+ * country's values, so this reads all layers — only the country page does.
+ */
+export const getCountryStats = cache(async (iso3: string, locale: Locale): Promise<CountryStat[]> =>
+  countryStats(iso3, await getIndicators(), locale),
 );
 
 /**

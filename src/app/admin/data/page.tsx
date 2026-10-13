@@ -9,7 +9,7 @@ import { optionStats } from "@/components/data-table/stats";
 import { buttonVariants } from "@/components/ui/button";
 import { navIcon } from "@/config/admin-nav";
 import { can, sectionAccess } from "@/features/auth/access";
-import { getAtlas } from "@/features/geography/queries";
+import { getIndicators } from "@/features/geography/queries";
 import { routes } from "@/config/routes";
 
 export const metadata: Metadata = { title: "Map data layers" };
@@ -22,7 +22,7 @@ const TYPES = [
 export default async function DataPage() {
   const access = await sectionAccess("layers");
   if (!access) return <NoAccess />;
-  const { indicators } = await getAtlas();
+  const indicators = await getIndicators();
 
   return (
     <>

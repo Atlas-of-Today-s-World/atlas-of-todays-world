@@ -5,6 +5,7 @@ describe("cache tags", () => {
   it("names one article and one country by their key", () => {
     expect(tags.entry("water-crisis")).toBe("entry:water-crisis");
     expect(tags.country("CZE")).toBe("country:CZE");
+    expect(tags.indicator("hdi")).toBe("indicator:hdi");
     expect(tags.portrait("issue", "sahel")).toBe("portrait:issue:sahel");
   });
 

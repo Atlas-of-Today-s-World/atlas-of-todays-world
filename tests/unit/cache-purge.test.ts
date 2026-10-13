@@ -221,6 +221,54 @@ describe("a confirmed write refreshes exactly its tags", { timeout: 30_000 }, ()
     expect(updatedTags()).toEqual(["atlas", "country:CZE"]);
   });
 
+  it("setValue: only that indicator's values, not the map snapshot", async () => {
+    client.current = written({});
+    const { setValue } = await import("@/features/indicators/actions");
+    const result = await setValue(
+      { ok: false },
+      form({
+        indicator_id: "hdi",
+        country_iso3: "CZE",
+        value: "0.9",
+        year: "2023",
+        note: "",
+        source_note: "UNDP",
+      }),
+    );
+    expect(result).toMatchObject({ ok: true });
+    expect(updatedTags()).toEqual(["indicator:hdi"]);
+  });
+
+  it("deleteValue: only that indicator's values", async () => {
+    client.current = written({ indicator_values: [{ country_iso3: "CZE" }] });
+    const { deleteValue } = await import("@/features/indicators/actions");
+    const result = await deleteValue("hdi", "CZE");
+    expect(result).toMatchObject({ ok: true });
+    expect(updatedTags()).toEqual(["indicator:hdi"]);
+  });
+
+  it("saveCategories: the definitions in the map snapshot, not the values", async () => {
+    client.current = written({ indicator_categories: [{ value: 1 }] });
+    const { saveCategories } = await import("@/features/indicators/actions");
+    const result = await saveCategories(
+      { ok: false },
+      form({
+        indicator_id: "regime-type",
+        items: JSON.stringify([{ value: 1, label: "Autocracy", color: "#000000" }]),
+      }),
+    );
+    expect(result).toMatchObject({ ok: true });
+    expect(updatedTags()).toEqual(["atlas"]);
+  });
+
+  it("deleteIndicator: its definition and its values", async () => {
+    client.current = written({ indicators: [{ id: "custom" }] });
+    const { deleteIndicator } = await import("@/features/indicators/actions");
+    const result = await deleteIndicator("custom");
+    expect(result).toMatchObject({ ok: true });
+    expect(updatedTags()).toEqual(["atlas", "indicator:custom"]);
+  });
+
   it("deleteIssue: every article page, whose group link was cleared", async () => {
     client.current = written({ special_regions: [{ slug: "sahel" }] });
     const { deleteIssue } = await import("@/features/portraits/actions");

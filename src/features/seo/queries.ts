@@ -8,8 +8,8 @@ import {
   type EntrySummary,
 } from "@/features/entries/queries";
 import { getEncyclopediaEntry } from "@/features/entries/topic-queries";
-import { getAtlas } from "@/features/geography/queries";
-import type { Atlas } from "@/features/geography/types";
+import { getAtlas, getIndicators } from "@/features/geography/queries";
+import type { Atlas, IndicatorData } from "@/features/geography/types";
 import { DEFAULT_LOCALE, localePath, type Locale } from "@/features/i18n/config";
 import { format, getMessages } from "@/features/i18n/messages";
 import { LEGAL_NAV } from "@/config/navigation";
@@ -213,7 +213,23 @@ export async function getFeedItems(locale: Locale, limit = 30): Promise<FeedItem
 
 const url = (locale: Locale, path: string) => absoluteUrl(localePath(locale, path));
 
-function sections(atlas: Atlas, news: EntrySummary[], entries: EntrySummary[], locale: Locale) {
+/** The atlas and every data layer's values (llms.txt counts them, llms-full.txt lists them). */
+interface AtlasData {
+  atlas: Atlas;
+  indicators: IndicatorData[];
+}
+
+const getAtlasData = async (): Promise<AtlasData> => {
+  const [atlas, indicators] = await Promise.all([getAtlas(), getIndicators()]);
+  return { atlas, indicators };
+};
+
+function sections(
+  { atlas, indicators }: AtlasData,
+  news: EntrySummary[],
+  entries: EntrySummary[],
+  locale: Locale,
+) {
   const t = getMessages(locale);
   const s = t.seo;
   const date = (item: EntrySummary) => (item.published ? `${item.published} — ` : "");
@@ -252,7 +268,7 @@ function sections(atlas: Atlas, news: EntrySummary[], entries: EntrySummary[], l
     },
     {
       title: s.sectionData,
-      links: atlas.indicators.map((indicator) => ({
+      links: indicators.map((indicator) => ({
         name: indicator.label,
         url: url(locale, routes.view(indicator.id)),
         note: format(s.dataNote, {
@@ -284,7 +300,7 @@ const countryLinks = (atlas: Atlas, locale: Locale): LlmsLink[] =>
     note: country.region?.name,
   }));
 
-function head(atlas: Atlas, news: EntrySummary[], entries: EntrySummary[], locale: Locale) {
+function head(data: AtlasData, news: EntrySummary[], entries: EntrySummary[], locale: Locale) {
   const s = getMessages(locale).seo;
   return llmsTxt({
     title: ORGANIZATION.name,
@@ -300,25 +316,24 @@ function head(atlas: Atlas, news: EntrySummary[], entries: EntrySummary[], local
         sitemap: absoluteUrl("/sitemap.xml"),
       }),
     ],
-    sections: sections(atlas, news, entries, locale),
-    optional: countryLinks(atlas, locale),
+    sections: sections(data, news, entries, locale),
+    optional: countryLinks(data.atlas, locale),
   });
 }
 
 /** /llms.txt — the map of the site for language models. */
 export async function getLlmsTxt(locale: Locale): Promise<string> {
-  const [atlas, news, entries] = await Promise.all([
-    getAtlas(locale),
+  const [data, news, entries] = await Promise.all([
+    getAtlasData(),
     getEntries(),
     getEncyclopediaEntries(),
   ]);
-  return head(atlas, news, entries, locale);
+  return head(data, news, entries, locale);
 }
 
 /** One table of the latest value of every indicator for every country, with sources. */
-function countryData(atlas: Atlas, locale: Locale): LlmsDocument {
+function countryData({ atlas, indicators: columns }: AtlasData, locale: Locale): LlmsDocument {
   const s = getMessages(locale).seo;
-  const columns = atlas.indicators;
   const header = `| ${s.country} | ${s.region} | ${columns.map((c) => c.shortLabel).join(" | ")} |`;
   const rows = atlas.countries.map((country) => {
     const cells = columns.map((indicator) => {
@@ -344,11 +359,12 @@ function countryData(atlas: Atlas, locale: Locale): LlmsDocument {
 
 /** /llms-full.txt — llms.txt plus the full text of every article and the country data. */
 export async function getLlmsFullTxt(locale: Locale): Promise<string> {
-  const [atlas, news, entries] = await Promise.all([
-    getAtlas(locale),
+  const [data, news, entries] = await Promise.all([
+    getAtlasData(),
     getEntries(),
     getEncyclopediaEntries(),
   ]);
+  const { atlas } = data;
   const [fullEntries, fullNews] = await Promise.all([
     Promise.all(entries.map((item) => getEncyclopediaEntry(item.slug, locale))),
     Promise.all(news.map((item) => getEntry(item.slug, locale))),
@@ -380,9 +396,9 @@ export async function getLlmsFullTxt(locale: Locale): Promise<string> {
           .join(", ")}`,
       ].join("\n\n"),
     })),
-    countryData(atlas, locale),
+    countryData(data, locale),
   ];
-  return llmsFullTxt(head(atlas, news, entries, locale), documents);
+  return llmsFullTxt(head(data, news, entries, locale), documents);
 }
 
 // ---------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 import type { Locale } from "@/features/i18n/config";
 import { saturateMap } from "@/lib/color";
 import { colorMapFor, formatValue } from "@/lib/indicators";
-import type { Indicator } from "./types";
+import type { IndicatorData } from "./types";
 
 /**
  * One data layer of the globe (a metric): each country's colour and its value
@@ -18,7 +18,11 @@ export interface GlobeLayer {
   values: Record<string, [value: string, year: number]>;
 }
 
-export function globeLayer(indicator: Indicator, saturation: number, locale: Locale): GlobeLayer {
+export function globeLayer(
+  indicator: IndicatorData,
+  saturation: number,
+  locale: Locale,
+): GlobeLayer {
   return {
     colors: saturateMap(colorMapFor(indicator), saturation),
     label: indicator.shortLabel || indicator.label,

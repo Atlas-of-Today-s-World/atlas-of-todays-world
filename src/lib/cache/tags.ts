@@ -4,8 +4,10 @@
  * (Next 16: invalidated immediately, so the author sees their change).
  */
 export const tags = {
-  /** Regions, countries, indicators, global issues — the whole map snapshot. */
+  /** Regions, countries, indicator definitions, global issues — the whole map snapshot. */
   atlas: "atlas",
+  /** One indicator's values, cached apart from the snapshot (they grow with every layer and year). */
+  indicator: (id: string) => `indicator:${id}`,
   /** One country's profile text, kept out of the atlas snapshot (Next skips items over 2 MB). */
   country: (iso3: string) => `country:${iso3}`,
   /** Article lists and indexes: news, topics, authors, home, search, map counts. */

@@ -17,8 +17,13 @@ import { tags } from "@/lib/cache/tags";
 import { iso3, slug } from "@/lib/validation/common";
 import { CategoryInput, IndicatorInput, ValueInput } from "./schema";
 
-/** Indicators are part of the map snapshot — every change refreshes it. */
-const refresh = () => updateTag(tags.atlas);
+/**
+ * An indicator's definition (label, scale, categories) is part of the map
+ * snapshot; its values are cached per indicator. A change refreshes only what
+ * it touched — saving a value doesn't rebuild the snapshot every page reads.
+ */
+const refreshDefinitions = () => updateTag(tags.atlas);
+const refreshValues = (id: string) => updateTag(tags.indicator(id));
 
 /**
  * Creating a custom indicator or editing its description and scale. The kind (sequential /
@@ -43,13 +48,13 @@ export async function saveIndicator(_prev: ActionState, formData: FormData): Pro
       .from("indicators")
       .insert({ ...row, id, type, is_custom: true, created_by: user.id });
     if (error) return failed(error);
-    refresh();
+    refreshDefinitions();
     redirect(`/admin/data/${id}`);
   }
   const { data, error } = await supabase.from("indicators").update(row).eq("id", id).select("id");
   if (error) return failed(error);
   if (!data.length) return { ok: false, error: "You can't edit this indicator." };
-  refresh();
+  refreshDefinitions();
   return { ok: true, message: "Indicator saved." };
 }
 
@@ -69,7 +74,9 @@ export async function deleteIndicator(id: string): Promise<ActionState> {
       error: "Only custom indicators can be deleted, and only with delete permission.",
     };
   }
-  refresh();
+  // Its values went with it (cascade).
+  refreshDefinitions();
+  refreshValues(id);
   return { ok: true, message: "Indicator deleted." };
 }
 
@@ -84,7 +91,7 @@ export async function setValue(_prev: ActionState, formData: FormData): Promise<
     .from("indicator_values")
     .upsert({ ...fields, year: year ?? null, note: note ?? null });
   if (error) return failed(error);
-  refresh();
+  refreshValues(fields.indicator_id);
   return { ok: true, message: "Value saved." };
 }
 
@@ -102,7 +109,7 @@ export async function deleteValue(indicatorId: string, country: string): Promise
     .select("country_iso3");
   if (error) return failed(error);
   if (!data.length) return { ok: false, error: "You can't delete this value." };
-  refresh();
+  refreshValues(indicatorId);
   return { ok: true, message: "Value deleted." };
 }
 
@@ -144,6 +151,6 @@ export async function saveCategories(_prev: ActionState, formData: FormData): Pr
       .upsert(items.data.map((item) => ({ ...item, indicator_id: id.data })));
     if (error) return failed(error);
   }
-  refresh();
+  refreshDefinitions();
   return { ok: true, message: "Categories saved." };
 }

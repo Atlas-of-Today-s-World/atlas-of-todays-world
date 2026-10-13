@@ -1,4 +1,4 @@
-import type { Country, Indicator } from "@/features/geography/types";
+import type { Country, IndicatorData } from "@/features/geography/types";
 import type { Locale } from "@/features/i18n/config";
 import { formatValue } from "@/lib/indicators";
 
@@ -14,8 +14,8 @@ import { formatValue } from "@/lib/indicators";
  * regime) an average is meaningless, so the most common category is shown.
  */
 
-/** Six indicators on the cards, in drawing order. */
-const CARD_INDICATORS = [
+/** Six indicators on the cards, in drawing order (the only layers a portrait loads). */
+export const CARD_INDICATORS = [
   "hdi",
   "life-expectancy",
   "gdp-per-capita",
@@ -55,20 +55,21 @@ function mostCommon(values: number[]): number {
 /** Indicators computed over any group of countries (region, global issue). */
 export function groupStats(
   countries: Country[],
-  indicators: Map<string, Indicator>,
+  indicators: IndicatorData[],
   locale: Locale = "en",
 ): RegionStat[] {
   const out: RegionStat[] = [];
+  const byId = new Map(indicators.map((indicator) => [indicator.id, indicator]));
 
   for (const id of CARD_INDICATORS) {
-    const indicator = indicators.get(id);
+    const indicator = byId.get(id);
     if (!indicator) continue;
 
     // Keep the country and its value together – after filtering out countries without
     // data, a bare index into the original array would point elsewhere and weights drift.
     const rows = countries
       .map((country) => ({
-        stat: country.stats.find((stat) => stat.id === id),
+        stat: indicator.values[country.iso3],
         weight: country.population ?? 0,
       }))
       .filter((row): row is { stat: NonNullable<typeof row.stat>; weight: number } =>
@@ -78,8 +79,8 @@ export function groupStats(
 
     const raw =
       indicator.type === "categorical"
-        ? mostCommon(rows.map((row) => row.stat.raw))
-        : weightedMean(rows.map((row) => ({ value: row.stat.raw, weight: row.weight })));
+        ? mostCommon(rows.map((row) => row.stat.value))
+        : weightedMean(rows.map((row) => ({ value: row.stat.value, weight: row.weight })));
 
     out.push({
       id,

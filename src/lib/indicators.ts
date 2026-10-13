@@ -1,6 +1,6 @@
 import type { Locale } from "@/features/i18n/config";
 import { formatNumber } from "@/lib/format";
-import type { Indicator } from "@/features/geography/types";
+import type { Indicator, IndicatorData } from "@/features/geography/types";
 
 /**
  * Colors, legend and value formatting for data layers. Pure functions over
@@ -77,7 +77,7 @@ export function formatValue(indicator: Indicator, value: number, locale: Locale 
  * Values for coloring the globe: {ISO3: "#rrggbb"}. Sent to the client as
  * one small object instead of the whole dataset.
  */
-export function colorMapFor(indicator: Indicator): Record<string, string> {
+export function colorMapFor(indicator: IndicatorData): Record<string, string> {
   const out: Record<string, string> = {};
   for (const [iso3, item] of Object.entries(indicator.values)) {
     out[iso3] = colorForValue(indicator, item.value);

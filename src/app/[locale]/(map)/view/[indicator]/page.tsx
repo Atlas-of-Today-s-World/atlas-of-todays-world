@@ -5,7 +5,7 @@ import ContentRail from "@/components/ContentRail";
 import { RankingFocus } from "@/components/map/RankingFocus";
 import MapViewSetter from "@/components/map/MapViewSetter";
 import { SectionLabel } from "@/components/atlas/ui";
-import { getAtlas } from "@/features/geography/queries";
+import { getAtlas, getIndicator } from "@/features/geography/queries";
 import { format, getMessages } from "@/features/i18n/messages";
 import { getRequestLocale, getT, localeFrom } from "@/features/i18n/request";
 import { formatValue } from "@/lib/indicators";
@@ -31,7 +31,7 @@ export async function generateMetadata({
   const { indicator: id } = await params;
   const locale = await localeFrom(params);
   const t = getMessages(locale).view;
-  const indicator = (await getAtlas(locale)).indicatorById.get(id);
+  const indicator = await getIndicator(id);
   if (!indicator) return {};
   const description = format(t.description, {
     label: indicator.label,
@@ -60,8 +60,7 @@ export default async function IndicatorViewPage({
 }) {
   const { indicator: id } = await params;
   const locale = await localeFrom(params);
-  const atlas = await getAtlas(locale);
-  const indicator = atlas.indicatorById.get(id);
+  const [atlas, indicator] = await Promise.all([getAtlas(locale), getIndicator(id)]);
   if (!indicator) notFound();
 
   const ranked = Object.entries(indicator.values)

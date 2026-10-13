@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { buildAtlas, countriesOf, displayName, regionColorMap, type AtlasSnapshot } from "./model";
+import {
+  buildAtlas,
+  countriesOf,
+  countryStats,
+  displayName,
+  indicatorData,
+  regionColorMap,
+  type AtlasSnapshot,
+  type IndicatorValues,
+} from "./model";
 
 const country = (iso3: string, region: string | null, population: number) => ({
   iso3,
@@ -89,11 +98,6 @@ const snapshot: AtlasSnapshot = {
     },
   ],
   categories: [{ indicator_id: "regime", value: 3, label: "Liberal democracy", color: "#00ff00" }],
-  values: [
-    { indicator_id: "hdi", country_iso3: "CZE", value: 0.9, year: 2023 },
-    { indicator_id: "hdi", country_iso3: "DEU", value: 0.95, year: 2023 },
-    { indicator_id: "regime", country_iso3: "CZE", value: 3, year: null },
-  ],
   issues: [
     {
       slug: "central",
@@ -118,21 +122,27 @@ const atlas = buildAtlas(snapshot, [
   { iso3: "CZE", iso2: "CZ", continent: "Europe", territoryNote: null },
 ]);
 
+/** Values as cached per indicator, apart from the snapshot. */
+const cached: Record<string, IndicatorValues> = {
+  hdi: { ATA: [0.5, 2023], CZE: [0.9, 2023], DEU: [0.95, 2023] },
+  regime: { CZE: [3, null] },
+};
+const layers = atlas.indicators.map((indicator) =>
+  indicatorData(indicator, cached[indicator.id] ?? {}),
+);
+
 describe("buildAtlas", () => {
   it("only countries in a region and not excluded territories have a profile, most populous first", () => {
     expect(atlas.countries.map((c) => c.iso3)).toEqual(["DEU", "CZE"]);
     expect(atlas.regionBySlug.get("europe")?.countries).toEqual(["DEU", "CZE", "ATA"]);
   });
 
-  it("computes rank in a sequential layer and formats values", () => {
-    const hdi = atlas.countryByIso3.get("CZE")?.stats.find((stat) => stat.id === "hdi");
-    expect(hdi).toMatchObject({ value: "0.900", rank: 2, rankOf: 2, year: 2023 });
-  });
-
-  it("categorical layer gives the category label, year from the indicator and no rank", () => {
-    const regime = atlas.countryByIso3.get("CZE")?.stats.find((stat) => stat.id === "regime");
-    expect(regime).toMatchObject({ value: "Liberal democracy", rank: null, year: 2024 });
+  it("keeps indicator definitions without their values", () => {
     expect(atlas.indicatorById.get("regime")?.shortLabel).toBe("Political regime");
+    for (const indicator of atlas.indicators) {
+      expect(indicator).not.toHaveProperty("values");
+      expect(indicator).not.toHaveProperty("countryCount");
+    }
   });
 
   it("adds geographic facts and the editorial profile", () => {
@@ -156,6 +166,61 @@ describe("buildAtlas", () => {
   it("reads the content status, a group without one is not started", () => {
     expect(atlas.regionBySlug.get("europe")?.contentStatus).toBe("ready");
     expect(atlas.issueBySlug.get("central")?.contentStatus).toBe("none");
+  });
+});
+
+describe("indicatorData", () => {
+  it("joins a definition with its cached values; a value without a year is from the latest", () => {
+    const [hdi, regime] = layers;
+    expect(hdi).toMatchObject({ id: "hdi", label: "Human Development Index", countryCount: 3 });
+    expect(hdi?.values.CZE).toEqual({ value: 0.9, year: 2023 });
+    expect(regime?.values).toEqual({ CZE: { value: 3, year: 2024 } });
+  });
+
+  it("an indicator without values has none", () => {
+    const empty = indicatorData(atlas.indicators[0]!, {});
+    expect(empty).toMatchObject({ countryCount: 0, values: {} });
+  });
+});
+
+describe("countryStats", () => {
+  it("ranks among every country with a value and formats it", () => {
+    const hdi = countryStats("CZE", layers).find((stat) => stat.id === "hdi");
+    expect(hdi).toEqual({
+      id: "hdi",
+      label: "Human Development Index",
+      shortLabel: "HDI",
+      value: "0.900",
+      raw: 0.9,
+      year: 2023,
+      source: "UNDP",
+      sourceUrl: "https://hdr.undp.org",
+      rank: 2,
+      rankOf: 3,
+    });
+    expect(countryStats("DEU", layers).find((stat) => stat.id === "hdi")?.rank).toBe(1);
+  });
+
+  it("a lower-is-better layer ranks the smallest value first", () => {
+    const [hdi] = layers;
+    const reversed = { ...hdi!, higherIsBetter: false };
+    expect(countryStats("ATA", [reversed])[0]).toMatchObject({ rank: 1, rankOf: 3 });
+  });
+
+  it("categorical layer gives the category label, year from the indicator and no rank", () => {
+    const regime = countryStats("CZE", layers).find((stat) => stat.id === "regime");
+    expect(regime).toMatchObject({
+      value: "Liberal democracy",
+      rank: null,
+      rankOf: null,
+      year: 2024,
+    });
+  });
+
+  it("follows the layer order and skips layers without the country's value", () => {
+    expect(countryStats("CZE", layers).map((stat) => stat.id)).toEqual(["hdi", "regime"]);
+    expect(countryStats("DEU", layers).map((stat) => stat.id)).toEqual(["hdi"]);
+    expect(countryStats("XXX", layers)).toEqual([]);
   });
 });
 
