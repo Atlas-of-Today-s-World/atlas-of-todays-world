@@ -505,6 +505,7 @@ export type Database = {
           illustration_credit: string | null
           illustration_url: string | null
           position: number
+          search: unknown
           summary_points: string[]
           title: string
         }
@@ -521,6 +522,7 @@ export type Database = {
           illustration_credit?: string | null
           illustration_url?: string | null
           position: number
+          search?: unknown
           summary_points?: string[]
           title: string
         }
@@ -537,6 +539,7 @@ export type Database = {
           illustration_credit?: string | null
           illustration_url?: string | null
           position?: number
+          search?: unknown
           summary_points?: string[]
           title?: string
         }
@@ -2275,6 +2278,7 @@ export type Database = {
         }[]
       }
       entry_published_or_own: { Args: { p_entry: string }; Returns: boolean }
+      fold_text: { Args: { p_text: string }; Returns: string }
       has_perm: {
         Args: { p_action: string; p_section: string }
         Returns: boolean
@@ -2283,6 +2287,7 @@ export type Database = {
         Args: { p_key: string; p_limit: number; p_window_seconds: number }
         Returns: boolean
       }
+      html_plain_text: { Args: { p_html: string }; Returns: string }
       is_active: { Args: never; Returns: boolean }
       is_admin: { Args: never; Returns: boolean }
       is_polygon: { Args: { g: Json }; Returns: boolean }
@@ -2337,6 +2342,7 @@ export type Database = {
         }[]
       }
       portrait: { Args: { p_kind: string; p_slug: string }; Returns: Json }
+      prefix_tsquery: { Args: { p_words: string[] }; Returns: unknown }
       prune_entry_revisions: { Args: never; Returns: number }
       publish_due_entries: { Args: never; Returns: number }
       purge_audit_log: { Args: never; Returns: number }
@@ -2393,6 +2399,19 @@ export type Database = {
         }[]
       }
       search_query: { Args: { p_text: string }; Returns: unknown }
+      search_snippet: { Args: { p_text: string; p_words: string[] }; Returns: string }
+      search_topics: {
+        Args: { p_limit?: number; p_text: string }
+        Returns: {
+          anchor: string
+          heading: string
+          rank: number
+          slug: string
+          snippet: string
+          topic_title: string
+        }[]
+      }
+      search_words: { Args: { p_text: string }; Returns: string[] }
       send_back_entry: {
         Args: { p_entry: string; p_note: string }
         Returns: undefined
@@ -2407,6 +2426,12 @@ export type Database = {
         Args: { p_email: string; p_message: string; p_name: string; p_topics: string }
         Returns: undefined
       }
+      topic_hit_score: { Args: { p_vector: unknown; p_words: string[] }; Returns: number }
+      topic_intro_search: {
+        Args: { p_body_html: string; p_summary: string; p_title: string }
+        Returns: unknown
+      }
+      topic_search_vector: { Args: { p_heading: string; p_text: string }; Returns: unknown }
       translation_section: { Args: { p_entity: string }; Returns: string }
       unpublish_entry: { Args: { p_entry: string }; Returns: undefined }
       unschedule_entry: { Args: { p_entry: string }; Returns: undefined }
