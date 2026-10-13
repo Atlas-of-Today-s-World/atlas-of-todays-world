@@ -209,6 +209,8 @@ export async function deleteIssue(slug: string): Promise<ActionState> {
   if (!data.length)
     return { ok: false, error: "Can't delete this global issue (you don't have permission)." };
   updateTag(tags.atlas);
+  // Its own portrait page (cached under its slug) must now be a 404.
+  updateTag(tags.portrait("issue", slug));
   updateTag(tags.entries);
   // The articles' `special_slug` was set to null (FK on delete set null).
   updateTag(tags.entryPages);

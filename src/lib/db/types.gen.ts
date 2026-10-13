@@ -1519,6 +1519,7 @@ export type Database = {
           id: string
           permanent: boolean
           to_path: string
+          updated_at: string
         }
         Insert: {
           created_at?: string
@@ -1527,6 +1528,7 @@ export type Database = {
           id?: string
           permanent?: boolean
           to_path: string
+          updated_at?: string
         }
         Update: {
           created_at?: string
@@ -1535,6 +1537,7 @@ export type Database = {
           id?: string
           permanent?: boolean
           to_path?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -1778,6 +1781,45 @@ export type Database = {
           session_hours?: number
         }
         Relationships: []
+      }
+      site_notices: {
+        Row: {
+          id: number
+          maintenance_text: string
+          maintenance_title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          id?: number
+          maintenance_text?: string
+          maintenance_title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          id?: number
+          maintenance_text?: string
+          maintenance_title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "site_notices_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "members_overview"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "site_notices_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       site_theme: {
         Row: {

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ErrorState } from "@/components/atlas/ErrorState";
 import { FloatingActions } from "@/components/membership/FloatingActions";
 import { PagesShell } from "@/components/PagesShell";
+import { MaintenanceGate } from "@/features/flags/components/MaintenanceGate";
 import { getFlags } from "@/features/flags/queries";
 import { getT } from "@/features/i18n/request";
 import { LazyCountryQuiz } from "@/features/quiz/LazyCountryQuiz";
@@ -19,13 +20,15 @@ export default async function NotFound() {
   const flags = await getFlags();
   return (
     <PagesShell t={t} showNews={flags.newsMenu} newsletter={flags.newsletter}>
-      <ErrorState
-        code="404"
-        title={t.errors.pageNotFoundTitle}
-        lead={t.errors.pageNotFoundLead}
-        backLabel={t.common.backToGlobe}
-      />
-      <LazyCountryQuiz />
+      <MaintenanceGate>
+        <ErrorState
+          code="404"
+          title={t.errors.pageNotFoundTitle}
+          lead={t.errors.pageNotFoundLead}
+          backLabel={t.common.backToGlobe}
+        />
+        <LazyCountryQuiz />
+      </MaintenanceGate>
       <FloatingActions newsletter={flags.newsletter} />
     </PagesShell>
   );

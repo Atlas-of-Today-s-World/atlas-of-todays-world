@@ -59,8 +59,10 @@ export const getAccess = cache(async function getAccess(): Promise<Access | null
 /**
  * For an admin section page: access if the user has the given action in the
  * section, otherwise null (the page shows "You don't have permission"). UX only — RLS protects the data.
+ * With several sections, the action in any one of them is enough.
  */
-export async function sectionAccess(section: Section, action: Action = "v") {
+export async function sectionAccess(section: Section | readonly Section[], action: Action = "v") {
   const access = await getAccess();
-  return access && can(access.permissions, section, action) ? access : null;
+  const sections: readonly Section[] = typeof section === "string" ? [section] : section;
+  return access && sections.some((one) => can(access.permissions, one, action)) ? access : null;
 }

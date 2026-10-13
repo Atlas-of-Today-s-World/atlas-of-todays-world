@@ -1,4 +1,5 @@
 import { PagesShell } from "@/components/PagesShell";
+import { MaintenanceGate } from "@/features/flags/components/MaintenanceGate";
 import { getFlags } from "@/features/flags/queries";
 import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
@@ -19,7 +20,7 @@ export default async function PatronsLayout({
       newsletter={flags.newsletter}
       bleed
     >
-      {children}
+      <MaintenanceGate>{children}</MaintenanceGate>
     </PagesShell>
   );
 }

@@ -29,3 +29,15 @@ export async function listRedirects(q?: string): Promise<RedirectRow[]> {
   if (error) throw new Error(`[redirects] ${error.message}`);
   return data;
 }
+
+/** One redirect for the edit form (null = no such id). */
+export async function getRedirect(id: string): Promise<RedirectRow | null> {
+  const supabase = await createServerClient();
+  const { data, error } = await supabase
+    .from("redirects")
+    .select("id, from_path, to_path, permanent, created_at")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(`[redirects] ${error.message}`);
+  return data;
+}
