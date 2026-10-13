@@ -6,6 +6,16 @@ create role anon nologin;
 create role authenticated nologin;
 create role service_role nologin bypassrls;
 
+-- Supabase's default privileges: whatever the migration role creates in
+-- `public` is granted in full to the API roles (tables, views, sequences,
+-- functions), and functions are executable by PUBLIC as in plain Postgres.
+-- Modelled here so the tests see the grants production really has; migration
+-- 20261013000210 revokes them for objects created after it.
+grant usage on schema public to anon, authenticated, service_role;
+alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
+alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
+alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
+
 create schema auth;
 create table auth.users (
   id                  uuid primary key,

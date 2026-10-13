@@ -74,6 +74,23 @@ async function refused(promise, pattern) {
   assert.fail("expected a refusal, but it went through");
 }
 
+/**
+ * No row gets through: refused by the grants, or let through by them and
+ * stopped by RLS. Supabase's default privileges (modelled in supabase-stubs.sql)
+ * give anon and authenticated every privilege on tables created before
+ * 20261013000210 unless a migration revoked it, so on those RLS is what refuses.
+ */
+async function noRowThrough(promise) {
+  let rows;
+  try {
+    rows = await promise;
+  } catch (error) {
+    assert.match(String(error.message), /permission denied|row-level security/);
+    return;
+  }
+  assert.equal(rows.length, 0, "no row may get through");
+}
+
 async function newEntry(owner, slug, countries = [], status = "draft") {
   const row = await one(
     `insert into entries (slug, title, summary, category, region_slug, owner_id, status)
@@ -383,7 +400,9 @@ test("audit log captures permissions, roles and approvals", async () => {
   }
   const fromApp = await as(id.admin, () => q("select count(*)::int as n from audit_log"));
   assert.ok(fromApp[0].n > 0, "admin reads the log");
-  await as(id.admin, () => refused(q("delete from audit_log"), /permission denied/));
+  await as(id.admin, () => noRowThrough(q("delete from audit_log returning id")));
+  const kept = await as(id.admin, () => q("select count(*)::int as n from audit_log"));
+  assert.ok(kept[0].n >= fromApp[0].n, "the log is not deletable");
 });
 
 test("staff account only from an allowed address (if the list is set)", async () => {
@@ -455,7 +474,7 @@ test("patron_stats: anon sees only the aggregate, never individual memberships",
   assert.equal(Number(stats.monthly_cents), Number(expected.cents));
 
   // The aggregate must not open the table itself to anonymous readers.
-  await as(null, () => refused(q("select user_id, monthly_amount_cents from memberships")));
+  await as(null, () => noRowThrough(q("select user_id, monthly_amount_cents from memberships")));
   // A complimentary membership cannot carry an amount.
   await refused(
     q(
@@ -1899,7 +1918,7 @@ test("topic templates: default copy, re-apply by slug, own tiles, rights", async
   // Templates: readable by writers, changed only with the right over all articles.
   const standard = await as(id.pubA, () => one("select id from topic_templates where is_default"));
   assert.ok(standard.id);
-  await as(null, () => refused(q("select * from topic_templates")));
+  await as(null, () => noRowThrough(q("select * from topic_templates")));
   await as(id.pubA, () => refused(q("insert into topic_templates (name) values ('Mine')")));
   const short = await as(id.admin, () =>
     one(
