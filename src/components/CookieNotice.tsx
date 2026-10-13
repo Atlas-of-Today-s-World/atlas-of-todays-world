@@ -1,7 +1,7 @@
 "use client";
 
 import { Cookie } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { COOKIE_NOTICE_KEY, COOKIE_NOTICE_SECONDS } from "@/config/cookies";
@@ -23,7 +23,8 @@ const seen = () => {
  * cookies (sign-in session) and counts visits without cookies, so this is
  * information, not a consent request — which is why it may close by itself
  * after a visible countdown. Hovering or focusing it pauses the countdown
- * (WCAG 2.2.1); once closed it doesn't come back in this browser.
+ * (WCAG 2.2.1), and so does CSS hiding it for a while (a phone's bottom sheet
+ * pulled up to full height); once closed it doesn't come back in this browser.
  *
  * Rendered on the server, so it paints with the page (a notice appearing after
  * hydration became the page's late Largest Contentful Paint). Returning
@@ -35,9 +36,13 @@ export function CookieNotice() {
   const hydrated = useHydrated();
   const [closed, setClosed] = useState(false);
   const [paused, setPaused] = useState(false);
+  /** Hidden by CSS for a while (globals.css: a phone's sheet pulled up to full height). */
+  const [aside, setAside] = useState(false);
   const [left, setLeft] = useState(COOKIE_NOTICE_SECONDS);
   const leftRef = useLatest(left);
+  const notice = useRef<HTMLElement>(null);
   const visible = !closed && !(hydrated && seen());
+  const counting = hydrated && visible && !paused && !aside;
 
   const close = useCallback(() => {
     setClosed(true);
@@ -48,26 +53,37 @@ export function CookieNotice() {
     }
   }, []);
 
+  // While CSS keeps the notice out of the way it isn't read, so its time waits:
+  // a box that isn't rendered doesn't intersect the window.
+  useEffect(() => {
+    const element = notice.current;
+    if (!element || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(([entry]) => setAside(!entry?.isIntersecting));
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [visible]);
+
   useEffect(() => {
     // The countdown runs only in the browser, once we know the notice is new.
-    if (!hydrated || !visible || paused) return;
+    if (!counting) return;
     const tick = setInterval(() => setLeft((seconds) => Math.max(0, seconds - 1)), 1000);
     const done = setTimeout(close, leftRef.current * 1000);
     return () => {
       clearInterval(tick);
       clearTimeout(done);
     };
-  }, [hydrated, visible, paused, close, leftRef]);
+  }, [counting, close, leftRef]);
 
   if (!visible) return null;
 
   return (
     <section
+      ref={notice}
       aria-label={t.label}
       data-print="hide"
       data-cookie-notice=""
       // Painted before React takes over; this marks the moment the countdown runs.
-      data-countdown={hydrated && !paused ? "running" : undefined}
+      data-countdown={counting ? "running" : undefined}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}

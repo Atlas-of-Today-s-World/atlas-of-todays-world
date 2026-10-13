@@ -14,7 +14,7 @@ import { LAYERS } from "../mapStyle";
 import { isSpinEvent } from "../useIdleSpin";
 import { setHoverState } from "./featureState";
 import type { HoverLabel } from "./GlobeHoverLabel";
-import { isTouchPointer, tapStep } from "./tapPreview";
+import { doubleClickZooms, isTouchPointer, tapStep } from "./tapPreview";
 import type { SelectionModeKey } from "./topicBadges";
 import type { RegionLookup } from "./types";
 
@@ -36,7 +36,8 @@ interface Target {
  *
  * A finger has no hover: on touch the first tap previews a place (highlight and
  * label, with `previewHref` set so the label becomes a link), a second tap on it
- * or on the label opens it (globe/tapPreview). Mouse and keyboard are unchanged.
+ * or on the label opens it (globe/tapPreview) — so on touch a double tap doesn't
+ * zoom the globe as well. Mouse and keyboard are unchanged.
  */
 export function useGlobeInteractions({
   mode,
@@ -221,8 +222,16 @@ export function useGlobeInteractions({
     // browser fakes after a tap (mousemove, mouseout, click) can't be trusted to, so
     // they are judged by the pointer that came before them. Captured on the
     // container, so nothing inside the map can swallow it.
+    // A finger's double tap previews and then opens a place, so it must not also
+    // zoom the globe; the switch is made on the first tap's pointerdown, long before
+    // the second tap ends (MapLibre zooms on that touchend, or on the dblclick after it).
     const notePointer = (event: PointerEvent) => {
       pointerRef.current = event.pointerType;
+      const zoom = map.doubleClickZoom;
+      const zooms = doubleClickZooms(event.pointerType);
+      if (zooms === zoom.isEnabled()) return;
+      if (zooms) zoom.enable();
+      else zoom.disable();
     };
     const container = map.getContainer();
     container.addEventListener("pointerdown", notePointer, { capture: true, passive: true });
