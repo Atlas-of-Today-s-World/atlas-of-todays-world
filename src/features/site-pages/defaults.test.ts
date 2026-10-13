@@ -5,7 +5,7 @@ import { DEFAULT_SITE_PAGES, pageOrDefault, type PublishedRow } from "./defaults
 import { SITE_PAGE_LIMITS, SITE_PAGE_SLUGS } from "./pages";
 
 // Vitest runs from the repository root.
-const MIGRATION = readFileSync("supabase/migrations/20261013000120_site_pages.sql", "utf8");
+const MIGRATION = readFileSync("supabase/migrations/20261013000150_site_pages.sql", "utf8");
 const sql = (value: string) => `'${value.replaceAll("'", "''")}'`;
 
 describe("built-in site pages", () => {

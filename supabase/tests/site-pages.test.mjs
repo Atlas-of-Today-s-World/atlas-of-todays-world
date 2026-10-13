@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { PGlite } from "@electric-sql/pglite";
 
 /**
- * Editable site pages (migration 20261013000120_site_pages): who reads and
+ * Editable site pages (migration 20261013000150_site_pages): who reads and
  * writes site_pages, the append-only revision history and restore_site_page().
  * Same harness as rls.test.mjs: Supabase stubs + every migration in PGlite.
  *

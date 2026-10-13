@@ -3,7 +3,7 @@ import type { SitePageContent, SitePageSlug } from "./pages";
 /**
  * Built-in text of the site pages — what the website shows when the page's
  * row is missing, unpublished or the database can't be read. The same texts
- * seed the table (migration 20261013000120_site_pages; `defaults.test.ts`
+ * seed the table (migration 20261013000150_site_pages; `defaults.test.ts`
  * keeps the two equal). Stored in sanitized form, with placeholders.
  */
 export const DEFAULT_SITE_PAGES: Record<SitePageSlug, SitePageContent> = {
