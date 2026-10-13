@@ -54,7 +54,8 @@ Pre-rendered cells (`row.cells[key]`) only when a cell needs a link or a control
 
 `RowActions` + helpers in `row-actions.ts` (server-safe, plain data). Icons: `edit` (Pencil),
 `view` (Eye), `open` (ExternalLink, new tab), `share`, `archive`, `restore`, `revoke` (Ban),
-`delete` (Trash2, red), `up` / `down` (ArrowUp / ArrowDown, from `moveActions`). Rules (TealHub owner rule):
+`delete` (Trash2, red), `up` / `down` (ArrowUp / ArrowDown, from `moveActions`), `hide` / `show`
+(EyeOff / Eye, from `visibilityAction` — confirmed like any other action). Rules (TealHub owner rule):
 
 1. One click, icons right in the row — no "⋯" menu. Order: edit → open/view → archive/restore/revoke → delete last.
 2. Every record type the user can change gets its actions: **edit** (link to detail), **open on the site**

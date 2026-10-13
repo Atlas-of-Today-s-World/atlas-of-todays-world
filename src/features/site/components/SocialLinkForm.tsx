@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { SubmitButton } from "@/components/admin/SubmitButton";
-import { ActionForm, useServerAction } from "@/components/ui/action-form";
+import { ActionForm, useAddForm } from "@/components/ui/action-form";
 import { Checkbox, describedBy, FormField, Input } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
 
@@ -34,13 +33,9 @@ export function SocialLinkForm({
   submit: string;
   clearOnSuccess?: boolean;
 }) {
-  const [state, action] = useServerAction(save);
+  // A new link was added: the form empties for the next one (an edit keeps its values).
+  const [state, action, form] = useAddForm(save, clearOnSuccess);
   const errors = state.fieldErrors ?? {};
-  const form = useRef<HTMLFormElement>(null);
-  // A new link was added: empty the form for the next one (an edit keeps its values).
-  useEffect(() => {
-    if (state.ok && clearOnSuccess) form.current?.reset();
-  }, [state, clearOnSuccess]);
   return (
     <ActionForm
       ref={form}

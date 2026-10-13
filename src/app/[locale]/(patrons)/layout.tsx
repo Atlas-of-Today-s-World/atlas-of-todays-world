@@ -14,12 +14,7 @@ export default async function PatronsLayout({
 }) {
   const flags = await getFlags();
   return (
-    <PagesShell
-      t={getMessages(await localeFrom(params))}
-      showNews={flags.newsMenu}
-      newsletter={flags.newsletter}
-      bleed
-    >
+    <PagesShell t={getMessages(await localeFrom(params))} newsletter={flags.newsletter} bleed>
       <MaintenanceGate>{children}</MaintenanceGate>
     </PagesShell>
   );

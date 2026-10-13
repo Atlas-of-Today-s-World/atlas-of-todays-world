@@ -9,6 +9,7 @@ import {
   CircleCheck,
   ExternalLink,
   Eye,
+  EyeOff,
   type LucideIcon,
   Pencil,
   Share2,
@@ -33,6 +34,8 @@ const ICONS: Record<RowActionIcon, LucideIcon> = {
   restore: ArchiveRestore,
   revoke: Ban,
   delete: Trash2,
+  hide: EyeOff,
+  show: Eye,
   up: ArrowUp,
   down: ArrowDown,
 };

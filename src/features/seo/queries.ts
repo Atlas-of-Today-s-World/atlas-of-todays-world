@@ -12,7 +12,6 @@ import { getAtlas, getIndicators } from "@/features/geography/queries";
 import type { Atlas, IndicatorData } from "@/features/geography/types";
 import { DEFAULT_LOCALE, localePath, type Locale } from "@/features/i18n/config";
 import { format, getMessages } from "@/features/i18n/messages";
-import { LEGAL_NAV } from "@/config/navigation";
 import type { SiteSettings } from "@/features/site/model";
 import { getSiteSettings } from "@/features/site/queries";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
@@ -124,7 +123,11 @@ export async function getSitemaps(now = Date.now()): Promise<Record<SitemapName,
       { path: routes.about, lastmod: dataChanged },
       { path: routes.newsletter },
       { path: routes.membership },
-      ...LEGAL_NAV.map((item) => ({ path: item.href, languages: [DEFAULT_LOCALE] })),
+      // The legal pages exist whatever the footer menu (Admin → Site menus) links to.
+      ...[routes.privacy, routes.terms, routes.accessibility].map((path) => ({
+        path,
+        languages: [DEFAULT_LOCALE],
+      })),
     ],
     regions: [
       ...atlas.regions.map((region) => ({

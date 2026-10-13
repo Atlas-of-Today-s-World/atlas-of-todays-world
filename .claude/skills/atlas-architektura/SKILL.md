@@ -50,7 +50,7 @@ Každý vizuální vzor, konstanta a datová definice existuje **právě jednou*
 2. **Podobné existuje → přidej variantu** (`cva`: `variant`/`size`/`tone`), nekopíruj. Nová komponenta jen
    když nic podobného není — a rovnou na správnou úroveň, sdílenou.
 3. **Žádná magická čísla**: šířky panelu, breakpointy, z-indexy, 44 px cíle jen z tokenů / `config/layout.ts`.
-4. **Jedna datová definice**: menu z `config/navigation.ts`; kategorie, sekce, typy z DB typů nebo jednoho `const`.
+4. **Jedna datová definice**: menu z `getNavigation()` (tabulka `nav_items`, Administrace → Site menus; záloha a účet v `config/navigation.ts`); kategorie, sekce, typy z DB typů nebo jednoho `const`.
 5. **Stejná data = stejná komponenta**: region i global issue → `Portrait`; všechny karusely → `Rail`;
    formuláře → `FormField` + Zod + `useActionState`; tabulky → `DataTable` (skill `atlas-datatable`, vždy s akcemi v řádku); ikony → `lucide-react`;
    volání serveru z klienta → Server Action nebo `apiFetch()`, nikdy ruční `fetch` v komponentě.

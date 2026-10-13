@@ -18,7 +18,7 @@ export default async function FullPageLayout({
 }) {
   const [locale, flags] = await Promise.all([localeFrom(params), getFlags()]);
   return (
-    <FullPage t={getMessages(locale)} showNews={flags.newsMenu} newsletter={flags.newsletter}>
+    <FullPage t={getMessages(locale)} newsletter={flags.newsletter}>
       {children}
     </FullPage>
   );

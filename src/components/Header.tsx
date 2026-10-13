@@ -5,7 +5,9 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Menu, UserRound, X } from "lucide-react";
 import { RAIL_OFFSET, isFullPage, isHome, railKind } from "@/config/layout";
-import { ACCOUNT_NAV, LEGAL_NAV, mainNav } from "@/config/navigation";
+import { ACCOUNT_NAV } from "@/config/navigation";
+import { activeItemId } from "@/features/navigation/active";
+import type { Navigation, NavLink } from "@/features/navigation/model";
 import type { SocialLink } from "@/features/site/model";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
@@ -21,19 +23,20 @@ import { useMessages } from "./i18n/LocaleProvider";
  * - everywhere else (`bar`, or any other map page): a dark bar with the logo,
  *   "Back to Atlas" in the middle and the menu as buttons on the right.
  * On narrow screens the menu becomes a full-screen dialog behind a hamburger.
- * News is in the menu only while it is switched on (`showNews`, flag news_menu).
- * The social badges come from Admin → Site settings (`socials`, read on the server).
+ * The menus come from Admin → Site menus and the social badges from Admin →
+ * Site settings (`nav`, `socials`: read on the server, `nav` already filtered by
+ * the feature switches — News shows only while news_menu is on).
  */
 export default function Header({
   newsletter = true,
-  showNews = false,
   bar = false,
+  nav,
   socials,
 }: {
   newsletter?: boolean;
-  showNews?: boolean;
   /** Pages that render the header themselves (full-width pages, pages without the globe). */
   bar?: boolean;
+  nav: Navigation;
   socials: readonly SocialLink[];
 }) {
   const pathname = usePathname();
@@ -66,7 +69,7 @@ export default function Header({
     return () => window.removeEventListener("keydown", onKey);
   }, [menuOpen]);
 
-  const nav = mainNav({ news: showNews });
+  const active = activeItemId([...nav.main, ...nav.legal], pathname);
 
   // Full-width pages render the bar themselves, inside their own scrolling frame.
   if (!bar && isFullPage(pathname)) return null;
@@ -75,6 +78,7 @@ export default function Header({
     <MenuDialog
       refObject={menu}
       nav={nav}
+      active={active}
       newsletter={newsletter}
       socials={socials}
       onClose={() => setMenuOpen(false)}
@@ -114,27 +118,20 @@ export default function Header({
             aria-label={t.header.main}
             className="hidden items-center gap-2 justify-self-end text-[13px] lg:flex"
           >
-            {nav
+            {nav.main
               .filter((item) => item.href !== "/")
-              .map((item) =>
-                item.primary ? (
-                  <Link
-                    key={item.key}
-                    href={item.href}
-                    className={buttonVariants({ variant: "patron", size: "sm" })}
-                  >
-                    {t.nav[item.key]}
-                  </Link>
-                ) : (
-                  <Link
-                    key={item.key}
-                    href={item.href}
-                    className="flex min-h-(--touch-min) items-center rounded-md bg-white/10 px-3 font-medium whitespace-nowrap transition hover:bg-white/20"
-                  >
-                    {t.nav[item.key]}
-                  </Link>
-                ),
-              )}
+              .map((item) => (
+                <MenuLink
+                  key={item.id}
+                  item={item}
+                  active={item.id === active}
+                  className={
+                    item.primary
+                      ? buttonVariants({ variant: "patron", size: "sm" })
+                      : "flex min-h-(--touch-min) items-center rounded-md bg-white/10 px-3 font-medium whitespace-nowrap transition hover:bg-white/20"
+                  }
+                />
+              ))}
           </nav>
           <button
             type="button"
@@ -179,20 +176,19 @@ export default function Header({
           wideRail ? "xl:flex" : "lg:flex"
         } ${RAIL_OFFSET[rail]}`}
       >
-        {nav
+        {nav.main
           .filter((item) => !item.compactHidden)
           .map((item) => (
-            <Link
-              key={item.key}
-              href={item.href}
+            <MenuLink
+              key={item.id}
+              item={item}
+              active={item.id === active}
               className={
                 item.primary
                   ? "flex min-h-(--touch-min) items-center rounded-full bg-[var(--color-patron)] px-4 font-medium whitespace-nowrap text-white transition [text-shadow:none] hover:bg-[var(--color-patron-strong)]"
                   : "flex min-h-(--touch-min) min-w-(--touch-min) items-center justify-center whitespace-nowrap transition hover:text-white"
               }
-            >
-              {t.nav[item.key]}
-            </Link>
+            />
           ))}
         <span className="hidden items-center gap-2 [text-shadow:none] xl:flex">
           <SocialLinks socials={socials} className="size-(--touch-min) text-[11px]" />
@@ -229,12 +225,15 @@ export default function Header({
 function MenuDialog({
   refObject,
   nav,
+  active,
   newsletter,
   socials,
   onClose,
 }: {
   refObject: React.RefObject<HTMLDivElement | null>;
-  nav: ReturnType<typeof mainNav>;
+  nav: Navigation;
+  /** Id of the current page's item, if any. */
+  active: string | null;
   newsletter: boolean;
   socials: readonly SocialLink[];
   onClose: () => void;
@@ -261,14 +260,13 @@ function MenuDialog({
       </div>
 
       <nav aria-label={t.header.main} className="mt-10 grid gap-1 text-[22px]">
-        {nav.map((item) => (
-          <Link
-            key={item.key}
-            href={item.href}
+        {nav.main.map((item) => (
+          <MenuLink
+            key={item.id}
+            item={item}
+            active={item.id === active}
             className="font-display flex min-h-14 items-center font-bold"
-          >
-            {t.nav[item.key]}
-          </Link>
+          />
         ))}
       </nav>
 
@@ -276,14 +274,13 @@ function MenuDialog({
         {newsletter ? <NewsletterForm /> : null}
 
         <nav aria-label={t.header.legal} className="flex gap-4 text-[12.5px] text-white/60">
-          {LEGAL_NAV.map((item) => (
-            <Link
-              key={item.key}
-              href={item.href}
+          {nav.legal.map((item) => (
+            <MenuLink
+              key={item.id}
+              item={item}
+              active={item.id === active}
               className="flex min-h-(--touch-min) min-w-(--touch-min) items-center justify-center"
-            >
-              {t.nav[item.key]}
-            </Link>
+            />
           ))}
         </nav>
 
@@ -298,6 +295,32 @@ function MenuDialog({
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * One menu item (header, mobile menu and the footer of pages without the
+ * globe). A path on this site goes through the i18n `Link`; an https://
+ * address opens in a new tab. The current page gets `aria-current` (no visual change).
+ */
+export function MenuLink({
+  item,
+  active = false,
+  className,
+}: {
+  item: NavLink;
+  active?: boolean;
+  className: string;
+}) {
+  return (
+    <Link
+      href={item.href}
+      className={className}
+      aria-current={active ? "page" : undefined}
+      {...(item.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+    >
+      {item.label}
+    </Link>
   );
 }
 

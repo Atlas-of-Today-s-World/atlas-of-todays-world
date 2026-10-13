@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
-import Link from "@/components/i18n/Link";
-import Header from "@/components/Header";
-import { LEGAL_NAV } from "@/config/navigation";
+import Header, { MenuLink } from "@/components/Header";
+import { getNavigation } from "@/features/navigation/queries";
+import type { NavLink } from "@/features/navigation/model";
 import { getSiteSettings, getSocialLinks } from "@/features/site/queries";
 import type { Messages } from "@/features/i18n/messages";
 import { cn } from "@/lib/cn";
@@ -14,26 +14,28 @@ import { cn } from "@/lib/cn";
  */
 export async function PagesShell({
   t,
-  showNews,
   newsletter,
   bleed = false,
   children,
 }: {
   t: Messages;
-  showNews: boolean;
   newsletter: boolean;
   bleed?: boolean;
   children: ReactNode;
 }) {
   // Header and footer line up with the content column.
   const width = bleed ? "max-w-6xl" : "max-w-4xl";
-  const [site, socials] = await Promise.all([getSiteSettings(), getSocialLinks()]);
+  const [site, socials, nav] = await Promise.all([
+    getSiteSettings(),
+    getSocialLinks(),
+    getNavigation(),
+  ]);
 
   return (
     // A column at least the window's height: on short pages (no search results,
     // sign-in) the footer stays at the bottom instead of floating mid-screen.
     <div className="flex min-h-dvh flex-col bg-white text-[var(--color-ink)]">
-      <Header bar showNews={showNews} newsletter={newsletter} socials={socials} />
+      <Header bar newsletter={newsletter} nav={nav} socials={socials} />
       <div
         id="content"
         tabIndex={-1}
@@ -41,7 +43,7 @@ export async function PagesShell({
       >
         {children}
       </div>
-      <LegalFooter t={t} width={width} copyright={site.copyright} />
+      <LegalFooter t={t} width={width} copyright={site.copyright} links={nav.legal} />
     </div>
   );
 }
@@ -51,11 +53,14 @@ export function LegalFooter({
   t,
   width,
   copyright,
+  links,
 }: {
   t: Messages;
   width: string;
   /** Footer line from Admin → Site settings. */
   copyright: string;
+  /** Legal links from Admin → Site menus. */
+  links: readonly NavLink[];
 }) {
   return (
     <footer className="border-t border-[var(--color-line)]">
@@ -67,14 +72,12 @@ export function LegalFooter({
         )}
       >
         <span className="flex min-h-11 items-center">{copyright}</span>
-        {LEGAL_NAV.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
+        {links.map((item) => (
+          <MenuLink
+            key={item.id}
+            item={item}
             className="flex min-h-(--touch-min) min-w-(--touch-min) items-center justify-center hover:text-[var(--color-accent)]"
-          >
-            {t.nav[item.key]}
-          </Link>
+          />
         ))}
       </nav>
     </footer>

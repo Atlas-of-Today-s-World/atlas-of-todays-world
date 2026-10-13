@@ -23,11 +23,7 @@ export async function PagesFrame({
 }) {
   const flags = await getFlags();
   return (
-    <PagesShell
-      t={getMessages(await localeFrom(params))}
-      showNews={flags.newsMenu}
-      newsletter={flags.newsletter}
-    >
+    <PagesShell t={getMessages(await localeFrom(params))} newsletter={flags.newsletter}>
       {gated ? <MaintenanceGate>{children}</MaintenanceGate> : children}
       <FloatingActions newsletter={flags.newsletter} />
     </PagesShell>

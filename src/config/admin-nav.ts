@@ -11,6 +11,7 @@ import {
   Layers,
   type LucideIcon,
   Map as MapIcon,
+  SquareMenu,
   Newspaper,
   PenLine,
   Settings,
@@ -67,6 +68,12 @@ export const ADMIN_NAV: readonly AdminNavItem[] = [
   },
   { href: adminRoutes.sitePages.list, label: "Site pages", section: "site", icon: FileText },
   { href: adminRoutes.siteSettings, label: "Site settings", section: "site", icon: Settings },
+  {
+    href: adminRoutes.siteNavigation.list,
+    label: "Site menus",
+    section: "site",
+    icon: SquareMenu,
+  },
   {
     href: adminRoutes.regions.list,
     label: "Regions & countries",
