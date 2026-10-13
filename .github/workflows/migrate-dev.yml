@@ -27,7 +27,6 @@ jobs:
   migrate-dev:
     runs-on: ubuntu-latest
     env:
-      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_DEV_PROJECT_REF: ${{ vars.SUPABASE_DEV_PROJECT_REF || 'bognwszwhxxyjafqzfuh' }}
       SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF || 'ewbzkxialhtwuqlenjof' }}
     steps:
@@ -40,4 +39,7 @@ jobs:
       # Management API with the access token (no dev database password needed);
       # the script refuses the production ref.
       - name: Migrations to atlas-dev
+        # The token only in the step that needs it, not in checkout/setup-node.
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: node scripts/supabase-migrate-dev.mjs
