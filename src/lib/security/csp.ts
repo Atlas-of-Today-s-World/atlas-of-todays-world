@@ -62,12 +62,9 @@ export function buildCsp({
     // Audio versions of entries (P9): Supabase Storage, or an https URL pasted in the editor
     // (same as images). Audio can't run a script, so https is enough.
     "media-src": ["'self'", "https:"],
+    // Only what the site really frames. Flourish/World Bank visuals render as
+    // images and YouTube links as thumbnails (img-src), never as iframes.
     "frame-src": [
-      "https://flo.uri.sh",
-      "https://public.flourish.studio",
-      "https://*.worldbank.org",
-      "https://www.youtube-nocookie.com",
-      "https://www.youtube.com",
       // Interactive charts in portrait carousels; lib/embeds.ts lets through only this origin.
       DATAWRAPPER_ORIGIN,
       TURNSTILE,
