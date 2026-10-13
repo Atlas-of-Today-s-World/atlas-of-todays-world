@@ -8,7 +8,12 @@ import { Button } from "@/components/ui/button";
 import { ColorField } from "@/components/ui/color-field";
 import { Checkbox, FormField, Input, Select, Textarea, describedBy } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
-import { NEWS_CATEGORIES } from "@/lib/content-types";
+import {
+  ARTICLE_KIND_LABEL,
+  ARTICLE_KINDS,
+  NEWS_CATEGORIES,
+  type ArticleKind,
+} from "@/lib/content-types";
 import { SlugField, useSlug } from "@/components/admin/SlugField";
 import { saveEntry } from "../actions";
 import type { EditableEntry } from "../editorial";
@@ -39,7 +44,7 @@ export function EntryForm({
 }: {
   entry: EditableEntry | null;
   /** Type of a new item ("entry" = a topic, from the New topic button). */
-  defaultKind?: "news" | "entry";
+  defaultKind?: ArticleKind;
   regions: Option[];
   issues: Option[];
   countries: CountryOption[];
@@ -143,10 +148,13 @@ export function EntryForm({
             name="kind"
             value={kind}
             disabled={translation}
-            onChange={(event) => setKind(event.target.value as "news" | "entry")}
+            onChange={(event) => setKind(event.target.value as ArticleKind)}
           >
-            <option value="news">News article</option>
-            <option value="entry">Topic (encyclopedia entry)</option>
+            {ARTICLE_KINDS.map((value) => (
+              <option key={value} value={value}>
+                {ARTICLE_KIND_LABEL[value]}
+              </option>
+            ))}
           </Select>
         </FormField>
         <FormField id="region_slug" label="Region" errors={errors.region_slug}>

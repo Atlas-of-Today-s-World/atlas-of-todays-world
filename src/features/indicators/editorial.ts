@@ -1,5 +1,6 @@
 import "server-only";
 import { createServerClient } from "@/lib/supabase/server";
+import type { IndicatorScale, IndicatorType } from "./constants";
 
 /** Indicator with everything the editor needs (under the user's session, no cache). */
 export async function indicatorForEdit(id: string) {
@@ -31,8 +32,8 @@ export async function indicatorForEdit(id: string) {
   return {
     indicator: {
       ...indicator.data,
-      type: indicator.data.type as "sequential" | "categorical",
-      scale: indicator.data.scale as "linear" | "log",
+      type: indicator.data.type as IndicatorType,
+      scale: indicator.data.scale as IndicatorScale,
       domain_min: indicator.data.domain_min === null ? null : Number(indicator.data.domain_min),
       domain_max: indicator.data.domain_max === null ? null : Number(indicator.data.domain_max),
     },

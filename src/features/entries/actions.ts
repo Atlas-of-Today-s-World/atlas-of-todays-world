@@ -13,8 +13,8 @@ import {
 } from "@/lib/actions";
 import { tags } from "@/lib/cache/tags";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
-import { slug as slugSchema, uuid } from "@/lib/validation/common";
-import { EntryInput } from "./schema";
+import { htmlTooLong, slug as slugSchema, uuid } from "@/lib/validation/common";
+import { BODY_HTML_MAX, BODY_TOO_LONG, EntryInput } from "./schema";
 import { type Client, pingSearchEngines, refresh, refreshEntry } from "./revalidate";
 
 /**
@@ -33,6 +33,9 @@ export async function saveEntry(_prev: ActionState, formData: FormData): Promise
   const arrays = formData.has("map_layers_shown") ? ["countries", "map_layers"] : ["countries"];
   const parsed = EntryInput.safeParse(formObject(formData, arrays));
   if (!parsed.success) return invalid(parsed.error);
+  // Sanitizing can lengthen the HTML (rel on links): check what will be stored.
+  const body_html = sanitizeRichHtml(parsed.data.body_html);
+  if (body_html.length > BODY_HTML_MAX) return htmlTooLong("body_html", BODY_TOO_LONG);
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
   const { supabase, user } = session;
@@ -48,7 +51,7 @@ export async function saveEntry(_prev: ActionState, formData: FormData): Promise
     cover_credit: fields.cover_credit || null,
     author_name: fields.author_name || null,
     reading_minutes: fields.reading_minutes ?? null,
-    body_html: sanitizeRichHtml(fields.body_html),
+    body_html,
     author_id: fields.author_id ?? null,
     hero_background: fields.hero_background ?? null,
   };
@@ -219,12 +222,14 @@ export async function restoreRevision(entryId: string, revisionId: number): Prom
     body_html: string;
     cover_url: string | null;
   };
+  const body_html = sanitizeRichHtml(snapshot.body_html);
+  if (body_html.length > BODY_HTML_MAX) return { ok: false, error: BODY_TOO_LONG };
   const { data: updated, error: updateError } = await supabase
     .from("entries")
     .update({
       title: snapshot.title,
       summary: snapshot.summary,
-      body_html: sanitizeRichHtml(snapshot.body_html),
+      body_html,
       cover_url: snapshot.cover_url,
     })
     .eq("id", entryId)

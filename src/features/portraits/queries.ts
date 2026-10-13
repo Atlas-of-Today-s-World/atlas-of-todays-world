@@ -3,14 +3,13 @@ import { unstable_cache } from "next/cache";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import type { RegionDossier } from "@/lib/content-types";
 import { createPublicClient } from "@/lib/supabase/public";
-
-type Kind = "region" | "issue";
+import type { PortraitPlace } from "@/features/geography/kinds";
 
 /**
  * Editorial content of a region or global issue portrait — in a single call to the
  * DB function `portrait()` (ARCHITEKTURA 4.2). Empty sections render the portrait greyed out.
  */
-export function getPortrait(kind: Kind, slug: string): Promise<RegionDossier> {
+export function getPortrait(kind: PortraitPlace, slug: string): Promise<RegionDossier> {
   return unstable_cache(
     async (): Promise<RegionDossier> => {
       const { data, error } = await createPublicClient().rpc("portrait", {

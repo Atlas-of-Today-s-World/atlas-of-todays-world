@@ -10,6 +10,7 @@ import {
   slug,
   text,
 } from "@/lib/validation/common";
+import { INDICATOR_SCALES, INDICATOR_TYPES, INT4 } from "./constants";
 
 /** Indicator description and scale — limits per the `indicators` table. */
 export const IndicatorInput = z
@@ -23,8 +24,8 @@ export const IndicatorInput = z
     decimals: z.coerce.number().int().min(0).max(4),
     source: text(200),
     source_url: optionalHttpsUrl,
-    type: z.enum(["sequential", "categorical"]),
-    scale: z.enum(["linear", "log"]),
+    type: z.enum(INDICATOR_TYPES),
+    scale: z.enum(INDICATOR_SCALES),
     domain_min: optionalNumber(z.number()),
     domain_max: optionalNumber(z.number()),
     ramp: z.array(hexColor).max(9),
@@ -68,7 +69,8 @@ export const ValueInput = z.object({
 });
 
 export const CategoryInput = z.object({
-  value: z.coerce.number().int(),
+  // The column is a Postgres integer: a larger number would only fail in the DB.
+  value: z.coerce.number().int().min(INT4.min).max(INT4.max),
   label: requiredText(80),
   color: hexColor,
 });

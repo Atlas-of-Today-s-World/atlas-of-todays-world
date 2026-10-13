@@ -73,7 +73,19 @@ export const optionalNumber = (schema: z.ZodNumber) =>
     schema.optional(),
   );
 
+/** Checkbox from a form: ticked sends "on" (or "true" from a hidden field), unticked nothing. */
 export const checkbox = z.preprocess((value) => value === "on" || value === "true", z.boolean());
+
+/**
+ * Rich text over its DB limit once sanitized (sanitizeRichHtml adds
+ * `rel="noopener noreferrer"` to links, so it can grow past what Zod checked):
+ * the same field error a Zod limit gives.
+ */
+export const htmlTooLong = (field: string, message: string) => ({
+  ok: false,
+  error: "Please check the highlighted fields.",
+  fieldErrors: { [field]: [message] },
+});
 
 /** Creates a slug from text (name → URL). */
 export function slugify(value: string): string {

@@ -2,7 +2,7 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { DEFAULT_LOCALE, type Locale } from "@/features/i18n/config";
 import { entryPageTags, PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
-import type { NewsCategory } from "@/lib/content-types";
+import type { ArticleKind, NewsCategory } from "@/lib/content-types";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { createPublicClient } from "@/lib/supabase/public";
 import { MAP_LAYERS, type MapLayer } from "./constants";
@@ -45,11 +45,8 @@ export interface Entry extends EntrySummary {
   locale: Locale;
 }
 
-/** News item (`/news`) or encyclopedia entry (`/topics/<slug>`, P9). */
-type Kind = "news" | "entry";
-
 /** Published originals of the given kind, newest first (language versions never list twice). */
-function listPublished(kind: Kind) {
+function listPublished(kind: ArticleKind) {
   return unstable_cache(
     async (): Promise<EntrySummary[]> => {
       const { data, error } = await createPublicClient()
@@ -76,7 +73,7 @@ export const getEncyclopediaEntries = listPublished("entry");
 
 /** An author's published articles (originals) for the profile page, newest first. */
 export interface AuthorArticle {
-  kind: Kind;
+  kind: ArticleKind;
   slug: string;
   title: string;
   category: NewsCategory;
@@ -100,7 +97,7 @@ export function getArticlesByAuthor(authorSlug: string): Promise<AuthorArticle[]
         .limit(500);
       if (error) throw new Error(`[entries] ${error.message}`);
       return data.map((row) => ({
-        kind: row.kind as Kind,
+        kind: row.kind as ArticleKind,
         slug: row.slug,
         title: row.title,
         category: row.category as NewsCategory,

@@ -12,6 +12,7 @@ import { PHOTO_WIDTH } from "@/lib/images";
 import { format, type Messages } from "@/features/i18n/messages";
 import { getRequestLocale, getT } from "@/features/i18n/request";
 import type { ContentStatus } from "@/features/geography/content-status";
+import type { GroupKind, PortraitPlace } from "@/features/geography/kinds";
 import { ContentStatusBadge } from "./ContentStatusBadge";
 import NewsTabs, { type NewsCard } from "./NewsTabs";
 import { PortraitCounts } from "./PortraitCounts";
@@ -31,7 +32,7 @@ import { routes } from "@/config/routes";
 
 /** What the portrait shows — an Atlas region, or an editorial global issue. */
 export interface PortraitSubject {
-  kind: "region" | "issue";
+  kind: PortraitPlace;
   name: string;
   subtitle?: string;
   /** Summary from Atlas data; replaced by the editorial intro (`dossier.intro`). */
@@ -40,7 +41,7 @@ export interface PortraitSubject {
   /** Color of the group on the map (stripe under the heading for a global issue). */
   accent?: string;
   /** For a group of countries: a global topic, or a custom region (different label). */
-  groupKind?: "issue" | "region";
+  groupKind?: GroupKind;
   countries: { slug: string; name: string }[];
   population: number;
   /** Without country data (Antarctica): the indicator cards are left out. */
@@ -50,7 +51,7 @@ export interface PortraitSubject {
 }
 
 /** Texts that differ for a region and for a group of countries (global issue). */
-function wordingFor(kind: "region" | "issue", t: Messages, groupKind?: "issue" | "region") {
+function wordingFor(kind: PortraitPlace, t: Messages, groupKind?: GroupKind) {
   const region = kind === "region";
   return {
     label: region
@@ -217,8 +218,8 @@ export function ProfileSections({
   entries,
   news = [],
 }: {
-  kind: "region" | "issue";
-  groupKind?: "issue" | "region";
+  kind: PortraitPlace;
+  groupKind?: GroupKind;
   /** Name used in the titles of planned topics ("Society in Middle East"). */
   name: string;
   dossier: RegionDossier;

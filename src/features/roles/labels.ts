@@ -1,4 +1,4 @@
-// Permission matrix labels without Zod (the client PermissionMatrix imports them too).
+// Role labels and code lists without Zod (the client PermissionMatrix and RoleForm import them too).
 import type { SECTIONS } from "@/features/auth/sections";
 
 type SectionKey = (typeof SECTIONS)[number];
@@ -31,4 +31,20 @@ export const SECTION_DESCRIPTION: Record<SectionKey, string> = {
   users: "User accounts, invitations and volunteer editors.",
   permissions: "Roles and this permission matrix.",
   members: "Patron memberships.",
+};
+
+/** Whose articles a role edits (`roles.news_scope`). */
+export const NEWS_SCOPES = ["none", "own", "all"] as const;
+export const NEWS_SCOPE_LABEL: Record<(typeof NEWS_SCOPES)[number], string> = {
+  none: "None",
+  own: "Only their own",
+  all: "All articles",
+};
+
+/** Which articles a role approves (`roles.approval_scope`). */
+export const APPROVAL_SCOPES = ["none", "assigned", "global"] as const;
+export const APPROVAL_SCOPE_LABEL: Record<(typeof APPROVAL_SCOPES)[number], string> = {
+  none: "None",
+  assigned: "Articles of assigned countries and authors",
+  global: "All articles",
 };

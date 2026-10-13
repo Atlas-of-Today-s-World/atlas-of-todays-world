@@ -21,7 +21,8 @@ import { llmsFullTxt, llmsTxt, type LlmsDocument, type LlmsLink } from "@/lib/se
 import { clampText } from "@/lib/seo/metadata";
 import { latest, type FeedItem, type SitemapUrl } from "@/lib/seo/xml";
 import { createPublicClient } from "@/lib/supabase/public";
-import { articleDocument, articleUrl, type ArticleKind } from "./documents";
+import type { ArticleKind } from "@/lib/content-types";
+import { articleDocument, articleUrl } from "./documents";
 import { routes } from "@/config/routes";
 
 /**

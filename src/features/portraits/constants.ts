@@ -1,4 +1,5 @@
 /** Portrait code lists without Zod — the client section editor may import them. */
+import type { GroupKind } from "@/features/geography/kinds";
 
 /** Source kinds — matching the CHECK in the resources table. */
 export const RESOURCE_KINDS = [
@@ -10,13 +11,16 @@ export const RESOURCE_KINDS = [
 ] as const;
 
 /** Country group type (special_regions.kind) — labels in titles, buttons and lists. */
-export const GROUP_KIND_LABEL = { region: "Custom region", issue: "Global issue" } as const;
+export const GROUP_KIND_LABEL = {
+  region: "Custom region",
+  issue: "Global issue",
+} as const satisfies Record<GroupKind, string>;
 
 /** The same types as choices in the form, where the difference has to be spelled out. */
 export const GROUP_KIND_OPTION = {
   region: "Custom region (group of countries)",
   issue: "Global issue",
-} as const;
+} as const satisfies Record<GroupKind, string>;
 
 /**
  * Visual types in the "Maps & charts" carousel — matching the CHECK in visual_embeds.

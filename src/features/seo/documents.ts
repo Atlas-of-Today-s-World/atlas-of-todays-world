@@ -6,6 +6,7 @@ import { getMessages } from "@/features/i18n/messages";
 import { ORGANIZATION } from "@/config/organization";
 import { absoluteUrl } from "@/lib/seo";
 import { htmlToMarkdown } from "@/lib/seo/markdown";
+import type { ArticleKind } from "@/lib/content-types";
 import type { LlmsDocument } from "@/lib/seo/llms";
 import { routes } from "@/config/routes";
 
@@ -15,8 +16,6 @@ import { routes } from "@/config/routes";
  * of llms-full.txt. The URL, dates and author come first so a quoting engine
  * has everything it needs to cite the page.
  */
-
-export type ArticleKind = "news" | "entry";
 
 const pathOf = (kind: ArticleKind, slug: string) => routes.article(kind, slug);
 

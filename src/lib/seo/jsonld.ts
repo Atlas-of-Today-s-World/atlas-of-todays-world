@@ -3,6 +3,7 @@ import { ORGANIZATION } from "@/config/organization";
 import wikidataCountries from "@/config/wikidata-countries.json";
 import { absoluteUrl } from "./index";
 import { routes } from "@/config/routes";
+import type { ArticleKind } from "@/lib/content-types";
 
 /**
  * Structured data (schema.org JSON-LD) — the single builder for every public
@@ -378,7 +379,7 @@ function authorRef(author: AuthorInfo | null | undefined) {
 
 /** News item (NewsArticle) or encyclopedia entry (Article) with places, sources and parts. */
 export function articleNode(input: {
-  kind: "news" | "entry";
+  kind: ArticleKind;
   url: string;
   headline: string;
   description: string;

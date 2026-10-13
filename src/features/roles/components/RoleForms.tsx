@@ -6,6 +6,7 @@ import { SubmitButton } from "@/components/admin/SubmitButton";
 import { Checkbox, FormField, Input, Select, Textarea } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
 import { saveRole, saveSecurity } from "../actions";
+import { APPROVAL_SCOPE_LABEL, APPROVAL_SCOPES, NEWS_SCOPE_LABEL, NEWS_SCOPES } from "../labels";
 import { ActionForm } from "@/components/ui/action-form";
 
 export interface RoleValues {
@@ -52,9 +53,11 @@ export function RoleForm({ role }: { role: RoleValues | null }) {
           errors={errors.news_scope}
         >
           <Select id={`${prefix}-news`} name="news_scope" defaultValue={role?.news_scope ?? "none"}>
-            <option value="none">None</option>
-            <option value="own">Only their own</option>
-            <option value="all">All articles</option>
+            {NEWS_SCOPES.map((scope) => (
+              <option key={scope} value={scope}>
+                {NEWS_SCOPE_LABEL[scope]}
+              </option>
+            ))}
           </Select>
         </FormField>
         <FormField
@@ -67,9 +70,11 @@ export function RoleForm({ role }: { role: RoleValues | null }) {
             name="approval_scope"
             defaultValue={role?.approval_scope ?? "none"}
           >
-            <option value="none">None</option>
-            <option value="assigned">Articles of assigned countries and authors</option>
-            <option value="global">All articles</option>
+            {APPROVAL_SCOPES.map((scope) => (
+              <option key={scope} value={scope}>
+                {APPROVAL_SCOPE_LABEL[scope]}
+              </option>
+            ))}
           </Select>
         </FormField>
       </div>
