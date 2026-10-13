@@ -145,6 +145,10 @@ export const adminRoutes = {
   roles: `${ADMIN}/roles`,
   audit: `${ADMIN}/roles/audit`,
   members: `${ADMIN}/members`,
+  /** Patron settings (the membership page's texts and FAQ). */
+  patrons: `${ADMIN}/patrons`,
+  /** Questions of the membership FAQ by id. */
+  patronFaq: editable(`${ADMIN}/patrons/faq`),
 } as const;
 
 /** Is `path` the page `prefix` or anything under it (`/topics`, `/topics/x`)? */

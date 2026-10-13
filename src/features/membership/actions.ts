@@ -5,11 +5,14 @@ import { redirect } from "next/navigation";
 import { DEFAULT_LOCALE, isLocale, localePath } from "@/features/i18n/config";
 import { formObject } from "@/lib/actions";
 import { checkoutHref } from "./links";
+import { getPatronSettings } from "./queries";
 import { donationFromForm } from "./schema";
 import { routes } from "@/config/routes";
 
 /**
- * "Donate & Join" on the donation card.
+ * "Donate & Join" on the donation card. The amount is checked against the
+ * current settings (patron_settings) — the same ones the card was drawn from —
+ * so an amount no longer offered goes back to the membership page.
  *
  * DEMO: redirects to the imitation checkout (/membership/checkout), where no
  * payment is taken. Switching to real Stripe Checkout (ADR G6) means replacing
@@ -22,7 +25,8 @@ export async function startCheckout(formData: FormData): Promise<void> {
   const input = formObject(formData);
   const locale =
     typeof input.locale === "string" && isLocale(input.locale) ? input.locale : DEFAULT_LOCALE;
-  const donation = donationFromForm(input);
+  const { donation: options } = await getPatronSettings();
+  const donation = donationFromForm(input, options);
   if (!donation) redirect(localePath(locale, routes.membership));
   redirect(localePath(locale, checkoutHref(donation)));
 }

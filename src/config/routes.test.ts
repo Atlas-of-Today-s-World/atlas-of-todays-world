@@ -113,6 +113,7 @@ describe("adminRoutes", () => {
       roles: "/admin/roles",
       audit: "/admin/roles/audit",
       members: "/admin/members",
+      patrons: "/admin/patrons",
     });
     expect(adminRoutes.overview).toBe(routes.admin);
   });
@@ -134,6 +135,9 @@ describe("adminRoutes", () => {
     expect(adminRoutes.redirects.list).toBe("/admin/redirects");
     expect(adminRoutes.redirects("r1")).toBe("/admin/redirects/r1");
     expect(adminRoutes.switches.list).toBe("/admin/switches");
+    expect(adminRoutes.sitePages("about")).toBe("/admin/pages/about");
+    expect(adminRoutes.patronFaq.new).toBe("/admin/patrons/faq/new");
+    expect(adminRoutes.patronFaq("q1")).toBe("/admin/patrons/faq/q1");
     expect(adminRoutes.switches("maintenance")).toBe("/admin/switches/maintenance");
   });
 

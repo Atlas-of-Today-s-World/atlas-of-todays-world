@@ -3,6 +3,7 @@ import {
   Brush,
   FileText,
   Globe2,
+  HandCoins,
   HandHeart,
   House,
   LayoutDashboard,
@@ -94,6 +95,12 @@ export const ADMIN_NAV: readonly AdminNavItem[] = [
     icon: ShieldCheck,
   },
   { href: adminRoutes.members, label: "Patron memberships", section: "members", icon: UserRound },
+  {
+    href: adminRoutes.patrons,
+    label: "Patron settings",
+    section: ["site", "members"],
+    icon: HandCoins,
+  },
 ];
 
 /** Section icon by URL (tile in PageHeader) — same as in the menu. */
