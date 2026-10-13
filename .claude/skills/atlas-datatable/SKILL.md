@@ -54,7 +54,7 @@ Pre-rendered cells (`row.cells[key]`) only when a cell needs a link or a control
 
 `RowActions` + helpers in `row-actions.ts` (server-safe, plain data). Icons: `edit` (Pencil),
 `view` (Eye), `open` (ExternalLink, new tab), `share`, `archive`, `restore`, `revoke` (Ban),
-`delete` (Trash2, red). Rules (TealHub owner rule):
+`delete` (Trash2, red), `up` / `down` (ArrowUp / ArrowDown, from `moveActions`). Rules (TealHub owner rule):
 
 1. One click, icons right in the row — no "⋯" menu. Order: edit → open/view → archive/restore/revoke → delete last.
 2. Every record type the user can change gets its actions: **edit** (link to detail), **open on the site**
@@ -62,6 +62,8 @@ Pre-rendered cells (`row.cells[key]`) only when a cell needs a link or a control
    Show only actions the role is allowed to do (`can(access.permissions, section, "e" | "d")`);
    the DB (RLS / RPC) still decides.
 3. Every server action is confirmed in a dialog (`ConfirmButton`) naming the record; destructive = `danger`.
+   The only exception is moving a row in a hand-ordered list: `moveActions(up, down, { first, last })`
+   gives two `instant` actions (no dialog — the opposite arrow undoes it); sort the table by the order column.
 4. Actions call existing Server Actions bound to the row id (`deleteX.bind(null, id)`), returning `ActionState`;
    the table refreshes on success. Content state changes only through the workflow RPCs (e.g. `unpublishEntry`).
 5. Each icon button has an accessible name + tooltip and grows to 44 px on touch.

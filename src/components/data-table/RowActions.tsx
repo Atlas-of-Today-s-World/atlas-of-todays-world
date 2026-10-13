@@ -3,6 +3,8 @@
 import {
   Archive,
   ArchiveRestore,
+  ArrowDown,
+  ArrowUp,
   Ban,
   CircleCheck,
   ExternalLink,
@@ -14,8 +16,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState, useTransition, type ReactNode } from "react";
 import { ConfirmButton } from "@/components/admin/ConfirmButton";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import type { ActionState } from "@/lib/actions";
 import type { RowAction, RowActionIcon } from "./row-actions";
 
 /** Icons by name, so a Server Component can describe actions as plain data. */
@@ -29,7 +33,53 @@ const ICONS: Record<RowActionIcon, LucideIcon> = {
   restore: ArchiveRestore,
   revoke: Ban,
   delete: Trash2,
+  up: ArrowUp,
+  down: ArrowDown,
 };
+
+/** An "instant" row action: runs without a dialog, refreshes the table, announces a failure. */
+function InstantButton({
+  label,
+  icon,
+  action,
+  disabled,
+  onDone,
+}: {
+  label: string;
+  icon: ReactNode;
+  action: () => Promise<ActionState>;
+  disabled?: boolean;
+  onDone: (state: ActionState) => void;
+}) {
+  const [pending, start] = useTransition();
+  const [error, setError] = useState("");
+  return (
+    <>
+      <Button
+        variant="quiet"
+        size="rowIcon"
+        aria-label={label}
+        title={error || label}
+        disabled={disabled || pending}
+        aria-busy={pending || undefined}
+        onClick={() =>
+          start(async () => {
+            const state = await action();
+            setError(state.ok ? "" : (state.error ?? "Something went wrong."));
+            onDone(state);
+          })
+        }
+      >
+        {icon}
+      </Button>
+      {error ? (
+        <span role="alert" className="sr-only">
+          {error}
+        </span>
+      ) : null}
+    </>
+  );
+}
 
 /**
  * Row actions as icon buttons right in the row (TealHub owner rule: one click,
@@ -56,6 +106,20 @@ export function RowActions({ actions }: { actions: readonly RowAction[] }) {
             >
               {icon}
             </Link>
+          );
+        }
+        if (item.kind === "instant") {
+          return (
+            <InstantButton
+              key={item.label}
+              label={item.label}
+              icon={icon}
+              action={item.action}
+              disabled={item.disabled}
+              onDone={(state) => {
+                if (state.ok) router.refresh();
+              }}
+            />
           );
         }
         return (

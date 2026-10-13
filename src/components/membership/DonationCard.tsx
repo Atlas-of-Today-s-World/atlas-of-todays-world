@@ -7,14 +7,7 @@ import Link from "@/components/i18n/Link";
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import { buttonVariants } from "@/components/ui/button";
 import { format } from "@/features/i18n/messages";
-import {
-  AMOUNTS,
-  DEFAULT_AMOUNT,
-  DEFAULT_PERIOD,
-  OTHER_AMOUNT,
-  OTHER_AMOUNT_PERIODS,
-  type Period,
-} from "@/features/membership/config";
+import type { DonationOptions, Period } from "@/features/membership/config";
 import { cn } from "@/lib/cn";
 import { formatEuro } from "@/lib/format";
 import { routes } from "@/config/routes";
@@ -81,27 +74,31 @@ function SubmitButton({ children }: { children: ReactNode }) {
  * The Atlas Patrons donation card (one-time / monthly, preset or own amount).
  * Rendered twice on /membership — every id comes from useId, and each card is
  * its own form, so the radio groups never mix. `action` is the startCheckout
- * Server Action (passed in, so the card stays a plain UI block).
+ * Server Action (passed in, so the card stays a plain UI block); `donation` are
+ * the amounts from the settings (patron_settings) that the checkout accepts.
  */
 export function DonationCard({
   action,
+  donation,
   className,
 }: {
   action: (formData: FormData) => void | Promise<void>;
+  donation: DonationOptions;
   className?: string;
 }) {
   const t = useMessages().patrons.card;
   const locale = useLocale();
   const id = useId();
-  const [period, setPeriod] = useState<Period>(DEFAULT_PERIOD);
-  const [amount, setAmount] = useState(String(DEFAULT_AMOUNT[DEFAULT_PERIOD]));
+  const { amounts, defaultAmount, otherAmount } = donation;
+  const [period, setPeriod] = useState<Period>(donation.defaultPeriod);
+  const [amount, setAmount] = useState(String(defaultAmount[donation.defaultPeriod]));
 
   const choosePeriod = (next: Period) => {
     setPeriod(next);
-    setAmount(String(DEFAULT_AMOUNT[next]));
+    setAmount(String(defaultAmount[next]));
   };
-  const hasOther = OTHER_AMOUNT_PERIODS.includes(period);
-  const options = [...AMOUNTS[period].map(String), ...(hasOther ? [OTHER] : [])];
+  const hasOther = donation.otherAmountPeriods.includes(period);
+  const options = [...amounts[period].map(String), ...(hasOther ? [OTHER] : [])];
   // Own amount checked here, in the Atlas style (no browser bubble): the server
   // would only send an invalid amount silently back to this page.
   const [otherError, setOtherError] = useState(false);
@@ -110,8 +107,8 @@ export function DonationCard({
     return (
       !value.trim() ||
       !Number.isInteger(euros) ||
-      euros < OTHER_AMOUNT.min ||
-      euros > OTHER_AMOUNT.max
+      euros < otherAmount.min ||
+      euros > otherAmount.max
     );
   };
 
@@ -193,8 +190,8 @@ export function DonationCard({
             type="number"
             inputMode="numeric"
             required
-            min={OTHER_AMOUNT.min}
-            max={OTHER_AMOUNT.max}
+            min={otherAmount.min}
+            max={otherAmount.max}
             step={1}
             aria-invalid={otherError || undefined}
             aria-describedby={`${id}-other-hint`}
@@ -209,8 +206,8 @@ export function DonationCard({
           >
             {otherError ? `${t.otherError} ` : null}
             {format(t.otherHint, {
-              min: formatEuro(OTHER_AMOUNT.min, locale),
-              max: formatEuro(OTHER_AMOUNT.max, locale),
+              min: formatEuro(otherAmount.min, locale),
+              max: formatEuro(otherAmount.max, locale),
             })}
           </p>
         </div>

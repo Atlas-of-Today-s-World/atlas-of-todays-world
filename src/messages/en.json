@@ -268,20 +268,6 @@
       "earlyCta": "Become one of the first patrons"
     },
     "faqTitle": "FAQ",
-    "faq": [
-      {
-        "question": "Will the content be free for everyone?",
-        "answer": "Our primary mission is to give everyone a chance to reflect on the situation in our world. Therefore, our encyclopedia will be fully open-access to any reader all over the world. The role of the membership community is to support this mission."
-      },
-      {
-        "question": "Are you a registered nonprofit organisation?",
-        "answer": "Our project grew out of the Online Encyclopedia of Migration, a non-profit, non-governmental organisation that has been registered in the Czech Republic since 2016 (we are officially called Online Encyklopedie Migrace, z.s.). Within Czech legislation, we are not permitted to make any profit."
-      },
-      {
-        "question": "How can I cancel or change my monthly donation?",
-        "answer": "You can cancel your monthly donation anytime via Stripe. The link is available below the Donate & Join button, in your initial registration email, and at the bottom of each members-only newsletter. Alternatively, you can email us at {email}, and we will help you. Similarly, you can change your initial one-time donation to a monthly donation by following the same steps."
-      }
-    ],
     "finalTitle": "With Your Help,",
     "finalTitleAccent": "We Can Build It!",
     "checkout": {

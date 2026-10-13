@@ -4,6 +4,7 @@ import Link from "@/components/i18n/Link";
 import { buttonVariants } from "@/components/ui/button";
 import { format, getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
+import { getPatronSettings } from "@/features/membership/queries";
 import { parseDonation } from "@/features/membership/schema";
 import { formatEuro } from "@/lib/format";
 import { routes } from "@/config/routes";
@@ -23,7 +24,8 @@ export default async function ThankYouPage({ params, searchParams }: Props) {
   const locale = await localeFrom(params);
   const messages = getMessages(locale);
   const t = messages.patrons.thankYou;
-  const donation = parseDonation(await searchParams);
+  const [query, settings] = await Promise.all([searchParams, getPatronSettings()]);
+  const donation = parseDonation(query, settings.donation);
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-16">
