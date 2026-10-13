@@ -1341,6 +1341,48 @@ export type Database = {
           },
         ]
       }
+      nav_items: {
+        Row: {
+          compact_hidden: boolean
+          created_at: string
+          href: string
+          id: string
+          is_primary: boolean
+          label: string
+          menu: string
+          position: number
+          requires_flag: string | null
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          compact_hidden?: boolean
+          created_at?: string
+          href: string
+          id?: string
+          is_primary?: boolean
+          label: string
+          menu: string
+          position?: number
+          requires_flag?: string | null
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          compact_hidden?: boolean
+          created_at?: string
+          href?: string
+          id?: string
+          is_primary?: boolean
+          label?: string
+          menu?: string
+          position?: number
+          requires_flag?: string | null
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
       page_views_daily: {
         Row: {
           day: string
@@ -2685,6 +2727,7 @@ export type Database = {
         Args: { p_id: string; p_up: boolean }
         Returns: undefined
       }
+      move_nav_item: { Args: { p_id: string; p_up: boolean }; Returns: undefined }
       move_patron_faq: { Args: { p_id: string; p_up: boolean }; Returns: undefined }
       mfa_status: { Args: never; Returns: Json }
       move_site_social_link: {
