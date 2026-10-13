@@ -6,7 +6,8 @@
 # The build runs on Vercel, not here: Hobby allows uploading max. 5,000 files a day
 # and a finished build (~270 pages) would exhaust the limit after a few deploys.
 # Only source code is uploaded, and Vercel skips unchanged files by hash.
-# What is not uploaded is set by .vercelignore.
+# What is not uploaded is set by .vercelignore. vercel.json (uploaded, read by
+# that build) pins the functions to fra1, next to the Supabase database.
 name: Deploy to Vercel
 
 on:

@@ -8,7 +8,7 @@ import { ColorField } from "@/components/ui/color-field";
 import { FormField, Input } from "@/components/ui/field";
 import { IconAction } from "@/components/admin/IconAction";
 import { swap } from "@/lib/array";
-import { slugify } from "@/lib/validation/common";
+import { slugify } from "@/lib/slug";
 import { MAX_TILES } from "../constants";
 import type { EditableTile } from "../editorial";
 import { IconPicker } from "./IconPicker";

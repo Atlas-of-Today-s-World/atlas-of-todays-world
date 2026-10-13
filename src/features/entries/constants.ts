@@ -325,3 +325,14 @@ export const MAP_LAYER_LABEL: Record<MapLayer, string> = {
 export const SEO_TITLE_MAX = 70;
 export const SEO_DESCRIPTION_MAX = 170;
 export const GEO_SUMMARY_MAX = 800;
+
+/** Workflow states of an entry (DB `entries.status`). */
+export const ENTRY_STATUSES = ["draft", "pending", "published", "planned"] as const;
+export type EntryStatus = (typeof ENTRY_STATUSES)[number];
+
+export const STATUS_LABEL: Record<EntryStatus, string> = {
+  draft: "Draft",
+  pending: "Pending approval",
+  published: "Published",
+  planned: "Scheduled",
+};

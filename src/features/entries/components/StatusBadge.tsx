@@ -1,5 +1,5 @@
 import { Badge, type Tone } from "@/components/ui/badge";
-import { ENTRY_STATUSES, STATUS_LABEL, type EntryStatus } from "../schema";
+import { ENTRY_STATUSES, STATUS_LABEL, type EntryStatus } from "../constants";
 
 const STATUS_TONE: Record<EntryStatus, Tone> = {
   draft: "neutral",

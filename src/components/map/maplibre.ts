@@ -1,7 +1,6 @@
 "use client";
 
 import type * as MapLibre from "maplibre-gl";
-import { version } from "maplibre-gl/package.json";
 import { preconnect } from "react-dom";
 import { GLOBE_DATA } from "./mapStyle";
 
@@ -10,8 +9,11 @@ import { GLOBE_DATA } from "./mapStyle";
  * the bundle: the main module and the worker then share one `maplibre-gl-shared.mjs`
  * (the browser downloads it once). In the bundle the shared code would be there twice
  * (~150 kB gzip extra on every page with the globe).
+ *
+ * The version comes from next.config `env`, inlined at build time as a string
+ * (importing maplibre-gl/package.json would bundle the whole file).
  */
-const BASE = `/maplibre/${version}`;
+const BASE = `/maplibre/${process.env.MAPLIBRE_VERSION}`;
 
 let loading: Promise<typeof MapLibre> | null = null;
 

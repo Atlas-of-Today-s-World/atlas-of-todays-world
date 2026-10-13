@@ -51,6 +51,10 @@ function WorldMap({ className }: { className?: string }) {
       aria-hidden
       width={1280}
       height={770}
+      // Decoration: never competes with the page (or a prefetch) for bandwidth.
+      loading="lazy"
+      decoding="async"
+      fetchPriority="low"
       className={cn(
         "pointer-events-none absolute left-1/2 w-[80rem] max-w-none -translate-x-1/2 select-none",
         className,

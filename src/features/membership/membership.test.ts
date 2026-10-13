@@ -9,7 +9,8 @@ import {
   formatExpiry,
   luhnValid,
 } from "./demo-card";
-import { checkoutHref, donationFromForm, parseDonation, thankYouHref } from "./schema";
+import { checkoutHref, thankYouHref } from "./links";
+import { donationFromForm, parseDonation } from "./schema";
 
 describe("parseDonation", () => {
   it("accepts every preset amount of each period", () => {

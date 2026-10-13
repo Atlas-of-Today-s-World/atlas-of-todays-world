@@ -1,7 +1,7 @@
 import "server-only";
 import { createServerClient } from "@/lib/supabase/server";
 import type { ArticleKind } from "@/lib/content-types";
-import type { EntryStatus } from "./schema";
+import type { EntryStatus } from "./constants";
 import { ilikeAny } from "@/lib/db/filters";
 
 /**

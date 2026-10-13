@@ -12,6 +12,9 @@ type Outcome<T> = { query: string; attempt: number } & (
  * replaced, and tells "searching", "found these" and "failed" (rate limit,
  * offline, server error) apart. Results always belong to the current query —
  * a new one clears the old ones instead of showing them under it.
+ *
+ * Pass `query` through `normalizeSearchQuery`: the URL is the CDN cache key,
+ * so equal queries spelled differently would each miss the cache.
  */
 export function useDebouncedSearch<T>(
   endpoint: string,

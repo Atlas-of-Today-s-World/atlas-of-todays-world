@@ -6,7 +6,7 @@ import { useActionState, useId } from "react";
 import { ActionForm } from "@/components/ui/action-form";
 import { describedBy } from "@/components/ui/field";
 import { subscribe } from "@/features/newsletter/actions";
-import { NEWSLETTER_INTERESTS } from "@/features/newsletter/schema";
+import { NEWSLETTER_INTERESTS } from "@/features/newsletter/interests";
 import type { ActionState } from "@/lib/actions";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { useFormErrors } from "@/lib/use-form-errors";

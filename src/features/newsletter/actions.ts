@@ -5,7 +5,8 @@ import { headers } from "next/headers";
 import { invalidCodes, type ActionState } from "@/lib/actions";
 import { serverEnv } from "@/lib/env.server";
 import { allowRequest } from "@/lib/security/rate-limit";
-import { INTEREST_TAGS, SubscribeInput } from "./schema";
+import { INTEREST_TAGS } from "./interests";
+import { SubscribeInput } from "./schema";
 
 /**
  * Results are codes (messages: newsletterForm.messages) — the form picks the
