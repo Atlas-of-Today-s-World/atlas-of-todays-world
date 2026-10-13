@@ -1,7 +1,7 @@
 // Permission matrix rules without React or server (tested by matrix.test.ts).
 import { ADMIN_NAV } from "@/config/admin-nav";
 import { SECTIONS, type Action, type Section } from "@/features/auth/sections";
-import { SECTION_LABEL } from "./labels";
+import { SECTION_DESCRIPTION, SECTION_LABEL } from "./labels";
 
 /** Order of actions in the DB string (`role_permissions.actions`). */
 export const ACTIONS = ["v", "c", "e", "d"] as const satisfies readonly Action[];
@@ -41,6 +41,8 @@ export function matrixFormData(roleId: string, grants: RoleGrants): FormData {
 export interface MatrixSection {
   key: Section;
   label: string;
+  /** One-line explanation (tooltip). */
+  description: string;
   /** Admin pages the section unlocks (they inherit its rights). */
   pages: { href: string; label: string }[];
 }
@@ -50,6 +52,7 @@ export function matrixSections(): MatrixSection[] {
   return SECTIONS.map((key) => ({
     key,
     label: SECTION_LABEL[key],
+    description: SECTION_DESCRIPTION[key],
     pages: ADMIN_NAV.filter((item) =>
       item.section === null
         ? false

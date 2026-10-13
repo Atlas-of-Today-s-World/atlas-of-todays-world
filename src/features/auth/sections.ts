@@ -10,6 +10,7 @@ export const SECTIONS = [
   "layers",
   "appearance",
   "specials",
+  "site",
   "users",
   "members",
   "permissions",
