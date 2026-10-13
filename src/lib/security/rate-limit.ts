@@ -21,13 +21,22 @@ export async function allowRequest(
   limits: Limits,
 ): Promise<boolean> {
   const ip = rateLimitAddress(headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown");
-  return allowKey(
-    `${scope}:${createHash("sha256").update(ip).digest("hex").slice(0, 32)}`,
-    limits,
-    {
-      failClosed: FAIL_CLOSED_SCOPES.has(scope),
-    },
-  );
+  return allowKey(`${scope}:${keyHash(ip, null)}`, limits, {
+    failClosed: FAIL_CLOSED_SCOPES.has(scope),
+  });
+}
+
+/**
+ * Hash of an address for a rate-limit key: HMAC-SHA-256 with `RATE_LIMIT_SECRET`,
+ * so the stored keys can't be reversed by hashing every IPv4 address or a list
+ * of e-mails. Until that secret is set, the previous derivation (`legacyKey`:
+ * null = plain SHA-256 for IPs, the service key for e-mails), so existing
+ * windows keep counting.
+ */
+function keyHash(value: string, legacyKey: string | null): string {
+  const secret = serverEnv.RATE_LIMIT_SECRET ?? legacyKey;
+  const digest = secret === null ? createHash("sha256") : createHmac("sha256", secret);
+  return digest.update(value).digest("hex").slice(0, 32);
 }
 
 /** Scopes where a failing limit store refuses the request instead of letting it through. */
@@ -39,10 +48,7 @@ const FAIL_CLOSED_SCOPES = new Set(["email-code", "email-verify", "newsletter", 
  * an outage of the store always refuses — it guards sign-in.
  */
 export async function allowEmail(scope: string, email: string, limits: Limits): Promise<boolean> {
-  const hash = createHmac("sha256", serverEnv.SUPABASE_SERVICE_ROLE_KEY ?? "")
-    .update(email.trim().toLowerCase())
-    .digest("hex")
-    .slice(0, 32);
+  const hash = keyHash(email.trim().toLowerCase(), serverEnv.SUPABASE_SERVICE_ROLE_KEY ?? "");
   return allowKey(`${scope}:${hash}`, limits, { failClosed: true });
 }
 

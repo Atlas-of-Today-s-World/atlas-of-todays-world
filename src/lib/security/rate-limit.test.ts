@@ -1,6 +1,10 @@
+import { createHash, createHmac } from "node:crypto";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const env = vi.hoisted(() => ({ SUPABASE_SERVICE_ROLE_KEY: "service" as string | undefined }));
+const env = vi.hoisted(() => ({
+  SUPABASE_SERVICE_ROLE_KEY: "service" as string | undefined,
+  RATE_LIMIT_SECRET: undefined as string | undefined,
+}));
 const rpc = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/env.server", () => ({ serverEnv: env }));
@@ -106,6 +110,37 @@ describe("allowEmail", () => {
     env.SUPABASE_SERVICE_ROLE_KEY = undefined;
     expect(await allowEmail("email-verify-address", "ana@example.org", opts)).toBe(true);
     expect(rpc).not.toHaveBeenCalled();
+  });
+});
+
+describe("hashed keys and RATE_LIMIT_SECRET", () => {
+  const SECRET = "s".repeat(32);
+  const hex = (digest: string) => digest.slice(0, 32);
+  const lastKey = () => rpc.mock.calls.at(-1)?.[1].p_key as string;
+
+  beforeEach(() => {
+    env.SUPABASE_SERVICE_ROLE_KEY = "service";
+    env.RATE_LIMIT_SECRET = undefined;
+    rpc.mockReset();
+    rpc.mockResolvedValue({ data: true, error: null });
+  });
+
+  it("without the secret keeps the previous keys, so existing windows keep counting", async () => {
+    await allowRequest("search", headers("1.2.3.4"), opts);
+    expect(lastKey()).toBe(`search:${hex(createHash("sha256").update("1.2.3.4").digest("hex"))}`);
+    await allowEmail("email-code", "ana@example.org", opts);
+    expect(lastKey()).toBe(
+      `email-code:${hex(createHmac("sha256", "service").update("ana@example.org").digest("hex"))}`,
+    );
+  });
+
+  it("with the secret keys both the address and the e-mail with an HMAC of it", async () => {
+    env.RATE_LIMIT_SECRET = SECRET;
+    const hmac = (value: string) => hex(createHmac("sha256", SECRET).update(value).digest("hex"));
+    await allowRequest("search", headers("1.2.3.4"), opts);
+    expect(lastKey()).toBe(`search:${hmac("1.2.3.4")}`);
+    await allowEmail("email-code", " Ana@Example.org", opts);
+    expect(lastKey()).toBe(`email-code:${hmac("ana@example.org")}`);
   });
 });
 
