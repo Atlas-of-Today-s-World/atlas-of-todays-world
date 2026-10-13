@@ -3,6 +3,7 @@ import { Archive } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "./DataTable";
 import { RowActions } from "./RowActions";
+import { deleteAction, moveActions } from "./row-actions";
 import type { ColumnDef, DataTableRow } from "./types";
 
 type Key = "title" | "status" | "tags" | "author" | "words" | "updated";
@@ -125,4 +126,26 @@ export const Empty: Story = {
 };
 export const Compact: Story = {
   args: { tableKey: "storybook-compact", rows: rows.slice(0, 5), compact: true, stats: undefined },
+};
+
+/** A hand-ordered list: move up / down run at once (no dialog), delete is confirmed. */
+export const Reorderable: Story = {
+  args: {
+    tableKey: "storybook-reorder",
+    stats: undefined,
+    selectable: false,
+    actionsWidth: "104px",
+    rows: rows.slice(0, 5).map((row, index, list) => ({
+      ...row,
+      actions: (
+        <RowActions
+          actions={[
+            { kind: "link", icon: "edit", label: "Edit", href: row.href ?? "/" },
+            ...moveActions(noop, noop, { first: index === 0, last: index === list.length - 1 }),
+            deleteAction(noop, "this entry"),
+          ]}
+        />
+      ),
+    })),
+  },
 };

@@ -3,6 +3,7 @@ import {
   Brush,
   FileText,
   Globe2,
+  HandCoins,
   HandHeart,
   House,
   LayoutDashboard,
@@ -63,6 +64,12 @@ export const ADMIN_NAV: readonly AdminNavItem[] = [
   { href: "/admin/volunteers", label: "Volunteer editors", section: "users", icon: HandHeart },
   { href: "/admin/roles", label: "Roles & permissions", section: "permissions", icon: ShieldCheck },
   { href: "/admin/members", label: "Patron memberships", section: "members", icon: UserRound },
+  {
+    href: "/admin/patrons",
+    label: "Patron settings",
+    section: ["site", "members"],
+    icon: HandCoins,
+  },
 ];
 
 /** Section icon by URL (tile in PageHeader) — same as in the menu. */

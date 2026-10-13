@@ -4,6 +4,7 @@ import { localePath } from "@/features/i18n/config";
 import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import { DemoCheckout } from "@/features/membership/components/DemoCheckout";
+import { getPatronSettings } from "@/features/membership/queries";
 import { parseDonation } from "@/features/membership/schema";
 import { routes } from "@/config/routes";
 
@@ -20,10 +21,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: t.title, robots: { index: false, follow: false } };
 }
 
-/** DEMO checkout (no payment). Invalid amount or period → back to /membership. */
+/**
+ * DEMO checkout (no payment). Invalid amount or period — or one the donation
+ * card no longer offers (patron_settings) → back to /membership.
+ */
 export default async function CheckoutPage({ params, searchParams }: Props) {
   const locale = await localeFrom(params);
-  const donation = parseDonation(await searchParams);
+  const [query, settings] = await Promise.all([searchParams, getPatronSettings()]);
+  const donation = parseDonation(query, settings.donation);
   if (!donation) redirect(localePath(locale, routes.membership));
   return (
     <main>

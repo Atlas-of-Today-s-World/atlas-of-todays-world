@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { AMOUNTS, DEFAULT_AMOUNT, OTHER_AMOUNT } from "./config";
+import { FALLBACK_PATRON_SETTINGS } from "./config";
 import {
   DEMO_CARDS,
   cardErrors,
@@ -10,7 +10,11 @@ import {
   luhnValid,
 } from "./demo-card";
 import { checkoutHref, thankYouHref } from "./links";
-import { donationFromForm, parseDonation } from "./schema";
+import { donationFromForm, parseDonation as parseWith } from "./schema";
+
+const OPTIONS = FALLBACK_PATRON_SETTINGS.donation;
+const { amounts: AMOUNTS, defaultAmount: DEFAULT_AMOUNT, otherAmount: OTHER_AMOUNT } = OPTIONS;
+const parseDonation = (input: Record<string, unknown>) => parseWith(input, OPTIONS);
 
 describe("parseDonation", () => {
   it("accepts every preset amount of each period", () => {
@@ -60,12 +64,16 @@ describe("parseDonation", () => {
 
 describe("donationFromForm", () => {
   it("uses the free field when 'Other amount' is chosen", () => {
-    expect(donationFromForm({ period: "one-time", amount: "other", other: "75" })).toEqual({
-      period: "one-time",
-      amount: 75,
-    });
-    expect(donationFromForm({ period: "one-time", amount: "other", other: "" })).toBeNull();
-    expect(donationFromForm({ period: "monthly", amount: "25", other: "75" })).toEqual({
+    expect(donationFromForm({ period: "one-time", amount: "other", other: "75" }, OPTIONS)).toEqual(
+      {
+        period: "one-time",
+        amount: 75,
+      },
+    );
+    expect(
+      donationFromForm({ period: "one-time", amount: "other", other: "" }, OPTIONS),
+    ).toBeNull();
+    expect(donationFromForm({ period: "monthly", amount: "25", other: "75" }, OPTIONS)).toEqual({
       period: "monthly",
       amount: 25,
     });

@@ -14,8 +14,16 @@ import { format, getMessages, type Messages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import { startCheckout } from "@/features/membership/actions";
 import { PatronsEmail } from "@/features/membership/components/PatronsEmail";
-import { GOAL, GOAL_COUNTS_FROM_PATRONS } from "@/features/membership/config";
-import { getPatronStats, type PatronStats } from "@/features/membership/queries";
+import { EMAIL_PLACEHOLDER, type PatronGoal } from "@/features/membership/config";
+import {
+  getPatronFaq,
+  getPatronSettings,
+  getPatronStats,
+  type PatronFaqItem,
+  type PatronStats,
+} from "@/features/membership/queries";
+import { SafeHtml } from "@/components/atlas/SafeHtml";
+import { htmlToText } from "@/lib/text/html";
 import { cn } from "@/lib/cn";
 import { formatEuro, formatNumber, formatPercent } from "@/lib/format";
 import { JsonLd } from "@/components/JsonLd";
@@ -64,6 +72,19 @@ function WorldMap({ className }: { className?: string }) {
 }
 
 const H2 = "font-display text-[28px] font-bold sm:text-[32px]";
+/** A FAQ answer's own HTML (paragraphs, lists, links) inside the accordion's text style. */
+const FAQ_ANSWER =
+  "[&_a]:text-[var(--color-link)] [&_a]:underline [&_li]:mt-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:pl-5 [&>*+*]:mt-3";
+
+/** FAQPage JSON-LD: plain text, the contact address in place of the placeholder. */
+const faqForRobots = (faq: PatronFaqItem[]) =>
+  faq.map((item) => ({
+    question: item.question,
+    answer: htmlToText(item.answerHtml, { blockEnd: " ", collapse: true }).replaceAll(
+      `{${EMAIL_PLACEHOLDER}}`,
+      ORGANIZATION.email,
+    ),
+  }));
 const CARD = "rounded-[var(--radius-panel)] border border-[var(--color-line)] bg-white";
 
 /** Big graphic link to the newsletter page — for readers not ready to give yet. */
@@ -105,12 +126,14 @@ function Goal({
   t,
   locale,
   stats,
+  goal,
 }: {
   t: Messages["patrons"]["goal"];
   locale: Locale;
   stats: PatronStats | null;
+  goal: PatronGoal;
 }) {
-  const goalEur = formatEuro(GOAL.monthlyEur, locale);
+  const goalEur = formatEuro(goal.monthlyEur, locale);
   return (
     <section aria-labelledby="goal-title" className="mt-20">
       <h2 id="goal-title" className={H2}>
@@ -119,7 +142,7 @@ function Goal({
       <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,22rem)_1fr]">
         <div className="rounded-[var(--radius-panel)] bg-[var(--color-patron)] p-6 text-white">
           <p className="inline-block rounded-full bg-[var(--color-ink)] px-3 py-1 text-[13px] font-semibold">
-            {format(t.pill, { patrons: formatNumber(GOAL.patrons, 0, locale), amount: goalEur })}
+            {format(t.pill, { patrons: formatNumber(goal.patrons, 0, locale), amount: goalEur })}
           </p>
           <h3 className="font-display mt-4 text-[22px] leading-tight font-bold">{t.name}</h3>
           <p className="mt-4 text-[14px] leading-relaxed">
@@ -135,8 +158,8 @@ function Goal({
           </ol>
         </div>
 
-        {stats && stats.patrons >= GOAL_COUNTS_FROM_PATRONS ? (
-          <GoalProgress t={t} locale={locale} stats={stats} goalEur={goalEur} />
+        {stats && stats.patrons >= goal.countsFromPatrons ? (
+          <GoalProgress t={t} locale={locale} stats={stats} goal={goal} goalEur={goalEur} />
         ) : (
           <div className={cn(CARD, "p-6 sm:p-8 lg:self-start")}>
             <h3 className="font-display text-[22px] leading-tight font-bold">{t.earlyTitle}</h3>
@@ -161,14 +184,16 @@ function GoalProgress({
   t,
   locale,
   stats,
+  goal,
   goalEur,
 }: {
   t: Messages["patrons"]["goal"];
   locale: Locale;
   stats: PatronStats;
+  goal: PatronGoal;
   goalEur: string;
 }) {
-  const percent = Math.min(100, Math.round((stats.monthlyEur / GOAL.monthlyEur) * 100));
+  const percent = Math.min(100, Math.round((stats.monthlyEur / goal.monthlyEur) * 100));
   return (
     <div className={cn(CARD, "grid gap-8 p-6 sm:grid-cols-2 sm:p-8 lg:self-start")}>
       <div>
@@ -177,7 +202,7 @@ function GoalProgress({
           {formatNumber(stats.patrons, 0, locale)}
           <span className="font-normal text-[var(--color-ink-muted)]">
             {" "}
-            / {formatNumber(GOAL.patrons, 0, locale)}
+            / {formatNumber(goal.patrons, 0, locale)}
           </span>
         </p>
         <p className="mt-1 text-[14px] text-[var(--color-ink-soft)]">{t.joined}</p>
@@ -212,13 +237,19 @@ function GoalProgress({
 
 /**
  * Atlas Patrons (membership / donations), modelled on the original
- * atlasoftodaysworld.org/membership page. Static with ISR; only the goal
- * numbers come from the database (cached under tags.patrons).
+ * atlasoftodaysworld.org/membership page. Static with ISR; the donation
+ * amounts, the goal, its progress and the FAQ come from the database (cached
+ * under tags.patrons, edited in /admin/patrons).
  */
 export default async function MembershipPage({ params }: Params) {
   const locale = await localeFrom(params);
   const t = getMessages(locale).patrons;
-  const [stats, flags] = await Promise.all([getPatronStats(), getFlags()]);
+  const [stats, flags, settings, faq] = await Promise.all([
+    getPatronStats(),
+    getFlags(),
+    getPatronSettings(),
+    getPatronFaq(),
+  ]);
 
   return (
     <main>
@@ -247,7 +278,7 @@ export default async function MembershipPage({ params }: Params) {
                 {t.heroCta}
               </a>
             </div>
-            <DonationCard action={startCheckout} />
+            <DonationCard action={startCheckout} donation={settings.donation} />
           </section>
 
           {/* As a Patron, You Will: */}
@@ -280,24 +311,32 @@ export default async function MembershipPage({ params }: Params) {
             </ol>
           </section>
 
-          <Goal t={t.goal} locale={locale} stats={stats} />
+          <Goal t={t.goal} locale={locale} stats={stats} goal={settings.goal} />
 
           {flags.newsletter ? <NewsletterBanner t={t.newsletter} /> : null}
 
-          <section aria-labelledby="faq-title" className="mt-20">
-            <h2 id="faq-title" className={H2}>
-              {t.faqTitle}
-            </h2>
-            <div className="mt-8">
-              <Accordion
-                size="comfortable"
-                items={t.faq.map((item) => ({
-                  question: item.question,
-                  answer: <RichText text={item.answer} values={{ email: <PatronsEmail /> }} />,
-                }))}
-              />
-            </div>
-          </section>
+          {faq.length ? (
+            <section aria-labelledby="faq-title" className="mt-20">
+              <h2 id="faq-title" className={H2}>
+                {t.faqTitle}
+              </h2>
+              <div className="mt-8">
+                <Accordion
+                  size="comfortable"
+                  items={faq.map((item) => ({
+                    question: item.question,
+                    answer: (
+                      <SafeHtml
+                        html={item.answerHtml}
+                        slots={{ [EMAIL_PLACEHOLDER]: <PatronsEmail /> }}
+                        className={FAQ_ANSWER}
+                      />
+                    ),
+                  }))}
+                />
+              </div>
+            </section>
+          ) : null}
 
           {/* Another way to help: volunteer editors (applications land in the admin). */}
           <section
@@ -355,14 +394,7 @@ export default async function MembershipPage({ params }: Params) {
               recipient: { "@id": ids.organization },
             },
           },
-          faqNode(
-            pageUrl(routes.membership, locale),
-            // Plain text for robots: the {email} placeholder filled in, **bold** markers dropped.
-            t.faq.map((item) => ({
-              question: item.question,
-              answer: item.answer.replace(/\{email\}/g, ORGANIZATION.email).replace(/\*\*/g, ""),
-            })),
-          ),
+          faqNode(pageUrl(routes.membership, locale), faqForRobots(faq)),
         )}
       />
 
@@ -381,7 +413,7 @@ export default async function MembershipPage({ params }: Params) {
             {t.finalTitle}
             <span className="block text-[var(--color-patron-bright)]">{t.finalTitleAccent}</span>
           </h2>
-          <DonationCard action={startCheckout} />
+          <DonationCard action={startCheckout} donation={settings.donation} />
         </div>
       </section>
 

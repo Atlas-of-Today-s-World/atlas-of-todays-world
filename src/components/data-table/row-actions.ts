@@ -7,7 +7,17 @@ import type { ActionState } from "@/lib/actions";
  */
 
 export type RowActionIcon =
-  "edit" | "view" | "open" | "approve" | "share" | "archive" | "restore" | "revoke" | "delete";
+  | "edit"
+  | "view"
+  | "open"
+  | "approve"
+  | "share"
+  | "archive"
+  | "restore"
+  | "revoke"
+  | "delete"
+  | "up"
+  | "down";
 
 export type RowAction =
   | { kind: "link"; icon: RowActionIcon; label: string; href: string; newTab?: boolean }
@@ -22,6 +32,18 @@ export type RowAction =
       confirmTitle: string;
       confirmBody: string;
       confirmLabel?: string;
+    }
+  | {
+      /**
+       * Runs at once, without a dialog — only for small, harmless steps the
+       * user undoes with the opposite button (move up / down). Anything else is
+       * a confirmed "action".
+       */
+      kind: "instant";
+      icon: RowActionIcon;
+      label: string;
+      action: () => Promise<ActionState>;
+      disabled?: boolean;
     };
 
 export const editAction = (href: string, label = "Edit"): RowAction => ({
@@ -62,3 +84,17 @@ export const confirmAction = (
   confirmTitle: string,
   confirmBody: string,
 ): RowAction => ({ kind: "action", icon, label, action, confirmTitle, confirmBody });
+
+/**
+ * Move up / down within a hand-ordered list; the first row can't go up, the
+ * last can't go down. Pass Server Actions bound to the row
+ * (`moveX.bind(null, id, true)`) — a Server Component can't hand a closure to the client.
+ */
+export const moveActions = (
+  up: () => Promise<ActionState>,
+  down: () => Promise<ActionState>,
+  { first, last }: { first: boolean; last: boolean },
+): RowAction[] => [
+  { kind: "instant", icon: "up", label: "Move up", action: up, disabled: first },
+  { kind: "instant", icon: "down", label: "Move down", action: down, disabled: last },
+];

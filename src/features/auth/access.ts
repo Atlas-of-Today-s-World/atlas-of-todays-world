@@ -12,6 +12,12 @@ export interface Access {
   email: string | null;
   roleId: string | null;
   roleName: string | null;
+  /**
+   * Holds the locked admin role — what the DB's `is_admin()` checks. Only for
+   * the few rules the DB keeps to the admin alone (complimentary memberships);
+   * everything else goes by `permissions`.
+   */
+  isAdmin: boolean;
   permissions: Permissions;
 }
 
@@ -52,6 +58,7 @@ export const getAccess = cache(async function getAccess(): Promise<Access | null
     email: user.email ?? null,
     roleId: role?.id ?? null,
     roleName: role?.name ?? null,
+    isAdmin: role?.locked === true,
     permissions,
   };
 });

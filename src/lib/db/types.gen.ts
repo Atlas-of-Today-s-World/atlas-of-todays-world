@@ -1324,6 +1324,84 @@ export type Database = {
           },
         ]
       }
+      patron_faq: {
+        Row: {
+          answer_html: string
+          created_at: string
+          id: string
+          question: string
+          sort: number
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          answer_html: string
+          created_at?: string
+          id?: string
+          question: string
+          sort?: number
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          answer_html?: string
+          created_at?: string
+          id?: string
+          question?: string
+          sort?: number
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
+      patron_settings: {
+        Row: {
+          default_monthly: number
+          default_one_time: number
+          default_period: string
+          goal_counts_from: number
+          goal_monthly_eur: number
+          goal_patrons: number
+          id: number
+          monthly_amounts: number[]
+          one_time_amounts: number[]
+          other_amount_max: number
+          other_amount_min: number
+          other_amount_periods: string[]
+          updated_at: string
+        }
+        Insert: {
+          default_monthly: number
+          default_one_time: number
+          default_period?: string
+          goal_counts_from?: number
+          goal_monthly_eur: number
+          goal_patrons: number
+          id?: number
+          monthly_amounts: number[]
+          one_time_amounts: number[]
+          other_amount_max?: number
+          other_amount_min?: number
+          other_amount_periods?: string[]
+          updated_at?: string
+        }
+        Update: {
+          default_monthly?: number
+          default_one_time?: number
+          default_period?: string
+          goal_counts_from?: number
+          goal_monthly_eur?: number
+          goal_patrons?: number
+          id?: number
+          monthly_amounts?: number[]
+          one_time_amounts?: number[]
+          other_amount_max?: number
+          other_amount_min?: number
+          other_amount_periods?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       portrait_metrics: {
         Row: {
           country_iso3: string | null
@@ -2454,6 +2532,7 @@ export type Database = {
         Returns: boolean
       }
       mfa_ok: { Args: never; Returns: boolean }
+      move_patron_faq: { Args: { p_id: string; p_up: boolean }; Returns: undefined }
       mfa_status: { Args: never; Returns: Json }
       my_permissions: {
         Args: never
@@ -2593,6 +2672,7 @@ export type Database = {
       translation_section: { Args: { p_entity: string }; Returns: string }
       unpublish_entry: { Args: { p_entry: string }; Returns: undefined }
       unschedule_entry: { Args: { p_entry: string }; Returns: undefined }
+      valid_patron_amounts: { Args: { p_amounts: number[] }; Returns: boolean }
       write_audit: {
         Args: { p_action: string; p_detail?: Json; p_target: string }
         Returns: undefined
