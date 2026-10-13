@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isTouchPointer, tapStep } from "./tapPreview";
+import { doubleClickZooms, isTouchPointer, tapStep } from "./tapPreview";
 
 describe("tapStep", () => {
   it("previews the first tapped place", () => {
@@ -48,5 +48,20 @@ describe("isTouchPointer", () => {
     expect(isTouchPointer("mouse")).toBe(false);
     expect(isTouchPointer("pen")).toBe(false);
     expect(isTouchPointer(null)).toBe(false);
+  });
+});
+
+describe("doubleClickZooms", () => {
+  it("turns double-tap zoom off for a finger, whose double tap opens the place", () => {
+    expect(doubleClickZooms("touch")).toBe(false);
+  });
+
+  it("keeps double-click zoom for a mouse and a pen", () => {
+    expect(doubleClickZooms("mouse")).toBe(true);
+    expect(doubleClickZooms("pen")).toBe(true);
+  });
+
+  it("keeps it before any pointer is known", () => {
+    expect(doubleClickZooms(null)).toBe(true);
   });
 });

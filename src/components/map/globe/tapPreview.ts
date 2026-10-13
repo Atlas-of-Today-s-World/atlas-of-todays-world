@@ -18,3 +18,12 @@ export function tapStep(previewed: string | null, tapped: string | null): TapSte
 
 /** Only a finger previews first; mouse and pen hover, so their click opens at once. */
 export const isTouchPointer = (pointerType: string | null): boolean => pointerType === "touch";
+
+/**
+ * Whether MapLibre's double-click zoom stays on for the pointer in use. A
+ * finger's double tap is "preview, then open" (tapStep), so zooming on it too
+ * would fly the globe off the place being opened; a mouse or pen double-click
+ * still zooms. Pinch zoom and the + / − buttons are other handlers.
+ */
+export const doubleClickZooms = (pointerType: string | null): boolean =>
+  !isTouchPointer(pointerType);
