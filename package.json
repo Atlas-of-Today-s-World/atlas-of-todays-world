@@ -16,7 +16,7 @@
     "verify": "node scripts/verify-build.mjs",
     "data:optimise": "node scripts/optimise-geodata.mjs",
     "test:smoke": "node scripts/smoke-test.mjs",
-    "test:db": "node --test supabase/tests/rls.test.mjs supabase/tests/rls-unpublished.test.mjs supabase/tests/seed.test.mjs supabase/tests/admin-queries.test.mjs supabase/tests/column-grants.test.mjs supabase/tests/db-low-findings.test.mjs supabase/tests/topic-search.test.mjs supabase/tests/site-section.test.mjs supabase/tests/check-limits.test.mjs supabase/tests/operations.test.mjs supabase/tests/site-pages.test.mjs supabase/tests/patron-settings.test.mjs supabase/tests/site-settings.test.mjs supabase/tests/search-helpers-hardening.test.mjs",
+    "test:db": "node --test supabase/tests/rls.test.mjs supabase/tests/rls-unpublished.test.mjs supabase/tests/seed.test.mjs supabase/tests/admin-queries.test.mjs supabase/tests/column-grants.test.mjs supabase/tests/db-low-findings.test.mjs supabase/tests/topic-search.test.mjs supabase/tests/site-section.test.mjs supabase/tests/check-limits.test.mjs supabase/tests/operations.test.mjs supabase/tests/site-pages.test.mjs supabase/tests/patron-settings.test.mjs supabase/tests/site-settings.test.mjs supabase/tests/search-helpers-hardening.test.mjs supabase/tests/home-featured.test.mjs",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings=0",

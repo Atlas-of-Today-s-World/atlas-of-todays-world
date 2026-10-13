@@ -59,7 +59,12 @@ export const ADMIN_NAV: readonly AdminNavItem[] = [
     section: ["news", "site"],
     icon: SignpostBig,
   },
-  { href: adminRoutes.homePage, label: "Home page", section: "news", icon: House },
+  {
+    href: adminRoutes.homePage,
+    label: "Home page",
+    section: ["news", "site"],
+    icon: House,
+  },
   { href: adminRoutes.sitePages.list, label: "Site pages", section: "site", icon: FileText },
   { href: adminRoutes.siteSettings, label: "Site settings", section: "site", icon: Settings },
   {
