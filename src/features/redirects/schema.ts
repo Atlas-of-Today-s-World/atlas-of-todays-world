@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { checkbox } from "@/lib/validation/common";
+import { checkbox, uuid } from "@/lib/validation/common";
 
 /**
  * Redirects (table `redirects`) — shapes matching the CHECK in the DB: the source
@@ -17,20 +17,31 @@ const path = (pattern: RegExp, message: string) =>
     .regex(pattern, message)
     .refine((value) => !value.startsWith("//"), message);
 
+const fields = {
+  from_path: path(FROM, "A path on this website, e.g. /news/old-title (no domain).").refine(
+    (value) => value.length > 1 && !value.endsWith("/"),
+    "No trailing slash, and not the whole website.",
+  ),
+  to_path: path(TO, "A path on this website, e.g. /news/new-title (no domain)."),
+  permanent: checkbox,
+};
+
+const differentTarget = {
+  path: ["to_path"],
+  message: "The target must be a different URL.",
+};
+
 export const RedirectInput = z
-  .object({
-    from_path: path(FROM, "A path on this website, e.g. /news/old-title (no domain).").refine(
-      (value) => value.length > 1 && !value.endsWith("/"),
-      "No trailing slash, and not the whole website.",
-    ),
-    to_path: path(TO, "A path on this website, e.g. /news/new-title (no domain)."),
-    permanent: checkbox,
-  })
-  .refine((value) => value.from_path !== value.to_path, {
-    path: ["to_path"],
-    message: "The target must be a different URL.",
-  });
+  .object(fields)
+  .refine((value) => value.from_path !== value.to_path, differentTarget);
 export type RedirectInput = z.infer<typeof RedirectInput>;
+
+export const RedirectId = uuid;
+
+/** Editing an existing redirect: the same fields plus its id. */
+export const RedirectUpdate = z
+  .object({ id: RedirectId, ...fields })
+  .refine((value) => value.from_path !== value.to_path, differentTarget);
 
 export interface RedirectRule {
   to: string;

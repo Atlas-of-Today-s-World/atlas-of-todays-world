@@ -103,7 +103,7 @@ describe("adminRoutes", () => {
       myDrafts: "/admin/content?mine=1&status=draft",
       newTopic: "/admin/content/new?kind=entry",
       approvals: "/admin/approvals",
-      redirects: "/admin/redirects",
+
       homePage: "/admin/home",
       newCustomRegion: "/admin/global-issues/new?kind=region",
       appearance: "/admin/appearance",
@@ -131,6 +131,10 @@ describe("adminRoutes", () => {
     expect(adminRoutes.areas("lake-chad")).toBe("/admin/areas/lake-chad");
     expect(adminRoutes.accounts.list).toBe("/admin/accounts");
     expect(adminRoutes.accounts("u1")).toBe("/admin/accounts/u1");
+    expect(adminRoutes.redirects.list).toBe("/admin/redirects");
+    expect(adminRoutes.redirects("r1")).toBe("/admin/redirects/r1");
+    expect(adminRoutes.switches.list).toBe("/admin/switches");
+    expect(adminRoutes.switches("maintenance")).toBe("/admin/switches/maintenance");
   });
 
   it("adds a query to a record page only when there is one", () => {

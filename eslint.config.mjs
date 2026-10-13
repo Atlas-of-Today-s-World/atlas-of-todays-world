@@ -82,8 +82,9 @@ const config = [
     },
   },
   {
-    // Tests spell the expected URLs out on purpose; routes.ts is where URLs are built.
-    files: ["src/**/*.test.{ts,tsx}", "src/config/routes.ts"],
+    // Tests spell the expected URLs out on purpose; routes.ts is where URLs are built and
+    // redirects.ts lists the old (legacy) addresses as path patterns.
+    files: ["src/**/*.test.{ts,tsx}", "src/config/routes.ts", "src/config/redirects.ts"],
     rules: { "no-restricted-syntax": ["error", NO_RAW_HTML] },
   },
   {

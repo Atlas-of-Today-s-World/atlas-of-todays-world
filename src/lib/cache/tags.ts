@@ -22,6 +22,12 @@ export const tags = {
   portrait: (kind: "region" | "issue", slug: string) => `portrait:${kind}:${slug}`,
   /** Feature flags and maintenance mode. */
   flags: "flags",
+  /**
+   * Site-wide notices (site_notices: the maintenance title and text). Only pages
+   * rendered while maintenance is on read them, so editing the text with the
+   * switch off refreshes nothing else.
+   */
+  notices: "site-notices",
   /** Redirects of old URLs (redirects table). */
   redirects: "redirects",
   /** Atlas Patrons progress (patron_stats) — payment webhook and admin grants. */

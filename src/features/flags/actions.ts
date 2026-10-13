@@ -2,24 +2,16 @@
 
 import "server-only";
 import { revalidatePath, updateTag } from "next/cache";
-import { z } from "zod";
 import { adminRoutes } from "@/config/routes";
-import { affected, NOT_SIGNED_IN, signedIn, type ActionState } from "@/lib/actions";
+import { affected, formAction, NOT_SIGNED_IN, signedIn, type ActionState } from "@/lib/actions";
 import { tags } from "@/lib/cache/tags";
+import { FlagKey, FlagNoteInput, MaintenanceMessageInput } from "./schema";
 
-/**
- * Flag key as the DB CHECK spells it: lowercase words joined by single "_". The
- * nested quantifier can't backtrack ("_" never matches `[a-z0-9]`), so it's linear.
- */
-const Key = z
-  .string()
-  // eslint-disable-next-line security/detect-unsafe-regex -- star-height heuristic false positive; linear, see above
-  .regex(/^[a-z0-9]+(_[a-z0-9]+)*$/)
-  .max(40);
+const SWITCHES = adminRoutes.switches.list;
 
 /** Turns a flag on/off (feature_flags; RLS enforces the permissions "e" right). */
 export async function setFlag(key: string, enabled: boolean): Promise<ActionState> {
-  if (!Key.safeParse(key).success) return { ok: false, error: "Invalid switch." };
+  if (!FlagKey.safeParse(key).success) return { ok: false, error: "Invalid switch." };
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
   const denied = affected(
@@ -28,6 +20,43 @@ export async function setFlag(key: string, enabled: boolean): Promise<ActionStat
   );
   if (denied) return denied;
   updateTag(tags.flags);
-  revalidatePath(adminRoutes.roles);
+  revalidatePath(SWITCHES);
   return { ok: true, message: enabled ? "Turned on." : "Turned off." };
 }
+
+/**
+ * The note next to a switch (feature_flags.note; same permissions "e" right as
+ * the switch). Notes are admin-only, so no public cache changes.
+ */
+export const saveFlagNote = formAction(FlagNoteInput, async ({ data, supabase }) => {
+  const denied = affected(
+    await supabase
+      .from("feature_flags")
+      .update({ note: data.note })
+      .eq("key", data.key)
+      .select("key"),
+    "You can't change this switch.",
+  );
+  if (denied) return denied;
+  revalidatePath(SWITCHES);
+  return { ok: true, message: "Note saved." };
+});
+
+/**
+ * Maintenance title and text (site_notices; RLS: section site "e"). Empty
+ * fields bring back the built-in wording. Only pages rendered during
+ * maintenance read it, so only their tag is refreshed.
+ */
+export const saveMaintenanceMessage = formAction(
+  MaintenanceMessageInput,
+  async ({ data, supabase }) => {
+    const denied = affected(
+      await supabase.from("site_notices").update(data).eq("id", 1).select("id"),
+      "You can't change the maintenance message.",
+    );
+    if (denied) return denied;
+    updateTag(tags.notices);
+    revalidatePath(SWITCHES);
+    return { ok: true, message: "Maintenance message saved." };
+  },
+);

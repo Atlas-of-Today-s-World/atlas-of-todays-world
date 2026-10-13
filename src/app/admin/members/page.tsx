@@ -10,13 +10,13 @@ import { sectionAccess } from "@/features/auth/access";
 import { revokeMembership } from "@/features/members/actions";
 import { GrantForm } from "@/features/members/components/MemberForms";
 import { accountsWithoutMembership, listMemberships } from "@/features/members/editorial";
-import { PLAN_LABEL } from "@/features/members/labels";
+import { MEMBERSHIP_PLANS, PLAN_LABEL } from "@/features/members/labels";
 
 export const metadata: Metadata = { title: "Patron memberships" };
 
-const PLANS = (["patron", "founding", "institution"] as const).map((plan) => ({
+const PLANS = MEMBERSHIP_PLANS.map((plan) => ({
   value: plan,
-  label: PLAN_LABEL[plan] ?? plan,
+  label: PLAN_LABEL[plan],
   tone: plan === "institution" ? ("accent" as const) : ("success" as const),
 }));
 

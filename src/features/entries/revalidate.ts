@@ -32,14 +32,18 @@ export function pingSearchEngines(row: { slug: string; kind: string; locale: str
   notifyIndexNow([path]);
 }
 
-/** Revalidates an article's cache by its placement (`onlyPublished`: only when it's live). */
+/**
+ * Revalidates an article's cache by its placement (`onlyPublished`: only when
+ * it's live). Returns the row it read (null = gone or not visible).
+ */
 export async function refreshEntry(supabase: ServerClient, id: string, onlyPublished = false) {
   const { data } = await supabase
     .from("entries")
     .select(PLACEMENT_COLUMNS)
     .eq("id", id)
     .maybeSingle();
-  if (onlyPublished && data?.status !== "published") return;
+  if (onlyPublished && data?.status !== "published") return data;
   refresh(data?.slug, data?.region_slug, data?.special_slug);
   if (data) pingSearchEngines(data);
+  return data;
 }

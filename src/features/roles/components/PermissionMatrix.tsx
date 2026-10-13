@@ -266,7 +266,9 @@ export function PermissionMatrix({
                         ) : (
                           <span className="w-5 shrink-0" />
                         )}
-                        <span className="truncate">{section.label}</span>
+                        <span className="truncate" title={section.description}>
+                          {section.label}
+                        </span>
                       </span>
                       <code className="block truncate pl-6 font-mono text-[10.5px] font-normal text-[var(--color-ink-muted)]">
                         {section.key}

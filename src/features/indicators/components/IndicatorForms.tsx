@@ -9,6 +9,14 @@ import { Button } from "@/components/ui/button";
 import { Checkbox, FormField, Input, Select, Textarea } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
 import { saveCategories, saveIndicator, setValue } from "../actions";
+import {
+  INDICATOR_SCALE_LABEL,
+  INDICATOR_SCALES,
+  INDICATOR_TYPE_LABEL,
+  INDICATOR_TYPES,
+  type IndicatorScale,
+  type IndicatorType,
+} from "../constants";
 import { ActionForm, useServerAction } from "@/components/ui/action-form";
 
 export interface IndicatorValues {
@@ -20,8 +28,8 @@ export interface IndicatorValues {
   decimals: number;
   source: string;
   source_url: string | null;
-  type: "sequential" | "categorical";
-  scale: "linear" | "log";
+  type: IndicatorType;
+  scale: IndicatorScale;
   domain_min: number | null;
   domain_max: number | null;
   ramp: string[];
@@ -96,11 +104,7 @@ export function IndicatorForm({ indicator }: { indicator: IndicatorValues | null
           {indicator ? (
             <>
               <input type="hidden" name="type" value={values.type} />
-              <Input
-                id="type"
-                readOnly
-                value={values.type === "categorical" ? "Categories" : "Continuous scale"}
-              />
+              <Input id="type" readOnly value={INDICATOR_TYPE_LABEL[values.type]} />
             </>
           ) : (
             <Select
@@ -109,8 +113,11 @@ export function IndicatorForm({ indicator }: { indicator: IndicatorValues | null
               value={type}
               onChange={(event) => setType(event.target.value as IndicatorValues["type"])}
             >
-              <option value="sequential">Continuous scale</option>
-              <option value="categorical">Categories</option>
+              {INDICATOR_TYPES.map((value) => (
+                <option key={value} value={value}>
+                  {INDICATOR_TYPE_LABEL[value]}
+                </option>
+              ))}
             </Select>
           )}
         </FormField>
@@ -158,8 +165,11 @@ export function IndicatorForm({ indicator }: { indicator: IndicatorValues | null
           <div className="grid gap-5 sm:grid-cols-3">
             <FormField id="scale" label="Scale type" errors={errors.scale}>
               <Select id="scale" name="scale" defaultValue={values.scale}>
-                <option value="linear">Linear</option>
-                <option value="log">Logarithmic</option>
+                {INDICATOR_SCALES.map((value) => (
+                  <option key={value} value={value}>
+                    {INDICATOR_SCALE_LABEL[value]}
+                  </option>
+                ))}
               </Select>
             </FormField>
             <FormField id="domain_min" label="From" errors={errors.domain_min}>

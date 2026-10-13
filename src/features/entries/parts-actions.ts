@@ -16,11 +16,13 @@ import {
 import { adminRoutes } from "@/config/routes";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { previewNote, storePreviewImages } from "@/lib/previews/store";
-import { requiredText, uuid } from "@/lib/validation/common";
-import { COLLECTIONS } from "@/features/portraits/schema";
+import { uuid } from "@/lib/validation/common";
 import {
   CHAPTER_FIELD_LABEL,
+  CHAPTER_HTML_MAX,
+  CHAPTER_TOO_LONG,
   ChapterInput,
+  EntryFaqItem,
   LearnMoreInput,
   SeoInput,
   TilesInput,
@@ -70,16 +72,25 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
       })),
     );
   if (!parsed.success) return listItemError(parsed.error, "Subtopic", CHAPTER_FIELD_LABEL);
+  const chapters = parsed.data.map((chapter) => ({
+    ...chapter,
+    body_html: sanitizeRichHtml(chapter.body_html),
+  }));
+  // Sanitizing can lengthen the HTML (rel on links): check what will be stored.
+  const tooLong = chapters.findIndex((chapter) => chapter.body_html.length > CHAPTER_HTML_MAX);
+  if (tooLong >= 0) {
+    return {
+      ok: false,
+      error: `Subtopic ${tooLong + 1}, ${CHAPTER_FIELD_LABEL.body_html}: ${CHAPTER_TOO_LONG}`,
+    };
+  }
 
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
   const { error } = await session.supabase.rpc("replace_entry_parts", {
     p_entry: entryId,
     p_part: "chapters",
-    p_items: parsed.data.map((chapter) => ({
-      ...chapter,
-      body_html: sanitizeRichHtml(chapter.body_html),
-    })),
+    p_items: chapters,
   });
   if (error) return failed(error);
   await refreshEntry(session.supabase, entryId, true);
@@ -90,11 +101,7 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
 export async function saveEntryFaq(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const entryId = String(formData.get("entry_id") ?? "");
   if (!uuid.safeParse(entryId).success) return { ok: false, error: "Invalid entry." };
-  // A dossier answer is capped at 2,000 characters (`entry_faq`), shorter than a portrait one.
-  const parsed = z
-    .array(COLLECTIONS.faq.extend({ answer: requiredText(2000) }))
-    .max(20)
-    .safeParse(jsonField(formData, "items"));
+  const parsed = z.array(EntryFaqItem).max(20).safeParse(jsonField(formData, "items"));
   if (!parsed.success) return listItemError(parsed.error, "Question", {});
 
   const session = await signedIn();

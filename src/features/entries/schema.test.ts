@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { ChapterInput, EntryInput, ScheduleInput } from "./schema";
+import { COLLECTIONS } from "@/features/portraits/schema";
+import {
+  ChapterInput,
+  EntryFaqItem,
+  EntryInput,
+  LearnMoreInput,
+  ScheduleInput,
+  SeoInput,
+} from "./schema";
 
 const id = "00000000-0000-4000-8000-000000000001";
 const inMinutes = (minutes: number) => new Date(Date.now() + minutes * 60_000).toISOString();
@@ -59,5 +67,58 @@ describe("EntryInput — encyclopedia entry", () => {
     const parsed = EntryInput.parse({ ...base, author_id: "", summary_points: "" });
     expect(parsed).toMatchObject({ author_id: undefined, summary_points: [] });
     expect(EntryInput.safeParse({ ...base, author_id: "nesmysl" }).success).toBe(false);
+  });
+});
+
+describe("shared building blocks", () => {
+  const entry = {
+    slug: "a",
+    title: "A",
+    summary: "",
+    category: "Society",
+    cover_credit: "",
+    author_name: "",
+    body_html: "",
+    countries: [],
+  };
+
+  it("a header colour is stored lowercase; mixed case is still accepted", () => {
+    expect(EntryInput.parse({ ...entry, hero_background: "#1F3A5f" }).hero_background).toBe(
+      "#1f3a5f",
+    );
+    expect(EntryInput.parse({ ...entry, hero_background: "" }).hero_background).toBeUndefined();
+    expect(EntryInput.safeParse({ ...entry, hero_background: "#12345" }).success).toBe(false);
+  });
+
+  it("checkboxes take 'on' and 'true'; anything else is unticked", () => {
+    expect(EntryInput.parse({ ...entry, planned: "on" }).planned).toBe(true);
+    expect(EntryInput.parse({ ...entry, planned: "true" }).planned).toBe(true);
+    expect(EntryInput.parse(entry).planned).toBe(false);
+    expect(SeoInput.parse({ entry_id: id, noindex: "true" }).noindex).toBe(true);
+  });
+
+  it("an article is a news item or a topic", () => {
+    expect(EntryInput.parse(entry).kind).toBe("news");
+    expect(EntryInput.safeParse({ ...entry, kind: "page" }).success).toBe(false);
+  });
+
+  it("a topic's FAQ answer stops at 2,000 characters (entry_faq), a portrait's at 3,000", () => {
+    const item = { question: "Why?", answer: "x".repeat(2000) };
+    expect(EntryFaqItem.safeParse(item).success).toBe(true);
+    expect(EntryFaqItem.safeParse({ ...item, answer: "x".repeat(2001) }).success).toBe(false);
+    expect(COLLECTIONS.faq.safeParse({ ...item, answer: "x".repeat(3000) }).success).toBe(true);
+  });
+
+  it("learn-more links have the limits of portrait resources", () => {
+    const link = { title: "T", url: "https://example.org/" };
+    const tiles = (links: object[]) => [{ tile_id: id, links }];
+    expect(LearnMoreInput.safeParse(tiles([link])).success).toBe(true);
+    for (const bad of [
+      { ...link, source: "x".repeat(121) },
+      { ...link, description: "x".repeat(601) },
+      { ...link, url: `https://example.org/${"u".repeat(1000)}` },
+    ]) {
+      expect(LearnMoreInput.safeParse(tiles([bad])).success).toBe(false);
+    }
   });
 });

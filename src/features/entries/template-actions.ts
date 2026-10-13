@@ -16,7 +16,7 @@ import {
 } from "@/lib/actions";
 import { adminRoutes } from "@/config/routes";
 import { entryChangedTags } from "@/lib/cache/tags";
-import { requiredText, uuid } from "@/lib/validation/common";
+import { checkbox, requiredText, uuid } from "@/lib/validation/common";
 import { TemplateInput, TILE_FIELD_LABEL, TilesInput } from "./schema";
 
 const TEMPLATES = adminRoutes.topicTemplates.list;
@@ -84,7 +84,7 @@ export async function deleteTemplate(id: string): Promise<ActionState> {
 const ApplyInput = z.object({
   entry_id: uuid,
   template_id: uuid,
-  remove_missing: z.preprocess((value) => value === "on", z.boolean()),
+  remove_missing: checkbox,
 });
 
 /**

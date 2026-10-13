@@ -17,9 +17,17 @@ import { tags } from "@/lib/cache/tags";
 import { notifyIndexNow } from "@/lib/seo/indexnow";
 import { previewNote, storePreviewImages } from "@/lib/previews/store";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
-import { iso3 as iso3Schema, SLUG, slug as slugSchema } from "@/lib/validation/common";
+import { htmlTooLong, iso3 as iso3Schema, SLUG, slug as slugSchema } from "@/lib/validation/common";
 import { GROUP_KIND_LABEL } from "./constants";
-import { COLLECTIONS, CountryInput, IssueInput, PortraitKind, RegionInput } from "./schema";
+import {
+  COLLECTIONS,
+  CountryInput,
+  IssueInput,
+  PortraitKind,
+  PROFILE_HTML_MAX,
+  PROFILE_TOO_LONG,
+  RegionInput,
+} from "./schema";
 import { adminRoutes, routes } from "@/config/routes";
 
 const FIELD_LABEL: Record<string, string> = {
@@ -201,6 +209,8 @@ export async function deleteIssue(slug: string): Promise<ActionState> {
   if (!data.length)
     return { ok: false, error: "Can't delete this global issue (you don't have permission)." };
   updateTag(tags.atlas);
+  // Its own portrait page (cached under its slug) must now be a 404.
+  updateTag(tags.portrait("issue", slug));
   updateTag(tags.entries);
   // The articles' `special_slug` was set to null (FK on delete set null).
   updateTag(tags.entryPages);
@@ -210,6 +220,9 @@ export async function deleteIssue(slug: string): Promise<ActionState> {
 export async function saveCountry(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = CountryInput.safeParse(formObject(formData, ["featured_indicators"]));
   if (!parsed.success) return invalid(parsed.error);
+  // Sanitizing can lengthen the HTML (rel on links): check what will be stored.
+  const profile_html = sanitizeRichHtml(parsed.data.profile_html);
+  if (profile_html.length > PROFILE_HTML_MAX) return htmlTooLong("profile_html", PROFILE_TOO_LONG);
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
   const { iso3, ...fields } = parsed.data;
@@ -219,7 +232,7 @@ export async function saveCountry(_prev: ActionState, formData: FormData): Promi
       ...fields,
       blurb: fields.blurb || null,
       region_slug: fields.region_slug ?? null,
-      profile_html: sanitizeRichHtml(fields.profile_html),
+      profile_html,
     })
     .eq("iso3", iso3)
     .select("iso3, slug");

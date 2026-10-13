@@ -11,7 +11,11 @@ import {
 
 /**
  * G3: a redirect added in the admin applies at once (cache refresh) — both for
- * an old country URL and for a path that does not exist on the site at all.
+ * an old country URL and for a path that does not exist on the site at all —
+ * and so does editing one. Also the operations screen (switches & the
+ * maintenance message) as a site-content editor sees it. Maintenance itself is
+ * never switched on here: it would take the shared atlas-dev site down for
+ * every other test running at the same time.
  */
 requireDevAccounts();
 test.describe.configure({ mode: "serial" });
@@ -51,4 +55,38 @@ test("editors add a redirect and the visitor lands on the new URL", async ({ pag
   await expect(visitor).toHaveURL(/\/country\/ukraine$/);
   await visitor.goto(oldPath);
   await expect(visitor).toHaveURL(/\/about$/);
+
+  // Editing an existing redirect (news "e") applies at once as well.
+  await page
+    .getByRole("row")
+    .filter({ hasText: oldPath })
+    .getByRole("link", { name: "Edit" })
+    .click();
+  await expect(page.getByRole("heading", { name: "Edit URL redirect" })).toBeVisible();
+  await page.getByLabel(/^New path( \*)?$/).fill("/countries");
+  await page.getByRole("button", { name: "Save redirect" }).click();
+  await expect(page.getByRole("status")).toContainText("Redirect saved");
+  await visitor.goto(oldPath);
+  await expect(visitor).toHaveURL(/\/countries$/);
+
+  // The redirects built into the site are listed, read-only.
+  await page.goto("/admin/redirects");
+  await page.getByText(/^Built-in redirects/).click();
+  await expect(
+    page.getByTestId("built-in-redirects").getByRole("cell", { name: "/special/:slug" }),
+  ).toBeVisible();
+});
+
+test("a content editor sees the switches read-only and may word the maintenance notice", async ({
+  page,
+}) => {
+  const editor = testEmail("switches");
+  await createUser(editor, "content-editor");
+  await signIn(page, editor, "/admin/switches");
+  await expect(page.getByRole("heading", { name: "Switches & maintenance" })).toBeVisible();
+  // Switches are a permissions "e" right: no toggle for site content editors.
+  await expect(page.getByRole("cell", { name: "maintenance", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Turn (on|off)$/ })).toHaveCount(0);
+  // The wording is site content ("site" "e").
+  await expect(page.getByLabel("Title", { exact: true })).toBeEditable();
 });

@@ -118,7 +118,8 @@ export const adminRoutes = {
   authors: editable(`${ADMIN}/authors`),
   topicTemplates: editable(`${ADMIN}/topic-templates`),
   approvals: `${ADMIN}/approvals`,
-  redirects: `${ADMIN}/redirects`,
+  /** URL redirects by id. */
+  redirects: records(`${ADMIN}/redirects`),
   /** The home page's pinned subtopics. */
   homePage: `${ADMIN}/home`,
   /** Regions by slug; their countries are under `country(slug)`. */
@@ -132,6 +133,8 @@ export const adminRoutes = {
   /** Custom map areas by slug. */
   areas: editable(`${ADMIN}/areas`),
   appearance: `${ADMIN}/appearance`,
+  /** Feature switches and the maintenance message; a switch's note by its key. */
+  switches: records(`${ADMIN}/switches`),
   accounts: records(`${ADMIN}/accounts`),
   /** Reader accounts (the accounts list's second tab). */
   readers: `${ADMIN}/accounts?kind=readers`,

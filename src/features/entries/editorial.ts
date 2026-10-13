@@ -1,5 +1,6 @@
 import "server-only";
 import { createServerClient } from "@/lib/supabase/server";
+import type { ArticleKind } from "@/lib/content-types";
 import type { EntryStatus } from "./schema";
 import { ilikeAny } from "@/lib/db/filters";
 import { must, rowsOf } from "@/lib/db/result";
@@ -13,7 +14,7 @@ import { TILE_COLUMNS } from "./rows";
 export interface EditorialRow {
   id: string;
   slug: string;
-  kind: "news" | "entry";
+  kind: ArticleKind;
   title: string;
   status: EntryStatus;
   category: string;

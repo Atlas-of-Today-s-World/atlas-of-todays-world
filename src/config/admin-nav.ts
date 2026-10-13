@@ -13,6 +13,7 @@ import {
   PenLine,
   ShieldCheck,
   SignpostBig,
+  ToggleRight,
   Shapes,
   UserRound,
   Users,
@@ -49,7 +50,12 @@ export const ADMIN_NAV: readonly AdminNavItem[] = [
     section: "approvals",
     icon: BadgeCheck,
   },
-  { href: adminRoutes.redirects, label: "URL redirects", section: "news", icon: SignpostBig },
+  {
+    href: adminRoutes.redirects.list,
+    label: "URL redirects",
+    section: ["news", "site"],
+    icon: SignpostBig,
+  },
   { href: adminRoutes.homePage, label: "Home page", section: "news", icon: House },
   {
     href: adminRoutes.regions.list,
@@ -66,6 +72,12 @@ export const ADMIN_NAV: readonly AdminNavItem[] = [
   { href: adminRoutes.data.list, label: "Map data layers", section: "layers", icon: Layers },
   { href: adminRoutes.areas.list, label: "Custom map areas", section: "areas", icon: MapIcon },
   { href: adminRoutes.appearance, label: "Map appearance", section: "appearance", icon: Brush },
+  {
+    href: adminRoutes.switches.list,
+    label: "Switches & maintenance",
+    section: ["permissions", "site"],
+    icon: ToggleRight,
+  },
   {
     href: adminRoutes.accounts.list,
     label: "Accounts & invitations",
