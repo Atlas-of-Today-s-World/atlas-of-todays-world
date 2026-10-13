@@ -11,7 +11,7 @@ import {
   type ActionState,
 } from "@/lib/actions";
 import { tags } from "@/lib/cache/tags";
-import { RedirectId, RedirectInput } from "./schema";
+import { RedirectId, RedirectInput, RedirectUpdate } from "./schema";
 
 /** Adds a redirect (RLS: section news "c"; the DB enforces loops and path shape). */
 export async function addRedirect(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -24,6 +24,28 @@ export async function addRedirect(_prev: ActionState, formData: FormData): Promi
   updateTag(tags.redirects);
   revalidatePath("/admin/redirects");
   return { ok: true, message: `Redirect added: ${parsed.data.from_path} → ${parsed.data.to_path}` };
+}
+
+/**
+ * Edits a redirect (RLS: section news "e" or site "e"; the DB keeps the author
+ * and refuses loops and paths off the site, as on insert).
+ */
+export async function updateRedirect(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const parsed = RedirectUpdate.safeParse(formObject(formData));
+  if (!parsed.success) return invalid(parsed.error);
+  const session = await signedIn();
+  if (!session) return NOT_SIGNED_IN;
+  const { id, ...fields } = parsed.data;
+  const { data, error } = await session.supabase
+    .from("redirects")
+    .update(fields)
+    .eq("id", id)
+    .select("id");
+  if (error) return failed(error);
+  if (!data.length) return { ok: false, error: "You can't edit this redirect." };
+  updateTag(tags.redirects);
+  revalidatePath("/admin/redirects");
+  return { ok: true, message: `Redirect saved: ${fields.from_path} → ${fields.to_path}` };
 }
 
 /** Deletes a redirect (RLS: section news "d"). */

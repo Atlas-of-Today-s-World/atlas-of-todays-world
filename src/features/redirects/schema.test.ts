@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { buildRedirectMap, matchRedirect, normalizePath, RedirectInput } from "./schema";
+import {
+  buildRedirectMap,
+  matchRedirect,
+  normalizePath,
+  RedirectInput,
+  RedirectUpdate,
+} from "./schema";
 
 const ok = (from_path: string, to_path: string) =>
   RedirectInput.safeParse({ from_path, to_path, permanent: "on" }).success;
@@ -25,6 +31,24 @@ describe("RedirectInput", () => {
     expect(ok("/", "/news")).toBe(false);
     expect(ok("/old/", "/news")).toBe(false);
     expect(ok("/same", "/same")).toBe(false);
+  });
+});
+
+describe("RedirectUpdate", () => {
+  const id = "4b1e1a52-2f4f-4f43-9a51-0d6c1c1f3a10";
+
+  it("takes the same fields plus the redirect's id", () => {
+    expect(
+      RedirectUpdate.parse({ id, from_path: "/old", to_path: "/new", permanent: "on" }),
+    ).toEqual({ id, from_path: "/old", to_path: "/new", permanent: true });
+  });
+
+  it("keeps every rule of a new redirect and needs a valid id", () => {
+    const ok = (fields: Record<string, string>) => RedirectUpdate.safeParse(fields).success;
+    expect(ok({ id, from_path: "/old", to_path: "https://evil.example" })).toBe(false);
+    expect(ok({ id, from_path: "/same", to_path: "/same" })).toBe(false);
+    expect(ok({ id, from_path: "/old/", to_path: "/new" })).toBe(false);
+    expect(ok({ id: "1", from_path: "/old", to_path: "/new" })).toBe(false);
   });
 });
 

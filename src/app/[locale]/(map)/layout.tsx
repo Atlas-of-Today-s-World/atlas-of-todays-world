@@ -8,9 +8,8 @@ import { featuredSubtopics } from "@/features/topics/featured";
 import { MapStage } from "@/components/map/MapStage";
 import { MapProvider } from "@/components/map/MapContext";
 import { MapLegend, type ViewOption } from "@/components/map/ViewSwitcher";
-import ContentRail from "@/components/ContentRail";
 import { FloatingActions } from "@/components/membership/FloatingActions";
-import { ErrorState } from "@/components/atlas/ErrorState";
+import { MaintenanceGate } from "@/features/flags/components/MaintenanceGate";
 import { getFlags } from "@/features/flags/queries";
 import { regionColorMap } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
@@ -163,18 +162,7 @@ export default async function MapLayout({
             featured={featured}
           />
           <MapLegend options={viewOptions} />
-          {flags.maintenance ? (
-            <ContentRail>
-              <ErrorState
-                code={t.map.maintenance}
-                title={t.map.maintenanceTitle}
-                lead={t.map.maintenanceText}
-                backLabel={t.common.backToGlobe}
-              />
-            </ContentRail>
-          ) : (
-            children
-          )}
+          <MaintenanceGate inRail>{children}</MaintenanceGate>
         </MapStage>
       </main>
     </MapProvider>

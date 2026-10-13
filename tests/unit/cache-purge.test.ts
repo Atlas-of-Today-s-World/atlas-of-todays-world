@@ -193,21 +193,38 @@ describe("a confirmed write refreshes exactly its tags", { timeout: 30_000 }, ()
     notifyIndexNow.mockReset();
   });
 
+  const published = (kind: string) => ({
+    entries: {
+      slug: "water",
+      status: "published",
+      region_slug: "europe",
+      special_slug: null,
+      kind,
+      locale: "en",
+    },
+  });
+
   it("approveEntry: the lists and that article's page, not every article page", async () => {
-    client.current = written({
-      entries: {
-        slug: "water",
-        status: "published",
-        region_slug: "europe",
-        special_slug: null,
-        kind: "news",
-        locale: "en",
-      },
-    });
+    client.current = written(published("entry"));
     const { approveEntry } = await import("@/features/entries/workflow-actions");
     const result = await approveEntry("00000000-0000-4000-8000-000000000123");
     expect(result).toMatchObject({ ok: true });
     expect(updatedTags()).toEqual(["entries", "entry:water", "portrait:region:europe"]);
+  });
+
+  it("approveEntry of a news article: also the switches (News may join the menu)", async () => {
+    client.current = written(published("news"));
+    const { approveEntry } = await import("@/features/entries/workflow-actions");
+    const result = await approveEntry("00000000-0000-4000-8000-000000000123");
+    expect(result).toMatchObject({ ok: true });
+    expect(updatedTags()).toEqual(["entries", "entry:water", "portrait:region:europe", "flags"]);
+  });
+
+  it("unpublishEntry of a news article: no switch changes, so not the switches", async () => {
+    client.current = written(published("news"));
+    const { unpublishEntry } = await import("@/features/entries/workflow-actions");
+    await unpublishEntry("00000000-0000-4000-8000-000000000123");
+    expect(updatedTags()).not.toContain("flags");
   });
 
   it("saveCountry: the map snapshot and that country's profile text", async () => {
@@ -269,11 +286,33 @@ describe("a confirmed write refreshes exactly its tags", { timeout: 30_000 }, ()
     expect(updatedTags()).toEqual(["atlas", "indicator:custom"]);
   });
 
-  it("deleteIssue: every article page, whose group link was cleared", async () => {
+  it("deleteIssue: its portrait and every article page, whose group link was cleared", async () => {
     client.current = written({ special_regions: [{ slug: "sahel" }] });
     const { deleteIssue } = await import("@/features/portraits/actions");
     const result = await deleteIssue("sahel");
     expect(result).toMatchObject({ ok: true });
-    expect(updatedTags()).toEqual(["atlas", "entries", "entry-pages"]);
+    expect(updatedTags()).toEqual(["atlas", "portrait:issue:sahel", "entries", "entry-pages"]);
+  });
+
+  it("saveMaintenanceMessage: only the maintenance notice, not the switches", async () => {
+    client.current = written({ site_notices: [{ id: 1 }] });
+    const { saveMaintenanceMessage } = await import("@/features/flags/actions");
+    const result = await saveMaintenanceMessage(
+      { ok: false },
+      form({ maintenance_title: "Back soon", maintenance_text: "" }),
+    );
+    expect(result).toMatchObject({ ok: true });
+    expect(updatedTags()).toEqual(["site-notices"]);
+  });
+
+  it("updateRedirect: the redirect map", async () => {
+    client.current = written({ redirects: [{ id: "x" }] });
+    const { updateRedirect } = await import("@/features/redirects/actions");
+    const result = await updateRedirect(
+      { ok: false },
+      form({ id: "00000000-0000-4000-8000-000000000123", from_path: "/old", to_path: "/new" }),
+    );
+    expect(result).toMatchObject({ ok: true });
+    expect(updatedTags()).toEqual(["redirects"]);
   });
 });

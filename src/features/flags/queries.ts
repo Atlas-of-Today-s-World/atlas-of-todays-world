@@ -2,6 +2,7 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import { createPublicClient } from "@/lib/supabase/public";
+import { maintenanceNotice, type MaintenanceNotice } from "./maintenance";
 
 /**
  * Feature flags — public read (layer: features/<domain>/queries.ts). Cached under the
@@ -43,3 +44,37 @@ export const getFlags = unstable_cache(
   ["feature-flags"],
   { tags: [tags.flags], revalidate: PUBLIC_REVALIDATE_SECONDS },
 );
+
+/**
+ * Stored maintenance title/text (site_notices, one row). Read only while the
+ * switch is on, cached under its own tag. A DB error or a missing row = the
+ * built-in wording (empty strings).
+ */
+const getStoredMaintenance = unstable_cache(
+  async (): Promise<MaintenanceNotice> => {
+    const { data, error } = await createPublicClient()
+      .from("site_notices")
+      .select("maintenance_title, maintenance_text")
+      .maybeSingle();
+    if (error) console.error("[site-notices]", error.message);
+    return { title: data?.maintenance_title ?? "", text: data?.maintenance_text ?? "" };
+  },
+  ["site-notices"],
+  { tags: [tags.notices], revalidate: PUBLIC_REVALIDATE_SECONDS },
+);
+
+/**
+ * The maintenance notice the public site shows instead of its pages, or null
+ * while maintenance is off — the single check every public layout makes
+ * (through `MaintenanceGate`).
+ */
+export async function getMaintenance(
+  fallback: MaintenanceNotice,
+): Promise<MaintenanceNotice | null> {
+  const { maintenance } = await getFlags();
+  return maintenanceNotice(
+    maintenance,
+    maintenance ? await getStoredMaintenance() : null,
+    fallback,
+  );
+}

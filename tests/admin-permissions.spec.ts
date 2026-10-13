@@ -81,7 +81,8 @@ const forbidden = (page: Page) => expect(page.getByTestId("section-forbidden")).
 // 1) The menu shows only sections with the "v" (view) right
 // ---------------------------------------------------------------------------
 
-// The news section also brings Authors and Redirects.
+// The news section also brings Authors and Redirects; the site section (content-editor
+// and publisher by default) brings Switches & maintenance (read-only switches there).
 const MENU: Record<Exclude<(typeof ROLES)[number], "reader">, string[]> = {
   "content-editor": [
     "Overview",
@@ -94,6 +95,7 @@ const MENU: Record<Exclude<(typeof ROLES)[number], "reader">, string[]> = {
     "Regions & countries",
     "Global issues",
     "Map data layers",
+    "Switches & maintenance",
   ],
   "content-approver": [
     "Overview",
@@ -113,6 +115,7 @@ const MENU: Record<Exclude<(typeof ROLES)[number], "reader">, string[]> = {
     "Home page",
     "Regions & countries",
     "Map data layers",
+    "Switches & maintenance",
   ],
   "data-editor": [
     "Overview",
@@ -172,10 +175,18 @@ const FORBIDDEN: [(typeof ROLES)[number], string[]][] = [
       "/admin/roles",
       "/admin/roles/audit",
       "/admin/members",
+      // Sees the switches (site "v") but may not edit a switch's note (permissions "e").
+      "/admin/switches/maintenance",
     ],
   ],
-  ["observer", ["/admin/content/new", "/admin/approvals", "/admin/regions", "/admin/data"]],
-  ["data-editor", ["/admin/content", "/admin/approvals", "/admin/areas", "/admin/accounts"]],
+  [
+    "observer",
+    ["/admin/content/new", "/admin/approvals", "/admin/regions", "/admin/data", "/admin/switches"],
+  ],
+  [
+    "data-editor",
+    ["/admin/content", "/admin/approvals", "/admin/areas", "/admin/accounts", "/admin/redirects"],
+  ],
   ["content-editor", ["/admin/data/new", "/admin/global-issues/new", "/admin/appearance"]],
   [areasRole, ["/admin/content", "/admin/regions", "/admin/data", "/admin/roles"]],
 ];

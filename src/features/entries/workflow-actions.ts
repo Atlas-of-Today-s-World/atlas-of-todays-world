@@ -1,6 +1,8 @@
 "use server";
 
 import "server-only";
+import { updateTag } from "next/cache";
+import { tags } from "@/lib/cache/tags";
 import {
   failed,
   formObject,
@@ -35,7 +37,12 @@ async function transition(fn: Transition, id: string): Promise<ActionState> {
   const { supabase } = session;
   const { error } = await supabase.rpc(fn, { p_entry: id });
   if (error) return failed(error);
-  if (fn !== "submit_entry") await refreshEntry(supabase, id);
+  if (fn !== "submit_entry") {
+    const entry = await refreshEntry(supabase, id);
+    // Publishing a news article can switch News into the menu (DB trigger
+    // news_menu_on_publish → feature_flags.news_menu), which every page's header reads.
+    if (fn === "approve_entry" && entry?.kind === "news") updateTag(tags.flags);
+  }
   return { ok: true, message: DONE[fn] };
 }
 
@@ -51,6 +58,12 @@ export async function unpublishEntry(id: string) {
   return transition("unpublish_entry", id);
 }
 
+/**
+ * Sends a pending article back to its author. `send_back_entry` (like
+ * `schedule_entry` / `unschedule_entry` below) only touches articles in
+ * `pending`, which are never on the site — nothing public changes, so no
+ * cache is refreshed.
+ */
 export async function sendBackEntry(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = SendBackInput.safeParse(formObject(formData));
   if (!parsed.success) return invalid(parsed.error);

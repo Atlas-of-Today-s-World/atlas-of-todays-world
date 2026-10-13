@@ -6,18 +6,28 @@ import { SubmitButton } from "@/components/admin/SubmitButton";
 import { ActionForm } from "@/components/ui/action-form";
 import { Checkbox, FormField, Input } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
-import { addRedirect } from "../actions";
+import { addRedirect, updateRedirect } from "../actions";
+import type { RedirectRow } from "../editorial";
 
-/** New redirect from an old path to a new one (both on this site). */
-export function RedirectForm() {
-  const [state, action] = useActionState<ActionState, FormData>(addRedirect, { ok: false });
+/**
+ * A redirect from an old path to a new one (both on this site): a new one, or
+ * editing `redirect`.
+ */
+export function RedirectForm({ redirect }: { redirect?: RedirectRow }) {
+  const [state, action] = useActionState<ActionState, FormData>(
+    redirect ? updateRedirect : addRedirect,
+    { ok: false },
+  );
   const errors = state.fieldErrors ?? {};
   return (
     <ActionForm
       action={action}
       className="grid max-w-2xl gap-4 rounded-2xl border border-[var(--color-line)] p-5"
     >
-      <h2 className="font-display text-[17px] font-bold">New URL redirect</h2>
+      <h2 className="font-display text-[17px] font-bold">
+        {redirect ? "Edit URL redirect" : "New URL redirect"}
+      </h2>
+      {redirect ? <input type="hidden" name="id" value={redirect.id} /> : null}
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField
           id="redirect-from"
@@ -32,6 +42,7 @@ export function RedirectForm() {
             required
             maxLength={300}
             placeholder="/news/old-title"
+            defaultValue={redirect?.from_path}
           />
         </FormField>
         <FormField
@@ -47,16 +58,17 @@ export function RedirectForm() {
             required
             maxLength={300}
             placeholder="/news/new-title"
+            defaultValue={redirect?.to_path}
           />
         </FormField>
       </div>
       <Checkbox
         name="permanent"
-        defaultChecked
+        defaultChecked={redirect?.permanent ?? true}
         label="Permanent (308) — search engines will remember the new URL"
       />
       <div className="flex flex-wrap items-center gap-3">
-        <SubmitButton pending="Saving…">Add redirect</SubmitButton>
+        <SubmitButton pending="Saving…">{redirect ? "Save redirect" : "Add redirect"}</SubmitButton>
         <ActionStatus state={state} />
       </div>
     </ActionForm>
