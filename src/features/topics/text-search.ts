@@ -1,26 +1,14 @@
 /**
  * Full-text search inside the topics (Topics page): every chapter and every
- * topic's introduction is one searchable part. Pure, so it runs on cached
- * plain text on the server and a unit test pins the rules:
+ * topic's introduction is one searchable part. Postgres matches, ranks and
+ * cuts the excerpt (`search_topics()`, migration 20261013000010); this module
+ * holds the rules the browser and the API route share:
  *
- * - case and accents don't matter ("Cote" finds "Côte");
- * - every word of the query must occur in the part (title or text);
- * - the excerpt is cut around the first hit and marks every hit.
+ * - case and the common accents don't matter ("Cote" finds "Côte");
+ * - every word of the query (at least 2 characters, at most 8) must start a
+ *   word of the part (title or text);
+ * - the excerpt marks every word that starts with one of the query words.
  */
-
-interface TopicTextPart {
-  /** Chapter anchor on the topic page (`topic-2`), null for the introduction. */
-  anchor: string | null;
-  heading: string;
-  /** Plain text (tags stripped). */
-  text: string;
-}
-
-export interface TopicText {
-  slug: string;
-  title: string;
-  parts: TopicTextPart[];
-}
 
 export interface ExcerptSegment {
   text: string;
@@ -31,26 +19,29 @@ export interface TopicHit {
   slug: string;
   topicTitle: string;
   heading: string;
+  /** Chapter anchor on the topic page (`topic-2`), null for the introduction. */
   anchor: string | null;
   excerpt: ExcerptSegment[];
   score: number;
 }
 
 const MAX_WORDS = 8;
-const BEFORE = 80;
-const LENGTH = 260;
+
+/** Letters NFD doesn't take apart, folded as the database's fold_text() does. */
+const UNDECOMPOSED: Record<string, string> = { đ: "d", ł: "l", ø: "o", ı: "i" };
 
 /** Lowercase without accents, one output character per input character (indexes line up). */
 export function fold(value: string): string {
   let out = "";
   for (const char of value) {
-    const base = (char.normalize("NFD")[0] ?? char).toLowerCase();
+    const lower = (char.normalize("NFD")[0] ?? char).toLowerCase();
+    const base = UNDECOMPOSED[lower] ?? lower;
     out += base.length === char.length ? base : char.length === 1 ? (base[0] ?? char) : char;
   }
   return out;
 }
 
-/** Query → folded words (at least 2 characters), at most a few. */
+/** Query → folded words (at least 2 characters), at most a few — as `search_words()`. */
 export function queryWords(query: string): string[] {
   const words = fold(query)
     .split(/[^\p{L}\p{N}]+/u)
@@ -58,86 +49,30 @@ export function queryWords(query: string): string[] {
   return [...new Set(words)].slice(0, MAX_WORDS);
 }
 
-function count(haystack: string, word: string): number {
-  let total = 0;
-  for (let at = haystack.indexOf(word); at !== -1; at = haystack.indexOf(word, at + word.length))
-    total++;
-  return total;
-}
+const WORD_CHAR = /[\p{L}\p{N}]/u;
 
-/** Excerpt around the first hit, cut at word boundaries, with every hit marked. */
-export function excerpt(text: string, words: readonly string[]): ExcerptSegment[] {
+/** Plain text → segments, every word that starts with one of `words` marked. */
+export function markHits(text: string, words: readonly string[]): ExcerptSegment[] {
   const folded = fold(text);
-  const first = Math.min(
-    ...words.map((word) => folded.indexOf(word)).filter((at) => at !== -1),
-    text.length,
-  );
-  let start = first === text.length ? 0 : Math.max(0, first - BEFORE);
-  if (start > 0) {
-    const space = text.indexOf(" ", start);
-    start = space !== -1 && space < first ? space + 1 : start;
-  }
-  let end = Math.min(text.length, start + LENGTH);
-  if (end < text.length) {
-    const space = text.lastIndexOf(" ", end);
-    end = space > first ? space : end;
-  }
-
-  const piece = text.slice(start, end);
-  const foldedPiece = folded.slice(start, end);
+  // The longest word first, so "rout routes" marks the whole "routes".
+  const longestFirst = [...words].sort((a, b) => b.length - a.length);
   const segments: ExcerptSegment[] = [];
+  let plain = 0;
   let at = 0;
-  while (at < piece.length) {
-    let next = -1;
-    let length = 0;
-    for (const word of words) {
-      const found = foldedPiece.indexOf(word, at);
-      if (found !== -1 && (next === -1 || found < next)) {
-        next = found;
-        length = word.length;
-      }
+  while (at < text.length) {
+    // A hit starts a word: the character before it is no letter or digit.
+    const word = WORD_CHAR.test(folded[at - 1] ?? "")
+      ? undefined
+      : longestFirst.find((candidate) => folded.startsWith(candidate, at));
+    if (!word) {
+      at++;
+      continue;
     }
-    if (next === -1) {
-      segments.push({ text: piece.slice(at), match: false });
-      break;
-    }
-    if (next > at) segments.push({ text: piece.slice(at, next), match: false });
-    segments.push({ text: piece.slice(next, next + length), match: true });
-    at = next + length;
+    if (at > plain) segments.push({ text: text.slice(plain, at), match: false });
+    segments.push({ text: text.slice(at, at + word.length), match: true });
+    at += word.length;
+    plain = at;
   }
-  if (start > 0) segments.unshift({ text: "… ", match: false });
-  if (end < text.length) segments.push({ text: " …", match: false });
+  if (plain < text.length) segments.push({ text: text.slice(plain), match: false });
   return segments;
-}
-
-/** Parts that contain every word of the query, best first. */
-export function searchTopicTexts(
-  topics: readonly TopicText[],
-  query: string,
-  limit = 30,
-): TopicHit[] {
-  const words = queryWords(query);
-  if (!words.length) return [];
-
-  const hits: TopicHit[] = [];
-  for (const topic of topics) {
-    for (const part of topic.parts) {
-      const heading = fold(part.heading);
-      const body = fold(part.text);
-      if (!words.every((word) => heading.includes(word) || body.includes(word))) continue;
-      const score = words.reduce(
-        (total, word) => total + count(body, word) + (heading.includes(word) ? 5 : 0),
-        0,
-      );
-      hits.push({
-        slug: topic.slug,
-        topicTitle: topic.title,
-        heading: part.heading,
-        anchor: part.anchor,
-        excerpt: excerpt(part.text, words),
-        score,
-      });
-    }
-  }
-  return hits.sort((a, b) => b.score - a.score).slice(0, limit);
 }
