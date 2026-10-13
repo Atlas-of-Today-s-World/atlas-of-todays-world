@@ -6,6 +6,7 @@ import {
   displayName,
   indicatorData,
   regionColorMap,
+  territoryNote,
   type AtlasSnapshot,
   type IndicatorValues,
 } from "./model";
@@ -243,5 +244,67 @@ describe("displayName", () => {
     expect(displayName("Syria", "Syrian Arab Republic")).toBe("Syria");
     expect(displayName("Eq. Guinea", null)).toBe("Eq. Guinea");
     expect(displayName("Faeroe Is.", "Føroyar Is. (Faeroe Is.)")).toBe("Faeroe Is.");
+  });
+});
+
+describe("territoryNote", () => {
+  const fact = {
+    status: "disputed" as const,
+    note: "From the map data.",
+    basis: "UN resolution 1244 (1999)",
+  };
+
+  it("keeps the map data's note when the editors wrote none", () => {
+    expect(territoryNote(fact, null)).toEqual(fact);
+    expect(territoryNote(fact, "   ")).toEqual(fact);
+    expect(territoryNote(null, null)).toBeNull();
+  });
+
+  it("shows the editors' text (which names its basis) after the map data's status", () => {
+    expect(territoryNote(fact, " Edited note. Basis: X. ")).toEqual({
+      status: "disputed",
+      note: "Edited note. Basis: X.",
+      basis: null,
+    });
+  });
+
+  it("an edited note without a status from the map data stands alone", () => {
+    expect(territoryNote(null, "A note.")).toEqual({ status: null, note: "A note.", basis: null });
+  });
+});
+
+describe("buildAtlas: edited facts", () => {
+  const edited = buildAtlas(
+    {
+      ...snapshot,
+      countries: [{ ...country("CZE", "europe", 10), territory_note: "Edited." }],
+      issues: snapshot.issues.map((issue) => ({ ...issue, hero_credit: "Photo: A. B." })),
+      areas: [
+        {
+          slug: "lake",
+          name: "Lake",
+          label: "",
+          country_iso3: "CZE",
+          fill: "#0000ff",
+          stroke: "#000099",
+          geometry: { type: "Polygon", coordinates: [] },
+        },
+      ],
+    },
+    [{ iso3: "CZE", iso2: "CZ", continent: "Europe", territoryNote: null }],
+  );
+
+  it("carries the status note, the issue's photo credit and an area's country", () => {
+    expect(edited.countryByIso3.get("CZE")?.territoryNote).toEqual({
+      status: null,
+      note: "Edited.",
+      basis: null,
+    });
+    expect(edited.issues[0]?.heroCredit).toBe("Photo: A. B.");
+    expect(edited.areas[0]?.countryIso3).toBe("CZE");
+  });
+
+  it("an issue without a credit has an empty one", () => {
+    expect(atlas.issues[0]?.heroCredit).toBe("");
   });
 });

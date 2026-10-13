@@ -25,6 +25,30 @@ export function SectionLabel({ children }: { children: ReactNode }) {
   return <span className={kickerVariants({ tone: "pill" })}>{children}</span>;
 }
 
+/**
+ * Who took the header photo, in its bottom-right corner (a topic's cover, a
+ * portrait's hero). The parent is `relative`. Over a dark gradient the text
+ * stands alone; over a bare photo (`onPhoto`) it gets a dark backing to stay legible.
+ */
+export function PhotoCredit({
+  children,
+  onPhoto = false,
+}: {
+  children: ReactNode;
+  onPhoto?: boolean;
+}) {
+  return (
+    <p
+      className={cn(
+        "absolute right-3 bottom-2 text-[10.5px]",
+        onPhoto ? "rounded bg-black/45 px-1.5 py-0.5 text-white/85" : "text-white/55",
+      )}
+    >
+      {children}
+    </p>
+  );
+}
+
 export async function NewsBadge({ count }: { count: number }) {
   const t = (await getT()).ui;
   return (

@@ -199,17 +199,20 @@ export default async function CountryCard({
         // control, the profile must say why and on what basis – otherwise readers
         // take it as Atlas's own claim.
         <p className="mt-5 rounded-xl border border-[var(--color-line)] bg-[var(--color-paper-soft)] px-4 py-3 text-[12px] leading-relaxed text-[var(--color-ink-soft)]">
-          <span className="font-medium text-[var(--color-ink)]">
-            {
-              t.country[
-                TERRITORY_STATUS_KEY[
-                  country.territoryNote.status as keyof typeof TERRITORY_STATUS_KEY
-                ]
-              ]
-            }
-          </span>{" "}
-          {country.territoryNote.note}{" "}
-          <span className="text-[var(--color-ink-muted)]">({country.territoryNote.basis})</span>
+          {country.territoryNote.status ? (
+            <>
+              <span className="font-medium text-[var(--color-ink)]">
+                {t.country[TERRITORY_STATUS_KEY[country.territoryNote.status]]}
+              </span>{" "}
+            </>
+          ) : null}
+          {country.territoryNote.note}
+          {country.territoryNote.basis ? (
+            <>
+              {" "}
+              <span className="text-[var(--color-ink-muted)]">({country.territoryNote.basis})</span>
+            </>
+          ) : null}
         </p>
       ) : null}
 

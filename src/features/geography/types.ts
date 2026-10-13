@@ -113,7 +113,13 @@ export interface Country {
   labelLat: number | null;
   /** Mainland bounding box [minLon, minLat, maxLon, maxLat] for zooming to the country. */
   bbox: [number, number, number, number] | null;
-  territoryNote: TerritoryNote | null;
+  /** Why the border looks the way it does: the editors' text, or the map data's note. */
+  territoryNote: {
+    status: TerritoryNote["status"] | null;
+    note: string;
+    /** On what the note rests; null when the editors' text says it itself. */
+    basis: string | null;
+  } | null;
   region: Region | null;
   profile: CountryProfile;
 }
@@ -129,6 +135,7 @@ export interface GlobalIssue {
   center: [number, number];
   zoom: number;
   hero: string | null;
+  heroCredit: string;
   /** Global issue (war, migration…), or a custom region made of countries. */
   kind: GroupKind;
   /** How far the editors are with the group's content. */
@@ -141,7 +148,8 @@ export interface MapArea {
   slug: string;
   name: string;
   label: string;
-  note: string;
+  /** The country the area belongs to, if any (its page shows the area on the globe). */
+  countryIso3: string | null;
   fill: string;
   stroke: string;
   geometry: { type: "Polygon"; coordinates: number[][][] };

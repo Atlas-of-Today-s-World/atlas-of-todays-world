@@ -47,6 +47,10 @@ export default async function CountryEditPage({ params }: { params: Promise<{ sl
           country={country}
           regions={atlas.regions.map(({ slug: value, name }) => ({ slug: value, name }))}
           indicators={atlas.indicators.map(({ id, label }) => ({ id, label }))}
+          subregions={[
+            ...new Set(atlas.countries.flatMap((c) => (c.unSubregion ? [c.unSubregion] : []))),
+          ].sort()}
+          territoryStatus={atlas.countryByIso3.get(country.iso3)?.territoryNote?.status ?? null}
         />
       </ReadOnly>
       <div className="mt-12 max-w-4xl">

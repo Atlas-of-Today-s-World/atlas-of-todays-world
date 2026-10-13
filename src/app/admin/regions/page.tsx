@@ -3,11 +3,12 @@ import { forbidden } from "next/navigation";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
-import { editAction, openAction } from "@/components/data-table/row-actions";
+import { editAction, moveActions, openAction } from "@/components/data-table/row-actions";
 import { optionStats } from "@/components/data-table/stats";
 import { navIcon } from "@/config/admin-nav";
-import { sectionAccess } from "@/features/auth/access";
+import { can, sectionAccess } from "@/features/auth/access";
 import { getAtlas } from "@/features/geography/queries";
+import { moveRegion } from "@/features/portraits/actions";
 import { countriesWithProfileText } from "@/features/portraits/editorial";
 import { formatPopulation } from "@/lib/format";
 import { adminRoutes, routes } from "@/config/routes";
@@ -20,8 +21,11 @@ const PROFILE = [
 ];
 
 export default async function RegionsPage() {
-  if (!(await sectionAccess("regions"))) forbidden();
+  const access = await sectionAccess("regions");
+  if (!access) forbidden();
   const [atlas, withText] = await Promise.all([getAtlas(), countriesWithProfileText()]);
+  // The globe's pills, the Countries page and the admin list follow this order.
+  const canMove = can(access.permissions, "regions", "e");
 
   return (
     <>
@@ -34,8 +38,17 @@ export default async function RegionsPage() {
         compact
         tableKey="admin-regions"
         caption="Regions"
-        actionsWidth="72px"
+        initialSort={{ key: "position", dir: "asc" }}
+        actionsWidth={canMove ? "136px" : "72px"}
         columns={[
+          {
+            key: "position",
+            label: "#",
+            kind: "number",
+            align: "right",
+            sortable: true,
+            width: "56px",
+          },
           { key: "name", label: "Region", link: true, sortable: true, width: "minmax(200px, 2fr)" },
           {
             key: "countries",
@@ -46,15 +59,22 @@ export default async function RegionsPage() {
             width: "112px",
           },
         ]}
-        rows={atlas.regions.map((region) => ({
+        rows={atlas.regions.map((region, index) => ({
           id: region.slug,
           href: adminRoutes.regions(region.slug),
-          values: { name: region.name, countries: region.countries.length },
+          values: { position: index + 1, name: region.name, countries: region.countries.length },
           actions: (
             <RowActions
               actions={[
                 editAction(adminRoutes.regions(region.slug)),
                 openAction(routes.region(region.slug)),
+                ...(canMove
+                  ? moveActions(
+                      moveRegion.bind(null, region.slug, true),
+                      moveRegion.bind(null, region.slug, false),
+                      { first: index === 0, last: index === atlas.regions.length - 1 },
+                    )
+                  : []),
               ]}
             />
           ),

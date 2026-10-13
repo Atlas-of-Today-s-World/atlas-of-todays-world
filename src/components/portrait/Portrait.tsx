@@ -3,7 +3,7 @@ import Link from "@/components/i18n/Link";
 import { buttonVariants } from "@/components/ui/button";
 import { RelatedTopics, TopicsLink } from "@/components/topics/RelatedTopics";
 import type { EntrySummary } from "@/features/entries/queries";
-import { NewsBadge, SectionLabel } from "@/components/atlas/ui";
+import { NewsBadge, PhotoCredit, SectionLabel } from "@/components/atlas/ui";
 import { ENTRY_CATEGORIES, entryCategory, type RegionDossier } from "@/lib/content-types";
 import type { RegionStat } from "@/lib/region-stats";
 import { formatPopulation } from "@/lib/format";
@@ -38,6 +38,8 @@ export interface PortraitSubject {
   /** Summary from Atlas data; replaced by the editorial intro (`dossier.intro`). */
   summary: string;
   hero?: string | null;
+  /** Who took the header photo (shown in its corner). */
+  heroCredit?: string;
   /** Color of the group on the map (stripe under the heading for a global issue). */
   accent?: string;
   /** For a group of countries: a global topic, or a custom region (different label). */
@@ -99,12 +101,15 @@ export default async function Portrait({
   return (
     <article>
       {hero ? (
-        <div
-          className="h-52 w-full bg-cover bg-center"
-          style={{ backgroundImage: hero }}
-          role="img"
-          aria-label={format(t.ui.fromOrbit, { name: subject.name })}
-        />
+        <div className="relative">
+          <div
+            className="h-52 w-full bg-cover bg-center"
+            style={{ backgroundImage: hero }}
+            role="img"
+            aria-label={format(t.ui.fromOrbit, { name: subject.name })}
+          />
+          {subject.heroCredit ? <PhotoCredit onPhoto>{subject.heroCredit}</PhotoCredit> : null}
+        </div>
       ) : null}
 
       <header className="px-6 pt-7 pb-7 sm:px-10">

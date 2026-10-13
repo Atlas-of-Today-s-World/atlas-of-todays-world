@@ -89,6 +89,7 @@ describe("rich text is measured after sanitizing", { timeout: 30_000 }, () => {
       { ok: false },
       form({
         iso3: "UKR",
+        name: "Ukraine",
         blurb: "",
         tagline: "",
         profile_html: linksUpTo(PROFILE_HTML_MAX),

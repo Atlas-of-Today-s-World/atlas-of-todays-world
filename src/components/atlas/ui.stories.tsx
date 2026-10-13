@@ -1,7 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { cn } from "@/lib/cn";
 import { kickerVariants } from "./kicker";
-import { MetricCards, NewsBadge, SectionLabel, StatGrid, StatIcon, StatItem } from "./ui";
+import {
+  MetricCards,
+  NewsBadge,
+  PhotoCredit,
+  SectionLabel,
+  StatGrid,
+  StatIcon,
+  StatItem,
+} from "./ui";
 
 const meta = {
   title: "atlas/Stat cards",
@@ -61,5 +69,19 @@ export const ManualMetrics: Story = {
         { value: "4/10", label: "Freedom score", source: "Freedom House", year: "2024" },
       ]}
     />
+  ),
+};
+
+/** Photo credit in a header's corner: over a dark gradient, and over a bare photo. */
+export const PhotoCredits: Story = {
+  render: () => (
+    <div className="grid max-w-md gap-4">
+      <div className="relative h-24 rounded-xl bg-[var(--color-space-deep)]">
+        <PhotoCredit>Photo: Jana Nováková / Unsplash</PhotoCredit>
+      </div>
+      <div className="relative h-24 rounded-xl bg-gradient-to-r from-sky-200 to-amber-100">
+        <PhotoCredit onPhoto>Photo: Jana Nováková / Unsplash</PhotoCredit>
+      </div>
+    </div>
   ),
 };

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { RESOURCE_KINDS, VISUAL_PROVIDERS } from "./constants";
+import { FEATURED_MAX, RESOURCE_KINDS, VISUAL_PROVIDERS } from "./constants";
 import { datawrapperChartUrl, extractDatawrapperUrl } from "@/lib/embeds";
 import { CONTENT_STATUSES } from "@/features/geography/content-status";
 import { GROUP_KINDS, PLACE_KINDS, type PlaceKind } from "@/features/geography/kinds";
@@ -9,6 +9,7 @@ import {
   httpsUrl,
   iso3,
   optionalHttpsUrl,
+  optionalNumber,
   requiredText,
   slug,
   text,
@@ -99,7 +100,14 @@ export const COLLECTION_NAMES = Object.keys(COLLECTIONS) as Collection[];
 export const PortraitKind = z.enum(PLACE_KINDS);
 export type PortraitKind = PlaceKind;
 
-/** Region portrait header (regions table). */
+/** Where the globe turns when the place opens — the ranges of the DB CHECKs. */
+const MAP_VIEW = {
+  center_lon: z.coerce.number().min(-180).max(180),
+  center_lat: z.coerce.number().min(-90).max(90),
+  zoom: z.coerce.number().min(0.5).max(9),
+};
+
+/** Region portrait header (regions table). Regions themselves come from the import. */
 export const RegionInput = z.object({
   slug: slug(120),
   name: requiredText(120),
@@ -110,6 +118,7 @@ export const RegionInput = z.object({
   hero_credit: text(300),
   fill: hexColor,
   stroke: hexColor,
+  ...MAP_VIEW,
   timeline_title: text(120),
   timeline_subtitle: text(300),
   // Left out by a form without the field: the stored status stays as it is.
@@ -130,9 +139,7 @@ export const IssueInput = z.object({
   hero_credit: text(300),
   fill: hexColor,
   stroke: hexColor,
-  center_lon: z.coerce.number().min(-180).max(180),
-  center_lat: z.coerce.number().min(-90).max(90),
-  zoom: z.coerce.number().min(0.5).max(9),
+  ...MAP_VIEW,
   timeline_title: text(120),
   timeline_subtitle: text(300),
   // Left out by a form without the field: the stored status stays as it is.
@@ -147,12 +154,32 @@ export const IssueInput = z.object({
 export const PROFILE_HTML_MAX = 200_000;
 export const PROFILE_TOO_LONG = "The text is too long.";
 
-/** Editorial country profile. */
+/**
+ * The card's indicators in the order the editor put them; the form posts them
+ * as a repeated field in that order.
+ */
+export const FeaturedIndicators = z
+  .array(slug(60))
+  .max(FEATURED_MAX, `At most ${FEATURED_MAX} indicators — the card shows no more.`)
+  .refine((ids) => new Set(ids).size === ids.length, "Each indicator only once.");
+
+/**
+ * Editorial country profile and the country's facts. Name, formal name,
+ * population, UN subregion and status note come from the import first and are
+ * corrected here; the map position and outline (lon, lat, bbox) stay import-only.
+ */
 export const CountryInput = z.object({
   iso3,
+  name: requiredText(120),
+  name_formal: optionalText(200),
+  population: optionalNumber(
+    z.number().int("A whole number.").min(0).max(20_000_000_000, "That is more than the world."),
+  ),
+  un_subregion: optionalText(60),
+  territory_note: optionalText(1000),
   blurb: text(1000),
   tagline: text(300),
   profile_html: z.string().max(PROFILE_HTML_MAX, PROFILE_TOO_LONG),
-  featured_indicators: z.array(slug(60)).max(12),
+  featured_indicators: FeaturedIndicators,
   region_slug: z.preprocess(blankToUndefined, slug(120).optional()),
 });

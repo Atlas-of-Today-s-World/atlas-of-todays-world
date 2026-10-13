@@ -45,6 +45,7 @@ export interface AtlasSnapshot {
     lon: number | null;
     lat: number | null;
     bbox: number[] | null;
+    territory_note?: string | null;
     blurb: string | null;
     tagline: string;
     featured_indicators: string[];
@@ -88,6 +89,7 @@ export interface AtlasSnapshot {
     center_lat: number;
     zoom: number;
     hero_url: string | null;
+    hero_credit?: string;
     kind: string;
     content_status?: string;
   }[];
@@ -97,7 +99,7 @@ export interface AtlasSnapshot {
     slug: string;
     name: string;
     label: string;
-    note: string;
+    country_iso3: string | null;
     fill: string;
     stroke: string;
     geometry: unknown;
@@ -218,6 +220,22 @@ export function countryStats(
   return stats;
 }
 
+/**
+ * The status note on a country's profile. The text the editors keep in the
+ * database (countries.territory_note, editable in the admin) wins; it already
+ * names its basis. The status itself (disputed, occupied…) comes with the map
+ * data, because it follows how the border is drawn. Without an edited text the
+ * note from the map data stays.
+ */
+export function territoryNote(
+  fact: TerritoryNote | null,
+  edited: string | null,
+): Country["territoryNote"] {
+  const text = edited?.trim();
+  if (!text) return fact;
+  return { status: fact?.status ?? null, note: text, basis: null };
+}
+
 const byPopulation = (a: { population: number | null }, b: { population: number | null }) =>
   (b.population ?? 0) - (a.population ?? 0);
 
@@ -266,7 +284,7 @@ export function buildAtlas(snapshot: AtlasSnapshot, geo: GeoFacts[]): Atlas {
         labelLon: num(row.lon),
         labelLat: num(row.lat),
         bbox,
-        territoryNote: fact?.territoryNote ?? null,
+        territoryNote: territoryNote(fact?.territoryNote ?? null, row.territory_note ?? null),
         region: regionBySlug.get(row.region_slug ?? "") ?? null,
         profile: {
           summary: row.blurb ?? "",
@@ -300,6 +318,7 @@ export function buildAtlas(snapshot: AtlasSnapshot, geo: GeoFacts[]): Atlas {
     center: [Number(row.center_lon), Number(row.center_lat)],
     zoom: Number(row.zoom),
     hero: row.hero_url,
+    heroCredit: row.hero_credit ?? "",
     kind: row.kind === "region" ? "region" : "issue",
     contentStatus: contentStatus(row.content_status),
     countries: members.get(row.slug) ?? [],
@@ -310,8 +329,9 @@ export function buildAtlas(snapshot: AtlasSnapshot, geo: GeoFacts[]): Atlas {
     countries,
     indicators,
     issues,
-    areas: snapshot.areas.map((area) => ({
+    areas: snapshot.areas.map(({ country_iso3, ...area }) => ({
       ...area,
+      countryIso3: country_iso3,
       geometry: area.geometry as MapArea["geometry"],
     })),
     theme: {

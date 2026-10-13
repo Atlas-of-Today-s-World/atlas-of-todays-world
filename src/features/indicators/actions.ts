@@ -12,6 +12,7 @@ import {
   NOT_SIGNED_IN,
   signedIn,
   type ActionState,
+  type Session,
 } from "@/lib/actions";
 import { adminRoutes } from "@/config/routes";
 import { tags } from "@/lib/cache/tags";
@@ -81,6 +82,51 @@ export async function deleteIndicator(id: string): Promise<ActionState> {
   return { ok: true, message: "Indicator deleted." };
 }
 
+/** Moves a data layer one place up or down (move_indicator: one transaction, RLS layers "e"). */
+export async function moveIndicator(id: string, up: boolean): Promise<ActionState> {
+  if (!slug(60).safeParse(id).success || typeof up !== "boolean") {
+    return { ok: false, error: "Invalid indicator." };
+  }
+  const session = await signedIn();
+  if (!session) return NOT_SIGNED_IN;
+  const { error } = await session.supabase.rpc("move_indicator", { p_id: id, p_up: up });
+  if (error) return failed(error);
+  // The order of the layer switcher, legends and country cards is in the snapshot.
+  refreshDefinitions();
+  return { ok: true, message: "Moved." };
+}
+
+type Client = Session["supabase"];
+type DbError = Parameters<typeof failed>[0];
+
+/** The layer's latest year (null when unknown or unreadable). */
+async function latestYear(supabase: Client, id: string) {
+  const { data } = await supabase
+    .from("indicators")
+    .select("latest_year")
+    .eq("id", id)
+    .maybeSingle();
+  return data?.latest_year ?? null;
+}
+
+/**
+ * A written or removed value refreshes its layer's values; when it moved the
+ * layer's latest year (the DB recomputes it, indicator_values_latest_year),
+ * the definitions in the snapshot too.
+ */
+async function writeValue(
+  supabase: Client,
+  id: string,
+  write: () => PromiseLike<{ error: DbError | null }>,
+): Promise<{ error: DbError | null }> {
+  const before = await latestYear(supabase, id);
+  const { error } = await write();
+  if (error) return { error };
+  refreshValues(id);
+  if ((await latestYear(supabase, id)) !== before) refreshDefinitions();
+  return { error: null };
+}
+
 /** Manual value (new or a correction of an imported one); the source is required. */
 export async function setValue(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = ValueInput.safeParse(formObject(formData));
@@ -88,11 +134,12 @@ export async function setValue(_prev: ActionState, formData: FormData): Promise<
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
   const { year, note, ...fields } = parsed.data;
-  const { error } = await session.supabase
-    .from("indicator_values")
-    .upsert({ ...fields, year: year ?? null, note: note ?? null });
+  const { error } = await writeValue(session.supabase, fields.indicator_id, () =>
+    session.supabase
+      .from("indicator_values")
+      .upsert({ ...fields, year: year ?? null, note: note ?? null }),
+  );
   if (error) return failed(error);
-  refreshValues(fields.indicator_id);
   return { ok: true, message: "Value saved." };
 }
 
@@ -102,15 +149,19 @@ export async function deleteValue(indicatorId: string, country: string): Promise
   }
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
-  const { data, error } = await session.supabase
-    .from("indicator_values")
-    .delete()
-    .eq("indicator_id", indicatorId)
-    .eq("country_iso3", country)
-    .select("country_iso3");
+  let removed = 0;
+  const { error } = await writeValue(session.supabase, indicatorId, async () => {
+    const result = await session.supabase
+      .from("indicator_values")
+      .delete()
+      .eq("indicator_id", indicatorId)
+      .eq("country_iso3", country)
+      .select("country_iso3");
+    removed = result.data?.length ?? 0;
+    return result;
+  });
   if (error) return failed(error);
-  if (!data.length) return { ok: false, error: "You can't delete this value." };
-  refreshValues(indicatorId);
+  if (!removed) return { ok: false, error: "You can't delete this value." };
   return { ok: true, message: "Value deleted." };
 }
 

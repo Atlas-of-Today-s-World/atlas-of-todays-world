@@ -4,12 +4,19 @@ import { forbidden } from "next/navigation";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
-import { editAction, openAction } from "@/components/data-table/row-actions";
+import {
+  deleteAction,
+  editAction,
+  moveActions,
+  openAction,
+} from "@/components/data-table/row-actions";
 import { optionStats } from "@/components/data-table/stats";
 import { buttonVariants } from "@/components/ui/button";
 import { navIcon } from "@/config/admin-nav";
 import { can, sectionAccess } from "@/features/auth/access";
 import { getIndicators } from "@/features/geography/queries";
+import { deleteIndicator, moveIndicator } from "@/features/indicators/actions";
+import { customIndicatorIds } from "@/features/indicators/editorial";
 import { adminRoutes, routes } from "@/config/routes";
 
 export const metadata: Metadata = { title: "Map data layers" };
@@ -22,7 +29,12 @@ const TYPES = [
 export default async function DataPage() {
   const access = await sectionAccess("layers");
   if (!access) forbidden();
-  const indicators = await getIndicators();
+  const [indicators, custom] = await Promise.all([getIndicators(), customIndicatorIds()]);
+  // The layer switcher, legends and country cards follow this order.
+  const canMove = can(access.permissions, "layers", "e");
+  const canDelete = can(access.permissions, "layers", "d");
+  // Edit, open, up, down, delete — ~32 px per icon.
+  const icons = 2 + (canMove ? 2 : 0) + (canDelete && custom.size ? 1 : 0);
 
   return (
     <>
@@ -42,10 +54,18 @@ export default async function DataPage() {
         tableKey="admin-indicators"
         caption="Indicators"
         emptyTitle="No indicators yet"
-        initialSort={{ key: "label", dir: "asc" }}
+        initialSort={{ key: "position", dir: "asc" }}
         stats={optionStats("type", TYPES)}
-        actionsWidth="64px"
+        actionsWidth={`${icons * 32}px`}
         columns={[
+          {
+            key: "position",
+            label: "#",
+            kind: "number",
+            align: "right",
+            sortable: true,
+            width: "56px",
+          },
           {
             key: "label",
             label: "Indicator",
@@ -82,10 +102,11 @@ export default async function DataPage() {
             width: "104px",
           },
         ]}
-        rows={indicators.map((indicator) => ({
+        rows={indicators.map((indicator, index) => ({
           id: indicator.id,
           href: adminRoutes.data(indicator.id),
           values: {
+            position: index + 1,
             label: indicator.label,
             type: indicator.type,
             source: indicator.source,
@@ -99,6 +120,23 @@ export default async function DataPage() {
               actions={[
                 editAction(adminRoutes.data(indicator.id)),
                 openAction(routes.view(indicator.id)),
+                ...(canMove
+                  ? moveActions(
+                      moveIndicator.bind(null, indicator.id, true),
+                      moveIndicator.bind(null, indicator.id, false),
+                      { first: index === 0, last: index === indicators.length - 1 },
+                    )
+                  : []),
+                // Imported layers come back with the next import; only custom ones go.
+                ...(canDelete && custom.has(indicator.id)
+                  ? [
+                      deleteAction(
+                        deleteIndicator.bind(null, indicator.id),
+                        `the layer “${indicator.label}”`,
+                        "Its values go with it and it disappears from the map. This cannot be undone.",
+                      ),
+                    ]
+                  : []),
               ]}
             />
           ),
