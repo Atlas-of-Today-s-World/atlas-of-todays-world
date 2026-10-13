@@ -508,6 +508,8 @@ const APP_RPCS = {
   move_home_featured_item: ["authenticated"],
   move_site_social_link: ["authenticated"],
   move_nav_item: ["authenticated"],
+  move_region: ["authenticated"],
+  move_indicator: ["authenticated"],
   replace_portrait_items: ["authenticated", "service_role"],
   submit_volunteer_application: ["service_role"],
   hit_rate_limit: ["service_role"],
