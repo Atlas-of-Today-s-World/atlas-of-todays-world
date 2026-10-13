@@ -1,56 +1,45 @@
-import type { Metadata } from "next";
 import { getAtlas } from "@/features/geography/queries";
 import { format, getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import { DevelogiCredit } from "@/components/DevelogiCredit";
 import { JsonLd } from "@/components/JsonLd";
 import { ORGANIZATION } from "@/config/organization";
-import { pageMetadata } from "@/lib/seo/metadata";
+import { sitePageMetadata } from "@/features/site-pages/components/SitePage";
+import { SitePageView } from "@/features/site-pages/components/SitePageView";
+import { getSitePage } from "@/features/site-pages/queries";
 import { breadcrumbNode, graph, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { routes } from "@/config/routes";
 
 type Params = { params: Promise<{ locale: string }> };
 
-export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const locale = await localeFrom(params);
-  const t = getMessages(locale).about;
-  return pageMetadata({ locale, path: routes.about, title: t.title, description: t.description });
+export function generateMetadata({ params }: Params) {
+  return sitePageMetadata("about", params);
 }
 
+/**
+ * About the Atlas. The text is edited in the admin (Site pages); the live
+ * list of data sources (at the body's {{data-sources}} paragraph) and the
+ * publisher line stay in code.
+ */
 export default async function AboutPage({ params }: Params) {
   const locale = await localeFrom(params);
-  const t = getMessages(locale).about;
-  const { indicators } = await getAtlas(locale);
+  const messages = getMessages(locale);
+  const t = messages.about;
+  const [page, { indicators }] = await Promise.all([getSitePage("about"), getAtlas(locale)]);
   return (
-    <main className="prose-atlas max-w-2xl">
-      <h1 className="font-display text-[34px] font-bold text-[var(--color-ink)]">{t.title}</h1>
-      <p className="mt-4">{t.intro}</p>
-
-      <h2 id="mission">{t.missionTitle}</h2>
-      <p>{t.missionText}</p>
-
-      <h2 id="data">{t.dataTitle}</h2>
-      <p>{t.dataText}</p>
-      <ul>
-        {indicators.map((indicator) => (
-          <li key={indicator.id}>
-            <strong>{indicator.label}</strong> &mdash; {indicator.source} ({indicator.latestYear})
-          </li>
-        ))}
-      </ul>
-
-      <h2>{t.editorialTitle}</h2>
-      <p>{t.editorialText}</p>
-
-      <h2 id="editorial-standards">{t.standardsTitle}</h2>
-      <p>{format(t.standardsText, { email: ORGANIZATION.email })}</p>
-
-      <h2 id="cite">{t.citeTitle}</h2>
-      <p>{t.citeText}</p>
-
-      <h2 id="machine-readable">{t.machineTitle}</h2>
-      <p>{t.machineText}</p>
-
+    <SitePageView
+      page={page}
+      locale={locale}
+      dataSources={
+        <ul>
+          {indicators.map((indicator) => (
+            <li key={indicator.id}>
+              <strong>{indicator.label}</strong> &mdash; {indicator.source} ({indicator.latestYear})
+            </li>
+          ))}
+        </ul>
+      }
+    >
       <h2 id="publisher">{t.whoTitle}</h2>
       <p>
         {format(t.whoText, {
@@ -62,8 +51,8 @@ export default async function AboutPage({ params }: Params) {
       </p>
 
       <DevelogiCredit
-        text={getMessages(locale).patrons.builtWith}
-        label={getMessages(locale).patrons.builtWithLabel}
+        text={messages.patrons.builtWith}
+        label={messages.patrons.builtWithLabel}
         className="mt-12 justify-start border-t border-[var(--color-line)] pt-6"
       />
 
@@ -71,21 +60,21 @@ export default async function AboutPage({ params }: Params) {
         data={graph(
           webPageNode({
             url: pageUrl(routes.about, locale),
-            name: t.title,
-            description: t.description,
+            name: page.title,
+            description: page.description,
             locale,
             type: "AboutPage",
             about: ids.organization,
             breadcrumb: breadcrumbNode(
               [
                 { name: "Atlas of Today's World", path: "/" },
-                { name: t.title, path: routes.about },
+                { name: page.title, path: routes.about },
               ],
               locale,
             ),
           }),
         )}
       />
-    </main>
+    </SitePageView>
   );
 }

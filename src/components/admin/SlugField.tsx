@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { FormField, Input, describedBy } from "@/components/ui/field";
-import { slugify } from "@/lib/validation/common";
+import { slugify } from "@/lib/slug";
 
 /**
  * The slug of a form whose URL follows its title or name: a new record's slug

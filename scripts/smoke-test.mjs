@@ -348,6 +348,23 @@ async function main() {
     const health = JSON.parse(body);
     assert(health.status === "ok" && health.db === "ok", `state ${body}`);
     assert(/no-store/.test(headers.get("cache-control") ?? ""), "health must not be cached");
+    // On Vercel: "<edge>::<function region>::<id>". Functions run next to the
+    // database in Frankfurt (vercel.json "regions"); iad1 costs ~100 ms per query.
+    const vercelId = headers.get("x-vercel-id");
+    if (vercelId) {
+      const region = vercelId.split("::").at(-2);
+      assert(region === "fra1", `function ran in ${region}, expected fra1 (${vercelId})`);
+    }
+  });
+
+  await check("search answers are cached on the CDN, not in the browser", async () => {
+    const { status, headers } = await get("/api/search?q=water");
+    assert(status === 200, `/api/search returned ${status}`);
+    assert(/max-age=0/.test(headers.get("cache-control") ?? ""), "browser may keep the answer");
+    assert(
+      /s-maxage=\d+/.test(headers.get("cdn-cache-control") ?? ""),
+      "no CDN-Cache-Control s-maxage on the search answer",
+    );
   });
 
   await check("non-existent page returns 404 with a way back to the globe", async () => {

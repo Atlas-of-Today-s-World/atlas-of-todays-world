@@ -4,7 +4,8 @@ import "server-only";
 import { redirect } from "next/navigation";
 import { DEFAULT_LOCALE, isLocale, localePath } from "@/features/i18n/config";
 import { formObject } from "@/lib/actions";
-import { checkoutHref, donationFromForm } from "./schema";
+import { checkoutHref } from "./links";
+import { donationFromForm } from "./schema";
 import { routes } from "@/config/routes";
 
 /**

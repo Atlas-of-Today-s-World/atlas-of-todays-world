@@ -122,6 +122,8 @@ export const adminRoutes = {
   redirects: records(`${ADMIN}/redirects`),
   /** The home page's pinned subtopics. */
   homePage: `${ADMIN}/home`,
+  /** Editable site pages (about, privacy…) by slug. */
+  sitePages: records(`${ADMIN}/pages`),
   /** Regions by slug; their countries are under `country(slug)`. */
   regions: records(`${ADMIN}/regions`),
   country: (slug: string) => `${ADMIN}/regions/countries/${slug}`,

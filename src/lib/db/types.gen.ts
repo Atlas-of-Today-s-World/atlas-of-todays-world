@@ -1821,6 +1821,121 @@ export type Database = {
           },
         ]
       }
+      site_page_revisions: {
+        Row: {
+          body_html: string
+          description: string
+          id: number
+          last_reviewed: string | null
+          lead: string
+          page_slug: string
+          published: boolean
+          saved_at: string
+          saved_by: string | null
+          title: string
+        }
+        Insert: {
+          body_html: string
+          description: string
+          id?: never
+          last_reviewed?: string | null
+          lead: string
+          page_slug: string
+          published: boolean
+          saved_at?: string
+          saved_by?: string | null
+          title: string
+        }
+        Update: {
+          body_html?: string
+          description?: string
+          id?: never
+          last_reviewed?: string | null
+          lead?: string
+          page_slug?: string
+          published?: boolean
+          saved_at?: string
+          saved_by?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "site_page_revisions_page_slug_fkey"
+            columns: ["page_slug"]
+            isOneToOne: false
+            referencedRelation: "site_pages"
+            referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "site_page_revisions_saved_by_fkey"
+            columns: ["saved_by"]
+            isOneToOne: false
+            referencedRelation: "members_overview"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "site_page_revisions_saved_by_fkey"
+            columns: ["saved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      site_pages: {
+        Row: {
+          body_html: string
+          created_at: string
+          description: string
+          last_reviewed: string | null
+          lead: string
+          published: boolean
+          slug: string
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          body_html?: string
+          created_at?: string
+          description: string
+          last_reviewed?: string | null
+          lead?: string
+          published?: boolean
+          slug: string
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          body_html?: string
+          created_at?: string
+          description?: string
+          last_reviewed?: string | null
+          lead?: string
+          published?: boolean
+          slug?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "site_pages_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "members_overview"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "site_pages_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       site_theme: {
         Row: {
           border: number
@@ -2418,6 +2533,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      restore_site_page: { Args: { p_revision: number }; Returns: string }
       role_holder_counts: {
         Args: never
         Returns: {

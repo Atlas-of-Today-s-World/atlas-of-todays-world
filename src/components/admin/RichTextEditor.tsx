@@ -2,7 +2,7 @@
 
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
-import { EditorContent, useEditor, type Editor } from "@tiptap/react";
+import { EditorContent, Extension, useEditor, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import {
   Bold,
@@ -23,20 +23,53 @@ import { cn } from "@/lib/cn";
 import { ACCEPT_IMAGES, uploadImage } from "@/lib/upload";
 
 /**
+ * Keeps a heading's anchor (`<h2 id="data">`, linked as /about#data) when the
+ * text is edited. Editors don't set it here; it isn't copied to the next
+ * block on Enter. The sanitizer decides which ids survive.
+ */
+const HeadingAnchor = Extension.create({
+  name: "headingAnchor",
+  addGlobalAttributes() {
+    return [
+      {
+        types: ["heading"],
+        attributes: {
+          id: {
+            default: null,
+            keepOnSplit: false,
+            parseHTML: (element) => element.getAttribute("id"),
+            renderHTML: (attributes) => (attributes.id ? { id: attributes.id as string } : {}),
+          },
+        },
+      },
+    ];
+  },
+});
+
+/** Link targets: https and mailto; with `sitePaths` also a path on this site ("/privacy"). */
+const linkPattern = (sitePaths: boolean) =>
+  sitePaths ? /^(https:\/\/|mailto:|\/(?![/\\]))/ : /^(https:\/\/|mailto:)/;
+
+/**
  * Text editor (ARCHITEKTURA 5.3): TipTap with only allowed extensions —
  * h2–h4 headings, paragraphs, lists, bold/italic, link, blockquote, image from
  * Storage. The resulting HTML goes into a hidden field and the server sanitizes it again.
+ * `sitePaths`: links may also be paths on this site (site pages; article
+ * text keeps absolute links, as it is also read outside the site — feeds, Markdown).
  */
 export function RichTextEditor({
   name,
   initialHtml,
   label,
+  sitePaths = false,
 }: {
   name: string;
   initialHtml: string;
   label: string;
+  sitePaths?: boolean;
 }) {
   const [html, setHtml] = useState(initialHtml);
+  const allowedLink = linkPattern(sitePaths);
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -52,9 +85,10 @@ export function RichTextEditor({
         autolink: true,
         protocols: ["https", "mailto"],
         HTMLAttributes: { rel: "noopener noreferrer" },
-        isAllowedUri: (url) => /^(https:|mailto:)/.test(url),
+        isAllowedUri: (url) => allowedLink.test(url),
       }),
       Image.configure({ inline: false }),
+      HeadingAnchor,
     ],
     content: initialHtml,
     editorProps: {
@@ -70,14 +104,14 @@ export function RichTextEditor({
 
   return (
     <div className="rounded-xl border border-[var(--color-field-border)] focus-within:border-[var(--color-accent)]">
-      {editor ? <Toolbar editor={editor} /> : null}
+      {editor ? <Toolbar editor={editor} sitePaths={sitePaths} /> : null}
       <EditorContent editor={editor} />
       <input type="hidden" name={name} value={html} />
     </div>
   );
 }
 
-function Toolbar({ editor }: { editor: Editor }) {
+function Toolbar({ editor, sitePaths }: { editor: Editor; sitePaths: boolean }) {
   // The hidden image field is opened by id (React Compiler: no ref
   // in the toolbar object created during render).
   const fileId = useId();
@@ -85,14 +119,23 @@ function Toolbar({ editor }: { editor: Editor }) {
 
   const addLink = () => {
     const previous = editor.getAttributes("link").href as string | undefined;
-    const url = window.prompt("Link URL (https://…)", previous ?? "https://");
+    const url = window.prompt(
+      sitePaths
+        ? "Link URL (https://…, or a page of this site, e.g. /privacy)"
+        : "Link URL (https://…)",
+      previous ?? "https://",
+    );
     if (url === null) return;
     if (!url.trim()) {
       editor.chain().focus().extendMarkRange("link").unsetLink().run();
       return;
     }
-    if (!/^(https:\/\/|mailto:)/.test(url.trim())) {
-      setError("The link must start with https:// or mailto:.");
+    if (!linkPattern(sitePaths).test(url.trim())) {
+      setError(
+        sitePaths
+          ? "The link must start with https://, mailto: or / (a page of this site)."
+          : "The link must start with https:// or mailto:.",
+      );
       return;
     }
     setError("");

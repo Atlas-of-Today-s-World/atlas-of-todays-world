@@ -135,16 +135,6 @@ export const ScheduleInput = z.object({
     }, `The time must be at least ${SCHEDULE_MIN_MINUTES} minutes ahead and at most a year away.`),
 });
 
-export const ENTRY_STATUSES = ["draft", "pending", "published", "planned"] as const;
-export type EntryStatus = (typeof ENTRY_STATUSES)[number];
-
-export const STATUS_LABEL: Record<EntryStatus, string> = {
-  draft: "Draft",
-  pending: "Pending approval",
-  published: "Published",
-  planned: "Scheduled",
-};
-
 /** One "Learn more" tile of a topic or a template — limits as `learn_more_tiles`. */
 const TileItem = z.object({
   id: z.preprocess(blankToUndefined, uuid.optional()),

@@ -1,7 +1,7 @@
 import { displayText } from "./rows";
 import type { CellValue, ColumnDef, DataTableRow } from "./types";
 import { isoDay } from "@/lib/format";
-import { slugify } from "@/lib/validation/common";
+import { slugify } from "@/lib/slug";
 
 /**
  * CSV export of the rows on screen (after search, filters and sort). Runs in

@@ -8,6 +8,7 @@ import {
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
+import { normalizeSearchQuery } from "@/lib/search-query";
 import { useDebouncedSearch } from "@/lib/use-debounced-search";
 import { glassVariants } from "@/components/atlas/glass";
 import Link from "@/components/i18n/Link";
@@ -40,7 +41,7 @@ export default function EncyclopediaPanel() {
     loading: searching,
     failed,
     results: hits,
-  } = useDebouncedSearch<SearchHit>("/api/search", trimmed, {
+  } = useDebouncedSearch<SearchHit>("/api/search", normalizeSearchQuery(query), {
     delay: 180,
     enabled: trimmed.length >= 2,
   });

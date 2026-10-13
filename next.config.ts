@@ -1,6 +1,15 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import type { NextConfig } from "next";
 import { BUILT_IN_REDIRECTS } from "./src/config/redirects";
 import { LOCAL_PHOTOS, PHOTO_ORIGINS } from "./src/lib/images";
+
+// MapLibre's version names the folder scripts/copy-maplibre-worker.mjs copies it to
+// (public/maplibre/<version>/, ADR-017). Read here and inlined as a string, so the
+// browser bundle doesn't carry the whole maplibre-gl/package.json to learn it.
+const MAPLIBRE_VERSION: string = JSON.parse(
+  readFileSync(join(process.cwd(), "node_modules", "maplibre-gl", "package.json"), "utf8"),
+).version;
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -8,6 +17,7 @@ const nextConfig: NextConfig = {
   // Without this the build overwrites .next under the dev server, which crashes.
   // Usage: NEXT_DIST_DIR=.next-build npx next build
   distDir: process.env.NEXT_DIST_DIR || ".next",
+  env: { MAPLIBRE_VERSION },
   // Old URL shapes (renamed sections, the former Czech version, old admin
   // bookmarks) — one list in src/config/redirects.ts, also shown read-only in
   // the admin next to the redirects editors manage.

@@ -21,7 +21,7 @@ import {
   unscheduleEntry,
 } from "../workflow-actions";
 import type { Revision } from "../revisions";
-import type { EntryStatus } from "../schema";
+import type { EntryStatus } from "../constants";
 import { ActionForm } from "@/components/ui/action-form";
 
 /**

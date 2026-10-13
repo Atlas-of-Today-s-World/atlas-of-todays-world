@@ -16,7 +16,7 @@ import {
   formatExpiry,
   type CardField,
 } from "../demo-card";
-import { thankYouHref, type Donation } from "../schema";
+import { thankYouHref, type Donation } from "../links";
 import { routes } from "@/config/routes";
 
 /** A short list is enough for the demo; names come from Intl in the page language. */
