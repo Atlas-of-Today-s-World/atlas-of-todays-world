@@ -18,6 +18,8 @@ import { PRE_PAINT_HASH } from "@/lib/pre-paint";
  */
 /** Cloudflare Turnstile (script and challenge iframe) for sign-in with an email code. */
 const TURNSTILE = "https://challenges.cloudflare.com";
+/** Google's OAuth consent screen, the last hop of the sign-in redirect. */
+const GOOGLE_SIGN_IN = "https://accounts.google.com";
 
 export function buildCsp({
   dev,
@@ -73,7 +75,9 @@ export function buildCsp({
     "frame-ancestors": ["'none'"],
     "object-src": ["'none'"],
     "base-uri": ["'self'"],
-    "form-action": ["'self'", ...(supabaseHttp ? [supabaseHttp] : [])],
+    // Google sign-in is a form post to our Server Action that redirects via Supabase
+    // Auth to Google; a natively submitted form (before hydration) is checked on every hop.
+    "form-action": ["'self'", ...(supabaseHttp ? [supabaseHttp] : []), GOOGLE_SIGN_IN],
   };
 
   const parts = Object.entries(directives).map(

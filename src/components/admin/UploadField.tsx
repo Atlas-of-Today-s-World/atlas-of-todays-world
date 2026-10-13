@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/field";
 import { cn } from "@/lib/cn";
 import { publicEnv } from "@/lib/env";
 import { cssBackgroundImage } from "@/lib/security/urls";
-import { ACCEPT_AUDIO, ACCEPT_IMAGES, uploadFile, type UploadKind } from "@/lib/upload";
+import { uploadFile } from "@/lib/upload";
+import { ACCEPT_AUDIO, ACCEPT_IMAGES, type UploadKind } from "@/lib/upload-rules";
 
 const ACCEPT: Record<UploadKind, string> = { image: ACCEPT_IMAGES, audio: ACCEPT_AUDIO };
 

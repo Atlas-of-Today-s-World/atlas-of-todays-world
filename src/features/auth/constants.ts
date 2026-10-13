@@ -22,6 +22,12 @@ type EmailAuthError =
   | "send_failed"
   | "wrong_code";
 
+/** Result of starting Google sign-in; on success the action redirects instead. */
+export interface GoogleSignInState {
+  ok: boolean;
+  error?: "unreachable";
+}
+
 export interface EmailCodeState {
   ok: boolean;
   error?: EmailAuthError;

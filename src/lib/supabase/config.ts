@@ -20,8 +20,13 @@ export function requireSupabaseConfig() {
  * HTTPS (Vercel: production and previews), so the session never travels over
  * plain HTTP; local development and CI on http://localhost keep working.
  * SameSite=Lax is the @supabase/ssr default, kept explicit.
+ *
+ * `httpOnly`: page scripts never see the session (the @supabase/ssr default is
+ * readable). Every auth flow therefore runs on the server — Google sign-in,
+ * e-mail code, MFA and signed upload URLs are Server Actions or route handlers.
  */
 export const SESSION_COOKIE_OPTIONS = {
   sameSite: "lax",
   secure: process.env.VERCEL === "1",
+  httpOnly: true,
 } as const;

@@ -1,45 +1,34 @@
 "use client";
 
-import { useState } from "react";
-import { createBrowserClient } from "@/lib/supabase/browser";
-import { safeRedirect } from "@/lib/security/redirect";
+import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { useMessages } from "@/components/i18n/LocaleProvider";
-import { routes } from "@/config/routes";
+import type { GoogleSignInState } from "@/features/auth/constants";
+import { startGoogleSignIn } from "@/features/auth/oauth-actions";
 
-/** Redirects to Google (PKCE); the return is handled by /auth/callback. */
+/**
+ * Redirects to Google (PKCE): the server starts the sign-in and sets the code
+ * verifier cookie; the return is handled by /auth/callback.
+ */
 export default function GoogleSignIn({ next }: { next: string }) {
   const t = useMessages().auth.google;
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-
-  async function signIn() {
-    setBusy(true);
-    setError("");
-    const callback = new URL("/auth/callback", window.location.origin);
-    callback.searchParams.set("next", safeRedirect(next, routes.account));
-    const { error: failure } = await createBrowserClient().auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: callback.toString() },
-    });
-    if (failure) {
-      setError(t.unreachable);
-      setBusy(false);
-    }
-  }
+  const [state, signIn, busy] = useActionState<GoogleSignInState, FormData>(startGoogleSignIn, {
+    ok: false,
+  });
 
   return (
-    <div>
-      <Button variant="outline" block onClick={signIn} disabled={busy} className="gap-3">
+    <form action={signIn}>
+      <input type="hidden" name="next" value={next} />
+      <Button type="submit" variant="outline" block disabled={busy} className="gap-3">
         <GoogleMark />
         {busy ? t.redirecting : t.continue}
       </Button>
-      {error ? (
+      {state.error ? (
         <p role="alert" className="mt-3 text-[13px] text-red-700">
-          {error}
+          {t.unreachable}
         </p>
       ) : null}
-    </div>
+    </form>
   );
 }
 
