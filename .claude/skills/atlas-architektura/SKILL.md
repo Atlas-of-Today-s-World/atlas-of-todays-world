@@ -92,7 +92,10 @@ po dokončení zaškrtni úkol a doplň odkaz na PR.
   `internal_profile_grants` (povolení na jednu transakci). **Nikdy** přes `set_config`/JWT příznaky — klient je umí podstrčit.
 - Pozvánky: `invitations` + `claim_invitation()`; role se přiděluje jen pro ověřený e-mail (`email_confirmed_at`).
 - Po migraci: `supabase gen types typescript --linked > src/lib/db/types.gen.ts`.
-- Každá změna oprávnění = úprava `supabase/tests/authz-matrix.json` + DB test (anon / s právem / bez práva).
+- Každá změna oprávnění = DB test v `supabase/tests/` (anon / s právem / bez práva): RLS a výchozí role
+  v `rls.test.mjs`, granty sloupců v `column-grants.test.mjs`, sekce matice v `site-section.test.mjs`;
+  nová sekce = CHECK `role_permissions.section` + `my_permissions()` + `src/features/auth/sections.ts`
+  + `src/features/roles/labels.ts`. Nový testovací soubor přidej do skriptu `test:db`.
 
 ## Testy (co spustit)
 
