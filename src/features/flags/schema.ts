@@ -16,6 +16,9 @@ export const FlagKey = z
   .regex(/^[a-z0-9]+(_[a-z0-9]+)*$/)
   .max(40);
 
+/** Turning a switch on/off: a Server Action's arguments come from the client, so both are checked. */
+export const FlagToggleInput = z.object({ key: FlagKey, enabled: z.boolean() });
+
 /** Note next to a switch (feature_flags.note, ≤ 300). */
 export const FlagNoteInput = z.object({
   key: FlagKey,

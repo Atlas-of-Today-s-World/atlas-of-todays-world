@@ -1,4 +1,5 @@
 Contact: https://github.com/Atlas-of-Today-s-World/atlas-of-todays-world/security/advisories/new
 Expires: 2027-09-30T00:00:00.000Z
 Preferred-Languages: en, cs
+Canonical: https://atlas-of-todays-world.vercel.app/.well-known/security.txt
 Policy: https://github.com/Atlas-of-Today-s-World/atlas-of-todays-world/blob/main/SECURITY.md
