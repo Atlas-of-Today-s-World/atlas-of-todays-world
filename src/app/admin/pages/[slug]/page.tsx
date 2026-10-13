@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { forbidden, notFound } from "next/navigation";
 import { ContactLink, contactTarget } from "@/components/atlas/ContactLink";
-import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { ReadOnly } from "@/components/admin/ReadOnly";
 import { can, sectionAccess } from "@/features/auth/access";
@@ -21,7 +20,7 @@ export default async function SitePageEditor({
   searchParams: Promise<{ saved?: string }>;
 }) {
   const access = await sectionAccess("site");
-  if (!access) return <NoAccess />;
+  if (!access) forbidden();
   const { slug } = await params;
   if (!isSitePageSlug(slug)) notFound();
   const [page, revisions, { saved }, contact] = await Promise.all([

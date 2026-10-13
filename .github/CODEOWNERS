@@ -1,6 +1,6 @@
 # Sensitive areas — changes always need a "Security impact" note in the PR (ARCHITEKTURA 8.4).
 /supabase/                @vojtechgottvald
-/src/middleware.ts        @vojtechgottvald
+/src/proxy.ts             @vojtechgottvald
 /src/lib/security/        @vojtechgottvald
 /src/lib/supabase/        @vojtechgottvald
 /.github/                 @vojtechgottvald

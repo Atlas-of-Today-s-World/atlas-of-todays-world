@@ -7,6 +7,10 @@ updates:
       interval: weekly
       day: monday
     open-pull-requests-limit: 3
+    # All action bumps in a single PR.
+    groups:
+      actions:
+        patterns: ["*"]
   - package-ecosystem: npm
     directory: /
     schedule:
@@ -29,11 +33,3 @@ updates:
       # Minor updates in a single PR so we don't drown in them.
       minor-and-patch:
         update-types: [minor, patch]
-  - package-ecosystem: github-actions
-    directory: /
-    schedule:
-      interval: weekly
-      day: monday
-    groups:
-      actions:
-        patterns: ["*"]

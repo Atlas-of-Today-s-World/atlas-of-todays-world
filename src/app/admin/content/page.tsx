@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { UserRound } from "lucide-react";
-import { NoAccess } from "@/components/admin/NoAccess";
+import { forbidden } from "next/navigation";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
@@ -31,7 +31,7 @@ export default async function EntriesPage({
   searchParams: Promise<{ status?: string; q?: string; mine?: string }>;
 }) {
   const access = await sectionAccess("news");
-  if (!access) return <NoAccess />;
+  if (!access) forbidden();
   const params = await searchParams;
   const status = ENTRY_STATUSES.includes(params.status as EntryStatus)
     ? (params.status as EntryStatus)

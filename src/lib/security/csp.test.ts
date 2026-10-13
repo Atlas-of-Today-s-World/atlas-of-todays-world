@@ -59,6 +59,12 @@ describe("buildCsp", () => {
     expect(frames).not.toContain("https:");
   });
 
+  it("frames nothing but Datawrapper charts and the Turnstile challenge", () => {
+    expect(directive(prod, "frame-src")).toBe(
+      "frame-src https://datawrapper.dwcdn.net https://challenges.cloudflare.com",
+    );
+  });
+
   it("forbids framing and plugins", () => {
     expect(directive(prod, "frame-ancestors")).toBe("frame-ancestors 'none'");
     expect(directive(prod, "object-src")).toBe("object-src 'none'");

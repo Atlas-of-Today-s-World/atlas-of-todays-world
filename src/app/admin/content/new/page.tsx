@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { NoAccess } from "@/components/admin/NoAccess";
+import { forbidden } from "next/navigation";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { sectionAccess } from "@/features/auth/access";
 import { listAuthors } from "@/features/authors/editorial";
@@ -13,7 +13,7 @@ export default async function NewEntryPage({
 }: {
   searchParams: Promise<{ kind?: string }>;
 }) {
-  if (!(await sectionAccess("news", "c"))) return <NoAccess />;
+  if (!(await sectionAccess("news", "c"))) forbidden();
   const topic = (await searchParams).kind === "entry";
   const [options, authors] = await Promise.all([getPickerOptions(), listAuthors()]);
   return (

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { forbidden, redirect } from "next/navigation";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { BrandLogo } from "@/components/atlas/BrandLogo";
 import { Button } from "@/components/ui/button";
@@ -37,25 +37,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     );
   }
 
-  if (!isStaff(access.permissions)) {
-    return (
-      <Shell>
-        <main className="mx-auto max-w-md py-16" data-testid="admin-forbidden">
-          <h1 className="font-display text-[28px] font-bold">No access</h1>
-          <p className="mt-3 text-[14px] leading-relaxed text-[var(--color-ink-soft)]">
-            Administration is for the Atlas team only. You join the team by invitation — if you
-            received one, sign in with the same email address it was sent to.
-          </p>
-          <p className="mt-6 text-[13px] text-[var(--color-ink-muted)]">
-            Signed in as {access.email}.{" "}
-            <Link href={routes.account} className="underline">
-              Your account
-            </Link>
-          </p>
-        </main>
-      </Shell>
-    );
-  }
+  // 403 with the "No access" page (app/forbidden.tsx); sections answer 403 too (app/admin/forbidden.tsx).
+  if (!isStaff(access.permissions)) forbidden();
 
   const allowed = ADMIN_NAV.filter((item) => navVisible(item, access.permissions)).map(
     (item) => item.href,

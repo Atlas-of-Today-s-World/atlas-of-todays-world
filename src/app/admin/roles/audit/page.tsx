@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { NoAccess } from "@/components/admin/NoAccess";
+import { forbidden } from "next/navigation";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { navIcon } from "@/config/admin-nav";
@@ -15,7 +15,7 @@ export default async function AuditPage({
 }: {
   searchParams: Promise<{ q?: string }>;
 }) {
-  if (!(await sectionAccess("permissions"))) return <NoAccess />;
+  if (!(await sectionAccess("permissions"))) forbidden();
   const { q } = await searchParams;
   const rows = await auditLog(q);
 

@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import ContentRail from "@/components/ContentRail";
 import { RankingFocus } from "@/components/map/RankingFocus";
 import MapViewSetter from "@/components/map/MapViewSetter";
-import { SectionLabel } from "@/components/atlas/ui";
+import { SectionLabel, SourceLink } from "@/components/atlas/ui";
 import { getAtlas, getIndicator } from "@/features/geography/queries";
 import { format, getMessages } from "@/features/i18n/messages";
 import { getRequestLocale, getT, localeFrom } from "@/features/i18n/request";
@@ -101,14 +101,7 @@ export default async function IndicatorViewPage({
               count: String(indicator.countryCount),
               year: String(indicator.latestYear),
             })}{" "}
-            <a
-              href={indicator.sourceUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="text-[var(--color-link)] hover:underline"
-            >
-              {indicator.source}
-            </a>
+            <SourceLink href={indicator.sourceUrl}>{indicator.source}</SourceLink>
           </p>
 
           <ol className="mt-6 divide-y divide-[var(--color-line)]">

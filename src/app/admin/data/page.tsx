@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { NoAccess } from "@/components/admin/NoAccess";
+import { forbidden } from "next/navigation";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
@@ -21,7 +21,7 @@ const TYPES = [
 
 export default async function DataPage() {
   const access = await sectionAccess("layers");
-  if (!access) return <NoAccess />;
+  if (!access) forbidden();
   const indicators = await getIndicators();
 
   return (

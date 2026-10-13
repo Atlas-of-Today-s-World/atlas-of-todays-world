@@ -5,13 +5,15 @@ import { revalidatePath, updateTag } from "next/cache";
 import { adminRoutes } from "@/config/routes";
 import { affected, formAction, NOT_SIGNED_IN, signedIn, type ActionState } from "@/lib/actions";
 import { tags } from "@/lib/cache/tags";
-import { FlagKey, FlagNoteInput, MaintenanceMessageInput } from "./schema";
+import { FlagNoteInput, FlagToggleInput, MaintenanceMessageInput } from "./schema";
 
 const SWITCHES = adminRoutes.switches.list;
 
 /** Turns a flag on/off (feature_flags; RLS enforces the permissions "e" right). */
-export async function setFlag(key: string, enabled: boolean): Promise<ActionState> {
-  if (!FlagKey.safeParse(key).success) return { ok: false, error: "Invalid switch." };
+export async function setFlag(flagKey: string, flagEnabled: boolean): Promise<ActionState> {
+  const parsed = FlagToggleInput.safeParse({ key: flagKey, enabled: flagEnabled });
+  if (!parsed.success) return { ok: false, error: "Invalid switch." };
+  const { key, enabled } = parsed.data;
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
   const denied = affected(

@@ -26,6 +26,32 @@ describe("proxy: lowercase redirect", () => {
   });
 });
 
+describe("proxy: X-Robots-Tag", () => {
+  const robots = async (path: string) =>
+    (await proxy(new NextRequest(`https://atlas.example${path}`))).headers.get("x-robots-tag");
+
+  it("keeps admin, sign-in, account, invitation and previews out of search results", async () => {
+    for (const path of [
+      "/admin",
+      "/admin/content",
+      "/auth/callback",
+      "/login",
+      "/login/confirm",
+      "/ucet",
+      "/pozvanka",
+      "/preview/news/x",
+    ]) {
+      expect(await robots(path), path).toBe("noindex, nofollow");
+    }
+  });
+
+  it("leaves public pages indexable", async () => {
+    for (const path of ["/", "/news", "/membership", "/previews", "/administration"]) {
+      expect(await robots(path), path).toBeNull();
+    }
+  });
+});
+
 describe("proxy: script policy", () => {
   const csp = (response: Response) => response.headers.get("content-security-policy") ?? "";
   const scripts = (response: Response) =>

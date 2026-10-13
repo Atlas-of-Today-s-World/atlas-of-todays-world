@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { NoAccess } from "@/components/admin/NoAccess";
+import { forbidden, notFound } from "next/navigation";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { adminRoutes } from "@/config/routes";
@@ -21,7 +20,7 @@ export default async function TopicTemplatePage({
   searchParams: Promise<{ saved?: string }>;
 }) {
   const access = await sectionAccess("news");
-  if (!access) return <NoAccess />;
+  if (!access) forbidden();
   const { id } = await params;
   if (!uuid.safeParse(id).success) notFound();
   const template = await getTemplate(id);
