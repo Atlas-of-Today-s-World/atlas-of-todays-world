@@ -1,12 +1,6 @@
 import { z } from "zod";
-import { AMOUNTS, OTHER_AMOUNT, OTHER_AMOUNT_PERIODS, PERIODS, type Period } from "./config";
-import { routes } from "@/config/routes";
-
-/** A validated donation: whole euros and a period from config.ts. */
-export interface Donation {
-  period: Period;
-  amount: number;
-}
+import { AMOUNTS, OTHER_AMOUNT, OTHER_AMOUNT_PERIODS, PERIODS } from "./config";
+import type { Donation } from "./links";
 
 const Raw = z.object({
   period: z.enum(PERIODS),
@@ -37,9 +31,3 @@ export function donationFromForm(input: Record<string, unknown>): Donation | nul
   const amount = input.amount === "other" ? input.other : input.amount;
   return parseDonation({ period: input.period, amount });
 }
-
-const query = ({ period, amount }: Donation) =>
-  new URLSearchParams({ period, amount: String(amount) }).toString();
-
-export const checkoutHref = (donation: Donation) => `${routes.checkout}?${query(donation)}`;
-export const thankYouHref = (donation: Donation) => `${routes.thankYou}?${query(donation)}`;

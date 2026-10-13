@@ -51,19 +51,24 @@ export function TabReminder() {
     const plainIcon = link?.href ?? null;
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let lit: string | null = null;
+    let drawing: Promise<void> | null = null;
     let savedTitle: string | null = null;
     let timer = 0;
-
-    if (plainIcon && !still) void litIcon(plainIcon).then((url) => (lit = url));
 
     const away = () => {
       savedTitle = document.title;
       document.title = t.comeBack;
-      if (!link || !plainIcon || !lit) return;
+      if (!link || !plainIcon || still) return;
+      // Drawn the first time the visitor leaves, not on every page load (most
+      // never switch tabs); the pulse starts once the frame is ready.
+      drawing ??= litIcon(plainIcon).then((url) => {
+        lit = url;
+      });
       let on = false;
       timer = window.setInterval(() => {
+        if (!lit) return;
         on = !on;
-        link.href = on && lit ? lit : plainIcon;
+        link.href = on ? lit : plainIcon;
       }, PULSE_MS);
     };
     const back = () => {

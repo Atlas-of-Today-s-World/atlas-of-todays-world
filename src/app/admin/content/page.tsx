@@ -20,7 +20,7 @@ import { STATUS_OPTIONS } from "@/features/entries/components/StatusBadge";
 import { deleteEntry } from "@/features/entries/actions";
 import { unpublishEntry } from "@/features/entries/workflow-actions";
 import { listEntries } from "@/features/entries/editorial";
-import { ENTRY_STATUSES, type EntryStatus } from "@/features/entries/schema";
+import { ENTRY_STATUSES, type EntryStatus } from "@/features/entries/constants";
 import { routes } from "@/config/routes";
 
 export const metadata: Metadata = { title: "Articles" };

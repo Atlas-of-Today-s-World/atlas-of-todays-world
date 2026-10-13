@@ -19,7 +19,7 @@ import {
   unscheduleEntry,
 } from "../workflow-actions";
 import type { Revision } from "../revisions";
-import type { EntryStatus } from "../schema";
+import type { EntryStatus } from "../constants";
 import { ActionForm } from "@/components/ui/action-form";
 
 const dateFormat = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" });

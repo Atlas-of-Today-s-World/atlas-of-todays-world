@@ -12,6 +12,7 @@ import { PLACE_KINDS as KINDS, type PlaceKind as Kind } from "@/features/geograp
 import { format } from "@/features/i18n/messages";
 import { cn } from "@/lib/cn";
 import { PHOTO_WIDTH } from "@/lib/images";
+import { normalizeSearchQuery } from "@/lib/search-query";
 import { useDebouncedSearch } from "@/lib/use-debounced-search";
 import { queryWords, type TopicHit } from "../text-search";
 import { routes } from "@/config/routes";
@@ -112,7 +113,7 @@ export function TopicsBrowser({
 
   const { loading, failed, results, retry } = useDebouncedSearch<TopicHit>(
     "/api/topics/search",
-    query.trim(),
+    normalizeSearchQuery(query),
     { delay: 250, enabled: searching },
   );
   const hits = results.filter((hit) => allowed.has(hit.slug));

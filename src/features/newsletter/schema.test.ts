@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { INTEREST_TAGS, SubscribeInput } from "./schema";
+import { INTEREST_TAGS } from "./interests";
+import { SubscribeInput } from "./schema";
 
 const base = { email: "reader@example.org", consent: "on" };
 

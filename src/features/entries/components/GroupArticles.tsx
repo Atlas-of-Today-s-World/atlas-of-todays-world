@@ -5,7 +5,7 @@ import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { FormField, Select } from "@/components/ui/field";
 import { setEntryGroup } from "../actions";
-import type { EntryStatus } from "../schema";
+import type { EntryStatus } from "../constants";
 import { StatusBadge } from "./StatusBadge";
 
 interface Article {
