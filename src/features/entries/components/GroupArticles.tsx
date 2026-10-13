@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { adminRoutes } from "@/config/routes";
 import { Button } from "@/components/ui/button";
 import { FormField, Select } from "@/components/ui/field";
 import { setEntryGroup } from "../actions";
@@ -60,7 +61,7 @@ export function GroupArticles({
           {members.map((article) => (
             <li key={article.id} className="flex flex-wrap items-center gap-3 py-2">
               <a
-                href={`/admin/content/${article.id}`}
+                href={adminRoutes.content(article.id)}
                 className="flex-1 text-[14px] font-medium hover:underline"
               >
                 {article.title}

@@ -11,11 +11,13 @@ import {
   signedIn,
   type ActionState,
 } from "@/lib/actions";
+import { adminRoutes } from "@/config/routes";
 import { tags } from "@/lib/cache/tags";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
+import type { ServerClient } from "@/lib/supabase/server";
 import { htmlTooLong, slug as slugSchema, uuid } from "@/lib/validation/common";
 import { BODY_HTML_MAX, BODY_TOO_LONG, EntryInput } from "./schema";
-import { type Client, pingSearchEngines, refresh, refreshEntry } from "./revalidate";
+import { PLACEMENT_COLUMNS, pingSearchEngines, refresh, refreshEntry } from "./revalidate";
 
 /**
  * Editing an article itself: save, group, delete, restore from history. Status
@@ -103,12 +105,12 @@ export async function saveEntry(_prev: ActionState, formData: FormData): Promise
   if (countryError) return countryError;
 
   if (status === "published") await refreshEntry(supabase, entryId, true);
-  if (!id) redirect(`/admin/content/${entryId}?saved=1`);
+  if (!id) redirect(adminRoutes.content(entryId, { saved: "1" }));
   return { ok: true, message: "Saved.", id: entryId };
 }
 
 async function syncCountries(
-  supabase: Client,
+  supabase: ServerClient,
   entryId: string,
   countries: string[],
 ): Promise<ActionState | null> {
@@ -186,7 +188,7 @@ export async function deleteEntry(id: string): Promise<ActionState> {
     .from("entries")
     .delete()
     .eq("id", id)
-    .select("slug, status, region_slug, special_slug, kind, locale");
+    .select(PLACEMENT_COLUMNS);
   if (error) return failed(error);
   if (!data.length)
     return {
@@ -233,7 +235,7 @@ export async function restoreRevision(entryId: string, revisionId: number): Prom
       cover_url: snapshot.cover_url,
     })
     .eq("id", entryId)
-    .select("slug, status, region_slug, special_slug, kind, locale")
+    .select(PLACEMENT_COLUMNS)
     .single();
   if (updateError) return failed(updateError);
   if (updated.status === "published") {

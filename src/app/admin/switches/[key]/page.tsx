@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { buttonVariants } from "@/components/ui/button";
+import { adminRoutes } from "@/config/routes";
 import { sectionAccess } from "@/features/auth/access";
 import { FlagNoteForm } from "@/features/flags/components/SwitchForms";
 import { getFlag } from "@/features/flags/editorial";
@@ -27,7 +28,7 @@ export default async function SwitchPage({ params }: { params: Promise<{ key: st
         lead={`Currently ${flag.enabled ? "on" : "off"}. Turn it on or off in the list of switches.`}
         actions={
           <Link
-            href="/admin/switches"
+            href={adminRoutes.switches.list}
             className={buttonVariants({ variant: "outline", size: "sm" })}
           >
             Back to switches

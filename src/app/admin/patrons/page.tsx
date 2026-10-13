@@ -12,7 +12,7 @@ import {
 } from "@/components/data-table/row-actions";
 import { buttonVariants } from "@/components/ui/button";
 import { navIcon } from "@/config/admin-nav";
-import { routes } from "@/config/routes";
+import { adminRoutes, routes } from "@/config/routes";
 import { getAccess } from "@/features/auth/access";
 import { deletePatronFaq, movePatronFaq } from "@/features/membership/admin-actions";
 import { PatronSettingsForm } from "@/features/membership/components/PatronSettingsForm";
@@ -43,7 +43,7 @@ export default async function PatronSettingsPage() {
   return (
     <>
       <PageHeader
-        icon={navIcon("/admin/patrons")}
+        icon={navIcon(adminRoutes.patrons)}
         title="Patron settings"
         lead="What the Atlas Patrons page offers: the donation amounts (in euros), the current goal and the questions people ask. The checkout accepts exactly the amounts saved here."
       />
@@ -56,7 +56,7 @@ export default async function PatronSettingsPage() {
             Questions and answers
           </h2>
           {patronRight(access.permissions, "c") ? (
-            <Link href="/admin/patrons/faq/new" className={buttonVariants({ size: "sm" })}>
+            <Link href={adminRoutes.patronFaq.new} className={buttonVariants({ size: "sm" })}>
               Add question
             </Link>
           ) : null}
@@ -103,7 +103,7 @@ export default async function PatronSettingsPage() {
           ]}
           rows={faq.map((row, index) => ({
             id: row.id,
-            href: canEdit ? `/admin/patrons/faq/${row.id}` : undefined,
+            href: canEdit ? adminRoutes.patronFaq(row.id) : undefined,
             values: {
               position: index + 1,
               question: row.question,
@@ -114,7 +114,7 @@ export default async function PatronSettingsPage() {
             actions: (
               <RowActions
                 actions={[
-                  ...(canEdit ? [editAction(`/admin/patrons/faq/${row.id}`)] : []),
+                  ...(canEdit ? [editAction(adminRoutes.patronFaq(row.id))] : []),
                   ...(row.visible ? [openAction(routes.membership)] : []),
                   ...(canEdit
                     ? moveActions(

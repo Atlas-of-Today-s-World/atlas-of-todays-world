@@ -1,15 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { FormField, Input, Select, Textarea } from "@/components/ui/field";
-import type { ActionState } from "@/lib/actions";
+import { adminRoutes } from "@/config/routes";
 import { SlugField, useSlug } from "@/components/admin/SlugField";
 import { deleteArea, saveArea, saveTheme } from "../actions";
-import { ActionForm } from "@/components/ui/action-form";
+import { ActionForm, useServerAction } from "@/components/ui/action-form";
 
 /** Slider with the numeric value beside it (saturation, borders). */
 function Range({
@@ -46,7 +46,7 @@ function Range({
 }
 
 export function ThemeForm({ saturation, border }: { saturation: number; border: number }) {
-  const [state, action] = useActionState<ActionState, FormData>(saveTheme, { ok: false });
+  const [state, action] = useServerAction(saveTheme);
   return (
     <ActionForm action={action} className="grid max-w-xl gap-6">
       <Range
@@ -91,7 +91,7 @@ export function AreaForm({
   area: AreaValues | null;
   countries: { iso3: string; name: string }[];
 }) {
-  const [state, action] = useActionState<ActionState, FormData>(saveArea, { ok: false });
+  const [state, action] = useServerAction(saveArea);
   const slug = useSlug(area?.slug);
   const errors = state.fieldErrors ?? {};
   return (
@@ -179,7 +179,7 @@ export function DeleteArea({ slug }: { slug: string }) {
       confirm="Delete"
       action={() => deleteArea(slug)}
       onDone={(state) => {
-        if (state.ok) router.push("/admin/areas");
+        if (state.ok) router.push(adminRoutes.areas.list);
       }}
     />
   );

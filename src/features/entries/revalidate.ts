@@ -1,16 +1,19 @@
 import "server-only";
 import { updateTag } from "next/cache";
-import type { signedIn } from "@/lib/actions";
 import { entryChangedTags, tags } from "@/lib/cache/tags";
 import { DEFAULT_LOCALE, isLocale, localePath } from "@/features/i18n/config";
 import { notifyIndexNow } from "@/lib/seo/indexnow";
 import { routes } from "@/config/routes";
+import type { ServerClient } from "@/lib/supabase/server";
 
 /**
  * Cache purge and IndexNow ping after an article changes, shared by the entry
  * actions (`actions.ts`, `parts-actions.ts`, `workflow-actions.ts`). Not a
  * "use server" module: nothing here is callable from the client.
  */
+
+/** What `refresh` and `pingSearchEngines` need to know about a changed article. */
+export const PLACEMENT_COLUMNS = "slug, status, region_slug, special_slug, kind, locale";
 
 /** After published content changes, revalidate lists, detail and portraits. */
 export function refresh(slug?: string | null, region?: string | null, issue?: string | null) {
@@ -33,10 +36,10 @@ export function pingSearchEngines(row: { slug: string; kind: string; locale: str
  * Revalidates an article's cache by its placement (`onlyPublished`: only when
  * it's live). Returns the row it read (null = gone or not visible).
  */
-export async function refreshEntry(supabase: Client, id: string, onlyPublished = false) {
+export async function refreshEntry(supabase: ServerClient, id: string, onlyPublished = false) {
   const { data } = await supabase
     .from("entries")
-    .select("slug, status, region_slug, special_slug, kind, locale")
+    .select(PLACEMENT_COLUMNS)
     .eq("id", id)
     .maybeSingle();
   if (onlyPublished && data?.status !== "published") return data;
@@ -44,5 +47,3 @@ export async function refreshEntry(supabase: Client, id: string, onlyPublished =
   if (data) pingSearchEngines(data);
   return data;
 }
-
-export type Client = NonNullable<Awaited<ReturnType<typeof signedIn>>>["supabase"];

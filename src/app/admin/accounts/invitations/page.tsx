@@ -5,12 +5,13 @@ import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
 import { optionStats } from "@/components/data-table/stats";
 import { navIcon } from "@/config/admin-nav";
-import { listRoles } from "@/features/accounts/editorial";
+import { adminRoutes } from "@/config/routes";
+import { listRoles } from "@/features/roles/editorial";
 import { can, sectionAccess } from "@/features/auth/access";
 import { getPickerOptions } from "@/features/geography/queries";
 import { revokeInvitation } from "@/features/invitations/actions";
+import { listInvitations } from "@/features/invitations/editorial";
 import { SITE_URL } from "@/lib/site";
-import { createServerClient } from "@/lib/supabase/server";
 import InvitationForm from "./InvitationForm";
 
 /** Expired invitation (the page is dynamic, "now" = request time). */
@@ -29,13 +30,8 @@ export default async function InvitationsPage() {
   const access = await sectionAccess("users");
   if (!access) return <NoAccess />;
 
-  const supabase = await createServerClient();
-  const [{ data: invitations }, roles, { countries }] = await Promise.all([
-    supabase
-      .from("invitations")
-      .select("id, email, role_id, created_at, expires_at, accepted_at, revoked_at")
-      .order("created_at", { ascending: false })
-      .limit(500),
+  const [invitations, roles, { countries }] = await Promise.all([
+    listInvitations(),
     listRoles(),
     getPickerOptions(),
   ]);
@@ -45,7 +41,7 @@ export default async function InvitationsPage() {
   return (
     <>
       <PageHeader
-        icon={navIcon("/admin/accounts")}
+        icon={navIcon(adminRoutes.accounts.list)}
         title="Team invitations"
         lead={
           <>
@@ -105,7 +101,7 @@ export default async function InvitationsPage() {
             { key: "expires", label: "Valid until", kind: "datetime", sortable: true },
             { key: "created", label: "Sent", kind: "date", sortable: true, width: "128px" },
           ]}
-          rows={(invitations ?? []).map((invite) => {
+          rows={invitations.map((invite) => {
             const state = invite.accepted_at
               ? "accepted"
               : invite.revoked_at

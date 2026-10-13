@@ -15,6 +15,16 @@ const NO_HAND_BUILT_ROUTE = {
     "TemplateLiteral > TemplateElement:first-child[value.raw=/^[/](country|region|global-issue|news|authors|view|topics)[/]/]",
   message: "Build public URLs with routes.* from @/config/routes (ARCHITEKTURA 15).",
 };
+// Admin URLs only via adminRoutes (config/routes.ts): no "/admin/…" or `/admin/${id}` by hand.
+const ADMIN_ROUTE_MESSAGE =
+  "Build admin URLs with adminRoutes.* from @/config/routes (ARCHITEKTURA 15).";
+const NO_HAND_BUILT_ADMIN_ROUTE = [
+  {
+    selector: "TemplateLiteral > TemplateElement:first-child[value.raw=/^[/]admin([/?]|$)/]",
+    message: ADMIN_ROUTE_MESSAGE,
+  },
+  { selector: "Literal[value=/^[/]admin([/?]|$)/]", message: ADMIN_ROUTE_MESSAGE },
+];
 
 const config = [
   {
@@ -63,12 +73,18 @@ const config = [
           ],
         },
       ],
-      "no-restricted-syntax": ["error", NO_RAW_HTML, NO_HAND_BUILT_ROUTE],
+      "no-restricted-syntax": [
+        "error",
+        NO_RAW_HTML,
+        NO_HAND_BUILT_ROUTE,
+        ...NO_HAND_BUILT_ADMIN_ROUTE,
+      ],
     },
   },
   {
-    // Tests spell the expected URLs out on purpose.
-    files: ["src/**/*.test.{ts,tsx}"],
+    // Tests spell the expected URLs out on purpose; routes.ts is where URLs are built and
+    // redirects.ts lists the old (legacy) addresses as path patterns.
+    files: ["src/**/*.test.{ts,tsx}", "src/config/routes.ts", "src/config/redirects.ts"],
     rules: { "no-restricted-syntax": ["error", NO_RAW_HTML] },
   },
   {

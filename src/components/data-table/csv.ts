@@ -1,5 +1,6 @@
 import { displayText } from "./rows";
 import type { CellValue, ColumnDef, DataTableRow } from "./types";
+import { isoDay } from "@/lib/format";
 import { slugify } from "@/lib/slug";
 
 /**
@@ -37,7 +38,7 @@ export function rowsToCsv(columns: readonly ColumnDef[], rows: readonly DataTabl
 /** Safe file name: letters, digits, dash; `.csv` and today's date appended. */
 export function csvFileName(base: string, today = new Date()): string {
   const slug = slugify(base) || "export";
-  return `${slug}-${today.toISOString().slice(0, 10)}.csv`;
+  return `${slug}-${isoDay(today)}.csv`;
 }
 
 /** Downloads the CSV text as a file (browser only). */

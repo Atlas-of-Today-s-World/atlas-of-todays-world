@@ -21,7 +21,7 @@ import { deleteEntry } from "@/features/entries/actions";
 import { unpublishEntry } from "@/features/entries/workflow-actions";
 import { listEntries } from "@/features/entries/editorial";
 import { ENTRY_STATUSES, type EntryStatus } from "@/features/entries/constants";
-import { routes } from "@/config/routes";
+import { adminRoutes, routes } from "@/config/routes";
 
 export const metadata: Metadata = { title: "Articles" };
 
@@ -43,7 +43,7 @@ export default async function EntriesPage({
   const canUnpublish = can(access.permissions, "approvals", "e");
   const canDelete = can(access.permissions, "news", "d");
   const isAdmin = access.roleId === "admin";
-  const mineHref = `/admin/content?${new URLSearchParams({
+  const mineHref = `${adminRoutes.content.list}?${new URLSearchParams({
     ...(mine ? {} : { mine: "1" }),
     ...(params.q ? { q: params.q } : {}),
   })}`;
@@ -51,17 +51,17 @@ export default async function EntriesPage({
   return (
     <>
       <PageHeader
-        icon={navIcon("/admin/content")}
+        icon={navIcon(adminRoutes.content.list)}
         title="Articles"
         lead="Topics (encyclopedia entries) and news articles — drafts, pending approval and published. Publishing always goes through Article approvals."
         actions={
           can(access.permissions, "news", "c") ? (
             <span className="flex flex-wrap gap-2">
-              <Link href="/admin/content/new?kind=entry" className={buttonVariants({ size: "sm" })}>
+              <Link href={adminRoutes.newTopic} className={buttonVariants({ size: "sm" })}>
                 New topic
               </Link>
               <Link
-                href="/admin/content/new"
+                href={adminRoutes.content.new}
                 className={buttonVariants({ size: "sm", variant: "outline" })}
               >
                 New article
@@ -115,7 +115,7 @@ export default async function EntriesPage({
         ]}
         rows={rows.map((row) => ({
           id: row.id,
-          href: `/admin/content/${row.id}`,
+          href: adminRoutes.content(row.id),
           values: {
             title: row.title,
             status: row.status,
@@ -126,7 +126,7 @@ export default async function EntriesPage({
           actions: (
             <RowActions
               actions={[
-                editAction(`/admin/content/${row.id}`),
+                editAction(adminRoutes.content(row.id)),
                 ...(row.status === "published" && !row.translation_of
                   ? [openAction(routes.article(row.kind, row.slug))]
                   : []),

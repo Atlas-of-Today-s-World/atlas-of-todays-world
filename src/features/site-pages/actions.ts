@@ -11,6 +11,7 @@ import {
   signedIn,
   type ActionState,
 } from "@/lib/actions";
+import { adminRoutes } from "@/config/routes";
 import { tags } from "@/lib/cache/tags";
 import { isSitePageSlug, type SitePageSlug } from "./pages";
 import { RevisionId, SitePageInput } from "./schema";
@@ -23,8 +24,8 @@ const NO_PERMISSION: ActionState = {
 /** The page on the website and its admin screens show the change right away. */
 function refresh(slug: SitePageSlug) {
   updateTag(tags.sitePage(slug));
-  revalidatePath("/admin/pages");
-  revalidatePath(`/admin/pages/${slug}`);
+  revalidatePath(adminRoutes.sitePages.list);
+  revalidatePath(adminRoutes.sitePages(slug));
 }
 
 /**
@@ -55,7 +56,7 @@ export async function saveSitePage(_prev: ActionState, formData: FormData): Prom
   }
   refresh(slug);
   // Back to the editor with the saved values (the form remounts with them).
-  redirect(`/admin/pages/${slug}?saved=1`);
+  redirect(adminRoutes.sitePages(slug, { saved: "1" }));
 }
 
 /** Restores a saved version's text (the current one stays in the history). */

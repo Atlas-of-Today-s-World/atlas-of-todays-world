@@ -3,6 +3,7 @@ import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { navIcon } from "@/config/admin-nav";
+import { adminRoutes } from "@/config/routes";
 import { sectionAccess } from "@/features/auth/access";
 import { auditLog } from "@/features/roles/editorial";
 
@@ -21,7 +22,7 @@ export default async function AuditPage({
   return (
     <>
       <PageHeader
-        icon={navIcon("/admin/roles")}
+        icon={navIcon(adminRoutes.roles)}
         title="Audit log"
         lead="The last 1,000 changes to permissions, roles, accounts and article statuses. Kept for 12 months."
       />

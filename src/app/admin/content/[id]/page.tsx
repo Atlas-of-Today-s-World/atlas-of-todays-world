@@ -17,15 +17,19 @@ import { EntryWorkflow, RevisionList } from "@/features/entries/components/Entry
 import { PreviewShare } from "@/features/entries/components/PreviewShare";
 import { StatusBadge } from "@/features/entries/components/StatusBadge";
 import { VersionDiff } from "@/features/entries/components/VersionDiff";
-import { getEditableEntry, getEntryParts, listTemplates } from "@/features/entries/editorial";
+import {
+  entryRights,
+  getEditableEntry,
+  getEntryParts,
+  listTemplates,
+} from "@/features/entries/editorial";
 import { listRevisions, publishedVersion } from "@/features/entries/revisions";
 import { getPickerOptions } from "@/features/geography/queries";
 import { CollectionEditor } from "@/components/admin/CollectionEditor";
 import { COLLECTION_UI } from "@/features/portraits/components/fields";
 import { cn } from "@/lib/cn";
 import { uuid } from "@/lib/validation/common";
-import { createServerClient } from "@/lib/supabase/server";
-import { routes } from "@/config/routes";
+import { adminRoutes, routes } from "@/config/routes";
 
 export const metadata: Metadata = { title: "Edit article" };
 
@@ -47,8 +51,8 @@ function DossierTabs({ id, current }: { id: string; current: Tab }) {
             <Link
               href={
                 tab.key === "article"
-                  ? `/admin/content/${id}`
-                  : `/admin/content/${id}?tab=${tab.key}`
+                  ? adminRoutes.content(id)
+                  : adminRoutes.content(id, { tab: tab.key })
               }
               aria-current={tab.key === current ? "page" : undefined}
               className={cn(
@@ -82,22 +86,17 @@ export default async function EditEntryPage({
   const entry = await getEditableEntry(id);
   if (!entry) notFound();
 
-  const supabase = await createServerClient();
   const isEntry = entry.kind === "entry";
-  const [options, revisions, approve, edit, published, authors, parts, templates] =
+  const [options, revisions, { canApprove, canEdit }, published, authors, parts, templates] =
     await Promise.all([
       getPickerOptions(),
       listRevisions(id),
-      supabase.rpc("can_approve_entry", { p_entry: id }),
-      // Seeded articles have no owner — then the role scope decides (news_scope).
-      supabase.rpc("can_edit_entry", { p_owner: entry.owner_id as string }),
+      entryRights(entry),
       entry.status === "pending" ? publishedVersion(id) : Promise.resolve(null),
       listAuthors(),
       isEntry ? getEntryParts(id) : Promise.resolve(null),
       isEntry ? listTemplates() : Promise.resolve([]),
     ]);
-  const canApprove = approve.data === true;
-  const canEdit = edit.data === true && (entry.status !== "published" || canApprove);
   const { saved, tab: tabParam } = await searchParams;
   const tab: Tab =
     isEntry && TABS.some((item) => item.key === tabParam) ? (tabParam as Tab) : "article";
@@ -147,7 +146,7 @@ export default async function EditEntryPage({
                     Resource tiles on the right half of the topic. Change their look and order here,
                     fill them with links and text below. Templates are managed in{" "}
                     <Link
-                      href="/admin/topic-templates"
+                      href={adminRoutes.topicTemplates.list}
                       className="text-[var(--color-link)] underline"
                     >
                       Topic templates

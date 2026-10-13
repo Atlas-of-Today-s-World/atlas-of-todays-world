@@ -1,10 +1,10 @@
 "use client";
 
-import { useActionState, type ComponentProps } from "react";
+import { type ComponentProps } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { ReadOnly } from "@/components/admin/ReadOnly";
 import { SubmitButton } from "@/components/admin/SubmitButton";
-import { ActionForm } from "@/components/ui/action-form";
+import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { describedBy, FormField, Input, Textarea } from "@/components/ui/field";
 import type { ActionState } from "@/lib/actions";
 import { saveSiteSettings } from "../actions";
@@ -89,7 +89,7 @@ export function SiteSettingsForm({
   values: SettingsValues;
   canEdit: boolean;
 }) {
-  const [state, action] = useActionState<ActionState, FormData>(saveSiteSettings, { ok: false });
+  const [state, action] = useServerAction(saveSiteSettings);
   const errors = state.fieldErrors;
   return (
     <ReadOnly readOnly={!canEdit} reason="You can see the site settings but not change them.">

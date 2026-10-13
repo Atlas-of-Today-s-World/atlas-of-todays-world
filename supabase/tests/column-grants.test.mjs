@@ -323,7 +323,7 @@ test("staff: the admin's reads and writes of map data still work", async () => {
   });
 
   await as(id.admin, async () => {
-    // AreaPage in app/admin/areas/[slug]/page.tsx and saveArea / deleteArea.
+    // getArea() in features/map/editorial.ts and saveArea / deleteArea.
     await q(`select slug, name, label, note, fill, stroke, country_iso3, geometry
                from map_areas where slug = 'hawaii'`);
     await q(

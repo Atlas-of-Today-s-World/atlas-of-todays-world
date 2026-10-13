@@ -1,8 +1,6 @@
 import "server-only";
-import type { createServerClient } from "@/lib/supabase/server";
+import type { ServerClient } from "@/lib/supabase/server";
 import { findPreviewImages } from "./preview-image";
-
-type Client = Awaited<ReturnType<typeof createServerClient>>;
 
 /** Whose resources: a topic's, or a region's / global issue's portrait. */
 export type ResourceOwner =
@@ -19,7 +17,7 @@ export type ResourceOwner =
  * Returns { link → image } of what was stored, for the editor to show.
  */
 export async function storePreviewImages(
-  supabase: Client,
+  supabase: ServerClient,
   owner: ResourceOwner,
   links: readonly { url: string; image_url?: string | null }[],
 ): Promise<Record<string, string>> {

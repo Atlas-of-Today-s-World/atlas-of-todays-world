@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { adminRoutes } from "@/config/routes";
 import { supabaseConfig } from "@/lib/supabase/config";
 import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
@@ -31,7 +32,7 @@ export default async function InvitationPage({ params }: { params: Promise<{ loc
       <p className="mt-3 text-[13px] leading-relaxed text-[var(--color-ink-muted)]">{t.validity}</p>
       <div className="mt-8">
         {supabaseConfig() ? (
-          <GoogleSignIn next="/admin" />
+          <GoogleSignIn next={adminRoutes.overview} />
         ) : (
           <p className="text-[13px] text-[var(--color-ink-muted)]">{t.unavailable}</p>
         )}

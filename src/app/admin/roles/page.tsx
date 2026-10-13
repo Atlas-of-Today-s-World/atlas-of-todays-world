@@ -4,6 +4,7 @@ import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { buttonVariants } from "@/components/ui/button";
 import { navIcon } from "@/config/admin-nav";
+import { adminRoutes } from "@/config/routes";
 import { can, sectionAccess } from "@/features/auth/access";
 import { PermissionMatrix } from "@/features/roles/components/PermissionMatrix";
 import { SecurityForm } from "@/features/roles/components/RoleForms";
@@ -24,19 +25,19 @@ export default async function RolesPage() {
   return (
     <>
       <PageHeader
-        icon={navIcon("/admin/roles")}
+        icon={navIcon(adminRoutes.roles)}
         title="Roles & permissions"
         lead="Who can do what in the administration. The database enforces everything — this is just where it's configured. You can't change your own role, and only an admin can grant account or permission management."
         actions={
           <>
             <Link
-              href="/admin/switches"
+              href={adminRoutes.switches.list}
               className={buttonVariants({ variant: "outline", size: "sm" })}
             >
               Switches & maintenance
             </Link>
             <Link
-              href="/admin/roles/audit"
+              href={adminRoutes.audit}
               className={buttonVariants({ variant: "outline", size: "sm" })}
             >
               Audit log

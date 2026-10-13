@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { ADMIN_NAV } from "@/config/admin-nav";
+import { adminRoutes } from "@/config/routes";
 import { cn } from "@/lib/cn";
 
 /**
@@ -33,7 +34,9 @@ export function AdminNav({ allowed }: { allowed: string[] }) {
     >
       {items.map((item) => {
         const active =
-          item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href);
+          item.href === adminRoutes.overview
+            ? pathname === adminRoutes.overview
+            : pathname.startsWith(item.href);
         const Icon = item.icon;
         return (
           <Link

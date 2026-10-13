@@ -13,6 +13,7 @@ import {
   signedIn,
   type ActionState,
 } from "@/lib/actions";
+import { adminRoutes } from "@/config/routes";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { previewNote, storePreviewImages } from "@/lib/previews/store";
 import { uuid } from "@/lib/validation/common";
@@ -213,6 +214,6 @@ export async function saveTopicTiles(_prev: ActionState, formData: FormData): Pr
     .eq("id", entryId);
   if (labelError) return failed(labelError);
   await refreshEntry(session.supabase, entryId, true);
-  revalidatePath(`/admin/content/${entryId}`);
+  revalidatePath(adminRoutes.content(entryId));
   return { ok: true, message: "Tiles saved." };
 }

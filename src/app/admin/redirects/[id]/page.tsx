@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { buttonVariants } from "@/components/ui/button";
+import { adminRoutes } from "@/config/routes";
 import { sectionAccess } from "@/features/auth/access";
 import { RedirectForm } from "@/features/redirects/components/RedirectForms";
 import { getRedirect } from "@/features/redirects/editorial";
@@ -27,7 +28,7 @@ export default async function RedirectPage({ params }: { params: Promise<{ id: s
         lead="Changes apply on the website at once. A redirect only replaces a “not found” page — it never overrides an existing page."
         actions={
           <Link
-            href="/admin/redirects"
+            href={adminRoutes.redirects.list}
             className={buttonVariants({ variant: "outline", size: "sm" })}
           >
             Back to redirects

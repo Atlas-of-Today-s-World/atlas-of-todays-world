@@ -1,5 +1,6 @@
 import "server-only";
 import { can, type Permissions } from "@/features/auth/access";
+import { must, rowsOf } from "@/lib/db/result";
 import { createServerClient } from "@/lib/supabase/server";
 import type { Collection } from "./schema";
 
@@ -44,9 +45,10 @@ export async function portraitItems(owner: Owner, collections: Collection[]) {
         query = value === null ? query.is(column, null) : query.eq(column, value);
       }
       if (collection === "resources") query = query.is("entry_id", null);
-      const { data, error } = await query.order("position");
-      if (error) throw new Error(`[portrait] ${collection}: ${error.message}`);
-      const rows = (data ?? []) as unknown as Record<string, unknown>[];
+      const rows = rowsOf(
+        await query.order("position"),
+        `portrait: ${collection}`,
+      ) as unknown as Record<string, unknown>[];
       // Forms work with strings; null → "".
       return [
         collection,
@@ -61,27 +63,30 @@ export async function portraitItems(owner: Owner, collections: Collection[]) {
 
 export async function regionForEdit(slug: string) {
   const supabase = await createServerClient();
-  const { data, error } = await supabase
-    .from("regions")
-    .select(
-      "slug, name, tagline, summary, intro, hero_url, hero_credit, fill, stroke, timeline_title, timeline_subtitle, content_status",
-    )
-    .eq("slug", slug)
-    .maybeSingle();
-  if (error) throw new Error(`[regions] ${error.message}`);
-  return data;
+  return must(
+    await supabase
+      .from("regions")
+      .select(
+        "slug, name, tagline, summary, intro, hero_url, hero_credit, fill, stroke, timeline_title, timeline_subtitle, content_status",
+      )
+      .eq("slug", slug)
+      .maybeSingle(),
+    "regions",
+  );
 }
 
 export async function issueForEdit(slug: string) {
   const supabase = await createServerClient();
-  const { data, error } = await supabase
-    .from("special_regions")
-    .select(
-      "slug, kind, name, subtitle, summary, intro, hero_url, hero_credit, fill, stroke, center_lon, center_lat, zoom, timeline_title, timeline_subtitle, content_status, special_region_countries(country_iso3)",
-    )
-    .eq("slug", slug)
-    .maybeSingle();
-  if (error) throw new Error(`[issues] ${error.message}`);
+  const data = must(
+    await supabase
+      .from("special_regions")
+      .select(
+        "slug, kind, name, subtitle, summary, intro, hero_url, hero_credit, fill, stroke, center_lon, center_lat, zoom, timeline_title, timeline_subtitle, content_status, special_region_countries(country_iso3)",
+      )
+      .eq("slug", slug)
+      .maybeSingle(),
+    "issues",
+  );
   if (!data) return null;
   const { special_region_countries, ...rest } = data;
   return { ...rest, countries: special_region_countries.map((row) => row.country_iso3) };
@@ -90,20 +95,23 @@ export async function issueForEdit(slug: string) {
 /** ISO3 codes of the countries whose profile text is written (the atlas snapshot leaves the text out). */
 export async function countriesWithProfileText(): Promise<Set<string>> {
   const supabase = await createServerClient();
-  const { data, error } = await supabase.from("countries").select("iso3").neq("profile_html", "");
-  if (error) throw new Error(`[countries] ${error.message}`);
+  const data = must(
+    await supabase.from("countries").select("iso3").neq("profile_html", ""),
+    "countries",
+  );
   return new Set(data.map((row) => row.iso3));
 }
 
 export async function countryForEdit(slug: string) {
   const supabase = await createServerClient();
-  const { data, error } = await supabase
-    .from("countries")
-    .select("iso3, slug, name, region_slug, blurb, tagline, profile_html, featured_indicators")
-    .eq("slug", slug)
-    .maybeSingle();
-  if (error) throw new Error(`[countries] ${error.message}`);
-  return data;
+  return must(
+    await supabase
+      .from("countries")
+      .select("iso3, slug, name, region_slug, blurb, tagline, profile_html, featured_indicators")
+      .eq("slug", slug)
+      .maybeSingle(),
+    "countries",
+  );
 }
 
 /**

@@ -11,6 +11,7 @@ import {
   signedIn,
   type ActionState,
 } from "@/lib/actions";
+import { adminRoutes } from "@/config/routes";
 import { tags } from "@/lib/cache/tags";
 import { uuid } from "@/lib/validation/common";
 import { PatronFaqInput, PatronSettingsInput } from "./settings";
@@ -22,7 +23,7 @@ import { PatronFaqInput, PatronSettingsInput } from "./settings";
  * the checkout validation and the FAQ (tags.patrons).
  */
 
-const ADMIN_PAGE = "/admin/patrons";
+const ADMIN_PAGE = adminRoutes.patrons;
 
 function changed() {
   updateTag(tags.patrons);

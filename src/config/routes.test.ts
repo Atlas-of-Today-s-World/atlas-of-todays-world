@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { PRIVATE_PATHS, ROUTE_PREFIX, isAtOrUnder, routes, segmentAfter } from "./routes";
+import {
+  adminRoutes,
+  PRIVATE_PATHS,
+  ROUTE_PREFIX,
+  isAtOrUnder,
+  routes,
+  segmentAfter,
+} from "./routes";
 
 describe("routes", () => {
   it("builds the public page addresses", () => {
@@ -86,5 +93,59 @@ describe("routes", () => {
     expect(segmentAfter("/global-issue", ROUTE_PREFIX.issue)).toBeUndefined();
     expect(segmentAfter("/global-issues/sahel", ROUTE_PREFIX.issue)).toBeUndefined();
     expect(segmentAfter("/region/sahel", ROUTE_PREFIX.issue)).toBeUndefined();
+  });
+});
+
+describe("adminRoutes", () => {
+  it("keeps the admin section addresses", () => {
+    expect(adminRoutes).toMatchObject({
+      overview: "/admin",
+      myDrafts: "/admin/content?mine=1&status=draft",
+      newTopic: "/admin/content/new?kind=entry",
+      approvals: "/admin/approvals",
+
+      homePage: "/admin/home",
+      newCustomRegion: "/admin/global-issues/new?kind=region",
+      appearance: "/admin/appearance",
+      readers: "/admin/accounts?kind=readers",
+      invitations: "/admin/accounts/invitations",
+      volunteers: "/admin/volunteers",
+      roles: "/admin/roles",
+      audit: "/admin/roles/audit",
+      members: "/admin/members",
+      patrons: "/admin/patrons",
+    });
+    expect(adminRoutes.overview).toBe(routes.admin);
+  });
+
+  it("builds a section's index, new form and record pages", () => {
+    expect(adminRoutes.content.list).toBe("/admin/content");
+    expect(adminRoutes.content.new).toBe("/admin/content/new");
+    expect(adminRoutes.content("abc")).toBe("/admin/content/abc");
+    expect(adminRoutes.authors.new).toBe("/admin/authors/new");
+    expect(adminRoutes.topicTemplates("t1")).toBe("/admin/topic-templates/t1");
+    expect(adminRoutes.regions.list).toBe("/admin/regions");
+    expect(adminRoutes.regions("africa")).toBe("/admin/regions/africa");
+    expect(adminRoutes.country("chad")).toBe("/admin/regions/countries/chad");
+    expect(adminRoutes.globalIssues("sahel")).toBe("/admin/global-issues/sahel");
+    expect(adminRoutes.data.new).toBe("/admin/data/new");
+    expect(adminRoutes.areas("lake-chad")).toBe("/admin/areas/lake-chad");
+    expect(adminRoutes.accounts.list).toBe("/admin/accounts");
+    expect(adminRoutes.accounts("u1")).toBe("/admin/accounts/u1");
+    expect(adminRoutes.redirects.list).toBe("/admin/redirects");
+    expect(adminRoutes.redirects("r1")).toBe("/admin/redirects/r1");
+    expect(adminRoutes.switches.list).toBe("/admin/switches");
+    expect(adminRoutes.sitePages("about")).toBe("/admin/pages/about");
+    expect(adminRoutes.patronFaq.new).toBe("/admin/patrons/faq/new");
+    expect(adminRoutes.patronFaq("q1")).toBe("/admin/patrons/faq/q1");
+    expect(adminRoutes.siteSettings).toBe("/admin/site");
+    expect(adminRoutes.socialLink("s1")).toBe("/admin/site/socials/s1");
+    expect(adminRoutes.switches("maintenance")).toBe("/admin/switches/maintenance");
+  });
+
+  it("adds a query to a record page only when there is one", () => {
+    expect(adminRoutes.content("abc", { tab: "seo" })).toBe("/admin/content/abc?tab=seo");
+    expect(adminRoutes.authors("a1", { saved: "1" })).toBe("/admin/authors/a1?saved=1");
+    expect(adminRoutes.content("abc", {})).toBe("/admin/content/abc");
   });
 });

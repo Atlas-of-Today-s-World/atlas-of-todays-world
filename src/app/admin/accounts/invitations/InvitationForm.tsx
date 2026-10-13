@@ -1,13 +1,12 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { CountryPicker, type CountryOption } from "@/components/admin/CountryPicker";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { Checkbox, FormField, Input, Select } from "@/components/ui/field";
 import { createInvitation } from "@/features/invitations/actions";
-import type { ActionState } from "@/lib/actions";
-import { ActionForm } from "@/components/ui/action-form";
+import { ActionForm, useServerAction } from "@/components/ui/action-form";
 
 interface RoleOption {
   id: string;
@@ -25,7 +24,7 @@ export default function InvitationForm({
   countries: CountryOption[];
   isAdmin: boolean;
 }) {
-  const [state, action] = useActionState<ActionState, FormData>(createInvitation, { ok: false });
+  const [state, action] = useServerAction(createInvitation);
   const [roleId, setRoleId] = useState(roles.find((r) => r.id === "publisher")?.id ?? roles[0]?.id);
   const role = roles.find((r) => r.id === roleId);
   const errors = state.fieldErrors ?? {};

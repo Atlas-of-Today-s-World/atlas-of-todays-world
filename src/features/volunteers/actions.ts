@@ -4,22 +4,14 @@ import "server-only";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { z } from "zod";
-import {
-  failed,
-  formObject,
-  invalid,
-  invalidCodes,
-  NOT_SIGNED_IN,
-  signedIn,
-  type ActionState,
-} from "@/lib/actions";
+import { affected, formAction, idAction, invalidCodes, type ActionState } from "@/lib/actions";
+import { adminRoutes } from "@/config/routes";
 import { serverEnv } from "@/lib/env.server";
 import { allowRequest } from "@/lib/security/rate-limit";
 import { createServiceClient } from "@/lib/supabase/service";
-import { uuid } from "@/lib/validation/common";
 import { APPLICATION_STATUSES, ApplicationInput, SettingsInput } from "./schema";
 
-const ADMIN_PAGE = "/admin/volunteers";
+const ADMIN_PAGE = adminRoutes.volunteers;
 
 /**
  * A visitor applies to edit content as a volunteer (/membership). Results are
@@ -57,55 +49,50 @@ export async function applyAsVolunteer(
 }
 
 /** Where applications are sent (volunteer_settings; RLS: accounts "e"). */
-export async function saveVolunteerSettings(
-  _prev: ActionState,
-  formData: FormData,
-): Promise<ActionState> {
-  const parsed = SettingsInput.safeParse(formObject(formData));
-  if (!parsed.success) return invalid(parsed.error);
-  const session = await signedIn();
-  if (!session) return NOT_SIGNED_IN;
-  const { data, error } = await session.supabase
-    .from("volunteer_settings")
-    .update({ notify_email: parsed.data.notify_email || null })
-    .eq("id", 1)
-    .select("id");
-  if (error) return failed(error);
-  if (!data.length) return { ok: false, error: "You can't change where applications go." };
+export const saveVolunteerSettings = formAction(SettingsInput, async ({ data, supabase }) => {
+  const denied = affected(
+    await supabase
+      .from("volunteer_settings")
+      .update({ notify_email: data.notify_email || null })
+      .eq("id", 1)
+      .select("id"),
+    "You can't change where applications go.",
+  );
+  if (denied) return denied;
   revalidatePath(ADMIN_PAGE);
   return { ok: true, message: "Saved." };
-}
+});
 
 const Status = z.enum(APPLICATION_STATUSES);
 
-export async function setApplicationStatus(id: string, status: string): Promise<ActionState> {
-  if (!uuid.safeParse(id).success || !Status.safeParse(status).success) {
-    return { ok: false, error: "Invalid application." };
-  }
-  const session = await signedIn();
-  if (!session) return NOT_SIGNED_IN;
-  const { data, error } = await session.supabase
-    .from("volunteer_applications")
-    .update({ status })
-    .eq("id", id)
-    .select("id");
-  if (error) return failed(error);
-  if (!data.length) return { ok: false, error: "You can't change applications." };
-  revalidatePath(ADMIN_PAGE);
-  return { ok: true, message: "Updated." };
-}
+export const setApplicationStatus = idAction(
+  async ({ id, supabase }, status: string) => {
+    const parsed = Status.safeParse(status);
+    if (!parsed.success) return { ok: false, error: "Invalid application." };
+    const denied = affected(
+      await supabase
+        .from("volunteer_applications")
+        .update({ status: parsed.data })
+        .eq("id", id)
+        .select("id"),
+      "You can't change applications.",
+    );
+    if (denied) return denied;
+    revalidatePath(ADMIN_PAGE);
+    return { ok: true, message: "Updated." };
+  },
+  { invalid: "Invalid application." },
+);
 
-export async function deleteApplication(id: string): Promise<ActionState> {
-  if (!uuid.safeParse(id).success) return { ok: false, error: "Invalid application." };
-  const session = await signedIn();
-  if (!session) return NOT_SIGNED_IN;
-  const { data, error } = await session.supabase
-    .from("volunteer_applications")
-    .delete()
-    .eq("id", id)
-    .select("id");
-  if (error) return failed(error);
-  if (!data.length) return { ok: false, error: "You can't delete applications." };
-  revalidatePath(ADMIN_PAGE);
-  return { ok: true, message: "Deleted." };
-}
+export const deleteApplication = idAction(
+  async ({ id, supabase }) => {
+    const denied = affected(
+      await supabase.from("volunteer_applications").delete().eq("id", id).select("id"),
+      "You can't delete applications.",
+    );
+    if (denied) return denied;
+    revalidatePath(ADMIN_PAGE);
+    return { ok: true, message: "Deleted." };
+  },
+  { invalid: "Invalid application." },
+);

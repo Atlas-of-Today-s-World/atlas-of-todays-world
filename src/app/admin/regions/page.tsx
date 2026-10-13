@@ -10,7 +10,7 @@ import { sectionAccess } from "@/features/auth/access";
 import { getAtlas } from "@/features/geography/queries";
 import { countriesWithProfileText } from "@/features/portraits/editorial";
 import { formatPopulation } from "@/lib/format";
-import { routes } from "@/config/routes";
+import { adminRoutes, routes } from "@/config/routes";
 
 export const metadata: Metadata = { title: "Regions & countries" };
 
@@ -26,7 +26,7 @@ export default async function RegionsPage() {
   return (
     <>
       <PageHeader
-        icon={navIcon("/admin/regions")}
+        icon={navIcon(adminRoutes.regions.list)}
         title="Regions & countries"
         lead="Portraits of the Atlas's nine regions and editorial country profiles. Indicator values live in Map data layers."
       />
@@ -48,12 +48,12 @@ export default async function RegionsPage() {
         ]}
         rows={atlas.regions.map((region) => ({
           id: region.slug,
-          href: `/admin/regions/${region.slug}`,
+          href: adminRoutes.regions(region.slug),
           values: { name: region.name, countries: region.countries.length },
           actions: (
             <RowActions
               actions={[
-                editAction(`/admin/regions/${region.slug}`),
+                editAction(adminRoutes.regions(region.slug)),
                 openAction(routes.region(region.slug)),
               ]}
             />
@@ -101,7 +101,7 @@ export default async function RegionsPage() {
         ]}
         rows={atlas.countries.map((country) => ({
           id: country.iso3,
-          href: `/admin/regions/countries/${country.slug}`,
+          href: adminRoutes.country(country.slug),
           values: {
             name: country.name,
             iso3: country.iso3,
@@ -113,7 +113,7 @@ export default async function RegionsPage() {
           actions: (
             <RowActions
               actions={[
-                editAction(`/admin/regions/countries/${country.slug}`),
+                editAction(adminRoutes.country(country.slug)),
                 openAction(routes.country(country.slug)),
               ]}
             />

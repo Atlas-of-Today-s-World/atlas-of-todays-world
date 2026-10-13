@@ -11,6 +11,7 @@ import {
   signedIn,
   type ActionState,
 } from "@/lib/actions";
+import { adminRoutes } from "@/config/routes";
 import { tags } from "@/lib/cache/tags";
 import { slug } from "@/lib/validation/common";
 import { AreaInput, ThemeInput } from "./schema";
@@ -56,7 +57,7 @@ export async function saveArea(_prev: ActionState, formData: FormData): Promise<
     if (error) return failed(error);
   }
   updateTag(tags.atlas);
-  if (original_slug !== fields.slug) redirect(`/admin/areas/${fields.slug}`);
+  if (original_slug !== fields.slug) redirect(adminRoutes.areas(fields.slug));
   return { ok: true, message: "Area saved." };
 }
 

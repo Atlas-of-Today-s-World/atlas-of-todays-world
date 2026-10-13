@@ -1,11 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { SubmitButton } from "@/components/admin/SubmitButton";
-import { ActionForm } from "@/components/ui/action-form";
+import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { Checkbox, FormField, Input } from "@/components/ui/field";
-import type { ActionState } from "@/lib/actions";
 import { addRedirect, updateRedirect } from "../actions";
 import type { RedirectRow } from "../editorial";
 
@@ -14,10 +12,7 @@ import type { RedirectRow } from "../editorial";
  * editing `redirect`.
  */
 export function RedirectForm({ redirect }: { redirect?: RedirectRow }) {
-  const [state, action] = useActionState<ActionState, FormData>(
-    redirect ? updateRedirect : addRedirect,
-    { ok: false },
-  );
+  const [state, action] = useServerAction(redirect ? updateRedirect : addRedirect);
   const errors = state.fieldErrors ?? {};
   return (
     <ActionForm

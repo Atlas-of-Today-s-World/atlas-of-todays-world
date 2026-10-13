@@ -3,6 +3,7 @@ import { GLOBE } from "@/config/layout";
 import { routes } from "@/config/routes";
 import { getEntries } from "@/features/entries/queries";
 import { getAtlas } from "@/features/geography/queries";
+import { rowsOf } from "@/lib/db/result";
 import { createPublicClient } from "@/lib/supabase/public";
 
 /**
@@ -39,15 +40,15 @@ export async function search(query: string, limit = 12): Promise<SearchHit[]> {
   const trimmed = query.trim().slice(0, 200);
   if (!trimmed) return [];
 
-  const [{ data, error }, atlas, entries] = await Promise.all([
+  const [result, atlas, entries] = await Promise.all([
     createPublicClient().rpc("search", { p_text: trimmed, p_limit: limit }),
     getAtlas(),
     getEntries(),
   ]);
-  if (error) throw new Error(`[search] ${error.message}`);
+  const hits = rowsOf(result, "search");
   const entryBySlug = new Map(entries.map((entry) => [entry.slug, entry]));
 
-  return (data ?? []).map((row) => {
+  return hits.map((row) => {
     const key = row.id.split(":")[1] ?? "";
     const hit: SearchHit = {
       id: row.id,

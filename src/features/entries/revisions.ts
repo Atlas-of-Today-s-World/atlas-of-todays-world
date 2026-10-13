@@ -1,5 +1,6 @@
 import "server-only";
 import { createServerClient } from "@/lib/supabase/server";
+import { must } from "@/lib/db/result";
 
 /**
  * An article's revision history for editors — under the user's session (RLS).
@@ -14,13 +15,15 @@ export interface Revision {
 
 export async function listRevisions(entryId: string): Promise<Revision[]> {
   const supabase = await createServerClient();
-  const { data, error } = await supabase
-    .from("entry_revisions")
-    .select("id, saved_at, title:snapshot->>title")
-    .eq("entry_id", entryId)
-    .order("saved_at", { ascending: false })
-    .limit(30);
-  if (error) throw new Error(`[revisions] ${error.message}`);
+  const data = must(
+    await supabase
+      .from("entry_revisions")
+      .select("id, saved_at, title:snapshot->>title")
+      .eq("entry_id", entryId)
+      .order("saved_at", { ascending: false })
+      .limit(30),
+    "revisions",
+  );
   return data.map((row) => ({ id: row.id, saved_at: row.saved_at, title: row.title ?? "" }));
 }
 

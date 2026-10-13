@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/admin/PageHeader";
 import { can, sectionAccess } from "@/features/auth/access";
 import { getPickerOptions } from "@/features/geography/queries";
 import { AreaForm, DeleteArea } from "@/features/map/components/MapForms";
-import { createServerClient } from "@/lib/supabase/server";
+import { getArea } from "@/features/map/editorial";
 
 export const metadata: Metadata = { title: "Map area" };
 
@@ -17,16 +17,7 @@ export default async function AreaPage({ params }: { params: Promise<{ slug: str
 
   const [{ countries }, area] = await Promise.all([
     getPickerOptions(),
-    creating
-      ? Promise.resolve(null)
-      : createServerClient().then((db) =>
-          db
-            .from("map_areas")
-            .select("slug, name, label, note, fill, stroke, country_iso3, geometry")
-            .eq("slug", slug)
-            .maybeSingle()
-            .then(({ data }) => data),
-        ),
+    creating ? Promise.resolve(null) : getArea(slug),
   ]);
   if (!creating && !area) notFound();
 

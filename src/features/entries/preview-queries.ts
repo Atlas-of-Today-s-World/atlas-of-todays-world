@@ -1,5 +1,6 @@
 import "server-only";
 import { DEFAULT_LOCALE } from "@/features/i18n/config";
+import { must } from "@/lib/db/result";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { createPublicClient } from "@/lib/supabase/public";
 import type { Entry } from "./queries";
@@ -28,10 +29,10 @@ export async function getPreview(token: string): Promise<Preview | null> {
     client.rpc("entry_preview", { p_token: token }).maybeSingle(),
     client.rpc("entry_preview_parts", { p_token: token }).maybeSingle(),
   ]);
-  if (base.error) throw new Error(`[preview] ${base.error.message}`);
-  if (extra.error) throw new Error(`[preview] ${extra.error.message}`);
-  if (!base.data || !extra.data) return null;
-  const { countries, body_html, status, expires_at, ...row } = base.data;
+  const baseRow = must(base, "preview");
+  const parts = must(extra, "preview");
+  if (!baseRow || !parts) return null;
+  const { countries, body_html, status, expires_at, ...row } = baseRow;
   // The RPC doesn't return the preview language; previews aren't indexed and need no hreflang or note.
   const item: Entry = {
     ...toSummary({
@@ -44,20 +45,20 @@ export async function getPreview(token: string): Promise<Preview | null> {
     locale: DEFAULT_LOCALE,
   };
   const meta = { status, expiresAt: expires_at };
-  if (extra.data.kind !== "entry") return { ...meta, kind: "news", item };
+  if (parts.kind !== "entry") return { ...meta, kind: "news", item };
   return {
     ...meta,
     kind: "entry",
     item: toEncyclopedia(item, {
-      summary_points: extra.data.summary_points,
-      author: extra.data.author as AuthorRow | null,
-      chapters: extra.data.chapters as unknown as ChapterRow[],
-      resources: extra.data.resources as unknown as ResourceRow[],
-      tiles: extra.data.tiles as unknown as TileRow[],
-      notes: extra.data.notes as unknown as NoteRow[],
+      summary_points: parts.summary_points,
+      author: parts.author as AuthorRow | null,
+      chapters: parts.chapters as unknown as ChapterRow[],
+      resources: parts.resources as unknown as ResourceRow[],
+      tiles: parts.tiles as unknown as TileRow[],
+      notes: parts.notes as unknown as NoteRow[],
       labels: {
-        articles_label: extra.data.articles_label,
-        learn_more_label: extra.data.learn_more_label,
+        articles_label: parts.articles_label,
+        learn_more_label: parts.learn_more_label,
       },
     }),
   };

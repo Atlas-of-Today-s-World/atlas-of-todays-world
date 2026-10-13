@@ -57,7 +57,7 @@ const matches = (pathname: string, prefixes: string[]) =>
   prefixes.some((prefix) => isAtOrUnder(pathname, prefix));
 
 /** Paths without language versions: admin, API, callbacks and files (robots.txt…). */
-const UNLOCALIZED = ["/admin", "/api", "/auth", "/_next", "/.well-known"];
+const UNLOCALIZED = [routes.admin, "/api", "/auth", "/_next", "/.well-known"];
 const isFile = (pathname: string) => /\.[a-z0-9]+$/i.test(pathname);
 /** Files that do have language versions (feeds, llms.txt) — routed like pages. */
 const LOCALIZED_FILES = new Set(["/feed.xml", "/atom.xml", "/llms.txt", "/llms-full.txt"]);

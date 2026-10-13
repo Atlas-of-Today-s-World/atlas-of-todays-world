@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatLongDate, formatNumber, formatPopulation } from "./format";
+import { formatDateTime, formatLongDate, formatNumber, formatPopulation, isoDay } from "./format";
 
 describe("numbers and dates (English)", () => {
   it("decimal point and thousands separator", () => {
@@ -15,5 +15,19 @@ describe("numbers and dates (English)", () => {
 
   it("long date", () => {
     expect(formatLongDate("2026-10-03")).toBe("3 October 2026");
+  });
+
+  it("admin date and time, the same as the British medium/short format", () => {
+    const at = new Date(2026, 9, 3, 14, 5);
+    expect(formatDateTime(at)).toBe(
+      new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" }).format(at),
+    );
+    expect(formatDateTime(at.toISOString())).toBe(formatDateTime(at));
+    expect(formatDateTime(at)).toMatch(/^3 Oct 2026, 14:05$/);
+  });
+
+  it("UTC day for file names", () => {
+    expect(isoDay(new Date("2026-10-03T23:30:00Z"))).toBe("2026-10-03");
+    expect(isoDay()).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 });

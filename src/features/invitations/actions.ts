@@ -10,13 +10,14 @@ import {
   signedIn,
   type ActionState,
 } from "@/lib/actions";
+import { adminRoutes } from "@/config/routes";
 import { getFlags } from "@/features/flags/queries";
 import { serverEnv } from "@/lib/env.server";
 import { SITE_URL } from "@/lib/site";
 import { createServiceClient } from "@/lib/supabase/service";
 import { InvitationId, InvitationInput } from "./schema";
 
-const PAGE = "/admin/accounts/invitations";
+const PAGE = adminRoutes.invitations;
 
 /**
  * New team invitation (ARCHITEKTURA 7.3). Who may invite whom is enforced by
@@ -60,7 +61,7 @@ async function sendInvitationEmail(email: string): Promise<string> {
     return `${created} ${SHARE_LINK}`;
   }
   const { error } = await createServiceClient().auth.admin.inviteUserByEmail(email, {
-    redirectTo: `${SITE_URL}/auth/confirm?next=/admin`,
+    redirectTo: `${SITE_URL}/auth/confirm?next=${adminRoutes.overview}`,
     data: { locale: "en" },
   });
   if (!error) return `${created} The invitee received an email with a link.`;

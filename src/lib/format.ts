@@ -39,6 +39,19 @@ export function formatLongDate(isoDate: string, locale: Locale = "en"): string {
   });
 }
 
+/** The admin is in English; dates in the unambiguous British order. */
+const DATE_TIME = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" });
+
+/** Admin date and time ("1 Oct 2026, 14:05"), in the time zone of whoever renders it. */
+export function formatDateTime(value: string | number | Date): string {
+  return DATE_TIME.format(new Date(value));
+}
+
+/** The UTC calendar day as YYYY-MM-DD (export file names, labels). */
+export function isoDay(date: Date = new Date()): string {
+  return date.toISOString().slice(0, 10);
+}
+
 /** Whole-euro amount in the locale's notation ("€10,000" / "10 000 €"). */
 export function formatEuro(value: number, locale: Locale = "en"): string {
   return new Intl.NumberFormat(INTL[locale], {

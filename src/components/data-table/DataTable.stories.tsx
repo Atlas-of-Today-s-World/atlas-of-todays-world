@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Archive } from "lucide-react";
+import { adminRoutes } from "@/config/routes";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "./DataTable";
 import { RowActions } from "./RowActions";
@@ -45,7 +46,7 @@ const noop = async () => ({ ok: true, message: "Done." });
 
 const rows: DataTableRow<Key>[] = Array.from({ length: 64 }, (_, index) => ({
   id: String(index + 1),
-  href: `/admin/entries/${index + 1}`,
+  href: adminRoutes.content(String(index + 1)),
   values: {
     title: `${["Elections", "Water crisis", "Drought", "Ceasefire"][index % 4]} ${index + 1}`,
     status: STATUSES[index % 4],
@@ -57,7 +58,7 @@ const rows: DataTableRow<Key>[] = Array.from({ length: 64 }, (_, index) => ({
   actions: (
     <RowActions
       actions={[
-        { kind: "link", icon: "edit", label: "Edit", href: `/admin/entries/${index + 1}` },
+        { kind: "link", icon: "edit", label: "Edit", href: adminRoutes.content(String(index + 1)) },
         { kind: "link", icon: "open", label: "Open on the site", href: "/", newTab: true },
         {
           kind: "action",

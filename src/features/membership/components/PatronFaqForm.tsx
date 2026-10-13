@@ -1,14 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
 import { useRouter } from "next/navigation";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { SubmitButton } from "@/components/admin/SubmitButton";
-import { ActionForm } from "@/components/ui/action-form";
+import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { Checkbox, FormField, Input, describedBy } from "@/components/ui/field";
-import type { ActionState } from "@/lib/actions";
+import { adminRoutes } from "@/config/routes";
 import { deletePatronFaq, savePatronFaq } from "../admin-actions";
 import { EMAIL_PLACEHOLDER } from "../config";
 import type { PatronFaqRow } from "../editorial";
@@ -17,7 +16,7 @@ const ANSWER_HINT = `Up to 3,000 characters of formatted text. Write {${EMAIL_PL
 
 /** One question of the membership page FAQ (new or existing). */
 export function PatronFaqForm({ item }: { item: PatronFaqRow | null }) {
-  const [state, action] = useActionState<ActionState, FormData>(savePatronFaq, { ok: false });
+  const [state, action] = useServerAction(savePatronFaq);
   const errors = state.fieldErrors ?? {};
 
   return (
@@ -70,7 +69,7 @@ export function DeletePatronFaq({ id, question }: { id: string; question: string
       confirm="Delete"
       action={() => deletePatronFaq(id)}
       onDone={(state) => {
-        if (state.ok) router.push("/admin/patrons");
+        if (state.ok) router.push(adminRoutes.patrons);
       }}
     />
   );

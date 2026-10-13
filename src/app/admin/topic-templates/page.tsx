@@ -7,6 +7,7 @@ import { RowActions } from "@/components/data-table/RowActions";
 import { confirmAction, deleteAction, editAction } from "@/components/data-table/row-actions";
 import { buttonVariants } from "@/components/ui/button";
 import { navIcon } from "@/config/admin-nav";
+import { adminRoutes } from "@/config/routes";
 import { can, sectionAccess } from "@/features/auth/access";
 import { listTemplates } from "@/features/entries/editorial";
 import { deleteTemplate, setDefaultTemplate } from "@/features/entries/template-actions";
@@ -28,12 +29,12 @@ export default async function TopicTemplatesPage() {
   return (
     <>
       <PageHeader
-        icon={navIcon("/admin/topic-templates")}
+        icon={navIcon(adminRoutes.topicTemplates.list)}
         title="Topic templates"
         lead="Resource tiles a topic starts with (Videos & Documentaries, Stats…) with their icons, backgrounds and section headings. A new topic copies the default template; a topic’s Learn more tab can apply another one."
         actions={
           can(access.permissions, "news", "c") ? (
-            <Link href="/admin/topic-templates/new" className={buttonVariants({ size: "sm" })}>
+            <Link href={adminRoutes.topicTemplates.new} className={buttonVariants({ size: "sm" })}>
               New template
             </Link>
           ) : null
@@ -60,7 +61,7 @@ export default async function TopicTemplatesPage() {
         ]}
         rows={templates.map((template) => ({
           id: template.id,
-          href: `/admin/topic-templates/${template.id}`,
+          href: adminRoutes.topicTemplates(template.id),
           values: {
             name: template.name,
             tiles: template.tiles.map((tile) => tile.label).join(" · "),
@@ -70,7 +71,7 @@ export default async function TopicTemplatesPage() {
           actions: (
             <RowActions
               actions={[
-                editAction(`/admin/topic-templates/${template.id}`),
+                editAction(adminRoutes.topicTemplates(template.id)),
                 ...(canEdit && !template.is_default
                   ? [
                       confirmAction(

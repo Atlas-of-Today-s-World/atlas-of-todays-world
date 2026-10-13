@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { navIcon } from "@/config/admin-nav";
+import { adminRoutes } from "@/config/routes";
 import { sectionAccess } from "@/features/auth/access";
 import { updateSocialLink } from "@/features/site/actions";
 import { SocialLinkForm } from "@/features/site/components/SocialLinkForm";
@@ -24,10 +25,10 @@ export default async function SocialLinkPage({ params }: { params: Promise<{ id:
   return (
     <>
       <PageHeader
-        icon={navIcon("/admin/site")}
+        icon={navIcon(adminRoutes.siteSettings)}
         title={link.label}
         lead={
-          <Link href="/admin/site" className="text-[var(--color-link)] underline">
+          <Link href={adminRoutes.siteSettings} className="text-[var(--color-link)] underline">
             Back to site settings
           </Link>
         }

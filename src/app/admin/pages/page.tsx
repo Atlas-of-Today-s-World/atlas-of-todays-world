@@ -6,6 +6,7 @@ import { RowActions } from "@/components/data-table/RowActions";
 import { editAction, openAction } from "@/components/data-table/row-actions";
 import { optionStats } from "@/components/data-table/stats";
 import { navIcon } from "@/config/admin-nav";
+import { adminRoutes } from "@/config/routes";
 import { sectionAccess } from "@/features/auth/access";
 import { listSitePages } from "@/features/site-pages/editorial";
 import { SITE_PAGE_PATH } from "@/features/site-pages/pages";
@@ -29,7 +30,7 @@ export default async function SitePagesPage() {
   return (
     <>
       <PageHeader
-        icon={navIcon("/admin/pages")}
+        icon={navIcon(adminRoutes.sitePages.list)}
         title="Site pages"
         lead="About, privacy, terms and accessibility. A save is published right away; every version is kept and can be restored. An unpublished page shows its built-in text on the website."
       />
@@ -69,7 +70,7 @@ export default async function SitePagesPage() {
           },
         ]}
         rows={pages.map((page) => {
-          const href = `/admin/pages/${page.slug}`;
+          const href = adminRoutes.sitePages(page.slug);
           return {
             id: page.slug,
             href,

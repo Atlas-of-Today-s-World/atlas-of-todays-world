@@ -21,6 +21,7 @@ import {
   UserRound,
   Users,
 } from "lucide-react";
+import { adminRoutes } from "@/config/routes";
 import type { Permissions } from "@/features/auth/access";
 import type { Section } from "@/features/auth/sections";
 
@@ -37,37 +38,67 @@ export interface AdminNavItem {
 
 /** Single definition of the admin menu (ARCHITEKTURA 5.2); shows only sections with the "v" right. */
 export const ADMIN_NAV: readonly AdminNavItem[] = [
-  { href: "/admin", label: "Overview", section: null, icon: LayoutDashboard },
-  { href: "/admin/content", label: "Articles", section: "news", icon: Newspaper },
-  { href: "/admin/authors", label: "Author profiles", section: "news", icon: PenLine },
-  { href: "/admin/topic-templates", label: "Topic templates", section: "news", icon: LayoutGrid },
-  { href: "/admin/approvals", label: "Article approvals", section: "approvals", icon: BadgeCheck },
+  { href: adminRoutes.overview, label: "Overview", section: null, icon: LayoutDashboard },
+  { href: adminRoutes.content.list, label: "Articles", section: "news", icon: Newspaper },
+  { href: adminRoutes.authors.list, label: "Author profiles", section: "news", icon: PenLine },
   {
-    href: "/admin/redirects",
+    href: adminRoutes.topicTemplates.list,
+    label: "Topic templates",
+    section: "news",
+    icon: LayoutGrid,
+  },
+  {
+    href: adminRoutes.approvals,
+    label: "Article approvals",
+    section: "approvals",
+    icon: BadgeCheck,
+  },
+  {
+    href: adminRoutes.redirects.list,
     label: "URL redirects",
     section: ["news", "site"],
     icon: SignpostBig,
   },
-  { href: "/admin/home", label: "Home page", section: "news", icon: House },
-  { href: "/admin/pages", label: "Site pages", section: "site", icon: FileText },
-  { href: "/admin/site", label: "Site settings", section: "site", icon: Settings },
-  { href: "/admin/regions", label: "Regions & countries", section: "regions", icon: Globe2 },
-  { href: "/admin/global-issues", label: "Global issues", section: "specials", icon: Shapes },
-  { href: "/admin/data", label: "Map data layers", section: "layers", icon: Layers },
-  { href: "/admin/areas", label: "Custom map areas", section: "areas", icon: MapIcon },
-  { href: "/admin/appearance", label: "Map appearance", section: "appearance", icon: Brush },
+  { href: adminRoutes.homePage, label: "Home page", section: "news", icon: House },
+  { href: adminRoutes.sitePages.list, label: "Site pages", section: "site", icon: FileText },
+  { href: adminRoutes.siteSettings, label: "Site settings", section: "site", icon: Settings },
   {
-    href: "/admin/switches",
+    href: adminRoutes.regions.list,
+    label: "Regions & countries",
+    section: "regions",
+    icon: Globe2,
+  },
+  {
+    href: adminRoutes.globalIssues.list,
+    label: "Global issues",
+    section: "specials",
+    icon: Shapes,
+  },
+  { href: adminRoutes.data.list, label: "Map data layers", section: "layers", icon: Layers },
+  { href: adminRoutes.areas.list, label: "Custom map areas", section: "areas", icon: MapIcon },
+  { href: adminRoutes.appearance, label: "Map appearance", section: "appearance", icon: Brush },
+  {
+    href: adminRoutes.switches.list,
     label: "Switches & maintenance",
     section: ["permissions", "site"],
     icon: ToggleRight,
   },
-  { href: "/admin/accounts", label: "Accounts & invitations", section: "users", icon: Users },
-  { href: "/admin/volunteers", label: "Volunteer editors", section: "users", icon: HandHeart },
-  { href: "/admin/roles", label: "Roles & permissions", section: "permissions", icon: ShieldCheck },
-  { href: "/admin/members", label: "Patron memberships", section: "members", icon: UserRound },
   {
-    href: "/admin/patrons",
+    href: adminRoutes.accounts.list,
+    label: "Accounts & invitations",
+    section: "users",
+    icon: Users,
+  },
+  { href: adminRoutes.volunteers, label: "Volunteer editors", section: "users", icon: HandHeart },
+  {
+    href: adminRoutes.roles,
+    label: "Roles & permissions",
+    section: "permissions",
+    icon: ShieldCheck,
+  },
+  { href: adminRoutes.members, label: "Patron memberships", section: "members", icon: UserRound },
+  {
+    href: adminRoutes.patrons,
     label: "Patron settings",
     section: ["site", "members"],
     icon: HandCoins,

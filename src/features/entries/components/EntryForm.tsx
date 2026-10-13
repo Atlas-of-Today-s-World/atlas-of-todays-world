@@ -1,13 +1,12 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { CountryPicker, type CountryOption } from "@/components/admin/CountryPicker";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { Button } from "@/components/ui/button";
 import { ColorField } from "@/components/ui/color-field";
 import { Checkbox, FormField, Input, Select, Textarea, describedBy } from "@/components/ui/field";
-import type { ActionState } from "@/lib/actions";
 import {
   ARTICLE_KIND_LABEL,
   ARTICLE_KINDS,
@@ -20,7 +19,7 @@ import type { EditableEntry } from "../editorial";
 import { UploadField } from "@/components/admin/UploadField";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { useDraftBackup } from "./useDraftBackup";
-import { ActionForm } from "@/components/ui/action-form";
+import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { MAP_LAYER_LABEL, MAP_LAYERS } from "../constants";
 import { routes } from "@/config/routes";
 
@@ -50,7 +49,7 @@ export function EntryForm({
   countries: CountryOption[];
   authors: { id: string; name: string }[];
 }) {
-  const [state, action] = useActionState<ActionState, FormData>(saveEntry, { ok: false });
+  const [state, action] = useServerAction(saveEntry);
   const formRef = useRef<HTMLFormElement>(null);
   const backup = useDraftBackup(formRef, entry?.id ?? "new", entry?.updated_at ?? null);
   // Default field values: from the database, or from a restored backup (then the fields remount).

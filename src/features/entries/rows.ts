@@ -12,6 +12,9 @@ import type { EntrySummary } from "./queries";
 export const BASE_COLUMNS =
   "slug, locale, title, summary, category, region_slug, special_slug, cover_url, cover_credit, author_name, published_on, updated_at, reading_minutes, entry_countries(country_iso3)";
 export const COLUMNS = `${BASE_COLUMNS}, authors(slug, name)`;
+/** Columns of a "Learn more" tile (a topic's own or a template's), without its position. */
+export const TILE_COLUMNS =
+  "id, slug, label, description, icon, image_url, image_credit, background";
 
 export interface Row {
   slug: string;

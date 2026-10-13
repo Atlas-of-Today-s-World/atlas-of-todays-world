@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { adminRoutes } from "@/config/routes";
 import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { deleteIssue } from "../actions";
 import { GROUP_KIND_LABEL } from "../constants";
@@ -16,7 +17,7 @@ export function DeleteIssue({ slug, kind }: { slug: string; kind: keyof typeof G
       confirm="Delete"
       action={() => deleteIssue(slug)}
       onDone={(state) => {
-        if (state.ok) router.push("/admin/global-issues");
+        if (state.ok) router.push(adminRoutes.globalIssues.list);
       }}
     />
   );

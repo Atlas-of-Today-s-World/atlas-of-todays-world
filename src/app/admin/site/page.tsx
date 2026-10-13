@@ -12,6 +12,7 @@ import {
 } from "@/components/data-table/row-actions";
 import { optionStats } from "@/components/data-table/stats";
 import { navIcon } from "@/config/admin-nav";
+import { adminRoutes } from "@/config/routes";
 import { can, sectionAccess } from "@/features/auth/access";
 import { addSocialLink, deleteSocialLink, moveSocialLink } from "@/features/site/actions";
 import { SiteSettingsForm, type SettingsValues } from "@/features/site/components/SiteSettingsForm";
@@ -63,7 +64,7 @@ export default async function SiteSettingsPage() {
   return (
     <>
       <PageHeader
-        icon={navIcon("/admin/site")}
+        icon={navIcon(adminRoutes.siteSettings)}
         title="Site settings"
         lead="Facts about the publisher, the contact address, what search engines and shared links show by default, the footer and the social network links. Changes show on the site within a moment."
       />
@@ -127,7 +128,7 @@ export default async function SiteSettingsPage() {
             { key: "updated", label: "Changed", kind: "date", sortable: true, width: "128px" },
           ]}
           rows={links.map((link, index) => {
-            const href = `/admin/site/socials/${link.id}`;
+            const href = adminRoutes.socialLink(link.id);
             const actions: RowAction[] = [
               ...(canEdit
                 ? [

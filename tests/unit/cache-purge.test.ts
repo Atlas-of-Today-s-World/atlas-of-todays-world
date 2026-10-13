@@ -16,10 +16,14 @@ const client = vi.hoisted(() => ({ current: null as unknown }));
 vi.mock("next/cache", () => ({ updateTag, revalidatePath: vi.fn() }));
 vi.mock("next/navigation", () => ({ redirect: vi.fn() }));
 vi.mock("@/lib/seo/indexnow", () => ({ notifyIndexNow }));
-vi.mock("@/lib/supabase/server", () => ({ createServerClient: vi.fn() }));
-vi.mock("@/lib/actions", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("@/lib/actions")>()),
-  signedIn: async () => ({ supabase: client.current, user: { id: "u1" } }),
+// The session client is the current stand-in with a signed-in user, so both
+// `signedIn()` and the formAction / idAction wrappers (which call it inside
+// lib/actions) see the same client.
+vi.mock("@/lib/supabase/server", () => ({
+  createServerClient: async () => ({
+    ...(client.current as object),
+    auth: { getUser: async () => ({ data: { user: { id: "u1" } } }) },
+  }),
 }));
 
 /** Supabase stand-in: every query of a table answers `answer(operations)`. */

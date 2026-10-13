@@ -28,7 +28,7 @@ import {
   PROFILE_TOO_LONG,
   RegionInput,
 } from "./schema";
-import { routes } from "@/config/routes";
+import { adminRoutes, routes } from "@/config/routes";
 
 const FIELD_LABEL: Record<string, string> = {
   date_label: "date",
@@ -190,7 +190,7 @@ export async function saveIssue(_prev: ActionState, formData: FormData): Promise
   if (original_slug && original_slug !== fields.slug) updateTag(tags.entryPages);
   notifyIndexNow([routes.issue(fields.slug)], { everyLanguage: true });
   if (!original_slug || original_slug !== fields.slug) {
-    redirect(`/admin/global-issues/${fields.slug}`);
+    redirect(adminRoutes.globalIssues(fields.slug));
   }
   return { ok: true, message: `${GROUP_KIND_LABEL[fields.kind]} saved.` };
 }

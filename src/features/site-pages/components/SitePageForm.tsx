@@ -1,12 +1,10 @@
 "use client";
 
-import { useActionState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { SubmitButton } from "@/components/admin/SubmitButton";
-import { ActionForm } from "@/components/ui/action-form";
+import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { Checkbox, FormField, Input, Textarea, describedBy } from "@/components/ui/field";
-import type { ActionState } from "@/lib/actions";
 import { saveSitePage } from "../actions";
 import { SITE_PAGE_LIMITS, type SitePageContent } from "../pages";
 
@@ -16,7 +14,7 @@ import { SITE_PAGE_LIMITS, type SitePageContent } from "../pages";
  * away; every save is kept in the page's history.
  */
 export function SitePageForm({ page, published }: { page: SitePageContent; published: boolean }) {
-  const [state, action] = useActionState<ActionState, FormData>(saveSitePage, { ok: false });
+  const [state, action] = useServerAction(saveSitePage);
   const errors = state.fieldErrors ?? {};
   const field = (id: string, hint?: string) => describedBy(id, { hint, errors: errors[id] });
 

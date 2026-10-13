@@ -1,4 +1,5 @@
 import "server-only";
+import { must } from "@/lib/db/result";
 import { createServerClient } from "@/lib/supabase/server";
 
 /** Reading authors for editors — under the user's session, no cache. */
@@ -15,14 +16,10 @@ const COLUMNS = "id, name, photo_url, bio, positionality";
 
 export async function listAuthors(): Promise<AuthorRow[]> {
   const supabase = await createServerClient();
-  const { data, error } = await supabase.from("authors").select(COLUMNS).order("name").limit(500);
-  if (error) throw new Error(`[authors] ${error.message}`);
-  return data;
+  return must(await supabase.from("authors").select(COLUMNS).order("name").limit(500), "authors");
 }
 
 export async function getAuthor(id: string): Promise<AuthorRow | null> {
   const supabase = await createServerClient();
-  const { data, error } = await supabase.from("authors").select(COLUMNS).eq("id", id).maybeSingle();
-  if (error) throw new Error(`[authors] ${error.message}`);
-  return data;
+  return must(await supabase.from("authors").select(COLUMNS).eq("id", id).maybeSingle(), "authors");
 }

@@ -1,21 +1,21 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
+import { formatDateTime } from "@/lib/format";
 import { displayText } from "./rows";
 import type { CellValue, ColumnDef, DataTableRow } from "./types";
 
 /** Admin is in English; dates in the unambiguous British order (1 Oct 2026). */
 const DATE = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium" });
-const DATETIME = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" });
 const NUMBER = new Intl.NumberFormat("en-US");
 /** Tags shown before the "+N" chip. */
 const MAX_TAGS = 2;
 
 const empty = <span className="text-[var(--color-ink-muted)]/70">—</span>;
 
-function formatDate(value: CellValue, format: Intl.DateTimeFormat): string {
+function formatDate(value: CellValue, format: (date: Date) => string): string {
   const date = new Date(String(value));
-  return Number.isNaN(date.getTime()) ? String(value) : format.format(date);
+  return Number.isNaN(date.getTime()) ? String(value) : format(date);
 }
 
 function optionTone(column: ColumnDef, value: string) {
@@ -33,9 +33,9 @@ function renderValue(column: ColumnDef, value: CellValue): ReactNode {
         </span>
       );
     case "date":
-      return <span className="tabular-nums">{formatDate(value, DATE)}</span>;
+      return <span className="tabular-nums">{formatDate(value, (date) => DATE.format(date))}</span>;
     case "datetime":
-      return <span className="tabular-nums">{formatDate(value, DATETIME)}</span>;
+      return <span className="tabular-nums">{formatDate(value, formatDateTime)}</span>;
     case "badge": {
       const raw = String(value);
       return <Badge tone={optionTone(column, raw)}>{displayText(column, raw)}</Badge>;

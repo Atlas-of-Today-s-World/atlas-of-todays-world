@@ -1,6 +1,6 @@
-const WHEN = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" });
+import { formatDateTime } from "@/lib/format";
 
-const at = (value?: string | null) => (value ? WHEN.format(new Date(value)) : null);
+const at = (value?: string | null) => (value ? formatDateTime(value) : null);
 const by = (names: Record<string, string>, person?: string | null) =>
   person ? (names[person] ?? "a former team member") : null;
 

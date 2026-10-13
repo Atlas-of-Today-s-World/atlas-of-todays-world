@@ -1,5 +1,6 @@
 import "server-only";
 import { can, type Action, type Permissions } from "@/features/auth/access";
+import { must } from "@/lib/db/result";
 import { createServerClient } from "@/lib/supabase/server";
 import { FALLBACK_PATRON_SETTINGS } from "./config";
 import { PATRON_SETTINGS_COLUMNS, rowFromSettings, type PatronSettingsRow } from "./settings";
@@ -20,12 +21,14 @@ export const patronRight = (permissions: Permissions, action: Action) =>
 /** The settings row for the form (the previous constants if the row is missing). */
 export async function getPatronSettingsRow(): Promise<PatronSettingsRow> {
   const supabase = await createServerClient();
-  const { data, error } = await supabase
-    .from("patron_settings")
-    .select(PATRON_SETTINGS_COLUMNS)
-    .eq("id", 1)
-    .maybeSingle();
-  if (error) throw new Error(`[patron_settings] ${error.message}`);
+  const data = must(
+    await supabase
+      .from("patron_settings")
+      .select(PATRON_SETTINGS_COLUMNS)
+      .eq("id", 1)
+      .maybeSingle(),
+    "patron_settings",
+  );
   return data ?? rowFromSettings(FALLBACK_PATRON_SETTINGS);
 }
 
@@ -43,23 +46,16 @@ const FAQ_COLUMNS = "id, question, answer_html, sort, visible, updated_at";
 /** Every question, hidden ones too, in the order the page shows them. */
 export async function listPatronFaq(): Promise<PatronFaqRow[]> {
   const supabase = await createServerClient();
-  const { data, error } = await supabase
-    .from("patron_faq")
-    .select(FAQ_COLUMNS)
-    .order("sort")
-    .order("id")
-    .limit(200);
-  if (error) throw new Error(`[patron_faq] ${error.message}`);
-  return data;
+  return must(
+    await supabase.from("patron_faq").select(FAQ_COLUMNS).order("sort").order("id").limit(200),
+    "patron_faq",
+  );
 }
 
 export async function getPatronFaqItem(id: string): Promise<PatronFaqRow | null> {
   const supabase = await createServerClient();
-  const { data, error } = await supabase
-    .from("patron_faq")
-    .select(FAQ_COLUMNS)
-    .eq("id", id)
-    .maybeSingle();
-  if (error) throw new Error(`[patron_faq] ${error.message}`);
-  return data;
+  return must(
+    await supabase.from("patron_faq").select(FAQ_COLUMNS).eq("id", id).maybeSingle(),
+    "patron_faq",
+  );
 }

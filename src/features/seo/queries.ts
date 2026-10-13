@@ -16,6 +16,7 @@ import { LEGAL_NAV } from "@/config/navigation";
 import type { SiteSettings } from "@/features/site/model";
 import { getSiteSettings } from "@/features/site/queries";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
+import { must } from "@/lib/db/result";
 import { formatValue } from "@/lib/indicators";
 import { absoluteUrl } from "@/lib/seo";
 import { llmsFullTxt, llmsTxt, type LlmsDocument, type LlmsLink } from "@/lib/seo/llms";
@@ -49,9 +50,7 @@ const getLastModified = unstable_cache(
       db.from("countries").select("slug, updated_at").limit(1000),
       db.from("indicators").select("id, updated_at").limit(1000),
     ]);
-    for (const result of [regions, issues, countries, indicators]) {
-      if (result.error) throw new Error(`[seo] ${result.error.message}`);
-    }
+    for (const result of [regions, issues, countries, indicators]) must(result, "seo");
     return {
       region: toStamps(regions.data, "slug"),
       issue: toStamps(issues.data, "slug"),

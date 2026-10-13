@@ -7,6 +7,7 @@ import { RowActions } from "@/components/data-table/RowActions";
 import { editAction } from "@/components/data-table/row-actions";
 import { optionStats } from "@/components/data-table/stats";
 import { navIcon } from "@/config/admin-nav";
+import { adminRoutes } from "@/config/routes";
 import { can, sectionAccess } from "@/features/auth/access";
 import { FlagToggle } from "@/features/flags/components/FlagToggle";
 import { MaintenanceMessageForm } from "@/features/flags/components/SwitchForms";
@@ -39,7 +40,7 @@ export default async function SwitchesPage() {
   return (
     <>
       <PageHeader
-        icon={navIcon("/admin/switches")}
+        icon={navIcon(adminRoutes.switches.list)}
         title="Switches & maintenance"
         lead="Turn parts of the website on or off without a new release, and say what visitors read while the site is in maintenance."
       />
@@ -108,7 +109,7 @@ export default async function SwitchesPage() {
             },
             actions: canSwitch ? (
               <div className="flex items-center gap-1">
-                <RowActions actions={[editAction(`/admin/switches/${flag.key}`, "Edit note")]} />
+                <RowActions actions={[editAction(adminRoutes.switches(flag.key), "Edit note")]} />
                 <FlagToggle flagKey={flag.key} enabled={flag.enabled} label={flag.key} />
               </div>
             ) : undefined,

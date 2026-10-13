@@ -1,11 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { SubmitButton } from "@/components/admin/SubmitButton";
-import { ActionForm } from "@/components/ui/action-form";
+import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { FormField, Input, Textarea, describedBy } from "@/components/ui/field";
-import type { ActionState } from "@/lib/actions";
 import { saveFlagNote, saveMaintenanceMessage } from "../actions";
 import type { FlagRow, MaintenanceMessage } from "../editorial";
 import { MAINTENANCE_LIMITS, type MaintenanceNotice } from "../maintenance";
@@ -21,9 +19,7 @@ export function MaintenanceMessageForm({
   message: MaintenanceMessage;
   builtIn: MaintenanceNotice;
 }) {
-  const [state, action] = useActionState<ActionState, FormData>(saveMaintenanceMessage, {
-    ok: false,
-  });
+  const [state, action] = useServerAction(saveMaintenanceMessage);
   const errors = state.fieldErrors ?? {};
   const hint = "Leave empty to use the built-in wording shown in grey.";
   return (
@@ -59,7 +55,7 @@ export function MaintenanceMessageForm({
 
 /** The admin note next to a switch: what it does and when to use it. */
 export function FlagNoteForm({ flag }: { flag: FlagRow }) {
-  const [state, action] = useActionState<ActionState, FormData>(saveFlagNote, { ok: false });
+  const [state, action] = useServerAction(saveFlagNote);
   const errors = state.fieldErrors ?? {};
   const hint = "Shown in the list of switches — what it does and when to turn it on or off.";
   return (

@@ -11,7 +11,7 @@ import { can, sectionAccess } from "@/features/auth/access";
 import { getAtlas } from "@/features/geography/queries";
 import { deleteIssue } from "@/features/portraits/actions";
 import { GROUP_KIND_LABEL } from "@/features/portraits/constants";
-import { routes } from "@/config/routes";
+import { adminRoutes, routes } from "@/config/routes";
 
 export const metadata: Metadata = { title: "Global issues" };
 
@@ -24,20 +24,17 @@ export default async function IssuesPage() {
   return (
     <>
       <PageHeader
-        icon={navIcon("/admin/global-issues")}
+        icon={navIcon(adminRoutes.globalIssues.list)}
         title="Global issues"
         lead="Made by hand from selected countries: global issues around a theme (routes, conflicts, crises) and custom regions."
         actions={
           can(access.permissions, "specials", "c") ? (
             <div className="flex flex-wrap gap-2">
-              <Link
-                href="/admin/global-issues/new?kind=region"
-                className={buttonVariants({ size: "sm" })}
-              >
+              <Link href={adminRoutes.newCustomRegion} className={buttonVariants({ size: "sm" })}>
                 New custom region
               </Link>
               <Link
-                href="/admin/global-issues/new"
+                href={adminRoutes.globalIssues.new}
                 className={buttonVariants({ size: "sm", variant: "outline" })}
               >
                 New global issue
@@ -76,7 +73,7 @@ export default async function IssuesPage() {
         ]}
         rows={issues.map((issue) => ({
           id: issue.slug,
-          href: `/admin/global-issues/${issue.slug}`,
+          href: adminRoutes.globalIssues(issue.slug),
           values: {
             color: issue.fill,
             name: issue.name,
@@ -88,7 +85,7 @@ export default async function IssuesPage() {
           actions: (
             <RowActions
               actions={[
-                editAction(`/admin/global-issues/${issue.slug}`),
+                editAction(adminRoutes.globalIssues(issue.slug)),
                 openAction(routes.issue(issue.slug)),
                 ...(canDelete
                   ? [

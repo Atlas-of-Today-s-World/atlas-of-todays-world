@@ -1,4 +1,5 @@
 import "server-only";
+import { must } from "@/lib/db/result";
 import { createServerClient } from "@/lib/supabase/server";
 import type { IndicatorScale, IndicatorType } from "./constants";
 
@@ -25,9 +26,7 @@ export async function indicatorForEdit(id: string) {
       .order("country_iso3")
       .limit(1000),
   ]);
-  for (const result of [indicator, categories, values]) {
-    if (result.error) throw new Error(`[indicators] ${result.error.message}`);
-  }
+  for (const result of [indicator, categories, values]) must(result, "indicators");
   if (!indicator.data) return null;
   return {
     indicator: {

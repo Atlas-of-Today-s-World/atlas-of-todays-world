@@ -3,14 +3,8 @@
 import "server-only";
 import { revalidatePath, updateTag } from "next/cache";
 import { z } from "zod";
-import {
-  failed,
-  formObject,
-  invalid,
-  NOT_SIGNED_IN,
-  signedIn,
-  type ActionState,
-} from "@/lib/actions";
+import { adminRoutes } from "@/config/routes";
+import { affected, formAction } from "@/lib/actions";
 import { tags } from "@/lib/cache/tags";
 import { uuid } from "@/lib/validation/common";
 
@@ -24,25 +18,20 @@ const Input = z
   });
 
 /** Subtopics pinned on the home map (home_featured; RLS: news "e"). */
-export async function saveHomeFeatured(
-  _prev: ActionState,
-  formData: FormData,
-): Promise<ActionState> {
-  const parsed = Input.safeParse(formObject(formData));
-  if (!parsed.success) return invalid(parsed.error);
-  const session = await signedIn();
-  if (!session) return NOT_SIGNED_IN;
-  const { data, error } = await session.supabase
-    .from("home_featured")
-    .update({
-      first_chapter: parsed.data.first_chapter || null,
-      second_chapter: parsed.data.second_chapter || null,
-    })
-    .eq("id", 1)
-    .select("id");
-  if (error) return failed(error);
-  if (!data.length) return { ok: false, error: "You can't change the home page." };
+export const saveHomeFeatured = formAction(Input, async ({ data, supabase }) => {
+  const denied = affected(
+    await supabase
+      .from("home_featured")
+      .update({
+        first_chapter: data.first_chapter || null,
+        second_chapter: data.second_chapter || null,
+      })
+      .eq("id", 1)
+      .select("id"),
+    "You can't change the home page.",
+  );
+  if (denied) return denied;
   updateTag(tags.entries);
-  revalidatePath("/admin/home");
+  revalidatePath(adminRoutes.homePage);
   return { ok: true, message: "Saved. The home map shows them within a moment." };
-}
+});

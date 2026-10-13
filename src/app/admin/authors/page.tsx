@@ -7,6 +7,7 @@ import { RowActions } from "@/components/data-table/RowActions";
 import { deleteAction, editAction } from "@/components/data-table/row-actions";
 import { buttonVariants } from "@/components/ui/button";
 import { navIcon } from "@/config/admin-nav";
+import { adminRoutes } from "@/config/routes";
 import { can, sectionAccess } from "@/features/auth/access";
 import { deleteAuthor } from "@/features/authors/actions";
 import { listAuthors } from "@/features/authors/editorial";
@@ -31,12 +32,12 @@ export default async function AuthorsPage() {
   return (
     <>
       <PageHeader
-        icon={navIcon("/admin/authors")}
+        icon={navIcon(adminRoutes.authors.list)}
         title="Author profiles"
         lead="Public profiles of the people who write encyclopedia entries. Each entry shows its author's photo, bio and positionality statement."
         actions={
           can(access.permissions, "news", "c") ? (
-            <Link href="/admin/authors/new" className={buttonVariants({ size: "sm" })}>
+            <Link href={adminRoutes.authors.new} className={buttonVariants({ size: "sm" })}>
               Add author profile
             </Link>
           ) : null
@@ -94,7 +95,7 @@ export default async function AuthorsPage() {
         ]}
         rows={rows.map((row) => ({
           id: row.id,
-          href: `/admin/authors/${row.id}`,
+          href: adminRoutes.authors(row.id),
           values: {
             name: row.name,
             positionality: row.positionality ? "yes" : "no",
@@ -104,7 +105,7 @@ export default async function AuthorsPage() {
           actions: (
             <RowActions
               actions={[
-                editAction(`/admin/authors/${row.id}`),
+                editAction(adminRoutes.authors(row.id)),
                 ...(canDelete
                   ? [
                       deleteAction(

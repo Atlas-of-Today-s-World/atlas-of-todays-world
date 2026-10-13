@@ -5,6 +5,7 @@ import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
 import { optionStats } from "@/components/data-table/stats";
 import { navIcon } from "@/config/admin-nav";
+import { adminRoutes } from "@/config/routes";
 import { can, sectionAccess } from "@/features/auth/access";
 import { revokeMembership } from "@/features/members/actions";
 import { GrantForm } from "@/features/members/components/MemberForms";
@@ -41,7 +42,7 @@ export default async function MembersPage() {
   return (
     <>
       <PageHeader
-        icon={navIcon("/admin/members")}
+        icon={navIcon(adminRoutes.members)}
         title="Patron memberships"
         lead="Atlas Patron memberships of reader accounts. Paid memberships are managed by the payment gateway; here you get an overview and can grant complimentary ones."
       />

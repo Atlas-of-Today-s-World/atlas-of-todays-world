@@ -17,7 +17,7 @@ import {
   type IndicatorScale,
   type IndicatorType,
 } from "../constants";
-import { ActionForm } from "@/components/ui/action-form";
+import { ActionForm, useServerAction } from "@/components/ui/action-form";
 
 export interface IndicatorValues {
   id: string;
@@ -56,7 +56,7 @@ const NEW: IndicatorValues = {
 /** Indicator description and scale; for a new one also id and kind (unchangeable after creation). */
 export function IndicatorForm({ indicator }: { indicator: IndicatorValues | null }) {
   const values = indicator ?? NEW;
-  const [state, action] = useActionState<ActionState, FormData>(saveIndicator, { ok: false });
+  const [state, action] = useServerAction(saveIndicator);
   const [type, setType] = useState(values.type);
   const [ramp, setRamp] = useState(values.ramp.length ? values.ramp : NEW.ramp);
   const errors = state.fieldErrors ?? {};
@@ -269,7 +269,7 @@ interface Category {
 /** Code list of a categorical indicator. */
 export function CategoriesForm({ id, initial }: { id: string; initial: Category[] }) {
   const [items, setItems] = useState(initial);
-  const [state, action] = useActionState<ActionState, FormData>(saveCategories, { ok: false });
+  const [state, action] = useServerAction(saveCategories);
   return (
     <ActionForm action={action} className="grid max-w-2xl gap-3">
       <input type="hidden" name="indicator_id" value={id} />

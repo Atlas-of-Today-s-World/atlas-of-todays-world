@@ -4,6 +4,7 @@ import { cache } from "react";
 import generated from "@/data/countries.generated.json";
 import type { Locale } from "@/features/i18n/config";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
+import { must } from "@/lib/db/result";
 import { createPublicClient } from "@/lib/supabase/public";
 import {
   buildAtlas,
@@ -23,8 +24,7 @@ type Page<T> = PromiseLike<{ data: T[] | null; error: { message: string } | null
 async function all<T>(label: string, page: (from: number, to: number) => Page<T>): Promise<T[]> {
   const out: T[] = [];
   for (let from = 0; ; from += PAGE) {
-    const { data, error } = await page(from, from + PAGE - 1);
-    if (error) throw new Error(`[atlas] ${label}: ${error.message}`);
+    const data = must(await page(from, from + PAGE - 1), `atlas: ${label}`);
     out.push(...(data ?? []));
     if (!data || data.length < PAGE) return out;
   }
@@ -217,13 +217,15 @@ export const getCountryStats = cache(async (iso3: string, locale: Locale): Promi
 export function getCountryProfileHtml(iso3: string): Promise<string> {
   return unstable_cache(
     async () => {
-      const { data, error } = await createPublicClient()
-        .from("countries")
-        .select("profile_html")
-        .eq("iso3", iso3)
-        .maybeSingle();
-      if (error) throw new Error(`[atlas] country profile: ${error.message}`);
-      return data?.profile_html ?? "";
+      const row = must(
+        await createPublicClient()
+          .from("countries")
+          .select("profile_html")
+          .eq("iso3", iso3)
+          .maybeSingle(),
+        "atlas: country profile",
+      );
+      return row?.profile_html ?? "";
     },
     ["country-profile", iso3],
     { tags: [tags.country(iso3)], revalidate: PUBLIC_REVALIDATE_SECONDS },
