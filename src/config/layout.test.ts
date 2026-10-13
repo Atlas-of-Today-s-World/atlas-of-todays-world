@@ -15,6 +15,7 @@ import {
 } from "./layout";
 
 const css = readFileSync(join(__dirname, "../app/globals.css"), "utf8");
+const rail = readFileSync(join(__dirname, "../components/ContentRail.tsx"), "utf8");
 
 describe("layout tokens", () => {
   it("CSS variables match config/layout.ts", () => {
@@ -35,6 +36,19 @@ describe("layout tokens", () => {
     expect(GLOBE_LABEL_MOBILE.sheet).toContain(`bottom-[calc(${sheet}+`);
     // The cookie notice leaves the sheet below the same width as Tailwind `md`.
     expect(css).toContain(`@media (width < ${DESKTOP_MIN_PX / 16}rem)`);
+  });
+
+  it("the cookie notice never covers the bottom sheet's handle and close button", () => {
+    const phones = css.slice(css.indexOf(`@media (width < ${DESKTOP_MIN_PX / 16}rem)`));
+    // The media block ends at the first closing brace at the start of a line.
+    const rules = phones.slice(0, phones.search(/\n\}/));
+    // Under the sheet in the stacking order, whatever the screen height.
+    expect(rules).toContain("z-index: calc(var(--z-index-panel) - 1);");
+    // Out of the way while the sheet is pulled up to nearly full height (ContentRail).
+    expect(rules).toMatch(
+      /:root:has\(\[data-content-rail\]\[data-sheet="expanded"\]\) \[data-cookie-notice\] \{\s*display: none;/,
+    );
+    expect(rail).toContain('data-sheet={expanded ? "expanded" : undefined}');
   });
 
   it("detects the panel kind from the path", () => {

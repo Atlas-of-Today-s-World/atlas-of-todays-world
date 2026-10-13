@@ -82,6 +82,7 @@ export default function ContentRail({
       aria-busy={placeholder || undefined}
       // On phones the cookie notice moves out of the bottom sheet's way (globals.css).
       data-content-rail=""
+      data-sheet={expanded ? "expanded" : undefined}
       tabIndex={-1}
       aria-label={t.panel.content}
       className={cn(

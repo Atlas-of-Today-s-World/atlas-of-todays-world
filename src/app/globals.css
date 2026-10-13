@@ -347,13 +347,22 @@ body {
 /*
  * Phones (below DESKTOP_MIN_PX in src/config/layout.ts) with a content panel open:
  * the panel is a bottom sheet, so the notice moves from the bottom to just under
- * the header bar (h-16) and never covers the sheet's text. Pure CSS, so it is
- * right from the first (server-rendered) paint.
+ * the header bar (h-16) and never covers the sheet's text. It also stacks under
+ * the sheet: on a short screen the sheet's handle and close button stay on top
+ * of it. Pulled up to nearly full height (ContentRail `data-sheet`), the sheet
+ * leaves no room above it, so the notice steps aside until the sheet comes back
+ * down; its countdown waits meanwhile (CookieNotice). Pure CSS, so it is right
+ * from the first (server-rendered) paint.
  */
 @media (width < 48rem) {
   :root:has([data-content-rail]) [data-cookie-notice] {
     top: 4.75rem;
     bottom: auto;
+    z-index: calc(var(--z-index-panel) - 1);
+  }
+
+  :root:has([data-content-rail][data-sheet="expanded"]) [data-cookie-notice] {
+    display: none;
   }
 }
 
