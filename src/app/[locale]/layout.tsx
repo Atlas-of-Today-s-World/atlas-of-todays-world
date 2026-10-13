@@ -8,6 +8,7 @@ import { isLocale, LOCALES, localePath } from "@/features/i18n/config";
 import { getMessages } from "@/features/i18n/messages";
 import { absoluteUrl } from "@/lib/seo";
 import { graph, organizationNode, websiteNode } from "@/lib/seo/jsonld";
+import { getSiteSettings, getSocialLinks } from "@/features/site/queries";
 
 /**
  * Language version of the public site (G5). English lives at URLs without a prefix
@@ -27,6 +28,7 @@ export default async function LocaleLayout({
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const t = getMessages(locale).seo;
+  const [site, socials] = await Promise.all([getSiteSettings(), getSocialLinks()]);
   return (
     <LocaleProvider locale={locale}>
       {/* Discovery links on every page (React puts <link> into <head>): feeds and llms.txt (ADR-021). */}
@@ -48,7 +50,7 @@ export default async function LocaleLayout({
         href={absoluteUrl(localePath(locale, "/llms.txt"))}
       />
       {/* The publisher and the website, referenced by @id from every page's own graph. */}
-      <JsonLd data={graph(organizationNode(), websiteNode(locale))} />
+      <JsonLd data={graph(organizationNode(site, socials), websiteNode(locale, site))} />
       {/* <html lang> is the shared root; this wrapper carries the content language (WCAG 3.1.2). */}
       <div lang={locale} className="contents">
         {children}

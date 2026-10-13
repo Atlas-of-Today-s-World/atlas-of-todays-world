@@ -1,3 +1,4 @@
+import { getSiteSettings } from "@/features/site/queries";
 import type { Metadata } from "next";
 import Link from "@/components/i18n/Link";
 import { JsonLd } from "@/components/JsonLd";
@@ -7,7 +8,14 @@ import type { Country } from "@/features/geography/types";
 import { format, getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import { pageMetadata } from "@/lib/seo/metadata";
-import { breadcrumbNode, graph, itemListNode, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import {
+  breadcrumbNode,
+  graph,
+  homeCrumb,
+  itemListNode,
+  pageUrl,
+  webPageNode,
+} from "@/lib/seo/jsonld";
 import { routes } from "@/config/routes";
 
 type Params = { params: Promise<{ locale: string }> };
@@ -34,6 +42,7 @@ export default async function CountriesPage({ params }: Params) {
   const locale = await localeFrom(params);
   const t = getMessages(locale).countriesIndex;
   const atlas = await getAtlas(locale);
+  const site = await getSiteSettings();
   const byName = (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name, locale);
   const issueGroups = [
     { key: "issues", title: t.issues, items: atlas.issues.filter((i) => i.kind === "issue") },
@@ -118,10 +127,7 @@ export default async function CountriesPage({ params }: Params) {
             locale,
             type: "CollectionPage",
             breadcrumb: breadcrumbNode(
-              [
-                { name: "Atlas of Today's World", path: "/" },
-                { name: t.heading, path: routes.countries },
-              ],
+              [homeCrumb(site), { name: t.heading, path: routes.countries }],
               locale,
             ),
           }),

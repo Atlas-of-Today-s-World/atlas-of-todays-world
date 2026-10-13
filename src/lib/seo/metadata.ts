@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
 import { LOCALES, localePath, type Locale } from "@/features/i18n/config";
-import { ORGANIZATION } from "@/config/organization";
+import { SITE_DEFAULTS, titleSuffix, type SiteSettings } from "@/features/site/model";
+import { getSiteSettings } from "@/features/site/queries";
 import { absoluteUrl, alternates } from "./index";
 
-/** Brand appended to every page title by the root layout template. */
-export const TITLE_SUFFIX = ` — ${ORGANIZATION.name}`;
+/**
+ * Brand appended to page titles — the default; the live one is the site
+ * settings' suffix (Admin → Site settings), which the root layout's template uses.
+ * Synchronous helpers (pageTitle's length check) measure with this one.
+ */
+export const TITLE_SUFFIX = titleSuffix(SITE_DEFAULTS);
 /** Roughly what Google shows before cutting a title or a description. */
 const TITLE_MAX = 60;
 export const DESCRIPTION_MAX = 160;
-
-/** Default preview image for pages without their own (app/og-image.png). */
-export const DEFAULT_OG_IMAGE = "/og-image.png";
 
 /** Open Graph locale codes (language_TERRITORY). */
 const OG_LOCALE: Record<Locale, string> = { en: "en_US" };
@@ -39,10 +41,13 @@ export function pageTitle(main: string, qualifier?: string): Metadata["title"] {
 }
 
 /** The final `<title>` text a page ends up with (also for og:title). */
-export function fullTitle(title: Metadata["title"]): string {
-  if (typeof title === "string") return `${title}${TITLE_SUFFIX}`;
+export function fullTitle(
+  title: Metadata["title"],
+  site: Pick<SiteSettings, "name" | "titleSuffix"> = SITE_DEFAULTS,
+): string {
+  if (typeof title === "string") return `${title}${titleSuffix(site)}`;
   if (title && typeof title === "object" && "absolute" in title) return String(title.absolute);
-  return ORGANIZATION.name;
+  return site.name;
 }
 
 export interface PageSeo {
@@ -84,9 +89,11 @@ export interface PageSeo {
 /**
  * Metadata of a public page from one place (ARCHITEKTURA 13.4): canonical and
  * hreflang, Open Graph with the right URL and locale, a large Twitter card,
- * robots. Descriptions are cut to what search engines show.
+ * robots. Descriptions are cut to what search engines show. The brand (site
+ * name, title suffix, default image) comes from the site settings.
  */
-export function pageMetadata(seo: PageSeo): Metadata {
+export async function pageMetadata(seo: PageSeo): Promise<Metadata> {
+  const site = await getSiteSettings();
   const content = seo.contentLocale ?? seo.locale;
   const languages = seo.languages ?? LOCALES;
   const links = alternates(seo.path, content, languages);
@@ -94,8 +101,8 @@ export function pageMetadata(seo: PageSeo): Metadata {
   const description = seo.authoredDescription
     ? seo.description.trim()
     : clampText(seo.description, DESCRIPTION_MAX);
-  const title = fullTitle(seo.title);
-  const image = seo.image ?? (seo.ownImage ? undefined : DEFAULT_OG_IMAGE);
+  const title = fullTitle(seo.title, site);
+  const image = seo.image ?? (seo.ownImage ? undefined : site.ogImage);
 
   // Next merges metadata key by key and a key present as `undefined` replaces the
   // parent's value (the segment's opengraph-image, the root robots with
@@ -112,7 +119,7 @@ export function pageMetadata(seo: PageSeo): Metadata {
     },
     openGraph: {
       type: seo.type ?? "website",
-      siteName: ORGANIZATION.name,
+      siteName: site.name,
       url: canonical,
       locale: OG_LOCALE[content],
       alternateLocale: languages.filter((code) => code !== content).map((code) => OG_LOCALE[code]),

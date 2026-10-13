@@ -27,7 +27,6 @@ cp .env.example .env.local   # doplnit NEXT_PUBLIC_SUPABASE_URL a _ANON_KEY
 | `SUPABASE_SERVICE_ROLE_KEY` | Jen server: smazání účtu, ban v Auth, rate limit, e2e účty. |
 | `NEXT_PUBLIC_MAPTILER_KEY` | Satelitní dlaždice MapTileru místo Esri. Pro produkci doporučeno (Esri nemá SLA pro komerční provoz). |
 | `NEXT_PUBLIC_SITE_URL` | Kanonická adresa pro sitemapu, robots.txt a og:url. |
-| `NEXT_PUBLIC_CONTACT_EMAIL` | Kontakt v zásadách ochrany soukromí a prohlášení o přístupnosti. |
 | `MAILCHIMP_API_KEY`, `MAILCHIMP_LIST_ID` | Odběr novinek. |
 
 Prázdnou databázi naplní migrace (`supabase db push`) a `supabase/seed.sql`.

@@ -2,7 +2,6 @@ import "server-only";
 import type { ReactNode } from "react";
 import { contactTarget } from "@/components/atlas/ContactLink";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
-import { ORGANIZATION } from "@/config/organization";
 import type { Locale } from "@/features/i18n/config";
 import { format, getMessages } from "@/features/i18n/messages";
 import { formatLongDate } from "@/lib/format";
@@ -17,7 +16,7 @@ import { fillInline, linkHtml, splitAtBlock } from "../render";
  * {{data-sources}} paragraph (below the body if it has none); `children`
  * follow the body (parts that stay in code, e.g. the publisher line).
  */
-export function SitePageView({
+export async function SitePageView({
   page,
   locale,
   dataSources,
@@ -28,10 +27,11 @@ export function SitePageView({
   dataSources?: ReactNode;
   children?: ReactNode;
 }) {
-  const contact = contactTarget();
+  // {{contact}} and {{email}}: the one contact address of the site settings.
+  const contact = await contactTarget();
   const html = fillInline(page.body_html, {
     [PAGE_TOKENS.contact]: linkHtml(contact.href, contact.label),
-    [PAGE_TOKENS.email]: xmlEscape(ORGANIZATION.email),
+    [PAGE_TOKENS.email]: xmlEscape(contact.label),
   });
   const { before, after } = splitAtBlock(html, PAGE_TOKENS.dataSources);
 

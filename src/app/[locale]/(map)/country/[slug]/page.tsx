@@ -1,3 +1,4 @@
+import { getSiteSettings } from "@/features/site/queries";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ContentRail from "@/components/ContentRail";
@@ -17,7 +18,15 @@ import type { Country, CountryStat } from "@/features/geography/types";
 import { formatPopulation } from "@/lib/format";
 import { geoMeta } from "@/lib/seo";
 import { pageMetadata, pageTitle } from "@/lib/seo/metadata";
-import { breadcrumbNode, countryNode, graph, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import {
+  breadcrumbNode,
+  countryNode,
+  graph,
+  homeCrumb,
+  ids,
+  pageUrl,
+  webPageNode,
+} from "@/lib/seo/jsonld";
 import { JsonLd } from "@/components/JsonLd";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
 import { RelatedTopics } from "@/components/topics/RelatedTopics";
@@ -117,6 +126,7 @@ export default async function CountryPage({
   const { slug } = await params;
   const locale = await localeFrom(params);
   const atlas = await getAtlas(locale);
+  const site = await getSiteSettings();
   const country = atlas.countryBySlug.get(slug);
   if (!country) notFound();
 
@@ -190,7 +200,7 @@ export default async function CountryPage({
             about: ids.country(country.slug),
             breadcrumb: breadcrumbNode(
               [
-                { name: "Atlas of Today's World", path: "/" },
+                homeCrumb(site),
                 ...(region ? [{ name: region.name, path: routes.region(region.slug) }] : []),
                 { name: country.name, path: routes.country(country.slug) },
               ],

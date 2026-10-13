@@ -1,3 +1,4 @@
+import { getSiteSettings } from "@/features/site/queries";
 import type { Metadata } from "next";
 import Link from "@/components/i18n/Link";
 import { buttonVariants } from "@/components/ui/button";
@@ -8,7 +9,14 @@ import { format, getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import { JsonLd } from "@/components/JsonLd";
 import { pageMetadata } from "@/lib/seo/metadata";
-import { breadcrumbNode, graph, itemListNode, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import {
+  breadcrumbNode,
+  graph,
+  homeCrumb,
+  itemListNode,
+  pageUrl,
+  webPageNode,
+} from "@/lib/seo/jsonld";
 import { NEWS_CATEGORIES } from "@/lib/content-types";
 import { routes } from "@/config/routes";
 
@@ -30,6 +38,7 @@ export default async function NewsIndexPage({ params }: Params) {
   const messages = getMessages(locale);
   const t = messages.newsIndex;
   const [newsItems, atlas] = await Promise.all([getEntries(), getAtlas(locale)]);
+  const site = await getSiteSettings();
 
   return (
     <main>
@@ -85,10 +94,7 @@ export default async function NewsIndexPage({ params }: Params) {
             locale,
             type: "CollectionPage",
             breadcrumb: breadcrumbNode(
-              [
-                { name: "Atlas of Today's World", path: "/" },
-                { name: t.heading, path: routes.newsIndex },
-              ],
+              [homeCrumb(site), { name: t.heading, path: routes.newsIndex }],
               locale,
             ),
           }),

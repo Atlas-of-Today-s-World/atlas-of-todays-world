@@ -6,7 +6,8 @@ import { PrePaintScript } from "@/components/PrePaintScript";
 import { SKIP_LINK } from "@/config/layout";
 import { THEME_COLORS } from "@/config/palette";
 import { serverEnv } from "@/lib/env.server";
-import { DEFAULT_OG_IMAGE, TITLE_SUFFIX } from "@/lib/seo/metadata";
+import { titleSuffix } from "@/features/site/model";
+import { getSiteSettings } from "@/features/site/queries";
 import { SITE_URL } from "@/lib/site";
 
 // Only the basic Latin files are preloaded; accented letters (latin-ext) still
@@ -23,26 +24,37 @@ const manrope = Manrope({
   display: "swap",
 });
 
-export const metadata: Metadata = {
+/**
+ * Site-wide defaults. The brand, the default title and description and the
+ * default preview image come from the site settings (Admin → Site settings);
+ * getSiteSettings() falls back to the built-in values when they can't be read.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const site = await getSiteSettings();
+  return {
+    ...STATIC_METADATA,
+    title: {
+      default: site.seoTitle,
+      template: `%s${titleSuffix(site)}`,
+    },
+    description: site.seoDescription,
+    applicationName: site.name,
+    authors: [{ name: site.name }],
+    publisher: site.name,
+    // Pages set their own URL, locale and image (lib/seo/metadata.ts); this is the fallback.
+    openGraph: {
+      type: "website",
+      siteName: site.name,
+      images: [{ url: site.ogImage, width: 1200, height: 630 }],
+    },
+  };
+}
+
+const STATIC_METADATA: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: {
-    default: "Atlas of Today's World — interactive atlas of every country",
-    template: `%s${TITLE_SUFFIX}`,
-  },
-  description:
-    "Explore every country and world region on an interactive satellite globe: political systems, living conditions, human development and the stories behind them.",
-  applicationName: "Atlas of Today's World",
-  authors: [{ name: "Atlas of Today's World" }],
-  publisher: "Atlas of Today's World",
   // The website was built by Develogi.cz s.r.o. (https://develogi.cz) — also in /humans.txt.
   creator: "Develogi.cz s.r.o. (https://develogi.cz)",
   category: "reference",
-  // Pages set their own URL, locale and image (lib/seo/metadata.ts); this is the fallback.
-  openGraph: {
-    type: "website",
-    siteName: "Atlas of Today's World",
-    images: [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630 }],
-  },
   twitter: { card: "summary_large_image" },
   verification: {
     google: serverEnv.GOOGLE_SITE_VERIFICATION,

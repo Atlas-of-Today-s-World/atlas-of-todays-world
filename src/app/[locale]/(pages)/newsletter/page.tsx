@@ -1,3 +1,4 @@
+import { getSiteSettings } from "@/features/site/queries";
 import type { Metadata } from "next";
 import { ArrowRight, Check, HandHeart, Mail, PenLine } from "lucide-react";
 import Link from "@/components/i18n/Link";
@@ -7,7 +8,7 @@ import { getFlags } from "@/features/flags/queries";
 import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import { VOLUNTEER_ID } from "@/features/membership/config";
-import { breadcrumbNode, graph, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import { breadcrumbNode, graph, homeCrumb, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { routes } from "@/config/routes";
 
@@ -36,6 +37,7 @@ export default async function NewsletterPage({ params }: Params) {
   const locale = await localeFrom(params);
   const t = getMessages(locale).newsletterPage;
   const flags = await getFlags();
+  const site = await getSiteSettings();
 
   return (
     <>
@@ -124,10 +126,7 @@ export default async function NewsletterPage({ params }: Params) {
             locale,
             about: ids.organization,
             breadcrumb: breadcrumbNode(
-              [
-                { name: "Atlas of Today's World", path: "/" },
-                { name: t.title, path: routes.newsletter },
-              ],
+              [homeCrumb(site), { name: t.title, path: routes.newsletter }],
               locale,
             ),
           }),

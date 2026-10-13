@@ -27,9 +27,17 @@ import { htmlToText } from "@/lib/text/html";
 import { cn } from "@/lib/cn";
 import { formatEuro, formatNumber, formatPercent } from "@/lib/format";
 import { JsonLd } from "@/components/JsonLd";
-import { ORGANIZATION } from "@/config/organization";
+import { getSiteSettings } from "@/features/site/queries";
 import { pageMetadata } from "@/lib/seo/metadata";
-import { breadcrumbNode, faqNode, graph, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import {
+  breadcrumbNode,
+  faqNode,
+  graph,
+  homeCrumb,
+  ids,
+  pageUrl,
+  webPageNode,
+} from "@/lib/seo/jsonld";
 import { routes } from "@/config/routes";
 
 type Params = { params: Promise<{ locale: string }> };
@@ -77,12 +85,12 @@ const FAQ_ANSWER =
   "[&_a]:text-[var(--color-link)] [&_a]:underline [&_li]:mt-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:pl-5 [&>*+*]:mt-3";
 
 /** FAQPage JSON-LD: plain text, the contact address in place of the placeholder. */
-const faqForRobots = (faq: PatronFaqItem[]) =>
+const faqForRobots = (faq: PatronFaqItem[], email: string) =>
   faq.map((item) => ({
     question: item.question,
     answer: htmlToText(item.answerHtml, { blockEnd: " ", collapse: true }).replaceAll(
       `{${EMAIL_PLACEHOLDER}}`,
-      ORGANIZATION.email,
+      email,
     ),
   }));
 const CARD = "rounded-[var(--radius-panel)] border border-[var(--color-line)] bg-white";
@@ -244,11 +252,12 @@ function GoalProgress({
 export default async function MembershipPage({ params }: Params) {
   const locale = await localeFrom(params);
   const t = getMessages(locale).patrons;
-  const [stats, flags, settings, faq] = await Promise.all([
+  const [stats, flags, settings, faq, site] = await Promise.all([
     getPatronStats(),
     getFlags(),
     getPatronSettings(),
     getPatronFaq(),
+    getSiteSettings(),
   ]);
 
   return (
@@ -380,10 +389,7 @@ export default async function MembershipPage({ params }: Params) {
               locale,
               about: ids.organization,
               breadcrumb: breadcrumbNode(
-                [
-                  { name: "Atlas of Today's World", path: "/" },
-                  { name: t.title, path: routes.membership },
-                ],
+                [homeCrumb(site), { name: t.title, path: routes.membership }],
                 locale,
               ),
             }),
@@ -394,7 +400,7 @@ export default async function MembershipPage({ params }: Params) {
               recipient: { "@id": ids.organization },
             },
           },
-          faqNode(pageUrl(routes.membership, locale), faqForRobots(faq)),
+          faqNode(pageUrl(routes.membership, locale), faqForRobots(faq, site.email)),
         )}
       />
 

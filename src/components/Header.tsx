@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Menu, UserRound, X } from "lucide-react";
 import { RAIL_OFFSET, isFullPage, isHome, railKind } from "@/config/layout";
-import { ACCOUNT_NAV, LEGAL_NAV, SOCIALS, mainNav } from "@/config/navigation";
+import { ACCOUNT_NAV, LEGAL_NAV, mainNav } from "@/config/navigation";
+import type { SocialLink } from "@/features/site/model";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { useFocusTrap } from "@/lib/use-focus-trap";
@@ -21,16 +22,19 @@ import { useMessages } from "./i18n/LocaleProvider";
  *   "Back to Atlas" in the middle and the menu as buttons on the right.
  * On narrow screens the menu becomes a full-screen dialog behind a hamburger.
  * News is in the menu only while it is switched on (`showNews`, flag news_menu).
+ * The social badges come from Admin → Site settings (`socials`, read on the server).
  */
 export default function Header({
   newsletter = true,
   showNews = false,
   bar = false,
+  socials,
 }: {
   newsletter?: boolean;
   showNews?: boolean;
   /** Pages that render the header themselves (full-width pages, pages without the globe). */
   bar?: boolean;
+  socials: readonly SocialLink[];
 }) {
   const pathname = usePathname();
   const t = useMessages();
@@ -72,6 +76,7 @@ export default function Header({
       refObject={menu}
       nav={nav}
       newsletter={newsletter}
+      socials={socials}
       onClose={() => setMenuOpen(false)}
     />
   ) : null;
@@ -190,7 +195,7 @@ export default function Header({
             </Link>
           ))}
         <span className="hidden items-center gap-2 [text-shadow:none] xl:flex">
-          <SocialLinks className="size-(--touch-min) text-[11px]" />
+          <SocialLinks socials={socials} className="size-(--touch-min) text-[11px]" />
         </span>
         <Link
           href={ACCOUNT_NAV.href}
@@ -225,11 +230,13 @@ function MenuDialog({
   refObject,
   nav,
   newsletter,
+  socials,
   onClose,
 }: {
   refObject: React.RefObject<HTMLDivElement | null>;
   nav: ReturnType<typeof mainNav>;
   newsletter: boolean;
+  socials: readonly SocialLink[];
   onClose: () => void;
 }) {
   const t = useMessages();
@@ -281,7 +288,7 @@ function MenuDialog({
         </nav>
 
         <div className="flex items-center gap-3">
-          <SocialLinks className="size-(--touch-min) text-[12px]" />
+          <SocialLinks socials={socials} className="size-(--touch-min) text-[12px]" />
           <Link
             href={ACCOUNT_NAV.href}
             className="ml-auto flex min-h-(--touch-min) min-w-(--touch-min) items-center justify-center text-[13px] whitespace-nowrap text-white/70"
@@ -298,10 +305,16 @@ function MenuDialog({
  * Social network links as round badges: white with dark letters, so they stand
  * out on the photo behind the home header as well as on the dark bar.
  */
-function SocialLinks({ className }: { className: string }) {
-  return SOCIALS.map((social) => (
+function SocialLinks({
+  socials,
+  className,
+}: {
+  socials: readonly SocialLink[];
+  className: string;
+}) {
+  return socials.map((social) => (
     <a
-      key={social.label}
+      key={social.href}
       href={social.href}
       target="_blank"
       rel="noreferrer"

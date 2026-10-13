@@ -1,5 +1,5 @@
 import { getSitemaps, SITEMAPS, type SitemapName } from "@/features/seo/queries";
-import { ORGANIZATION } from "@/config/organization";
+import { getSiteSettings } from "@/features/site/queries";
 import { machineResponse } from "@/lib/seo/response";
 import { urlsetXml } from "@/lib/seo/xml";
 
@@ -16,6 +16,6 @@ export async function GET(_request: Request, { params }: { params: Promise<{ fil
   const { file } = await params;
   const name = file.replace(/\.xml$/, "") as SitemapName;
   if (!SITEMAPS.includes(name)) return new Response("Not found", { status: 404 });
-  const sitemaps = await getSitemaps();
-  return machineResponse(urlsetXml(sitemaps[name], ORGANIZATION.name), "xml");
+  const [sitemaps, site] = await Promise.all([getSitemaps(), getSiteSettings()]);
+  return machineResponse(urlsetXml(sitemaps[name], site.name), "xml");
 }

@@ -1,3 +1,4 @@
+import { getSiteSettings } from "@/features/site/queries";
 import type { Metadata } from "next";
 import { preload } from "react-dom";
 import { PHOTO_WIDTH, photoUrl } from "@/lib/images";
@@ -9,7 +10,14 @@ import { localeFrom } from "@/features/i18n/request";
 import { TopicsBrowser } from "@/features/topics/components/TopicsBrowser";
 import { topicIndex } from "@/features/topics/related";
 import { pageMetadata } from "@/lib/seo/metadata";
-import { breadcrumbNode, graph, itemListNode, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import {
+  breadcrumbNode,
+  graph,
+  homeCrumb,
+  itemListNode,
+  pageUrl,
+  webPageNode,
+} from "@/lib/seo/jsonld";
 import { routes } from "@/config/routes";
 
 type Params = { params: Promise<{ locale: string }> };
@@ -30,6 +38,7 @@ export default async function TopicsPage({ params }: Params) {
   const locale = await localeFrom(params);
   const t = getMessages(locale).topics;
   const atlas = await getAtlas(locale);
+  const site = await getSiteSettings();
   const { counts, entries } = await topicIndex(atlas);
   const cards = entries.map((item) => ({
     slug: item.slug,
@@ -86,10 +95,7 @@ export default async function TopicsPage({ params }: Params) {
             locale,
             type: "CollectionPage",
             breadcrumb: breadcrumbNode(
-              [
-                { name: "Atlas of Today's World", path: "/" },
-                { name: t.title, path: routes.topics },
-              ],
+              [homeCrumb(site), { name: t.title, path: routes.topics }],
               locale,
             ),
           }),
