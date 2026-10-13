@@ -86,6 +86,44 @@ test.describe("accounts and invitations", () => {
     await expect(page).toHaveURL(/\/login\?next=%2Fucet/);
   });
 
+  test("session cookies are httpOnly — page scripts never see the session", async ({ page }) => {
+    const email = testEmail("httponly");
+    await createUser(email);
+    await signIn(page, email);
+    await expect(page).toHaveURL(/\/ucet$/);
+
+    const session = (await page.context().cookies()).filter((c) =>
+      /^sb-.+-auth-token/.test(c.name),
+    );
+    expect(session.length).toBeGreaterThan(0);
+    for (const cookie of session) expect(cookie.httpOnly, cookie.name).toBe(true);
+    expect(await page.evaluate(() => document.cookie)).not.toContain("auth-token");
+  });
+
+  test("Google sign-in starts on the server with an httpOnly PKCE verifier", async ({ page }) => {
+    // Stop at Supabase's authorize endpoint — the test never goes on to Google.
+    await page.route(/\/auth\/v1\/authorize/, (route) =>
+      route.fulfill({ status: 200, contentType: "text/plain", body: "authorize" }),
+    );
+    await page.goto("/login?next=%2Fadmin");
+    const site = new URL(page.url()).origin;
+    const authorize = page.waitForRequest(/\/auth\/v1\/authorize/);
+    await page.getByRole("button", { name: "Continue with Google" }).click();
+    const url = new URL((await authorize).url());
+
+    expect(url.searchParams.get("provider")).toBe("google");
+    expect(url.searchParams.get("code_challenge")).toBeTruthy();
+    const back = new URL(url.searchParams.get("redirect_to") ?? "");
+    expect(back.origin).toBe(site);
+    expect(back.pathname).toBe("/auth/callback");
+    expect(back.searchParams.get("next")).toBe("/admin");
+
+    const verifier = (await page.context().cookies()).find((c) =>
+      c.name.endsWith("-code-verifier"),
+    );
+    expect(verifier?.httpOnly).toBe(true);
+  });
+
   test("reader downloads own data (GDPR), anonymous cannot", async ({ page, request }) => {
     expect((await request.get("/api/account/export")).status()).toBe(401);
     const email = testEmail("export");

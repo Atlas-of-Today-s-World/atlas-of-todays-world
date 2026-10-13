@@ -9,6 +9,10 @@ import { describe, expect, it } from "vitest";
  * constant from a Zod schema module. This walks the import graph from every
  * "use client" module and fails when any module it reaches imports `zod`.
  *
+ * Also `@supabase/ssr`: its browser client keeps the session in cookies page
+ * scripts can read. Session cookies are httpOnly and every auth flow runs on
+ * the server; the browser only has the session-less client in lib/supabase/browser.
+ *
  * Boundaries the bundler doesn't cross are not followed: `import type` (erased)
  * and "use server" modules (the client only gets references to the actions).
  */
@@ -17,7 +21,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const SRC = join(ROOT, "src");
 const EXTENSIONS = [".ts", ".tsx", ".js", ".mjs"];
 /** Packages that must never reach a client bundle. */
-const FORBIDDEN = /^zod(\/|$)/;
+const FORBIDDEN = /^(zod|@supabase\/ssr)(\/|$)/;
 
 /** `import … from "x"` and `export … from "x"` (clause: names, braces, `* as`, `type`). */
 const STATIC_IMPORT = /\b(?:import|export)([\w\s{},*$]*?)\bfrom\s*["']([^"']+)["']/g;
@@ -135,7 +139,7 @@ describe("client bundle", () => {
     expect(valueImports(code)).toEqual(["zod", "./xy", "./f", "./g", "./side-effect", "./h"]);
   });
 
-  it("no module a client component reaches imports zod", () => {
+  it("no module a client component reaches imports zod or @supabase/ssr", () => {
     const { chains, reached } = forbiddenChains();
     // The walk really follows imports (a broken parser would pass vacuously).
     expect(reached).toBeGreaterThan(100);

@@ -121,8 +121,28 @@ export async function proxy(request: NextRequest) {
   const csp = matches(path, NONCE_PATHS)
     ? buildCsp({ dev, supabaseUrl, nonce: newNonce() })
     : undefined;
+  // The session is refreshed first: the request headers forwarded to the app
+  // are fixed when the response below is created, and they must carry the
+  // refreshed cookies — otherwise the page or action would run with the old token.
+  const session = matches(path, SESSION_PATHS) ? await refreshSession(request) : null;
   const forwarded = new Headers(request.headers);
   if (csp) forwarded.set("Content-Security-Policy", csp);
+  const cookieHeader = session?.cookieHeader;
+  if (typeof cookieHeader === "string") {
+    if (cookieHeader) forwarded.set("cookie", cookieHeader);
+    else forwarded.delete("cookie");
+  }
+
+  if (session && !session.user && matches(path, PROTECTED_PATHS)) {
+    if (path.startsWith("/api/")) {
+      return securityHeaders(
+        session.commit(NextResponse.json({ error: "Sign in first." }, { status: 401 })),
+      );
+    }
+    const login = new URL(localized ? localePath(locale, routes.login) : routes.login, request.url);
+    login.searchParams.set("next", `${pathname}${search}`);
+    return securityHeaders(session.commit(NextResponse.redirect(login)));
+  }
 
   // English without a prefix → route [locale]=en (the browser URL stays the same).
   const response =
@@ -132,17 +152,7 @@ export async function proxy(request: NextRequest) {
         })
       : NextResponse.next({ request: { headers: forwarded } });
 
-  if (!matches(path, SESSION_PATHS)) return securityHeaders(response, csp);
-
-  const user = await refreshSession(request, response);
-  if (user || !matches(path, PROTECTED_PATHS)) return securityHeaders(response, csp);
-
-  if (path.startsWith("/api/")) {
-    return securityHeaders(NextResponse.json({ error: "Sign in first." }, { status: 401 }));
-  }
-  const login = new URL(localized ? localePath(locale, routes.login) : routes.login, request.url);
-  login.searchParams.set("next", `${pathname}${search}`);
-  return securityHeaders(NextResponse.redirect(login));
+  return securityHeaders(session ? session.commit(response) : response, csp);
 }
 
 export const config = {

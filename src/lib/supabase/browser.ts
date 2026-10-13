@@ -1,14 +1,18 @@
 "use client";
 
-import { createBrowserClient as createSsrBrowserClient } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/db/types.gen";
 import { requireSupabaseConfig } from "./config";
 
-/** Browser client — only for the sign-in UI and image uploads (ARCHITEKTURA 4.1). */
-export function createBrowserClient() {
+/**
+ * Browser client WITHOUT a session (ARCHITEKTURA 4.1): the session cookies are
+ * httpOnly, so page scripts never hold a user's token. Its only use is sending
+ * a file to an upload URL the server signed (`uploadToSignedUrl`); everything
+ * that needs the user runs in a Server Action or route handler.
+ */
+export function createAnonBrowserClient() {
   const { url, anonKey } = requireSupabaseConfig();
-  // Secure whenever the page itself is on HTTPS (the server sets the same).
-  return createSsrBrowserClient<Database>(url, anonKey, {
-    cookieOptions: { sameSite: "lax", secure: window.location.protocol === "https:" },
+  return createClient<Database>(url, anonKey, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
   });
 }

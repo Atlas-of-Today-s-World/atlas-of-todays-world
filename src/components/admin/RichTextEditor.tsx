@@ -20,7 +20,8 @@ import {
 } from "lucide-react";
 import { useId, useState } from "react";
 import { cn } from "@/lib/cn";
-import { ACCEPT_IMAGES, uploadImage } from "@/lib/upload";
+import { uploadImage } from "@/lib/upload";
+import { ACCEPT_IMAGES } from "@/lib/upload-rules";
 
 /**
  * Keeps a heading's anchor (`<h2 id="data">`, linked as /about#data) when the

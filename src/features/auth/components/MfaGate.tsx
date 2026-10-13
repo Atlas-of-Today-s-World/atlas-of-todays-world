@@ -1,63 +1,60 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { FormField, Input } from "@/components/ui/field";
-import { isoDay } from "@/lib/format";
-import { createBrowserClient } from "@/lib/supabase/browser";
+import { startMfaEnrollment, verifyMfaCode } from "@/features/auth/mfa-actions";
 
 /**
  * Two-factor authentication (TOTP) for roles that require it (E10). Those who
  * don't have it yet scan a QR code into an app (Google Authenticator, 1Password…);
  * those who do just type the six-digit code. The session then moves to aal2.
+ * Enrolment and verification are Server Actions — the page never holds the session.
  */
 export function MfaGate({ hasFactor }: { hasFactor: boolean }) {
   const router = useRouter();
-  const [factorId, setFactorId] = useState<string | null>(null);
   const [qr, setQr] = useState<{ image: string; secret: string } | null>(null);
+  const [ready, setReady] = useState(hasFactor);
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [busy, startVerify] = useTransition();
 
   useEffect(() => {
-    const supabase = createBrowserClient();
-    (async () => {
-      const { data: factors, error: listError } = await supabase.auth.mfa.listFactors();
-      if (listError) return setError("Couldn't load your authentication devices.");
-      if (hasFactor) {
-        setFactorId(factors.totp.find((f) => f.status === "verified")?.id ?? null);
-        return;
-      }
-      // Delete unfinished enrollment attempts, otherwise a new one can't be created.
-      for (const factor of factors.all.filter((f) => f.status === "unverified")) {
-        await supabase.auth.mfa.unenroll({ factorId: factor.id });
-      }
-      const { data, error: enrollError } = await supabase.auth.mfa.enroll({
-        factorType: "totp",
-        friendlyName: `Atlas ${isoDay()}`,
-      });
-      if (enrollError) return setError("Couldn't start authenticator app enrollment.");
-      setFactorId(data.id);
-      setQr({ image: data.totp.qr_code, secret: data.totp.secret });
-    })();
+    if (hasFactor) return;
+    let current = true;
+    startMfaEnrollment().then(
+      (result) => {
+        if (!current) return;
+        if (!result.ok) {
+          setError("Couldn't start authenticator app enrollment.");
+          return;
+        }
+        setQr({ image: result.qr, secret: result.secret });
+        setReady(true);
+      },
+      () => current && setError("Couldn't start authenticator app enrollment."),
+    );
+    return () => {
+      current = false;
+    };
   }, [hasFactor]);
 
-  async function verify(event: React.FormEvent) {
+  function verify(event: React.FormEvent) {
     event.preventDefault();
-    if (!factorId) return;
-    setBusy(true);
     setError("");
-    const { error: verifyError } = await createBrowserClient().auth.mfa.challengeAndVerify({
-      factorId,
-      code: code.trim(),
+    startVerify(async () => {
+      const result = await verifyMfaCode(code);
+      if (result.ok) {
+        router.refresh();
+        return;
+      }
+      setError(
+        result.error === "code"
+          ? "The code doesn't match. Check the time on your phone and try the current code."
+          : "Couldn't verify the code. Reload the page and try again.",
+      );
     });
-    setBusy(false);
-    if (verifyError) {
-      setError("The code doesn't match. Check the time on your phone and try the current code.");
-      return;
-    }
-    router.refresh();
   }
 
   return (
@@ -97,7 +94,7 @@ export function MfaGate({ hasFactor }: { hasFactor: boolean }) {
           </p>
         ) : null}
         <div>
-          <Button type="submit" disabled={busy || !factorId || code.length !== 6}>
+          <Button type="submit" disabled={busy || !ready || code.length !== 6}>
             {busy ? "Verifying…" : "Verify"}
           </Button>
         </div>

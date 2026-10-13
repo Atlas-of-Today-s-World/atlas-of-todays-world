@@ -29,6 +29,12 @@ describe("buildCsp", () => {
     expect(directive(prod, "form-action")).toContain("https://abc.supabase.co");
   });
 
+  it("the Google sign-in form may end on Google's consent screen, and nowhere else", () => {
+    expect(directive(prod, "form-action")).toBe(
+      "form-action 'self' https://abc.supabase.co https://accounts.google.com",
+    );
+  });
+
   it("entry audio only from our own site and over https", () => {
     expect(directive(prod, "media-src")).toBe("media-src 'self' https:");
   });
