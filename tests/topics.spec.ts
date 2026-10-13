@@ -11,9 +11,9 @@ test("one place filter at a time, kept in the URL", async ({ page }) => {
   const region = page.getByLabel("Region", { exact: true });
   test.skip((await region.locator("option").count()) < 2, "no topics placed on a region");
 
-  const value = await region.locator("option").nth(1).getAttribute("value");
-  await region.selectOption(value ?? "");
-  await expect(page).toHaveURL(new RegExp(`[?&]region=${value}`));
+  const value = (await region.locator("option").nth(1).getAttribute("value")) ?? "";
+  await region.selectOption(value);
+  await expect(page).toHaveURL((url) => url.searchParams.get("region") === value);
 
   if ((await country.locator("option").count()) > 1) {
     await country.selectOption({ index: 1 });
@@ -33,7 +33,7 @@ test("full-text search shows excerpts that link into the topic", async ({ page }
   await expect(page.getByText(/match(es)? in the text/)).toBeVisible();
   const first = page.locator('a[href^="/topics/"]').first();
   await expect(first.locator("mark").first()).toBeVisible();
-  await expect(first).toHaveAttribute("href", /^\/topics\/[a-z0-9-]+(#topic-\d+)?$/);
+  await expect(first).toHaveAttribute("href", /^\/topics\/[a-z0-9-]+(?:$|#topic-\d+$)/);
 });
 
 test("a failed search shows an error and can be tried again", async ({ page }) => {

@@ -17,7 +17,7 @@ import { tags } from "@/lib/cache/tags";
 import { notifyIndexNow } from "@/lib/seo/indexnow";
 import { previewNote, storePreviewImages } from "@/lib/previews/store";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
-import { slug as slugSchema } from "@/lib/validation/common";
+import { iso3 as iso3Schema, SLUG, slug as slugSchema } from "@/lib/validation/common";
 import { GROUP_KIND_LABEL } from "./constants";
 import { COLLECTIONS, CountryInput, IssueInput, PortraitKind, RegionInput } from "./schema";
 import { routes } from "@/config/routes";
@@ -58,7 +58,8 @@ export async function savePortraitSection(
   const head = z
     .object({
       kind: PortraitKind,
-      slug: z.string().regex(/^([a-z0-9]+(-[a-z0-9]+)*|[A-Z]{3})$/),
+      // A region / issue slug, or a country ISO3 code.
+      slug: z.union([z.string().regex(SLUG), iso3Schema]),
       collection: z.enum(Object.keys(COLLECTIONS) as [keyof typeof COLLECTIONS]),
     })
     .safeParse(formObject(formData));

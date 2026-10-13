@@ -23,9 +23,15 @@ const CHART_URL = /^https:\/\/datawrapper\.dwcdn\.net\/([A-Za-z0-9]{4,16})\/(\d{
 export const MAX_EMBED_LENGTH = 20_000;
 
 /** One opening `<iframe …>` tag; quoted values may contain `>`. Linear (disjoint alternatives). */
+// eslint-disable-next-line security/detect-unsafe-regex -- star-height heuristic false positive; the alternatives start with disjoint characters, so linear
 const IFRAME_TAG = /<iframe\b((?:[^>"']|"[^"]*"|'[^']*')*)>/gi;
 
-/** One attribute of a tag: name, optionally `=` and a double-quoted, single-quoted or bare value. */
+/**
+ * One attribute of a tag: name, optionally `=` and a double-quoted, single-quoted
+ * or bare value. Linear: the name can't contain `=` or a quote, and each value
+ * form starts with a different character.
+ */
+// eslint-disable-next-line security/detect-unsafe-regex -- star-height heuristic false positive; linear, see above
 const ATTRIBUTE = /([^\s"'<>/=]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
 
 /** Canonical chart URL (`https://datawrapper.dwcdn.net/<id>/<version>/`), or null. */

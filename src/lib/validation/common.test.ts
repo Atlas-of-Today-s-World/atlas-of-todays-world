@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SubscribeInput } from "@/features/newsletter/schema";
 import { ApplicationInput } from "@/features/volunteers/schema";
-import { emailAddress, emailAddressWith } from "./common";
+import { emailAddress, emailAddressWith, SLUG } from "./common";
 
 /** A shape that made the old `[^\s@]+\.[^\s@]{2,}` pattern backtrack quadratically. */
 const hostile = (n: number) => `a@${".".repeat(n)}@`;
@@ -47,6 +47,23 @@ describe("emailAddress", () => {
     const started = performance.now();
     for (let i = 0; i < 200; i++) emailAddress.safeParse(hostile(250));
     for (let i = 0; i < 200; i++) emailAddress.safeParse(`a@${"a.".repeat(124)}!`);
+    expect(performance.now() - started).toBeLessThan(500);
+  });
+});
+
+describe("SLUG", () => {
+  it("accepts lowercase words joined by single hyphens, like the DB CHECK", () => {
+    for (const ok of ["a", "czechia", "south-east-asia", "g7-2026"]) {
+      expect(SLUG.test(ok)).toBe(true);
+    }
+    for (const bad of ["", "-a", "a-", "a--b", "A", "a_b", "a b", "čr"]) {
+      expect(SLUG.test(bad)).toBe(false);
+    }
+  });
+
+  it("stays linear on hostile input", () => {
+    const started = performance.now();
+    for (let i = 0; i < 200; i++) SLUG.test(`${"a-".repeat(5_000)}-`);
     expect(performance.now() - started).toBeLessThan(500);
   });
 });
