@@ -34,6 +34,8 @@ export const tags = {
   patrons: "patrons",
   /** One editable site page (site_pages: about, privacy, terms, accessibility). */
   sitePage: (slug: string) => `page:${slug}`,
+  /** Site settings and social links (publisher facts, contact, SEO defaults, footer). */
+  site: "site",
 } as const;
 
 /**

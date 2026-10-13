@@ -2014,6 +2014,105 @@ export type Database = {
           },
         ]
       }
+      site_settings: {
+        Row: {
+          address_country: string
+          address_locality: string
+          alternate_names: string[]
+          company_id: string
+          contact_email: string
+          copyright: string
+          description: string
+          founding_date: string
+          id: number
+          legal_name: string
+          name: string
+          og_image_url: string
+          postal_code: string
+          seo_description: string
+          seo_title: string
+          street_address: string
+          title_suffix: string
+          updated_at: string
+          wikidata_id: string | null
+        }
+        Insert: {
+          address_country: string
+          address_locality: string
+          alternate_names?: string[]
+          company_id: string
+          contact_email: string
+          copyright: string
+          description: string
+          founding_date: string
+          id?: number
+          legal_name: string
+          name: string
+          og_image_url: string
+          postal_code: string
+          seo_description: string
+          seo_title: string
+          street_address: string
+          title_suffix?: string
+          updated_at?: string
+          wikidata_id?: string | null
+        }
+        Update: {
+          address_country?: string
+          address_locality?: string
+          alternate_names?: string[]
+          company_id?: string
+          contact_email?: string
+          copyright?: string
+          description?: string
+          founding_date?: string
+          id?: number
+          legal_name?: string
+          name?: string
+          og_image_url?: string
+          postal_code?: string
+          seo_description?: string
+          seo_title?: string
+          street_address?: string
+          title_suffix?: string
+          updated_at?: string
+          wikidata_id?: string | null
+        }
+        Relationships: []
+      }
+      site_social_links: {
+        Row: {
+          created_at: string
+          icon: string
+          id: string
+          label: string
+          position: number
+          updated_at: string
+          url: string
+          visible: boolean
+        }
+        Insert: {
+          created_at?: string
+          icon: string
+          id?: string
+          label: string
+          position?: number
+          updated_at?: string
+          url: string
+          visible?: boolean
+        }
+        Update: {
+          created_at?: string
+          icon?: string
+          id?: string
+          label?: string
+          position?: number
+          updated_at?: string
+          url?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
       site_theme: {
         Row: {
           border: number
@@ -2534,6 +2633,10 @@ export type Database = {
       mfa_ok: { Args: never; Returns: boolean }
       move_patron_faq: { Args: { p_id: string; p_up: boolean }; Returns: undefined }
       mfa_status: { Args: never; Returns: Json }
+      move_site_social_link: {
+        Args: { p_id: string; p_up: boolean }
+        Returns: undefined
+      }
       my_permissions: {
         Args: never
         Returns: {
