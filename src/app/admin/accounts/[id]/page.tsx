@@ -4,7 +4,8 @@ import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { sectionAccess } from "@/features/auth/access";
 import { AccountForm } from "@/features/accounts/components/AccountForm";
-import { accountForEdit, listAccounts, listRoles } from "@/features/accounts/editorial";
+import { accountForEdit, listAccounts } from "@/features/accounts/editorial";
+import { listRoles } from "@/features/roles/editorial";
 import { getPickerOptions } from "@/features/geography/queries";
 import { uuid } from "@/lib/validation/common";
 

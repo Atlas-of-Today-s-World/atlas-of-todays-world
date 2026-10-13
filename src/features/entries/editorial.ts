@@ -2,6 +2,8 @@ import "server-only";
 import { createServerClient } from "@/lib/supabase/server";
 import type { EntryStatus } from "./schema";
 import { ilikeAny } from "@/lib/db/filters";
+import { must, rowsOf } from "@/lib/db/result";
+import { TILE_COLUMNS } from "./rows";
 
 /**
  * Reads for editors — under the user's session, so RLS shows only what the
@@ -48,9 +50,7 @@ export async function listEntries({
   if (mine) query = query.eq("owner_id", userId);
   const search = ilikeAny(["title"], q);
   if (search) query = query.or(search);
-  const { data, error } = await query;
-  if (error) throw new Error(`[entries] ${error.message}`);
-  return data as EditorialRow[];
+  return must(await query, "entries") as EditorialRow[];
 }
 
 export interface EditableEntry extends EditorialRow {
@@ -70,14 +70,14 @@ export interface EditableEntry extends EditorialRow {
 
 export async function getEditableEntry(id: string): Promise<EditableEntry | null> {
   const supabase = await createServerClient();
-  const { data, error } = await supabase
+  const result = await supabase
     .from("entries")
     .select(
       `${LIST_COLUMNS}, summary, special_slug, cover_url, cover_credit, reading_minutes, body_html, published_on, summary_points, author_id, map_layers, hero_background, entry_countries(country_iso3)`,
     )
     .eq("id", id)
     .maybeSingle();
-  if (error) throw new Error(`[entries] ${error.message}`);
+  const data = must(result, "entries");
   if (!data) return null;
   const { entry_countries, ...rest } = data as typeof data & {
     entry_countries: { country_iso3: string }[];
@@ -126,8 +126,6 @@ export interface EditableTile {
   background: string | null;
 }
 
-const TILE_COLUMNS = "id, slug, label, description, icon, image_url, image_credit, background";
-
 export interface TemplateSummary {
   id: string;
   name: string;
@@ -141,7 +139,7 @@ export interface TemplateSummary {
 /** Topic templates with their tiles, the default first. */
 export async function listTemplates(): Promise<TemplateSummary[]> {
   const supabase = await createServerClient();
-  const { data, error } = await supabase
+  const result = await supabase
     .from("topic_templates")
     .select(
       `id, name, description, is_default, articles_label, learn_more_label,
@@ -149,8 +147,7 @@ export async function listTemplates(): Promise<TemplateSummary[]> {
     )
     .order("is_default", { ascending: false })
     .order("name");
-  if (error) throw new Error(`[templates] ${error.message}`);
-  return data.map(({ topic_template_tiles, ...template }) => ({
+  return must(result, "templates").map(({ topic_template_tiles, ...template }) => ({
     ...template,
     tiles: [...topic_template_tiles]
       .sort((x, y) => x.position - y.position)
@@ -210,22 +207,23 @@ export async function getEntryParts(id: string) {
       .eq("id", id)
       .single(),
   ]);
-  for (const [name, result] of Object.entries({ chapters, resources, tiles, notes, faq, seo })) {
-    if (result.error) throw new Error(`[${name}] ${result.error.message}`);
-  }
+  const chapterRows = rowsOf(chapters, "chapters") as EditableChapter[];
+  const resourceRows = rowsOf(resources, "resources");
+  const tileRows = rowsOf(tiles, "tiles") as EditableTile[];
+  const noteRows = rowsOf(notes, "notes");
+  const faqRows = rowsOf(faq, "faq");
+  const row = must(seo, "seo");
   const links: Record<string, EditableLink[]> = {};
-  for (const row of resources.data ?? []) {
-    if (!row.tile_id) continue;
-    (links[row.tile_id] ??= []).push({
-      title: row.title,
-      source: row.source,
-      description: row.description,
-      url: row.url,
-      image_url: row.image_url ?? "",
+  for (const link of resourceRows) {
+    if (!link.tile_id) continue;
+    (links[link.tile_id] ??= []).push({
+      title: link.title,
+      source: link.source,
+      description: link.description,
+      url: link.url,
+      image_url: link.image_url ?? "",
     });
   }
-  const row = seo.data;
-  const chapterRows = (chapters.data ?? []) as EditableChapter[];
   // Editors' names for the "created by / edited by" lines (team only, DB staff_name).
   const people = [
     ...new Set(
@@ -254,15 +252,15 @@ export async function getEntryParts(id: string) {
       updated_by: row?.updated_by ?? null,
       names,
     } satisfies EditStamps,
-    tiles: (tiles.data ?? []) as EditableTile[],
+    tiles: tileRows,
     labels: {
       template_id: row?.template_id ?? null,
       articles_label: row?.articles_label ?? "",
       learn_more_label: row?.learn_more_label ?? "",
     },
     links,
-    notes: Object.fromEntries((notes.data ?? []).map((note) => [note.tile_id, note.body_html])),
-    faq: (faq.data ?? []).map((item) => ({ question: item.question, answer: item.answer })),
+    notes: Object.fromEntries(noteRows.map((note) => [note.tile_id, note.body_html])),
+    faq: faqRows.map((item) => ({ question: item.question, answer: item.answer })),
     seo: {
       seo_title: row?.seo_title ?? "",
       seo_description: row?.seo_description ?? "",
@@ -274,25 +272,44 @@ export async function getEntryParts(id: string) {
   };
 }
 
+/**
+ * What the signed-in editor may do with an article (asked in the database):
+ * approve it, and edit it — a published article only by someone who may also
+ * approve it. A failed check throws instead of quietly hiding the editor.
+ */
+export async function entryRights(
+  entry: Pick<EditorialRow, "id" | "owner_id" | "status">,
+): Promise<{ canApprove: boolean; canEdit: boolean }> {
+  const supabase = await createServerClient();
+  const [approve, edit] = await Promise.all([
+    supabase.rpc("can_approve_entry", { p_entry: entry.id }),
+    // Seeded articles have no owner — then the role scope decides (news_scope).
+    supabase.rpc("can_edit_entry", { p_owner: entry.owner_id as string }),
+  ]);
+  const canApprove = must(approve, "entries") === true;
+  const canEdit = must(edit, "entries") === true && (entry.status !== "published" || canApprove);
+  return { canApprove, canEdit };
+}
+
 /** Approval queue: pending articles this person may approve. */
 export async function approvalQueue(): Promise<(EditorialRow & { canApprove: boolean })[]> {
   const supabase = await createServerClient();
-  const { data, error } = await supabase
+  const result = await supabase
     .from("entries")
     .select(LIST_COLUMNS)
     .eq("status", "pending")
     .order("updated_at", { ascending: true })
     .limit(200);
-  if (error) throw new Error(`[approvals] ${error.message}`);
-  const rows = data as EditorialRow[];
+  const rows = must(result, "approvals") as EditorialRow[];
   if (!rows.length) return [];
   // One call for the whole queue (it used to be one request per article).
-  const { data: checks, error: checkError } = await supabase.rpc("can_approve_entries", {
+  const checks = await supabase.rpc("can_approve_entries", {
     p_entries: rows.map((row) => row.id),
   });
-  if (checkError) throw new Error(`[approvals] ${checkError.message}`);
   const allowed = new Set(
-    (checks ?? []).filter((check) => check.can_approve).map((check) => check.entry_id),
+    rowsOf(checks, "approvals")
+      .filter((check) => check.can_approve)
+      .map((check) => check.entry_id),
   );
   return rows.map((row) => ({ ...row, canApprove: allowed.has(row.id) }));
 }
@@ -304,14 +321,13 @@ export async function approvalQueue(): Promise<(EditorialRow & { canApprove: boo
  */
 export async function listGroupArticles(slug: string) {
   const supabase = await createServerClient();
-  const { data, error } = await supabase
+  const result = await supabase
     .from("entries")
     .select("id, title, status, special_slug")
     .is("translation_of", null)
     .order("updated_at", { ascending: false })
     .limit(300);
-  if (error) throw new Error(`[entries] ${error.message}`);
-  const rows = data as {
+  const rows = must(result, "entries") as {
     id: string;
     title: string;
     status: EntryStatus;

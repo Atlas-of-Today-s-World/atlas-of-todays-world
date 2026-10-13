@@ -1,5 +1,6 @@
 import "server-only";
 import { createServerClient } from "@/lib/supabase/server";
+import { must } from "@/lib/db/result";
 
 /**
  * Atlas Patrons — admin reads (layer: features/<domain>/editorial.ts, ARCHITEKTURA 4.1).
@@ -12,26 +13,29 @@ import { createServerClient } from "@/lib/supabase/server";
 /** Accounts with a membership (any plan but `none`). */
 export async function listMemberships() {
   const supabase = await createServerClient();
-  const { data, error } = await supabase
-    .from("members_overview")
-    .select(
-      "id, name, email, plan, membership_status, complimentary, paying_since, current_period_end, pages_read",
-    )
-    .neq("plan", "none")
-    .order("email");
-  if (error) throw new Error(`[members] ${error.message}`);
-  return data;
+  return must(
+    await supabase
+      .from("members_overview")
+      .select(
+        "id, name, email, plan, membership_status, complimentary, paying_since, current_period_end, pages_read",
+      )
+      .neq("plan", "none")
+      .order("email"),
+    "members",
+  );
 }
 
 /** Accounts without a membership — candidates for a complimentary one. */
 export async function accountsWithoutMembership(): Promise<{ id: string; label: string }[]> {
   const supabase = await createServerClient();
-  const { data, error } = await supabase
-    .from("members_overview")
-    .select("id, name, email")
-    .eq("plan", "none")
-    .order("email")
-    .limit(1000);
-  if (error) throw new Error(`[members] ${error.message}`);
+  const data = must(
+    await supabase
+      .from("members_overview")
+      .select("id, name, email")
+      .eq("plan", "none")
+      .order("email")
+      .limit(1000),
+    "members",
+  );
   return data.map((row) => ({ id: row.id ?? "", label: row.name || row.email || "" }));
 }

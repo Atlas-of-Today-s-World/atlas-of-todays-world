@@ -2,7 +2,7 @@ import "server-only";
 import type { User } from "@supabase/supabase-js";
 import type { ZodError } from "zod";
 import { mapDbError } from "@/lib/db/errors";
-import { createServerClient } from "@/lib/supabase/server";
+import { createServerClient, type ServerClient } from "@/lib/supabase/server";
 
 /**
  * Server Action result for `useActionState` (ARCHITEKTURA 4.3): a message for
@@ -18,10 +18,8 @@ export interface ActionState {
   previews?: Record<string, string>;
 }
 
-type Client = Awaited<ReturnType<typeof createServerClient>>;
-
 /** Client with a session and the verified user (getUser, not getSession); null = signed out. */
-export async function signedIn(): Promise<{ supabase: Client; user: User } | null> {
+export async function signedIn(): Promise<{ supabase: ServerClient; user: User } | null> {
   const supabase = await createServerClient();
   const {
     data: { user },

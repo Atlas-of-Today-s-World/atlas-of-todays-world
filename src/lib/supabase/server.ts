@@ -27,6 +27,9 @@ export async function createServerClient() {
   });
 }
 
+/** The session client `createServerClient()` returns (for helpers that take one as a parameter). */
+export type ServerClient = Awaited<ReturnType<typeof createServerClient>>;
+
 /** Signed-in user verified with the Auth server, or null. */
 export async function currentUser() {
   const supabase = await createServerClient();

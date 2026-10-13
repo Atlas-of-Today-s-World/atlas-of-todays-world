@@ -1,6 +1,7 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
+import { must } from "@/lib/db/result";
 import { createPublicClient } from "@/lib/supabase/public";
 
 /** A subtopic as a tile: its topic, title, photo (or colour) and anchor on the topic page. */
@@ -34,17 +35,19 @@ interface Row {
 /** Every subtopic of the published topics, newest first. */
 export const getSubtopicTiles = unstable_cache(
   async (): Promise<SubtopicTile[]> => {
-    const { data, error } = await createPublicClient()
-      .from("entries")
-      // Anon may read only listed columns (DB-08).
-      .select(
-        "slug, title, entry_chapters(id, position, title, illustration_url, tile_background, created_at)",
-      )
-      .eq("status", "published")
-      .eq("kind", "entry")
-      .is("translation_of", null)
-      .limit(1000);
-    if (error) throw new Error(`[subtopics] ${error.message}`);
+    const data = must(
+      await createPublicClient()
+        .from("entries")
+        // Anon may read only listed columns (DB-08).
+        .select(
+          "slug, title, entry_chapters(id, position, title, illustration_url, tile_background, created_at)",
+        )
+        .eq("status", "published")
+        .eq("kind", "entry")
+        .is("translation_of", null)
+        .limit(1000),
+      "subtopics",
+    );
     return (data as Row[])
       .flatMap((topic) =>
         [...(topic.entry_chapters ?? [])]
@@ -66,14 +69,17 @@ export const getSubtopicTiles = unstable_cache(
   { tags: [tags.entries], revalidate: PUBLIC_REVALIDATE_SECONDS },
 );
 
+/**
+ * The row of the two pinned slots (`home_featured`, id 1): read by the public
+ * home with the anon client and by the admin with the editor's session.
+ */
+export const selectHomeFeatured = (db: Pick<ReturnType<typeof createPublicClient>, "from">) =>
+  db.from("home_featured").select("first_chapter, second_chapter").eq("id", 1).maybeSingle();
+
 /** The two slots on the home map as set in the admin (null = newest). */
 const getHomeFeatured = unstable_cache(
   async (): Promise<[string | null, string | null]> => {
-    const { data, error } = await createPublicClient()
-      .from("home_featured")
-      .select("first_chapter, second_chapter")
-      .eq("id", 1)
-      .maybeSingle();
+    const { data, error } = await selectHomeFeatured(createPublicClient());
     // The pins are a nicety: without them (e.g. before the migration) the newest show.
     if (error) {
       console.error(`[home featured] ${error.message}`);

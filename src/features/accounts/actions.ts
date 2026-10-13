@@ -10,14 +10,13 @@ import {
   type ActionState,
 } from "@/lib/actions";
 import { serverEnv } from "@/lib/env.server";
+import type { ServerClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { AccountInput } from "./schema";
 
-type Client = NonNullable<Awaited<ReturnType<typeof signedIn>>>["supabase"];
-
 /** Reconciles assignments (countries / authors) to the requested list. */
 async function syncAssignments(
-  supabase: Client,
+  supabase: ServerClient,
   table: "approver_countries" | "approver_authors",
   column: "country_iso3" | "author_id",
   userId: string,

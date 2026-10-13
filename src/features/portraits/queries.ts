@@ -2,6 +2,7 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import type { RegionDossier } from "@/lib/content-types";
+import { must } from "@/lib/db/result";
 import { createPublicClient } from "@/lib/supabase/public";
 
 type Kind = "region" | "issue";
@@ -13,11 +14,13 @@ type Kind = "region" | "issue";
 export function getPortrait(kind: Kind, slug: string): Promise<RegionDossier> {
   return unstable_cache(
     async (): Promise<RegionDossier> => {
-      const { data, error } = await createPublicClient().rpc("portrait", {
-        p_kind: kind,
-        p_slug: slug,
-      });
-      if (error) throw new Error(`[portrait] ${error.message}`);
+      const data = must(
+        await createPublicClient().rpc("portrait", {
+          p_kind: kind,
+          p_slug: slug,
+        }),
+        "portrait",
+      );
       if (!data) return {};
       // The JSON shape is defined by the DB function portrait(); null from the DB → undefined for components.
       const dossier = data as unknown as Omit<

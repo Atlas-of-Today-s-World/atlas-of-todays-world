@@ -10,7 +10,8 @@ import { ToolbarLink } from "@/components/data-table/ToolbarLink";
 import { buttonVariants } from "@/components/ui/button";
 import { navIcon } from "@/config/admin-nav";
 import { sectionAccess } from "@/features/auth/access";
-import { listAccounts, listRoles } from "@/features/accounts/editorial";
+import { listAccounts } from "@/features/accounts/editorial";
+import { listRoles } from "@/features/roles/editorial";
 
 export const metadata: Metadata = { title: "Team & reader accounts" };
 

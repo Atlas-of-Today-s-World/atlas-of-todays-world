@@ -1,10 +1,10 @@
 import "server-only";
 import { updateTag } from "next/cache";
-import type { signedIn } from "@/lib/actions";
 import { entryChangedTags, tags } from "@/lib/cache/tags";
 import { DEFAULT_LOCALE, isLocale, localePath } from "@/features/i18n/config";
 import { notifyIndexNow } from "@/lib/seo/indexnow";
 import { routes } from "@/config/routes";
+import type { ServerClient } from "@/lib/supabase/server";
 
 /**
  * Cache purge and IndexNow ping after an article changes, shared by the entry
@@ -30,7 +30,7 @@ export function pingSearchEngines(row: { slug: string; kind: string; locale: str
 }
 
 /** Revalidates an article's cache by its placement (`onlyPublished`: only when it's live). */
-export async function refreshEntry(supabase: Client, id: string, onlyPublished = false) {
+export async function refreshEntry(supabase: ServerClient, id: string, onlyPublished = false) {
   const { data } = await supabase
     .from("entries")
     .select("slug, status, region_slug, special_slug, kind, locale")
@@ -40,5 +40,3 @@ export async function refreshEntry(supabase: Client, id: string, onlyPublished =
   refresh(data?.slug, data?.region_slug, data?.special_slug);
   if (data) pingSearchEngines(data);
 }
-
-export type Client = NonNullable<Awaited<ReturnType<typeof signedIn>>>["supabase"];

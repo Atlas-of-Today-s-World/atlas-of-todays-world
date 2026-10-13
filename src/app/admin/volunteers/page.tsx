@@ -8,7 +8,7 @@ import { navIcon } from "@/config/admin-nav";
 import { can, sectionAccess } from "@/features/auth/access";
 import { deleteApplication, setApplicationStatus } from "@/features/volunteers/actions";
 import { VolunteerSettingsForm } from "@/features/volunteers/components/VolunteerSettingsForm";
-import { createServerClient } from "@/lib/supabase/server";
+import { volunteersOverview } from "@/features/volunteers/editorial";
 
 export const metadata: Metadata = { title: "Volunteer editors" };
 
@@ -26,17 +26,7 @@ const STATUSES = [
 export default async function VolunteersPage() {
   const access = await sectionAccess("users");
   if (!access) return <NoAccess />;
-  const supabase = await createServerClient();
-  const [settings, applications] = await Promise.all([
-    supabase.from("volunteer_settings").select("notify_email").eq("id", 1).maybeSingle(),
-    supabase
-      .from("volunteer_applications")
-      .select("id, name, email, topics, message, status, created_at")
-      .order("created_at", { ascending: false })
-      .limit(2000),
-  ]);
-  if (settings.error) throw new Error(`[volunteers] ${settings.error.message}`);
-  if (applications.error) throw new Error(`[volunteers] ${applications.error.message}`);
+  const { notifyEmail, applications } = await volunteersOverview();
   const canEdit = can(access.permissions, "users", "e");
   const canDelete = can(access.permissions, "users", "d");
 
@@ -49,7 +39,7 @@ export default async function VolunteersPage() {
       />
       <section className="mb-10">
         <h2 className="font-display mb-3 text-[17px] font-bold">Where applications go</h2>
-        <VolunteerSettingsForm email={settings.data?.notify_email ?? null} canEdit={canEdit} />
+        <VolunteerSettingsForm email={notifyEmail} canEdit={canEdit} />
       </section>
       <DataTable
         tableKey="admin-volunteers"
@@ -91,7 +81,7 @@ export default async function VolunteersPage() {
           },
           { key: "received", label: "Received", kind: "date", sortable: true, width: "128px" },
         ]}
-        rows={(applications.data ?? []).map((row) => ({
+        rows={applications.map((row) => ({
           id: row.id,
           values: {
             who: row.name,

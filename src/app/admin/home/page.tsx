@@ -4,8 +4,8 @@ import { PageHeader } from "@/components/admin/PageHeader";
 import { navIcon } from "@/config/admin-nav";
 import { can, sectionAccess } from "@/features/auth/access";
 import { HomeFeaturedForm } from "@/features/home/components/HomeFeaturedForm";
+import { homeFeaturedForEdit } from "@/features/home/editorial";
 import { getSubtopicTiles } from "@/features/topics/featured";
-import { createServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Home page" };
 
@@ -16,16 +16,7 @@ export const metadata: Metadata = { title: "Home page" };
 export default async function HomeAdminPage() {
   const access = await sectionAccess("news");
   if (!access) return <NoAccess />;
-  const supabase = await createServerClient();
-  const [{ data, error }, tiles] = await Promise.all([
-    supabase
-      .from("home_featured")
-      .select("first_chapter, second_chapter")
-      .eq("id", 1)
-      .maybeSingle(),
-    getSubtopicTiles(),
-  ]);
-  if (error) throw new Error(`[home featured] ${error.message}`);
+  const [pins, tiles] = await Promise.all([homeFeaturedForEdit(), getSubtopicTiles()]);
 
   return (
     <>
@@ -36,8 +27,8 @@ export default async function HomeAdminPage() {
       />
       <HomeFeaturedForm
         options={tiles.map(({ id, title, topicTitle }) => ({ id, title, topicTitle }))}
-        first={data?.first_chapter ?? null}
-        second={data?.second_chapter ?? null}
+        first={pins.first}
+        second={pins.second}
         canEdit={can(access.permissions, "news", "e")}
       />
     </>

@@ -3,6 +3,7 @@ import { unstable_cache } from "next/cache";
 import { DEFAULT_LOCALE, type Locale } from "@/features/i18n/config";
 import { entryPageTags, PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import type { NewsCategory } from "@/lib/content-types";
+import { must } from "@/lib/db/result";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { createPublicClient } from "@/lib/supabase/public";
 import { MAP_LAYERS, type MapLayer } from "./constants";
@@ -52,15 +53,17 @@ type Kind = "news" | "entry";
 function listPublished(kind: Kind) {
   return unstable_cache(
     async (): Promise<EntrySummary[]> => {
-      const { data, error } = await createPublicClient()
-        .from("entries")
-        .select(COLUMNS)
-        .eq("status", "published")
-        .eq("kind", kind)
-        .is("translation_of", null)
-        .order("published_on", { ascending: false, nullsFirst: false })
-        .limit(1000);
-      if (error) throw new Error(`[entries] ${error.message}`);
+      const data = must(
+        await createPublicClient()
+          .from("entries")
+          .select(COLUMNS)
+          .eq("status", "published")
+          .eq("kind", kind)
+          .is("translation_of", null)
+          .order("published_on", { ascending: false, nullsFirst: false })
+          .limit(1000),
+        "entries",
+      );
       return (data as Row[]).map((row) => toSummary(row, [toLocale(row.locale)]));
     },
     [kind === "news" ? "entries" : "encyclopedia"],
@@ -90,15 +93,17 @@ export interface AuthorArticle {
 export function getArticlesByAuthor(authorSlug: string): Promise<AuthorArticle[]> {
   return unstable_cache(
     async () => {
-      const { data, error } = await createPublicClient()
-        .from("entries")
-        .select("slug, kind, title, category, published_on, authors!inner(slug)")
-        .eq("status", "published")
-        .is("translation_of", null)
-        .eq("authors.slug", authorSlug)
-        .order("published_on", { ascending: false, nullsFirst: false })
-        .limit(500);
-      if (error) throw new Error(`[entries] ${error.message}`);
+      const data = must(
+        await createPublicClient()
+          .from("entries")
+          .select("slug, kind, title, category, published_on, authors!inner(slug)")
+          .eq("status", "published")
+          .is("translation_of", null)
+          .eq("authors.slug", authorSlug)
+          .order("published_on", { ascending: false, nullsFirst: false })
+          .limit(500),
+        "entries",
+      );
       return data.map((row) => ({
         kind: row.kind as Kind,
         slug: row.slug,
@@ -123,13 +128,15 @@ export async function getEntry(
 ): Promise<Entry | null> {
   const rows = await unstable_cache(
     async () => {
-      const { data, error } = await createPublicClient()
-        .from("entries")
-        .select(`${COLUMNS}, body_html, translation_of`)
-        .eq("status", "published")
-        .eq("kind", "news")
-        .eq("slug", slug);
-      if (error) throw new Error(`[entries] ${error.message}`);
+      const data = must(
+        await createPublicClient()
+          .from("entries")
+          .select(`${COLUMNS}, body_html, translation_of`)
+          .eq("status", "published")
+          .eq("kind", "news")
+          .eq("slug", slug),
+        "entries",
+      );
       return data as (Row & { body_html: string; translation_of: string | null })[];
     },
     ["entry", slug],
@@ -175,8 +182,7 @@ export interface UpcomingEntry extends Placed {
 
 export const getPlannedEntries = unstable_cache(
   async (): Promise<UpcomingEntry[]> => {
-    const { data, error } = await createPublicClient().rpc("planned_entries");
-    if (error) throw new Error(`[encyclopedia] ${error.message}`);
+    const data = must(await createPublicClient().rpc("planned_entries"), "encyclopedia");
     return data.map((row) => ({
       title: row.title,
       category: row.category as NewsCategory,
@@ -200,13 +206,15 @@ export function thematicEntries(published: EntrySummary[], upcoming: UpcomingEnt
 /** Published topics with where they belong on the globe (the map's topic counts). */
 export const getTopicPlaces = unstable_cache(
   async (): Promise<TopicPlace[]> => {
-    const { data, error } = await createPublicClient()
-      .from("entries")
-      .select("slug, title, region_slug, special_slug, map_layers, entry_countries(country_iso3)")
-      .eq("kind", "entry")
-      .eq("status", "published")
-      .is("translation_of", null);
-    if (error) throw new Error(`[topics] ${error.message}`);
+    const data = must(
+      await createPublicClient()
+        .from("entries")
+        .select("slug, title, region_slug, special_slug, map_layers, entry_countries(country_iso3)")
+        .eq("kind", "entry")
+        .eq("status", "published")
+        .is("translation_of", null),
+      "topics",
+    );
     return data.map((row) => ({
       slug: row.slug,
       title: row.title,

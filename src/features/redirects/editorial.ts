@@ -1,6 +1,7 @@
 import "server-only";
 import { createServerClient } from "@/lib/supabase/server";
 import { ilikeAny } from "@/lib/db/filters";
+import { must } from "@/lib/db/result";
 
 /**
  * Redirects — admin reads (layer: features/<domain>/editorial.ts). Under the session,
@@ -25,7 +26,5 @@ export async function listRedirects(q?: string): Promise<RedirectRow[]> {
     .limit(500);
   const search = ilikeAny(["from_path", "to_path"], q);
   if (search) query = query.or(search);
-  const { data, error } = await query;
-  if (error) throw new Error(`[redirects] ${error.message}`);
-  return data;
+  return must(await query, "redirects");
 }

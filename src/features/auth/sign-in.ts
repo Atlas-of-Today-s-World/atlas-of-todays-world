@@ -3,9 +3,7 @@ import { NextResponse } from "next/server";
 import { routes } from "@/config/routes";
 import { splitLocale } from "@/features/i18n/config";
 import { safeRedirect } from "@/lib/security/redirect";
-import type { createServerClient } from "@/lib/supabase/server";
-
-type Client = Awaited<ReturnType<typeof createServerClient>>;
+import type { ServerClient } from "@/lib/supabase/server";
 
 const DEFAULT_AFTER_SIGN_IN = routes.account;
 
@@ -18,12 +16,12 @@ const DEFAULT_AFTER_SIGN_IN = routes.account;
  * role: a team member without a specific destination goes straight to the admin.
  * 303, so a sign-in finished by a form post continues with a GET.
  */
-export async function finishSignIn(supabase: Client, next: string | null, origin: string) {
+export async function finishSignIn(supabase: ServerClient, next: string | null, origin: string) {
   return NextResponse.redirect(new URL(await signInDestination(supabase, next), origin), 303);
 }
 
 /** Where to go after sign-in — for the route handler (finishSignIn) and the email-code Server Action. */
-export async function signInDestination(supabase: Client, next: string | null) {
+export async function signInDestination(supabase: ServerClient, next: string | null) {
   const target = safeRedirect(next, DEFAULT_AFTER_SIGN_IN);
   await supabase.rpc("claim_invitation");
 

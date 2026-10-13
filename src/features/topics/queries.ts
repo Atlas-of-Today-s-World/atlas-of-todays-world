@@ -1,4 +1,5 @@
 import "server-only";
+import { must } from "@/lib/db/result";
 import { createPublicClient } from "@/lib/supabase/public";
 import { markHits, queryWords, type TopicHit } from "./text-search";
 
@@ -12,11 +13,13 @@ export async function searchTopics(query: string, limit = 30): Promise<TopicHit[
   const words = queryWords(query);
   if (!words.length) return [];
 
-  const { data, error } = await createPublicClient().rpc("search_topics", {
-    p_text: query,
-    p_limit: limit,
-  });
-  if (error) throw new Error(`[topics] ${error.message}`);
+  const data = must(
+    await createPublicClient().rpc("search_topics", {
+      p_text: query,
+      p_limit: limit,
+    }),
+    "topics",
+  );
   return (data ?? []).map((row) => ({
     slug: row.slug,
     topicTitle: row.topic_title,

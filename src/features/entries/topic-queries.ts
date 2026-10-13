@@ -1,13 +1,15 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
+import { PUBLIC_AUTHOR_COLUMNS } from "@/features/authors/queries";
 import { DEFAULT_LOCALE, type Locale } from "@/features/i18n/config";
 import { entryPageTags, PUBLIC_REVALIDATE_SECONDS } from "@/lib/cache/tags";
 import type { FaqItem, ResourceItem } from "@/lib/content-types";
+import { must } from "@/lib/db/result";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { createPublicClient } from "@/lib/supabase/public";
 import { toTileIcon, type TileIcon } from "./constants";
 import type { Entry } from "./queries";
-import { BASE_COLUMNS, pickVersion, type Row, toSummary } from "./rows";
+import { BASE_COLUMNS, pickVersion, type Row, TILE_COLUMNS, toSummary } from "./rows";
 
 /**
  * Encyclopedia entries (P9): the public topic page with its chapters, author,
@@ -160,9 +162,6 @@ interface EncyclopediaParts {
   };
 }
 
-const TILE_COLUMNS =
-  "id, slug, label, description, icon, image_url, image_credit, background, position";
-
 const optional = (value: string | null | undefined) => value?.trim() || undefined;
 
 type PlacedResource = ResourceItem & { tileId?: string | null };
@@ -253,10 +252,10 @@ export function toEncyclopedia(item: Entry, parts: EncyclopediaParts): Encyclope
 const ENCYCLOPEDIA_COLUMNS = `${BASE_COLUMNS}, body_html, summary_points,
   seo_title, seo_description, og_image_url, seo_keywords, geo_summary, noindex,
   articles_label, learn_more_label, hero_background,
-  authors(slug, name, photo_url, bio, positionality),
+  authors(${PUBLIC_AUTHOR_COLUMNS}),
   entry_chapters(position, title, summary_points, body_html, illustration_url, illustration_credit, audio_url, tile_background, updated_at),
   resources(position, kind, tile_id, title, source, url, image_url),
-  learn_more_tiles!learn_more_tiles_entry_id_fkey(${TILE_COLUMNS}),
+  learn_more_tiles!learn_more_tiles_entry_id_fkey(${TILE_COLUMNS}, position),
   entry_tile_notes(tile_id, body_html),
   entry_faq(position, question, answer)`;
 
@@ -271,14 +270,13 @@ export async function getEncyclopediaEntry(
 ): Promise<Encyclopedia | null> {
   const load = unstable_cache(
     async () => {
-      const { data, error } = await createPublicClient()
+      const result = await createPublicClient()
         .from("entries")
         .select(`${ENCYCLOPEDIA_COLUMNS}, translation_of`)
         .eq("status", "published")
         .eq("kind", "entry")
         .eq("slug", slug);
-      if (error) throw new Error(`[encyclopedia] ${error.message}`);
-      return data as unknown as (Row &
+      return must(result, "encyclopedia") as unknown as (Row &
         SeoRow & {
           body_html: string;
           summary_points: string[];

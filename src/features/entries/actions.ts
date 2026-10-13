@@ -13,9 +13,10 @@ import {
 } from "@/lib/actions";
 import { tags } from "@/lib/cache/tags";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
+import type { ServerClient } from "@/lib/supabase/server";
 import { slug as slugSchema, uuid } from "@/lib/validation/common";
 import { EntryInput } from "./schema";
-import { type Client, pingSearchEngines, refresh, refreshEntry } from "./revalidate";
+import { pingSearchEngines, refresh, refreshEntry } from "./revalidate";
 
 /**
  * Editing an article itself: save, group, delete, restore from history. Status
@@ -105,7 +106,7 @@ export async function saveEntry(_prev: ActionState, formData: FormData): Promise
 }
 
 async function syncCountries(
-  supabase: Client,
+  supabase: ServerClient,
   entryId: string,
   countries: string[],
 ): Promise<ActionState | null> {
