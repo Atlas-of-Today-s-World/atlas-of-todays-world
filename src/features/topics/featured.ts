@@ -1,5 +1,6 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
+import { clampFeaturedCount } from "@/features/home/config";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import { must } from "@/lib/db/result";
 import { createPublicClient } from "@/lib/supabase/public";
@@ -69,51 +70,71 @@ export const getSubtopicTiles = unstable_cache(
   { tags: [tags.entries], revalidate: PUBLIC_REVALIDATE_SECONDS },
 );
 
-/**
- * The row of the two pinned slots (`home_featured`, id 1): read by the public
- * home with the anon client and by the admin with the editor's session.
- */
-export const selectHomeFeatured = (db: Pick<ReturnType<typeof createPublicClient>, "from">) =>
-  db.from("home_featured").select("first_chapter, second_chapter").eq("id", 1).maybeSingle();
+/** The home map as set in the admin: pinned subtopic ids in order, how many tiles. */
+interface HomeFeatured {
+  pins: string[];
+  count: number;
+}
 
-/** The two slots on the home map as set in the admin (null = newest). */
 const getHomeFeatured = unstable_cache(
-  async (): Promise<[string | null, string | null]> => {
-    const { data, error } = await selectHomeFeatured(createPublicClient());
+  async (): Promise<HomeFeatured> => {
+    const client = createPublicClient();
+    const [items, settings] = await Promise.all([
+      client
+        .from("home_featured_items")
+        .select("chapter_id")
+        .order("position")
+        .order("id")
+        .limit(100),
+      client.from("home_settings").select("featured_count").eq("id", 1).maybeSingle(),
+    ]);
     // The pins are a nicety: without them (e.g. before the migration) the newest show.
-    if (error) {
-      console.error(`[home featured] ${error.message}`);
-      return [null, null];
-    }
-    return [data?.first_chapter ?? null, data?.second_chapter ?? null];
+    const error = items.error ?? settings.error;
+    if (error) console.error(`[home featured] ${error.message}`);
+    return {
+      pins: (items.data ?? []).map((row) => row.chapter_id),
+      count: clampFeaturedCount(settings.data?.featured_count),
+    };
   },
-  ["home-featured"],
-  { tags: [tags.entries], revalidate: PUBLIC_REVALIDATE_SECONDS },
+  ["home-featured-items"],
+  { tags: [tags.home], revalidate: PUBLIC_REVALIDATE_SECONDS },
 );
 
 /**
- * The two subtopics on the home map: the ones pinned in the admin, each empty
- * (or unpublished) slot filled with the newest subtopic not shown yet — from a
- * topic not shown yet when there is one, so the two tiles aren't one topic twice.
+ * The subtopics on the home map: the ones pinned in the admin first, in their
+ * order (an unpublished pin is skipped), then the newest subtopics not shown
+ * yet — each from a topic not shown yet when there is one, so the tiles aren't
+ * one topic twice — until there are `count` tiles (or no subtopics left).
  */
 export function pickFeatured(
   tiles: readonly SubtopicTile[],
-  pins: readonly (string | null)[],
+  pins: readonly string[],
+  count: number,
 ): SubtopicTile[] {
   const byId = new Map(tiles.map((tile) => [tile.id, tile]));
-  const chosen = pins.map((id) => (id ? byId.get(id) : undefined));
-  const shown = chosen.filter((tile): tile is SubtopicTile => Boolean(tile));
-  const next = () => {
-    const fresh = tiles.filter((tile) => !shown.some((other) => other.id === tile.id));
-    const pick =
-      fresh.find((tile) => !shown.some((other) => other.topicSlug === tile.topicSlug)) ?? fresh[0];
-    if (pick) shown.push(pick);
-    return pick;
+  const shown: SubtopicTile[] = [];
+  const ids = new Set<string>();
+  const topics = new Set<string>();
+  const add = (tile: SubtopicTile) => {
+    shown.push(tile);
+    ids.add(tile.id);
+    topics.add(tile.topicSlug);
   };
-  return chosen.map((tile) => tile ?? next()).filter((tile): tile is SubtopicTile => Boolean(tile));
+  for (const id of pins) {
+    if (shown.length >= count) return shown;
+    const tile = byId.get(id);
+    if (tile && !ids.has(tile.id)) add(tile);
+  }
+  while (shown.length < count) {
+    const fresh = tiles.filter((tile) => !ids.has(tile.id));
+    const pick = fresh.find((tile) => !topics.has(tile.topicSlug)) ?? fresh[0];
+    if (!pick) break;
+    add(pick);
+  }
+  return shown;
 }
 
 export async function featuredSubtopics(): Promise<SubtopicTile[]> {
-  const [tiles, pins] = await Promise.all([getSubtopicTiles(), getHomeFeatured()]);
-  return pickFeatured(tiles, pins);
+  const [tiles, { pins, count }] = await Promise.all([getSubtopicTiles(), getHomeFeatured()]);
+  return pickFeatured(tiles, pins, count);
 }

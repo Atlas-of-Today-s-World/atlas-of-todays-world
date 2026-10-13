@@ -13,7 +13,12 @@ const updateTag = vi.hoisted(() => vi.fn());
 const notifyIndexNow = vi.hoisted(() => vi.fn());
 const client = vi.hoisted(() => ({ current: null as unknown }));
 
-vi.mock("next/cache", () => ({ updateTag, revalidatePath: vi.fn() }));
+vi.mock("next/cache", () => ({
+  updateTag,
+  revalidatePath: vi.fn(),
+  // Cached public reads some actions modules import (they aren't called here).
+  unstable_cache: (fn: unknown) => fn,
+}));
 vi.mock("next/navigation", () => ({ redirect: vi.fn() }));
 vi.mock("@/lib/seo/indexnow", () => ({ notifyIndexNow }));
 // The session client is the current stand-in with a signed-in user, so both
@@ -133,6 +138,16 @@ describe("no cache refresh without a confirmed write", { timeout: 30_000 }, () =
     });
     expect(updateTag).not.toHaveBeenCalled();
     expect(notifyIndexNow).not.toHaveBeenCalled();
+  });
+
+  it("home page: the tile count and unpinning", async () => {
+    client.current = nothingWritten();
+    const { saveHomeSettings, removeHomePin } = await import("@/features/home/actions");
+    const saved = await saveHomeSettings({ ok: false }, form({ featured_count: "4" }));
+    expect(saved).toMatchObject({ ok: false, error: expect.stringMatching(/can.t change/) });
+    const removed = await removeHomePin("00000000-0000-4000-8000-000000000123");
+    expect(removed).toMatchObject({ ok: false, error: expect.stringMatching(/can.t change/) });
+    expect(updateTag).not.toHaveBeenCalled();
   });
 
   it("saveCategories: an empty list that removed nothing", async () => {
@@ -307,6 +322,18 @@ describe("a confirmed write refreshes exactly its tags", { timeout: 30_000 }, ()
     );
     expect(result).toMatchObject({ ok: true });
     expect(updatedTags()).toEqual(["site-notices"]);
+  });
+
+  it("home page: only the home map's pins, not every article list", async () => {
+    client.current = written({ home_settings: [{ id: 1 }] });
+    const { saveHomeSettings, moveHomePin } = await import("@/features/home/actions");
+    expect(await saveHomeSettings({ ok: false }, form({ featured_count: "3" }))).toMatchObject({
+      ok: true,
+    });
+    expect(await moveHomePin("00000000-0000-4000-8000-000000000123", true)).toMatchObject({
+      ok: true,
+    });
+    expect(updatedTags()).toEqual(["home", "home"]);
   });
 
   it("updateRedirect: the redirect map", async () => {

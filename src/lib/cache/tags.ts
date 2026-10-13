@@ -32,6 +32,11 @@ export const tags = {
   redirects: "redirects",
   /** Atlas Patrons progress (patron_stats) — payment webhook and admin grants. */
   patrons: "patrons",
+  /**
+   * The home map's subtopic pins and tile count (home_featured_items,
+   * home_settings). The subtopics themselves stay under `entries`.
+   */
+  home: "home",
   /** One editable site page (site_pages: about, privacy, terms, accessibility). */
   sitePage: (slug: string) => `page:${slug}`,
   /** Site settings and social links (publisher facts, contact, SEO defaults, footer). */
