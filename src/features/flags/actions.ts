@@ -6,8 +6,13 @@ import { z } from "zod";
 import { failed, NOT_SIGNED_IN, signedIn, type ActionState } from "@/lib/actions";
 import { tags } from "@/lib/cache/tags";
 
+/**
+ * Flag key as the DB CHECK spells it: lowercase words joined by single "_". The
+ * nested quantifier can't backtrack ("_" never matches `[a-z0-9]`), so it's linear.
+ */
 const Key = z
   .string()
+  // eslint-disable-next-line security/detect-unsafe-regex -- star-height heuristic false positive; linear, see above
   .regex(/^[a-z0-9]+(_[a-z0-9]+)*$/)
   .max(40);
 

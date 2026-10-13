@@ -139,7 +139,7 @@ test("Topics: from the list to a dossier and back to the Atlas", async ({ page, 
   const href = (await first.getAttribute("href")) ?? "";
   expect(href).toMatch(/^\/topics\/[a-z0-9-]+$/);
   await first.click();
-  await expect(page).toHaveURL(new RegExp(`${href}$`));
+  await expect(page).toHaveURL((url) => url.pathname === href);
   await expect(page.getByRole("region", { name: "Subtopics" })).toBeVisible();
 
   await page.getByRole("link", { name: "Back to Atlas", exact: true }).click();
@@ -170,7 +170,7 @@ test("SEO & GEO: valid Article graph, author profile and a Markdown version", as
   await page.goto(`/topics/${slug}`);
   await page.getByText(`About the author: E2E Autorka ${run}`).click();
   await page.getByRole("link", { name: `Articles by E2E Autorka ${run}` }).click();
-  await expect(page).toHaveURL(new RegExp(`/authors/${authorSlug}$`));
+  await expect(page).toHaveURL((url) => url.pathname === `/authors/${authorSlug}`);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(`E2E Autorka ${run}`);
   await expect(page.getByRole("link", { name: title })).toBeVisible();
 });

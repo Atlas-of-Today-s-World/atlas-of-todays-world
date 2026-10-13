@@ -10,16 +10,21 @@ import { HEX_COLOR } from "@/lib/validation/hex-color";
 export const blankToUndefined = (value: unknown) =>
   typeof value === "string" && value.trim() === "" ? undefined : value;
 
+/**
+ * Slug as the DB CHECKs spell it: lowercase words joined by single hyphens.
+ * The nested quantifier can't backtrack: "-" never matches `[a-z0-9]`, so each
+ * character has exactly one way to match (linear, no ReDoS).
+ */
+// eslint-disable-next-line security/detect-unsafe-regex -- star-height heuristic false positive; linear, see above
+export const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+
 export const slug = (max = 120) =>
   z
     .string()
     .trim()
     .toLowerCase()
     .max(max)
-    .regex(
-      /^[a-z0-9]+(-[a-z0-9]+)*$/,
-      "Lowercase letters without accents, digits and hyphens only.",
-    );
+    .regex(SLUG, "Lowercase letters without accents, digits and hyphens only.");
 
 export const text = (max: number) => z.string().trim().max(max, `At most ${max} characters.`);
 
@@ -41,7 +46,12 @@ export const hexColor = z
 
 export const iso3 = z.string().regex(/^[A-Z]{3}$/);
 
-/** Email in the same shape as the DB CHECK (invitations); no nested quantifiers (no ReDoS). */
+/**
+ * Email in the same shape as the DB CHECK (invitations). The nested quantifier
+ * can't backtrack catastrophically: "." never matches `[a-z0-9-]`, so the domain
+ * splits into labels one way only (linear, no ReDoS); the field caps the length too.
+ */
+// eslint-disable-next-line security/detect-unsafe-regex -- star-height heuristic false positive; linear, see above
 const EMAIL = /^[^@\s]+@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/;
 
 /**

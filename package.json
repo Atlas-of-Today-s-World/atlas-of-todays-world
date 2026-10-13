@@ -19,7 +19,7 @@
     "test:db": "node --test supabase/tests/rls.test.mjs supabase/tests/rls-unpublished.test.mjs supabase/tests/seed.test.mjs supabase/tests/admin-queries.test.mjs supabase/tests/column-grants.test.mjs supabase/tests/db-low-findings.test.mjs",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings=0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
