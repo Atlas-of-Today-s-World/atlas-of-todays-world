@@ -505,6 +505,7 @@ const APP_RPCS = {
   role_holder_counts: ["authenticated"],
   restore_site_page: ["authenticated"],
   move_patron_faq: ["authenticated"],
+  move_home_featured_item: ["authenticated"],
   move_site_social_link: ["authenticated"],
   replace_portrait_items: ["authenticated", "service_role"],
   submit_volunteer_application: ["service_role"],
