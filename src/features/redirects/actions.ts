@@ -10,6 +10,7 @@ import {
   signedIn,
   type ActionState,
 } from "@/lib/actions";
+import { adminRoutes } from "@/config/routes";
 import { tags } from "@/lib/cache/tags";
 import { RedirectId, RedirectInput } from "./schema";
 
@@ -22,7 +23,7 @@ export async function addRedirect(_prev: ActionState, formData: FormData): Promi
   const { error } = await session.supabase.from("redirects").insert(parsed.data);
   if (error) return failed(error);
   updateTag(tags.redirects);
-  revalidatePath("/admin/redirects");
+  revalidatePath(adminRoutes.redirects);
   return { ok: true, message: `Redirect added: ${parsed.data.from_path} → ${parsed.data.to_path}` };
 }
 
@@ -39,6 +40,6 @@ export async function deleteRedirect(id: string): Promise<ActionState> {
   if (error) return failed(error);
   if (!data.length) return { ok: false, error: "The redirect can't be deleted (no permission)." };
   updateTag(tags.redirects);
-  revalidatePath("/admin/redirects");
+  revalidatePath(adminRoutes.redirects);
   return { ok: true, message: "Deleted." };
 }

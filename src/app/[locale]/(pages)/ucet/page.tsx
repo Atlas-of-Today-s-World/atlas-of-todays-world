@@ -7,7 +7,7 @@ import { getMessages } from "@/features/i18n/messages";
 import { localeFrom } from "@/features/i18n/request";
 import DeleteAccount from "./DeleteAccount";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { routes } from "@/config/routes";
+import { adminRoutes, routes } from "@/config/routes";
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +45,7 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
 
       <div className="mt-8 flex flex-wrap gap-3">
         {staff ? (
-          <Link href="/admin" className={buttonVariants()}>
+          <Link href={adminRoutes.overview} className={buttonVariants()}>
             {t.openAdmin}
           </Link>
         ) : null}

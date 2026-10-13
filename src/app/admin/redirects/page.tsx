@@ -6,6 +6,7 @@ import { RowActions } from "@/components/data-table/RowActions";
 import { deleteAction } from "@/components/data-table/row-actions";
 import { optionStats } from "@/components/data-table/stats";
 import { navIcon } from "@/config/admin-nav";
+import { adminRoutes } from "@/config/routes";
 import { can, sectionAccess } from "@/features/auth/access";
 import { deleteRedirect } from "@/features/redirects/actions";
 import { RedirectForm } from "@/features/redirects/components/RedirectForms";
@@ -36,7 +37,7 @@ export default async function RedirectsPage({
   return (
     <>
       <PageHeader
-        icon={navIcon("/admin/redirects")}
+        icon={navIcon(adminRoutes.redirects)}
         title="URL redirects"
         lead="When an article's or page's address changes, add a redirect from the old path to the new one. It applies only where the page would otherwise be “not found” — it never overrides an existing page."
       />

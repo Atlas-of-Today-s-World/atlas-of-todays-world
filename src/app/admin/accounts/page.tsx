@@ -9,6 +9,7 @@ import { optionStats } from "@/components/data-table/stats";
 import { ToolbarLink } from "@/components/data-table/ToolbarLink";
 import { buttonVariants } from "@/components/ui/button";
 import { navIcon } from "@/config/admin-nav";
+import { adminRoutes } from "@/config/routes";
 import { sectionAccess } from "@/features/auth/access";
 import { listAccounts } from "@/features/accounts/editorial";
 import { listRoles } from "@/features/roles/editorial";
@@ -34,11 +35,11 @@ export default async function AccountsPage({
   return (
     <>
       <PageHeader
-        icon={navIcon("/admin/accounts")}
+        icon={navIcon(adminRoutes.accounts.list)}
         title="Team & reader accounts"
         lead="The Atlas team and registered readers. The team is invitation-only."
         actions={
-          <Link href="/admin/accounts/invitations" className={buttonVariants({ size: "sm" })}>
+          <Link href={adminRoutes.invitations} className={buttonVariants({ size: "sm" })}>
             Team invitations
           </Link>
         }
@@ -54,10 +55,10 @@ export default async function AccountsPage({
         stats={optionStats("status", STATUS)}
         toolbar={
           <>
-            <ToolbarLink kind="tab" href="/admin/accounts" active={kind === "staff"}>
+            <ToolbarLink kind="tab" href={adminRoutes.accounts.list} active={kind === "staff"}>
               Team members
             </ToolbarLink>
-            <ToolbarLink kind="tab" href="/admin/accounts?kind=readers" active={kind === "reader"}>
+            <ToolbarLink kind="tab" href={adminRoutes.readers} active={kind === "reader"}>
               Readers
             </ToolbarLink>
           </>
@@ -99,7 +100,7 @@ export default async function AccountsPage({
         ]}
         rows={accounts.map((row) => ({
           id: row.id,
-          href: `/admin/accounts/${row.id}`,
+          href: adminRoutes.accounts(row.id),
           values: {
             email: row.email,
             name: row.name,
@@ -108,7 +109,7 @@ export default async function AccountsPage({
             seen: row.last_seen_at,
             created: row.created_at,
           },
-          actions: <RowActions actions={[editAction(`/admin/accounts/${row.id}`)]} />,
+          actions: <RowActions actions={[editAction(adminRoutes.accounts(row.id))]} />,
         }))}
       />
     </>

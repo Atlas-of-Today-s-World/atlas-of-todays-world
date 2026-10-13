@@ -25,6 +25,7 @@ export const ROUTE_PREFIX = {
 
 const P = ROUTE_PREFIX;
 const SEARCH = "/search";
+const ADMIN = "/admin";
 const withAnchor = (path: string, anchor?: string | null) => (anchor ? `${path}#${anchor}` : path);
 
 export const routes = {
@@ -58,8 +59,8 @@ export const routes = {
   account: "/ucet",
   /** Accepting an invitation to the team. */
   invitation: "/pozvanka",
-  /** Administration (unlocalized; its own routes are not built here). */
-  admin: "/admin",
+  /** Administration (unlocalized; its pages are in `adminRoutes`). */
+  admin: ADMIN,
 
   country: (slug: string) => `${P.country}/${slug}`,
   region: (slug: string) => `${P.region}/${slug}`,
@@ -79,6 +80,66 @@ export const routes = {
     kind === "entry" ? `${P.topics}/${slug}` : `${P.news}/${slug}`,
   /** Search results for a query; Enter in the search over the map goes there. */
   searchFor: (query: string) => `${SEARCH}?q=${encodeURIComponent(query)}`,
+} as const;
+
+type Query = Record<string, string>;
+
+const withQuery = (path: string, query?: Query) => {
+  const search = query ? new URLSearchParams(query).toString() : "";
+  return search ? `${path}?${search}` : path;
+};
+
+/**
+ * An admin section with a page per record: `section(id)` is the record's page
+ * (`query` adds `?tab=…`, `?saved=1`…), `section.list` the section's index.
+ */
+const records = (list: string) =>
+  Object.assign((id: string, query?: Query) => withQuery(`${list}/${id}`, query), { list });
+
+/** A section whose records are also created in the admin: `section.new` is the empty form. */
+const editable = (list: string) => Object.assign(records(list), { new: `${list}/new` });
+
+/**
+ * Every administration URL, built in one place like `routes` (the admin menu
+ * in config/admin-nav.ts, links, redirects and `revalidatePath` all ask here).
+ * Unlocalized. A section with records is callable — `adminRoutes.content(id)`
+ * — and carries `.list` (its index) and, where records are created, `.new`;
+ * a single-page section is a plain string.
+ */
+export const adminRoutes = {
+  /** Dashboard (the admin's home). */
+  overview: ADMIN,
+  /** Articles: topics and news (`?tab=` picks a topic editor tab). */
+  content: editable(`${ADMIN}/content`),
+  /** The signed-in editor's own drafts. */
+  myDrafts: `${ADMIN}/content?mine=1&status=draft`,
+  /** The new-article form preset to a topic (encyclopedia entry). */
+  newTopic: `${ADMIN}/content/new?kind=entry`,
+  authors: editable(`${ADMIN}/authors`),
+  topicTemplates: editable(`${ADMIN}/topic-templates`),
+  approvals: `${ADMIN}/approvals`,
+  redirects: `${ADMIN}/redirects`,
+  /** The home page's pinned subtopics. */
+  homePage: `${ADMIN}/home`,
+  /** Regions by slug; their countries are under `country(slug)`. */
+  regions: records(`${ADMIN}/regions`),
+  country: (slug: string) => `${ADMIN}/regions/countries/${slug}`,
+  globalIssues: editable(`${ADMIN}/global-issues`),
+  /** The new global-issue form preset to a custom region. */
+  newCustomRegion: `${ADMIN}/global-issues/new?kind=region`,
+  /** Map data layers (indicators) by id. */
+  data: editable(`${ADMIN}/data`),
+  /** Custom map areas by slug. */
+  areas: editable(`${ADMIN}/areas`),
+  appearance: `${ADMIN}/appearance`,
+  accounts: records(`${ADMIN}/accounts`),
+  /** Reader accounts (the accounts list's second tab). */
+  readers: `${ADMIN}/accounts?kind=readers`,
+  invitations: `${ADMIN}/accounts/invitations`,
+  volunteers: `${ADMIN}/volunteers`,
+  roles: `${ADMIN}/roles`,
+  audit: `${ADMIN}/roles/audit`,
+  members: `${ADMIN}/members`,
 } as const;
 
 /** Is `path` the page `prefix` or anything under it (`/topics`, `/topics/x`)? */

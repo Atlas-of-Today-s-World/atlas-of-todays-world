@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { adminRoutes } from "@/config/routes";
 import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { deleteIndicator } from "../actions";
 
@@ -15,7 +16,7 @@ export function DeleteIndicator({ id }: { id: string }) {
       confirm="Delete"
       action={() => deleteIndicator(id)}
       onDone={(state) => {
-        if (state.ok) router.push("/admin/data");
+        if (state.ok) router.push(adminRoutes.data.list);
       }}
     />
   );

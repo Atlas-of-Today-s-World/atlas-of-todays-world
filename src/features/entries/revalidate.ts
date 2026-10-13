@@ -12,6 +12,9 @@ import type { ServerClient } from "@/lib/supabase/server";
  * "use server" module: nothing here is callable from the client.
  */
 
+/** What `refresh` and `pingSearchEngines` need to know about a changed article. */
+export const PLACEMENT_COLUMNS = "slug, status, region_slug, special_slug, kind, locale";
+
 /** After published content changes, revalidate lists, detail and portraits. */
 export function refresh(slug?: string | null, region?: string | null, issue?: string | null) {
   for (const tag of entryChangedTags(slug)) updateTag(tag);
@@ -33,7 +36,7 @@ export function pingSearchEngines(row: { slug: string; kind: string; locale: str
 export async function refreshEntry(supabase: ServerClient, id: string, onlyPublished = false) {
   const { data } = await supabase
     .from("entries")
-    .select("slug, status, region_slug, special_slug, kind, locale")
+    .select(PLACEMENT_COLUMNS)
     .eq("id", id)
     .maybeSingle();
   if (onlyPublished && data?.status !== "published") return;

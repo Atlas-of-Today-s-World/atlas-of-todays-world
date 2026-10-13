@@ -29,7 +29,7 @@ import { CollectionEditor } from "@/components/admin/CollectionEditor";
 import { COLLECTION_UI } from "@/features/portraits/components/fields";
 import { cn } from "@/lib/cn";
 import { uuid } from "@/lib/validation/common";
-import { routes } from "@/config/routes";
+import { adminRoutes, routes } from "@/config/routes";
 
 export const metadata: Metadata = { title: "Edit article" };
 
@@ -51,8 +51,8 @@ function DossierTabs({ id, current }: { id: string; current: Tab }) {
             <Link
               href={
                 tab.key === "article"
-                  ? `/admin/content/${id}`
-                  : `/admin/content/${id}?tab=${tab.key}`
+                  ? adminRoutes.content(id)
+                  : adminRoutes.content(id, { tab: tab.key })
               }
               aria-current={tab.key === current ? "page" : undefined}
               className={cn(
@@ -146,7 +146,7 @@ export default async function EditEntryPage({
                     Resource tiles on the right half of the topic. Change their look and order here,
                     fill them with links and text below. Templates are managed in{" "}
                     <Link
-                      href="/admin/topic-templates"
+                      href={adminRoutes.topicTemplates.list}
                       className="text-[var(--color-link)] underline"
                     >
                       Topic templates

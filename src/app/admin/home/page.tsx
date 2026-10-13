@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { navIcon } from "@/config/admin-nav";
+import { adminRoutes } from "@/config/routes";
 import { can, sectionAccess } from "@/features/auth/access";
 import { HomeFeaturedForm } from "@/features/home/components/HomeFeaturedForm";
 import { homeFeaturedForEdit } from "@/features/home/editorial";
@@ -21,7 +22,7 @@ export default async function HomeAdminPage() {
   return (
     <>
       <PageHeader
-        icon={navIcon("/admin/home")}
+        icon={navIcon(adminRoutes.homePage)}
         title="Home page"
         lead="Two subtopic tiles under the search field on the home map. Pin the ones you want, or leave a slot on “newest” and the newest published subtopic fills it."
       />

@@ -5,6 +5,7 @@ import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
 import { optionStats } from "@/components/data-table/stats";
 import { navIcon } from "@/config/admin-nav";
+import { adminRoutes } from "@/config/routes";
 import { listRoles } from "@/features/roles/editorial";
 import { can, sectionAccess } from "@/features/auth/access";
 import { getPickerOptions } from "@/features/geography/queries";
@@ -40,7 +41,7 @@ export default async function InvitationsPage() {
   return (
     <>
       <PageHeader
-        icon={navIcon("/admin/accounts")}
+        icon={navIcon(adminRoutes.accounts.list)}
         title="Team invitations"
         lead={
           <>

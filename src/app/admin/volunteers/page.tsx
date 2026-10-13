@@ -5,6 +5,7 @@ import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
 import { optionStats } from "@/components/data-table/stats";
 import { navIcon } from "@/config/admin-nav";
+import { adminRoutes } from "@/config/routes";
 import { can, sectionAccess } from "@/features/auth/access";
 import { deleteApplication, setApplicationStatus } from "@/features/volunteers/actions";
 import { VolunteerSettingsForm } from "@/features/volunteers/components/VolunteerSettingsForm";
@@ -33,7 +34,7 @@ export default async function VolunteersPage() {
   return (
     <>
       <PageHeader
-        icon={navIcon("/admin/volunteers")}
+        icon={navIcon(adminRoutes.volunteers)}
         title="Volunteer editors"
         lead="People who applied on the Atlas Patrons page to write or review topics as volunteers."
       />

@@ -6,6 +6,7 @@ import { RowActions } from "@/components/data-table/RowActions";
 import { confirmAction } from "@/components/data-table/row-actions";
 import { optionStats } from "@/components/data-table/stats";
 import { navIcon } from "@/config/admin-nav";
+import { adminRoutes } from "@/config/routes";
 import { can, sectionAccess } from "@/features/auth/access";
 import { approveEntry } from "@/features/entries/workflow-actions";
 import { approvalQueue } from "@/features/entries/editorial";
@@ -31,7 +32,7 @@ export default async function ApprovalsPage() {
   return (
     <>
       <PageHeader
-        icon={navIcon("/admin/approvals")}
+        icon={navIcon(adminRoutes.approvals)}
         title="Article approvals"
         lead="Articles waiting for a second pair of eyes. Open an article, compare it with the published version, then approve it or return it with a note."
       />
@@ -67,7 +68,7 @@ export default async function ApprovalsPage() {
         ]}
         rows={queue.map((row) => ({
           id: row.id,
-          href: `/admin/content/${row.id}`,
+          href: adminRoutes.content(row.id),
           values: {
             title: row.title,
             who: row.canApprove ? "you" : "others",
@@ -83,7 +84,7 @@ export default async function ApprovalsPage() {
                   kind: "link",
                   icon: "view",
                   label: "Review article",
-                  href: `/admin/content/${row.id}`,
+                  href: adminRoutes.content(row.id),
                 },
                 ...(canApprove
                   ? [

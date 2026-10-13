@@ -8,6 +8,7 @@ import { RowActions } from "@/components/data-table/RowActions";
 import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { FormField, Input, Textarea } from "@/components/ui/field";
+import { adminRoutes } from "@/config/routes";
 import type { ActionState } from "@/lib/actions";
 import { deleteEntry, restoreRevision } from "../actions";
 import {
@@ -103,7 +104,7 @@ export function EntryWorkflow({
             action={() => deleteEntry(id)}
             onDone={(state) => {
               setResult(state);
-              if (state.ok) router.push("/admin/content");
+              if (state.ok) router.push(adminRoutes.content.list);
             }}
           />
         ) : null}

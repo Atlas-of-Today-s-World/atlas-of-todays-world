@@ -2,6 +2,7 @@
 
 import "server-only";
 import { revalidatePath } from "next/cache";
+import { adminRoutes } from "@/config/routes";
 import { SECTIONS } from "@/features/auth/sections";
 import {
   failed,
@@ -14,7 +15,7 @@ import {
 import { slug } from "@/lib/validation/common";
 import { MatrixInput, RoleInput, SecurityInput } from "./schema";
 
-const PAGE = "/admin/roles";
+const PAGE = adminRoutes.roles;
 
 /**
  * Permissions of one role (a row of the role × section × vced matrix). Admin is

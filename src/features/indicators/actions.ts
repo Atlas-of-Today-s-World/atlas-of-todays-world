@@ -13,6 +13,7 @@ import {
   signedIn,
   type ActionState,
 } from "@/lib/actions";
+import { adminRoutes } from "@/config/routes";
 import { tags } from "@/lib/cache/tags";
 import { iso3, slug } from "@/lib/validation/common";
 import { CategoryInput, IndicatorInput, ValueInput } from "./schema";
@@ -49,7 +50,7 @@ export async function saveIndicator(_prev: ActionState, formData: FormData): Pro
       .insert({ ...row, id, type, is_custom: true, created_by: user.id });
     if (error) return failed(error);
     refreshDefinitions();
-    redirect(`/admin/data/${id}`);
+    redirect(adminRoutes.data(id));
   }
   const { data, error } = await supabase.from("indicators").update(row).eq("id", id).select("id");
   if (error) return failed(error);

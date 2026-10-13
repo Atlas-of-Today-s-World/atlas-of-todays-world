@@ -6,6 +6,7 @@ import { ActionStatus } from "@/components/admin/ActionStatus";
 import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { FormField, Input, Select, Textarea } from "@/components/ui/field";
+import { adminRoutes } from "@/config/routes";
 import type { ActionState } from "@/lib/actions";
 import { SlugField, useSlug } from "@/components/admin/SlugField";
 import { deleteArea, saveArea, saveTheme } from "../actions";
@@ -179,7 +180,7 @@ export function DeleteArea({ slug }: { slug: string }) {
       confirm="Delete"
       action={() => deleteArea(slug)}
       onDone={(state) => {
-        if (state.ok) router.push("/admin/areas");
+        if (state.ok) router.push(adminRoutes.areas.list);
       }}
     />
   );

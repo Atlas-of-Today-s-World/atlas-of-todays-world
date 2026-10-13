@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { buttonVariants } from "@/components/ui/button";
 import { ADMIN_NAV, navVisible } from "@/config/admin-nav";
+import { adminRoutes } from "@/config/routes";
 import { can, getAccess } from "@/features/auth/access";
 import { approvalQueue, listEntries } from "@/features/entries/editorial";
 
@@ -33,7 +34,7 @@ export default async function AdminHome() {
         lead={`Signed in as ${access.email} (${access.roleName}).`}
         actions={
           can(access.permissions, "news", "c") ? (
-            <Link href="/admin/content/new" className={buttonVariants()}>
+            <Link href={adminRoutes.content.new} className={buttonVariants()}>
               New article
             </Link>
           ) : null
@@ -42,15 +43,11 @@ export default async function AdminHome() {
 
       <div className="grid gap-4 sm:grid-cols-3">
         {writes ? (
-          <Tile
-            href="/admin/content?mine=1&status=draft"
-            value={drafts.length}
-            label="my article drafts"
-          />
+          <Tile href={adminRoutes.myDrafts} value={drafts.length} label="my article drafts" />
         ) : null}
         {writes ? (
           <Tile
-            href="/admin/content?mine=1&status=draft"
+            href={adminRoutes.myDrafts}
             value={returned.length}
             label="my articles returned for changes"
             tone={returned.length ? "warn" : undefined}
@@ -58,7 +55,7 @@ export default async function AdminHome() {
         ) : null}
         {approves ? (
           <Tile
-            href="/admin/approvals"
+            href={adminRoutes.approvals}
             value={forMe.length}
             label="articles awaiting my approval"
             tone={forMe.length ? "warn" : undefined}
@@ -74,7 +71,7 @@ export default async function AdminHome() {
           <ul className="grid gap-2">
             {returned.map((entry) => (
               <li key={entry.id} className="rounded-xl border border-amber-300 bg-amber-50 p-3">
-                <Link href={`/admin/content/${entry.id}`} className="font-medium hover:underline">
+                <Link href={adminRoutes.content(entry.id)} className="font-medium hover:underline">
                   {entry.title}
                 </Link>
                 <p className="mt-1 text-[13px] whitespace-pre-line">{entry.review_note}</p>

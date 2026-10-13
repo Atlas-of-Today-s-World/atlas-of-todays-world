@@ -11,6 +11,7 @@ import {
   signedIn,
   type ActionState,
 } from "@/lib/actions";
+import { adminRoutes } from "@/config/routes";
 import { tags } from "@/lib/cache/tags";
 import { uuid } from "@/lib/validation/common";
 
@@ -43,6 +44,6 @@ export async function saveHomeFeatured(
   if (error) return failed(error);
   if (!data.length) return { ok: false, error: "You can't change the home page." };
   updateTag(tags.entries);
-  revalidatePath("/admin/home");
+  revalidatePath(adminRoutes.homePage);
   return { ok: true, message: "Saved. The home map shows them within a moment." };
 }

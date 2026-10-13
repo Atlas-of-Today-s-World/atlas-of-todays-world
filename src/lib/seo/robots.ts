@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { PRIVATE_PATHS } from "@/config/routes";
+import { PRIVATE_PATHS, routes } from "@/config/routes";
 import { LOCALES, localePath } from "@/features/i18n/config";
 import { absoluteUrl } from "./index";
 
@@ -39,7 +39,7 @@ export const ALLOWED_BOTS = [
   "Meta-ExternalAgent",
 ] as const;
 
-const UNLOCALIZED_PRIVATE = ["/api/", "/admin", "/auth/"];
+const UNLOCALIZED_PRIVATE = ["/api/", routes.admin, "/auth/"];
 
 export function robotsRules(): MetadataRoute.Robots {
   const disallow = [

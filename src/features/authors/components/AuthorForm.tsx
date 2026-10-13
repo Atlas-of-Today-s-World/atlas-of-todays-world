@@ -8,6 +8,7 @@ import { SubmitButton } from "@/components/admin/SubmitButton";
 import { ActionForm } from "@/components/ui/action-form";
 import { FormField, Input, Textarea, describedBy } from "@/components/ui/field";
 import { UploadField } from "@/components/admin/UploadField";
+import { adminRoutes } from "@/config/routes";
 import type { ActionState } from "@/lib/actions";
 import { deleteAuthor, saveAuthor } from "../actions";
 import type { AuthorRow } from "../editorial";
@@ -100,7 +101,7 @@ export function DeleteAuthor({ id, name }: { id: string; name: string }) {
       confirm="Delete"
       action={() => deleteAuthor(id)}
       onDone={(state) => {
-        if (state.ok) router.push("/admin/authors");
+        if (state.ok) router.push(adminRoutes.authors.list);
       }}
     />
   );

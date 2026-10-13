@@ -11,6 +11,7 @@ import {
   signedIn,
   type ActionState,
 } from "@/lib/actions";
+import { adminRoutes } from "@/config/routes";
 import { tags } from "@/lib/cache/tags";
 import { uuid } from "@/lib/validation/common";
 import { AuthorInput } from "./schema";
@@ -37,8 +38,8 @@ export async function saveAuthor(_prev: ActionState, formData: FormData): Promis
       .select("id")
       .single();
     if (error) return failed(error);
-    revalidatePath("/admin/authors");
-    redirect(`/admin/authors/${data.id}?saved=1`);
+    revalidatePath(adminRoutes.authors.list);
+    redirect(adminRoutes.authors(data.id, { saved: "1" }));
   }
 
   const { data, error } = await session.supabase
@@ -50,7 +51,7 @@ export async function saveAuthor(_prev: ActionState, formData: FormData): Promis
   if (!data.length) return { ok: false, error: "You can't edit this author (no permission)." };
   updateTag(tags.entries);
   updateTag(tags.entryPages);
-  revalidatePath("/admin/authors");
+  revalidatePath(adminRoutes.authors.list);
   return { ok: true, message: "Saved." };
 }
 
@@ -64,6 +65,6 @@ export async function deleteAuthor(id: string): Promise<ActionState> {
   if (!data.length) return { ok: false, error: "The author can't be deleted (no permission)." };
   updateTag(tags.entries);
   updateTag(tags.entryPages);
-  revalidatePath("/admin/authors");
+  revalidatePath(adminRoutes.authors.list);
   return { ok: true, message: "Deleted." };
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
+import { adminRoutes } from "@/config/routes";
 import { can, sectionAccess } from "@/features/auth/access";
 import { TemplateForm } from "@/features/entries/components/TopicTileForms";
 import { listTemplates } from "@/features/entries/editorial";
@@ -19,7 +20,10 @@ export default async function NewTopicTemplatePage() {
       <PageHeader
         title="New topic template"
         lead={
-          <Link href="/admin/topic-templates" className="text-[var(--color-link)] underline">
+          <Link
+            href={adminRoutes.topicTemplates.list}
+            className="text-[var(--color-link)] underline"
+          >
             All templates
           </Link>
         }

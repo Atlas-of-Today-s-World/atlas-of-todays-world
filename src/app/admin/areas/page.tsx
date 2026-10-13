@@ -7,6 +7,7 @@ import { RowActions } from "@/components/data-table/RowActions";
 import { deleteAction, editAction } from "@/components/data-table/row-actions";
 import { buttonVariants } from "@/components/ui/button";
 import { navIcon } from "@/config/admin-nav";
+import { adminRoutes } from "@/config/routes";
 import { can, sectionAccess } from "@/features/auth/access";
 import { getAtlas } from "@/features/geography/queries";
 import { deleteArea } from "@/features/map/actions";
@@ -21,12 +22,12 @@ export default async function AreasPage() {
   return (
     <>
       <PageHeader
-        icon={navIcon("/admin/areas")}
+        icon={navIcon(adminRoutes.areas.list)}
         title="Custom map areas"
         lead="Custom areas on the globe that don't follow state borders — occupied territories, river basins, front lines."
         actions={
           can(access.permissions, "areas", "c") ? (
-            <Link href="/admin/areas/new" className={buttonVariants({ size: "sm" })}>
+            <Link href={adminRoutes.areas.new} className={buttonVariants({ size: "sm" })}>
               New map area
             </Link>
           ) : null
@@ -60,7 +61,7 @@ export default async function AreasPage() {
         ]}
         rows={areas.map((area) => ({
           id: area.slug,
-          href: `/admin/areas/${area.slug}`,
+          href: adminRoutes.areas(area.slug),
           values: {
             color: area.fill,
             name: area.name,
@@ -70,7 +71,7 @@ export default async function AreasPage() {
           actions: (
             <RowActions
               actions={[
-                editAction(`/admin/areas/${area.slug}`),
+                editAction(adminRoutes.areas(area.slug)),
                 ...(canDelete
                   ? [deleteAction(deleteArea.bind(null, area.slug), `area ${area.name}`)]
                   : []),

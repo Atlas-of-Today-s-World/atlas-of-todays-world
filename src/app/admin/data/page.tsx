@@ -10,7 +10,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { navIcon } from "@/config/admin-nav";
 import { can, sectionAccess } from "@/features/auth/access";
 import { getIndicators } from "@/features/geography/queries";
-import { routes } from "@/config/routes";
+import { adminRoutes, routes } from "@/config/routes";
 
 export const metadata: Metadata = { title: "Map data layers" };
 
@@ -27,12 +27,12 @@ export default async function DataPage() {
   return (
     <>
       <PageHeader
-        icon={navIcon("/admin/data")}
+        icon={navIcon(adminRoutes.data.list)}
         title="Map data layers"
         lead="Indicators that color the globe — each one is a map data layer. Values imported from Our World in Data can be corrected with a manual, sourced value; create custom layers here."
         actions={
           can(access.permissions, "layers", "c") ? (
-            <Link href="/admin/data/new" className={buttonVariants({ size: "sm" })}>
+            <Link href={adminRoutes.data.new} className={buttonVariants({ size: "sm" })}>
               New indicator
             </Link>
           ) : null
@@ -84,7 +84,7 @@ export default async function DataPage() {
         ]}
         rows={indicators.map((indicator) => ({
           id: indicator.id,
-          href: `/admin/data/${indicator.id}`,
+          href: adminRoutes.data(indicator.id),
           values: {
             label: indicator.label,
             type: indicator.type,
@@ -97,7 +97,7 @@ export default async function DataPage() {
           actions: (
             <RowActions
               actions={[
-                editAction(`/admin/data/${indicator.id}`),
+                editAction(adminRoutes.data(indicator.id)),
                 openAction(routes.view(indicator.id)),
               ]}
             />

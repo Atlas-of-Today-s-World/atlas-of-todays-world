@@ -14,11 +14,12 @@ import {
   signedIn,
   type ActionState,
 } from "@/lib/actions";
+import { adminRoutes } from "@/config/routes";
 import { entryChangedTags } from "@/lib/cache/tags";
 import { requiredText, uuid } from "@/lib/validation/common";
 import { TemplateInput, TILE_FIELD_LABEL, TilesInput } from "./schema";
 
-const TEMPLATES = "/admin/topic-templates";
+const TEMPLATES = adminRoutes.topicTemplates.list;
 
 /**
  * A topic template: its name, section labels and tiles, saved at once. A new
@@ -111,7 +112,7 @@ export async function applyTemplate(_prev: ActionState, formData: FormData): Pro
   if (data?.status === "published") {
     for (const tag of entryChangedTags(data.slug)) updateTag(tag);
   }
-  revalidatePath(`/admin/content/${entry_id}`);
+  revalidatePath(adminRoutes.content(entry_id));
   return { ok: true, message: "Template applied." };
 }
 

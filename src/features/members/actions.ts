@@ -11,6 +11,7 @@ import {
   signedIn,
   type ActionState,
 } from "@/lib/actions";
+import { adminRoutes } from "@/config/routes";
 import { tags } from "@/lib/cache/tags";
 import { uuid } from "@/lib/validation/common";
 
@@ -38,7 +39,7 @@ export async function grantMembership(
     started_at: new Date().toISOString(),
   });
   if (error) return failed(error);
-  revalidatePath("/admin/members");
+  revalidatePath(adminRoutes.members);
   updateTag(tags.patrons);
   return { ok: true, message: "Complimentary membership granted." };
 }
@@ -55,7 +56,7 @@ export async function revokeMembership(userId: string): Promise<ActionState> {
     .select("user_id");
   if (error) return failed(error);
   if (!data.length) return { ok: false, error: "Only complimentary memberships can be revoked." };
-  revalidatePath("/admin/members");
+  revalidatePath(adminRoutes.members);
   updateTag(tags.patrons);
   return { ok: true, message: "Membership revoked." };
 }

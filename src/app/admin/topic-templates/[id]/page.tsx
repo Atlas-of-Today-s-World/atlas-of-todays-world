@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { Badge } from "@/components/ui/badge";
+import { adminRoutes } from "@/config/routes";
 import { sectionAccess } from "@/features/auth/access";
 import { TemplateForm } from "@/features/entries/components/TopicTileForms";
 import { getTemplate } from "@/features/entries/editorial";
@@ -34,7 +35,10 @@ export default async function TopicTemplatePage({
         lead={
           <span className="flex flex-wrap items-center gap-3">
             {template.is_default ? <Badge tone="accent">Default for new topics</Badge> : null}
-            <Link href="/admin/topic-templates" className="text-[var(--color-link)] underline">
+            <Link
+              href={adminRoutes.topicTemplates.list}
+              className="text-[var(--color-link)] underline"
+            >
               All templates
             </Link>
             {saved ? <span role="status">Template created.</span> : null}

@@ -13,13 +13,14 @@ import {
   signedIn,
   type ActionState,
 } from "@/lib/actions";
+import { adminRoutes } from "@/config/routes";
 import { serverEnv } from "@/lib/env.server";
 import { allowRequest } from "@/lib/security/rate-limit";
 import { createServiceClient } from "@/lib/supabase/service";
 import { uuid } from "@/lib/validation/common";
 import { APPLICATION_STATUSES, ApplicationInput, SettingsInput } from "./schema";
 
-const ADMIN_PAGE = "/admin/volunteers";
+const ADMIN_PAGE = adminRoutes.volunteers;
 
 /**
  * A visitor applies to edit content as a volunteer (/membership). Results are
