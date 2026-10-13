@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { NoAccess } from "@/components/admin/NoAccess";
+import { forbidden, notFound } from "next/navigation";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { can, sectionAccess } from "@/features/auth/access";
 import { getPickerOptions } from "@/features/geography/queries";
@@ -13,7 +12,7 @@ export default async function AreaPage({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const creating = slug === "new";
   const access = await sectionAccess("areas", creating ? "c" : "v");
-  if (!access) return <NoAccess />;
+  if (!access) forbidden();
 
   const [{ countries }, area] = await Promise.all([
     getPickerOptions(),

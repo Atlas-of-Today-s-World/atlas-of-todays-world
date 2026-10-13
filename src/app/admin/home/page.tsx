@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { NoAccess } from "@/components/admin/NoAccess";
+import { forbidden } from "next/navigation";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
@@ -28,7 +28,7 @@ const SHOWN = [
  */
 export default async function HomeAdminPage() {
   const access = await sectionAccess(["news", "site"]);
-  if (!access) return <NoAccess />;
+  if (!access) forbidden();
   const [pins, count, tiles] = await Promise.all([
     listHomePins(),
     getFeaturedCount(),

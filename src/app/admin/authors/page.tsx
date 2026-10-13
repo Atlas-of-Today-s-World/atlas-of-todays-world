@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { NoAccess } from "@/components/admin/NoAccess";
+import { forbidden } from "next/navigation";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
@@ -25,7 +25,7 @@ const DONE = [
  */
 export default async function AuthorsPage() {
   const access = await sectionAccess("news");
-  if (!access) return <NoAccess />;
+  if (!access) forbidden();
   const rows = await listAuthors();
   const canDelete = can(access.permissions, "news", "d");
 

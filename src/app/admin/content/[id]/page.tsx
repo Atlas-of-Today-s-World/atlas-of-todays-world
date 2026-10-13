@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { NoAccess } from "@/components/admin/NoAccess";
+import { forbidden, notFound } from "next/navigation";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { can, sectionAccess } from "@/features/auth/access";
 import { listAuthors } from "@/features/authors/editorial";
@@ -79,7 +78,7 @@ export default async function EditEntryPage({
   searchParams: Promise<{ saved?: string; tab?: string }>;
 }) {
   const access = await sectionAccess("news");
-  if (!access) return <NoAccess />;
+  if (!access) forbidden();
   const { id } = await params;
   if (!uuid.safeParse(id).success) notFound();
 

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { NoAccess } from "@/components/admin/NoAccess";
+import { forbidden, notFound } from "next/navigation";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { buttonVariants } from "@/components/ui/button";
 import { adminRoutes } from "@/config/routes";
@@ -15,7 +14,7 @@ export const metadata: Metadata = { title: "Edit URL redirect" };
 /** Editing one redirect (news "e" or site "e"; RLS decides, the DB refuses loops). */
 export default async function RedirectPage({ params }: { params: Promise<{ id: string }> }) {
   const access = await sectionAccess(["news", "site"], "e");
-  if (!access) return <NoAccess />;
+  if (!access) forbidden();
   const { id } = await params;
   if (!RedirectId.safeParse(id).success) notFound();
   const redirect = await getRedirect(id);

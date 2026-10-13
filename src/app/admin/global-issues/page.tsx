@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { NoAccess } from "@/components/admin/NoAccess";
+import { forbidden } from "next/navigation";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
@@ -17,7 +17,7 @@ export const metadata: Metadata = { title: "Global issues" };
 
 export default async function IssuesPage() {
   const access = await sectionAccess("specials");
-  if (!access) return <NoAccess />;
+  if (!access) forbidden();
   const { issues } = await getAtlas();
   const canDelete = can(access.permissions, "specials", "d");
 

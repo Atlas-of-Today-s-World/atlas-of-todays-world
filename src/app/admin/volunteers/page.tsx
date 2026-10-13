@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { NoAccess } from "@/components/admin/NoAccess";
+import { forbidden } from "next/navigation";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
@@ -26,7 +26,7 @@ const STATUSES = [
  */
 export default async function VolunteersPage() {
   const access = await sectionAccess("users");
-  if (!access) return <NoAccess />;
+  if (!access) forbidden();
   const { notifyEmail, applications } = await volunteersOverview();
   const canEdit = can(access.permissions, "users", "e");
   const canDelete = can(access.permissions, "users", "d");

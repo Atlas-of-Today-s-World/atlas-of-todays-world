@@ -156,7 +156,9 @@ test.describe("menu administrace", () => {
     await signInAs(page, "reader");
     await expect(page.getByTestId("admin-forbidden")).toBeVisible();
     await expect(page.getByRole("navigation", { name: "Administration" })).toHaveCount(0);
-    await page.goto("/admin/data/internet-users");
+    const response = await page.goto("/admin/data/internet-users");
+    expect(response?.status()).toBe(403);
+    expect(response?.headers()["x-robots-tag"]).toBe("noindex, nofollow");
     await expect(page.getByTestId("admin-forbidden")).toBeVisible();
   });
 });
@@ -218,7 +220,8 @@ test.describe("direct URLs without the right", () => {
     }) => {
       await signInAs(page, role);
       for (const path of paths) {
-        await page.goto(path);
+        const response = await page.goto(path);
+        expect(response?.status(), path).toBe(403);
         await forbidden(page);
       }
     });

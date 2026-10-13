@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { NoAccess } from "@/components/admin/NoAccess";
+import { forbidden } from "next/navigation";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
@@ -20,7 +20,7 @@ const PROFILE = [
 ];
 
 export default async function RegionsPage() {
-  if (!(await sectionAccess("regions"))) return <NoAccess />;
+  if (!(await sectionAccess("regions"))) forbidden();
   const [atlas, withText] = await Promise.all([getAtlas(), countriesWithProfileText()]);
 
   return (

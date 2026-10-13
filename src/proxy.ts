@@ -52,6 +52,18 @@ const NONCE_PATHS = [
   routes.checkout,
 ];
 const PROTECTED_PATHS = [routes.admin, "/api/admin", routes.account];
+/**
+ * Never in search results, whatever the page's own metadata says — also for
+ * redirects, 401/403 and error pages, which carry no robots meta tag.
+ */
+const NOINDEX_PATHS = [
+  routes.admin,
+  "/auth",
+  routes.login,
+  routes.account,
+  routes.invitation,
+  ROUTE_PREFIX.preview,
+];
 
 const matches = (pathname: string, prefixes: string[]) =>
   prefixes.some((prefix) => isAtOrUnder(pathname, prefix));
@@ -133,15 +145,21 @@ export async function proxy(request: NextRequest) {
     else forwarded.delete("cookie");
   }
 
+  const noindex = matches(path, NOINDEX_PATHS);
+  const finish = (result: NextResponse, policy?: string) => {
+    if (noindex) result.headers.set("X-Robots-Tag", "noindex, nofollow");
+    return securityHeaders(result, policy);
+  };
+
   if (session && !session.user && matches(path, PROTECTED_PATHS)) {
     if (path.startsWith("/api/")) {
-      return securityHeaders(
+      return finish(
         session.commit(NextResponse.json({ error: "Sign in first." }, { status: 401 })),
       );
     }
     const login = new URL(localized ? localePath(locale, routes.login) : routes.login, request.url);
     login.searchParams.set("next", `${pathname}${search}`);
-    return securityHeaders(session.commit(NextResponse.redirect(login)));
+    return finish(session.commit(NextResponse.redirect(login)));
   }
 
   // English without a prefix → route [locale]=en (the browser URL stays the same).
@@ -152,7 +170,7 @@ export async function proxy(request: NextRequest) {
         })
       : NextResponse.next({ request: { headers: forwarded } });
 
-  return securityHeaders(session ? session.commit(response) : response, csp);
+  return finish(session ? session.commit(response) : response, csp);
 }
 
 export const config = {

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { NoAccess } from "@/components/admin/NoAccess";
+import { forbidden, notFound } from "next/navigation";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
@@ -28,7 +27,7 @@ const ORIGIN = [
 
 export default async function IndicatorPage({ params }: { params: Promise<{ id: string }> }) {
   const access = await sectionAccess("layers");
-  if (!access) return <NoAccess />;
+  if (!access) forbidden();
   const { id } = await params;
   const [data, { countries }] = await Promise.all([indicatorForEdit(id), getPickerOptions()]);
   if (!data) notFound();

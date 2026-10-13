@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { NoAccess } from "@/components/admin/NoAccess";
+import { forbidden } from "next/navigation";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { adminRoutes } from "@/config/routes";
 import { can, sectionAccess } from "@/features/auth/access";
@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: "New topic template" };
 /** A new template starts as a copy of the default one. */
 export default async function NewTopicTemplatePage() {
   const access = await sectionAccess("news");
-  if (!access || !can(access.permissions, "news", "c")) return <NoAccess />;
+  if (!access || !can(access.permissions, "news", "c")) forbidden();
   const base = (await listTemplates()).find((template) => template.is_default);
 
   return (

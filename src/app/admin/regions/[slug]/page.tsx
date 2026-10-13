@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { NoAccess } from "@/components/admin/NoAccess";
+import { forbidden, notFound } from "next/navigation";
 import { ReadOnly } from "@/components/admin/ReadOnly";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { sectionAccess } from "@/features/auth/access";
@@ -17,7 +16,7 @@ export const metadata: Metadata = { title: "Region portrait" };
 
 export default async function RegionEditPage({ params }: { params: Promise<{ slug: string }> }) {
   const access = await sectionAccess("regions");
-  if (!access) return <NoAccess />;
+  if (!access) forbidden();
   const { slug } = await params;
   const region = await regionForEdit(slug);
   if (!region) notFound();

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { NoAccess } from "@/components/admin/NoAccess";
+import { forbidden } from "next/navigation";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
@@ -33,7 +33,7 @@ const SHOWN = [
  */
 export default async function PatronSettingsPage() {
   const access = await getAccess();
-  if (!access || !patronRight(access.permissions, "v")) return <NoAccess />;
+  if (!access || !patronRight(access.permissions, "v")) forbidden();
   const [settings, faq] = await Promise.all([getPatronSettingsRow(), listPatronFaq()]);
   const canEdit = patronRight(access.permissions, "e");
   const canDelete = patronRight(access.permissions, "d");
