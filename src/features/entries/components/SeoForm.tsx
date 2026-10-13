@@ -1,11 +1,10 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { SubmitButton } from "@/components/admin/SubmitButton";
-import { ActionForm } from "@/components/ui/action-form";
+import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { Checkbox, FormField, Input, Textarea, describedBy } from "@/components/ui/field";
-import type { ActionState } from "@/lib/actions";
 import { saveEntrySeo } from "../parts-actions";
 import { GEO_SUMMARY_MAX, SEO_DESCRIPTION_MAX, SEO_TITLE_MAX } from "../constants";
 import type { EditableSeo } from "../editorial";
@@ -38,7 +37,7 @@ export function SeoForm({
   seo: EditableSeo;
   defaults: { title: string; description: string };
 }) {
-  const [state, action] = useActionState<ActionState, FormData>(saveEntrySeo, { ok: false });
+  const [state, action] = useServerAction(saveEntrySeo);
   const errors = state.fieldErrors ?? {};
   const [title, setTitle] = useState(seo.seo_title);
   const [description, setDescription] = useState(seo.seo_description);

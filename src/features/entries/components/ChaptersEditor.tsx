@@ -1,15 +1,14 @@
 "use client";
 
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { SubmitButton } from "@/components/admin/SubmitButton";
-import { ActionForm } from "@/components/ui/action-form";
+import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { Button } from "@/components/ui/button";
 import { ColorField } from "@/components/ui/color-field";
 import { FormField, Input, Textarea } from "@/components/ui/field";
 import { IconAction } from "@/components/admin/IconAction";
-import type { ActionState } from "@/lib/actions";
 import { saveChapters } from "../parts-actions";
 import type { EditableChapter } from "../editorial";
 import { MAX_CHAPTERS } from "../constants";
@@ -51,7 +50,7 @@ export function ChaptersEditor({
   const [chapters, setChapters] = useState<Chapter[]>(() =>
     initial.map((chapter, index) => ({ ...chapter, key: `saved-${index}` })),
   );
-  const [state, action] = useActionState<ActionState, FormData>(saveChapters, { ok: false });
+  const [state, action] = useServerAction(saveChapters);
   const move = (index: number, by: -1 | 1) =>
     setChapters((current) => swap(current, index, index + by));
 

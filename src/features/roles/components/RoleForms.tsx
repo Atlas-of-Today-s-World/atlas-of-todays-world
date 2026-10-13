@@ -1,12 +1,10 @@
 "use client";
 
-import { useActionState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { Checkbox, FormField, Input, Select, Textarea } from "@/components/ui/field";
-import type { ActionState } from "@/lib/actions";
 import { saveRole, saveSecurity } from "../actions";
-import { ActionForm } from "@/components/ui/action-form";
+import { ActionForm, useServerAction } from "@/components/ui/action-form";
 
 export interface RoleValues {
   id: string;
@@ -18,7 +16,7 @@ export interface RoleValues {
 }
 
 export function RoleForm({ role }: { role: RoleValues | null }) {
-  const [state, action] = useActionState<ActionState, FormData>(saveRole, { ok: false });
+  const [state, action] = useServerAction(saveRole);
   const errors = state.fieldErrors ?? {};
   const prefix = role ? `role-${role.id}` : "role-new";
   return (
@@ -102,7 +100,7 @@ export function SecurityForm({
   };
   roles: { id: string; name: string }[];
 }) {
-  const [state, action] = useActionState<ActionState, FormData>(saveSecurity, { ok: false });
+  const [state, action] = useServerAction(saveSecurity);
   const errors = state.fieldErrors ?? {};
   return (
     <ActionForm action={action} className="grid max-w-2xl gap-4">

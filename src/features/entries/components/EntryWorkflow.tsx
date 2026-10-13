@@ -10,6 +10,7 @@ import { SubmitButton } from "@/components/admin/SubmitButton";
 import { FormField, Input, Textarea } from "@/components/ui/field";
 import { adminRoutes } from "@/config/routes";
 import type { ActionState } from "@/lib/actions";
+import { formatDateTime } from "@/lib/format";
 import { deleteEntry, restoreRevision } from "../actions";
 import {
   approveEntry,
@@ -22,8 +23,6 @@ import {
 import type { Revision } from "../revisions";
 import type { EntryStatus } from "../schema";
 import { ActionForm } from "@/components/ui/action-form";
-
-const dateFormat = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" });
 
 /**
  * Article status and approval steps. Buttons are shown per permissions, but
@@ -118,7 +117,7 @@ export function EntryWorkflow({
             <span className="font-medium">
               Scheduled for {/* The server formats in UTC, the browser in local time. */}
               <time dateTime={publishAt} suppressHydrationWarning>
-                {dateFormat.format(new Date(publishAt))}
+                {formatDateTime(publishAt)}
               </time>
               .
             </span>{" "}

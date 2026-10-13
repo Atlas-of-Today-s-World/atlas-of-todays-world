@@ -1,6 +1,5 @@
 "use client";
 
-import { useActionState } from "react";
 import { CONTENT_STATUS_LABEL, GROUP_KIND_LABEL, GROUP_KIND_OPTION } from "../constants";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { CountryPicker, type CountryOption } from "@/components/admin/CountryPicker";
@@ -8,18 +7,13 @@ import { SubmitButton } from "@/components/admin/SubmitButton";
 import { Checkbox, FormField, Input, Select, Textarea } from "@/components/ui/field";
 import { UploadField } from "@/components/admin/UploadField";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
-import type { ActionState } from "@/lib/actions";
 import { SlugField, useSlug } from "@/components/admin/SlugField";
 import { saveCountry, saveIssue, saveRegion } from "../actions";
 import { CONTENT_STATUSES, type ContentStatus } from "@/features/geography/content-status";
-import { ActionForm } from "@/components/ui/action-form";
+import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { routes } from "@/config/routes";
 
 type Errors = Record<string, string[] | undefined>;
-
-function useSave(action: (prev: ActionState, data: FormData) => Promise<ActionState>) {
-  return useActionState<ActionState, FormData>(action, { ok: false });
-}
 
 /** Fill and outline colour of the unit on the globe. */
 function ColorFields({ fill, stroke, errors }: { fill: string; stroke: string; errors: Errors }) {
@@ -156,7 +150,7 @@ export function RegionForm({
     content_status: string;
   };
 }) {
-  const [state, action] = useSave(saveRegion);
+  const [state, action] = useServerAction(saveRegion);
   const errors = state.fieldErrors ?? {};
   return (
     <ActionForm action={action} className="grid max-w-3xl gap-5">
@@ -210,7 +204,7 @@ export function IssueForm({
   /** Type of the new group (button „New custom region" / „New global issue"). */
   defaultKind?: "issue" | "region";
 }) {
-  const [state, action] = useSave(saveIssue);
+  const [state, action] = useServerAction(saveIssue);
   const slug = useSlug(issue?.slug);
   const errors = state.fieldErrors ?? {};
   const values: IssueValues = issue ?? {
@@ -359,7 +353,7 @@ export function CountryForm({
   regions: { slug: string; name: string }[];
   indicators: { id: string; label: string }[];
 }) {
-  const [state, action] = useSave(saveCountry);
+  const [state, action] = useServerAction(saveCountry);
   const errors = state.fieldErrors ?? {};
   return (
     <ActionForm action={action} className="grid max-w-3xl gap-5">

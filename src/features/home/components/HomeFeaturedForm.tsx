@@ -1,11 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { SubmitButton } from "@/components/admin/SubmitButton";
-import { ActionForm } from "@/components/ui/action-form";
+import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { FormField, Select } from "@/components/ui/field";
-import type { ActionState } from "@/lib/actions";
 import { saveHomeFeatured } from "../actions";
 
 export interface SubtopicOption {
@@ -26,7 +24,7 @@ export function HomeFeaturedForm({
   second: string | null;
   canEdit: boolean;
 }) {
-  const [state, action] = useActionState<ActionState, FormData>(saveHomeFeatured, { ok: false });
+  const [state, action] = useServerAction(saveHomeFeatured);
   const errors = state.fieldErrors ?? {};
   const topics = [...new Set(options.map((option) => option.topicTitle))];
   const select = (name: "first_chapter" | "second_chapter", value: string | null) => (

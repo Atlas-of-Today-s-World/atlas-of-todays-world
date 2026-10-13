@@ -2,12 +2,11 @@
 
 import Link from "@/components/i18n/Link";
 import { routes } from "@/config/routes";
-import { useActionState, useId } from "react";
-import { ActionForm } from "@/components/ui/action-form";
+import { useId } from "react";
+import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { describedBy } from "@/components/ui/field";
 import { subscribe } from "@/features/newsletter/actions";
 import { NEWSLETTER_INTERESTS } from "@/features/newsletter/schema";
-import type { ActionState } from "@/lib/actions";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { useFormErrors } from "@/lib/use-form-errors";
 
@@ -20,9 +19,7 @@ import { useFormErrors } from "@/lib/use-form-errors";
 export default function NewsletterForm() {
   const t = useMessages();
   const id = useId();
-  const [state, action, pending] = useActionState<ActionState, FormData>(subscribe, {
-    ok: false,
-  });
+  const [state, action, pending] = useServerAction(subscribe);
   const texts: Record<string, string> = t.newsletterForm.messages;
   // Unknown code (e.g. a generic validation error) → "the address doesn't look right".
   const text = (code: string) => texts[code] ?? texts.invalidEmail;

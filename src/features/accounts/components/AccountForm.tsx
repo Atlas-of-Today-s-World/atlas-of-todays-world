@@ -1,13 +1,12 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { CountryPicker, type CountryOption } from "@/components/admin/CountryPicker";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { Checkbox, FormField, Select, Textarea } from "@/components/ui/field";
-import type { ActionState } from "@/lib/actions";
 import { saveAccount } from "../actions";
-import { ActionForm } from "@/components/ui/action-form";
+import { ActionForm, useServerAction } from "@/components/ui/action-form";
 
 interface Role {
   id: string;
@@ -40,7 +39,7 @@ export function AccountForm({
   isAdmin: boolean;
   isSelf: boolean;
 }) {
-  const [state, action] = useActionState<ActionState, FormData>(saveAccount, { ok: false });
+  const [state, action] = useServerAction(saveAccount);
   const [roleId, setRoleId] = useState(account.role_id);
   const [status, setStatus] = useState(account.status === "blocked" ? "blocked" : "active");
   const errors = state.fieldErrors ?? {};

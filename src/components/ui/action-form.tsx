@@ -1,11 +1,32 @@
 "use client";
 
-import { createContext, useContext, useTransition, type FormHTMLAttributes, type Ref } from "react";
+import {
+  createContext,
+  useActionState,
+  useContext,
+  useTransition,
+  type FormHTMLAttributes,
+  type Ref,
+} from "react";
+import type { ActionState } from "@/lib/actions";
 
 const Pending = createContext(false);
 
 /** Is the nearest <ActionForm> submitting? (for SubmitButton) */
 export const useActionPending = () => useContext(Pending);
+
+const IDLE: ActionState = { ok: false };
+
+/**
+ * `useActionState` for a form Server Action (`formAction` in lib/actions):
+ * `[state, action, pending]`, starting from "nothing submitted yet". Pass
+ * `action` to <ActionForm>, show `state` with <ActionStatus> / field errors.
+ */
+export function useServerAction(
+  serverAction: (prev: ActionState, formData: FormData) => Promise<ActionState>,
+) {
+  return useActionState<ActionState, FormData>(serverAction, IDLE);
+}
 
 /**
  * Form for a Server Action via `useActionState` (ARCHITEKTURA 15.1).

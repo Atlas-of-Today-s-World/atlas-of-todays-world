@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FormField, Input } from "@/components/ui/field";
+import { isoDay } from "@/lib/format";
 import { createBrowserClient } from "@/lib/supabase/browser";
 
 /**
@@ -34,7 +35,7 @@ export function MfaGate({ hasFactor }: { hasFactor: boolean }) {
       }
       const { data, error: enrollError } = await supabase.auth.mfa.enroll({
         factorType: "totp",
-        friendlyName: `Atlas ${new Date().toISOString().slice(0, 10)}`,
+        friendlyName: `Atlas ${isoDay()}`,
       });
       if (enrollError) return setError("Couldn't start authenticator app enrollment.");
       setFactorId(data.id);

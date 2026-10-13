@@ -1,16 +1,14 @@
 "use client";
 
-import { useActionState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { FormField, Select } from "@/components/ui/field";
-import type { ActionState } from "@/lib/actions";
 import { grantMembership } from "../actions";
 import { PLAN_LABEL } from "../labels";
-import { ActionForm } from "@/components/ui/action-form";
+import { ActionForm, useServerAction } from "@/components/ui/action-form";
 
 export function GrantForm({ accounts }: { accounts: { id: string; label: string }[] }) {
-  const [state, action] = useActionState<ActionState, FormData>(grantMembership, { ok: false });
+  const [state, action] = useServerAction(grantMembership);
   const errors = state.fieldErrors ?? {};
   return (
     <ActionForm

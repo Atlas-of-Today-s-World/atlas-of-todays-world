@@ -1,21 +1,19 @@
 "use client";
 
-import { useActionState } from "react";
 import { useRouter } from "next/navigation";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { SubmitButton } from "@/components/admin/SubmitButton";
-import { ActionForm } from "@/components/ui/action-form";
+import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { FormField, Input, Textarea, describedBy } from "@/components/ui/field";
 import { UploadField } from "@/components/admin/UploadField";
 import { adminRoutes } from "@/config/routes";
-import type { ActionState } from "@/lib/actions";
 import { deleteAuthor, saveAuthor } from "../actions";
 import type { AuthorRow } from "../editorial";
 
 /** Entry author profile: name, photo, bio and positionality statement (P9). */
 export function AuthorForm({ author }: { author: AuthorRow | null }) {
-  const [state, action] = useActionState<ActionState, FormData>(saveAuthor, { ok: false });
+  const [state, action] = useServerAction(saveAuthor);
   const errors = state.fieldErrors ?? {};
   const field = (id: string, hint?: string) => describedBy(id, { hint, errors: errors[id] });
 

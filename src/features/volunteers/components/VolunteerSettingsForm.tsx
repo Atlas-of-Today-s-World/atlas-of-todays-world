@@ -1,11 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { SubmitButton } from "@/components/admin/SubmitButton";
-import { ActionForm } from "@/components/ui/action-form";
+import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { FormField, Input } from "@/components/ui/field";
-import type { ActionState } from "@/lib/actions";
 import { saveVolunteerSettings } from "../actions";
 
 /** The address new volunteer applications will be e-mailed to. */
@@ -16,9 +14,7 @@ export function VolunteerSettingsForm({
   email: string | null;
   canEdit: boolean;
 }) {
-  const [state, action] = useActionState<ActionState, FormData>(saveVolunteerSettings, {
-    ok: false,
-  });
+  const [state, action] = useServerAction(saveVolunteerSettings);
   const errors = state.fieldErrors ?? {};
   return (
     <ActionForm

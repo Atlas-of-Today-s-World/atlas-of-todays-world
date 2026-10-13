@@ -1,16 +1,14 @@
 "use client";
 
-import { useActionState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { SubmitButton } from "@/components/admin/SubmitButton";
-import { ActionForm } from "@/components/ui/action-form";
+import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { Checkbox, FormField, Input } from "@/components/ui/field";
-import type { ActionState } from "@/lib/actions";
 import { addRedirect } from "../actions";
 
 /** New redirect from an old path to a new one (both on this site). */
 export function RedirectForm() {
-  const [state, action] = useActionState<ActionState, FormData>(addRedirect, { ok: false });
+  const [state, action] = useServerAction(addRedirect);
   const errors = state.fieldErrors ?? {};
   return (
     <ActionForm

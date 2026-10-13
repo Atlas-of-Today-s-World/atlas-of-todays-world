@@ -1,13 +1,12 @@
 "use client";
 
-import { useActionState, useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import Link from "@/components/i18n/Link";
 import { routes } from "@/config/routes";
 import { useMessages } from "@/components/i18n/LocaleProvider";
-import { ActionForm } from "@/components/ui/action-form";
+import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { buttonVariants } from "@/components/ui/button";
 import { describedBy, FormField, Input, RequiredNote, Textarea } from "@/components/ui/field";
-import type { ActionState } from "@/lib/actions";
 import { useFormErrors } from "@/lib/use-form-errors";
 import { applyAsVolunteer } from "../actions";
 import { topicPrefill } from "../prefill";
@@ -23,9 +22,7 @@ export function VolunteerForm() {
   const messages = useMessages();
   const t = messages.patrons.volunteer;
   const id = useId();
-  const [state, action, pending] = useActionState<ActionState, FormData>(applyAsVolunteer, {
-    ok: false,
-  });
+  const [state, action, pending] = useServerAction(applyAsVolunteer);
   const texts: Record<string, string> = t.messages;
   const text = (code: string) => texts[code] ?? texts.failed;
   const { form, hasFieldErrors, errorsOf } = useFormErrors(state, text);
