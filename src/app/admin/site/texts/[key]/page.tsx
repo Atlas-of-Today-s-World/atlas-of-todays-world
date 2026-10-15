@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { NoAccess } from "@/components/admin/NoAccess";
+import { forbidden, notFound } from "next/navigation";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { navIcon } from "@/config/admin-nav";
 import { adminRoutes } from "@/config/routes";
@@ -25,7 +24,7 @@ function keyFrom(raw: string): string {
 /** Editing one UI text (section `site`: "c" for a first change, "e" after, "d" to reset). */
 export default async function UiTextPage({ params }: { params: Promise<{ key: string }> }) {
   const access = await sectionAccess("site");
-  if (!access) return <NoAccess />;
+  if (!access) forbidden();
   const text = editableText(keyFrom((await params).key));
   if (!text) notFound();
   const override = await getUiTextOverride(text.key);

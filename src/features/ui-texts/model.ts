@@ -1,5 +1,6 @@
-import en from "@/messages/en.json";
+import { LEGAL_NAV, MAIN_NAV } from "@/config/navigation";
 import type { MessageOverrides } from "@/features/i18n/messages";
+import en from "@/messages/en.json";
 
 /**
  * Public UI texts the team can change in the admin (Admin → UI texts, table
@@ -24,6 +25,15 @@ export const MAX_TEXT_LENGTH = 2000;
  * emits by code, stays as reviewed in the repository); they are not content.
  */
 const LOCKED_NAMESPACES: ReadonlySet<string> = new Set(["auth", "account", "invite"]);
+
+/**
+ * Texts edited elsewhere in the admin: the menu labels live in Admin → Site
+ * menus (nav_items); en.json holds only their fallback, so changing it here
+ * would not show. (The "Sign in" link is not a menu item and stays editable.)
+ */
+const MANAGED_ELSEWHERE: ReadonlySet<string> = new Set(
+  [...MAIN_NAV, ...LEGAL_NAV].map((item) => `nav.${item.key}`),
+);
 
 export interface UiText {
   /** Dot path in en.json. */
@@ -54,7 +64,9 @@ const ALL_TEXTS: readonly UiText[] = flatten(en, "", []);
  * plain text under the no-HTML rule, so they stay in the code.
  */
 const editable = (text: UiText) =>
-  !LOCKED_NAMESPACES.has(text.namespace) && !text.defaultText.includes("<");
+  !LOCKED_NAMESPACES.has(text.namespace) &&
+  !MANAGED_ELSEWHERE.has(text.key) &&
+  !text.defaultText.includes("<");
 
 /** The editable texts, in en.json order (the admin's list). */
 export const EDITABLE_TEXTS: readonly UiText[] = ALL_TEXTS.filter(editable);

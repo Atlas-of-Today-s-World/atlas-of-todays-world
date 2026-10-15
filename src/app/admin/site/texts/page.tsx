@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { NoAccess } from "@/components/admin/NoAccess";
+import { forbidden } from "next/navigation";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
@@ -31,7 +31,7 @@ const STATUS = [
  */
 export default async function UiTextsPage() {
   const access = await sectionAccess("site");
-  if (!access) return <NoAccess />;
+  if (!access) forbidden();
   const overrides = await listUiTextOverrides();
   const canWrite = can(access.permissions, "site", "c") || can(access.permissions, "site", "e");
   const canReset = can(access.permissions, "site", "d");

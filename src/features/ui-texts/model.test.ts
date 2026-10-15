@@ -55,6 +55,7 @@ describe("editable texts (the allowlist)", () => {
     expect(keys).toContain("categories.Living Conditions");
     expect(new Set(keys).size).toBe(keys.length);
     expect(editableText("home.title")?.defaultText).toBe(en.home.title);
+    expect(editableText("nav.signIn")?.defaultText).toBe(en.nav.signIn);
   });
 
   it("keeps sign-in, the account, the invitation and markup-like defaults in the code", () => {
@@ -64,6 +65,9 @@ describe("editable texts (the allowlist)", () => {
       "account.delete",
       "invite.heading",
       "seo.llmsCite",
+      // Menu labels: edited in Admin → Site menus, en.json is only their fallback.
+      "nav.topics",
+      "nav.privacy",
     ]) {
       expect(editableText(key), key).toBeUndefined();
     }
