@@ -95,6 +95,7 @@ export function TimelineEditor({
             label="Heading"
             hint="Empty = “How the present came about”."
             errors={errors.timeline_title}
+            className="content-start"
           >
             <Input
               id={`timeline-${kind}-heading`}
@@ -108,6 +109,7 @@ export function TimelineEditor({
             id={`timeline-${kind}-subheading`}
             label="Subheading"
             errors={errors.timeline_subtitle}
+            className="content-start"
           >
             <Input
               id={`timeline-${kind}-subheading`}
