@@ -3,7 +3,7 @@ import { kickerVariants } from "@/components/atlas/kicker";
 import { ShareButton } from "@/components/atlas/ShareButton";
 import Link from "@/components/i18n/Link";
 import { TopicsLink } from "@/components/topics/RelatedTopics";
-import type { EntrySummary } from "@/features/entries/queries";
+import type { EntrySummary } from "@/features/entries/types";
 import type { Country, CountryProfile, CountryStat } from "@/features/geography/types";
 import { getRequestLocale, getT } from "@/features/i18n/request";
 import { formatPopulation } from "@/lib/format";

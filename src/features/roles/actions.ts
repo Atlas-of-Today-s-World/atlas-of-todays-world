@@ -12,8 +12,8 @@ import {
   invalid,
   NOT_SIGNED_IN,
   signedIn,
-  type ActionState,
 } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 import { slug } from "@/lib/validation/common";
 import { MatrixInput, RoleInput, SecurityInput } from "./schema";
 

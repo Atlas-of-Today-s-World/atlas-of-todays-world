@@ -7,7 +7,7 @@ import { ActionStatus } from "@/components/admin/ActionStatus";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { Button } from "@/components/ui/button";
 import { Checkbox, FormField, Input, Select, Textarea } from "@/components/ui/field";
-import type { ActionState } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 import { saveCategories, saveIndicator, setValue } from "../actions";
 import {
   INDICATOR_SCALE_LABEL,

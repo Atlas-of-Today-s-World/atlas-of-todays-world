@@ -2,7 +2,8 @@
 
 import "server-only";
 import { revalidatePath } from "next/cache";
-import { affected, failed, formAction, idAction, type ActionState } from "@/lib/actions";
+import { affected, failed, formAction, idAction } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 import { adminRoutes } from "@/config/routes";
 import { getFlags } from "@/features/flags/queries";
 import { serverEnv } from "@/lib/env.server";

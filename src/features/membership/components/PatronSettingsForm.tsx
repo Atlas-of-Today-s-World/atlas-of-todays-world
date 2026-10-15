@@ -5,7 +5,7 @@ import { ActionStatus } from "@/components/admin/ActionStatus";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { ActionForm } from "@/components/ui/action-form";
 import { Checkbox, FormField, Input, Select, describedBy } from "@/components/ui/field";
-import type { ActionState } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 import { savePatronSettings } from "../admin-actions";
 import { PATRON_LIMITS } from "../config";
 import type { PatronSettingsRow } from "../settings";

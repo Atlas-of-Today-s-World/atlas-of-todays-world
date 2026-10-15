@@ -3,12 +3,11 @@ import { DEFAULT_LOCALE } from "@/features/i18n/config";
 import { must } from "@/lib/db/result";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { createPublicClient } from "@/lib/supabase/public";
-import type { Entry } from "./queries";
+import type { Encyclopedia, Entry } from "./types";
 import { toSummary } from "./rows";
 import {
   type AuthorRow,
   type ChapterRow,
-  type Encyclopedia,
   type NoteRow,
   type ResourceRow,
   type TileRow,

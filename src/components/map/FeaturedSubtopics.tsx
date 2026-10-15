@@ -5,7 +5,7 @@ import { kickerVariants } from "@/components/atlas/kicker";
 import { PhotoTile } from "@/components/atlas/PhotoTile";
 import { Rail } from "@/components/atlas/Rail";
 import { useMessages } from "@/components/i18n/LocaleProvider";
-import type { SubtopicTile } from "@/features/topics/featured";
+import type { SubtopicTile } from "@/features/topics/types";
 import { cn } from "@/lib/cn";
 import { PHOTO_WIDTH } from "@/lib/images";
 import { routes } from "@/config/routes";

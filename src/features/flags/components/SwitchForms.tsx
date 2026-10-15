@@ -5,7 +5,7 @@ import { SubmitButton } from "@/components/admin/SubmitButton";
 import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { FormField, Input, Textarea, describedBy } from "@/components/ui/field";
 import { saveFlagNote, saveMaintenanceMessage } from "../actions";
-import type { FlagRow, MaintenanceMessage } from "../editorial";
+import type { FlagRow, MaintenanceMessage } from "@/features/flags/types";
 import { MAINTENANCE_LIMITS, type MaintenanceNotice } from "../maintenance";
 
 /**

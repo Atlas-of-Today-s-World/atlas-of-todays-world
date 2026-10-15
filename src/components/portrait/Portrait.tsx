@@ -2,7 +2,7 @@ import { ShareButton } from "@/components/atlas/ShareButton";
 import Link from "@/components/i18n/Link";
 import { buttonVariants } from "@/components/ui/button";
 import { RelatedTopics, TopicsLink } from "@/components/topics/RelatedTopics";
-import type { EntrySummary } from "@/features/entries/queries";
+import type { EntrySummary } from "@/features/entries/types";
 import { NewsBadge, PhotoCredit, SectionLabel } from "@/components/atlas/ui";
 import {
   categoryLabel,

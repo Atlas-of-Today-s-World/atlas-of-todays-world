@@ -30,7 +30,7 @@ import { ActionForm } from "@/components/ui/action-form";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { FormField, Textarea } from "@/components/ui/field";
-import type { ActionState } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 import type { RowAction, RowActionIcon } from "./row-actions";
 
 /** Icons by name, so a Server Component can describe actions as plain data. */

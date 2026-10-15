@@ -8,7 +8,7 @@ import { getT } from "@/features/i18n/request";
 import { PHOTO_WIDTH, photoSrcSet, photoUrl } from "@/lib/images";
 import { categoryLabel } from "@/lib/content-types";
 import { safeUrl } from "@/lib/security/urls";
-import type { EntrySummary } from "@/features/entries/queries";
+import type { EntrySummary } from "@/features/entries/types";
 import { routes } from "@/config/routes";
 
 /**

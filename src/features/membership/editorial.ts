@@ -4,6 +4,7 @@ import { must } from "@/lib/db/result";
 import { createServerClient } from "@/lib/supabase/server";
 import { FALLBACK_PATRON_SETTINGS } from "./config";
 import { PATRON_SETTINGS_COLUMNS, rowFromSettings, type PatronSettingsRow } from "./settings";
+import type { PatronFaqRow } from "./types";
 
 /**
  * Atlas Patrons — admin reads (layer: features/<domain>/editorial.ts), under
@@ -30,15 +31,6 @@ export async function getPatronSettingsRow(): Promise<PatronSettingsRow> {
     "patron_settings",
   );
   return data ?? rowFromSettings(FALLBACK_PATRON_SETTINGS);
-}
-
-export interface PatronFaqRow {
-  id: string;
-  question: string;
-  answer_html: string;
-  sort: number;
-  visible: boolean;
-  updated_at: string;
 }
 
 const FAQ_COLUMNS = "id, question, answer_html, sort, visible, updated_at";

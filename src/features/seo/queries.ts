@@ -1,13 +1,8 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { getAuthors } from "@/features/authors/queries";
-import {
-  getEncyclopediaEntries,
-  getEntries,
-  getEntry,
-  type Entry,
-  type EntrySummary,
-} from "@/features/entries/queries";
+import { getEncyclopediaEntries, getEntries, getEntry } from "@/features/entries/queries";
+import type { Entry, EntrySummary } from "@/features/entries/types";
 import { getEncyclopediaEntry } from "@/features/entries/topic-queries";
 import { getAtlas, getIndicators } from "@/features/geography/queries";
 import type { Atlas, IndicatorData } from "@/features/geography/types";

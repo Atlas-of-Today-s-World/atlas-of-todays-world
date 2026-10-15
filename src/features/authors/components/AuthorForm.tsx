@@ -10,7 +10,7 @@ import { FormField, Input, Select, Textarea, describedBy } from "@/components/ui
 import { UploadField } from "@/components/admin/UploadField";
 import { adminRoutes, routes } from "@/config/routes";
 import { deleteAuthor, saveAuthor, saveAuthorAccount } from "../actions";
-import type { AuthorRow } from "../editorial";
+import type { AuthorRow } from "@/features/authors/types";
 
 /** Entry author profile: name, photo, bio and positionality statement (P9). */
 export function AuthorForm({ author }: { author: AuthorRow | null }) {

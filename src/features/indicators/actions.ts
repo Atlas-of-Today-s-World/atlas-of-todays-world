@@ -11,9 +11,9 @@ import {
   invalid,
   NOT_SIGNED_IN,
   signedIn,
-  type ActionState,
   type Session,
 } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 import { adminRoutes } from "@/config/routes";
 import { tags } from "@/lib/cache/tags";
 import { iso3, slug } from "@/lib/validation/common";

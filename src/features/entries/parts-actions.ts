@@ -11,8 +11,8 @@ import {
   listItemError,
   NOT_SIGNED_IN,
   signedIn,
-  type ActionState,
 } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 import { adminRoutes } from "@/config/routes";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { previewNote, storePreviewImages } from "@/lib/previews/store";

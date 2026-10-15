@@ -5,7 +5,7 @@ import { useState, useTransition } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { Button } from "@/components/ui/button";
 import { FormField, Input, Select } from "@/components/ui/field";
-import type { ActionState } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 import { createPreviewLink } from "../workflow-actions";
 import { PREVIEW_HOURS } from "../constants";
 

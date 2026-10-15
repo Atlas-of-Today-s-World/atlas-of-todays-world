@@ -3,86 +3,19 @@ import { unstable_cache } from "next/cache";
 import { PUBLIC_AUTHOR_COLUMNS } from "@/features/authors/queries";
 import { DEFAULT_LOCALE, type Locale } from "@/features/i18n/config";
 import { entryPageTags, PUBLIC_REVALIDATE_SECONDS } from "@/lib/cache/tags";
-import type { FaqItem, ResourceItem } from "@/lib/content-types";
+import type { ResourceItem } from "@/lib/content-types";
 import { must } from "@/lib/db/result";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { createPublicClient } from "@/lib/supabase/public";
-import { toTileIcon, type TileIcon } from "./constants";
-import type { Entry } from "./queries";
+import { toTileIcon } from "./constants";
 import { BASE_COLUMNS, pickVersion, type Row, TILE_COLUMNS, toSummary } from "./rows";
+import type { Encyclopedia, Entry, LearnMoreTile } from "./types";
 
 /**
  * Encyclopedia entries (P9): the public topic page with its chapters, author,
  * "Learn more" tiles, FAQ and SEO. `toEncyclopedia` is shared with the preview
  * by link (`preview-queries.ts`).
  */
-
-export interface EntryChapter {
-  title: string;
-  /** 3–5 bullet points that open the chapter. */
-  summaryPoints: string[];
-  /** Sanitized HTML of the whole chapter. */
-  html: string;
-  illustration?: string;
-  illustrationCredit?: string;
-  /** Tile colour when there is no photo. */
-  tileBackground?: string;
-  /** Day the subtopic last changed (ISO date). */
-  updated?: string;
-  /** Audio version of the chapter — the player shows only when it exists. */
-  audio?: string;
-}
-
-export interface EntryAuthor {
-  name: string;
-  /** Public profile page /authors/<slug> (missing in previews). */
-  slug?: string;
-  photo?: string;
-  bio: string;
-  positionality: string;
-}
-
-/** A "Learn more" tile of a dossier with what it holds in this dossier. */
-export interface LearnMoreTile {
-  id: string;
-  slug: string;
-  label: string;
-  description: string;
-  icon: TileIcon;
-  image?: string;
-  imageCredit?: string;
-  /** Tile colour when there is no photo. */
-  background?: string;
-  resources: ResourceItem[];
-  /** Sanitized rich text of the tile in this dossier (e.g. hand-written notes). */
-  notesHtml: string;
-}
-
-/** SEO & GEO overrides; empty fields fall back to defaults derived from the article. */
-interface EntrySeo {
-  title?: string;
-  description?: string;
-  image?: string;
-  keywords: string[];
-  /** Self-contained answer for generative engines, shown as "In short". */
-  geoSummary?: string;
-  noindex: boolean;
-}
-
-export interface Encyclopedia extends Entry {
-  summaryPoints: string[];
-  authorProfile?: EntryAuthor;
-  chapters: EntryChapter[];
-  resources: ResourceItem[];
-  /** The topic's own resource tiles, each with its content. */
-  tiles: LearnMoreTile[];
-  /** Headings of the two halves; missing = the default texts. */
-  labels: { articles?: string; learnMore?: string };
-  /** Header colour when there is no photo. */
-  heroBackground?: string;
-  faq: FaqItem[];
-  seo: EntrySeo;
-}
 
 export interface AuthorRow {
   slug?: string;

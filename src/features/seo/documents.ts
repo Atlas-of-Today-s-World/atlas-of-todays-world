@@ -1,5 +1,4 @@
-import type { Entry } from "@/features/entries/queries";
-import type { Encyclopedia } from "@/features/entries/topic-queries";
+import type { Encyclopedia, Entry } from "@/features/entries/types";
 import type { Atlas } from "@/features/geography/types";
 import { localePath } from "@/features/i18n/config";
 import type { Messages } from "@/features/i18n/messages";

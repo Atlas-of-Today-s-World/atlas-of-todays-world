@@ -18,7 +18,7 @@ import type {
   EntryAuthor,
   EntryChapter as Chapter,
   LearnMoreTile,
-} from "@/features/entries/topic-queries";
+} from "@/features/entries/types";
 import { META_LINE, PlaceLinks } from "./ArticleFrame";
 import { DossierExplorer } from "./DossierExplorer";
 import { OpenOnHash } from "./OpenOnHash";

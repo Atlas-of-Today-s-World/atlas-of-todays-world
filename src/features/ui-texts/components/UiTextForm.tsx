@@ -6,7 +6,7 @@ import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { describedBy, FormField, Textarea } from "@/components/ui/field";
-import type { ActionState } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 import { cn } from "@/lib/cn";
 import { MAX_TEXT_LENGTH, placeholders } from "../model";
 

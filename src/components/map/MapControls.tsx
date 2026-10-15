@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import EncyclopediaDock from "@/components/EncyclopediaDock";
 import { MAP_CONTROLS_LEFT, RAIL_OFFSET, isFullPage, isHome, railKind } from "@/config/layout";
 import { cn } from "@/lib/cn";
-import type { SubtopicTile } from "@/features/topics/featured";
+import type { SubtopicTile } from "@/features/topics/types";
 import { FeaturedSubtopics } from "./FeaturedSubtopics";
 import { IssueMenu, type IssueMenuItem } from "./IssueMenu";
 import { useMapState } from "./MapContext";

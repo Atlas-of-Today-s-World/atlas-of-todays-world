@@ -16,7 +16,7 @@ import {
 } from "@/lib/content-types";
 import { SlugField, useSlug } from "@/components/admin/SlugField";
 import { saveEntry } from "../actions";
-import type { EditableEntry } from "../editorial";
+import type { EditableEntry } from "@/features/entries/types";
 import { UploadField } from "@/components/admin/UploadField";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { useDraftBackup } from "./useDraftBackup";

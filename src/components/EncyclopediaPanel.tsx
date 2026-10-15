@@ -14,7 +14,7 @@ import { glassVariants } from "@/components/atlas/glass";
 import Link from "@/components/i18n/Link";
 import { searchKindKey } from "@/lib/search-kind";
 import { useLocalizedRouter } from "@/components/i18n/useLocalizedRouter";
-import type { SearchHit } from "@/lib/search";
+import type { SearchHit } from "@/features/search/types";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { format } from "@/features/i18n/messages";
 import { belongsToField } from "@/lib/keyboard";

@@ -6,7 +6,7 @@ import { ActionStatus } from "@/components/admin/ActionStatus";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { Button } from "@/components/ui/button";
 import { FormField, Input, Select, Textarea } from "@/components/ui/field";
-import type { ActionState } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 import { cn } from "@/lib/cn";
 import { ActionForm } from "@/components/ui/action-form";
 import { swap } from "@/lib/array";

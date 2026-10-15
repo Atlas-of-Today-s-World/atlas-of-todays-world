@@ -3,7 +3,8 @@
 import "server-only";
 import { revalidatePath, updateTag } from "next/cache";
 import { adminRoutes } from "@/config/routes";
-import { affected, failed, formAction, idAction, type ActionState } from "@/lib/actions";
+import { affected, failed, formAction, idAction } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 import { tags } from "@/lib/cache/tags";
 import { getSubtopicTiles } from "@/features/topics/featured";
 import { HomeSettingsInput, PinInput } from "./schema";
