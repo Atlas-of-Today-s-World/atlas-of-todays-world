@@ -4,7 +4,7 @@ import { adminRoutes } from "@/config/routes";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "./DataTable";
 import { RowActions } from "./RowActions";
-import { deleteAction, moveActions } from "./row-actions";
+import { deleteAction, moveActions, visibilityAction } from "./row-actions";
 import type { ColumnDef, DataTableRow } from "./types";
 
 type Key = "title" | "status" | "tags" | "author" | "words" | "updated";
@@ -135,7 +135,7 @@ export const Reorderable: Story = {
     tableKey: "storybook-reorder",
     stats: undefined,
     selectable: false,
-    actionsWidth: "104px",
+    actionsWidth: "136px",
     rows: rows.slice(0, 5).map((row, index, list) => ({
       ...row,
       actions: (
@@ -143,6 +143,7 @@ export const Reorderable: Story = {
           actions={[
             { kind: "link", icon: "edit", label: "Edit", href: row.href ?? "/" },
             ...moveActions(noop, noop, { first: index === 0, last: index === list.length - 1 }),
+            visibilityAction(noop, index !== 2, "this entry"),
             deleteAction(noop, "this entry"),
           ]}
         />

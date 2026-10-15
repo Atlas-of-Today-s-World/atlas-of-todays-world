@@ -128,6 +128,8 @@ export const adminRoutes = {
   siteSettings: `${ADMIN}/site`,
   /** A social link by id (new ones are added on the site settings page). */
   socialLink: (id: string) => `${ADMIN}/site/socials/${id}`,
+  /** The main menu and the legal links; an item by id (new ones are added on the list). */
+  siteNavigation: records(`${ADMIN}/site/navigation`),
   /** Regions by slug; their countries are under `country(slug)`. */
   regions: records(`${ADMIN}/regions`),
   country: (slug: string) => `${ADMIN}/regions/countries/${slug}`,

@@ -19,7 +19,7 @@ export default async function NotFound() {
   const t = getT();
   const flags = await getFlags();
   return (
-    <PagesShell t={t} showNews={flags.newsMenu} newsletter={flags.newsletter}>
+    <PagesShell t={t} newsletter={flags.newsletter}>
       <MaintenanceGate>
         <ErrorState
           code="404"

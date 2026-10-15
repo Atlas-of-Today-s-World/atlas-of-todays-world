@@ -4,6 +4,8 @@ import {
   createContext,
   useActionState,
   useContext,
+  useEffect,
+  useRef,
   useTransition,
   type FormHTMLAttributes,
   type Ref,
@@ -26,6 +28,24 @@ export function useServerAction(
   serverAction: (prev: ActionState, formData: FormData) => Promise<ActionState>,
 ) {
   return useActionState<ActionState, FormData>(serverAction, IDLE);
+}
+
+/**
+ * `useServerAction` for a form that adds records one after another: after a
+ * success it empties itself for the next one when `clearOnSuccess` (an edit
+ * form keeps its values). `[state, action, formRef]` — pass `formRef` as the
+ * <ActionForm>'s `ref`.
+ */
+export function useAddForm(
+  serverAction: (prev: ActionState, formData: FormData) => Promise<ActionState>,
+  clearOnSuccess: boolean,
+) {
+  const [state, action] = useServerAction(serverAction);
+  const form = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    if (state.ok && clearOnSuccess) form.current?.reset();
+  }, [state, clearOnSuccess]);
+  return [state, action, form] as const;
 }
 
 /**

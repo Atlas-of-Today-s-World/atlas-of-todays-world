@@ -16,6 +16,8 @@ export type RowActionIcon =
   | "restore"
   | "revoke"
   | "delete"
+  | "hide"
+  | "show"
   | "up"
   | "down";
 
@@ -84,6 +86,26 @@ export const confirmAction = (
   confirmTitle: string,
   confirmBody: string,
 ): RowAction => ({ kind: "action", icon, label, action, confirmTitle, confirmBody });
+
+/**
+ * Hide a shown record from the site, or show a hidden one again (the record
+ * stays in the admin either way). Pass the Server Action bound to the row and
+ * the value it sets (`setVisible.bind(null, id, !visible)`).
+ */
+export const visibilityAction = (
+  action: () => Promise<ActionState>,
+  visible: boolean,
+  what: string,
+): RowAction =>
+  visible
+    ? confirmAction(
+        "hide",
+        "Hide from the site",
+        action,
+        `Hide ${what}?`,
+        "It stays here and you can show it again any time.",
+      )
+    : confirmAction("show", "Show on the site", action, `Show ${what}?`, "It appears on the site.");
 
 /**
  * Move up / down within a hand-ordered list; the first row can't go up, the

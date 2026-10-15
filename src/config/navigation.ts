@@ -2,10 +2,24 @@ import type { Messages } from "@/features/i18n/messages";
 import { routes } from "./routes";
 
 /**
- * Single definition of the menu (ARCHITEKTURA 15.1, D4) — the header above the map
- * (desktop and mobile) and the header of pages without the globe. The addresses
- * themselves come from config/routes.ts.
+ * The menus as the code knows them (ARCHITEKTURA 15.1, D4). The main menu and
+ * the legal links are edited in Admin → Site menus (table nav_items,
+ * features/navigation); the lists below are what the migration seeded and what
+ * the site falls back to when that table can't be read. The sign-in item stays
+ * here. The addresses themselves come from config/routes.ts.
  */
+
+/** Menus the team edits (nav_items.menu). */
+export const NAV_MENUS = ["main", "legal"] as const;
+export type NavMenu = (typeof NAV_MENUS)[number];
+
+/**
+ * Feature switches an item can follow (nav_items.requires_flag): it shows only
+ * while the switch is on. Same list as the CHECK in the migration.
+ */
+export const NAV_FLAGS = ["news_menu", "newsletter"] as const;
+export type NavFlag = (typeof NAV_FLAGS)[number];
+
 export interface NavItem {
   href: string;
   /** Text key in messages/<language>.json → `nav`. */
@@ -14,25 +28,24 @@ export interface NavItem {
   primary?: boolean;
   /** Little room above the globe: on desktop it only shows in the full menu. */
   compactHidden?: boolean;
+  /** Shown only while this switch is on. */
+  flag?: NavFlag;
 }
 
-const MAIN_NAV: readonly NavItem[] = [
+/** Built-in main menu (fallback): News only while it is switched on (flag news_menu). */
+export const MAIN_NAV: readonly NavItem[] = [
   { href: routes.topics, key: "topics" },
   // Over the globe the map itself leads to a country; the list waits in the full menu.
   { href: routes.countries, key: "countries", compactHidden: true },
-  { href: routes.newsIndex, key: "news", compactHidden: true },
+  { href: routes.newsIndex, key: "news", compactHidden: true, flag: "news_menu" },
   { href: routes.about, key: "about" },
   { href: routes.membership, key: "support" },
   { href: routes.membership, key: "patrons", primary: true },
 ];
 
-/** The main menu as the site shows it: News only while it is switched on (flag news_menu). */
-export const mainNav = ({ news }: { news: boolean }): readonly NavItem[] =>
-  MAIN_NAV.filter((item) => news || item.key !== "news");
-
 export const ACCOUNT_NAV: NavItem = { href: routes.login, key: "signIn" };
 
-/** Footer: legal and informational pages. */
+/** Built-in footer links (fallback): legal and informational pages. */
 export const LEGAL_NAV: readonly NavItem[] = [
   { href: routes.privacy, key: "privacy" },
   { href: routes.terms, key: "terms" },
