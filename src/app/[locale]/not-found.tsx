@@ -7,7 +7,10 @@ import { getFlags } from "@/features/flags/queries";
 import { getT } from "@/features/i18n/request";
 import { LazyCountryQuiz } from "@/features/quiz/LazyCountryQuiz";
 
-export const metadata: Metadata = { title: "Page not found" };
+/** The page title in the UI texts (`errors.pageNotFoundTitle`), with the team's changes. */
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await getT()).errors.pageNotFoundTitle };
+}
 
 /**
  * 404 for unknown addresses of the public site (the catch-all `[...path]`
@@ -16,13 +19,13 @@ export const metadata: Metadata = { title: "Page not found" };
  * own 404 in the panel ((map)/not-found.tsx).
  */
 export default async function NotFound() {
-  const t = getT();
+  const t = await getT();
   const flags = await getFlags();
   return (
     <PagesShell t={t} newsletter={flags.newsletter}>
       <MaintenanceGate>
         <ErrorState
-          code="404"
+          code={t.errors.notFoundCode}
           title={t.errors.pageNotFoundTitle}
           lead={t.errors.pageNotFoundLead}
           backLabel={t.common.backToGlobe}

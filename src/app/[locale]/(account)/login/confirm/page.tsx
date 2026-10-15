@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "@/components/i18n/Link";
 import { Button } from "@/components/ui/button";
-import { getMessages } from "@/features/i18n/messages";
-import { localeFrom } from "@/features/i18n/request";
+import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { firstParam } from "@/lib/query-params";
 import { routes } from "@/config/routes";
 
@@ -12,7 +11,7 @@ type Params = { params: Promise<{ locale: string }> };
 type Query = { token_hash?: string | string[]; type?: string | string[]; next?: string | string[] };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const t = getMessages(await localeFrom(params)).auth.confirm;
+  const t = (await getMessagesFor(await localeFrom(params))).auth.confirm;
   return { title: t.title, robots: { index: false, follow: false } };
 }
 
@@ -25,7 +24,7 @@ export default async function ConfirmSignInPage({
   params,
   searchParams,
 }: Params & { searchParams: Promise<Query> }) {
-  const messages = getMessages(await localeFrom(params)).auth;
+  const messages = (await getMessagesFor(await localeFrom(params))).auth;
   const t = messages.confirm;
   const query = await searchParams;
   const [tokenHash, type, next] = [query.token_hash, query.type, query.next].map(firstParam);

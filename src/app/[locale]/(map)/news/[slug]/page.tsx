@@ -5,7 +5,7 @@ import { redirectOrNotFound } from "@/features/redirects/queries";
 import { getEntries, getEntry } from "@/features/entries/queries";
 import { countriesOf } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
-import { localeFrom } from "@/features/i18n/request";
+import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { geoMeta } from "@/lib/seo";
 import { pageMetadata, pageTitle } from "@/lib/seo/metadata";
 import {
@@ -17,7 +17,6 @@ import {
   webPageNode,
 } from "@/lib/seo/jsonld";
 import { wordCount } from "@/lib/text/html";
-import { getMessages } from "@/features/i18n/messages";
 import { JsonLd } from "@/components/JsonLd";
 import { routes } from "@/config/routes";
 
@@ -54,7 +53,7 @@ export async function generateMetadata({
       published: item.published,
       modified: item.updated ?? item.published,
       authors: item.author ? [item.author] : undefined,
-      section: getMessages(item.locale).categories[item.category] ?? item.category,
+      section: (await getMessagesFor(item.locale)).categories[item.category] ?? item.category,
       tags: [region?.name ?? ""].filter(Boolean),
     },
     keywords: [item.title, item.category, region?.name ?? ""].filter(Boolean),
@@ -99,7 +98,7 @@ export default async function NewsPage({
             breadcrumb: breadcrumbNode(
               [
                 homeCrumb(site),
-                { name: getMessages(locale).newsIndex.heading, path: routes.newsIndex },
+                { name: (await getMessagesFor(locale)).newsIndex.heading, path: routes.newsIndex },
                 ...(region ? [{ name: region.name, path: routes.region(region.slug) }] : []),
                 ...(issue ? [{ name: issue.name, path: routes.issue(issue.slug) }] : []),
                 { name: item.title, path: routes.news(item.slug) },
@@ -117,7 +116,7 @@ export default async function NewsPage({
             modified: item.updated ?? item.published,
             locale: item.locale,
             author: item.author ? { name: item.author, slug: item.authorSlug } : null,
-            section: getMessages(item.locale).categories[item.category] ?? item.category,
+            section: (await getMessagesFor(item.locale)).categories[item.category] ?? item.category,
             wordCount: wordCount(item.html),
             about: countriesCovered,
             location: region ?? null,

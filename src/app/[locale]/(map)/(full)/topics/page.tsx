@@ -5,8 +5,7 @@ import { PHOTO_WIDTH, photoUrl } from "@/lib/images";
 import { safeUrl } from "@/lib/security/urls";
 import { JsonLd } from "@/components/JsonLd";
 import { getAtlas } from "@/features/geography/queries";
-import { getMessages } from "@/features/i18n/messages";
-import { localeFrom } from "@/features/i18n/request";
+import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { TopicsBrowser } from "@/features/topics/components/TopicsBrowser";
 import { topicIndex } from "@/features/topics/related";
 import { pageMetadata } from "@/lib/seo/metadata";
@@ -24,7 +23,7 @@ type Params = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const locale = await localeFrom(params);
-  const t = getMessages(locale).topics;
+  const t = (await getMessagesFor(locale)).topics;
   return pageMetadata({
     locale,
     path: routes.topics,
@@ -36,7 +35,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 /** Topics: every encyclopedia dossier as a photo card, full width over the map. */
 export default async function TopicsPage({ params }: Params) {
   const locale = await localeFrom(params);
-  const t = getMessages(locale).topics;
+  const t = (await getMessagesFor(locale)).topics;
   const atlas = await getAtlas(locale);
   const site = await getSiteSettings();
   const { counts, entries } = await topicIndex(atlas);

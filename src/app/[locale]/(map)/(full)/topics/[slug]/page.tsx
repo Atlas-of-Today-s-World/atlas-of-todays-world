@@ -6,7 +6,7 @@ import { getEncyclopediaEntry } from "@/features/entries/topic-queries";
 import { redirectOrNotFound } from "@/features/redirects/queries";
 import { countriesOf } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
-import { localeFrom } from "@/features/i18n/request";
+import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { clampText, DESCRIPTION_MAX, pageMetadata, pageTitle } from "@/lib/seo/metadata";
 import {
   articleNode,
@@ -18,7 +18,6 @@ import {
   webPageNode,
 } from "@/lib/seo/jsonld";
 import { wordCount } from "@/lib/text/html";
-import { getMessages } from "@/features/i18n/messages";
 import { JsonLd } from "@/components/JsonLd";
 import { routes } from "@/config/routes";
 
@@ -63,7 +62,7 @@ export async function generateMetadata({
       published: item.published,
       modified: item.updated ?? item.published,
       authors: item.author ? [item.author] : undefined,
-      section: getMessages(item.locale).categories[item.category] ?? item.category,
+      section: (await getMessagesFor(item.locale)).categories[item.category] ?? item.category,
       tags: item.seo.keywords,
     },
   });
@@ -138,7 +137,7 @@ export default async function EntryPage({
               : item.author
                 ? { name: item.author, slug: item.authorSlug }
                 : null,
-            section: getMessages(item.locale).categories[item.category] ?? item.category,
+            section: (await getMessagesFor(item.locale)).categories[item.category] ?? item.category,
             keywords: item.seo.keywords,
             wordCount: words,
             about: countriesOf(atlas, item.countries),

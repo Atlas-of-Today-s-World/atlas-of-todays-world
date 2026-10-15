@@ -5,8 +5,8 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { getEntries } from "@/features/entries/queries";
 import { getAtlas } from "@/features/geography/queries";
-import { format, getMessages } from "@/features/i18n/messages";
-import { localeFrom } from "@/features/i18n/request";
+import { format } from "@/features/i18n/messages";
+import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { JsonLd } from "@/components/JsonLd";
 import { pageMetadata } from "@/lib/seo/metadata";
 import {
@@ -24,7 +24,7 @@ type Params = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const locale = await localeFrom(params);
-  const t = getMessages(locale).newsIndex;
+  const t = (await getMessagesFor(locale)).newsIndex;
   return pageMetadata({
     locale,
     path: routes.newsIndex,
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 export default async function NewsIndexPage({ params }: Params) {
   const locale = await localeFrom(params);
-  const messages = getMessages(locale);
+  const messages = await getMessagesFor(locale);
   const t = messages.newsIndex;
   const [newsItems, atlas] = await Promise.all([getEntries(), getAtlas(locale)]);
   const site = await getSiteSettings();

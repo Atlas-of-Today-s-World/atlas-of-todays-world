@@ -4,15 +4,18 @@ import { ErrorState } from "@/components/atlas/ErrorState";
 import { LazyCountryQuiz } from "@/features/quiz/LazyCountryQuiz";
 import { getT } from "@/features/i18n/request";
 
-export const metadata: Metadata = { title: "Page not found" };
+/** The page title in the UI texts (`errors.pageNotFoundTitle`), with the team's changes. */
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await getT()).errors.pageNotFoundTitle };
+}
 
 /** 404 on map pages — in the panel, the globe stays; the outline quiz below the message. */
-export default function NotFound() {
-  const t = getT();
+export default async function NotFound() {
+  const t = await getT();
   return (
     <ContentRail>
       <ErrorState
-        code="404"
+        code={t.errors.notFoundCode}
         title={t.panel.notFoundTitle}
         lead={t.panel.notFoundText}
         backLabel={t.common.backToGlobe}

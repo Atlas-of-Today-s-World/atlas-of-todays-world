@@ -7,8 +7,8 @@ import { RankingFocus } from "@/components/map/RankingFocus";
 import MapViewSetter from "@/components/map/MapViewSetter";
 import { SectionLabel, SourceLink } from "@/components/atlas/ui";
 import { getAtlas, getIndicator } from "@/features/geography/queries";
-import { format, getMessages } from "@/features/i18n/messages";
-import { getRequestLocale, getT, localeFrom } from "@/features/i18n/request";
+import { format } from "@/features/i18n/messages";
+import { getMessagesFor, getRequestLocale, getT, localeFrom } from "@/features/i18n/request";
 import { formatValue } from "@/lib/indicators";
 import { pageMetadata, pageTitle } from "@/lib/seo/metadata";
 import {
@@ -38,7 +38,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { indicator: id } = await params;
   const locale = await localeFrom(params);
-  const t = getMessages(locale).view;
+  const t = (await getMessagesFor(locale)).view;
   const indicator = await getIndicator(id);
   if (!indicator) return {};
   const description = format(t.description, {
@@ -69,7 +69,7 @@ export default async function IndicatorViewPage({
   const { indicator: id } = await params;
   const locale = await localeFrom(params);
   const [atlas, indicator] = await Promise.all([getAtlas(locale), getIndicator(id)]);
-  const site = await getSiteSettings();
+  const [site, messages] = await Promise.all([getSiteSettings(), getT()]);
   if (!indicator) notFound();
 
   const ranked = Object.entries(indicator.values)
@@ -92,12 +92,12 @@ export default async function IndicatorViewPage({
 
       <ContentRail>
         <div className="px-6 pt-6 pb-10">
-          <SectionLabel>{getT().map.dataLayer}</SectionLabel>
+          <SectionLabel>{messages.map.dataLayer}</SectionLabel>
           <h1 className="font-display mt-4 text-[26px] leading-tight font-bold text-[var(--color-ink)]">
             {indicator.label}
           </h1>
           <p className="mt-2 text-[12.5px] leading-relaxed text-[var(--color-ink-muted)]">
-            {format(getT().view.meta, {
+            {format(messages.view.meta, {
               count: String(indicator.countryCount),
               year: String(indicator.latestYear),
             })}{" "}
@@ -130,7 +130,7 @@ export default async function IndicatorViewPage({
           </ol>
 
           <p className="mt-6 text-[11px] leading-relaxed text-[var(--color-ink-muted)]">
-            {getT().view.otherLayers}{" "}
+            {messages.view.otherLayers}{" "}
             {atlas.indicators
               .filter((item) => item.id !== indicator.id)
               .map((item, i) => (
@@ -164,7 +164,7 @@ export default async function IndicatorViewPage({
           datasetNode({
             id: indicator.id,
             name: indicator.label,
-            description: `${indicator.description} ${format(getT().view.description, {
+            description: `${indicator.description} ${format(messages.view.description, {
               label: indicator.label,
               count: String(indicator.countryCount),
               year: String(indicator.latestYear),

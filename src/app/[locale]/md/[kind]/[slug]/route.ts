@@ -1,5 +1,6 @@
 import { getEncyclopediaEntries, getEntries } from "@/features/entries/queries";
 import { isLocale, LOCALES } from "@/features/i18n/config";
+import { getMessagesFor } from "@/features/i18n/request";
 import { articleMarkdown, articleUrl } from "@/features/seo/documents";
 import { getArticle } from "@/features/seo/queries";
 import { machineResponse } from "@/lib/seo/response";
@@ -30,8 +31,9 @@ export async function GET(
   }
   const article = await getArticle(kind, slug, locale);
   if (!article) return new Response("Not found", { status: 404 });
+  const messages = await getMessagesFor(article.item.locale);
   return machineResponse(
-    articleMarkdown(kind, article.item, article.atlas, article.publisher),
+    articleMarkdown(kind, article.item, article.atlas, messages, article.publisher),
     "markdown",
     {
       link: `<${articleUrl(kind, article.item)}>; rel="canonical"`,

@@ -3,8 +3,7 @@ import Link from "@/components/i18n/Link";
 import { redirect } from "next/navigation";
 import { getAccess, isStaff } from "@/features/auth/access";
 import { localePath } from "@/features/i18n/config";
-import { getMessages } from "@/features/i18n/messages";
-import { localeFrom } from "@/features/i18n/request";
+import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import DeleteAccount from "./DeleteAccount";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { adminRoutes, routes } from "@/config/routes";
@@ -17,14 +16,14 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   return {
-    title: getMessages(await localeFrom(params)).account.title,
+    title: (await getMessagesFor(await localeFrom(params))).account.title,
     robots: { index: false, follow: false },
   };
 }
 
 export default async function AccountPage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = await localeFrom(params);
-  const t = getMessages(locale).account;
+  const t = (await getMessagesFor(locale)).account;
   const access = await getAccess();
   if (!access) {
     redirect(

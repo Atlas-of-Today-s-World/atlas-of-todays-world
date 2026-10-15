@@ -7,8 +7,8 @@ import { search, SEARCH_LIMIT } from "@/lib/search";
 import { allowRequest } from "@/lib/security/rate-limit";
 import { buttonVariants } from "@/components/ui/button";
 import { localePath } from "@/features/i18n/config";
-import { format, getMessages } from "@/features/i18n/messages";
-import { localeFrom } from "@/features/i18n/request";
+import { format } from "@/features/i18n/messages";
+import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { routes } from "@/config/routes";
 
@@ -21,7 +21,7 @@ type Params = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const locale = await localeFrom(params);
-  const t = getMessages(locale).searchPage;
+  const t = (await getMessagesFor(locale)).searchPage;
   // Result pages are thin and endless: out of the index, links still followed.
   return pageMetadata({
     locale,
@@ -39,7 +39,7 @@ export default async function SearchPage({
   searchParams: Promise<{ q?: string | string[] }>;
 }) {
   const locale = await localeFrom(params);
-  const messages = getMessages(locale);
+  const messages = await getMessagesFor(locale);
   const t = messages.searchPage;
   const { q } = await searchParams;
   const query = firstParam(q).trim().slice(0, 200);

@@ -5,7 +5,7 @@ import { TabReminder } from "@/components/TabReminder";
 import { LocaleProvider } from "@/components/i18n/LocaleProvider";
 import { JsonLd } from "@/components/JsonLd";
 import { isLocale, LOCALES, localePath } from "@/features/i18n/config";
-import { getMessages } from "@/features/i18n/messages";
+import { getMessagesFor, getOverridesFor } from "@/features/i18n/request";
 import { absoluteUrl } from "@/lib/seo";
 import { graph, organizationNode, websiteNode } from "@/lib/seo/jsonld";
 import { getSiteSettings, getSocialLinks } from "@/features/site/queries";
@@ -27,10 +27,15 @@ export default async function LocaleLayout({
 }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  const t = getMessages(locale).seo;
-  const [site, socials] = await Promise.all([getSiteSettings(), getSocialLinks()]);
+  const [messages, overrides, site, socials] = await Promise.all([
+    getMessagesFor(locale),
+    getOverridesFor(locale),
+    getSiteSettings(),
+    getSocialLinks(),
+  ]);
+  const t = messages.seo;
   return (
-    <LocaleProvider locale={locale}>
+    <LocaleProvider locale={locale} overrides={overrides}>
       {/* Discovery links on every page (React puts <link> into <head>): feeds and llms.txt (ADR-021). */}
       <link
         rel="alternate"
