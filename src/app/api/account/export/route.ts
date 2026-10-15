@@ -8,11 +8,15 @@ export const dynamic = "force-dynamic";
 /**
  * GDPR Art. 15/20: a signed-in user downloads their data as JSON. Everything is
  * read with the session client, so RLS returns only their own rows (profile,
- * membership, own articles, page views, approver scope). The parts RLS can't
- * hand to their owner — invitations to their verified e-mail, their volunteer
- * applications, the linked author profile and the metadata of revisions they
- * saved — come from my_personal_data(), a definer RPC scoped to auth.uid()
- * (migration 20261013000350). No service key.
+ * membership, own articles, page views, approver scope; the profile includes the
+ * blocked note — a note about them). The parts RLS can't hand to their owner —
+ * invitations to their verified e-mail (with the note), their volunteer
+ * applications, the linked author profile, the metadata of entry and site page
+ * revisions they saved and their own audit actions (column names, never values)
+ * — come from my_personal_data(), a definer RPC scoped to auth.uid() (migrations
+ * 20261013000350 and …360). The second factors come from Supabase Auth with the
+ * same session: name, type, status and date only, never a secret or QR code.
+ * No service key.
  *
  * Keys are only ever added, never renamed, so an older download keeps its
  * meaning. A failed read fails the whole export: an incomplete copy must not
@@ -27,12 +31,12 @@ export async function GET() {
 
   let body;
   try {
-    const [profile, membership, entries, pageViews, countries, authors, personal] =
+    const [profile, membership, entries, pageViews, countries, authors, personal, factors] =
       await Promise.all([
         supabase
           .from("profiles")
           .select(
-            "id, email, name, phone, kind, status, role_id, approval_global, created_at, last_seen_at",
+            "id, email, name, phone, kind, status, role_id, approval_global, created_at, last_seen_at, blocked_note",
           )
           .eq("id", user.id)
           .maybeSingle(),
@@ -60,7 +64,9 @@ export async function GET() {
           .eq("user_id", user.id)
           .order("author_id"),
         supabase.rpc("my_personal_data"),
+        supabase.auth.mfa.listFactors(),
       ]);
+    if (factors.error) throw new Error(`[export factors] ${factors.error.message}`);
     const extra = (must(personal, "export personal data") ?? {}) as Record<string, unknown>;
     body = {
       exportedAt: new Date().toISOString(),
@@ -84,6 +90,16 @@ export async function GET() {
       invitations: extra.invitations ?? [],
       volunteerApplications: extra.volunteerApplications ?? [],
       entryRevisions: extra.entryRevisions ?? [],
+      // Added by the retention decisions of 2026-10-15 (keys only ever added).
+      sitePageRevisions: extra.sitePageRevisions ?? [],
+      auditActions: extra.auditActions ?? [],
+      // Picked field by field: nothing else of a factor (secret, QR) can slip in.
+      twoFactorFactors: (factors.data?.all ?? []).map((factor) => ({
+        friendlyName: factor.friendly_name ?? null,
+        factorType: factor.factor_type,
+        status: factor.status,
+        createdAt: factor.created_at,
+      })),
     };
   } catch (error) {
     console.error("[account] export failed", (error as Error).message);

@@ -175,8 +175,9 @@ test("export: only the caller's own invitations, applications, author profile an
     [EMAIL.reader, EMAIL.reader],
   );
   assert.ok(
-    data.invitations.every((i) => !("note" in i) && !("invitedBy" in i)),
-    "no internal notes",
+    // Notes about the person are exported since 20261013000360; the inviter is not.
+    data.invitations.every((i) => !("invitedBy" in i)),
+    "no inviter",
   );
   assert.deepEqual(
     data.volunteerApplications.map((v) => [v.name, v.message]),
@@ -211,7 +212,7 @@ test("export: anon may not call it; the rest of the export is readable under RLS
 // Account deletion
 // ---------------------------------------------------------------------------
 
-test("deletion: removes the caller's unaccepted invitations and applications, nothing else", async () => {
+test("deletion: removes the caller's invitations and applications, nothing else", async () => {
   const result = await as(id.reader, "select public.delete_my_personal_data() as removed", [], {
     after: `select
       (select json_agg(json_build_object('email', email, 'accepted', accepted_at is not null) order by email, accepted_at)
@@ -221,10 +222,14 @@ test("deletion: removes the caller's unaccepted invitations and applications, no
          from audit_log where action = 'legacy.action') as legacy,
       (select json_agg(detail) from audit_log where action = 'volunteer_applications.delete') as audit`,
   });
-  assert.deepEqual(result.rows[0].removed, { invitations: 1, volunteerApplications: 1 });
+  // Accepted invitations go too since 20261013000360.
+  assert.deepEqual(result.rows[0].removed, {
+    invitations: 2,
+    volunteerApplications: 1,
+    allowedEmails: 0,
+  });
   const [after] = result.after;
   assert.deepEqual(after.invitations, [
-    { email: EMAIL.reader, accepted: true },
     { email: EMAIL.other, accepted: false },
     { email: EMAIL.unconfirmed, accepted: false },
   ]);
@@ -240,7 +245,11 @@ test("deletion: removes the caller's unaccepted invitations and applications, no
 
 test("deletion: an unconfirmed e-mail removes nothing matched by address", async () => {
   const result = await as(id.unconfirmed, "select public.delete_my_personal_data() as removed");
-  assert.deepEqual(result.rows[0].removed, { invitations: 0, volunteerApplications: 0 });
+  assert.deepEqual(result.rows[0].removed, {
+    invitations: 0,
+    volunteerApplications: 0,
+    allowedEmails: 0,
+  });
 });
 
 test("deletion: anon can't call it, the last admin and a missing second factor are refused", async () => {
@@ -360,7 +369,8 @@ test("audit: other tables log as before; application status changes are still lo
       "select detail from audit_log where action = 'invitations.insert' order by id desc limit 1",
     );
     assert.equal(invite.detail.new.role_id, "publisher");
-    assert.equal(invite.detail.new.note, "n");
+    // The note stays out of the log since 20261013000360.
+    assert.ok(!("note" in invite.detail.new));
     assert.ok(!("email" in invite.detail.new));
   } finally {
     await db.exec("rollback");
