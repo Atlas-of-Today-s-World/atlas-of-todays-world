@@ -7,7 +7,7 @@ import { PGlite } from "@electric-sql/pglite";
 
 /**
  * Timelines of regions, global issues, countries and topics (migration
- * 20261015000050_timelines): exactly one owner per event, rich text and a
+ * 20261015000060_timelines): exactly one owner per event, rich text and a
  * checked list of sources, the title / subtitle per owner, who may save a
  * timeline through replace_timeline() or write its rows directly, and who
  * reads a topic's events. The seed is loaded before the migration, so the
@@ -18,7 +18,7 @@ import { PGlite } from "@electric-sql/pglite";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const migrations = join(here, "..", "migrations");
-const FIRST_NEW = "20261015000050";
+const FIRST_NEW = "20261015000060";
 const db = new PGlite();
 
 const id = {
@@ -113,6 +113,8 @@ before(async () => {
   await apply(files.filter((f) => f < FIRST_NEW));
   await db.exec(readFileSync(join(here, "..", "seed.sql"), "utf8"));
   await apply(files.filter((f) => f >= FIRST_NEW));
+  // Safe to run twice (atlas-dev got it under an earlier version first).
+  await apply(files.filter((f) => f.startsWith(FIRST_NEW)));
 
   // Edits every article's texts but may not delete anything.
   await db.exec(`

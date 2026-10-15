@@ -39,6 +39,11 @@
 --
 -- Backward compatible: columns are added with defaults, the old app's
 -- replace_portrait_items('timeline') still writes region / issue events.
+--
+-- Safe to run twice: atlas-dev first got it as 20261015000050, then it was
+-- renamed to sort after 20261015000050_global_issues_nav, which production
+-- has. Columns, indexes, constraints, the trigger and the policies are
+-- (re)created only as needed, functions are replaced.
 -- Tests: supabase/tests/timelines.test.mjs.
 -- =============================================================================
 
@@ -78,21 +83,26 @@ revoke execute on function public.timeline_sources_valid(jsonb) from public;
 grant execute on function public.timeline_sources_valid(jsonb) to anon, authenticated, service_role;
 
 alter table public.timeline_events
-  add column country_iso3 text references public.countries (iso3) on delete cascade on update cascade,
-  add column entry_id uuid references public.entries (id) on delete cascade,
-  add column body_html text not null default '',
-  add column sources jsonb not null default '[]'::jsonb;
+  add column if not exists country_iso3 text
+    references public.countries (iso3) on delete cascade on update cascade,
+  add column if not exists entry_id uuid references public.entries (id) on delete cascade,
+  add column if not exists body_html text not null default '',
+  add column if not exists sources jsonb not null default '[]'::jsonb;
 
 -- The table's first CHECK (region xor issue), named by Postgres.
-alter table public.timeline_events drop constraint timeline_events_check;
+alter table public.timeline_events
+  drop constraint if exists timeline_events_check,
+  drop constraint if exists timeline_events_one_owner,
+  drop constraint if exists timeline_events_body_html_len,
+  drop constraint if exists timeline_events_sources_valid;
 alter table public.timeline_events
   add constraint timeline_events_one_owner
     check (num_nonnulls(region_slug, special_slug, country_iso3, entry_id) = 1),
   add constraint timeline_events_body_html_len check (length(body_html) <= 20000),
   add constraint timeline_events_sources_valid check (public.timeline_sources_valid(sources));
 
-create index timeline_events_country on public.timeline_events (country_iso3, position);
-create index timeline_events_entry on public.timeline_events (entry_id, position);
+create index if not exists timeline_events_country on public.timeline_events (country_iso3, position);
+create index if not exists timeline_events_entry on public.timeline_events (entry_id, position);
 
 -- A topic's timeline: only entries of kind 'entry' (news and the like have none).
 -- Security definer: the kind is checked whether or not the writer may read the
@@ -113,6 +123,7 @@ $$;
 
 revoke execute on function public.timeline_events_topic_only() from public, anon, authenticated;
 
+drop trigger if exists timeline_events_topic_only on public.timeline_events;
 create trigger timeline_events_topic_only
   before insert or update of entry_id on public.timeline_events
   for each row when (new.entry_id is not null)
@@ -124,15 +135,15 @@ create trigger timeline_events_topic_only
 -- The same limits as regions / special_regions (20261013000105).
 
 alter table public.countries
-  add column timeline_title text
+  add column if not exists timeline_title text
     constraint countries_timeline_title_len check (length(timeline_title) <= 120),
-  add column timeline_subtitle text
+  add column if not exists timeline_subtitle text
     constraint countries_timeline_subtitle_len check (length(timeline_subtitle) <= 300);
 
 alter table public.entries
-  add column timeline_title text
+  add column if not exists timeline_title text
     constraint entries_timeline_title_len check (length(timeline_title) <= 120),
-  add column timeline_subtitle text
+  add column if not exists timeline_subtitle text
     constraint entries_timeline_subtitle_len check (length(timeline_subtitle) <= 300);
 
 -- countries keep their table-wide grants; anon reads entries column by column.
@@ -163,10 +174,11 @@ $$;
 revoke execute on function public.can_edit_timeline(text, text, text, uuid, text) from public, anon;
 grant execute on function public.can_edit_timeline(text, text, text, uuid, text) to authenticated;
 
-drop policy timeline_public on public.timeline_events;
-drop policy timeline_add on public.timeline_events;
-drop policy timeline_change on public.timeline_events;
-drop policy timeline_remove on public.timeline_events;
+drop policy if exists timeline_public on public.timeline_events;
+drop policy if exists timeline_read on public.timeline_events;
+drop policy if exists timeline_add on public.timeline_events;
+drop policy if exists timeline_change on public.timeline_events;
+drop policy if exists timeline_remove on public.timeline_events;
 
 -- Regions, issues and countries are public; a topic's events only once it is.
 create policy timeline_public on public.timeline_events for select to anon

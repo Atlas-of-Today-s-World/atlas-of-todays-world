@@ -29,7 +29,7 @@ import { htmlToText } from "../lib/html.mjs";
 import "../lib/ts-imports.mjs";
 
 const PROJECTS = { dev: "bognwszwhxxyjafqzfuh", prod: "ewbzkxialhtwuqlenjof" };
-/** The DB limits (migrations 20261013000105, 20261015000050). */
+/** The DB limits (migrations 20261013000105, 20261015000060). */
 const LIMIT = {
   intro: 5000,
   value: 30,

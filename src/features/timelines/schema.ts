@@ -13,7 +13,7 @@ import { MAX_SOURCES, TIMELINE_OWNERS, type TimelineOwnerKind } from "./constant
 
 /**
  * A timeline as the editor posts it and replace_timeline() stores it (migration
- * 20261015000050). Limits match the DB CHECKs: title 200, date 60, rich text
+ * 20261015000060). Limits match the DB CHECKs: title 200, date 60, rich text
  * 20 000 after sanitizing, at most 20 sources {title ≤ 300, https URL ≤ 1000}
  * per event, at most 60 events, heading 120 / subheading 300.
  */
