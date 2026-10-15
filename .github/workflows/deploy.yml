@@ -1,7 +1,9 @@
 # Deploys to Vercel via token (a Hobby account won't deploy commits by other
 # authors from the Git integration, so this pipeline deploys instead).
 #   - main: production, but only once CI (ci.yml) has passed on that commit
-#   - pull request: preview deployment
+#   - pull request: preview deployment only when the PR has the "preview" label
+#     (every preview build reads the production database; on the free Supabase
+#     plan that traffic counts against the monthly quota)
 #
 # The build runs on Vercel, not here: Hobby allows uploading max. 5,000 files a day
 # and a finished build (~270 pages) would exhaust the limit after a few deploys.
@@ -16,6 +18,7 @@ on:
     types: [completed]
     branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
     paths-ignore:
       - "*.md"
       - ".claude/**"
@@ -92,6 +95,7 @@ jobs:
         (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
         (github.event_name == 'pull_request' &&
           github.event.pull_request.head.repo.full_name == github.repository &&
+          contains(github.event.pull_request.labels.*.name, 'preview') &&
           github.actor != 'dependabot[bot]'))
     runs-on: ubuntu-latest
     steps:
