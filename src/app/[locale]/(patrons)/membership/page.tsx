@@ -3,7 +3,6 @@ import { DevelogiCredit } from "@/components/DevelogiCredit";
 import Link from "@/components/i18n/Link";
 import { getFlags } from "@/features/flags/queries";
 import { VolunteerForm } from "@/features/volunteers/components/VolunteerForm";
-import { VOLUNTEER_ID } from "@/features/membership/config";
 import { Accordion } from "@/components/atlas/Accordion";
 import { RichText } from "@/components/atlas/RichText";
 import { DonationCard } from "@/components/membership/DonationCard";
@@ -30,7 +29,7 @@ import { getSiteSettings } from "@/features/site/queries";
 import { staticPageMetadata } from "@/features/seo/metadata";
 import { captchaEnabled } from "@/lib/security/turnstile";
 import { breadcrumbNode, faqNode, graph, ids, pageUrl, webPageNode } from "@/features/seo/jsonld";
-import { routes } from "@/config/routes";
+import { routes, VOLUNTEER_ID } from "@/config/routes";
 
 /** Id of the bottom donation card ("Donate and Join" in the hero scrolls there). */
 const JOIN_ID = "join";

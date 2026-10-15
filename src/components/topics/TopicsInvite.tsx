@@ -1,9 +1,8 @@
 import { HandHeart, PenLine } from "lucide-react";
 import Link from "@/components/i18n/Link";
 import { format } from "@/features/i18n/messages";
-import { volunteerHref } from "@/features/volunteers/prefill";
 import { cn } from "@/lib/cn";
-import { routes } from "@/config/routes";
+import { routes, volunteerHref } from "@/config/routes";
 
 /** The texts it needs from the `topics` messages (server getT or client useMessages). */
 type InviteMessages = Record<

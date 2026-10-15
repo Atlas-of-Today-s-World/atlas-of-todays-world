@@ -9,7 +9,7 @@ import { MapStage } from "@/components/map/MapStage";
 import { MapProvider } from "@/components/map/MapContext";
 import { MapLegend, type ViewOption } from "@/components/map/ViewSwitcher";
 import { FloatingActions } from "@/components/membership/FloatingActions";
-import { MaintenanceGate } from "@/features/flags/components/MaintenanceGate";
+import { MaintenanceGate } from "@/components/MaintenanceGate";
 import { getFlags } from "@/features/flags/queries";
 import { getNavigation } from "@/features/navigation/queries";
 import { getSocialLinks } from "@/features/site/queries";

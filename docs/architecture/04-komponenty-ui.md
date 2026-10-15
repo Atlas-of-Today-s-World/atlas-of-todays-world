@@ -26,7 +26,8 @@
 | `components/map/` | `AtlasGlobe`, `MapContext`, `MapFocus`, `MapControls`, `ModeSwitch`, `ViewSwitcher`, `MapLegend` | beze změny architektury; data vrstev z DB |
 | `components/portrait/` | `Portrait` (jeden pro region i issue), `IndicatorCards`, `Timeline`, `ThematicEntries`, `VisualCarousel`, `ResourceLibrary`, `FaqList`, `EmptySection`, `PatronsCallout`, `Rail` | sjednotit 4 kopie karuselu do `Rail` (klávesnice, šipky) |
 | `features/entries/components/` | `EntryHeader`, `EntryChapter`, `EntryAudio`, `AuthorBio` | P9 |
-| `components/` | `ContentRail`, `Header`, `EncyclopediaPanel`, `NewsletterForm`, `SafeHtml` | |
+| `components/` | `ContentRail`, `Header`, `EncyclopediaPanel`, `MaintenanceGate`, `SafeHtml` | |
+| `features/newsletter/components/` | `NewsletterForm` | Server Action `subscribe` |
 
 **Administrace** (`app/admin/`, `components/ui` + `components/data-table/DataTable`, ADR-019)
 

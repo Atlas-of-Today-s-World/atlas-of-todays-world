@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ErrorState } from "@/components/atlas/ErrorState";
 import { FloatingActions } from "@/components/membership/FloatingActions";
 import { PagesShell } from "@/components/PagesShell";
-import { MaintenanceGate } from "@/features/flags/components/MaintenanceGate";
+import { MaintenanceGate } from "@/components/MaintenanceGate";
 import { getFlags } from "@/features/flags/queries";
 import { getT } from "@/features/i18n/request";
 import { LazyCountryQuiz } from "@/features/quiz/LazyCountryQuiz";
