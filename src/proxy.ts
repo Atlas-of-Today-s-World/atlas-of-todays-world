@@ -173,6 +173,6 @@ export const config = {
   // each file it touches costs a call and delays it (the logo is on the LCP path).
   // Their headers come from next.config `headers()`.
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|data/|maplibre/|brand/|images/|icon\.svg).*)",
+    "/((?!_next/static|_next/image|favicon.ico|data/|maplibre/|brand/|images/|icon\.svg|apple-icon\.png).*)",
   ],
 };
