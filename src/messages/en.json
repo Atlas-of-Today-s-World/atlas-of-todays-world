@@ -18,7 +18,13 @@
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
     "account": "Sign in or open your account",
-    "accountTitle": "Sign in / your account"
+    "accountTitle": "Sign in / your account",
+    "accountLoading": "Loading…",
+    "accountSignedInAs": "Signed in as",
+    "accountPage": "Your account",
+    "accountAdmin": "Administration",
+    "accountSignOut": "Sign out",
+    "accountSignIn": "Sign in"
   },
   "common": {
     "close": "Close",
@@ -326,7 +332,7 @@
       "demo": "This is a demo — no Stripe account is connected yet.",
       "help": "Need help? Email us at {email}."
     },
-    "builtWith": "This website was built in cooperation with",
+    "builtWith": "This website was designed and built by",
     "builtWithLabel": "Website by Develogi.cz",
     "newsletter": {
       "eyebrow": "Newsletter",
@@ -559,6 +565,7 @@
     "llmsIntro": "Atlas of Today’s World is published by {legalName}, a non-profit registered association in Prague, Czech Republic, founded in 2016. Everything is free to read without an account.",
     "llmsUse": "Country, region and global-issue pages combine editorial text with indicators from international sources (UNDP, World Bank, V-Dem, Transparency International and others via Our World in Data); every value states its source and year. Articles show their author, publication date and last update.",
     "llmsCite": "Cite as: Atlas of Today’s World, “<page title>”, <URL> (accessed <date>).",
+    "llmsBuilder": "Website: designed and built by {builder} ({url}), a Czech software development company.",
     "llmsFormats": "Language: English. Markdown version of any article: add .md to its URL. Full text of all articles: {full}. Feeds: {rss} (RSS) and {atom} (Atom). Sitemap: {sitemap}.",
     "sectionEntries": "Encyclopedia dossiers",
     "sectionNews": "News and analysis",

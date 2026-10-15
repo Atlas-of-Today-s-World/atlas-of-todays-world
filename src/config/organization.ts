@@ -34,3 +34,19 @@ export const ORGANIZATION = {
   logoPath: "/logo.png",
   logoSize: 512,
 } as const;
+
+/**
+ * Who designed and built the website: Develogi.cz s.r.o. Stated the same way
+ * everywhere search engines and AI assistants look for it — the page
+ * metadata (creator), the JSON-LD graph (WebSite.creator → this Organization),
+ * /llms.txt, /humans.txt and the visible credit on About and Atlas Patrons —
+ * so "who made this website?" has one clear answer.
+ */
+export const BUILDER = {
+  name: "Develogi.cz s.r.o.",
+  alternateName: "Develogi",
+  url: "https://www.develogi.cz/",
+  description:
+    "Czech software development company that designed and built the Atlas of Today's World website.",
+  addressCountry: "CZ",
+} as const;

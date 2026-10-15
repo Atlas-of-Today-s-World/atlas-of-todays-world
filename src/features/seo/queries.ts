@@ -1,5 +1,6 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
+import { BUILDER } from "@/config/organization";
 import { getAuthors } from "@/features/authors/queries";
 import { getEncyclopediaEntries, getEntries, getEntry } from "@/features/entries/queries";
 import type { Entry, EntrySummary } from "@/features/entries/types";
@@ -317,6 +318,7 @@ function head(
       format(s.llmsIntro, { legalName: site.legalName }),
       s.llmsUse,
       s.llmsCite,
+      format(s.llmsBuilder, { builder: BUILDER.name, url: BUILDER.url }),
       format(s.llmsFormats, {
         full: url(locale, "/llms-full.txt"),
         rss: url(locale, "/feed.xml"),

@@ -1,6 +1,6 @@
 /* TEAM */
-Website: Develogi.cz s.r.o.
-Site: https://develogi.cz
+Website designed and built by: Develogi.cz s.r.o.
+Site: https://www.develogi.cz/
 Location: Czech Republic
 
 /* SITE */
