@@ -110,7 +110,7 @@ test("nav items: the main menu is seeded with today's items, labels and styles",
     rows.map((row) => [row.label, row.href, row.is_primary, row.compact_hidden, row.requires_flag]),
     [
       ["Topics", "/topics", false, false, null],
-      // Added by 20261015000040, right after Topics.
+      // Added by 20261015000050, right after Topics.
       ["Global issues", "/global-issues", false, false, null],
       ["Countries", "/countries", false, true, null],
       ["News", "/news", false, true, "news_menu"],
@@ -124,7 +124,7 @@ test("nav items: the main menu is seeded with today's items, labels and styles",
 });
 
 test("nav items: Global issues goes right after Topics, once, wherever Topics is", async () => {
-  const migration = readFileSync(join(migrations, "20261015000040_global_issues_nav.sql"), "utf8");
+  const migration = readFileSync(join(migrations, "20261015000050_global_issues_nav.sql"), "utf8");
   const order = async () =>
     (
       await q("select label from nav_items where menu = 'main' order by position, created_at, id")
