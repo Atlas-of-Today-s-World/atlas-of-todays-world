@@ -19,6 +19,7 @@ import { useLatest } from "@/lib/use-latest";
 import { GLOBE, GLOBE_LABEL_MOBILE, isFullPage, isHome, railKind } from "@/config/layout";
 import { cn } from "@/lib/cn";
 import { useIdleSpin } from "./useIdleSpin";
+import { useZeroPulse } from "./globe/zeroPulse";
 import { Starfield } from "./Starfield";
 import { unprocessedCountries } from "@/features/geography/content-status";
 import { openIssueSlug, STATUS_IMAGES, statusesOf, statusMarkImage } from "./global-issues";
@@ -196,9 +197,11 @@ export default function AtlasGlobe({
         });
 
         map.on("styleimagemissing", (event: { id: string }) => {
-          const soft = event.id === TOPIC_BADGE_IMAGES.none;
-          if ((!soft && event.id !== TOPIC_BADGE_IMAGES.some) || map.hasImage(event.id)) return;
-          const badge = topicBadgeImage(soft);
+          const variant = (
+            Object.keys(TOPIC_BADGE_IMAGES) as (keyof typeof TOPIC_BADGE_IMAGES)[]
+          ).find((key) => TOPIC_BADGE_IMAGES[key] === event.id);
+          if (!variant || map.hasImage(event.id)) return;
+          const badge = topicBadgeImage(variant);
           if (badge) map.addImage(event.id, badge.image, badge.options);
         });
 
@@ -305,6 +308,9 @@ export default function AtlasGlobe({
     if (!map || !ready) return;
     applyTopicBadges(map, { topicCounts, statuses, mode, openIssue, mini });
   }, [topicCounts, statuses, mode, openIssue, mini, ready]);
+
+  // Every 0 on countries and regions pulses red: places waiting for their first topic.
+  useZeroPulse(mapRef, ready && !mini && mode !== "issue");
 
   // --- highlight of the active country / region ---
   useEffect(() => {

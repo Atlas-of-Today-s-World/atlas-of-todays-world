@@ -628,7 +628,10 @@
     "resultsOne": "1 match in the text",
     "noResults": "Nothing found in the text of these topics.",
     "introPart": "Introduction",
-    "inTopic": "in {topic}"
+    "inTopic": "in {topic}",
+    "emptyTitle": "No topics about {place} yet",
+    "emptyText": "Nothing has been written about {place} so far. Know it well? Join our volunteer editors and create the first topic.",
+    "emptyCta": "Join us, create content"
   },
   "globalIssues": {
     "title": "Global issues",

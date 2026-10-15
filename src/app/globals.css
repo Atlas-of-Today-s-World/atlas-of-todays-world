@@ -47,6 +47,10 @@
   --color-warning-soft: #fef3c7;
   --color-danger: #b91c1c;
   --color-danger-soft: #fee2e2;
+  /* A place without topics (red 0 on the globe, its call to write). */
+  --color-empty: #dc2626;
+  --color-empty-strong: #b91c1c;
+  --color-empty-soft: #fef2f2;
   /*
    * How far a place's content is (ContentStatusBadge, the marks in the topic pills
    * on the globe): ready = green check, in preparation = amber hourglass. The
