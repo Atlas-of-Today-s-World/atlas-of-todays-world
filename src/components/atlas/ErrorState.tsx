@@ -1,6 +1,7 @@
 import Link from "@/components/i18n/Link";
 import type { ReactNode } from "react";
 import { buttonVariants } from "@/components/ui/button";
+import { Lead } from "./Note";
 
 /**
  * The single look for error and "not found" pages (404, load error).
@@ -37,9 +38,7 @@ export function ErrorState({
       <h1 className="font-display mt-2 text-[26px] leading-tight font-bold text-[var(--color-ink)]">
         {title}
       </h1>
-      <p className="mt-3 max-w-md text-[14px] leading-relaxed text-[var(--color-ink-soft)]">
-        {lead}
-      </p>
+      <Lead className="mt-3 max-w-md">{lead}</Lead>
       <div className="mt-6 flex flex-wrap gap-2">
         {action}
         <Link href="/" className={buttonVariants({ variant: action ? "outline" : "primary" })}>

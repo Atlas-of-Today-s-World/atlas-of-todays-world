@@ -4,6 +4,7 @@ import { Search, X } from "lucide-react";
 import { TopicsInvite } from "@/components/topics/TopicsInvite";
 import { type ReactNode, useSyncExternalStore } from "react";
 import { kickerVariants } from "@/components/atlas/kicker";
+import { EmptyNote } from "@/components/atlas/Note";
 import { PhotoCard } from "@/components/atlas/PhotoCard";
 import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
@@ -227,7 +228,7 @@ export function TopicsBrowser({
               {messages.panel.tryAgain}
             </Button>
           ) : !loading && !hits.length ? (
-            <p className="mt-3 text-[14px] text-[var(--color-ink-soft)]">{t.noResults}</p>
+            <EmptyNote className="mt-3">{t.noResults}</EmptyNote>
           ) : (
             <ul className="mt-3 grid gap-3">
               {hits.map((hit) => (
@@ -289,9 +290,9 @@ export function TopicsBrowser({
         </>
       ) : (
         <>
-          <p className="mt-8 text-[14px] text-[var(--color-ink-muted)]">
+          <EmptyNote tone="muted" className="mt-8">
             {filter ? format(t.filterNone, { name: filterName }) : t.empty}
-          </p>
+          </EmptyNote>
           {filter ? <TopicsInvite t={t} place={filterName} full className="mt-4 max-w-xl" /> : null}
         </>
       )}

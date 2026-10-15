@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { EmptyNote } from "@/components/atlas/Note";
 import { PhotoCard } from "@/components/atlas/PhotoCard";
 import { Rail } from "@/components/atlas/Rail";
 import { NEWS_CATEGORIES, type NewsCategory } from "@/lib/content-types";
@@ -67,7 +68,9 @@ export default function NewsTabs({ newsItems }: { newsItems: NewsCard[] }) {
           ))}
         </Rail>
       ) : (
-        <p className="mt-5 text-[13px] text-white/60">{t.newsTabs.empty}</p>
+        <EmptyNote size="sm" tone="inverse" className="mt-5">
+          {t.newsTabs.empty}
+        </EmptyNote>
       )}
     </section>
   );

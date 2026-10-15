@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { searchKindKey } from "@/lib/search-kind";
 import { headers } from "next/headers";
 import Link from "@/components/i18n/Link";
+import { EmptyNote } from "@/components/atlas/Note";
 import { firstParam } from "@/lib/query-params";
 import { search, SEARCH_LIMIT } from "@/lib/search";
 import { isSearchable } from "@/lib/search-query";
@@ -109,7 +110,7 @@ export default async function SearchPage({
       </ul>
 
       {query && !tooShort && !limited && !results.length ? (
-        <p className="mt-6 text-[14px] text-[var(--color-ink-soft)]">{t.nothing}</p>
+        <EmptyNote className="mt-6">{t.nothing}</EmptyNote>
       ) : null}
     </main>
   );

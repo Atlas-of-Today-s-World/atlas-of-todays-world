@@ -1,6 +1,7 @@
 import { getSiteSettings } from "@/features/site/queries";
 import type { Metadata } from "next";
 import { kickerVariants } from "@/components/atlas/kicker";
+import { EmptyNote } from "@/components/atlas/Note";
 import Link from "@/components/i18n/Link";
 import { JsonLd } from "@/components/JsonLd";
 import { getAuthorBySlug, getAuthors } from "@/features/authors/queries";
@@ -132,7 +133,7 @@ export default async function AuthorPage({ params }: Params) {
             ))}
           </ul>
         ) : (
-          <p className="mt-4 text-[14px] text-[var(--color-ink-soft)]">{t.none}</p>
+          <EmptyNote className="mt-4">{t.none}</EmptyNote>
         )}
       </section>
 

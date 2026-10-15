@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { Lead } from "@/components/atlas/Note";
 import { getFlags } from "@/features/flags/queries";
 import { localePath } from "@/features/i18n/config";
 import { getMessagesFor, localeFrom } from "@/features/i18n/request";
@@ -45,7 +46,7 @@ export default async function LoginPage({
   return (
     <main className="mx-auto max-w-md">
       <h1 className="font-display text-[28px] font-bold">{t.title}</h1>
-      <p className="mt-3 text-[14px] leading-relaxed text-[var(--color-ink-soft)]">{t.lead}</p>
+      <Lead className="mt-3">{t.lead}</Lead>
 
       {error ? (
         <p role="alert" className="mt-6 rounded-lg bg-red-50 px-3 py-2 text-[13px] text-red-700">
