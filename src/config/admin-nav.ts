@@ -6,6 +6,7 @@ import {
   HandCoins,
   HandHeart,
   House,
+  Languages,
   LayoutDashboard,
   LayoutGrid,
   Layers,
@@ -68,6 +69,7 @@ export const ADMIN_NAV: readonly AdminNavItem[] = [
   },
   { href: adminRoutes.sitePages.list, label: "Site pages", section: "site", icon: FileText },
   { href: adminRoutes.siteSettings, label: "Site settings", section: "site", icon: Settings },
+  { href: adminRoutes.uiTexts, label: "UI texts", section: "site", icon: Languages },
   {
     href: adminRoutes.siteNavigation.list,
     label: "Site menus",
