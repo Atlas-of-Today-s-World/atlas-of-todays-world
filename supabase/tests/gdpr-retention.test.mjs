@@ -144,8 +144,10 @@ before(async () => {
   }
   preScrub = await auditSnapshot();
 
-  await migrate(migrationFiles.slice(at));
+  await migrate([RETENTION]);
   postScrub = await auditSnapshot();
+  // Later migrations (e.g. content edits) write audit rows of their own.
+  await migrate(migrationFiles.slice(at + 1));
 
   await account(id.admin, EMAIL.admin, "admin");
   await account(id.reader, EMAIL.reader, "reader");
