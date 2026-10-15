@@ -6,7 +6,7 @@ import { CountryPicker, type CountryOption } from "@/components/admin/CountryPic
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { Checkbox, FormField, Input, Select } from "@/components/ui/field";
 import { createInvitation } from "@/features/invitations/actions";
-import { AdminOnlyRolesNote } from "@/features/roles/components/AdminOnlyRolesNote";
+import { AdminOnlyRolesNote } from "@/components/admin/AdminOnlyRolesNote";
 import { ActionForm, useServerAction } from "@/components/ui/action-form";
 
 interface RoleOption {
