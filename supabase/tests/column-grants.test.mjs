@@ -70,7 +70,7 @@ const PUBLIC = {
     "id, label, short_label, description, unit, decimals, source, source_url, type, scale, domain_min, domain_max, ramp, higher_is_better, latest_year, is_custom, updated_at, position",
   indicator_values:
     "indicator_id, country_iso3, value, year, note, source_note, is_manual, updated_at",
-  // `note` is the team's own (20261013000230): signed-in accounts read it, anon doesn't.
+  // `note` is the team's own (20261013000300): signed-in accounts read it, anon doesn't.
   map_areas: "id, slug, name, label, country_iso3, fill, stroke, geometry, created_at, updated_at",
   special_regions:
     "slug, name, subtitle, summary, fill, stroke, center_lon, center_lat, zoom, updated_at, timeline_title, timeline_subtitle, intro, hero_url, hero_credit, kind, content_status",

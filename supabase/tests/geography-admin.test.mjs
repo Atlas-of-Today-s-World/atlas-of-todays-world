@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { PGlite } from "@electric-sql/pglite";
 
 /**
- * Geography in the admin (migration 20261013000230_geography_admin_fields):
+ * Geography in the admin (migration 20261013000300_geography_admin_fields):
  * the CHECKs of the new region / country form fields (validated against the
  * seed), reordering regions and data layers through move_region /
  * move_indicator (rights: regions "e" / layers "e"), a layer's latest year
@@ -21,7 +21,7 @@ import { PGlite } from "@electric-sql/pglite";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const migrations = join(here, "..", "migrations");
-const FIRST_NEW = "20261013000230";
+const FIRST_NEW = "20261013000300";
 const db = new PGlite();
 
 const id = {
@@ -96,6 +96,9 @@ before(async () => {
     insert into map_areas (slug, name, note, fill, stroke, geometry) values
       ('test-area', 'Test area', 'Shape traced from the UN map', '#aabbcc', '#112233',
        '{"type":"Polygon","coordinates":[[[0,0],[1,0],[1,1],[0,0]]]}');
+    -- An editor's tagline that only differs in case from the boilerplate stays.
+    update regions set tagline = 'A comprehensive portrait with global perspective'
+     where slug = 'east-asia';
   `);
   await apply(files.filter((f) => f >= FIRST_NEW));
 
@@ -134,6 +137,24 @@ test("geography admin: the test roles hold the rights the tests assume", async (
   assert.equal(await has(id.editor, "layers", "e"), false);
   assert.equal(await has(id.regionsOnly, "regions", "e"), true);
   assert.equal(await has(id.regionsOnly, "layers", "e"), false);
+});
+
+test("regions: the old site's boilerplate tagline is cleared, real ones stay", async () => {
+  const taglines = Object.fromEntries(
+    (await q("select slug, tagline from regions")).map((row) => [row.slug, row.tagline]),
+  );
+  assert.equal(
+    Object.values(taglines).filter(
+      (tagline) => tagline === "A Comprehensive Portrait with global perspective",
+    ).length,
+    0,
+  );
+  // The seed's other regions had exactly the boilerplate.
+  assert.equal(taglines["middle-east-north-africa"], "");
+  assert.equal(taglines["latin-america-caribbean"], "");
+  // Not an exact match (case) and a real tagline: untouched.
+  assert.equal(taglines["east-asia"], "A comprehensive portrait with global perspective");
+  assert.equal(taglines.antarctica, "The frozen continent");
 });
 
 // ---------------------------------------------------------------------------

@@ -28,6 +28,11 @@
 --   4. Audit of the facts the team now changes on regions and countries.
 --   5. map_areas.note is an internal note for the team (where the shape comes
 --      from): the public site never showed it, so anon no longer reads it.
+--   6. The region tagline imported from the old site ("A Comprehensive
+--      Portrait with global perspective", the same on every region) is
+--      boilerplate. The portrait now shows the tagline under the name, so it is
+--      cleared where it is exactly that text: only taglines the editors wrote
+--      appear. The column is NOT NULL (default ''), so "none" is ''.
 -- =============================================================================
 
 -- ---------------------------------------------------------------------------
@@ -208,3 +213,12 @@ create trigger countries_audit
 -- Signed-in accounts keep it: the admin reads it with the user's session.
 
 revoke select (note) on public.map_areas from anon;
+
+-- ---------------------------------------------------------------------------
+-- 6. No boilerplate tagline under a region's name
+-- ---------------------------------------------------------------------------
+-- Exact, case-sensitive match: a tagline an editor changed in any way stays.
+
+update public.regions
+   set tagline = ''
+ where tagline = 'A Comprehensive Portrait with global perspective';
