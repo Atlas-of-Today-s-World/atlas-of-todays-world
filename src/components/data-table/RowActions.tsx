@@ -13,6 +13,8 @@ import {
   EyeOff,
   type LucideIcon,
   Pencil,
+  Power,
+  PowerOff,
   Send,
   Share2,
   Trash2,
@@ -49,6 +51,8 @@ const ICONS: Record<RowActionIcon, LucideIcon> = {
   show: Eye,
   up: ArrowUp,
   down: ArrowDown,
+  on: Power,
+  off: PowerOff,
 };
 
 /** An "instant" row action: runs without a dialog, refreshes the table, announces a failure. */

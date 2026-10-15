@@ -48,7 +48,7 @@ export default async function IssuesPage() {
         caption="Global issues and custom regions"
         emptyTitle="No global issues yet"
         initialSort={{ key: "name", dir: "asc" }}
-        actionsWidth={canDelete ? "96px" : "72px"}
+        maxRowActions={canDelete ? 3 : 2}
         columns={[
           { key: "color", label: "Colour", kind: "color", width: "64px", noExport: true },
           {

@@ -44,8 +44,8 @@ export default async function HomeAdminPage() {
   const shownIds = new Set(onMap.map((tile) => tile.id));
   const pinnedIds = new Set(pins.map((pin) => pin.chapterId));
   const newest = onMap.filter((tile) => !pinnedIds.has(tile.id));
-  // Open on the site, move up + down, unpin — ~32 px per icon.
-  const actions = 1 + (canEdit ? 3 : 0);
+  // Open on the site, move up + down, unpin.
+  const maxActions = 1 + (canEdit ? 3 : 0);
 
   return (
     <>
@@ -77,7 +77,7 @@ export default async function HomeAdminPage() {
           emptyTitle="Nothing pinned — the home map shows the newest subtopics"
           initialSort={{ key: "position", dir: "asc" }}
           stats={optionStats("shown", SHOWN)}
-          actionsWidth={`${actions * 32}px`}
+          maxRowActions={maxActions}
           columns={[
             {
               key: "position",

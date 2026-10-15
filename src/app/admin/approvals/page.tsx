@@ -42,7 +42,7 @@ export default async function ApprovalsPage() {
         emptyTitle="No articles are waiting for approval"
         initialSort={{ key: "submitted", dir: "asc" }}
         stats={optionStats("who", WHO, "All awaiting approval")}
-        actionsWidth={canApprove ? "104px" : "48px"}
+        maxRowActions={canApprove ? 3 : 1}
         columns={[
           {
             key: "title",

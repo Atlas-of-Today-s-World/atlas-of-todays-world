@@ -4,12 +4,12 @@ import { PageHeader } from "@/components/admin/PageHeader";
 import { ReadOnly } from "@/components/admin/ReadOnly";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
-import { editAction } from "@/components/data-table/row-actions";
+import { confirmAction, editAction } from "@/components/data-table/row-actions";
 import { optionStats } from "@/components/data-table/stats";
 import { navIcon } from "@/config/admin-nav";
 import { adminRoutes } from "@/config/routes";
 import { can, sectionAccess } from "@/features/auth/access";
-import { FlagToggle } from "@/features/flags/components/FlagToggle";
+import { setFlag } from "@/features/flags/actions";
 import { MaintenanceMessageForm } from "@/features/flags/components/SwitchForms";
 import { getMaintenanceMessage, listFlags } from "@/features/flags/editorial";
 import { DEFAULT_LOCALE } from "@/features/i18n/config";
@@ -21,6 +21,12 @@ const STATE = [
   { value: "on", label: "On", tone: "success" as const },
   { value: "off", label: "Off", tone: "neutral" as const },
 ];
+
+/** What turning a switch on does, where it is more than "takes effect immediately". */
+const TURN_ON: Record<string, string> = {
+  maintenance:
+    "Every public page shows the maintenance notice instead of its content, at once. The admin, sign-in and account pages keep working.",
+};
 
 /**
  * Feature switches and the maintenance message (F6). Turning a switch and its
@@ -84,7 +90,7 @@ export default async function SwitchesPage() {
           emptyTitle="No switches"
           initialSort={{ key: "key", dir: "asc" }}
           stats={optionStats("state", STATE)}
-          actionsWidth="136px"
+          maxRowActions={2}
           columns={[
             { key: "key", label: "Switch", kind: "code", sortable: true, width: "200px" },
             {
@@ -108,10 +114,19 @@ export default async function SwitchesPage() {
               updated: flag.updated_at,
             },
             actions: canSwitch ? (
-              <div className="flex items-center gap-1">
-                <RowActions actions={[editAction(adminRoutes.switches(flag.key), "Edit note")]} />
-                <FlagToggle flagKey={flag.key} enabled={flag.enabled} label={flag.key} />
-              </div>
+              <RowActions
+                actions={[
+                  editAction(adminRoutes.switches(flag.key), "Edit note"),
+                  confirmAction(
+                    flag.enabled ? "off" : "on",
+                    flag.enabled ? "Turn off" : "Turn on",
+                    setFlag.bind(null, flag.key, !flag.enabled),
+                    `${flag.enabled ? "Turn off" : "Turn on"}: ${flag.key}?`,
+                    (!flag.enabled && TURN_ON[flag.key]) ||
+                      "The change takes effect on the website immediately.",
+                  ),
+                ]}
+              />
             ) : undefined,
           }))}
         />

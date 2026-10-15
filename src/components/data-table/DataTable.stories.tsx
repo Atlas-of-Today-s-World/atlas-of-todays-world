@@ -4,7 +4,14 @@ import { adminRoutes } from "@/config/routes";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "./DataTable";
 import { RowActions } from "./RowActions";
-import { deleteAction, moveActions, noteAction, visibilityAction } from "./row-actions";
+import {
+  confirmAction,
+  deleteAction,
+  editAction,
+  moveActions,
+  noteAction,
+  visibilityAction,
+} from "./row-actions";
 import type { ColumnDef, DataTableRow } from "./types";
 
 type Key = "title" | "status" | "tags" | "author" | "words" | "updated";
@@ -103,7 +110,7 @@ const meta = {
     columns,
     rows,
     initialSort: { key: "updated", dir: "desc" },
-    actionsWidth: "120px",
+    maxRowActions: 5,
     selectable: true,
     stats: [
       { key: "all", label: "All" },
@@ -147,7 +154,7 @@ export const Reorderable: Story = {
     tableKey: "storybook-reorder",
     stats: undefined,
     selectable: false,
-    actionsWidth: "136px",
+    maxRowActions: 5,
     rows: rows.slice(0, 5).map((row, index, list) => ({
       ...row,
       actions: (
@@ -157,6 +164,32 @@ export const Reorderable: Story = {
             ...moveActions(noop, noop, { first: index === 0, last: index === list.length - 1 }),
             visibilityAction(noop, index !== 2, "this entry"),
             deleteAction(noop, "this entry"),
+          ]}
+        />
+      ),
+    })),
+  },
+};
+
+/**
+ * A narrow Actions column: its width follows `maxRowActions` (the most icons a
+ * row can show), here edit + turn on / off.
+ */
+export const TwoActions: Story = {
+  args: {
+    tableKey: "storybook-two-actions",
+    stats: undefined,
+    selectable: false,
+    maxRowActions: 2,
+    rows: rows.slice(0, 5).map((row, index) => ({
+      ...row,
+      actions: (
+        <RowActions
+          actions={[
+            editAction(row.href ?? "/", "Edit note"),
+            index % 2
+              ? confirmAction("off", "Turn off", noop, "Turn off?", "It takes effect at once.")
+              : confirmAction("on", "Turn on", noop, "Turn on?", "It takes effect at once."),
           ]}
         />
       ),

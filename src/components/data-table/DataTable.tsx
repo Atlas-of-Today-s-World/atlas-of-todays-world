@@ -21,7 +21,7 @@ import { csvFileName, downloadCsv, rowsToCsv } from "./csv";
 import { DataTableColumnsMenu } from "./DataTableColumnsMenu";
 import { DataTableExportMenu } from "./DataTableExportMenu";
 import { DataTableToolbar } from "./DataTableToolbar";
-import { buildGridTemplate, columnTrack, MIN_COLUMN_PX } from "./gridTemplate";
+import { buildGridTemplate, columnTrack, MIN_COLUMN_PX, rowActionsWidth } from "./gridTemplate";
 import { defaultPreferences, PAGE_SIZES } from "./preferences";
 import { activeFilterCount, countWhere, filterOptions, isActiveFilter, processRows } from "./rows";
 import { headerCheckboxState, toggleKey, togglePageSelection } from "./selection";
@@ -60,8 +60,11 @@ export interface DataTableProps<K extends string> {
   emptyDescription?: string;
   /** Checkbox column + bar with the selection (Export selected). */
   selectable?: boolean;
-  /** Width of the sticky Actions column (fixed track). */
-  actionsWidth?: string;
+  /**
+   * Most row action icons a row can show (with the viewer's rights and every
+   * conditional action); sizes the sticky Actions column (`rowActionsWidth`).
+   */
+  maxRowActions?: number;
   /** Short list in a card: no toolbar, no footer. */
   compact?: boolean;
   /**
@@ -99,7 +102,7 @@ export function DataTable<K extends string>({
   emptyTitle = "Nothing here yet",
   emptyDescription,
   selectable = false,
-  actionsWidth = "96px",
+  maxRowActions = 1,
   compact = false,
   seedFilters,
 }: DataTableProps<K>) {
@@ -184,7 +187,7 @@ export function DataTable<K extends string>({
     columnWidths: visible.map((column) =>
       columnTrack(column.width, prefs.columnWidths[column.key]),
     ),
-    actionsWidth: hasActions ? actionsWidth : null,
+    actionsWidth: hasActions ? rowActionsWidth(maxRowActions) : null,
     hasSelect: selectable,
   });
 
@@ -346,7 +349,7 @@ export function DataTable<K extends string>({
             role="table"
             aria-label={caption}
             aria-rowcount={processed.length + 1}
-            className="grid w-full min-w-min text-[13px] text-[var(--color-ink)]"
+            className="grid w-full min-w-min text-[13px] text-[var(--color-ink)] pointer-coarse:[--row-icon:var(--touch-min)]"
             style={{ gridTemplateColumns: template }}
           >
             <thead role="rowgroup" className="contents">
@@ -400,7 +403,7 @@ export function DataTable<K extends string>({
                   <th
                     role="columnheader"
                     scope="col"
-                    className={cn(headerCell, stickyRight, "justify-end px-2.5 uppercase")}
+                    className={cn(headerCell, stickyRight, "justify-end px-1.5 uppercase")}
                   >
                     Actions
                   </th>

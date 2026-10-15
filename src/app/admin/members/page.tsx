@@ -60,7 +60,6 @@ export default async function MembersPage() {
         emptyTitle="No patron memberships yet"
         initialSort={{ key: "who", dir: "asc" }}
         stats={optionStats("plan", PLANS)}
-        actionsWidth="48px"
         columns={[
           {
             key: "who",

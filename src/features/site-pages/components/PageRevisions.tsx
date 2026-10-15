@@ -23,7 +23,6 @@ export function PageRevisions({
       tableKey="admin-site-page-revisions"
       caption="Saved versions"
       emptyTitle="No saved versions yet"
-      actionsWidth="48px"
       columns={[
         { key: "saved", label: "Saved", kind: "datetime", width: "150px" },
         { key: "by", label: "By", width: "minmax(100px, 1fr)" },

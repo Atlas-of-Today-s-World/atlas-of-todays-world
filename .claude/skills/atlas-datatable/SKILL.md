@@ -29,7 +29,7 @@ no functions in column definitions.
   stats={optionStats("status", STATUS_OPTIONS)}   // KPI chips "All" + one per option
   toolbar={<ToolbarLink href={…} active={mine}>Only my articles</ToolbarLink>}
   emptyTitle="No articles yet"
-  actionsWidth="96px"                 // ~32 px per row icon
+  maxRowActions={2 + (canDelete ? 1 : 0)}  // most icons a row can show — sizes the Actions column
   columns={[
     { key: "title", label: "Title", link: true, sortable: true, filter: "text", width: "minmax(240px, 3fr)" },
     { key: "status", label: "Status", kind: "badge", options: STATUS_OPTIONS, sortable: true, filter: "select", width: "150px" },
@@ -55,7 +55,8 @@ Pre-rendered cells (`row.cells[key]`) only when a cell needs a link or a control
 `RowActions` + helpers in `row-actions.ts` (server-safe, plain data). Icons: `edit` (Pencil),
 `view` (Eye), `open` (ExternalLink, new tab), `share`, `archive`, `restore`, `revoke` (Ban),
 `delete` (Trash2, red), `up` / `down` (ArrowUp / ArrowDown, from `moveActions`), `hide` / `show`
-(EyeOff / Eye, from `visibilityAction` — confirmed like any other action). Rules (TealHub owner rule):
+(EyeOff / Eye, from `visibilityAction` — confirmed like any other action), `on` / `off`
+(Power / PowerOff, turn a switch on / off). Rules (TealHub owner rule):
 
 1. One click, icons right in the row — no "⋯" menu. Order: edit → open/view → archive/restore/revoke → delete last.
 2. Every record type the user can change gets its actions: **edit** (link to detail), **open on the site**
@@ -68,12 +69,21 @@ Pre-rendered cells (`row.cells[key]`) only when a cell needs a link or a control
 4. Actions call existing Server Actions bound to the row id (`deleteX.bind(null, id)`), returning `ActionState`;
    the table refreshes on success. Content state changes only through the workflow RPCs (e.g. `unpublishEntry`).
 5. Each icon button has an accessible name + tooltip and grows to 44 px on touch.
+6. Only icon buttons go in the Actions column (no text buttons, toggles or wrappers around `RowActions`).
+   Its width is never hand-set: pass `maxRowActions` = the most icons **any** row can show — count every
+   conditional action as present (published-only "open", status-dependent ones…) and gate only by the
+   viewer's rights (`2 + (canMove ? 2 : 0) + (canDelete ? 1 : 0)`); default 1. `DataTable` sizes the
+   column with `rowActionsWidth(n)` (`gridTemplate.ts`): `n × 24 px` icons + `(n − 1) × 2 px` gaps
+   + 13 px cell padding and border, never less than two icons so the "Actions" header fits —
+   1–2 → 63 px, 3 → 89, 4 → 115, 5 → 141, 6 → 167; on touch the icons count 44 px each
+   (`--row-icon`), so nothing is clipped there either. Add an action to a table = raise its `maxRowActions`.
 
 ## Checklist for a new / changed list
 
 - [ ] `DataTable` with a unique `tableKey`, `caption`, search, sortable + filterable columns.
 - [ ] KPI chips (`optionStats`) when there is a status / type column.
-- [ ] `RowActions` with edit / open / archive / delete as the domain allows, gated by permissions.
+- [ ] `RowActions` with edit / open / archive / delete as the domain allows, gated by permissions;
+      `maxRowActions` = the most icons a row can show.
 - [ ] Page-specific toggles go to `toolbar` as `ToolbarLink`, not custom pill bars.
 - [ ] e2e: the list renders, a row action works (confirm dialog → result).
 - [ ] New action icon or cell kind? Add it to `row-actions.ts` / `cells.tsx` and the Storybook story, not inline in a page.

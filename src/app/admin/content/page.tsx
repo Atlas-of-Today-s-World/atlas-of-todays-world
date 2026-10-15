@@ -84,7 +84,7 @@ export default async function EntriesPage({
             <UserRound aria-hidden className="size-3.5" /> Only my articles
           </ToolbarLink>
         }
-        actionsWidth="128px"
+        maxRowActions={2 + (canUnpublish ? 1 : 0) + (canDelete ? 1 : 0)}
         columns={[
           {
             key: "title",

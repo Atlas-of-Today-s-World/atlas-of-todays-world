@@ -67,7 +67,7 @@ function MenuTable({
       emptyTitle="No items — the site shows none in this menu"
       initialSort={{ key: "order", dir: "asc" }}
       stats={optionStats("visibility", VISIBILITY)}
-      actionsWidth="200px"
+      maxRowActions={(canEdit ? 4 : 0) + 1 + (canDelete ? 1 : 0)}
       columns={[
         { key: "order", label: "#", kind: "number", sortable: true, width: "64px" },
         {

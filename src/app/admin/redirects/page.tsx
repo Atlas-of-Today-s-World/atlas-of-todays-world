@@ -62,7 +62,7 @@ export default async function RedirectsPage({
           emptyTitle="No URL redirects yet"
           initialSort={{ key: "created", dir: "desc" }}
           stats={optionStats("kind", KIND)}
-          actionsWidth="104px"
+          maxRowActions={(canEdit ? 1 : 0) + 1 + (canDelete ? 1 : 0)}
           columns={[
             { key: "from", label: "Old path", kind: "code", sortable: true, filter: "text" },
             { key: "to", label: "New path", kind: "code", sortable: true, filter: "text" },

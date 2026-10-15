@@ -97,7 +97,7 @@ export default async function SiteSettingsPage() {
           emptyTitle="No social links — the header shows no badges"
           initialSort={{ key: "order", dir: "asc" }}
           stats={optionStats("visibility", VISIBILITY)}
-          actionsWidth="160px"
+          maxRowActions={(canEdit ? 3 : 0) + 1 + (canDelete ? 1 : 0)}
           columns={[
             { key: "order", label: "#", kind: "number", sortable: true, width: "64px" },
             {
