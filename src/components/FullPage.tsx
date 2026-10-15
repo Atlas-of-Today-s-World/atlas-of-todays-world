@@ -5,6 +5,7 @@ import { RememberedScroll } from "@/components/RememberedScroll";
 import type { Messages } from "@/features/i18n/messages";
 import { getNavigation } from "@/features/navigation/queries";
 import { getSiteSettings, getSocialLinks } from "@/features/site/queries";
+import { captchaEnabled } from "@/lib/security/turnstile";
 
 /**
  * Full-width page over the map (Topics, encyclopedia entries). It rises over
@@ -33,7 +34,7 @@ export async function FullPage({
       tabIndex={-1}
       className="panel-scroll z-full-page fixed inset-0 animate-[full-page-in_0.6s_cubic-bezier(0.22,1,0.36,1)_both] overflow-y-auto bg-[var(--color-paper)] text-[var(--color-ink)] outline-none"
     >
-      <Header bar newsletter={newsletter} nav={nav} socials={socials} />
+      <Header bar newsletter={newsletter} captcha={captchaEnabled()} nav={nav} socials={socials} />
 
       {children}
 

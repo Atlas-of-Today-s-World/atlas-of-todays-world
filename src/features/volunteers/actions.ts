@@ -8,6 +8,7 @@ import { affected, formAction, idAction, invalidCodes, type ActionState } from "
 import { adminRoutes } from "@/config/routes";
 import { serverEnv } from "@/lib/env.server";
 import { allowRequest } from "@/lib/security/rate-limit";
+import { passesCaptcha } from "@/lib/security/turnstile";
 import { createServiceClient } from "@/lib/supabase/service";
 import { APPLICATION_STATUSES, ApplicationInput, SettingsInput } from "./schema";
 
@@ -16,15 +17,16 @@ const ADMIN_PAGE = adminRoutes.volunteers;
 /**
  * A visitor applies to edit content as a volunteer (/membership). Results are
  * codes (messages: patrons.volunteer.messages). Honeypot `website`, a shared
- * per-IP rate limit, then the DB function (which also caps applications per
- * hour). The e-mail to the address set in the admin is sent later (not yet).
+ * per-IP rate limit, Turnstile after validation (only with both keys set), then
+ * the DB function (which also caps applications per hour). The e-mail to the address set in the admin is sent later (not yet).
  */
 export async function applyAsVolunteer(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
   if (String(formData.get("website") ?? "").trim()) return { ok: true, message: "thanks" };
-  if (!(await allowRequest("volunteer", await headers(), { limit: 3, windowSeconds: 3600 }))) {
+  const request = await headers();
+  if (!(await allowRequest("volunteer", request, { limit: 3, windowSeconds: 3600 }))) {
     return { ok: false, error: "rateLimited" };
   }
   const parsed = ApplicationInput.safeParse({
@@ -35,6 +37,7 @@ export async function applyAsVolunteer(
     consent: formData.get("consent"),
   });
   if (!parsed.success) return invalidCodes(parsed.error);
+  if (!(await passesCaptcha(formData, request))) return { ok: false, error: "captcha" };
   // Only the server may submit (after the per-IP limit above); the RPC is not public.
   if (!serverEnv.SUPABASE_SERVICE_ROLE_KEY) return { ok: false, error: "failed" };
   const { error } = await createServiceClient().rpc("submit_volunteer_application", {

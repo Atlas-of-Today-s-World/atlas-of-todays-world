@@ -7,6 +7,7 @@ import { useMessages } from "@/components/i18n/LocaleProvider";
 import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { buttonVariants } from "@/components/ui/button";
 import { describedBy, FormField, Input, RequiredNote, Textarea } from "@/components/ui/field";
+import { Turnstile } from "@/components/ui/turnstile";
 import { useFormErrors } from "@/lib/use-form-errors";
 import { applyAsVolunteer } from "../actions";
 import { topicPrefill } from "../prefill";
@@ -16,9 +17,10 @@ import { topicPrefill } from "../prefill";
  * Explicit consent with a link to the policy; `website` is a honeypot for bots.
  * Field errors (message codes) stand under their field and focus moves to the
  * first one; after sending, the form gives way to the thank-you note, which
- * takes the focus so it isn't lost with the vanished button.
+ * takes the focus so it isn't lost with the vanished button. `captcha` (decided
+ * on the server: both Turnstile keys set) adds the Turnstile widget.
  */
-export function VolunteerForm() {
+export function VolunteerForm({ captcha }: { captcha: boolean }) {
   const messages = useMessages();
   const t = messages.patrons.volunteer;
   const id = useId();
@@ -136,6 +138,7 @@ export function VolunteerForm() {
           </p>
         ) : null}
       </div>
+      {captcha ? <Turnstile reset={state} className="sm:col-span-2" /> : null}
       {/* Honeypot for bots: a field invisible to humans. */}
       <input
         type="text"

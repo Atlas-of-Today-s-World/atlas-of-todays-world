@@ -120,6 +120,7 @@ jobs:
           PROD_FLAG: ${{ github.event_name != 'pull_request' && '--prod' || '' }}
           TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
           RATE_LIMIT_SECRET: ${{ secrets.RATE_LIMIT_SECRET }}
+          TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
         run: |
           args=()
           if [ -n "$TURNSTILE_SITE_KEY" ]; then
@@ -128,5 +129,12 @@ jobs:
           fi
           if [ -n "$RATE_LIMIT_SECRET" ]; then
             args+=(--env "RATE_LIMIT_SECRET=$RATE_LIMIT_SECRET")
+          fi
+          # Turnstile on the public forms (lib/security/turnstile.ts). Also a build
+          # env: static pages decide at build whether to render the widget, and the
+          # runtime check must agree with them. Not NEXT_PUBLIC_, so never inlined.
+          if [ -n "$TURNSTILE_SECRET_KEY" ]; then
+            args+=(--build-env "TURNSTILE_SECRET_KEY=$TURNSTILE_SECRET_KEY")
+            args+=(--env "TURNSTILE_SECRET_KEY=$TURNSTILE_SECRET_KEY")
           fi
           vercel deploy $PROD_FLAG --yes --token "$VERCEL_TOKEN" "${args[@]}"

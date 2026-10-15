@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { invalidCodes, type ActionState } from "@/lib/actions";
 import { serverEnv } from "@/lib/env.server";
 import { allowRequest } from "@/lib/security/rate-limit";
+import { passesCaptcha } from "@/lib/security/turnstile";
 import { INTEREST_TAGS } from "./interests";
 import { SubscribeInput } from "./schema";
 
@@ -18,11 +19,14 @@ const CONFIRM = "confirm";
  * Newsletter subscription via Mailchimp (the API key must not reach the browser).
  * Double opt-in (`pending`): the address joins the list only after the person
  * clicks the confirmation email — otherwise someone else's address could be subscribed (GDPR).
- * The rate limit is shared in Postgres (SEC-06); `website` is a honeypot for bots.
+ * The rate limit is shared in Postgres (SEC-06); `website` is a honeypot for bots;
+ * Turnstile (only with both keys set) is checked after validation, so a typo
+ * doesn't use up the visitor's token.
  */
 export async function subscribe(_prev: ActionState, formData: FormData): Promise<ActionState> {
   if (String(formData.get("website") ?? "").trim()) return { ok: true, message: "thanks" };
-  if (!(await allowRequest("newsletter", await headers(), { limit: 5, windowSeconds: 600 }))) {
+  const request = await headers();
+  if (!(await allowRequest("newsletter", request, { limit: 5, windowSeconds: 600 }))) {
     return { ok: false, error: "rateLimited" };
   }
   const parsed = SubscribeInput.safeParse({
@@ -31,6 +35,7 @@ export async function subscribe(_prev: ActionState, formData: FormData): Promise
     interests: formData.getAll("interests"),
   });
   if (!parsed.success) return invalidCodes(parsed.error);
+  if (!(await passesCaptcha(formData, request))) return { ok: false, error: "captcha" };
 
   const key = serverEnv.MAILCHIMP_API_KEY;
   const list = serverEnv.MAILCHIMP_LIST_ID;
