@@ -16,10 +16,7 @@ export const metadata: Metadata = { title: "Topic template" };
 export default async function TopicTemplatePage({
   params,
   searchParams,
-}: {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<{ saved?: string }>;
-}) {
+}: PageProps<"/admin/topic-templates/[id]">) {
   const access = await sectionAccess("news");
   if (!access) return <NoAccess />;
   const { id } = await params;

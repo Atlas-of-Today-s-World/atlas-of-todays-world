@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { LOCALES, localePath, type Locale } from "@/features/i18n/config";
+import type { Messages } from "@/features/i18n/messages";
+import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { SITE_DEFAULTS, titleSuffix, type SiteSettings } from "@/features/site/model";
 import { getSiteSettings } from "@/features/site/queries";
 import { absoluteUrl, alternates } from "./index";
@@ -51,7 +53,7 @@ export function fullTitle(
 }
 
 export interface PageSeo {
-  /** Language of the route (`/cs/...` = cs). */
+  /** Language of the route (another language than the default has a `/<code>/…` prefix). */
   locale: Locale;
   /** Path without the language prefix, "/" for the home page. */
   path: string;
@@ -61,7 +63,8 @@ export interface PageSeo {
   authoredDescription?: boolean;
   /**
    * Language of the text when it differs from the route (an untranslated
-   * original shown under /cs) — the canonical URL then points to that version.
+   * original shown under another language's URL) — the canonical URL then
+   * points to that version.
    */
   contentLocale?: Locale;
   /** Languages the page really exists in (hreflang); default all. */
@@ -142,5 +145,45 @@ export async function pageMetadata(seo: PageSeo): Promise<Metadata> {
       ? { robots: { index: false, follow: true, googleBot: { index: false, follow: true } } }
       : {}),
     ...(seo.other ? { other: seo.other } : {}),
+  };
+}
+
+/**
+ * Metadata of a private page (sign-in, the account, an invitation, checkout,
+ * a preview link, the admin): its title, kept out of search engines, its
+ * links not followed.
+ */
+export const privateMetadata = (title: Metadata["title"]): Metadata => ({
+  title,
+  robots: { index: false, follow: false },
+});
+
+/** Message sections that describe a whole page: a title (or a longer `metaTitle`) and a description. */
+type PageSection = {
+  [K in keyof Messages]: Messages[K] extends { title: string; description: string } ? K : never;
+}[keyof Messages];
+
+/**
+ * `generateMetadata` of a static index page (Topics, News, Newsletter,
+ * Search…) described by UI texts: `messages[section]`'s `metaTitle` (else
+ * its `title`) and `description`, at `path`.
+ */
+export function staticPageMetadata(
+  section: PageSection,
+  path: string,
+  options: Pick<PageSeo, "noindex" | "ownImage"> = {},
+) {
+  return async ({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> => {
+    const locale = await localeFrom(params);
+    const t: { title: string; metaTitle?: string; description: string } = (
+      await getMessagesFor(locale)
+    )[section];
+    return pageMetadata({
+      locale,
+      path,
+      title: t.metaTitle ?? t.title,
+      description: t.description,
+      ...options,
+    });
   };
 }

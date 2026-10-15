@@ -1,19 +1,15 @@
-import type { Metadata } from "next";
 import { Lead } from "@/components/atlas/Note";
 import Link from "@/components/i18n/Link";
 import { Button } from "@/components/ui/button";
 import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { firstParam } from "@/lib/query-params";
+import { privateMetadata } from "@/lib/seo/metadata";
 import { routes } from "@/config/routes";
 
 export const dynamic = "force-dynamic";
 
-type Params = { params: Promise<{ locale: string }> };
-type Query = { token_hash?: string | string[]; type?: string | string[]; next?: string | string[] };
-
-export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const t = (await getMessagesFor(await localeFrom(params))).auth.confirm;
-  return { title: t.title, robots: { index: false, follow: false } };
+export async function generateMetadata({ params }: PageProps<"/[locale]/login/confirm">) {
+  return privateMetadata((await getMessagesFor(await localeFrom(params))).auth.confirm.title);
 }
 
 /**
@@ -24,7 +20,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 export default async function ConfirmSignInPage({
   params,
   searchParams,
-}: Params & { searchParams: Promise<Query> }) {
+}: PageProps<"/[locale]/login/confirm">) {
   const messages = (await getMessagesFor(await localeFrom(params))).auth;
   const t = messages.confirm;
   const query = await searchParams;

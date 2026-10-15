@@ -12,6 +12,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import type { RegionStat } from "@/lib/region-stats";
 import {
+  categoryLabel,
   ENTRY_CATEGORIES,
   type FaqItem,
   type MetricCard,
@@ -246,9 +247,9 @@ export async function ThematicEntries({ entries }: { entries: PlannedEntry[] }) 
           const group = entries.filter((entry) => entry.category === category);
           return (
             <div key={category}>
-              <h3 className={kickerVariants()}>{t.categories[category]}</h3>
+              <h3 className={kickerVariants()}>{categoryLabel(category, t)}</h3>
               {group.length ? (
-                <Rail label={t.categories[category]} gap="sm" className="mt-2.5">
+                <Rail label={categoryLabel(category, t)} gap="sm" className="mt-2.5">
                   {group.map((entry) => {
                     if (!entry.slug) {
                       return (

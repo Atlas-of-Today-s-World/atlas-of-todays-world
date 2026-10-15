@@ -25,7 +25,7 @@ export async function signInDestination(supabase: ServerClient, next: string | n
   const target = safeRedirect(next, DEFAULT_AFTER_SIGN_IN);
   await supabase.rpc("claim_invitation");
 
-  // Default destination in any language (/ucet, /cs/ucet) = the team member has nowhere else to go.
+  // Default destination in any language (/ucet, /<code>/ucet) = the team member has nowhere else to go.
   if (splitLocale(target).path === DEFAULT_AFTER_SIGN_IN) {
     const { data: role } = await supabase.rpc("my_role");
     if (role && role.id !== "reader") return routes.admin;

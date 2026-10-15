@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Lead } from "@/components/atlas/Note";
 import { getFlags } from "@/features/flags/queries";
 import { localePath } from "@/features/i18n/config";
 import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import { privateMetadata } from "@/lib/seo/metadata";
 import { safeRedirect } from "@/lib/security/redirect";
 import { supabaseConfig } from "@/lib/supabase/config";
 import { currentUser } from "@/lib/supabase/server";
@@ -13,13 +13,8 @@ import { routes } from "@/config/routes";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
-  const t = (await getMessagesFor(await localeFrom(params))).auth;
-  return { title: t.title, robots: { index: false, follow: false } };
+export async function generateMetadata({ params }: PageProps<"/[locale]/login">) {
+  return privateMetadata((await getMessagesFor(await localeFrom(params))).auth.title);
 }
 
 /**
@@ -27,13 +22,7 @@ export async function generateMetadata({
  * SMTP (`email_auth` switch, G1). Signing in also registers a reader;
  * joining the editorial team is by invitation.
  */
-export default async function LoginPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ locale: string }>;
-  searchParams: Promise<{ next?: string; error?: string }>;
-}) {
+export default async function LoginPage({ params, searchParams }: PageProps<"/[locale]/login">) {
   const locale = await localeFrom(params);
   const t = (await getMessagesFor(locale)).auth;
   const { next, error } = await searchParams;

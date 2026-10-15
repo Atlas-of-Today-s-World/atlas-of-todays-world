@@ -16,10 +16,7 @@ export const metadata: Metadata = { title: "Site page" };
 export default async function SitePageEditor({
   params,
   searchParams,
-}: {
-  params: Promise<{ slug: string }>;
-  searchParams: Promise<{ saved?: string }>;
-}) {
+}: PageProps<"/admin/pages/[slug]">) {
   const access = await sectionAccess("site");
   if (!access) return <NoAccess />;
   const { slug } = await params;

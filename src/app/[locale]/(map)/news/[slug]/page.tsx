@@ -6,16 +6,10 @@ import { getEntries, getEntry } from "@/features/entries/queries";
 import { countriesOf } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
 import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import { articleMetaOf } from "@/features/entries/article-meta";
 import { geoMeta } from "@/lib/seo";
 import { pageMetadata, pageTitle } from "@/lib/seo/metadata";
-import {
-  articleNode,
-  breadcrumbNode,
-  graph,
-  homeCrumb,
-  pageUrl,
-  webPageNode,
-} from "@/lib/seo/jsonld";
+import { articleNode, breadcrumbNode, graph, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { wordCount } from "@/lib/text/html";
 import { JsonLd } from "@/components/JsonLd";
 import { routes } from "@/config/routes";
@@ -30,9 +24,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({
   params,
-}: {
-  params: Promise<{ locale: string; slug: string }>;
-}): Promise<Metadata> {
+}: PageProps<"/[locale]/news/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const locale = await localeFrom(params);
   const [item, atlas] = await Promise.all([getEntry(slug, locale), getAtlas(locale)]);
@@ -43,17 +35,15 @@ export async function generateMetadata({
     path: routes.news(item.slug),
     title: pageTitle(item.title),
     description: item.summary,
-    // Without a translation /cs is a copy of the original — the canonical URL is the original's.
+    // Without a translation the page shows the original — the canonical URL is the original's.
     contentLocale: item.locale,
     languages: item.languages,
     ownImage: true,
     type: "article",
     markdown: true,
     article: {
-      published: item.published,
-      modified: item.updated ?? item.published,
+      ...(await articleMetaOf(item)),
       authors: item.author ? [item.author] : undefined,
-      section: (await getMessagesFor(item.locale)).categories[item.category] ?? item.category,
       tags: [region?.name ?? ""].filter(Boolean),
     },
     keywords: [item.title, item.category, region?.name ?? ""].filter(Boolean),
@@ -63,11 +53,7 @@ export async function generateMetadata({
   });
 }
 
-export default async function NewsPage({
-  params,
-}: {
-  params: Promise<{ locale: string; slug: string }>;
-}) {
+export default async function NewsPage({ params }: PageProps<"/[locale]/news/[slug]">) {
   const { slug } = await params;
   const locale = await localeFrom(params);
   const [item, atlas] = await Promise.all([getEntry(slug, locale), getAtlas(locale)]);
@@ -78,8 +64,9 @@ export default async function NewsPage({
   const region = item.region ? atlas.regionBySlug.get(item.region) : undefined;
   const issue = item.issue ? atlas.issueBySlug.get(item.issue) : undefined;
   const countriesCovered = countriesOf(atlas, item.countries);
-  // Canonical URL: the language the text is in (an untranslated original under /cs points to it).
+  // Canonical URL: the language the text is in (an untranslated original points to it).
   const url = pageUrl(routes.news(item.slug), item.locale);
+  const meta = await articleMetaOf(item);
 
   return (
     <>
@@ -93,11 +80,11 @@ export default async function NewsPage({
             description: item.summary,
             locale: item.locale,
             image: item.hero,
-            modified: item.updated ?? item.published,
+            modified: meta.modified,
             about: `${url}#article`,
             breadcrumb: breadcrumbNode(
+              site,
               [
-                homeCrumb(site),
                 { name: (await getMessagesFor(locale)).newsIndex.heading, path: routes.newsIndex },
                 ...(region ? [{ name: region.name, path: routes.region(region.slug) }] : []),
                 ...(issue ? [{ name: issue.name, path: routes.issue(issue.slug) }] : []),
@@ -112,11 +99,11 @@ export default async function NewsPage({
             headline: item.title,
             description: item.summary,
             images: [item.hero ?? site.ogImage],
-            published: item.published,
-            modified: item.updated ?? item.published,
+            published: meta.published,
+            modified: meta.modified,
             locale: item.locale,
             author: item.author ? { name: item.author, slug: item.authorSlug } : null,
-            section: (await getMessagesFor(item.locale)).categories[item.category] ?? item.category,
+            section: meta.section,
             wordCount: wordCount(item.html),
             about: countriesCovered,
             location: region ?? null,

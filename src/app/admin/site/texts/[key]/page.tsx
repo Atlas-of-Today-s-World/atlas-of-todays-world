@@ -23,7 +23,7 @@ function keyFrom(raw: string): string {
 }
 
 /** Editing one UI text (section `site`: "c" for a first change, "e" after, "d" to reset). */
-export default async function UiTextPage({ params }: { params: Promise<{ key: string }> }) {
+export default async function UiTextPage({ params }: PageProps<"/admin/site/texts/[key]">) {
   const access = await sectionAccess("site");
   if (!access) return <NoAccess />;
   const text = editableText(keyFrom((await params).key));

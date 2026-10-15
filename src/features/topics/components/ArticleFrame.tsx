@@ -6,6 +6,7 @@ import { SectionLabel } from "@/components/atlas/ui";
 import type { Atlas } from "@/features/geography/types";
 import { getT } from "@/features/i18n/request";
 import { PHOTO_WIDTH, photoSrcSet, photoUrl } from "@/lib/images";
+import { categoryLabel } from "@/lib/content-types";
 import { safeUrl } from "@/lib/security/urls";
 import type { EntrySummary } from "@/features/entries/queries";
 import { routes } from "@/config/routes";
@@ -69,7 +70,7 @@ export async function ArticleFrame({
           ) : null}
 
           <div className="px-6 pt-7 pb-12 sm:px-10">
-            <SectionLabel>{t.categories[item.category]}</SectionLabel>
+            <SectionLabel>{categoryLabel(item.category, t)}</SectionLabel>
 
             <h1 className="font-display mt-4 text-[30px] leading-tight font-bold text-[var(--color-ink)]">
               {item.title}

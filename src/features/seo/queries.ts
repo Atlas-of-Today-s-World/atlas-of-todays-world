@@ -23,7 +23,7 @@ import { llmsFullTxt, llmsTxt, type LlmsDocument, type LlmsLink } from "@/lib/se
 import { clampText } from "@/lib/seo/metadata";
 import { latest, type FeedItem, type SitemapUrl } from "@/lib/seo/xml";
 import { createPublicClient } from "@/lib/supabase/public";
-import type { ArticleKind } from "@/lib/content-types";
+import { categoryLabel, type ArticleKind } from "@/lib/content-types";
 import { articleDocument, articleUrl } from "./documents";
 import { routes } from "@/config/routes";
 import { getMessagesFor } from "@/features/i18n/request";
@@ -206,7 +206,7 @@ export async function getFeedItems(locale: Locale, limit = 30): Promise<FeedItem
         published: item.published,
         updated: item.updated,
         author: item.author ?? t.article.editorialTeam,
-        category: t.categories[item.category] ?? item.category,
+        category: categoryLabel(item.category, t),
         image: item.hero,
       },
     ];

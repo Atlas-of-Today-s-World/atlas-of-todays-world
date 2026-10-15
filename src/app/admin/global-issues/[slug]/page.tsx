@@ -21,7 +21,7 @@ import { routes } from "@/config/routes";
 
 export const metadata: Metadata = { title: "Global issue" };
 
-export default async function IssueEditPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function IssueEditPage({ params }: PageProps<"/admin/global-issues/[slug]">) {
   const access = await sectionAccess("specials");
   if (!access) return <NoAccess />;
   const { slug } = await params;

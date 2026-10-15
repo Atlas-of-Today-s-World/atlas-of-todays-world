@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminNav } from "@/components/admin/AdminNav";
@@ -11,13 +10,14 @@ import { getAccess, isStaff } from "@/features/auth/access";
 import { MfaGate } from "@/features/auth/components/MfaGate";
 import { mfaGate } from "@/features/auth/mfa";
 import { routes } from "@/config/routes";
+import { privateMetadata } from "@/lib/seo/metadata";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: { default: "Administration", template: "%s — Atlas administration" },
-  robots: { index: false, follow: false },
-};
+export const metadata = privateMetadata({
+  default: "Administration",
+  template: "%s — Atlas administration",
+});
 
 /**
  * Admin shell (ARCHITEKTURA 5.2, 7.3): without sign-in goes to /login,

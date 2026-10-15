@@ -14,7 +14,7 @@ import { SocialId } from "@/features/site/schema";
 export const metadata: Metadata = { title: "Social link" };
 
 /** Editing one social link (section `site`, "e"); new ones are added on /admin/site. */
-export default async function SocialLinkPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function SocialLinkPage({ params }: PageProps<"/admin/site/socials/[id]">) {
   const access = await sectionAccess("site", "e");
   if (!access) return <NoAccess />;
   const { id } = await params;

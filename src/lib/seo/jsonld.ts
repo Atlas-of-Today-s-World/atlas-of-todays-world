@@ -83,7 +83,7 @@ function hoistBreadcrumb(node: JsonLdNode): JsonLdNode[] {
   ];
 }
 
-/** Absolute URL of a public page in a language (`/cs/...`). */
+/** Absolute URL of a public page in a language (other than the default under `/<code>/…`). */
 export const pageUrl = (path: string, locale: Locale = DEFAULT_LOCALE) =>
   absoluteUrl(localePath(locale, path));
 
@@ -169,17 +169,19 @@ export interface Crumb {
   path: string;
 }
 
-/** First breadcrumb of every page: the site's name (Admin → Site settings), leading home. */
-export const homeCrumb = (site: Pick<SiteSettings, "name">): Crumb => ({
-  name: site.name,
-  path: "/",
-});
-
-/** Breadcrumbs (Google shows them instead of the URL); paths in the page language. */
-export function breadcrumbNode(crumbs: Crumb[], locale: Locale = DEFAULT_LOCALE): JsonLdNode {
+/**
+ * Breadcrumbs (Google shows them instead of the URL); paths in the page
+ * language. The first crumb, the site's name (Admin → Site settings) leading
+ * home, is added here — pass only the crumbs after it.
+ */
+export function breadcrumbNode(
+  site: Pick<SiteSettings, "name">,
+  crumbs: Crumb[],
+  locale: Locale = DEFAULT_LOCALE,
+): JsonLdNode {
   return {
     "@type": "BreadcrumbList",
-    itemListElement: crumbs.map((crumb, index) => ({
+    itemListElement: [{ name: site.name, path: "/" }, ...crumbs].map((crumb, index) => ({
       "@type": "ListItem",
       position: index + 1,
       name: crumb.name,

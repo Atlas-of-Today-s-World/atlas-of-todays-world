@@ -99,7 +99,7 @@ const isFullPagePath = (path: string) => isAtOrUnder(path, routes.topics);
 
 export type RailKind = "none" | "normal" | "wide";
 
-/** Path without the language prefix (/cs/…, or the internal /en/… on the server). */
+/** Path without the language prefix (/<code>/…, or the internal /en/… on the server). */
 export const pagePath = (pathname: string) => splitLocale(withoutDefaultPrefix(pathname)).path;
 
 /** The home map: the only page whose header stays transparent over the globe. */

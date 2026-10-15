@@ -1,5 +1,4 @@
 import { getSiteSettings } from "@/features/site/queries";
-import type { Metadata } from "next";
 import Link from "@/components/i18n/Link";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
@@ -8,32 +7,14 @@ import { getAtlas } from "@/features/geography/queries";
 import { format } from "@/features/i18n/messages";
 import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { JsonLd } from "@/components/JsonLd";
-import { pageMetadata } from "@/lib/seo/metadata";
-import {
-  breadcrumbNode,
-  graph,
-  homeCrumb,
-  itemListNode,
-  pageUrl,
-  webPageNode,
-} from "@/lib/seo/jsonld";
-import { NEWS_CATEGORIES } from "@/lib/content-types";
+import { staticPageMetadata } from "@/lib/seo/metadata";
+import { breadcrumbNode, graph, itemListNode, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import { categoryLabel, NEWS_CATEGORIES } from "@/lib/content-types";
 import { routes } from "@/config/routes";
 
-type Params = { params: Promise<{ locale: string }> };
+export const generateMetadata = staticPageMetadata("newsIndex", routes.newsIndex);
 
-export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const locale = await localeFrom(params);
-  const t = (await getMessagesFor(locale)).newsIndex;
-  return pageMetadata({
-    locale,
-    path: routes.newsIndex,
-    title: t.title,
-    description: t.description,
-  });
-}
-
-export default async function NewsIndexPage({ params }: Params) {
+export default async function NewsIndexPage({ params }: PageProps<"/[locale]/news">) {
   const locale = await localeFrom(params);
   const messages = await getMessagesFor(locale);
   const t = messages.newsIndex;
@@ -52,7 +33,9 @@ export default async function NewsIndexPage({ params }: Params) {
         if (!group.length) return null;
         return (
           <section key={category} className="mt-10">
-            <h2 className="font-display text-[18px] font-bold">{messages.categories[category]}</h2>
+            <h2 className="font-display text-[18px] font-bold">
+              {categoryLabel(category, messages)}
+            </h2>
             <ul className="mt-4 grid gap-3 sm:grid-cols-2">
               {group.map((item) => (
                 <li key={item.slug}>
@@ -93,10 +76,7 @@ export default async function NewsIndexPage({ params }: Params) {
             description: t.description,
             locale,
             type: "CollectionPage",
-            breadcrumb: breadcrumbNode(
-              [homeCrumb(site), { name: t.heading, path: routes.newsIndex }],
-              locale,
-            ),
+            breadcrumb: breadcrumbNode(site, [{ name: t.heading, path: routes.newsIndex }], locale),
           }),
           itemListNode(
             t.heading,

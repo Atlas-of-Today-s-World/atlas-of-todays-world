@@ -15,7 +15,7 @@ import { uuid } from "@/lib/validation/common";
 export const metadata: Metadata = { title: "Menu item" };
 
 /** Editing one menu item (section `site`, "e"); new ones are added on the list. */
-export default async function NavItemPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function NavItemPage({ params }: PageProps<"/admin/site/navigation/[id]">) {
   const access = await sectionAccess("site", "e");
   if (!access) return <NoAccess />;
   const { id } = await params;

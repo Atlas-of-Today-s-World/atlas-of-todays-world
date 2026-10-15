@@ -4,7 +4,12 @@ import { buttonVariants } from "@/components/ui/button";
 import { RelatedTopics, TopicsLink } from "@/components/topics/RelatedTopics";
 import type { EntrySummary } from "@/features/entries/queries";
 import { NewsBadge, PhotoCredit, SectionLabel } from "@/components/atlas/ui";
-import { ENTRY_CATEGORIES, entryCategory, type RegionDossier } from "@/lib/content-types";
+import {
+  categoryLabel,
+  ENTRY_CATEGORIES,
+  entryCategory,
+  type RegionDossier,
+} from "@/lib/content-types";
 import type { RegionStat } from "@/lib/region-stats";
 import { formatPopulation } from "@/lib/format";
 import { cssBackgroundImage } from "@/lib/security/urls";
@@ -302,7 +307,7 @@ function plannedEntries(name: string, entries: PlannedEntry[], t: Messages): Pla
   for (const category of ENTRY_CATEGORIES) {
     if (planned.some((entry) => entry.category === category)) continue;
     planned.push({
-      title: format(t.portrait.plannedTitle, { category: t.categories[category], place: name }),
+      title: format(t.portrait.plannedTitle, { category: categoryLabel(category, t), place: name }),
       category,
       slug: null,
     });

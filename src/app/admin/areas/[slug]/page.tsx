@@ -9,7 +9,7 @@ import { getArea } from "@/features/map/editorial";
 
 export const metadata: Metadata = { title: "Map area" };
 
-export default async function AreaPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function AreaPage({ params }: PageProps<"/admin/areas/[slug]">) {
   const { slug } = await params;
   const creating = slug === "new";
   const access = await sectionAccess("areas", creating ? "c" : "v");

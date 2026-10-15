@@ -13,7 +13,7 @@ import { RedirectId } from "@/features/redirects/schema";
 export const metadata: Metadata = { title: "Edit URL redirect" };
 
 /** Editing one redirect (news "e" or site "e"; RLS decides, the DB refuses loops). */
-export default async function RedirectPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function RedirectPage({ params }: PageProps<"/admin/redirects/[id]">) {
   const access = await sectionAccess(["news", "site"], "e");
   if (!access) return <NoAccess />;
   const { id } = await params;

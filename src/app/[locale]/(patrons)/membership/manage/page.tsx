@@ -1,23 +1,22 @@
-import type { Metadata } from "next";
 import { RichText } from "@/components/atlas/RichText";
 import Link from "@/components/i18n/Link";
 import { buttonVariants } from "@/components/ui/button";
 import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { PatronsEmail } from "@/features/membership/components/PatronsEmail";
+import { privateMetadata } from "@/lib/seo/metadata";
 import { routes } from "@/config/routes";
 
-type Params = { params: Promise<{ locale: string }> };
-
-export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const t = (await getMessagesFor(await localeFrom(params))).patrons.manage;
-  return { title: t.title, robots: { index: false, follow: false } };
+export async function generateMetadata({ params }: PageProps<"/[locale]/membership/manage">) {
+  return privateMetadata((await getMessagesFor(await localeFrom(params))).patrons.manage.title);
 }
 
 /**
  * DEMO "(Manage Existing Donation)". With Stripe (ADR G6) the link becomes a
  * Server Action that creates a billing-portal session and redirects to it.
  */
-export default async function ManageDonationPage({ params }: Params) {
+export default async function ManageDonationPage({
+  params,
+}: PageProps<"/[locale]/membership/manage">) {
   const messages = await getMessagesFor(await localeFrom(params));
   const t = messages.patrons.manage;
   return (

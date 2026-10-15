@@ -26,7 +26,7 @@ const ORIGIN = [
   { value: "manual", label: "Manual", tone: "accent" as const },
 ];
 
-export default async function IndicatorPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function IndicatorPage({ params }: PageProps<"/admin/data/[id]">) {
   const access = await sectionAccess("layers");
   if (!access) return <NoAccess />;
   const { id } = await params;

@@ -122,10 +122,7 @@ describe("JSON-LD builders", () => {
           about: [czechia],
           location: { slug: "sub-saharan-africa", name: "Sub-Saharan Africa", center: [15, 8] },
         }),
-        breadcrumbNode([
-          { name: "Atlas", path: "/" },
-          { name: "Sahel", path: "/news/sahel-coup-belt" },
-        ]),
+        breadcrumbNode({ name: "Atlas" }, [{ name: "Sahel", path: "/news/sahel-coup-belt" }]),
       ),
     );
     expect(validateJsonLd(data)).toEqual([]);
@@ -298,9 +295,13 @@ describe("JSON-LD builders", () => {
 
   it("a page's breadcrumbs become a top-level node referenced by @id", () => {
     const url = pageUrl("/region/east-asia");
-    const crumbs = breadcrumbNode([
-      { name: "Atlas", path: "/" },
+    const crumbs = breadcrumbNode({ name: "Atlas" }, [
       { name: "East Asia", path: "/region/east-asia" },
+    ]);
+    // The site's name leads home as the first crumb, without the page passing it.
+    expect(crumbs.itemListElement).toMatchObject([
+      { position: 1, name: "Atlas", item: pageUrl("/") },
+      { position: 2, name: "East Asia", item: url },
     ]);
     const nodes = jsonLdNodes(
       parsed(graph(webPageNode({ url, name: "East Asia", locale: "en", breadcrumb: crumbs }))),

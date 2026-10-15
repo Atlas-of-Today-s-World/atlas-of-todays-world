@@ -6,7 +6,7 @@ import type { Messages } from "@/features/i18n/messages";
 import { ORGANIZATION } from "@/config/organization";
 import { absoluteUrl } from "@/lib/seo";
 import { htmlToMarkdown } from "@/lib/seo/markdown";
-import type { ArticleKind } from "@/lib/content-types";
+import { categoryLabel, type ArticleKind } from "@/lib/content-types";
 import type { LlmsDocument } from "@/lib/seo/llms";
 import { routes } from "@/config/routes";
 
@@ -37,7 +37,7 @@ function facts(item: Entry, atlas: Atlas, messages: Messages, publisher: string)
     item.published ? `${t.published}: ${item.published}` : "",
     item.updated ? `${t.updated}: ${item.updated}` : "",
     `${t.author}: ${author}`,
-    `${t.category}: ${messages.categories[item.category] ?? item.category}`,
+    `${t.category}: ${categoryLabel(item.category, messages)}`,
     region ? `${t.region}: ${region.name}` : "",
     countries ? `${t.countries}: ${countries}` : "",
     `${t.publisher}: ${publisher} (${absoluteUrl("/")})`,

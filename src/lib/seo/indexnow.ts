@@ -66,7 +66,7 @@ export async function submitToIndexNow(paths: string[]): Promise<void> {
 
 /**
  * Schedules a ping after the response is sent (Server Actions). `everyLanguage`
- * adds the /cs… versions of pages that exist in all languages (portraits).
+ * adds the other languages' versions of pages that exist in all of them (portraits).
  */
 export function notifyIndexNow(paths: string[], { everyLanguage = false } = {}) {
   const all = everyLanguage

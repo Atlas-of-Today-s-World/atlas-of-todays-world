@@ -23,7 +23,11 @@ const NO_HAND_BUILT_ADMIN_ROUTE = [
     selector: "TemplateLiteral > TemplateElement:first-child[value.raw=/^[/]admin([/?]|$)/]",
     message: ADMIN_ROUTE_MESSAGE,
   },
-  { selector: "Literal[value=/^[/]admin([/?]|$)/]", message: ADMIN_ROUTE_MESSAGE },
+  // Not in types: PageProps<"/admin/…"> names a route, it builds no URL.
+  {
+    selector: ":not(TSLiteralType) > Literal[value=/^[/]admin([/?]|$)/]",
+    message: ADMIN_ROUTE_MESSAGE,
+  },
 ];
 
 const config = [

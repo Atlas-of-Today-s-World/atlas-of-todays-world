@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { FullPage } from "@/components/FullPage";
 import { EncyclopediaArticle } from "@/features/topics/components/EncyclopediaArticle";
@@ -9,26 +8,16 @@ import { getAtlas } from "@/features/geography/queries";
 import { format } from "@/features/i18n/messages";
 import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { DATE_INTL } from "@/lib/format";
+import { privateMetadata } from "@/lib/seo/metadata";
 
 // Preview of an unpublished article via a shared link (G2): always fresh, never indexed.
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
-  return {
-    title: (await getMessagesFor(await localeFrom(params))).preview.title,
-    robots: { index: false, follow: false },
-  };
+export async function generateMetadata({ params }: PageProps<"/[locale]/preview/[token]">) {
+  return privateMetadata((await getMessagesFor(await localeFrom(params))).preview.title);
 }
 
-export default async function PreviewPage({
-  params,
-}: {
-  params: Promise<{ locale: string; token: string }>;
-}) {
+export default async function PreviewPage({ params }: PageProps<"/[locale]/preview/[token]">) {
   const { token } = await params;
   const locale = await localeFrom(params);
   const messages = await getMessagesFor(locale);

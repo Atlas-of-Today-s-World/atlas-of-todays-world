@@ -1,5 +1,4 @@
 import { getSiteSettings } from "@/features/site/queries";
-import type { Metadata } from "next";
 import Link from "@/components/i18n/Link";
 import { JsonLd } from "@/components/JsonLd";
 import { buttonVariants } from "@/components/ui/button";
@@ -7,38 +6,20 @@ import { getAtlas } from "@/features/geography/queries";
 import type { Country } from "@/features/geography/types";
 import { format } from "@/features/i18n/messages";
 import { getMessagesFor, localeFrom } from "@/features/i18n/request";
-import { pageMetadata } from "@/lib/seo/metadata";
-import {
-  breadcrumbNode,
-  graph,
-  homeCrumb,
-  itemListNode,
-  pageUrl,
-  webPageNode,
-} from "@/lib/seo/jsonld";
+import { staticPageMetadata } from "@/lib/seo/metadata";
+import { breadcrumbNode, graph, itemListNode, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { routes } from "@/config/routes";
-
-type Params = { params: Promise<{ locale: string }> };
 
 /** The same chip as a portrait's country list. */
 const CHIP = buttonVariants({ variant: "outline", size: "chip" });
 
-export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const locale = await localeFrom(params);
-  const t = (await getMessagesFor(locale)).countriesIndex;
-  return pageMetadata({
-    locale,
-    path: routes.countries,
-    title: t.title,
-    description: t.description,
-  });
-}
+export const generateMetadata = staticPageMetadata("countriesIndex", routes.countries);
 
 /**
  * Every world region with its countries, and the global issues, as plain links:
  * the way to any profile without the globe (keyboard, screen readers, no WebGL).
  */
-export default async function CountriesPage({ params }: Params) {
+export default async function CountriesPage({ params }: PageProps<"/[locale]/countries">) {
   const locale = await localeFrom(params);
   const t = (await getMessagesFor(locale)).countriesIndex;
   const atlas = await getAtlas(locale);
@@ -126,10 +107,7 @@ export default async function CountriesPage({ params }: Params) {
             description: t.description,
             locale,
             type: "CollectionPage",
-            breadcrumb: breadcrumbNode(
-              [homeCrumb(site), { name: t.heading, path: routes.countries }],
-              locale,
-            ),
+            breadcrumb: breadcrumbNode(site, [{ name: t.heading, path: routes.countries }], locale),
           }),
           itemListNode(t.heading, [
             ...atlas.regions.map((region) => ({

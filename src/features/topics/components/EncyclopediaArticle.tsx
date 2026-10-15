@@ -23,6 +23,7 @@ import { META_LINE, PlaceLinks } from "./ArticleFrame";
 import { DossierExplorer } from "./DossierExplorer";
 import { OpenOnHash } from "./OpenOnHash";
 import { ReadingProgress } from "./ReadingProgress";
+import { categoryLabel } from "@/lib/content-types";
 import { routes } from "@/config/routes";
 
 const AUTHOR_ID = "about-the-author";
@@ -104,7 +105,7 @@ export async function EncyclopediaArticle({
                   pill: true,
                   icon: <LayoutGrid aria-hidden className="size-3.5" />,
                 },
-                { label: messages.categories[item.category] },
+                { label: categoryLabel(item.category, messages) },
               ]}
             />
             <h1 className="font-display mt-3 text-[34px] leading-[1.08] font-bold text-balance sm:text-[52px]">

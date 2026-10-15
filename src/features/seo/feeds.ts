@@ -11,7 +11,7 @@ import { getFeedItems, getLlmsFullTxt, getLlmsTxt } from "./queries";
 import { getMessagesFor } from "@/features/i18n/request";
 
 /**
- * Route handlers of the per-language machine files (`/feed.xml`, `/cs/feed.xml`,
+ * Route handlers of the per-language machine files (`/feed.xml`, `/<code>/feed.xml`,
  * `/atom.xml`, `/llms.txt`, `/llms-full.txt`). The proxy maps the unprefixed
  * English URL to `[locale]=en`, like pages.
  */
