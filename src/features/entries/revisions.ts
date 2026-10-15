@@ -39,7 +39,8 @@ export async function publishedVersion(
     .from("entry_revisions")
     .select("title:snapshot->>title, summary:snapshot->>summary, body_html:snapshot->>body_html")
     .eq("entry_id", entryId)
-    .eq("snapshot->>status", "published")
+    // Stored flag with an index (entry_id, published, saved_at desc), not the JSON status.
+    .eq("published", true)
     .order("saved_at", { ascending: false })
     .order("id", { ascending: false })
     .limit(1)

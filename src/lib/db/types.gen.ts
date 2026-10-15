@@ -619,6 +619,7 @@ export type Database = {
         Row: {
           entry_id: string
           id: number
+          published: boolean
           saved_at: string
           saved_by: string | null
           snapshot: Json
@@ -626,6 +627,7 @@ export type Database = {
         Insert: {
           entry_id: string
           id?: never
+          published?: never
           saved_at?: string
           saved_by?: string | null
           snapshot: Json
@@ -633,6 +635,7 @@ export type Database = {
         Update: {
           entry_id?: string
           id?: never
+          published?: never
           saved_at?: string
           saved_by?: string | null
           snapshot?: Json

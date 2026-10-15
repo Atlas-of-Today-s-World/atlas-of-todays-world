@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { SPIN_DEG_PER_SEC, isSpinEvent, spinLongitude, SPIN_EVENT } from "./useIdleSpin";
+import {
+  SPIN_DEG_PER_SEC,
+  isSpinEvent,
+  spinLongitude,
+  spinResumeAt,
+  SPIN_EVENT,
+  type SpinClock,
+} from "./useIdleSpin";
 
 describe("idle globe spin", () => {
   it("moves the camera west at the set speed", () => {
@@ -19,5 +26,44 @@ describe("idle globe spin", () => {
   it("tags its own camera moves", () => {
     expect(isSpinEvent({ type: "movestart", ...SPIN_EVENT })).toBe(true);
     expect(isSpinEvent({ type: "movestart" })).toBe(false);
+  });
+});
+
+describe("when the idle spin may turn", () => {
+  const none = Number.NEGATIVE_INFINITY;
+  const page = (overrides: Partial<NonNullable<SpinClock["touch"]>> = {}) => ({
+    readyAt: 1000,
+    interacted: false,
+    lastScrollAt: none,
+    ...overrides,
+  });
+
+  it("desktop: after the start delay, and 5 s after the last input on the globe", () => {
+    expect(spinResumeAt({ startAt: 3500, lastInputAt: none, touch: null })).toBe(3500);
+    expect(spinResumeAt({ startAt: 3500, lastInputAt: 4000, touch: null })).toBe(9000);
+  });
+
+  it("touch: waits 10 s after ready while nobody has touched the page", () => {
+    expect(spinResumeAt({ startAt: 3500, lastInputAt: none, touch: page() })).toBe(11_000);
+  });
+
+  it("touch: the first input ends that wait; the usual pause after it still applies", () => {
+    const touch = page({ interacted: true });
+    expect(spinResumeAt({ startAt: 3500, lastInputAt: none, touch })).toBe(3500);
+    expect(spinResumeAt({ startAt: 3500, lastInputAt: 2000, touch })).toBe(7000);
+  });
+
+  it("touch: a scroll pauses it until the page has settled", () => {
+    const touch = page({ interacted: true, lastScrollAt: 20_000 });
+    expect(spinResumeAt({ startAt: 3500, lastInputAt: none, touch })).toBe(21_500);
+  });
+
+  it("touch: never earlier than desktop", () => {
+    for (const lastInputAt of [none, 0, 5000, 30_000]) {
+      for (const touch of [page(), page({ interacted: true }), page({ lastScrollAt: 9000 })]) {
+        const desktop = spinResumeAt({ startAt: 3500, lastInputAt, touch: null });
+        expect(spinResumeAt({ startAt: 3500, lastInputAt, touch })).toBeGreaterThanOrEqual(desktop);
+      }
+    }
   });
 });
