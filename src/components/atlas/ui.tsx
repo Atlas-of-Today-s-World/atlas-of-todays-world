@@ -25,11 +25,12 @@ export function SectionLabel({ children }: { children: ReactNode }) {
   return <span className={kickerVariants({ tone: "pill" })}>{children}</span>;
 }
 
-export function NewsBadge({ count }: { count: number }) {
+export async function NewsBadge({ count }: { count: number }) {
+  const t = (await getT()).ui;
   return (
     <span className="inline-flex items-center gap-1.5 text-[12px] text-[var(--color-ink-muted)]">
       <span className="h-2 w-2 rounded-full bg-[var(--color-live)]" />
-      {format(count === 1 ? getT().ui.newsOne : getT().ui.newsMany, { count: String(count) })}
+      {format(count === 1 ? t.newsOne : t.newsMany, { count: String(count) })}
     </span>
   );
 }
@@ -112,7 +113,7 @@ export function SourceLink({ href, children }: { href?: string | null; children:
  * an explanatory sentence, because they measure things that can't be ranked (ethnic
  * groups, degree of freedom). The source is mandatory, so it's always shown.
  */
-export function MetricCards({
+export async function MetricCards({
   metrics,
   className = "",
 }: {
@@ -120,13 +121,14 @@ export function MetricCards({
   className?: string;
 }) {
   if (!metrics.length) return null;
+  const t = (await getT()).ui;
   return (
     <StatGrid className={className}>
       {metrics.map((metric) => (
         <StatItem key={`${metric.label}-${metric.value}`} label={metric.label} value={metric.value}>
           {metric.description ? <span className="block">{metric.description}</span> : null}
           <span className="mt-0.5 block">
-            {getT().ui.source} <SourceLink href={metric.sourceUrl}>{metric.source}</SourceLink>
+            {t.source} <SourceLink href={metric.sourceUrl}>{metric.source}</SourceLink>
             {metric.year ? `, ${metric.year}` : ""}
           </span>
         </StatItem>

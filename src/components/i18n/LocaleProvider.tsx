@@ -1,17 +1,42 @@
 "use client";
 
-import { createContext, useContext, type ReactNode } from "react";
+import { createContext, useContext, useMemo, type ReactNode } from "react";
 import { DEFAULT_LOCALE, type Locale } from "@/features/i18n/config";
-import { getMessages, type Messages } from "@/features/i18n/messages";
+import {
+  applyOverrides,
+  getMessages,
+  type MessageOverrides,
+  type Messages,
+} from "@/features/i18n/messages";
 
-const LocaleContext = createContext<Locale>(DEFAULT_LOCALE);
+const LocaleContext = createContext<{ locale: Locale; messages: Messages }>({
+  locale: DEFAULT_LOCALE,
+  // Outside the provider (the admin, the root 404): the built-in texts.
+  messages: getMessages(DEFAULT_LOCALE),
+});
 
-/** Page language for client components (set by the `[locale]` layout). */
-export function LocaleProvider({ locale, children }: { locale: Locale; children: ReactNode }) {
-  return <LocaleContext.Provider value={locale}>{children}</LocaleContext.Provider>;
+/**
+ * Page language and UI texts for client components (set by the `[locale]`
+ * layout). The layout passes only the team's changed texts (Admin → UI
+ * texts) — en.json is in the bundle already — and they are merged here once.
+ */
+export function LocaleProvider({
+  locale,
+  overrides,
+  children,
+}: {
+  locale: Locale;
+  overrides: MessageOverrides;
+  children: ReactNode;
+}) {
+  const value = useMemo(
+    () => ({ locale, messages: applyOverrides(getMessages(locale), overrides) }),
+    [locale, overrides],
+  );
+  return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
 }
 
-export const useLocale = (): Locale => useContext(LocaleContext);
+export const useLocale = (): Locale => useContext(LocaleContext).locale;
 
-/** UI texts in the page language. */
-export const useMessages = (): Messages => getMessages(useLocale());
+/** UI texts in the page language, with the team's changes. */
+export const useMessages = (): Messages => useContext(LocaleContext).messages;

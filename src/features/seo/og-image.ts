@@ -1,6 +1,6 @@
 import type { Locale } from "@/features/i18n/config";
-import { getMessages, type Messages } from "@/features/i18n/messages";
-import { localeFrom } from "@/features/i18n/request";
+import { type Messages } from "@/features/i18n/messages";
+import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { renderOg } from "@/lib/og";
 
 /** What a preview image shows: label, title, subtitle and accent colour. */
@@ -17,6 +17,6 @@ export function ogImage<Params extends object = object>(
 ) {
   return async function Image({ params }: { params: Promise<Params & { locale: string }> }) {
     const locale = await localeFrom(params);
-    return renderOg(await card({ ...(await params), locale }, getMessages(locale)));
+    return renderOg(await card({ ...(await params), locale }, await getMessagesFor(locale)));
   };
 }

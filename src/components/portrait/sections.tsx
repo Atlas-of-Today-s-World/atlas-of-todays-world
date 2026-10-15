@@ -88,8 +88,8 @@ export function PortraitSection({
  * The support call as a button in the patrons colour. The site is used for
  * fundraising first: wherever content is missing, this is what should catch the eye.
  */
-function PatronsButton() {
-  const t = getT();
+async function PatronsButton() {
+  const t = await getT();
   return (
     <Link
       href={routes.membership}
@@ -105,8 +105,8 @@ function PatronsButton() {
  * section at the end — instead of a grey placeholder for each (they read like a
  * page still loading and pushed the real content down).
  */
-export function ComingSections({ items }: { items: { title: string; lead: string }[] }) {
-  const t = getT();
+export async function ComingSections({ items }: { items: { title: string; lead: string }[] }) {
+  const t = await getT();
   if (!items.length) return null;
   return (
     <PortraitSection title={t.portrait.comingTitle} lead={t.portrait.comingLead} muted>
@@ -132,14 +132,14 @@ export function ComingSections({ items }: { items: { title: string; lead: string
  * that aren't in Our World in Data — ethnic groups, displacement, child poverty.
  * Without them, values computed from imported data are drawn so the portrait isn't empty.
  */
-export function IndicatorCards({
+export async function IndicatorCards({
   stats,
   metrics = [],
 }: {
   stats: RegionStat[];
   metrics?: MetricCard[];
 }) {
-  const t = getT();
+  const t = await getT();
   if (metrics.length) {
     return (
       <PortraitSection title={t.portrait.keyIndicators} lead={t.portrait.keyIndicatorsManual}>
@@ -174,7 +174,7 @@ export function IndicatorCards({
 }
 
 /** Horizontal timeline. */
-export function Timeline({
+export async function Timeline({
   items,
   title,
   subtitle,
@@ -183,7 +183,7 @@ export function Timeline({
   title?: string;
   subtitle?: string;
 }) {
-  const t = getT();
+  const t = await getT();
   return (
     <PortraitSection
       title={title || t.portrait.timeline}
@@ -236,8 +236,8 @@ export interface PlannedEntry {
  * non-clickable — per the brief even next to written ones — with the support
  * call under them.
  */
-export function ThematicEntries({ entries }: { entries: PlannedEntry[] }) {
-  const t = getT();
+export async function ThematicEntries({ entries }: { entries: PlannedEntry[] }) {
+  const t = await getT();
   return (
     <PortraitSection title={t.portrait.entries} lead={t.portrait.entriesLead}>
       <div className="mt-5 space-y-5">
@@ -300,12 +300,12 @@ export function ThematicEntries({ entries }: { entries: PlannedEntry[] }) {
  * own sandboxed iframe — the chart URL is checked again here, so only the one
  * allowed origin is ever framed whatever the database holds.
  */
-export function VisualCarousel({
+export async function VisualCarousel({
   visuals,
 }: {
   visuals: { title: string; image: string; caption: string; provider?: string }[];
 }) {
-  const t = getT();
+  const t = await getT();
   const safe = visuals.flatMap((visual) => {
     const chart = visual.provider === "datawrapper";
     const image = chart ? datawrapperChartUrl(visual.image) : safeUrl(visual.image);
@@ -341,8 +341,8 @@ export function VisualCarousel({
 }
 
 /** Database of third-party sources. */
-export function ResourceLibrary({ resources }: { resources: ResourceItem[] }) {
-  const t = getT();
+export async function ResourceLibrary({ resources }: { resources: ResourceItem[] }) {
+  const t = await getT();
   const safe = resources.flatMap((item) => {
     const url = safeUrl(item.url);
     return url ? [{ ...item, url }] : [];
@@ -380,8 +380,8 @@ export function ResourceLibrary({ resources }: { resources: ResourceItem[] }) {
 }
 
 /** Collapsible FAQ. */
-export function FaqList({ items }: { items: FaqItem[] }) {
-  const t = getT();
+export async function FaqList({ items }: { items: FaqItem[] }) {
+  const t = await getT();
   return (
     <PortraitSection title={t.portrait.faq}>
       <div className="mt-4">
@@ -392,8 +392,8 @@ export function FaqList({ items }: { items: FaqItem[] }) {
 }
 
 /** Call for support at the end of the portrait. */
-export function PatronsCallout({ complete }: { complete: boolean }) {
-  const t = getT();
+export async function PatronsCallout({ complete }: { complete: boolean }) {
+  const t = await getT();
   return (
     <section className="border-t border-[var(--color-line)] px-6 py-9 text-center sm:px-10">
       <h2 className="font-display text-[22px] font-bold text-[var(--color-ink)]">

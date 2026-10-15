@@ -12,7 +12,7 @@ import { routes } from "@/config/routes";
  * A news item as the reader sees it (map focused on the region + article).
  * The single rendering for both the public page and the unpublished-article preview.
  */
-export function NewsArticle({
+export async function NewsArticle({
   item,
   atlas,
   banner,
@@ -22,7 +22,7 @@ export function NewsArticle({
   /** Bar above the article (preview: status and link validity). */
   banner?: React.ReactNode;
 }) {
-  const t = getT().article;
+  const t = (await getT()).article;
   const locale = getRequestLocale();
   return (
     <ArticleFrame item={item} atlas={atlas} banner={banner} lang={item.locale}>

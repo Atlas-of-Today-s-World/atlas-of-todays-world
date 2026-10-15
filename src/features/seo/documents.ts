@@ -1,8 +1,8 @@
 import type { Entry } from "@/features/entries/queries";
 import type { Encyclopedia } from "@/features/entries/topic-queries";
 import type { Atlas } from "@/features/geography/types";
-import { localePath, type Locale } from "@/features/i18n/config";
-import { getMessages } from "@/features/i18n/messages";
+import { localePath } from "@/features/i18n/config";
+import type { Messages } from "@/features/i18n/messages";
 import { ORGANIZATION } from "@/config/organization";
 import { absoluteUrl } from "@/lib/seo";
 import { htmlToMarkdown } from "@/lib/seo/markdown";
@@ -23,8 +23,8 @@ const pathOf = (kind: ArticleKind, slug: string) => routes.article(kind, slug);
 export const articleUrl = (kind: ArticleKind, item: Entry) =>
   absoluteUrl(localePath(item.locale, pathOf(kind, item.slug)));
 
-function facts(item: Entry, atlas: Atlas, locale: Locale, publisher: string): string[] {
-  const t = getMessages(locale).seo;
+function facts(item: Entry, atlas: Atlas, messages: Messages, publisher: string): string[] {
+  const t = messages.seo;
   const region = item.region ? atlas.regionBySlug.get(item.region) : undefined;
   const countries = item.countries
     .map((iso3) => atlas.countryByIso3.get(iso3)?.name)
@@ -32,12 +32,12 @@ function facts(item: Entry, atlas: Atlas, locale: Locale, publisher: string): st
     .join(", ");
   const author = item.authorSlug
     ? `${item.author} (${absoluteUrl(routes.author(item.authorSlug))})`
-    : (item.author ?? getMessages(locale).article.editorialTeam);
+    : (item.author ?? messages.article.editorialTeam);
   return [
     item.published ? `${t.published}: ${item.published}` : "",
     item.updated ? `${t.updated}: ${item.updated}` : "",
     `${t.author}: ${author}`,
-    `${t.category}: ${getMessages(locale).categories[item.category] ?? item.category}`,
+    `${t.category}: ${messages.categories[item.category] ?? item.category}`,
     region ? `${t.region}: ${region.name}` : "",
     countries ? `${t.countries}: ${countries}` : "",
     `${t.publisher}: ${publisher} (${absoluteUrl("/")})`,
@@ -47,8 +47,7 @@ function facts(item: Entry, atlas: Atlas, locale: Locale, publisher: string): st
 const isEncyclopedia = (item: Entry): item is Encyclopedia => "chapters" in item;
 
 /** Body of an article in Markdown (without the title). */
-function body(item: Entry, locale: Locale): string {
-  const t = getMessages(locale).article;
+function body(item: Entry, t: Messages["article"]): string {
   const parts: string[] = [];
   if (item.summary) parts.push(item.summary);
   if (isEncyclopedia(item)) {
@@ -95,19 +94,21 @@ function body(item: Entry, locale: Locale): string {
 
 /**
  * Article as an llms-full.txt document (title, URL and facts, body). Labels
- * follow the language of the text, so an untranslated original stays one language.
+ * follow the language of the text, so an untranslated original stays one
+ * language: `messages` are the UI texts in `item.locale` (`getMessagesFor`).
  */
 export function articleDocument(
   kind: ArticleKind,
   item: Entry,
   atlas: Atlas,
+  messages: Messages,
   publisher: string = ORGANIZATION.name,
 ): LlmsDocument {
   return {
     title: item.title,
     url: articleUrl(kind, item),
-    facts: facts(item, atlas, item.locale, publisher),
-    markdown: body(item, item.locale),
+    facts: facts(item, atlas, messages, publisher),
+    markdown: body(item, messages.article),
   };
 }
 
@@ -116,8 +117,9 @@ export function articleMarkdown(
   kind: ArticleKind,
   item: Entry,
   atlas: Atlas,
+  messages: Messages,
   publisher: string = ORGANIZATION.name,
 ): string {
-  const doc = articleDocument(kind, item, atlas, publisher);
+  const doc = articleDocument(kind, item, atlas, messages, publisher);
   return `# ${doc.title}\n\n${[`URL: ${doc.url}`, ...doc.facts].map((fact) => `- ${fact}`).join("\n")}\n\n${doc.markdown}\n`;
 }

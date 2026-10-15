@@ -16,7 +16,7 @@ import { routes } from "@/config/routes";
  * clear where the country ends and the region begins. No regional figures —
  * the country's own data are above.
  */
-export function RegionalProfile({
+export async function RegionalProfile({
   country,
   region,
   dossier,
@@ -28,7 +28,7 @@ export function RegionalProfile({
   /** Topics for the country (its own, its region's, its groups') and the region's planned ones. */
   entries: PlannedEntry[];
 }) {
-  const t = getT();
+  const t = await getT();
   const photo = cssBackgroundImage(region.hero, PHOTO_WIDTH.card);
   const titleId = "regional-profile-title";
   return (

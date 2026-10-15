@@ -39,7 +39,7 @@ const CHEVRON = "size-4 transition-transform group-open:rotate-180";
  * the row of chapter cards with the open chapter below, "Learn more" tiles,
  * FAQ and the author's bio. The globe window bottom left turns to the region.
  */
-export function EncyclopediaArticle({
+export async function EncyclopediaArticle({
   item,
   atlas,
   banner,
@@ -52,6 +52,7 @@ export function EncyclopediaArticle({
   /** The Share button — on the public page only, never on a secret preview link. */
   share?: boolean;
 }) {
+  const messages = await getT();
   const region = item.region ? atlas.regionBySlug.get(item.region) : undefined;
   const hero = safeUrl(item.hero);
   return (
@@ -94,14 +95,14 @@ export function EncyclopediaArticle({
           />
           <div className="mx-auto flex min-h-72 max-w-6xl flex-col justify-end px-4 pt-16 pb-10 sm:min-h-96 sm:px-8">
             {/* The way back: Atlas › Topics › the topic's category (the title follows). */}
-            <nav aria-label={getT().article.breadcrumb}>
+            <nav aria-label={messages.article.breadcrumb}>
               <ol className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[13px] font-medium text-white/80">
                 <li>
                   <Link
                     href="/"
                     className="inline-flex min-h-(--touch-min) min-w-(--touch-min) items-center hover:text-white hover:underline"
                   >
-                    {getT().article.breadcrumbAtlas}
+                    {messages.article.breadcrumbAtlas}
                   </Link>
                 </li>
                 <li aria-hidden className="text-white/45">
@@ -113,13 +114,15 @@ export function EncyclopediaArticle({
                     className="inline-flex min-h-(--touch-min) items-center gap-1.5 rounded-full bg-white/15 px-3.5 text-white ring-1 ring-white/25 backdrop-blur transition hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
                   >
                     <LayoutGrid aria-hidden className="size-3.5" />
-                    {getT().topics.title}
+                    {messages.topics.title}
                   </Link>
                 </li>
                 <li aria-hidden className="text-white/45">
                   ›
                 </li>
-                <li className="tracking-[0.14em] uppercase">{getT().categories[item.category]}</li>
+                <li className="tracking-[0.14em] uppercase">
+                  {messages.categories[item.category]}
+                </li>
               </ol>
             </nav>
             <h1 className="font-display mt-3 text-[34px] leading-[1.08] font-bold text-balance sm:text-[52px]">
@@ -187,7 +190,7 @@ export function EncyclopediaArticle({
               className="inline-flex min-h-(--touch-min) items-center gap-2 rounded-full bg-[var(--color-ink)] px-5 text-[14px] font-medium text-white transition hover:bg-[var(--color-accent)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               <ArrowLeft aria-hidden className="size-4" />
-              {getT().article.allTopics}
+              {messages.article.allTopics}
             </Link>
             {/* Finished reading: the moment to pass it on. */}
             <ShareButton title={item.title} />
@@ -200,8 +203,16 @@ export function EncyclopediaArticle({
 }
 
 /** Author with photo (click scrolls to the bio), dates and summary bullets. */
-function EntryHeader({ item, atlas, share }: { item: Encyclopedia; atlas: Atlas; share: boolean }) {
-  const t = getT().article;
+async function EntryHeader({
+  item,
+  atlas,
+  share,
+}: {
+  item: Encyclopedia;
+  atlas: Atlas;
+  share: boolean;
+}) {
+  const t = (await getT()).article;
   const locale = getRequestLocale();
   const author = item.authorProfile;
   const photo = cssBackgroundImage(author?.photo, PHOTO_WIDTH.avatar);
@@ -288,8 +299,8 @@ function EntryHeader({ item, atlas, share }: { item: Encyclopedia; atlas: Atlas;
  * Chapter audio version, only when the track exists. It doesn't autoplay (preload none)
  * and the text alternative is the chapter's full text below the player.
  */
-function EntryAudio({ src, title }: { src?: string; title: string }) {
-  const t = getT().article;
+async function EntryAudio({ src, title }: { src?: string; title: string }) {
+  const t = (await getT()).article;
   const url = safeUrl(src);
   if (!url) return null;
   return (
@@ -313,8 +324,8 @@ function EntryAudio({ src, title }: { src?: string; title: string }) {
  * Open chapter below the cards: number badge, title, summary, audio and the
  * full text (the card above already shows the photo).
  */
-function TopicPanel({ chapter, index }: { chapter: Chapter; index: number }) {
-  const t = getT().article;
+async function TopicPanel({ chapter, index }: { chapter: Chapter; index: number }) {
+  const t = (await getT()).article;
   const id = topicId(index);
   return (
     <section aria-labelledby={`${id}-title`} className="mt-12">
@@ -417,8 +428,9 @@ function TilePanel({ tile }: { tile: LearnMoreTile }) {
 }
 
 /** Author bio with positionality statement (collapsible, target of the header link). */
-function AuthorBio({ author }: { author: EntryAuthor }) {
-  const t = getT().article;
+async function AuthorBio({ author }: { author: EntryAuthor }) {
+  const messages = await getT();
+  const t = messages.article;
   const photo = cssBackgroundImage(author.photo, PHOTO_WIDTH.avatar);
   return (
     <details
@@ -457,7 +469,7 @@ function AuthorBio({ author }: { author: EntryAuthor }) {
           rel="author"
           className="mt-4 flex min-h-(--touch-min) items-center text-[13px] font-medium text-[var(--color-link)] hover:underline"
         >
-          {format(getT().authorPage.articles, { name: author.name })}
+          {format(messages.authorPage.articles, { name: author.name })}
         </Link>
       ) : null}
     </details>

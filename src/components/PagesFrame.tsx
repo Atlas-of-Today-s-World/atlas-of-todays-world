@@ -3,8 +3,7 @@ import { FloatingActions } from "@/components/membership/FloatingActions";
 import { PagesShell } from "@/components/PagesShell";
 import { MaintenanceGate } from "@/features/flags/components/MaintenanceGate";
 import { getFlags } from "@/features/flags/queries";
-import { getMessages } from "@/features/i18n/messages";
-import { localeFrom } from "@/features/i18n/request";
+import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 
 /**
  * Layout body of the light pages outside the map: the (pages) group (About,
@@ -23,7 +22,7 @@ export async function PagesFrame({
 }) {
   const flags = await getFlags();
   return (
-    <PagesShell t={getMessages(await localeFrom(params))} newsletter={flags.newsletter}>
+    <PagesShell t={await getMessagesFor(await localeFrom(params))} newsletter={flags.newsletter}>
       {gated ? <MaintenanceGate>{children}</MaintenanceGate> : children}
       <FloatingActions newsletter={flags.newsletter} />
     </PagesShell>

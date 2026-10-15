@@ -14,7 +14,7 @@ import { routes } from "@/config/routes";
  * a panel with the cover photo, category, title and lead. What goes below is
  * supplied by the specific article type (`children`).
  */
-export function ArticleFrame({
+export async function ArticleFrame({
   item,
   atlas,
   banner,
@@ -32,6 +32,7 @@ export function ArticleFrame({
   lang?: string;
   children: React.ReactNode;
 }) {
+  const t = await getT();
   const region = item.region ? atlas.regionBySlug.get(item.region) : undefined;
   const hero = safeUrl(item.hero);
 
@@ -73,7 +74,7 @@ export function ArticleFrame({
           ) : null}
 
           <div className="px-6 pt-7 pb-12 sm:px-10">
-            <SectionLabel>{getT().categories[item.category]}</SectionLabel>
+            <SectionLabel>{t.categories[item.category]}</SectionLabel>
 
             <h1 className="font-display mt-4 text-[30px] leading-tight font-bold text-[var(--color-ink)]">
               {item.title}
