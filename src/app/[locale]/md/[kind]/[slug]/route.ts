@@ -1,6 +1,6 @@
 import { getEncyclopediaEntries, getEntries } from "@/features/entries/queries";
-import { isLocale, LOCALES } from "@/features/i18n/config";
-import { getMessagesFor } from "@/features/i18n/request";
+import { isLocale, LOCALES } from "@/lib/i18n/config";
+import { getMessagesFor } from "@/lib/i18n/request";
 import { articleMarkdown, articleUrl } from "@/features/seo/documents";
 import { getArticle } from "@/features/seo/queries";
 import { machineResponse } from "@/lib/seo/response";

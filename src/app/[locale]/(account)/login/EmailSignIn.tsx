@@ -7,7 +7,7 @@ import { Turnstile } from "@/components/ui/turnstile";
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import { requestEmailCode, verifyEmailCode } from "@/features/auth/email-actions";
 import { EMAIL_CODE_LENGTH, type EmailCodeState } from "@/features/auth/constants";
-import { format } from "@/features/i18n/messages";
+import { format } from "@/lib/i18n/messages";
 
 /**
  * Sign-in with an e-mailed code (G1): e-mail → eight-digit code → signed in.

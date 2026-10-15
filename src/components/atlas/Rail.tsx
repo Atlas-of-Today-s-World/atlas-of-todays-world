@@ -12,7 +12,7 @@ import {
 } from "react";
 import { cn } from "@/lib/cn";
 import { useMessages } from "@/components/i18n/LocaleProvider";
-import { format } from "@/features/i18n/messages";
+import { format } from "@/lib/i18n/messages";
 
 const track = cva(
   "panel-scroll -mx-1 flex snap-x snap-mandatory overflow-x-auto scroll-smooth px-1 pb-2 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none",

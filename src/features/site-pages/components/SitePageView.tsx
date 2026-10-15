@@ -2,13 +2,13 @@ import "server-only";
 import type { ReactNode } from "react";
 import { contactTarget } from "@/components/atlas/ContactLink";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
-import type { Locale } from "@/features/i18n/config";
-import { format } from "@/features/i18n/messages";
+import type { Locale } from "@/lib/i18n/config";
+import { format } from "@/lib/i18n/messages";
 import { formatLongDate } from "@/lib/format";
 import { xmlEscape } from "@/lib/seo/xml";
 import { PAGE_TOKENS, type SitePageContent } from "../pages";
 import { fillInline, linkHtml, splitAtBlock } from "../render";
-import { getMessagesFor } from "@/features/i18n/request";
+import { getMessagesFor } from "@/lib/i18n/request";
 
 /**
  * An editable site page (About, Privacy, Terms, Accessibility): heading,

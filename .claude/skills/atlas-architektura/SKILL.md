@@ -85,7 +85,7 @@ Každý vizuální vzor, konstanta a datová definice existuje **právě jednou*
 - **Řádkové akce DataTable:** `editAction`, `openAction`, `deleteAction`, `confirmAction`, `visibilityAction`,
   `moveActions(up, down, { first, last })`, `noteAction` (`components/data-table/row-actions.ts`).
 - **URL:** `routes.*` a `adminRoutes.*` (`config/routes.ts`). **Klient → naše API:** `apiFetch()` (`lib/api-fetch.ts`).
-- **Texty a nastavení:** `getT()` / `getMessagesFor(locale)` (`features/i18n/request.ts`, async, s úpravami z UI texts),
+- **Texty a nastavení:** `getT()` / `getMessagesFor(locale)` (`lib/i18n/request.ts`, async, s úpravami z UI texts),
   `localeFrom(params)`; `getSiteSettings()` (`features/site/queries.ts`).
 - **SEO:** `pageMetadata`, `staticPageMetadata(section, path)` pro indexové stránky z UI textů, `privateMetadata(title)`
   pro neindexované (`features/seo/metadata.ts`); `breadcrumbNode(site, crumbs, locale)` přidá úvodní drobek webu sám

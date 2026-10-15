@@ -1,13 +1,13 @@
 "use client";
 
 import { createContext, useContext, useMemo, type ReactNode } from "react";
-import { DEFAULT_LOCALE, type Locale } from "@/features/i18n/config";
+import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n/config";
 import {
   applyOverrides,
   getMessages,
   type MessageOverrides,
   type Messages,
-} from "@/features/i18n/messages";
+} from "@/lib/i18n/messages";
 
 const LocaleContext = createContext<{ locale: Locale; messages: Messages }>({
   locale: DEFAULT_LOCALE,

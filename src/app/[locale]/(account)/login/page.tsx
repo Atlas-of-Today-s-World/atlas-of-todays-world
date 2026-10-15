@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { Lead } from "@/components/atlas/Note";
 import { getFlags } from "@/features/flags/queries";
-import { localePath } from "@/features/i18n/config";
-import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import { localePath } from "@/lib/i18n/config";
+import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
 import { privateMetadata } from "@/features/seo/metadata";
 import { safeRedirect } from "@/lib/security/redirect";
 import { supabaseConfig } from "@/lib/supabase/config";

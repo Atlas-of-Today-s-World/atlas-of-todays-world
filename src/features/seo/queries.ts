@@ -6,8 +6,8 @@ import type { Entry, EntrySummary } from "@/features/entries/types";
 import { getEncyclopediaEntry } from "@/features/entries/topic-queries";
 import { getAtlas, getIndicators } from "@/features/geography/queries";
 import type { Atlas, IndicatorData } from "@/features/geography/types";
-import { DEFAULT_LOCALE, localePath, LOCALES, type Locale } from "@/features/i18n/config";
-import { format, type Messages } from "@/features/i18n/messages";
+import { DEFAULT_LOCALE, localePath, LOCALES, type Locale } from "@/lib/i18n/config";
+import { format, type Messages } from "@/lib/i18n/messages";
 import type { SiteSettings } from "@/features/site/model";
 import { getSiteSettings } from "@/features/site/queries";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
@@ -21,7 +21,7 @@ import { createPublicClient } from "@/lib/supabase/public";
 import { categoryLabel, type ArticleKind } from "@/lib/content-types";
 import { articleDocument, articleUrl } from "./documents";
 import { routes } from "@/config/routes";
-import { getMessagesFor } from "@/features/i18n/request";
+import { getMessagesFor } from "@/lib/i18n/request";
 
 /**
  * Data for the machine-readable views of the Atlas: sitemaps, feeds and

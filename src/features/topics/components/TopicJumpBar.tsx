@@ -5,7 +5,7 @@ import { Check, ChevronDown } from "lucide-react";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { Popover } from "@/components/ui/popover";
 import { TOUCH_MIN_PX, UNDER_HEADER_BAR } from "@/config/layout";
-import { format } from "@/features/i18n/messages";
+import { format } from "@/lib/i18n/messages";
 import { cn } from "@/lib/cn";
 import { useScrollFrame } from "@/lib/use-scroll-frame";
 import type { TopicTileData } from "./DossierExplorer";

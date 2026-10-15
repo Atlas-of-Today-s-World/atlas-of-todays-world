@@ -3,7 +3,7 @@ import HomeFocus from "@/components/map/HomeFocus";
 import { getAtlas } from "@/features/geography/queries";
 import Link from "@/components/i18n/Link";
 import { SKIP_LINK } from "@/config/layout";
-import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
 import { getSiteSettings } from "@/features/site/queries";
 import { pageMetadata } from "@/features/seo/metadata";
 import { datasetNode, graph, itemListNode, pageUrl, webPageNode } from "@/features/seo/jsonld";

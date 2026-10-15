@@ -1,5 +1,5 @@
 import type { Country, IndicatorData } from "@/features/geography/types";
-import type { Locale } from "@/features/i18n/config";
+import type { Locale } from "@/lib/i18n/config";
 import { formatValue } from "@/features/geography/indicators";
 
 /**

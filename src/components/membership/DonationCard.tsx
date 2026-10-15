@@ -6,7 +6,7 @@ import { Heart } from "lucide-react";
 import Link from "@/components/i18n/Link";
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import { buttonVariants } from "@/components/ui/button";
-import { format } from "@/features/i18n/messages";
+import { format } from "@/lib/i18n/messages";
 import type { DonationOptions, Period } from "@/features/membership/config";
 import { cn } from "@/lib/cn";
 import { formatEuro } from "@/lib/format";

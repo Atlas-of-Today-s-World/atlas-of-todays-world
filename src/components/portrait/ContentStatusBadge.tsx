@@ -1,7 +1,7 @@
 import { Check, Hourglass, HeartHandshake } from "lucide-react";
 import Link from "@/components/i18n/Link";
 import type { ContentStatus } from "@/features/geography/content-status";
-import type { Messages } from "@/features/i18n/messages";
+import type { Messages } from "@/lib/i18n/messages";
 import { cn } from "@/lib/cn";
 import { routes } from "@/config/routes";
 

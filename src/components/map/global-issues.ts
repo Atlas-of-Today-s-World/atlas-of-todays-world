@@ -1,7 +1,7 @@
 import type { ExpressionSpecification } from "maplibre-gl";
 import { THEME_COLORS } from "@/config/palette";
 import { ROUTE_PREFIX, segmentAfter } from "@/config/routes";
-import { splitLocale, withoutDefaultPrefix } from "@/features/i18n/config";
+import { splitLocale, withoutDefaultPrefix } from "@/lib/i18n/config";
 import type { ContentStatus } from "@/features/geography/content-status";
 
 /**

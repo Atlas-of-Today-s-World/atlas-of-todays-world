@@ -7,7 +7,7 @@ import { PhotoTile } from "@/components/atlas/PhotoTile";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import type { ContentStatus } from "@/features/geography/content-status";
 import { StatusMark } from "@/components/portrait/ContentStatusBadge";
-import { format } from "@/features/i18n/messages";
+import { format } from "@/lib/i18n/messages";
 import { cn } from "@/lib/cn";
 import { PHOTO_WIDTH } from "@/lib/images";
 import { openIssueSlug } from "./global-issues";

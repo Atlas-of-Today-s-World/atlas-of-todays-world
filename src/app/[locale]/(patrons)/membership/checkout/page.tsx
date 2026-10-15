@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { localePath } from "@/features/i18n/config";
-import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import { localePath } from "@/lib/i18n/config";
+import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
 import { DemoCheckout } from "@/features/membership/components/DemoCheckout";
 import { getPatronSettings } from "@/features/membership/queries";
 import { parseDonation } from "@/features/membership/schema";

@@ -1,4 +1,4 @@
-import { LOCALES, localePath, type Locale } from "@/features/i18n/config";
+import { LOCALES, localePath, type Locale } from "@/lib/i18n/config";
 import { absoluteUrl } from "./index";
 
 /**

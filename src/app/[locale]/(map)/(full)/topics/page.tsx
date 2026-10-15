@@ -4,7 +4,7 @@ import { PHOTO_WIDTH, photoUrl } from "@/lib/images";
 import { safeUrl } from "@/lib/security/urls";
 import { JsonLd } from "@/components/JsonLd";
 import { getAtlas } from "@/features/geography/queries";
-import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
 import { TopicsBrowser } from "@/features/topics/components/TopicsBrowser";
 import { topicIndex } from "@/features/topics/related";
 import { staticPageMetadata } from "@/features/seo/metadata";

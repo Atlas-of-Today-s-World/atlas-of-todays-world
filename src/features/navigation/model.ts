@@ -1,6 +1,6 @@
 import { LEGAL_NAV, MAIN_NAV, type NavFlag, type NavItem, type NavMenu } from "@/config/navigation";
-import { DEFAULT_LOCALE } from "@/features/i18n/config";
-import { getMessages } from "@/features/i18n/messages";
+import { DEFAULT_LOCALE } from "@/lib/i18n/config";
+import { getMessages } from "@/lib/i18n/messages";
 import type { Flags } from "@/features/flags/queries";
 import type { Tables } from "@/lib/db/types.gen";
 import { safeUrl } from "@/lib/security/urls";

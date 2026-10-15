@@ -1,4 +1,4 @@
-import type { Locale } from "@/features/i18n/config";
+import type { Locale } from "@/lib/i18n/config";
 import { formatNumber } from "@/lib/format";
 import type { Indicator, IndicatorData } from "@/features/geography/types";
 

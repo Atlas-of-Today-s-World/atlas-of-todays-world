@@ -70,7 +70,7 @@ verze hesel v administraci) je odstraněný; tabulky a sloupce v DB zůstávají
    kapitoly, šablony, náhledy a překlady.
 6. **Hranice modulů bez vynucení** (oddíl 3) — `no-restricted-imports` pro směry
    `lib ↛ features`, `features ↛ features/*/components`.
-7. **Křehký stav jazyka:** per-request mutable stav v `features/i18n/request.ts` funguje s
+7. **Křehký stav jazyka:** per-request mutable stav v `lib/i18n/request.ts` funguje s
    jedním jazykem, s druhým by souběžně renderované layouty a stránky mohly dostat špatný text.
 8. **Zápisy mimo RPC:** část přechodů stavu článku jde přímým `update` místo RPC (§4.3);
    dva typy `ActionState` a dvě strategie chybových hlášek.

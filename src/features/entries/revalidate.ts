@@ -1,7 +1,7 @@
 import "server-only";
 import { updateTag } from "next/cache";
 import { entryChangedTags, tags } from "@/lib/cache/tags";
-import { DEFAULT_LOCALE, isLocale, localePath } from "@/features/i18n/config";
+import { DEFAULT_LOCALE, isLocale, localePath } from "@/lib/i18n/config";
 import { notifyIndexNow } from "@/lib/seo/indexnow";
 import { routes } from "@/config/routes";
 import type { ServerClient } from "@/lib/supabase/server";

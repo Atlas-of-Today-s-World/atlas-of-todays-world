@@ -10,7 +10,7 @@ vi.mock("@/lib/supabase/public", () => ({
 }));
 
 const { getUiTextOverrides } = await import("./queries");
-const { getMessagesFor } = await import("@/features/i18n/request");
+const { getMessagesFor } = await import("@/lib/i18n/request");
 const en = (await import("@/messages/en.json")).default;
 
 describe("UI text overrides (public read)", () => {

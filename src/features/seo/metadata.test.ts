@@ -6,7 +6,7 @@ import en from "@/messages/en.json";
 const getSiteSettings = vi.hoisted(() => vi.fn());
 vi.mock("@/features/site/queries", () => ({ getSiteSettings }));
 // The UI texts without the team's overrides (no database in unit tests).
-vi.mock("@/features/i18n/request", () => ({
+vi.mock("@/lib/i18n/request", () => ({
   localeFrom: async () => "en",
   getMessagesFor: async () => en,
 }));

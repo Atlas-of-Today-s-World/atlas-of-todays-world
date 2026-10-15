@@ -12,8 +12,8 @@ import {
   thematicEntries,
 } from "@/features/entries/queries";
 import { getAtlas, getCountryProfileHtml, getCountryStats } from "@/features/geography/queries";
-import { format, type Messages } from "@/features/i18n/messages";
-import { getRequestLocale, getT, localeFrom } from "@/features/i18n/request";
+import { format, type Messages } from "@/lib/i18n/messages";
+import { getRequestLocale, getT, localeFrom } from "@/lib/i18n/request";
 import type { Country, CountryStat } from "@/features/geography/types";
 import { formatPopulation } from "@/lib/format";
 import { geoMeta } from "@/lib/seo";

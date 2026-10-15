@@ -1,4 +1,4 @@
-import type { Locale } from "@/features/i18n/config";
+import type { Locale } from "@/lib/i18n/config";
 import type { ArticleKind, FaqItem, NewsCategory, ResourceItem } from "@/lib/content-types";
 import type { EntryStatus, MapLayer, TileIcon } from "./constants";
 

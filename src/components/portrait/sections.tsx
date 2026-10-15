@@ -23,8 +23,8 @@ import { safeUrl } from "@/lib/security/urls";
 import { datawrapperChartUrl } from "@/lib/embeds";
 import { DatawrapperChart } from "./DatawrapperChart";
 import { PHOTO_WIDTH } from "@/lib/images";
-import { format } from "@/features/i18n/messages";
-import { getT } from "@/features/i18n/request";
+import { format } from "@/lib/i18n/messages";
+import { getT } from "@/lib/i18n/request";
 import { routes } from "@/config/routes";
 
 /**

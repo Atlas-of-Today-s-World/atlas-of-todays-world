@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { Button } from "@/components/ui/button";
-import { format } from "@/features/i18n/messages";
+import { format } from "@/lib/i18n/messages";
 import { cn } from "@/lib/cn";
 import { newGame, QUESTIONS_PER_GAME, verdict, type CountryShape, type Question } from "./game";
 

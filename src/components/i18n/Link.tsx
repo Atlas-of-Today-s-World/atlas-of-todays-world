@@ -3,7 +3,7 @@
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import type { ComponentProps } from "react";
-import { localePath } from "@/features/i18n/config";
+import { localePath } from "@/lib/i18n/config";
 import { useLocale } from "./LocaleProvider";
 
 /** Paths outside the language versions (admin, API, auth callbacks). */

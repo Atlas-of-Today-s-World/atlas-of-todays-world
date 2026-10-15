@@ -1,4 +1,4 @@
-import { DEFAULT_LOCALE, localePath, type Locale } from "@/features/i18n/config";
+import { DEFAULT_LOCALE, localePath, type Locale } from "@/lib/i18n/config";
 import { ORGANIZATION } from "@/config/organization";
 import type { SiteSettings, SocialLink } from "@/features/site/model";
 import wikidataCountries from "@/config/wikidata-countries.json";

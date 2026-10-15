@@ -1,7 +1,7 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { PUBLIC_AUTHOR_COLUMNS } from "@/features/authors/queries";
-import { DEFAULT_LOCALE, type Locale } from "@/features/i18n/config";
+import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n/config";
 import { entryPageTags, PUBLIC_REVALIDATE_SECONDS } from "@/lib/cache/tags";
 import type { ResourceItem } from "@/lib/content-types";
 import { must } from "@/lib/db/result";

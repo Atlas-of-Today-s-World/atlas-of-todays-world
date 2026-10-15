@@ -6,7 +6,7 @@ import { glassVariants } from "@/components/atlas/glass";
 import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { RAIL_OFFSET, railKind } from "@/config/layout";
-import { splitLocale, withoutDefaultPrefix } from "@/features/i18n/config";
+import { splitLocale, withoutDefaultPrefix } from "@/lib/i18n/config";
 import { cn } from "@/lib/cn";
 import { DonateCoin } from "./DonateCoin";
 import { routes } from "@/config/routes";

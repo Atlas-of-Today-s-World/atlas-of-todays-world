@@ -1,4 +1,4 @@
-import { DEFAULT_LOCALE, LOCALES, localePath, type Locale } from "@/features/i18n/config";
+import { DEFAULT_LOCALE, LOCALES, localePath, type Locale } from "@/lib/i18n/config";
 import type { Metadata } from "next";
 import { SITE_URL } from "@/lib/site";
 

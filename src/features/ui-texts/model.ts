@@ -1,5 +1,5 @@
 import { LEGAL_NAV, MAIN_NAV } from "@/config/navigation";
-import type { MessageOverrides } from "@/features/i18n/messages";
+import type { MessageOverrides } from "@/lib/i18n/messages";
 import en from "@/messages/en.json";
 
 /**

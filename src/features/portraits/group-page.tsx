@@ -17,7 +17,7 @@ import {
 import { countriesOf } from "@/features/geography/model";
 import { getAtlas, getIndicators } from "@/features/geography/queries";
 import type { Atlas, GlobalIssue, Region } from "@/features/geography/types";
-import { getRequestLocale, localeFrom } from "@/features/i18n/request";
+import { getRequestLocale, localeFrom } from "@/lib/i18n/request";
 import { redirectOrNotFound } from "@/features/redirects/queries";
 import { relatedTopics } from "@/features/topics/related";
 import { CARD_INDICATORS, groupStats, population } from "@/features/geography/region-stats";

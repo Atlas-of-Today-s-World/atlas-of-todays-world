@@ -1,7 +1,7 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
-import type { MessageOverrides } from "@/features/i18n/messages";
+import type { MessageOverrides } from "@/lib/i18n/messages";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import { createPublicClient } from "@/lib/supabase/public";
 import { validOverrides } from "./model";

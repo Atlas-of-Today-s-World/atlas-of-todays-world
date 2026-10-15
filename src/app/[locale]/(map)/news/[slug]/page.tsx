@@ -5,7 +5,7 @@ import { redirectOrNotFound } from "@/features/redirects/queries";
 import { getEntries, getEntry } from "@/features/entries/queries";
 import { countriesOf } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
-import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
 import { articleMetaOf } from "@/features/entries/article-meta";
 import { geoMeta } from "@/lib/seo";
 import { pageMetadata, pageTitle } from "@/features/seo/metadata";

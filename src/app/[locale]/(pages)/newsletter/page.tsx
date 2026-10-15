@@ -4,7 +4,7 @@ import Link from "@/components/i18n/Link";
 import { JsonLd } from "@/components/JsonLd";
 import NewsletterForm from "@/features/newsletter/components/NewsletterForm";
 import { getFlags } from "@/features/flags/queries";
-import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
 import { breadcrumbNode, graph, ids, pageUrl, webPageNode } from "@/features/seo/jsonld";
 import { staticPageMetadata } from "@/features/seo/metadata";
 import { captchaEnabled } from "@/lib/security/turnstile";

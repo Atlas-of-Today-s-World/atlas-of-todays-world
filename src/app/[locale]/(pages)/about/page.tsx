@@ -1,6 +1,6 @@
 import { getAtlas } from "@/features/geography/queries";
-import { format } from "@/features/i18n/messages";
-import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import { format } from "@/lib/i18n/messages";
+import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
 import { DevelogiCredit } from "@/components/DevelogiCredit";
 import { JsonLd } from "@/components/JsonLd";
 import { postalAddress } from "@/features/site/model";

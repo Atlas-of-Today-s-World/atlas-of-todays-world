@@ -7,9 +7,9 @@ import { search, SEARCH_LIMIT } from "@/features/search/queries";
 import { isSearchable } from "@/lib/search-query";
 import { allowRequest } from "@/lib/security/rate-limit";
 import { buttonVariants } from "@/components/ui/button";
-import { localePath } from "@/features/i18n/config";
-import { format } from "@/features/i18n/messages";
-import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import { localePath } from "@/lib/i18n/config";
+import { format } from "@/lib/i18n/messages";
+import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
 import { staticPageMetadata } from "@/features/seo/metadata";
 import { routes } from "@/config/routes";
 

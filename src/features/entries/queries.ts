@@ -1,6 +1,6 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
-import { DEFAULT_LOCALE, type Locale } from "@/features/i18n/config";
+import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n/config";
 import { entryPageTags, PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import type { ArticleKind, NewsCategory } from "@/lib/content-types";
 import { must } from "@/lib/db/result";

@@ -3,7 +3,7 @@ import Header, { MenuLink } from "@/components/Header";
 import { getNavigation } from "@/features/navigation/queries";
 import type { NavLink } from "@/features/navigation/model";
 import { getSiteSettings, getSocialLinks } from "@/features/site/queries";
-import type { Messages } from "@/features/i18n/messages";
+import type { Messages } from "@/lib/i18n/messages";
 import { cn } from "@/lib/cn";
 import { captchaEnabled } from "@/lib/security/turnstile";
 

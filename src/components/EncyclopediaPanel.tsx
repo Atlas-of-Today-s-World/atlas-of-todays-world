@@ -16,7 +16,7 @@ import { searchKindKey } from "@/lib/search-kind";
 import { useLocalizedRouter } from "@/components/i18n/useLocalizedRouter";
 import type { SearchHit } from "@/features/search/types";
 import { useMessages } from "@/components/i18n/LocaleProvider";
-import { format } from "@/features/i18n/messages";
+import { format } from "@/lib/i18n/messages";
 import { belongsToField } from "@/lib/keyboard";
 import { routes } from "@/config/routes";
 import { cn } from "@/lib/cn";

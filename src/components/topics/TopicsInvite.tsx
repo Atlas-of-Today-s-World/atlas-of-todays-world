@@ -1,6 +1,6 @@
 import { HandHeart, PenLine } from "lucide-react";
 import Link from "@/components/i18n/Link";
-import { format } from "@/features/i18n/messages";
+import { format } from "@/lib/i18n/messages";
 import { cn } from "@/lib/cn";
 import { routes, volunteerHref } from "@/config/routes";
 

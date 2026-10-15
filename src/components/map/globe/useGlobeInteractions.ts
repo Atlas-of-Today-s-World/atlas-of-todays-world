@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import type { Map as MapLibreMap, MapMouseEvent } from "maplibre-gl";
 import type { GlobeLayer } from "@/features/geography/globe-layer";
 import type { ContentStatus } from "@/features/geography/content-status";
-import { format } from "@/features/i18n/messages";
+import { format } from "@/lib/i18n/messages";
 import { useLocalizedRouter } from "@/components/i18n/useLocalizedRouter";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { routes } from "@/config/routes";

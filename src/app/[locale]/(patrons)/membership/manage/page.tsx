@@ -1,7 +1,7 @@
 import { RichText } from "@/components/atlas/RichText";
 import Link from "@/components/i18n/Link";
 import { buttonVariants } from "@/components/ui/button";
-import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
 import { PatronsEmail } from "@/features/membership/components/PatronsEmail";
 import { privateMetadata } from "@/features/seo/metadata";
 import { routes } from "@/config/routes";

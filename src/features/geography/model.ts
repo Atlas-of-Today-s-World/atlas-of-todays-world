@@ -1,4 +1,4 @@
-import type { Locale } from "@/features/i18n/config";
+import type { Locale } from "@/lib/i18n/config";
 import { formatValue } from "@/features/geography/indicators";
 import { contentStatus } from "./content-status";
 import type {

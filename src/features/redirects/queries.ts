@@ -1,7 +1,7 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { notFound, permanentRedirect, redirect } from "next/navigation";
-import { DEFAULT_LOCALE, localePath, type Locale } from "@/features/i18n/config";
+import { DEFAULT_LOCALE, localePath, type Locale } from "@/lib/i18n/config";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import { safeRedirect } from "@/lib/security/redirect";
 import { createPublicClient } from "@/lib/supabase/public";

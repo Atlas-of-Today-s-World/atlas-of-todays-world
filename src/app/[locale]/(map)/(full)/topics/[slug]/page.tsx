@@ -6,7 +6,7 @@ import { getEncyclopediaEntry } from "@/features/entries/topic-queries";
 import { redirectOrNotFound } from "@/features/redirects/queries";
 import { countriesOf } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
-import { localeFrom } from "@/features/i18n/request";
+import { localeFrom } from "@/lib/i18n/request";
 import { articleMetaOf } from "@/features/entries/article-meta";
 import { clampText, DESCRIPTION_MAX, pageMetadata, pageTitle } from "@/features/seo/metadata";
 import {

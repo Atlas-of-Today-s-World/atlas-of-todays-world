@@ -1,5 +1,5 @@
 import "server-only";
-import { DEFAULT_LOCALE } from "@/features/i18n/config";
+import { DEFAULT_LOCALE } from "@/lib/i18n/config";
 import { must } from "@/lib/db/result";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { createPublicClient } from "@/lib/supabase/public";

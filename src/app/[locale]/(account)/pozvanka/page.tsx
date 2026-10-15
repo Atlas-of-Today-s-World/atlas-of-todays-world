@@ -1,7 +1,7 @@
 import { Lead } from "@/components/atlas/Note";
 import { adminRoutes } from "@/config/routes";
 import { supabaseConfig } from "@/lib/supabase/config";
-import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
 import { privateMetadata } from "@/features/seo/metadata";
 import GoogleSignIn from "../login/GoogleSignIn";
 
