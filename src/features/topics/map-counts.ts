@@ -11,16 +11,7 @@
  *   on any of its countries;
  * - a topic counts only on the layers it is shown on (`map_layers`).
  */
-import type { MapLayer } from "@/features/entries/constants";
-
-export interface TopicPlace {
-  slug: string;
-  title: string;
-  region: string | null;
-  issue: string | null;
-  countries: string[];
-  layers: readonly MapLayer[];
-}
+import type { TopicPlace } from "@/features/entries/types";
 
 interface Groups {
   /** ISO3 → region slug. */

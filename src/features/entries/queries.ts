@@ -8,8 +8,14 @@ import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { createPublicClient } from "@/lib/supabase/public";
 import { MAP_LAYERS, type MapLayer } from "./constants";
 import { COLUMNS, pickVersion, type Row, toLocale, toSummary } from "./rows";
-import type { TopicPlace } from "@/features/topics/map-counts";
-import type { AuthorArticle, Entry, EntrySummary, Placed, UpcomingEntry } from "./types";
+import type {
+  AuthorArticle,
+  Entry,
+  EntrySummary,
+  Placed,
+  TopicPlace,
+  UpcomingEntry,
+} from "./types";
 
 /**
  * Public reads of published articles: the lists (news, topics, an author's

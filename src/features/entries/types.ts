@@ -1,6 +1,6 @@
 import type { Locale } from "@/features/i18n/config";
 import type { ArticleKind, FaqItem, NewsCategory, ResourceItem } from "@/lib/content-types";
-import type { EntryStatus, TileIcon } from "./constants";
+import type { EntryStatus, MapLayer, TileIcon } from "./constants";
 
 /**
  * Article shapes shared by the server reads (`queries.ts`, `topic-queries.ts`,
@@ -224,4 +224,14 @@ export interface Revision {
   id: number;
   saved_at: string;
   title: string;
+}
+
+/** A published topic and where it sits on the globe (`getTopicPlaces`; counted by topics/map-counts.ts). */
+export interface TopicPlace {
+  slug: string;
+  title: string;
+  region: string | null;
+  issue: string | null;
+  countries: string[];
+  layers: readonly MapLayer[];
 }
