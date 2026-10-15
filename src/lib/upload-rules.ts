@@ -46,6 +46,9 @@ export type UploadKind = keyof typeof KINDS;
 /** The kinds for validating input (`satisfies`: none that KINDS doesn't define). */
 export const UPLOAD_KINDS = ["image", "audio"] as const satisfies readonly UploadKind[];
 
+/** Every bucket uploads go to; each user writes only under `{user_id}/`. */
+export const UPLOAD_BUCKETS = Object.values(KINDS).map((kind) => kind.bucket);
+
 export const ACCEPT_IMAGES = Object.keys(KINDS.image.types).join(",");
 export const ACCEPT_AUDIO = Object.keys(KINDS.audio.types).join(",");
 

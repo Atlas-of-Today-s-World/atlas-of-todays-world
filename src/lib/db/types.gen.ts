@@ -2711,6 +2711,7 @@ export type Database = {
         Args: { p_entry: string; p_hours: number }
         Returns: string
       }
+      delete_my_personal_data: { Args: never; Returns: Json }
       entry_preview: {
         Args: { p_token: string }
         Returns: {
@@ -2780,6 +2781,8 @@ export type Database = {
         Args: { p_id: string; p_up: boolean }
         Returns: undefined
       }
+      my_confirmed_email: { Args: never; Returns: string }
+      my_personal_data: { Args: never; Returns: Json }
       my_permissions: {
         Args: never
         Returns: {
@@ -2922,6 +2925,7 @@ export type Database = {
       topic_search_vector: { Args: { p_heading: string; p_text: string }; Returns: unknown }
       translation_section: { Args: { p_entity: string }; Returns: string }
       unpublish_entry: { Args: { p_entry: string }; Returns: undefined }
+      unreferenced_uploads: { Args: { p_paths: string[] }; Returns: string[] }
       unschedule_entry: { Args: { p_entry: string }; Returns: undefined }
       valid_patron_amounts: { Args: { p_amounts: number[] }; Returns: boolean }
       withdraw_entry: { Args: { p_entry: string }; Returns: undefined }
