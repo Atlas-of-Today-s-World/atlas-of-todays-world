@@ -107,8 +107,22 @@ jobs:
       # Exact version: a hijacked "latest" release would run with the deploy token.
       - run: npm install --global vercel@62.5.0
 
+      # Settings managed in GitHub rather than in the Vercel project: NEXT_PUBLIC_*
+      # values are inlined at build time (--build-env), server secrets are
+      # runtime env (--env). An unset one is simply not passed.
       - name: Deploy
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           PROD_FLAG: ${{ github.event_name != 'pull_request' && '--prod' || '' }}
-        run: vercel deploy $PROD_FLAG --yes --token "$VERCEL_TOKEN"
+          TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
+          RATE_LIMIT_SECRET: ${{ secrets.RATE_LIMIT_SECRET }}
+        run: |
+          args=()
+          if [ -n "$TURNSTILE_SITE_KEY" ]; then
+            args+=(--build-env "NEXT_PUBLIC_TURNSTILE_SITE_KEY=$TURNSTILE_SITE_KEY")
+            args+=(--env "NEXT_PUBLIC_TURNSTILE_SITE_KEY=$TURNSTILE_SITE_KEY")
+          fi
+          if [ -n "$RATE_LIMIT_SECRET" ]; then
+            args+=(--env "RATE_LIMIT_SECRET=$RATE_LIMIT_SECRET")
+          fi
+          vercel deploy $PROD_FLAG --yes --token "$VERCEL_TOKEN" "${args[@]}"
