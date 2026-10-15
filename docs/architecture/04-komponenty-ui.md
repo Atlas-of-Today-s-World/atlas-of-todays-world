@@ -67,8 +67,8 @@ skládá z hotových dílů; když díl chybí, vznikne jako sdílený, ne jako 
 |---|---|---|
 | 1. Design tokeny | `src/app/globals.css` (`@theme` v Tailwind 4) + `src/config/layout.ts` | barvy, radiusy, stíny, typografie, **rozměry layoutu** (`--rail-width`, `--rail-width-wide`, `--touch-min: 44px`) |
 | 2. Primitiva | `src/components/ui/` (shadcn/ui) | `Button` + `buttonVariants` (i pro odkazy a ikonová tlačítka), `Badge`, `Dialog`, `Popover`, `CheckboxControl`, `ColorField`; formuláře v `field.tsx` (`FormField`, `Input`, `Textarea`, `Select`, `Checkbox`, `RequiredNote`) a `action-form.tsx` (`ActionForm`, `useServerAction`, `useAddForm`). *Plán, až bude potřeba:* `Sheet`, `Tabs`, `Tooltip`, `Skeleton` |
-| 3. Vzory Atlasu | `src/components/atlas/` | `Rail` (jediný karusel), `ui.tsx` (`SectionLabel`, `MetricCards`, `StatGrid`/`StatItem`, `SourceLink`, `PhotoCredit`, `NewsBadge`), `PhotoCard`, `PhotoTile`, `Accordion`, `SafeHtml`, `RichText`, `ShareButton`, `ErrorState`, `BrandLogo`, `ContactLink`, varianty `kickerVariants`, `glassVariants`; tabulky `components/data-table/DataTable` (ADR-019) |
-| 4. Doménové bloky | `src/components/portrait/`, `src/components/` (`CountryCard`, `PagesShell`, `PagesFrame`, `FullPage`), `features/*/components/` | `Portrait` (region **i** global issue), `PortraitSection`, `PatronsCallout`, `NewsTabs`, `ArticleFrame`, `EncyclopediaArticle`, `NewsArticle`… |
+| 3. Vzory Atlasu | `src/components/atlas/` | `Rail` (jediný karusel), `ui.tsx` (`SectionLabel`, `MetricCards`, `StatGrid`/`StatItem`, `SourceLink`, `PhotoCredit`, `NewsBadge`), `Breadcrumbs` (`tone` light/dark), `Note.tsx` (`EmptyNote`, `Lead`), `PhotoCard`, `PhotoTile`, `Accordion`, `SafeHtml`, `RichText`, `ShareButton`, `ErrorState`, `RouteError` (hranice chyb tras), `BrandLogo`, `ContactLink`, varianty `kickerVariants`, `glassVariants`; tabulky `components/data-table/DataTable` (ADR-019) |
+| 4. Doménové bloky | `src/components/portrait/`, `src/components/` (`CountryCard`, `PagesShell`, `PagesFrame`, `FullPage`), `features/*/components/` | `Portrait` (region **i** global issue), `PortraitSection`, `PatronsCallout`, `NewsTabs`, `ArticleFrame`, `EncyclopediaArticle`, `NewsArticle`, `map/RegionFocus`, `admin/RegionSelect`… |
 | 5. Stránky | `src/app/**` | jen skládání bloků + data; žádné vlastní styly nad rámec rozvržení. Metadata přes `lib/seo/metadata.ts` (`pageMetadata`, `staticPageMetadata`, `privateMetadata`), props přes globální `PageProps<"/…">` / `LayoutProps<"/…">` (Next 16, `next typegen`) |
 
 Pravidla:
@@ -88,8 +88,8 @@ Pravidla:
 - **Formuláře administrace** z jednoho vzoru: `FormField` (label + control + chyba ze Zod) + `useServerAction`
   nad Server Action z `formAction()` (`lib/actions.ts`); tabulky z jednoho `DataTable` (`components/data-table`,
   ADR-019) s konfigurací sloupců a akcemi v řádku (`editAction`, `deleteAction`, `moveActions`…).
-- **Klientské volání serveru** jen přes Server Actions — ne ručně psaný `fetch` v komponentě (výjimkou
-  jsou GET dat mapy; helper `apiFetch()` je plán, zatím neexistuje).
+- **Klientské volání serveru** jen přes Server Actions nebo `apiFetch()` (`lib/api-fetch.ts`: timeout,
+  abort, JSON, typované chyby) — ne ručně psaný `fetch` v komponentě (ESLint ho v komponentách zakazuje).
 - **Ikony** z jedné sady (`lucide-react`), ne vložené SVG v každém souboru.
 - **Texty** z `messages/en.json` (web je jen anglicky, ADR-022) s úpravami týmu z Admin → UI texts
   (`getT()` / `getMessagesFor()`); opakovaný text (CTA, chybové hlášky) má jeden klíč.
@@ -102,6 +102,7 @@ Pravidla:
 | `knip` | nepoužité soubory, exporty, závislosti | 0 nálezů (výjimky v `knip.json` s komentářem) |
 | ESLint `no-restricted-imports` | `@supabase/supabase-js` mimo `lib/supabase` (typové importy smí) | chyba |
 | ESLint `no-restricted-syntax` | `dangerouslySetInnerHTML` mimo `SafeHtml`, `JsonLd`, `PrePaintScript`; ručně skládané veřejné URL (`` `/country/${…}` `` atd. → `routes.*`); ručně psané `/admin…` (→ `adminRoutes.*`) | chyba |
+| ESLint `no-restricted-globals` / `-properties` | `fetch` (i `window.fetch`…) v `src/components` a `features/*/components` (→ `apiFetch()`) | chyba |
 | `prettier-plugin-tailwindcss` | jednotné řazení tříd (snazší hledání duplicit) | formát |
 | Storybook (nebo Ladle) | katalog dílů úrovně 2–4 → je vidět, co existuje | každý sdílený díl má story |
 
@@ -114,6 +115,6 @@ Pravidla:
 | D3 | Stránka global issue (218 ř.) skládá portrét znovu místo `RegionPortrait` | jedna `Portrait` | hotovo (`features/portraits/group-page.tsx` pro obě trasy) |
 | D4 | Menu definované 2× (`Header.tsx` pole `NAV`, `(pages)/layout.tsx` natvrdo) | `config/navigation.ts` | hotovo (`getNavigation()` z `nav_items`, záloha v `config/navigation.ts`) |
 | D5 | ≥ 7 ručních variant primárního tlačítka, přestože existuje `PrimaryButton` | `ui/Button` s variantami | hotovo (`Button` / `buttonVariants`) |
-| D6 | `fetch` ručně v 7 klientských komponentách (admin formuláře, newsletter, search, login) | Server Actions / `apiFetch` | hotovo pro formuláře (Server Actions); zbývá GET dat mapy v `AtlasGlobe` a `map/maplibre.ts`, `apiFetch` nevznikl |
+| D6 | `fetch` ručně v 7 klientských komponentách (admin formuláře, newsletter, search, login) | Server Actions / `apiFetch` | hotovo (Server Actions, `apiFetch()` + zákaz `fetch` v ESLint; výjimkou s odůvodněním jen zahřátí cache v `map/maplibre.ts`) |
 | D7 | Tři admin formuláře (530, 664, 357 ř.) s vlastní validací a stavem | `FormField` + Zod + `useActionState`, `DataTable` | hotovo (`formAction` + `useServerAction`, `DataTable`) |
 | D8 | Obsah renderuje aplikace i `demo/` zvlášť | demo jen jako prezentace nad exportem, nebo zrušit | hotovo (`demo/` zrušeno) |

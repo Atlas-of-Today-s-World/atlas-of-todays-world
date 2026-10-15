@@ -57,22 +57,23 @@ Každý vizuální vzor, konstanta a datová definice existuje **právě jednou*
 
 1. **Nejdřív hledej**, v tomto pořadí: tokeny (`globals.css` `@theme`, `config/layout.ts`) → primitiva
    `components/ui/` (shadcn: `Button`/`buttonVariants`, `Badge`, `Dialog`, `Popover`, `FormField`…) → vzory
-   `components/atlas/` (`Rail`, `SectionLabel`, `MetricCards`, `StatGrid`, `SourceLink`, `PhotoCard`, `Accordion`,
-   `SafeHtml`…) → doménové bloky (`components/portrait/`, `features/*/components/`). Hledej podle názvu i tříd.
+   `components/atlas/` (`Rail`, `Breadcrumbs`, `EmptyNote`/`Lead`, `SectionLabel`, `MetricCards`, `StatGrid`, `SourceLink`,
+   `PhotoCard`, `Accordion`, `RouteError`, `SafeHtml`…) → doménové bloky (`components/portrait/`, `features/*/components/`). Hledej podle názvu i tříd.
 2. **Podobné existuje → přidej variantu** (`cva`: `variant`/`size`/`tone`), nekopíruj. Nová komponenta jen
    když nic podobného není — a rovnou na správnou úroveň, sdílenou.
 3. **Žádná magická čísla**: šířky panelu, breakpointy, z-indexy, 44 px cíle jen z tokenů / `config/layout.ts`.
 4. **Jedna datová definice**: menu z `getNavigation()` (tabulka `nav_items`, Administrace → Site menus; záloha a účet v `config/navigation.ts`); kategorie, sekce, typy z DB typů nebo jednoho `const`; URL jen z `routes.*` / `adminRoutes.*` (`config/routes.ts`).
 5. **Stejná data = stejná komponenta**: region i global issue → `Portrait`; všechny karusely → `Rail`;
    formuláře → `FormField` + Zod + `useServerAction`; tabulky → `DataTable` (skill `atlas-datatable`, vždy s akcemi v řádku); ikony → `lucide-react`;
-   volání serveru z klienta → Server Action, nikdy ruční `fetch` v komponentě (`apiFetch()` zatím neexistuje).
+   volání serveru z klienta → Server Action nebo `apiFetch()` (`lib/api-fetch.ts`), nikdy ruční `fetch` v komponentě.
 6. **Při úpravě souboru s duplicitou z tabulky D1–D8** (ARCHITEKTURA 15.3) ji v témže PR odstraň nebo
    zapiš, proč ne. Nezaváděj nové výskyty.
 7. CI hlídá: `jscpd` (`.jscpd.json`: `src/` bez testů, `src/content`, `src/data`; klon = ≥ 10 řádků a ≥ 70 tokenů,
    práh 1 %), `knip` (0 nepoužitých souborů, exportů a závislostí), ESLint zákazy (`eslint.config.mjs`):
    `dangerouslySetInnerHTML` mimo `SafeHtml`/`JsonLd`/`PrePaintScript`; ručně skládané veřejné URL
    (`` `/country/${…}` ``, `/region/`, `/news/`, `/topics/`… → `routes.*`); ručně psané `"/admin…"` (→ `adminRoutes.*`;
-   řetězec v typu jako `PageProps<"/admin/…">` smí); `@supabase/supabase-js` mimo `lib/supabase` (typy smí);
+   řetězec v typu jako `PageProps<"/admin/…">` smí); `fetch` v `src/components` a `features/*/components`
+   (→ `apiFetch()`); `@supabase/supabase-js` mimo `lib/supabase` (typy smí);
    `eslint-plugin-security` a pravidla React Compileru.
    Každý sdílený díl má story ve Storybooku.
 
@@ -83,7 +84,7 @@ Každý vizuální vzor, konstanta a datová definice existuje **právě jednou*
   `signedIn` (`lib/actions.ts`); klient `useServerAction` / `useAddForm` / `ActionForm` (`components/ui/action-form.tsx`).
 - **Řádkové akce DataTable:** `editAction`, `openAction`, `deleteAction`, `confirmAction`, `visibilityAction`,
   `moveActions(up, down, { first, last })`, `noteAction` (`components/data-table/row-actions.ts`).
-- **URL:** `routes.*` a `adminRoutes.*` (`config/routes.ts`).
+- **URL:** `routes.*` a `adminRoutes.*` (`config/routes.ts`). **Klient → naše API:** `apiFetch()` (`lib/api-fetch.ts`).
 - **Texty a nastavení:** `getT()` / `getMessagesFor(locale)` (`features/i18n/request.ts`, async, s úpravami z UI texts),
   `localeFrom(params)`; `getSiteSettings()` (`features/site/queries.ts`).
 - **SEO:** `pageMetadata`, `staticPageMetadata(section, path)` pro indexové stránky z UI textů, `privateMetadata(title)`
