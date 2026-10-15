@@ -4,7 +4,7 @@
  */
 
 /** Length of the email code — matches `otp_length` in supabase/config.toml. */
-export const EMAIL_CODE_LENGTH = 6;
+export const EMAIL_CODE_LENGTH = 8;
 
 /** Email language (templates in supabase/templates read `.Data.locale`). */
 export const EMAIL_LOCALES = ["en"] as const;

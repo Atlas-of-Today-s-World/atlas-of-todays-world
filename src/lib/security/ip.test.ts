@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { rateLimitAddress } from "./ip";
+import { clientIp, rateLimitAddress } from "./ip";
 
 describe("rate-limit address", () => {
   it("keeps IPv4 as it is", () => {
@@ -13,5 +13,18 @@ describe("rate-limit address", () => {
     expect(rateLimitAddress("2001:DB8:85A3:8D3::")).toBe(network);
     expect(rateLimitAddress("2001:db8::1")).toBe("2001:db8:0:0::/64");
     expect(rateLimitAddress("::1")).toBe("0:0:0:0::/64");
+  });
+});
+
+describe("client address", () => {
+  it("takes the first forwarded address, trimmed", () => {
+    expect(clientIp(new Headers({ "x-forwarded-for": " 203.0.113.7 , 10.0.0.1" }))).toBe(
+      "203.0.113.7",
+    );
+  });
+
+  it("is undefined when the proxy reports none", () => {
+    expect(clientIp(new Headers())).toBeUndefined();
+    expect(clientIp(new Headers({ "x-forwarded-for": " " }))).toBeUndefined();
   });
 });

@@ -65,7 +65,7 @@ export default async function UiTextsPage() {
         emptyTitle="No texts"
         initialSort={{ key: "key", dir: "asc" }}
         stats={optionStats("status", STATUS)}
-        actionsWidth="96px"
+        maxRowActions={(canWrite ? 1 : 0) + (canReset ? 1 : 0)}
         columns={[
           {
             key: "key",

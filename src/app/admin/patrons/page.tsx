@@ -37,8 +37,8 @@ export default async function PatronSettingsPage() {
   const [settings, faq] = await Promise.all([getPatronSettingsRow(), listPatronFaq()]);
   const canEdit = patronRight(access.permissions, "e");
   const canDelete = patronRight(access.permissions, "d");
-  // Edit + move up + move down, open on the site, delete — ~32 px per icon.
-  const actions = (canEdit ? 3 : 0) + 1 + (canDelete ? 1 : 0);
+  // Edit + move up + move down, open on the site, delete.
+  const maxActions = (canEdit ? 3 : 0) + 1 + (canDelete ? 1 : 0);
 
   return (
     <>
@@ -71,7 +71,7 @@ export default async function PatronSettingsPage() {
             { key: "all", label: "All" },
             { key: "hidden", label: "Hidden", column: "shown", value: "hidden" },
           ]}
-          actionsWidth={`${actions * 32}px`}
+          maxRowActions={maxActions}
           columns={[
             {
               key: "position",

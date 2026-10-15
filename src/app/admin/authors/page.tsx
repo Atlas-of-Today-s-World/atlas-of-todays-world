@@ -58,7 +58,7 @@ export default async function AuthorsPage() {
             value: "no",
           },
         ]}
-        actionsWidth={canDelete ? "104px" : "72px"}
+        maxRowActions={canDelete ? 3 : 2}
         columns={[
           {
             key: "name",

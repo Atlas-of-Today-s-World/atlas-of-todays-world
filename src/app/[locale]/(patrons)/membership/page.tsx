@@ -28,6 +28,7 @@ import { formatEuro, formatNumber, formatPercent } from "@/lib/format";
 import { JsonLd } from "@/components/JsonLd";
 import { getSiteSettings } from "@/features/site/queries";
 import { staticPageMetadata } from "@/lib/seo/metadata";
+import { captchaEnabled } from "@/lib/security/turnstile";
 import { breadcrumbNode, faqNode, graph, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { routes } from "@/config/routes";
 
@@ -354,7 +355,7 @@ export default async function MembershipPage({ params }: PageProps<"/[locale]/me
                   ))}
                 </ul>
               </div>
-              <VolunteerForm />
+              <VolunteerForm captcha={captchaEnabled()} />
             </div>
           </section>
         </div>

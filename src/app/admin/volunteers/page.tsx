@@ -48,7 +48,8 @@ export default async function VolunteersPage() {
         emptyTitle="No applications yet"
         initialSort={{ key: "received", dir: "desc" }}
         stats={optionStats("status", STATUSES)}
-        actionsWidth="144px"
+        // A row offers the two statuses it is not in (of new / contacted / closed), then delete.
+        maxRowActions={(canEdit ? 2 : 0) + (canDelete ? 1 : 0)}
         columns={[
           {
             key: "who",

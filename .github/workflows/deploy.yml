@@ -1,7 +1,9 @@
 # Deploys to Vercel via token (a Hobby account won't deploy commits by other
 # authors from the Git integration, so this pipeline deploys instead).
 #   - main: production, but only once CI (ci.yml) has passed on that commit
-#   - pull request: preview deployment
+#   - pull request: preview deployment only when the PR has the "preview" label
+#     (every preview build reads the production database; on the free Supabase
+#     plan that traffic counts against the monthly quota)
 #
 # The build runs on Vercel, not here: Hobby allows uploading max. 5,000 files a day
 # and a finished build (~270 pages) would exhaust the limit after a few deploys.
@@ -16,6 +18,7 @@ on:
     types: [completed]
     branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
     paths-ignore:
       - "*.md"
       - ".claude/**"
@@ -92,6 +95,7 @@ jobs:
         (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
         (github.event_name == 'pull_request' &&
           github.event.pull_request.head.repo.full_name == github.repository &&
+          contains(github.event.pull_request.labels.*.name, 'preview') &&
           github.actor != 'dependabot[bot]'))
     runs-on: ubuntu-latest
     steps:
@@ -107,8 +111,30 @@ jobs:
       # Exact version: a hijacked "latest" release would run with the deploy token.
       - run: npm install --global vercel@62.5.0
 
+      # Settings managed in GitHub rather than in the Vercel project: NEXT_PUBLIC_*
+      # values are inlined at build time (--build-env), server secrets are
+      # runtime env (--env). An unset one is simply not passed.
       - name: Deploy
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           PROD_FLAG: ${{ github.event_name != 'pull_request' && '--prod' || '' }}
-        run: vercel deploy $PROD_FLAG --yes --token "$VERCEL_TOKEN"
+          TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
+          RATE_LIMIT_SECRET: ${{ secrets.RATE_LIMIT_SECRET }}
+          TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
+        run: |
+          args=()
+          if [ -n "$TURNSTILE_SITE_KEY" ]; then
+            args+=(--build-env "NEXT_PUBLIC_TURNSTILE_SITE_KEY=$TURNSTILE_SITE_KEY")
+            args+=(--env "NEXT_PUBLIC_TURNSTILE_SITE_KEY=$TURNSTILE_SITE_KEY")
+          fi
+          if [ -n "$RATE_LIMIT_SECRET" ]; then
+            args+=(--env "RATE_LIMIT_SECRET=$RATE_LIMIT_SECRET")
+          fi
+          # Turnstile on the public forms (lib/security/turnstile.ts). Also a build
+          # env: static pages decide at build whether to render the widget, and the
+          # runtime check must agree with them. Not NEXT_PUBLIC_, so never inlined.
+          if [ -n "$TURNSTILE_SECRET_KEY" ]; then
+            args+=(--build-env "TURNSTILE_SECRET_KEY=$TURNSTILE_SECRET_KEY")
+            args+=(--env "TURNSTILE_SECRET_KEY=$TURNSTILE_SECRET_KEY")
+          fi
+          vercel deploy $PROD_FLAG --yes --token "$VERCEL_TOKEN" "${args[@]}"

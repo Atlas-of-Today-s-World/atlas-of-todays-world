@@ -12,7 +12,7 @@ import { EmailCodeRequest, EmailCodeVerify } from "./schema";
 
 /** How many codes one IP address may request (on top of Supabase Auth limits). */
 const REQUEST_LIMIT = { limit: 5, windowSeconds: 600 };
-/** How many code attempts from one IP address — six digits must not be guessable. */
+/** How many code attempts from one IP address — eight digits must not be guessable. */
 const VERIFY_LIMIT = { limit: 10, windowSeconds: 600 };
 /**
  * How many code attempts for one email address from anywhere — guesses spread
@@ -21,7 +21,7 @@ const VERIFY_LIMIT = { limit: 10, windowSeconds: 600 };
 const VERIFY_PER_EMAIL_LIMIT = { limit: 5, windowSeconds: 900 };
 
 /**
- * Sign-in with an email code, step 1 (G1): sends a six-digit code. A reader
+ * Sign-in with an email code, step 1 (G1): sends an eight-digit code. A reader
  * account is created on first sign-in (role reader, ARCHITEKTURA 7); only
  * someone invited by an admin joins the team (a verified email accepts the invitation).
  * Disabled by the `email_auth` flag until we have our own SMTP (U5).

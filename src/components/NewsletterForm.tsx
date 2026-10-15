@@ -5,6 +5,7 @@ import { routes } from "@/config/routes";
 import { useId } from "react";
 import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { describedBy } from "@/components/ui/field";
+import { Turnstile } from "@/components/ui/turnstile";
 import { subscribe } from "@/features/newsletter/actions";
 import { NEWSLETTER_INTERESTS } from "@/features/newsletter/interests";
 import { useMessages } from "@/components/i18n/LocaleProvider";
@@ -15,8 +16,9 @@ import { useFormErrors } from "@/lib/use-form-errors";
  * (checkbox with a link to the policy), confirmation is double opt-in (Mailchimp sends
  * a verification e-mail) and `website` is a honeypot for bots: humans don't see the field.
  * The form can be on a page twice (/newsletter and the mobile menu), so ids come from useId.
+ * `captcha` (decided on the server: both Turnstile keys set) adds the Turnstile widget.
  */
-export default function NewsletterForm() {
+export default function NewsletterForm({ captcha }: { captcha: boolean }) {
   const t = useMessages();
   const id = useId();
   const [state, action, pending] = useServerAction(subscribe);
@@ -113,6 +115,8 @@ export default function NewsletterForm() {
         </span>
       </label>
       <FieldError id={ids.consent} errors={errors.consent} />
+
+      {captcha ? <Turnstile reset={state} theme="dark" className="mt-3" /> : null}
 
       {/* Honeypot for bots: a field invisible to humans. */}
       <input

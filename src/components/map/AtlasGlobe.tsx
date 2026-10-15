@@ -38,6 +38,7 @@ import { GlobePlaceholder } from "./globe/GlobePlaceholder";
 import { GlobeUnavailable } from "./globe/GlobeUnavailable";
 import { GlobeZoomControls } from "./globe/GlobeZoomControls";
 import { MiniGlobeLink } from "./globe/MiniGlobeLink";
+import { isTouchScreen, TOUCH_MAP_OPTIONS, touchStyle } from "./globe/touch";
 
 export type { RegionLookup } from "./globe/types";
 
@@ -144,9 +145,13 @@ export default function AtlasGlobe({
     const init = () =>
       loadMapLibre().then(({ Map: MapLibreMap, AttributionControl }) => {
         if (cancelled || !containerRef.current) return;
+        const touch = isTouchScreen();
+        const style = buildStyle(regionLabels, styleOptions);
         const map = new MapLibreMap({
           container: containerRef.current,
-          style: buildStyle(regionLabels, styleOptions),
+          style: touch ? touchStyle(style) : style,
+          // Phones and tablets: no fades, a smaller tile cache (globe/touch.ts).
+          ...(touch ? TOUCH_MAP_OPTIONS : {}),
           // First frame straight at the default distance, so the map doesn't first
           // appear as a tiny ball and only then fly in.
           center: EUROPE_CENTER,

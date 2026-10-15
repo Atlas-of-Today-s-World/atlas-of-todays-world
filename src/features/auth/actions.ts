@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createServerClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
+import { removeUnusedUploads } from "./account-uploads";
 import { mfaGate } from "./mfa";
 
 /**
@@ -24,9 +25,18 @@ const DeleteInput = z.object({ confirm: z.string().trim().toLowerCase() });
 
 /**
  * Deleting one's own account (GDPR, ARCHITEKTURA 16.2). The session verifies identity;
- * only the service key can delete the user in Auth. The profile goes by cascade;
- * a DB trigger protects the last admin. A role that requires two-factor sign-in
- * must have it in this session too (aal2), the same as for the admin.
+ * only the service key can delete the user in Auth. A role that requires two-factor
+ * sign-in must have it in this session too (aal2), the same as for the admin.
+ *
+ * 1. delete_my_personal_data() (session; the DB checks the caller): invitations to
+ *    the caller's verified e-mail that were never accepted and their volunteer
+ *    applications — rows no foreign key ties to the account. Refused for the last
+ *    admin, before anything is removed.
+ * 2. The Auth account. The profile, membership, page views and approver scope go
+ *    by cascade; authors.profile_id and every *_by column are set null (the public
+ *    author profile and the articles stay — editorial content).
+ * 3. The caller's uploaded files that nothing uses (removeUnusedUploads). Best
+ *    effort: a file left behind is only storage, never a broken page.
  */
 export async function deleteAccount(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = DeleteInput.safeParse({ confirm: formData.get("confirm") });
@@ -40,10 +50,22 @@ export async function deleteAccount(_prev: ActionState, formData: FormData): Pro
   }
   if (await mfaGate()) return { ok: false, error: "mfa" };
 
-  const { error } = await createServiceClient().auth.admin.deleteUser(user.id);
+  const personal = await supabase.rpc("delete_my_personal_data");
+  if (personal.error) {
+    console.error("[account] personal data not removed", personal.error.message);
+    return { ok: false, error: "failed" };
+  }
+
+  const service = createServiceClient();
+  const { error } = await service.auth.admin.deleteUser(user.id);
   if (error) {
     console.error("[account] delete failed", error.message);
     return { ok: false, error: "failed" };
+  }
+  try {
+    await removeUnusedUploads(service, user.id);
+  } catch (cleanup) {
+    console.error("[account] uploads not removed", (cleanup as Error).message);
   }
   await supabase.auth.signOut();
   redirect("/");

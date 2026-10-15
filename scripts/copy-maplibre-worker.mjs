@@ -6,7 +6,7 @@
 // worker and the shared module it imports are copied to public/maplibre/<version>/
 // and the globe sets it via setWorkerUrl. Version in the path = a new file on every
 // upgrade (long caching without risk).
-import { copyFileSync, mkdirSync, readFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -20,9 +20,12 @@ mkdirSync(target, { recursive: true });
 // The main module is loaded from here too (src/components/map/maplibre.ts), so
 // the main thread and the worker share a single maplibre-gl-shared.mjs.
 // Their source maps too: the modules point at them, and without them browsers'
-// dev tools (and Lighthouse's "valid source maps" check) report a 404.
+// dev tools (and Lighthouse's "valid source maps" check) report a 404. Some
+// releases ship without a map for a module; then there is nothing to copy.
 for (const file of ["maplibre-gl.mjs", "maplibre-gl-worker.mjs", "maplibre-gl-shared.mjs"]) {
   copyFileSync(join(dist, file), join(target, file));
-  copyFileSync(join(dist, `${file}.map`), join(target, `${file}.map`));
+  if (existsSync(join(dist, `${file}.map`))) {
+    copyFileSync(join(dist, `${file}.map`), join(target, `${file}.map`));
+  }
 }
 console.log(`maplibre worker ${version} → public/maplibre/${version}/`);

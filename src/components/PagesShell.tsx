@@ -5,6 +5,7 @@ import type { NavLink } from "@/features/navigation/model";
 import { getSiteSettings, getSocialLinks } from "@/features/site/queries";
 import type { Messages } from "@/features/i18n/messages";
 import { cn } from "@/lib/cn";
+import { captchaEnabled } from "@/lib/security/turnstile";
 
 /**
  * Frame of the pages without the globe (About, News, Atlas Patrons…): the
@@ -35,7 +36,7 @@ export async function PagesShell({
     // A column at least the window's height: on short pages (no search results,
     // sign-in) the footer stays at the bottom instead of floating mid-screen.
     <div className="flex min-h-dvh flex-col bg-white text-[var(--color-ink)]">
-      <Header bar newsletter={newsletter} nav={nav} socials={socials} />
+      <Header bar newsletter={newsletter} captcha={captchaEnabled()} nav={nav} socials={socials} />
       <div
         id="content"
         tabIndex={-1}

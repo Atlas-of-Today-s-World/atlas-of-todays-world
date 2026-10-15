@@ -79,7 +79,6 @@ export default async function IndicatorPage({ params }: PageProps<"/admin/data/[
           emptyTitle="No values yet"
           initialSort={{ key: "country", dir: "asc" }}
           stats={optionStats("origin", ORIGIN)}
-          actionsWidth="48px"
           columns={[
             {
               key: "country",

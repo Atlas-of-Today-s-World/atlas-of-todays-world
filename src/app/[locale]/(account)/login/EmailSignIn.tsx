@@ -1,19 +1,16 @@
 "use client";
 
-import Script from "next/script";
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FormField, Input } from "@/components/ui/field";
+import { Turnstile } from "@/components/ui/turnstile";
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import { requestEmailCode, verifyEmailCode } from "@/features/auth/email-actions";
 import { EMAIL_CODE_LENGTH, type EmailCodeState } from "@/features/auth/constants";
 import { format } from "@/features/i18n/messages";
-import { publicEnv } from "@/lib/env";
-
-const TURNSTILE_KEY = publicEnv.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
 /**
- * Sign-in with an e-mailed code (G1): e-mail → six-digit code → signed in.
+ * Sign-in with an e-mailed code (G1): e-mail → eight-digit code → signed in.
  * The second step appears once the action returns the address the code was sent to.
  * Turnstile (only with a key in the environment) adds `cf-turnstile-response` to the form.
  */
@@ -48,12 +45,9 @@ export function EmailSignIn({ next }: { next: string }) {
             defaultValue={sent.email}
           />
         </FormField>
-        {TURNSTILE_KEY ? (
-          <>
-            <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
-            <div className="cf-turnstile" data-sitekey={TURNSTILE_KEY} data-language={locale} />
-          </>
-        ) : null}
+        {/* Only with a site key; Supabase Auth checks the token. A failed request
+            used it up, so each answer renews it. */}
+        <Turnstile reset={sent} />
         <Button type="submit" block disabled={requesting}>
           {requesting ? t.sending : t.send}
         </Button>

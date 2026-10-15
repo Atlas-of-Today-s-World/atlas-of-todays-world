@@ -23,7 +23,6 @@ export default async function AreasPage() {
   // page (the globe turns there). Others are only on the globe as it spins.
   const countryOf = (area: (typeof areas)[number]) =>
     area.countryIso3 ? countryByIso3.get(area.countryIso3) : undefined;
-  const anyOpen = areas.some((area) => countryOf(area));
   return (
     <>
       <PageHeader
@@ -43,7 +42,8 @@ export default async function AreasPage() {
         caption="Custom map areas"
         emptyTitle="No custom map areas yet"
         initialSort={{ key: "name", dir: "asc" }}
-        actionsWidth={`${(1 + (anyOpen ? 1 : 0) + (canDelete ? 1 : 0)) * 32 + 16}px`}
+        // Edit, open (areas tied to a country), delete.
+        maxRowActions={2 + (canDelete ? 1 : 0)}
         columns={[
           { key: "color", label: "Colour", kind: "color", width: "64px", noExport: true },
           {

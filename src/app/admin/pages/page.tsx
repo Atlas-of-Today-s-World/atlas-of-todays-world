@@ -41,7 +41,7 @@ export default async function SitePagesPage() {
         emptyTitle="No site pages"
         initialSort={{ key: "title", dir: "asc" }}
         stats={optionStats("status", STATUS)}
-        actionsWidth="80px"
+        maxRowActions={2}
         columns={[
           {
             key: "title",

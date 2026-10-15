@@ -72,7 +72,7 @@ export default async function RolesPage() {
           caption="Roles in order"
           emptyTitle="No roles"
           initialSort={{ key: "order", dir: "asc" }}
-          actionsWidth="72px"
+          maxRowActions={2}
           columns={[
             { key: "order", label: "#", kind: "number", sortable: true, width: "64px" },
             {
