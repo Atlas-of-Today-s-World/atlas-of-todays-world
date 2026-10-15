@@ -48,7 +48,7 @@ export default async function VolunteersPage() {
         emptyTitle="No applications yet"
         initialSort={{ key: "received", dir: "desc" }}
         stats={optionStats("status", STATUSES)}
-        actionsWidth="112px"
+        actionsWidth="144px"
         columns={[
           {
             key: "who",
@@ -81,6 +81,13 @@ export default async function VolunteersPage() {
             width: "120px",
           },
           { key: "received", label: "Received", kind: "date", sortable: true, width: "128px" },
+          {
+            key: "notified",
+            label: "E-mailed to the team",
+            kind: "datetime",
+            sortable: true,
+            width: "160px",
+          },
         ]}
         rows={applications.map((row) => ({
           id: row.id,
@@ -91,6 +98,7 @@ export default async function VolunteersPage() {
             message: row.message,
             status: row.status,
             received: row.created_at,
+            notified: row.notified_at,
           },
           actions:
             canEdit || canDelete ? (
@@ -106,6 +114,20 @@ export default async function VolunteersPage() {
                           confirmTitle: `Mark ${row.name} as contacted?`,
                           confirmBody: "Use it once you have written to them.",
                           confirmLabel: "Mark contacted",
+                        },
+                      ]
+                    : []),
+                  ...(canEdit && row.status !== "new"
+                    ? [
+                        {
+                          kind: "action" as const,
+                          icon: "restore" as const,
+                          label: "Mark as new",
+                          action: setApplicationStatus.bind(null, row.id, "new"),
+                          confirmTitle: `Mark the application of ${row.name} as new again?`,
+                          confirmBody:
+                            "It goes back among the applications nobody has answered yet.",
+                          confirmLabel: "Mark as new",
                         },
                       ]
                     : []),

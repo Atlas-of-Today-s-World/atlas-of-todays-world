@@ -2681,6 +2681,7 @@ export type Database = {
         Args: { p_entry: string; p_expected_updated_at?: string }
         Returns: undefined
       }
+      author_account: { Args: { p_author: string }; Returns: string }
       can_approve_entry: { Args: { p_entry: string }; Returns: boolean }
       can_approve_entries: {
         Args: { p_entries: string[] }
@@ -2770,6 +2771,7 @@ export type Database = {
       move_indicator: { Args: { p_id: string; p_up: boolean }; Returns: undefined }
       move_patron_faq: { Args: { p_id: string; p_up: boolean }; Returns: undefined }
       move_region: { Args: { p_slug: string; p_up: boolean }; Returns: undefined }
+      move_role: { Args: { p_id: string; p_up: boolean }; Returns: undefined }
       mfa_status: { Args: never; Returns: Json }
       move_site_social_link: {
         Args: { p_id: string; p_up: boolean }
@@ -2893,6 +2895,10 @@ export type Database = {
       search_words: { Args: { p_text: string }; Returns: string[] }
       send_back_entry: {
         Args: { p_entry: string; p_note: string }
+        Returns: undefined
+      }
+      set_author_account: {
+        Args: { p_author: string; p_profile: string | null }
         Returns: undefined
       }
       short_items: {

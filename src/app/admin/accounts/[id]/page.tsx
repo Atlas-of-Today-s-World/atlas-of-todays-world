@@ -7,6 +7,7 @@ import { AccountForm } from "@/features/accounts/components/AccountForm";
 import { accountForEdit, listAccounts } from "@/features/accounts/editorial";
 import { listRoles } from "@/features/roles/editorial";
 import { getPickerOptions } from "@/features/geography/queries";
+import { formatDateTime } from "@/lib/format";
 import { uuid } from "@/lib/validation/common";
 
 export const metadata: Metadata = { title: "Account" };
@@ -30,7 +31,19 @@ export default async function AccountPage({ params }: { params: Promise<{ id: st
 
   return (
     <>
-      <PageHeader title={account.name || account.email} lead={account.email} />
+      <PageHeader
+        title={account.name || account.email}
+        lead={
+          account.deleted_at ? (
+            <>
+              {account.email} · <strong>Deleted</strong> on {formatDateTime(account.deleted_at)} —
+              the account can no longer sign in to the administration.
+            </>
+          ) : (
+            account.email
+          )
+        }
+      />
       <AccountForm
         account={account}
         roles={offered}

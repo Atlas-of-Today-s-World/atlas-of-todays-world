@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { CountryPicker, type CountryOption } from "@/components/admin/CountryPicker";
 import { SubmitButton } from "@/components/admin/SubmitButton";
-import { Checkbox, FormField, Select, Textarea } from "@/components/ui/field";
+import { Checkbox, FormField, Input, Select, Textarea } from "@/components/ui/field";
 import { AdminOnlyRolesNote } from "@/features/roles/components/AdminOnlyRolesNote";
 import { saveAccount } from "../actions";
 import { ActionForm, useServerAction } from "@/components/ui/action-form";
@@ -16,7 +16,7 @@ interface Role {
   approval_scope: string;
 }
 
-/** Role, block and approver assignments (countries, authors). */
+/** Name and phone, role, block and approver assignments (countries, authors). */
 export function AccountForm({
   account,
   roles,
@@ -27,6 +27,8 @@ export function AccountForm({
 }: {
   account: {
     id: string;
+    name: string;
+    phone: string | null;
     role_id: string;
     status: string;
     blocked_note: string | null;
@@ -55,6 +57,25 @@ export function AccountForm({
         </p>
       ) : null}
       {!isAdmin ? <AdminOnlyRolesNote /> : null}
+      <div className="grid gap-5 sm:grid-cols-2">
+        <FormField id="name" label="Name" errors={errors.name}>
+          <Input id="name" name="name" maxLength={120} defaultValue={account.name} />
+        </FormField>
+        <FormField
+          id="phone"
+          label="Phone"
+          hint="Optional; only the team sees it."
+          errors={errors.phone}
+        >
+          <Input
+            id="phone"
+            name="phone"
+            type="tel"
+            maxLength={40}
+            defaultValue={account.phone ?? ""}
+          />
+        </FormField>
+      </div>
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField id="role_id" label="Role" hint={role?.note} errors={errors.role_id}>
           <Select

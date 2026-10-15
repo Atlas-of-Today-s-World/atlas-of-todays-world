@@ -20,17 +20,32 @@ const STATUS = [
   { value: "active", label: "Active", tone: "success" as const },
   { value: "pending", label: "Pending", tone: "warning" as const },
   { value: "blocked", label: "Blocked", tone: "danger" as const },
+  { value: "deleted", label: "Deleted", tone: "neutral" as const },
 ];
+
+/** The accounts list with its view in the query (`kind=readers`, `deleted=1`). */
+function listHref(kind: "staff" | "reader", deleted: boolean): string {
+  const query = new URLSearchParams();
+  if (kind === "reader") query.set("kind", "readers");
+  if (deleted) query.set("deleted", "1");
+  const search = query.toString();
+  return search ? `${adminRoutes.accounts.list}?${search}` : adminRoutes.accounts.list;
+}
 
 export default async function AccountsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ kind?: string; q?: string }>;
+  searchParams: Promise<{ kind?: string; q?: string; deleted?: string }>;
 }) {
   if (!(await sectionAccess("users"))) return <NoAccess />;
   const params = await searchParams;
   const kind = params.kind === "readers" ? "reader" : "staff";
-  const [accounts, roles] = await Promise.all([listAccounts(kind, params.q), listRoles()]);
+  // Deleted accounts are soft-deleted (deleted_at): shown on request, never removed for good here.
+  const deleted = params.deleted === "1";
+  const [accounts, roles] = await Promise.all([
+    listAccounts(kind, params.q, { deleted }),
+    listRoles(),
+  ]);
 
   return (
     <>
@@ -45,21 +60,24 @@ export default async function AccountsPage({
         }
       />
       <DataTable
-        key={kind}
+        key={`${kind}-${deleted}`}
         tableKey={`admin-accounts-${kind}`}
         caption={kind === "staff" ? "Team accounts" : "Reader accounts"}
         searchParam="q"
         searchPlaceholder="Email or name…"
-        emptyTitle="No accounts found"
+        emptyTitle={deleted ? "No deleted accounts" : "No accounts found"}
         initialSort={{ key: "email", dir: "asc" }}
         stats={optionStats("status", STATUS)}
         toolbar={
           <>
-            <ToolbarLink kind="tab" href={adminRoutes.accounts.list} active={kind === "staff"}>
+            <ToolbarLink kind="tab" href={listHref("staff", deleted)} active={kind === "staff"}>
               Team members
             </ToolbarLink>
-            <ToolbarLink kind="tab" href={adminRoutes.readers} active={kind === "reader"}>
+            <ToolbarLink kind="tab" href={listHref("reader", deleted)} active={kind === "reader"}>
               Readers
+            </ToolbarLink>
+            <ToolbarLink href={listHref(kind, !deleted)} active={deleted}>
+              Deleted accounts
             </ToolbarLink>
           </>
         }
@@ -105,7 +123,7 @@ export default async function AccountsPage({
             email: row.email,
             name: row.name,
             role: row.role_id,
-            status: row.status,
+            status: row.deleted_at ? "deleted" : row.status,
             seen: row.last_seen_at,
             created: row.created_at,
           },

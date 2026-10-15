@@ -11,6 +11,9 @@ export type RowActionIcon =
   | "view"
   | "open"
   | "approve"
+  | "return"
+  | "send"
+  | "extend"
   | "share"
   | "archive"
   | "restore"
@@ -46,6 +49,23 @@ export type RowAction =
       label: string;
       action: () => Promise<ActionState>;
       disabled?: boolean;
+    }
+  | {
+      /**
+       * Confirmed in a dialog with a required note (send back with a reason…).
+       * `action` is a form Server Action; it gets `fields` (the row id…) and
+       * the note as `note`.
+       */
+      kind: "note";
+      icon: RowActionIcon;
+      label: string;
+      action: (prev: ActionState, formData: FormData) => Promise<ActionState>;
+      fields: Record<string, string>;
+      confirmTitle: string;
+      confirmBody: string;
+      confirmLabel?: string;
+      noteLabel: string;
+      noteMax: number;
     };
 
 export const editAction = (href: string, label = "Edit"): RowAction => ({
@@ -120,3 +140,35 @@ export const moveActions = (
   { kind: "instant", icon: "up", label: "Move up", action: up, disabled: first },
   { kind: "instant", icon: "down", label: "Move down", action: down, disabled: last },
 ];
+
+/** A row action that asks for a note first (e.g. send an article back with the reason). */
+export const noteAction = (
+  icon: RowActionIcon,
+  label: string,
+  action: (prev: ActionState, formData: FormData) => Promise<ActionState>,
+  fields: Record<string, string>,
+  {
+    title,
+    body,
+    noteLabel,
+    noteMax,
+    confirmLabel,
+  }: {
+    title: string;
+    body: string;
+    noteLabel: string;
+    noteMax: number;
+    confirmLabel?: string;
+  },
+): RowAction => ({
+  kind: "note",
+  icon,
+  label,
+  action,
+  fields,
+  confirmTitle: title,
+  confirmBody: body,
+  confirmLabel,
+  noteLabel,
+  noteMax,
+});

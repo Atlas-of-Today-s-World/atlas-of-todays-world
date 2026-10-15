@@ -3,7 +3,12 @@ import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
-import { deleteAction, editAction, type RowAction } from "@/components/data-table/row-actions";
+import {
+  deleteAction,
+  editAction,
+  openAction,
+  type RowAction,
+} from "@/components/data-table/row-actions";
 import { optionStats } from "@/components/data-table/stats";
 import { navIcon } from "@/config/admin-nav";
 import { adminRoutes } from "@/config/routes";
@@ -57,7 +62,7 @@ export default async function RedirectsPage({
           emptyTitle="No URL redirects yet"
           initialSort={{ key: "created", dir: "desc" }}
           stats={optionStats("kind", KIND)}
-          actionsWidth="80px"
+          actionsWidth="104px"
           columns={[
             { key: "from", label: "Old path", kind: "code", sortable: true, filter: "text" },
             { key: "to", label: "New path", kind: "code", sortable: true, filter: "text" },
@@ -75,6 +80,8 @@ export default async function RedirectsPage({
           rows={rows.map((row) => {
             const actions: RowAction[] = [
               ...(canEdit ? [editAction(adminRoutes.redirects(row.id))] : []),
+              // Try it: the old path on the site (applies only where the page no longer exists).
+              openAction(row.from_path, "Try the redirect"),
               ...(canDelete
                 ? [
                     deleteAction(

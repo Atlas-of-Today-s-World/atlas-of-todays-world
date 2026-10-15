@@ -4,10 +4,10 @@ import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
-import { deleteAction, editAction } from "@/components/data-table/row-actions";
+import { deleteAction, editAction, openAction } from "@/components/data-table/row-actions";
 import { buttonVariants } from "@/components/ui/button";
 import { navIcon } from "@/config/admin-nav";
-import { adminRoutes } from "@/config/routes";
+import { adminRoutes, routes } from "@/config/routes";
 import { can, sectionAccess } from "@/features/auth/access";
 import { deleteAuthor } from "@/features/authors/actions";
 import { listAuthors } from "@/features/authors/editorial";
@@ -58,7 +58,7 @@ export default async function AuthorsPage() {
             value: "no",
           },
         ]}
-        actionsWidth={canDelete ? "72px" : "48px"}
+        actionsWidth={canDelete ? "104px" : "72px"}
         columns={[
           {
             key: "name",
@@ -106,6 +106,7 @@ export default async function AuthorsPage() {
             <RowActions
               actions={[
                 editAction(adminRoutes.authors(row.id)),
+                openAction(routes.author(row.slug)),
                 ...(canDelete
                   ? [
                       deleteAction(

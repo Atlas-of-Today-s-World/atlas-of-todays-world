@@ -5,7 +5,9 @@ import { revalidatePath } from "next/cache";
 import { adminRoutes } from "@/config/routes";
 import { SECTIONS } from "@/features/auth/sections";
 import {
+  affected,
   failed,
+  formAction,
   formObject,
   invalid,
   NOT_SIGNED_IN,
@@ -65,18 +67,48 @@ export async function saveMatrix(_prev: ActionState, formData: FormData): Promis
   };
 }
 
-export async function saveRole(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  const parsed = RoleInput.safeParse(formObject(formData));
-  if (!parsed.success) return invalid(parsed.error);
-  const session = await signedIn();
-  if (!session) return NOT_SIGNED_IN;
-  const { is_new, id, ...fields } = parsed.data;
-  const { error } = is_new
-    ? await session.supabase.from("roles").insert({ id, ...fields, position: 80 })
-    : await session.supabase.from("roles").update(fields).eq("id", id);
-  if (error) return failed(error);
+/**
+ * Creates a role (at the end of the role order) or saves its name, note and
+ * scopes. RLS (permissions "c" / "e") filters a role the user may not change
+ * without an error, so an update that touched no row is reported.
+ */
+export const saveRole = formAction(RoleInput, async ({ data, supabase }) => {
+  const { is_new, id, ...fields } = data;
+  if (is_new) {
+    const last = await supabase
+      .from("roles")
+      .select("position")
+      .neq("id", "reader")
+      .order("position", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (last.error) return failed(last.error);
+    const { error } = await supabase
+      .from("roles")
+      .insert({ id, ...fields, position: (last.data?.position ?? 0) + 10 });
+    if (error) return failed(error);
+  } else {
+    const denied = affected(
+      await supabase.from("roles").update(fields).eq("id", id).select("id"),
+      "You can't edit this role.",
+    );
+    if (denied) return denied;
+  }
   revalidatePath(PAGE);
   return { ok: true, message: is_new ? "Role created." : "Role saved." };
+});
+
+/** Swaps a role with its neighbour in the menu order (RPC move_role; permissions "e"). */
+export async function moveRole(id: string, up: boolean): Promise<ActionState> {
+  if (!slug(40).safeParse(id).success || typeof up !== "boolean") {
+    return { ok: false, error: "Invalid role." };
+  }
+  const session = await signedIn();
+  if (!session) return NOT_SIGNED_IN;
+  const { error } = await session.supabase.rpc("move_role", { p_id: id, p_up: up });
+  if (error) return failed(error);
+  revalidatePath(PAGE);
+  return { ok: true, message: "Moved." };
 }
 
 export async function deleteRole(id: string): Promise<ActionState> {

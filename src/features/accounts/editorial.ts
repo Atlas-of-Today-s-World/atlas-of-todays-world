@@ -18,23 +18,27 @@ export interface AccountRow {
   status: "active" | "pending" | "blocked";
   created_at: string;
   last_seen_at: string | null;
+  /** Soft delete (the account was removed; the row stays for the audit trail). */
+  deleted_at: string | null;
 }
 
-const COLUMNS = "id, email, name, role_id, kind, status, created_at, last_seen_at";
+const COLUMNS = "id, email, name, role_id, kind, status, created_at, last_seen_at, deleted_at";
 
-/** Accounts by kind (team / readers) — RLS shows them only to account managers. */
-export async function listAccounts(kind: "staff" | "reader", q?: string): Promise<AccountRow[]> {
+/**
+ * Accounts by kind (team / readers) — RLS shows them only to account managers.
+ * Live accounts, or with `deleted` only the soft-deleted ones.
+ */
+export async function listAccounts(
+  kind: "staff" | "reader",
+  q?: string,
+  { deleted = false }: { deleted?: boolean } = {},
+): Promise<AccountRow[]> {
   const supabase = await createServerClient();
-  let query = supabase
-    .from("profiles")
-    .select(COLUMNS)
-    .eq("kind", kind)
-    .is("deleted_at", null)
-    .order("email")
-    .limit(500);
+  let query = supabase.from("profiles").select(COLUMNS).eq("kind", kind);
+  query = deleted ? query.not("deleted_at", "is", null) : query.is("deleted_at", null);
   const search = ilikeAny(["email", "name"], q);
   if (search) query = query.or(search);
-  return must(await query, "accounts") as AccountRow[];
+  return must(await query.order("email").limit(500), "accounts") as AccountRow[];
 }
 
 export async function accountForEdit(id: string) {
@@ -42,7 +46,7 @@ export async function accountForEdit(id: string) {
   const [profile, countries, authors] = await Promise.all([
     supabase
       .from("profiles")
-      .select(`${COLUMNS}, blocked_note, approval_global`)
+      .select(`${COLUMNS}, phone, blocked_note, approval_global`)
       .eq("id", id)
       .maybeSingle(),
     supabase.from("approver_countries").select("country_iso3").eq("user_id", id),
@@ -51,7 +55,11 @@ export async function accountForEdit(id: string) {
   const row = must(profile, "accounts");
   if (!row) return null;
   return {
-    ...(row as AccountRow & { blocked_note: string | null; approval_global: boolean }),
+    ...(row as AccountRow & {
+      phone: string | null;
+      blocked_note: string | null;
+      approval_global: boolean;
+    }),
     countries: (countries.data ?? []).map((row) => row.country_iso3),
     authors: (authors.data ?? []).map((row) => row.author_id),
   };

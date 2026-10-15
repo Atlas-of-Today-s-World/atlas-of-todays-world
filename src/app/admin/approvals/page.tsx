@@ -3,12 +3,12 @@ import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
-import { confirmAction } from "@/components/data-table/row-actions";
+import { confirmAction, noteAction } from "@/components/data-table/row-actions";
 import { optionStats } from "@/components/data-table/stats";
 import { navIcon } from "@/config/admin-nav";
 import { adminRoutes } from "@/config/routes";
 import { can, sectionAccess } from "@/features/auth/access";
-import { approveEntry } from "@/features/entries/workflow-actions";
+import { approveEntry, sendBackEntry } from "@/features/entries/workflow-actions";
 import { approvalQueue } from "@/features/entries/editorial";
 
 export const metadata: Metadata = { title: "Article approvals" };
@@ -42,7 +42,7 @@ export default async function ApprovalsPage() {
         emptyTitle="No articles are waiting for approval"
         initialSort={{ key: "submitted", dir: "asc" }}
         stats={optionStats("who", WHO, "All awaiting approval")}
-        actionsWidth="48px"
+        actionsWidth={canApprove ? "104px" : "48px"}
         columns={[
           {
             key: "title",
@@ -94,7 +94,20 @@ export default async function ApprovalsPage() {
                         // The version listed here: refused if the article changed since.
                         approveEntry.bind(null, row.id, row.updated_at),
                         `Publish ${row.title}?`,
-                        "The article goes live on the site (or at its scheduled time). To ask for changes, open it and send it back with a note.",
+                        "The article goes live on the site (or at its scheduled time). To ask for changes, send it back with a note instead.",
+                      ),
+                      noteAction(
+                        "return",
+                        "Send back",
+                        sendBackEntry,
+                        { id: row.id },
+                        {
+                          title: `Send ${row.title} back to its author?`,
+                          body: "The article returns to a draft; the author sees your note on it.",
+                          noteLabel: "What should change",
+                          noteMax: 2000,
+                          confirmLabel: "Request changes",
+                        },
                       ),
                     ]
                   : []),

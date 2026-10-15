@@ -20,10 +20,13 @@ export default function InvitationForm({
   roles,
   countries,
   isAdmin,
+  authors,
 }: {
   roles: RoleOption[];
   countries: CountryOption[];
   isAdmin: boolean;
+  /** Team accounts whose articles the invitee may approve. */
+  authors: { id: string; label: string }[];
 }) {
   const [state, action] = useServerAction(createInvitation);
   const [roleId, setRoleId] = useState(roles.find((r) => r.id === "publisher")?.id ?? roles[0]?.id);
@@ -68,6 +71,18 @@ export default function InvitationForm({
               defaultSelected={[]}
             />
           </FormField>
+          {authors.length ? (
+            <fieldset>
+              <legend className="mb-1 text-[12.5px] font-medium text-[var(--color-ink-soft)]">
+                Articles by these authors
+              </legend>
+              <div className="grid sm:grid-cols-2">
+                {authors.map((author) => (
+                  <Checkbox key={author.id} name="authors" value={author.id} label={author.label} />
+                ))}
+              </div>
+            </fieldset>
+          ) : null}
         </fieldset>
       ) : null}
       <FormField id="invite-note" label="Note (internal, optional)" errors={errors.note}>
