@@ -112,7 +112,7 @@ export default async function Portrait({
             photo the panel's close button (×) takes that corner, so it moves in. */}
         <div className={`flex flex-wrap items-center justify-between gap-2 ${hero ? "" : "pr-12"}`}>
           {wording.label ? <SectionLabel>{wording.label}</SectionLabel> : <span aria-hidden />}
-          <ShareButton title={subject.name} className="flex-row-reverse" />
+          <ShareButton title={subject.name} className="ml-auto flex-row-reverse" />
         </div>
         <h1 className="font-display mt-4 text-[30px] leading-tight font-bold text-[var(--color-ink)]">
           {subject.name}
