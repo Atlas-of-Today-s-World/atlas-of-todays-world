@@ -95,21 +95,27 @@ export async function EncyclopediaArticle({
             className="absolute inset-0 -z-10 bg-gradient-to-t from-[var(--color-space-deep)] via-[var(--color-space-deep)]/65 to-[var(--color-space-deep)]/15"
           />
           <div className="mx-auto flex min-h-72 max-w-6xl flex-col justify-end px-4 pt-16 pb-10 sm:min-h-96 sm:px-8">
-            {/* The way back: Atlas › Topics › the topic's category (the title follows). */}
-            <Breadcrumbs
-              tone="dark"
-              label={messages.article.breadcrumb}
-              items={[
-                { label: messages.article.breadcrumbAtlas, href: "/" },
-                {
-                  label: messages.topics.title,
-                  href: routes.topics,
-                  pill: true,
-                  icon: <LayoutGrid aria-hidden className="size-3.5" />,
-                },
-                { label: categoryLabel(item.category, messages) },
-              ]}
-            />
+            {/* The way back: Atlas › Topics › the topic's category (the title follows);
+                sharing at the right, above the title too. */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <Breadcrumbs
+                tone="dark"
+                label={messages.article.breadcrumb}
+                items={[
+                  { label: messages.article.breadcrumbAtlas, href: "/" },
+                  {
+                    label: messages.topics.title,
+                    href: routes.topics,
+                    pill: true,
+                    icon: <LayoutGrid aria-hidden className="size-3.5" />,
+                  },
+                  { label: categoryLabel(item.category, messages) },
+                ]}
+              />
+              {share ? (
+                <ShareButton title={item.title} tone="dark" className="flex-row-reverse" />
+              ) : null}
+            </div>
             <h1 className="font-display mt-3 text-[34px] leading-[1.08] font-bold text-balance sm:text-[52px]">
               {item.title}
             </h1>
@@ -124,7 +130,7 @@ export async function EncyclopediaArticle({
 
         <div className="mx-auto max-w-6xl px-4 pt-6 pb-12 sm:px-8">
           {/* Text runs the full width of the content, like the tile rows below. */}
-          <EntryHeader item={item} atlas={atlas} share={share} />
+          <EntryHeader item={item} atlas={atlas} />
           {item.html ? <SafeHtml className="prose-atlas mt-7" html={item.html} /> : null}
           {/* The topic's history right after its intro; without events nothing is shown. */}
           {item.timeline ? (
@@ -202,15 +208,7 @@ export async function EncyclopediaArticle({
 }
 
 /** Author with photo (click scrolls to the bio), dates and summary bullets. */
-async function EntryHeader({
-  item,
-  atlas,
-  share,
-}: {
-  item: Encyclopedia;
-  atlas: Atlas;
-  share: boolean;
-}) {
+async function EntryHeader({ item, atlas }: { item: Encyclopedia; atlas: Atlas }) {
   const t = (await getT()).article;
   const locale = getRequestLocale();
   const author = item.authorProfile;
@@ -247,7 +245,6 @@ async function EntryHeader({
             {format(t.by, { author: item.author })}
           </span>
         ) : null}
-        {share ? <ShareButton title={item.title} /> : null}
         <dl className="ml-auto grid grid-cols-[auto_auto] gap-x-2 text-[11.5px] text-[var(--color-ink-muted)]">
           {item.published ? (
             <>

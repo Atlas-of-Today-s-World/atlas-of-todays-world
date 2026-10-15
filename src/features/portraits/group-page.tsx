@@ -4,16 +4,9 @@ import ContentRail from "@/components/ContentRail";
 import { JsonLd } from "@/components/JsonLd";
 import RegionFocus from "@/components/map/RegionFocus";
 import MapModeSetter from "@/components/map/MapModeSetter";
-import Portrait, { newsCards, type PortraitSubject } from "@/components/portrait/Portrait";
+import Portrait, { type PortraitSubject } from "@/components/portrait/Portrait";
 import { routes } from "@/config/routes";
-import {
-  entriesOfIssue,
-  entriesOfRegion,
-  getEncyclopediaEntries,
-  getEntries,
-  getPlannedEntries,
-  thematicEntries,
-} from "@/features/entries/queries";
+import { entriesOfIssue, entriesOfRegion, getEntries } from "@/features/entries/queries";
 import { countriesOf } from "@/features/geography/model";
 import { getAtlas, getIndicators } from "@/features/geography/queries";
 import type { Atlas, GlobalIssue, Region } from "@/features/geography/types";
@@ -114,12 +107,11 @@ export function groupPortraitPage(kind: GroupKind) {
         : entriesOfIssue(entries, group.slug, group.countries);
 
     const countries = countriesOf(atlas, group.countries);
-    const [entries, encyclopedia, upcoming, dossier, topics, indicators] = await Promise.all([
+    // Topics only for a region: global issues have none of their own (2026-10-15).
+    const [entries, dossier, topics, indicators] = await Promise.all([
       getEntries(),
-      getEncyclopediaEntries(),
-      getPlannedEntries(),
       getPortrait(kind, group.slug),
-      relatedTopics(atlas, kind, group.slug),
+      kind === "region" ? relatedTopics(atlas, kind, group.slug) : undefined,
       getIndicators(CARD_INDICATORS),
     ]);
     const newsItems = ofGroup(entries);
@@ -175,8 +167,7 @@ export function groupPortraitPage(kind: GroupKind) {
           <Portrait
             topics={topics}
             subject={subject}
-            news={newsCards(newsItems)}
-            entries={thematicEntries(ofGroup(encyclopedia), ofGroup(upcoming))}
+            newsCount={newsItems.length}
             dossier={dossier}
             stats={groupStats(countries, indicators, getRequestLocale())}
           />

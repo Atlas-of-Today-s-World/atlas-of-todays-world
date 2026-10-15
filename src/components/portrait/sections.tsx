@@ -1,23 +1,14 @@
 import Link from "@/components/i18n/Link";
 import type { ReactNode } from "react";
 import { cva } from "class-variance-authority";
-import { kickerVariants } from "@/components/atlas/kicker";
 import { SourceLink, StatGrid, StatIcon, StatItem } from "@/components/atlas/ui";
 import { Rail } from "@/components/atlas/Rail";
 import { Accordion } from "@/components/atlas/Accordion";
-import { EmptyNote } from "@/components/atlas/Note";
 import { PhotoCard } from "@/components/atlas/PhotoCard";
-import { PhotoTile } from "@/components/atlas/PhotoTile";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import type { RegionStat } from "@/features/geography/region-stats";
-import {
-  categoryLabel,
-  ENTRY_CATEGORIES,
-  type FaqItem,
-  type MetricCard,
-  type ResourceItem,
-} from "@/lib/content-types";
+import type { FaqItem, MetricCard, ResourceItem } from "@/lib/content-types";
 import { safeUrl } from "@/lib/security/urls";
 import { PHOTO_WIDTH } from "@/lib/images";
 import { format } from "@/lib/i18n/messages";
@@ -209,79 +200,6 @@ async function KeyFactCards({ metrics }: { metrics: MetricCard[] }) {
         </li>
       ))}
     </ul>
-  );
-}
-
-export interface PlannedEntry {
-  title: string;
-  category: string;
-  slug: string | null;
-  /** Cover photo of a written topic (tiles in the theme carousel). */
-  hero?: string | null;
-}
-
-/**
- * Topics in the four themes, each a horizontal carousel of tiles (like rows of
- * albums): written topics with their photo, planned ones grey and
- * non-clickable — per the brief even next to written ones — with the support
- * call under them.
- */
-export async function ThematicEntries({ entries }: { entries: PlannedEntry[] }) {
-  const t = await getT();
-  return (
-    <PortraitSection title={t.portrait.entries} lead={t.portrait.entriesLead}>
-      <div className="mt-5 space-y-5">
-        {ENTRY_CATEGORIES.map((category) => {
-          const group = entries.filter((entry) => entry.category === category);
-          return (
-            <div key={category}>
-              <h3 className={kickerVariants()}>{categoryLabel(category, t)}</h3>
-              {group.length ? (
-                <Rail label={categoryLabel(category, t)} gap="sm" className="mt-2.5">
-                  {group.map((entry) => {
-                    if (!entry.slug) {
-                      return (
-                        <span
-                          key={entry.title}
-                          aria-disabled="true"
-                          title={t.portrait.notWrittenYet}
-                          className="pointer-events-none flex h-32 w-48 shrink-0 snap-start flex-col justify-between rounded-xl border border-dashed border-[var(--color-line)] bg-[var(--color-line)]/20 p-3 text-[var(--color-ink-soft)]"
-                        >
-                          <span className="text-[10px] font-semibold tracking-[0.1em] uppercase">
-                            {t.portrait.inPreparation}
-                          </span>
-                          <span className="text-[12.5px] leading-snug break-words">
-                            {entry.title}
-                          </span>
-                        </span>
-                      );
-                    }
-                    return (
-                      <PhotoTile
-                        key={entry.title}
-                        href={routes.topic(entry.slug)}
-                        effect="shadow"
-                        className="h-32 w-48 shrink-0 snap-start"
-                        image={entry.hero}
-                        width={PHOTO_WIDTH.thumb}
-                        title={entry.title}
-                      />
-                    );
-                  })}
-                </Rail>
-              ) : (
-                <EmptyNote size="xs" tone="muted" className="mt-2.5">
-                  {t.portrait.nothingPlanned}
-                </EmptyNote>
-              )}
-            </div>
-          );
-        })}
-      </div>
-      <div className="mt-4">
-        <PatronsButton />
-      </div>
-    </PortraitSection>
   );
 }
 

@@ -8,14 +8,7 @@ import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { createPublicClient } from "@/lib/supabase/public";
 import { MAP_LAYERS, type MapLayer } from "./constants";
 import { COLUMNS, pickVersion, type Row, toLocale, toSummary } from "./rows";
-import type {
-  AuthorArticle,
-  Entry,
-  EntrySummary,
-  Placed,
-  TopicPlace,
-  UpcomingEntry,
-} from "./types";
+import type { AuthorArticle, Entry, EntrySummary, Placed, TopicPlace } from "./types";
 
 /**
  * Public reads of published articles: the lists (news, topics, an author's
@@ -130,29 +123,6 @@ export function entriesOfIssue<T extends Placed>(entries: T[], issue: string, co
     (entry) => entry.issue !== issue && entry.countries.some((iso3) => members.has(iso3)),
   );
   return [...tagged, ...related];
-}
-
-export const getPlannedEntries = unstable_cache(
-  async (): Promise<UpcomingEntry[]> => {
-    const data = must(await createPublicClient().rpc("planned_entries"), "encyclopedia");
-    return data.map((row) => ({
-      title: row.title,
-      category: row.category as NewsCategory,
-      region: row.region_slug,
-      issue: row.special_slug,
-      countries: row.countries,
-    }));
-  },
-  ["planned-entries"],
-  { tags: [tags.entries], revalidate: PUBLIC_REVALIDATE_SECONDS },
-);
-
-/** Entries for the portrait section: published with a link, planned without (greyed out). */
-export function thematicEntries(published: EntrySummary[], upcoming: UpcomingEntry[]) {
-  return [
-    ...published.map(({ title, category, slug, hero }) => ({ title, category, slug, hero })),
-    ...upcoming.map(({ title, category }) => ({ title, category, slug: null })),
-  ];
 }
 
 /** Published topics with where they belong on the globe (the map's topic counts). */

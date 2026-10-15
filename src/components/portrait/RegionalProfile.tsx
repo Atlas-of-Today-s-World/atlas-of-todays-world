@@ -4,14 +4,14 @@ import { cssBackgroundImage } from "@/lib/security/urls";
 import { PHOTO_WIDTH } from "@/lib/images";
 import { format } from "@/lib/i18n/messages";
 import { getT } from "@/lib/i18n/request";
-import { IndicatorCards, PatronsCallout, type PlannedEntry } from "./sections";
+import { IndicatorCards, PatronsCallout } from "./sections";
 import { ProfileSections, profileComplete } from "./Portrait";
 import { routes } from "@/config/routes";
 
 /**
  * The region's profile shown right under a country (decision of 2026-10-07):
  * the editors write per region, so a reader of Turkey sees the Middle East's
- * story, topics and sources without a click to the region. Set apart by a
+ * story, maps and sources without a click to the region. Set apart by a
  * dark header with the region's photo and a paper-grey background, so it's
  * clear where the country ends and the region begins. No computed regional
  * figures — the country's own data are above; the region's key facts (the
@@ -21,13 +21,10 @@ export async function RegionalProfile({
   country,
   region,
   dossier,
-  entries,
 }: {
   country: string;
   region: { slug: string; name: string; summary: string; hero?: string | null };
   dossier: RegionDossier;
-  /** Topics for the country (its own, its region's, its groups') and the region's planned ones. */
-  entries: PlannedEntry[];
 }) {
   const t = await getT();
   const photo = cssBackgroundImage(region.hero, PHOTO_WIDTH.card);
@@ -66,7 +63,7 @@ export async function RegionalProfile({
 
       <IndicatorCards metrics={dossier.metrics} />
 
-      <ProfileSections kind="region" name={region.name} dossier={dossier} entries={entries} />
+      <ProfileSections kind="region" dossier={dossier} />
       <PatronsCallout complete={profileComplete(dossier)} />
     </section>
   );

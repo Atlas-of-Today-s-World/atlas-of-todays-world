@@ -21,15 +21,18 @@ const isAbort = (error: unknown) => error instanceof DOMException && error.name 
  * "Share" on a country, region, global issue or topic page. Phones get the
  * system share sheet (Web Share API); elsewhere the link is copied and a short
  * note, announced to screen readers, confirms it. `hash` shares one part of
- * the page (a subtopic) rather than its top.
+ * the page (a subtopic) rather than its top; `tone="dark"` keeps the note
+ * readable over a photo.
  */
 export function ShareButton({
   title,
   hash,
+  tone = "light",
   className,
 }: {
   title: string;
   hash?: string;
+  tone?: "light" | "dark";
   className?: string;
 }) {
   const t = useMessages().share;
@@ -81,7 +84,13 @@ export function ShareButton({
         aria-live="polite"
         className={cn(
           "text-[12px] font-medium",
-          status === "failed" ? "text-[var(--color-danger)]" : "text-[var(--color-ink-muted)]",
+          status === "failed"
+            ? tone === "dark"
+              ? "text-red-200"
+              : "text-[var(--color-danger)]"
+            : tone === "dark"
+              ? "text-white/85"
+              : "text-[var(--color-ink-muted)]",
         )}
       >
         {status === "copied" ? t.copied : status === "failed" ? t.copyFailed : null}

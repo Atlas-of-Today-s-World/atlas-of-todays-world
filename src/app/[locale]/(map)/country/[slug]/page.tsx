@@ -4,13 +4,7 @@ import { notFound } from "next/navigation";
 import ContentRail from "@/components/ContentRail";
 import CountryCard from "@/components/CountryCard";
 import RegionFocus from "@/components/map/RegionFocus";
-import {
-  entriesOfCountry,
-  entriesOfRegion,
-  getEntries,
-  getPlannedEntries,
-  thematicEntries,
-} from "@/features/entries/queries";
+import { entriesOfCountry, getEntries } from "@/features/entries/queries";
 import { getAtlas, getCountryProfileHtml, getCountryStats } from "@/features/geography/queries";
 import { format, type Messages } from "@/lib/i18n/messages";
 import { getRequestLocale, getT, localeFrom } from "@/lib/i18n/request";
@@ -129,11 +123,10 @@ export default async function CountryPage({ params }: PageProps<"/[locale]/count
   const region = country.region;
   // The region's own record (photo, summary) for its profile under the country.
   const regionData = region ? atlas.regionBySlug.get(region.slug) : undefined;
-  const [topics, entries, dossier, upcoming, profileHtml, stats, timeline] = await Promise.all([
+  const [topics, entries, dossier, profileHtml, stats, timeline] = await Promise.all([
     relatedTopics(atlas, "country", country.iso3),
     getEntries(),
     regionData ? getPortrait("region", regionData.slug) : null,
-    getPlannedEntries(),
     getCountryProfileHtml(country.iso3),
     getCountryStats(country.iso3, locale),
     getCountryTimeline(country.iso3),
@@ -176,23 +169,20 @@ export default async function CountryPage({ params }: PageProps<"/[locale]/count
             subtitle={timeline.subtitle}
           />
         ) : null}
-        {regionData && dossier ? (
-          // Topics in the profile are the country's (own, region's, groups') by theme,
-          // next to what the region has planned.
-          <RegionalProfile
-            country={country.name}
-            region={regionData}
-            dossier={dossier}
-            entries={thematicEntries(topics.items, entriesOfRegion(upcoming, regionData.slug))}
-          />
-        ) : (
+        {/* The country's topics (own, its region's, its groups') before its region's
+            profile. With none, the invitation at the top is enough — unless there is
+            no regional profile to follow. */}
+        {topics.items.length || !(regionData && dossier) ? (
           <RelatedTopics
             items={topics.items}
             href={topics.href}
             place={country.name}
             className="mt-0 px-6 pb-10"
           />
-        )}
+        ) : null}
+        {regionData && dossier ? (
+          <RegionalProfile country={country.name} region={regionData} dossier={dossier} />
+        ) : null}
       </ContentRail>
 
       <JsonLd

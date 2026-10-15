@@ -80,8 +80,6 @@
   },
   "portrait": {
     "globalIssue": "Global Issue",
-    "countriesInRegion": "Countries in this region",
-    "countriesInGroup": "Countries in this group",
     "countries": "Countries",
     "people": "People",
     "keyIndicators": "Key indicators",
@@ -92,13 +90,8 @@
     "timelineLead": "The events that shaped the current situation.",
     "timelineEmptyRegion": "An interactive timeline of the events behind the region’s current situation.",
     "timelineEmptyGroup": "An interactive timeline of the events behind the group’s current situation.",
-    "entries": "Topics",
-    "entriesLead": "In-depth topics in four themes. Grey titles are planned but not written yet.",
-    "notWrittenYet": "Not written yet",
     "comingTitle": "Coming to this portrait",
     "comingLead": "Our editors are still writing these parts. Support from Atlas Patrons decides how soon they arrive.",
-    "nothingPlanned": "Nothing planned here yet.",
-    "plannedTitle": "{category} in {place}",
     "maps": "Maps & charts",
     "mapsLead": "Selected visualisations from organisations that track this part of the world.",
     "mapsKicker": "Maps & charts",
@@ -114,7 +107,6 @@
     "faq": "Common questions",
     "faqEmptyRegion": "The five questions people ask most often about this region.",
     "faqEmptyGroup": "The five questions people ask most often about this group.",
-    "news": "News",
     "patronsCta": "Help us complete it – join Atlas Patrons",
     "patronsCompleteTitle": "Together We Can Build a New Encyclopedia",
     "patronsCompleteText": "Atlas Patrons fund the writing, the data work and the independence of this encyclopedia.",
@@ -549,11 +541,6 @@
     "population": "Population",
     "subregion": "Subregion",
     "newsAbout": "News about {name}"
-  },
-  "newsTabs": {
-    "heading": "Our News",
-    "categories": "News categories",
-    "empty": "No news published in this region yet. Contributors welcome."
   },
   "encyclopedia": {
     "heading": "Global Encyclopedia",
