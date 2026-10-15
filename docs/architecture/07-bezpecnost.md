@@ -25,7 +25,7 @@ Každý bod má kontrolu v testech nebo v CI (sloupec „Ověření“).
 | S10 | Tajné údaje | jen server; `server-only`; GitHub secret scanning + push protection; `grep` bundlu v CI | CI krok |
 | S11 | Závislosti | Dependabot (týdně), `npm audit --audit-level=high` v CI, CodeQL (zdarma pro veřejné repo), zamčené verze | CI |
 | S12 | Soubory | Storage RLS, cesta `{user_id}/…`, MIME allowlist bez SVG, limit velikosti | DB test Storage |
-| S13 | Iframes | jen Flourish/World Bank/YouTube/Datawrapper, `sandbox` bez `allow-same-origin`, `loading="lazy"`, CSP `frame-src`. Datawrapper: z vloženého embed kódu server uloží jen ověřenou URL grafu (`lib/embeds.ts`, přesný host `datawrapper.dwcdn.net`, DB CHECK), iframe je náš; `allow-same-origin` výjimečně ano — graf načítá data ze svého originu, který nikdy není náš | unit + DB test |
+| S13 | Iframes | jen Datawrapper, Flourish, Our World in Data a World Bank (ADR-027): jediná allowlist `lib/embeds.ts` — z vloženého embed kódu nebo odkazu server uloží jen ověřenou kanonickou URL grafu (přesný host a cesta, DB CHECK `visuals_embed_url_check`), HTML nikdy; z téže allowlisty CSP `frame-src`; iframe je náš: `sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"`, `loading="lazy"` a vznik až u výřezu, `referrerpolicy`, `title`; `allow-same-origin` ano — graf načítá data ze svého originu, který nikdy není náš; výšku přijímá jen ze zprávy originu poskytovatele a ze svého rámu | unit + DB test |
 | S14 | SSRF | server nestahuje URL zadanou uživatelem; jediné výjimky: importní skript s allowlistem hostů a náhledové obrázky zdrojů (`lib/previews/preview-image.ts`: jen https:443 bez přihlašovacích údajů, každá adresa hostitele musí být veřejná — IPv4 bez privátních/loopback/link-local/metadata rozsahů, IPv6 jen globální unicast —, spojení připnuté na ověřenou IP, max. 3 přesměrování znovu ověřená, 5 s, 512 kB, jen `text/html`; obrázek se nikdy nestahuje ani neproxuje, ukládá se jen jeho https adresa; v adminu až po úspěšném uložení, max. 8 odkazů) | unit testy s mockovaným DNS a sítí |
 | S15 | Chyby a logy | uživateli obecná hláška + ID; detail do logu; v logu žádné tokeny, hesla, celé e-maily | code review |
 | S16 | Soukromí (GDPR) | privacy policy před newsletterem/platbami; minimalizace osobních údajů; retence audit logu 12 měsíců; `page_views_daily` jen agregovaně | checklist 13.5 |
@@ -43,8 +43,8 @@ img-src 'self' data: blob: https://*.supabase.co https://server.arcgisonline.com
 font-src 'self' https://fonts.gstatic.com data:;
 connect-src 'self' https://<ref>.supabase.co wss://<ref>.supabase.co https://*.arcgisonline.com
             https://fonts.openmaptiles.org https://api.maptiler.com https://challenges.cloudflare.com;
-frame-src https://flo.uri.sh https://public.flourish.studio https://*.worldbank.org
-          https://www.youtube-nocookie.com https://datawrapper.dwcdn.net https://challenges.cloudflare.com;
+frame-src https://datawrapper.dwcdn.net https://flo.uri.sh https://ourworldindata.org
+          https://data.worldbank.org https://challenges.cloudflare.com;            # EMBED_ORIGINS + Turnstile
 worker-src 'self' blob:;
 object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
 ```
@@ -62,7 +62,7 @@ zůstávají na `unsafe-inline` (ADR-025). Nová externí služba = změna CSP v
 - Tagy: `h2 h3 h4 p blockquote ul ol li strong em a code pre hr br table thead tbody tr th td figure figcaption img sup sub`.
 - Atributy: `a[href,title]`, `img[src,alt,title,width,height]`; schémata `https`, `mailto`; `img` jen ze Supabase Storage.
 - Odkazy dostanou `rel="noopener noreferrer"`, externí `target="_blank"`.
-- Vložené iframy nejsou v HTML — ukládají se jako strukturovaná data (`visual_embeds`) a vykresluje je komponenta.
+- Vložené iframy nejsou v HTML — ukládají se jako strukturovaná data (`visuals`) a vykresluje je komponenta (`components/visuals/EmbedFrame`).
 
 ### 8.4 Bezpečnostní proces
 

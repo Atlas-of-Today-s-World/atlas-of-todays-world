@@ -32,6 +32,9 @@ import { uuid } from "@/lib/validation/common";
 import { adminRoutes, routes } from "@/config/routes";
 import { TimelineEditor } from "@/features/timelines/components/TimelineEditor";
 import { timelineForEdit } from "@/features/timelines/editorial";
+import { VisualsEditor } from "@/components/admin/VisualsEditor";
+import { VISUAL_ACTIONS } from "@/features/visuals/admin";
+import { topicVisualsForEdit } from "@/features/visuals/editorial";
 
 export const metadata: Metadata = { title: "Edit article" };
 
@@ -40,6 +43,7 @@ const TABS = [
   { key: "article", label: "Article" },
   { key: "topics", label: "Subtopics" },
   { key: "timeline", label: "Timeline" },
+  { key: "visuals", label: "Maps & charts" },
   { key: "learn-more", label: "Learn more" },
   { key: "seo", label: "SEO & GEO" },
 ] as const;
@@ -104,10 +108,15 @@ export default async function EditEntryPage({
     isEntry ? getEntryParts(id) : Promise.resolve(null),
     isEntry ? listTemplates() : Promise.resolve([]),
   ]);
-  const { saved, tab: tabParam } = await searchParams;
+  const { saved, tab: tabParam, visual } = await searchParams;
   const tab: Tab =
     isEntry && TABS.some((item) => item.key === tabParam) ? (tabParam as Tab) : "article";
-  const timeline = isEntry && tab === "timeline" ? await timelineForEdit("topic", id) : null;
+  const [timeline, visuals] = await Promise.all([
+    isEntry && tab === "timeline" ? timelineForEdit("topic", id) : null,
+    isEntry && tab === "visuals" ? topicVisualsForEdit(id) : null,
+  ]);
+  const visualsHref = (visualId: string | null) =>
+    adminRoutes.content(id, visualId ? { tab: "visuals", visual: visualId } : { tab: "visuals" });
 
   return (
     <>
@@ -155,6 +164,38 @@ export default async function EditEntryPage({
                   initial={timeline}
                   lead="The topic's history as a row of events right after its introduction — oldest first. Without events nothing is shown."
                 />
+              ) : null}
+              {visuals ? (
+                <>
+                  <VisualsEditor
+                    owner={{ kind: "entry", key: entry.id }}
+                    visuals={visuals.topic}
+                    actions={VISUAL_ACTIONS}
+                    pageHref={visualsHref}
+                    editing={typeof visual === "string" ? visual : undefined}
+                    canEdit
+                    title="Maps & charts of the topic"
+                    lead="A carousel after the topic's introduction and timeline, before its subtopics — one chart or map at a time, in this order. Paste a chart's embed code or link from Datawrapper, Flourish, Our World in Data or the World Bank data site."
+                  />
+                  {visuals.chapters.map((chapter, index) => (
+                    <VisualsEditor
+                      key={chapter.id}
+                      owner={{ kind: "chapter", key: chapter.id }}
+                      visuals={chapter.visuals}
+                      actions={VISUAL_ACTIONS}
+                      pageHref={visualsHref}
+                      editing={typeof visual === "string" ? visual : undefined}
+                      canEdit
+                      title={`Subtopic ${index + 1}: ${chapter.title}`}
+                      lead="Shown at the end of this subtopic when it is opened."
+                    />
+                  ))}
+                  {!visuals.chapters.length ? (
+                    <p className="text-[13px] text-[var(--color-ink-muted)]">
+                      Each subtopic gets its own maps & charts here once it is saved in Subtopics.
+                    </p>
+                  ) : null}
+                </>
               ) : null}
               {parts && tab === "learn-more" ? (
                 <>

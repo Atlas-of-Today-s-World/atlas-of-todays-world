@@ -4,6 +4,7 @@
  * runtime dependencies, so client code may import it.
  */
 
+import type { EmbedProvider } from "@/lib/embeds";
 import type { Messages } from "@/lib/i18n/messages";
 
 /**
@@ -138,8 +139,27 @@ export interface RegionDossier {
   timelineTitle?: string;
   timelineSubtitle?: string;
   timeline?: TimelineItem[];
-  /** `provider`: "datawrapper" = an interactive chart (`image` is its URL), otherwise an image. */
-  visuals?: { title: string; image: string; caption: string; provider?: string }[];
+  /** Maps & charts (table `visuals`), checked and in order. */
+  visuals?: VisualItem[];
   resources?: ResourceItem[];
   faq?: FaqItem[];
 }
+
+/**
+ * One visual of a "Maps & charts" carousel (region, global issue, topic,
+ * subtopic), already checked: an embed's URL is its provider's canonical
+ * frame URL, an image's an https URL.
+ */
+export type VisualItem = {
+  id: string;
+  title: string;
+  caption?: string;
+  /** "Source: …" under the visual, linked when there is a URL. */
+  source?: { label: string; url?: string };
+  /** Frame height hint in px (the editors'); otherwise the provider's own. */
+  height?: number;
+} & (
+  | { kind: "embed"; provider: EmbedProvider; url: string }
+  | { kind: "image"; url: string }
+  | { kind: "map"; spec: Record<string, unknown> }
+);

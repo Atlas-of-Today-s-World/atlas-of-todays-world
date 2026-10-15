@@ -2632,6 +2632,101 @@ export type Database = {
           },
         ]
       }
+      visuals: {
+        Row: {
+          caption: string
+          chapter_id: string | null
+          created_at: string
+          embed_url: string | null
+          entry_id: string | null
+          height: number | null
+          id: string
+          image_url: string | null
+          kind: string
+          map_spec: Json | null
+          owner_kind: string
+          position: number
+          provider: string | null
+          region_slug: string | null
+          source_label: string
+          source_url: string | null
+          special_slug: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          caption?: string
+          chapter_id?: string | null
+          created_at?: string
+          embed_url?: string | null
+          entry_id?: string | null
+          height?: number | null
+          id?: string
+          image_url?: string | null
+          kind: string
+          map_spec?: Json | null
+          owner_kind: string
+          position?: number
+          provider?: string | null
+          region_slug?: string | null
+          source_label?: string
+          source_url?: string | null
+          special_slug?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          caption?: string
+          chapter_id?: string | null
+          created_at?: string
+          embed_url?: string | null
+          entry_id?: string | null
+          height?: number | null
+          id?: string
+          image_url?: string | null
+          kind?: string
+          map_spec?: Json | null
+          owner_kind?: string
+          position?: number
+          provider?: string | null
+          region_slug?: string | null
+          source_label?: string
+          source_url?: string | null
+          special_slug?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visuals_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "entry_chapters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visuals_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visuals_region_slug_fkey"
+            columns: ["region_slug"]
+            isOneToOne: false
+            referencedRelation: "regions"
+            referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "visuals_special_slug_fkey"
+            columns: ["special_slug"]
+            isOneToOne: false
+            referencedRelation: "special_regions"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
       volunteer_applications: {
         Row: {
           created_at: string
@@ -2746,6 +2841,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      can_edit_visual: {
+        Args: {
+          p_action: string
+          p_chapter: string
+          p_entry: string
+          p_region: string
+          p_special: string
+        }
+        Returns: boolean
+      }
       can_read_any_unpublished: { Args: never; Returns: boolean }
       can_read_entry: { Args: { p_entry: string }; Returns: boolean }
       can_read_unpublished: { Args: { p_owner: string }; Returns: boolean }
@@ -2824,6 +2929,7 @@ export type Database = {
       move_patron_faq: { Args: { p_id: string; p_up: boolean }; Returns: undefined }
       move_region: { Args: { p_slug: string; p_up: boolean }; Returns: undefined }
       move_role: { Args: { p_id: string; p_up: boolean }; Returns: undefined }
+      move_visual: { Args: { p_id: string; p_up: boolean }; Returns: undefined }
       mfa_status: { Args: never; Returns: Json }
       move_site_social_link: {
         Args: { p_id: string; p_up: boolean }
@@ -2944,6 +3050,7 @@ export type Database = {
         }[]
       }
       timeline_sources_valid: { Args: { p_sources: Json }; Returns: boolean }
+      visual_entry: { Args: { p_chapter: string; p_entry: string }; Returns: string }
       search_query: { Args: { p_text: string }; Returns: unknown }
       search_snippet: { Args: { p_text: string; p_words: string[] }; Returns: string }
       search_topics: {

@@ -1,5 +1,4 @@
-import { RESOURCE_KINDS, VISUAL_PROVIDERS } from "../constants";
-import { MAX_EMBED_LENGTH } from "@/lib/embeds";
+import { RESOURCE_KINDS } from "../constants";
 import type { CollectionUi } from "@/components/admin/CollectionEditor";
 import type { Collection } from "../schema";
 
@@ -22,30 +21,6 @@ export const COLLECTION_UI: Record<Collection, CollectionUi> = {
         max: 600,
         full: true,
       },
-    ],
-  },
-  visuals: {
-    title: "Maps & charts",
-    lead: "Images or interactive charts. For a Datawrapper chart, paste its responsive iframe embed code (or the chart URL) — only the chart link is kept.",
-    itemLabel: "Visual",
-    fields: [
-      {
-        name: "provider",
-        label: "Type",
-        kind: "select",
-        options: VISUAL_PROVIDERS,
-        required: true,
-      },
-      { name: "title", label: "Title", required: true, max: 200 },
-      {
-        name: "url",
-        label: "URL (https) or Datawrapper embed code",
-        kind: "url",
-        required: true,
-        max: MAX_EMBED_LENGTH,
-        full: true,
-      },
-      { name: "caption", label: "Caption", max: 500, full: true },
     ],
   },
   resources: {

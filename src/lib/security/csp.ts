@@ -1,4 +1,4 @@
-import { DATAWRAPPER_ORIGIN } from "@/lib/embeds";
+import { EMBED_ORIGINS } from "@/lib/embeds";
 import { PRE_PAINT_HASH } from "@/lib/pre-paint";
 
 /**
@@ -66,11 +66,13 @@ export function buildCsp({
     // Audio versions of entries (P9): Supabase Storage, or an https URL pasted in the editor
     // (same as images). Audio can't run a script, so https is enough.
     "media-src": ["'self'", "https:"],
-    // Only what the site really frames. Flourish/World Bank visuals render as
-    // images and YouTube links as thumbnails (img-src), never as iframes.
+    // Only what the site really frames. YouTube links render as thumbnails
+    // (img-src), never as iframes.
     "frame-src": [
-      // Interactive charts in portrait carousels; lib/embeds.ts lets through only this origin.
-      DATAWRAPPER_ORIGIN,
+      // Charts and maps in the "Maps & charts" carousels: Datawrapper, Flourish,
+      // Our World in Data and the World Bank — the one allowlist in lib/embeds.ts,
+      // which also decides which URLs are stored and framed.
+      ...EMBED_ORIGINS,
       TURNSTILE,
     ],
     "frame-ancestors": ["'none'"],

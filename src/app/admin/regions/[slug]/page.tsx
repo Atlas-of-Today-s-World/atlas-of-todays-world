@@ -13,20 +13,28 @@ import { portraitItems, portraitRights, regionForEdit } from "@/features/portrai
 import { COLLECTION_NAMES } from "@/features/portraits/schema";
 import { TimelineEditor } from "@/features/timelines/components/TimelineEditor";
 import { timelineForEdit } from "@/features/timelines/editorial";
-import { routes } from "@/config/routes";
+import { VisualsEditor } from "@/components/admin/VisualsEditor";
+import { VISUAL_ACTIONS } from "@/features/visuals/admin";
+import { visualsForEdit } from "@/features/visuals/editorial";
+import { adminRoutes, routes } from "@/config/routes";
 
 export const metadata: Metadata = { title: "Region portrait" };
 
-export default async function RegionEditPage({ params }: PageProps<"/admin/regions/[slug]">) {
+export default async function RegionEditPage({
+  params,
+  searchParams,
+}: PageProps<"/admin/regions/[slug]">) {
   const access = await sectionAccess("regions");
   if (!access) return <NoAccess />;
   const { slug } = await params;
   const region = await regionForEdit(slug);
   if (!region) notFound();
-  const [items, rights, timeline] = await Promise.all([
+  const [items, rights, timeline, visuals, { visual }] = await Promise.all([
     portraitItems({ region: slug }, COLLECTION_NAMES),
     portraitRights(access.permissions, "region"),
     timelineForEdit("region", slug),
+    visualsForEdit("region", slug),
+    searchParams,
   ]);
 
   return (
@@ -52,7 +60,7 @@ export default async function RegionEditPage({ params }: PageProps<"/admin/regio
         <ReadOnly
           readOnly={!rights.text}
           reason={
-            "Portrait texts (timeline, FAQ, sources, visuals) are edited by editors with rights to all articles."
+            "Portrait texts (timeline, FAQ, sources) are edited by editors with rights to all articles."
           }
         >
           <TimelineEditor
@@ -62,6 +70,17 @@ export default async function RegionEditPage({ params }: PageProps<"/admin/regio
             lead="The region's history as a row of events on its portrait and under each of its countries — oldest first."
           />
         </ReadOnly>
+        <VisualsEditor
+          owner={{ kind: "region", key: slug }}
+          visuals={visuals}
+          actions={VISUAL_ACTIONS}
+          pageHref={(id) => adminRoutes.regions(slug, id ? { visual: id } : undefined)}
+          editing={typeof visual === "string" ? visual : undefined}
+          canEdit={rights.visuals}
+          canRemove={rights.removeVisuals}
+          readOnlyReason="Maps & charts are edited by roles allowed to edit regions or editors with rights to all articles."
+          lead="Interactive charts and maps on the region's portrait and under each of its countries, one at a time in this order."
+        />
         {COLLECTION_NAMES.map((collection) => (
           <ReadOnly
             key={collection}
@@ -69,7 +88,7 @@ export default async function RegionEditPage({ params }: PageProps<"/admin/regio
             reason={
               collection === "metrics"
                 ? "Sourced indicators are edited by roles allowed to edit regions."
-                : "Portrait texts (timeline, FAQ, sources, visuals) are edited by editors with rights to all articles."
+                : "Portrait texts (timeline, FAQ, sources) are edited by editors with rights to all articles."
             }
           >
             <CollectionEditor

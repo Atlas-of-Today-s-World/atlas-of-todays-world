@@ -1,7 +1,9 @@
 "use client";
 
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
+import { adminRoutes } from "@/config/routes";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { ActionForm, useServerAction } from "@/components/ui/action-form";
@@ -113,6 +115,15 @@ export function ChaptersEditor({
                 updatedBy={chapter.updated_by}
                 names={names}
               />
+              {chapter.id ? (
+                // Its charts and maps have their own tab (their forms can't sit inside this one).
+                <Link
+                  href={`${adminRoutes.content(entryId, { tab: "visuals" })}#visuals-chapter-${chapter.id}`}
+                  className="inline-flex min-h-(--touch-min) w-fit items-center text-[12.5px] text-[var(--color-link)] underline"
+                >
+                  Maps & charts of this subtopic →
+                </Link>
+              ) : null}
               <FormField id={id("title")} label="Tile text (subtopic title)" required>
                 <Input
                   id={id("title")}

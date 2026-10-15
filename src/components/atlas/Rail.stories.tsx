@@ -41,6 +41,28 @@ export const Grid: Story = {
     ),
   ],
 };
+/** One item at a time with arrows and dots (the "Maps & charts" carousel). */
+export const Pages: Story = {
+  args: {
+    layout: "pages",
+    label: "Maps & charts",
+    children: Array.from({ length: 4 }, (_, i) => (
+      <figure key={i} className="w-full shrink-0 snap-start">
+        <div className="grid h-60 place-items-center rounded-xl border border-[var(--color-line)] bg-white text-[13px]">
+          Chart {i + 1}
+        </div>
+        <figcaption className="mt-2 text-center text-[13px]">Caption of chart {i + 1}</figcaption>
+      </figure>
+    )),
+  },
+  decorators: [
+    (Story) => (
+      <div className="w-[36rem] max-w-full">
+        <Story />
+      </div>
+    ),
+  ],
+};
 export const Dark: Story = {
   args: { tone: "dark" },
   decorators: [

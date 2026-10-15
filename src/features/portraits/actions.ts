@@ -47,7 +47,7 @@ function refresh(kind: PortraitKind, slug: string) {
 }
 
 /**
- * Saves a whole portrait section (FAQ, sources, visuals, cards)
+ * Saves a whole portrait section (FAQ, sources, cards)
  * with a single call to the DB function `replace_portrait_items` — in one transaction.
  */
 export async function savePortraitSection(

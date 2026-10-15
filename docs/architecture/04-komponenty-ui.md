@@ -24,8 +24,9 @@
 | Skupina | Komponenty | Poznámka |
 |---|---|---|
 | `components/map/` | `AtlasGlobe`, `MapContext`, `MapFocus`, `MapControls`, `ModeSwitch`, `ViewSwitcher`, `MapLegend` | beze změny architektury; data vrstev z DB |
-| `components/portrait/` | `Portrait` (jeden pro region i issue), `IndicatorCards`, `Timeline` (i země a téma), `ThematicEntries`, `VisualCarousel`, `ResourceLibrary`, `FaqList`, `EmptySection`, `PatronsCallout`, `Rail` | sjednotit 4 kopie karuselu do `Rail` (klávesnice, šipky) |
+| `components/portrait/` | `Portrait` (jeden pro region i issue), `IndicatorCards`, `Timeline` (i země a téma), `ThematicEntries`, `ResourceLibrary`, `FaqList`, `EmptySection`, `PatronsCallout`, `Rail` | sjednotit 4 kopie karuselu do `Rail` (klávesnice, šipky) |
 | `features/entries/components/` | `EntryHeader`, `EntryChapter`, `EntryAudio`, `AuthorBio` | P9 |
+| `components/visuals/` | `VisualsCarousel` (Maps & charts: portrét, téma, podtéma; `Rail layout="pages"`), `EmbedFrame` | jediný iframe vložených grafů (ADR-027) |
 | `components/` | `ContentRail`, `Header`, `AccountMenu` (menu účtu v hlavičce, ADR-026), `EncyclopediaPanel`, `MaintenanceGate`, `SafeHtml` | |
 | `features/newsletter/components/` | `NewsletterForm` | Server Action `subscribe` |
 

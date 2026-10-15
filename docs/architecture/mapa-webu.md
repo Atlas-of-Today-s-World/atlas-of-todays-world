@@ -46,7 +46,7 @@ flowchart TD
   Topic --> TopicFaq["FAQ tématu"]
   Topic --> Author["Autor /authors/[slug]"]
 
-  Region --> Portrait["Sekce profilu: Timeline · témata po kategoriích<br/>(karusely) · Maps & charts (i Datawrapper) ·<br/>News · Learn more · FAQ · výzva Atlas Patrons"]
+  Region --> Portrait["Sekce profilu: Timeline · témata po kategoriích<br/>(karusely) · Maps & charts (Datawrapper, Flourish, OWID, World Bank) ·<br/>News · Learn more · FAQ · výzva Atlas Patrons"]
   Issue --> Portrait
   Country --> Portrait
   Issue -.->|"jen globální téma"| KeyInd["Key indicators (data)"]
@@ -98,8 +98,10 @@ erDiagram
   special_regions ||--o{ timeline_events : "Timeline"
   countries ||--o{ timeline_events : "Timeline"
   entries ||--o{ timeline_events : "Timeline (téma)"
-  regions ||--o{ visual_embeds : "Maps & infographics"
-  special_regions ||--o{ visual_embeds : "Maps & infographics"
+  regions ||--o{ visuals : "Maps & charts"
+  special_regions ||--o{ visuals : "Maps & charts"
+  entries ||--o{ visuals : "Maps & charts (téma)"
+  entry_chapters ||--o{ visuals : "Maps & charts (podtéma)"
   regions ||--o{ faq_items : "FAQ"
   special_regions ||--o{ faq_items : "FAQ"
   regions ||--o{ resources : "Learn more portrétu"
@@ -159,7 +161,7 @@ s výzvou k podpoře (ne skryté).
 | Key indicators | `portrait_metrics` (karty se zdrojem; u regionu jen ony, žádné dopočtené průměry) | `region_slug` / `special_slug` |
 | Timeline | `timeline_events` (rich text + zdroje; nadpis `timeline_title` / `timeline_subtitle` u vlastníka) | právě jeden z `region_slug` / `special_slug` / `country_iso3` / `entry_id` |
 | Témata po kategoriích | `entries` | viz 2.2 (včetně `planned`) |
-| Maps & infographics | `visual_embeds` | `region_slug` / `special_slug`; jen povolení poskytovatelé iframe |
+| Maps & charts | `visuals` (embed z povolených poskytovatelů, obrázek, vlastní mapa) | právě jeden z `region_slug` / `special_slug` / `entry_id` / `chapter_id` (`owner_kind`) |
 | News | `entries` (`kind = 'news'`) | země / region |
 | Learn more | `resources` (`kind`) | `region_slug` / `special_slug` |
 | FAQ | `faq_items` | `region_slug` / `special_slug` |
@@ -213,6 +215,7 @@ timeline nezobrazují. Obsah ze starého webu: `scripts/webflow/import-portraits
 - **Stav zpracování** (`content_status`: none / preparing / ready) u regionů i globálních
   témat — v adminu, na glóbu fajfka nebo přesýpací hodiny, nezpracované regiony šedé,
   v portrétu štítek s výzvou k podpoře.
-- **Infografiky z Datawrapperu:** v adminu se vloží embed kód, uloží se jen ověřená adresa
-  grafu (`datawrapper.dwcdn.net`).
+- **Maps & charts** u regionů, globálních témat, témat i podtémat (ADR-027): v adminu se vloží
+  embed kód nebo odkaz (Datawrapper, Flourish, Our World in Data, World Bank), uloží se jen
+  ověřená adresa grafu; na webu karusel po jednom se šipkami a tečkami.
 - **Write a topic** vede na formulář dobrovolných editorů s předvyplněným místem.

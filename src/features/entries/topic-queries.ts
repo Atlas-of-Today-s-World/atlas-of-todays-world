@@ -9,6 +9,7 @@ import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { createPublicClient } from "@/lib/supabase/public";
 import { toTileIcon } from "./constants";
 import { EVENT_COLUMNS, toTimeline, type EventRow } from "@/features/timelines/rows";
+import { toVisualItems, VISUAL_COLUMNS, type VisualRow } from "@/features/visuals/rows";
 import { BASE_COLUMNS, pickVersion, type Row, TILE_COLUMNS, toSummary } from "./rows";
 import type { Encyclopedia, Entry, LearnMoreTile } from "./types";
 
@@ -36,6 +37,8 @@ export interface ChapterRow {
   audio_url: string | null;
   tile_background?: string | null;
   updated_at?: string;
+  /** The subtopic's maps & charts (the public page; a preview has none). */
+  visuals?: VisualRow[];
 }
 
 export interface ResourceRow {
@@ -99,6 +102,8 @@ interface EncyclopediaParts {
     head: { timeline_title: string | null; timeline_subtitle: string | null };
     events: EventRow[];
   };
+  /** The topic's own maps & charts (the preview has none). */
+  visuals?: VisualRow[];
 }
 
 const optional = (value: string | null | undefined) => value?.trim() || undefined;
@@ -165,6 +170,7 @@ export function toEncyclopedia(item: Entry, parts: EncyclopediaParts): Encyclope
       tileBackground: chapter.tile_background ?? undefined,
       updated: chapter.updated_at?.slice(0, 10),
       audio: chapter.audio_url ?? undefined,
+      visuals: toVisualItems(chapter.visuals),
     })),
     resources: resources.map(withoutTile),
     tiles: toTiles(parts, resources),
@@ -185,6 +191,7 @@ export function toEncyclopedia(item: Entry, parts: EncyclopediaParts): Encyclope
       noindex: seo?.noindex ?? false,
     },
     timeline: parts.timeline ? toTimeline(parts.timeline.head, parts.timeline.events) : null,
+    visuals: toVisualItems(parts.visuals),
   };
 }
 
@@ -193,12 +200,14 @@ const ENCYCLOPEDIA_COLUMNS = `${BASE_COLUMNS}, body_html, summary_points,
   seo_title, seo_description, og_image_url, seo_keywords, geo_summary, noindex,
   articles_label, learn_more_label, hero_background, timeline_title, timeline_subtitle,
   authors(${PUBLIC_AUTHOR_COLUMNS}),
-  entry_chapters(position, title, summary_points, body_html, illustration_url, illustration_credit, audio_url, tile_background, updated_at),
+  entry_chapters(position, title, summary_points, body_html, illustration_url, illustration_credit, audio_url, tile_background, updated_at,
+    visuals(${VISUAL_COLUMNS})),
   resources(position, kind, tile_id, title, source, url, image_url),
   learn_more_tiles!learn_more_tiles_entry_id_fkey(${TILE_COLUMNS}, position),
   entry_tile_notes(tile_id, body_html),
   entry_faq(position, question, answer),
-  timeline_events(${EVENT_COLUMNS})`;
+  timeline_events(${EVENT_COLUMNS}),
+  visuals(${VISUAL_COLUMNS})`;
 
 /**
  * A single published entry with everything the page shows — in the page
@@ -234,6 +243,7 @@ export async function getEncyclopediaEntry(
           entry_tile_notes: NoteRow[];
           entry_faq: FaqRow[];
           timeline_events: EventRow[];
+          visuals: VisualRow[];
         })[];
     },
     ["encyclopedia", slug],
@@ -260,6 +270,7 @@ export async function getEncyclopediaEntry(
       seo: row,
       labels: row,
       timeline: { head: row, events: row.timeline_events },
+      visuals: row.visuals,
     },
   );
 }

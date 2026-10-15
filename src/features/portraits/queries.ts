@@ -6,6 +6,7 @@ import { must } from "@/lib/db/result";
 import { createPublicClient } from "@/lib/supabase/public";
 import type { PortraitPlace } from "@/features/geography/kinds";
 import { toSources } from "@/features/timelines/rows";
+import { toVisualItems, type VisualRow } from "@/features/visuals/rows";
 
 /**
  * Editorial content of a region or global issue portrait — in a single call to the
@@ -25,10 +26,11 @@ export function getPortrait(kind: PortraitPlace, slug: string): Promise<RegionDo
       // The JSON shape is defined by the DB function portrait(); null from the DB → undefined for components.
       const dossier = data as unknown as Omit<
         RegionDossier,
-        "timelineTitle" | "timelineSubtitle"
+        "timelineTitle" | "timelineSubtitle" | "visuals"
       > & {
         timelineTitle: string | null;
         timelineSubtitle: string | null;
+        visuals: VisualRow[] | null;
       };
       return {
         ...dossier,
@@ -40,6 +42,8 @@ export function getPortrait(kind: PortraitPlace, slug: string): Promise<RegionDo
           html: item.html || undefined,
           sources: toSources(item.sources),
         })),
+        // Maps & charts: rows of `visuals`, checked again (only allowed frames and https images).
+        visuals: toVisualItems(dossier.visuals),
         // A card without a citation isn't published (P1); the DB enforces it, this is a safety net.
         metrics: (dossier.metrics ?? []).filter((metric) => metric.source?.trim()),
       };

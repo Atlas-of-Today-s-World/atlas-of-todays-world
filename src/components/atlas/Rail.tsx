@@ -3,6 +3,7 @@
 import { cva } from "class-variance-authority";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
+  Children,
   useCallback,
   useEffect,
   useRef,
@@ -54,6 +55,11 @@ const arrow = cva(
  * `layout="grid"` lays the same items out two per row with no horizontal
  * scrolling at all — for lists people scan rather than browse (entries).
  * Items then must not set their own width.
+ *
+ * `layout="pages"` shows one item at a time (items `w-full`, e.g. the
+ * "Maps & charts" carousel): swipe or scroll with snapping as always, plus
+ * previous / next arrows on every screen and a dot per item between them —
+ * the dots say which one is shown and jump to any.
  */
 export function Rail({
   label,
@@ -68,12 +74,15 @@ export function Rail({
   children: ReactNode;
   gap?: "sm" | "md" | "lg";
   tone?: "light" | "dark";
-  layout?: "scroll" | "grid";
+  layout?: "scroll" | "grid" | "pages";
   className?: string;
 }) {
   const t = useMessages().ui;
   const ref = useRef<HTMLDivElement>(null);
   const [edges, setEdges] = useState({ start: true, end: true });
+  const [current, setCurrent] = useState(0);
+  const pages = layout === "pages";
+  const count = Children.count(children);
 
   const measure = useCallback(() => {
     const el = ref.current;
@@ -82,7 +91,23 @@ export function Rail({
       start: el.scrollLeft <= 1,
       end: el.scrollLeft + el.clientWidth >= el.scrollWidth - 1,
     });
-  }, []);
+    if (!pages) return;
+    // The item whose left edge is nearest the track's: the one shown.
+    const left = el.getBoundingClientRect().left;
+    const offsets = Array.from(el.children, (child) =>
+      Math.abs(child.getBoundingClientRect().left - left),
+    );
+    setCurrent(offsets.indexOf(Math.min(...offsets)));
+  }, [pages]);
+
+  /** Scrolls item `index` to the start of the track (snapping keeps it there). */
+  const show = (index: number) => {
+    const el = ref.current;
+    const item = el?.children[index];
+    if (!el || !item) return;
+    const offset = item.getBoundingClientRect().left - el.getBoundingClientRect().left;
+    el.scrollTo({ left: el.scrollLeft + offset });
+  };
 
   useEffect(() => {
     const el = ref.current;
@@ -94,6 +119,7 @@ export function Rail({
   }, [measure]);
 
   const page = (direction: 1 | -1) => {
+    if (pages) return show(Math.min(count - 1, Math.max(0, current + direction)));
     const el = ref.current;
     if (el) el.scrollBy({ left: direction * el.clientWidth * 0.85 });
   };
@@ -140,7 +166,60 @@ export function Rail({
       >
         {children}
       </div>
-      {scrollable ? (
+      {pages && count > 1 ? (
+        <div className="mt-3 flex items-center justify-center gap-2">
+          <button
+            type="button"
+            aria-label={format(t.railPrevious, { label })}
+            disabled={current === 0}
+            onClick={() => page(-1)}
+            className={arrow({ tone })}
+          >
+            <ChevronLeft size={18} aria-hidden />
+          </button>
+          <ul className="flex flex-wrap items-center justify-center">
+            {Array.from({ length: count }, (_, index) => (
+              <li key={index}>
+                {/* A 24 px target around an 8 px dot (WCAG 2.5.8). */}
+                <button
+                  type="button"
+                  aria-label={format(t.railPage, {
+                    label,
+                    number: String(index + 1),
+                    total: String(count),
+                  })}
+                  aria-current={index === current ? "true" : undefined}
+                  onClick={() => show(index)}
+                  className="group grid size-6 place-items-center rounded-full focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none"
+                >
+                  <span
+                    aria-hidden
+                    className={cn(
+                      "size-2 rounded-full transition",
+                      index === current
+                        ? "scale-125 bg-[var(--color-accent)]"
+                        : "bg-[var(--color-line)] group-hover:bg-[var(--color-ink-muted)]",
+                    )}
+                  />
+                </button>
+              </li>
+            ))}
+          </ul>
+          <button
+            type="button"
+            aria-label={format(t.railNext, { label })}
+            disabled={current === count - 1}
+            onClick={() => page(1)}
+            className={arrow({ tone })}
+          >
+            <ChevronRight size={18} aria-hidden />
+          </button>
+          <p className="sr-only" aria-live="polite">
+            {format(t.railShown, { number: String(current + 1), total: String(count) })}
+          </p>
+        </div>
+      ) : null}
+      {scrollable && !pages ? (
         <div className="mt-2 hidden justify-end gap-2 md:flex">
           <button
             type="button"
