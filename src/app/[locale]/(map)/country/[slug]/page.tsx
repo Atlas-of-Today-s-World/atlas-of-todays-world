@@ -30,6 +30,8 @@ import { JsonLd } from "@/components/JsonLd";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
 import { RelatedTopics } from "@/components/topics/RelatedTopics";
 import { RegionalProfile } from "@/components/portrait/RegionalProfile";
+import { Timeline } from "@/components/portrait/Timeline";
+import { getCountryTimeline } from "@/features/timelines/queries";
 import { getPortrait } from "@/features/portraits/queries";
 import { relatedTopics } from "@/features/topics/related";
 import { routes } from "@/config/routes";
@@ -127,13 +129,14 @@ export default async function CountryPage({ params }: PageProps<"/[locale]/count
   const region = country.region;
   // The region's own record (photo, summary) for its profile under the country.
   const regionData = region ? atlas.regionBySlug.get(region.slug) : undefined;
-  const [topics, entries, dossier, upcoming, profileHtml, stats] = await Promise.all([
+  const [topics, entries, dossier, upcoming, profileHtml, stats, timeline] = await Promise.all([
     relatedTopics(atlas, "country", country.iso3),
     getEntries(),
     regionData ? getPortrait("region", regionData.slug) : null,
     getPlannedEntries(),
     getCountryProfileHtml(country.iso3),
     getCountryStats(country.iso3, locale),
+    getCountryTimeline(country.iso3),
   ]);
   const newsItems = entriesOfCountry(entries, country.iso3);
   const profile = country.profile;
@@ -164,6 +167,15 @@ export default async function CountryPage({ params }: PageProps<"/[locale]/count
           topics={topics}
         />
         {profileHtml ? <SafeHtml className="prose-atlas px-6 pb-10" html={profileHtml} /> : null}
+        {/* The country's own history, above its region's profile; none written = nothing shown. */}
+        {timeline ? (
+          <Timeline
+            id="country-timeline"
+            items={timeline.items}
+            title={timeline.title}
+            subtitle={timeline.subtitle}
+          />
+        ) : null}
         {regionData && dossier ? (
           // Topics in the profile are the country's (own, region's, groups') by theme,
           // next to what the region has planned.

@@ -225,6 +225,8 @@ export type Database = {
           slug: string
           tagline: string
           territory_note: string | null
+          timeline_subtitle: string | null
+          timeline_title: string | null
           un_subregion: string | null
           updated_at: string
         }
@@ -243,6 +245,8 @@ export type Database = {
           slug: string
           tagline?: string
           territory_note?: string | null
+          timeline_subtitle?: string | null
+          timeline_title?: string | null
           un_subregion?: string | null
           updated_at?: string
         }
@@ -261,6 +265,8 @@ export type Database = {
           slug?: string
           tagline?: string
           territory_note?: string | null
+          timeline_subtitle?: string | null
+          timeline_title?: string | null
           un_subregion?: string | null
           updated_at?: string
         }
@@ -277,6 +283,8 @@ export type Database = {
       entries: {
         Row: {
           hero_background: string | null
+          timeline_subtitle: string | null
+          timeline_title: string | null
           updated_by: string | null
           articles_label: string | null
           learn_more_label: string | null
@@ -320,6 +328,8 @@ export type Database = {
         }
         Insert: {
           hero_background?: string | null
+          timeline_subtitle?: string | null
+          timeline_title?: string | null
           updated_by?: string | null
           articles_label?: string | null
           learn_more_label?: string | null
@@ -363,6 +373,8 @@ export type Database = {
         }
         Update: {
           hero_background?: string | null
+          timeline_subtitle?: string | null
+          timeline_title?: string | null
           updated_by?: string | null
           articles_label?: string | null
           learn_more_label?: string | null
@@ -2420,35 +2432,61 @@ export type Database = {
       timeline_events: {
         Row: {
           body: string
+          body_html: string
+          country_iso3: string | null
           date_label: string
+          entry_id: string | null
           id: string
           image_url: string | null
           position: number
           region_slug: string | null
+          sources: Json
           special_slug: string | null
           title: string
         }
         Insert: {
           body?: string
+          body_html?: string
+          country_iso3?: string | null
           date_label: string
+          entry_id?: string | null
           id?: string
           image_url?: string | null
           position?: number
           region_slug?: string | null
+          sources?: Json
           special_slug?: string | null
           title: string
         }
         Update: {
           body?: string
+          body_html?: string
+          country_iso3?: string | null
           date_label?: string
+          entry_id?: string | null
           id?: string
           image_url?: string | null
           position?: number
           region_slug?: string | null
+          sources?: Json
           special_slug?: string | null
           title?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "timeline_events_country_iso3_fkey"
+            columns: ["country_iso3"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["iso3"]
+          },
+          {
+            foreignKeyName: "timeline_events_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "entries"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "timeline_events_region_slug_fkey"
             columns: ["region_slug"]
@@ -2698,6 +2736,16 @@ export type Database = {
         Args: { p_special: string }
         Returns: boolean
       }
+      can_edit_timeline: {
+        Args: {
+          p_action: string
+          p_country: string
+          p_entry: string
+          p_region: string
+          p_special: string
+        }
+        Returns: boolean
+      }
       can_read_any_unpublished: { Args: never; Returns: boolean }
       can_read_entry: { Args: { p_entry: string }; Returns: boolean }
       can_read_unpublished: { Args: { p_owner: string }; Returns: boolean }
@@ -2861,6 +2909,16 @@ export type Database = {
         }
         Returns: undefined
       }
+      replace_timeline: {
+        Args: {
+          p_events: Json
+          p_key: string
+          p_kind: string
+          p_subtitle: string
+          p_title: string
+        }
+        Returns: undefined
+      }
       restore_site_page: { Args: { p_revision: number }; Returns: string }
       role_holder_counts: {
         Args: never
@@ -2885,6 +2943,7 @@ export type Database = {
           url: string
         }[]
       }
+      timeline_sources_valid: { Args: { p_sources: Json }; Returns: boolean }
       search_query: { Args: { p_text: string }; Returns: unknown }
       search_snippet: { Args: { p_text: string; p_words: string[] }; Returns: string }
       search_topics: {

@@ -80,8 +80,12 @@ async function main() {
     assert(status === 200, `status ${status}`);
     const text = visible(body);
     assert(text.includes("Topics"), "missing the topics section");
-    // No regional averages (decision of 2026-10-07): national data live on each country.
-    assert(!text.includes("Key indicators"), "regional indicators should be gone");
+    // No computed regional averages (decision of 2026-10-07): national data live on each
+    // country. The editors' sourced key-fact cards may show; computed figures never.
+    assert(
+      !text.includes("Population-weighted across the countries"),
+      "computed regional indicators should be gone",
+    );
     assert(
       !text.includes("A Comprehensive Portrait"),
       "portrait label that should be gone is still there",

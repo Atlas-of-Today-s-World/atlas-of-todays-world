@@ -17,8 +17,9 @@ import {
 
 /**
  * Portrait sections as lists of items. Shapes and limits match the tables
- * (timeline_events, faq_items, resources, visual_embeds, portrait_metrics);
- * the DB function `replace_portrait_items` saves them in one transaction.
+ * (faq_items, resources, visual_embeds, portrait_metrics); the DB function
+ * `replace_portrait_items` saves them in one transaction. The timeline has its
+ * own editor and save (features/timelines).
  */
 
 const optionalText = (max: number) => z.preprocess(blankToUndefined, text(max).optional());
@@ -64,12 +65,6 @@ const visual = z.preprocess(
 );
 
 export const COLLECTIONS = {
-  timeline: z.object({
-    date_label: requiredText(60),
-    title: requiredText(200),
-    body: text(2000).default(""),
-    image_url: optionalHttpsUrl,
-  }),
   faq: z.object({
     question: requiredText(300),
     answer: requiredText(3000),
@@ -119,8 +114,6 @@ export const RegionInput = z.object({
   fill: hexColor,
   stroke: hexColor,
   ...MAP_VIEW,
-  timeline_title: text(120),
-  timeline_subtitle: text(300),
   // Left out by a form without the field: the stored status stays as it is.
   content_status: z.enum(CONTENT_STATUSES).optional(),
 });
@@ -140,8 +133,6 @@ export const IssueInput = z.object({
   fill: hexColor,
   stroke: hexColor,
   ...MAP_VIEW,
-  timeline_title: text(120),
-  timeline_subtitle: text(300),
   // Left out by a form without the field: the stored status stays as it is.
   content_status: z.enum(CONTENT_STATUSES).optional(),
   countries: z.array(iso3).max(250),

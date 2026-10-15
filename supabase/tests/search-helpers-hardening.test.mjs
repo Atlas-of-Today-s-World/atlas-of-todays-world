@@ -528,6 +528,7 @@ const APP_RPCS = {
   set_author_account: ["authenticated"],
   author_account: ["authenticated"],
   replace_portrait_items: ["authenticated", "service_role"],
+  replace_timeline: ["authenticated"],
   submit_volunteer_application: ["service_role"],
   hit_rate_limit: ["service_role"],
   my_personal_data: ["authenticated"],

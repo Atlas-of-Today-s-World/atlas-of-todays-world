@@ -29,10 +29,10 @@ import {
   PortraitSection,
   ResourceLibrary,
   ThematicEntries,
-  Timeline,
   VisualCarousel,
   type PlannedEntry,
 } from "./sections";
+import { Timeline } from "./Timeline";
 import { routes } from "@/config/routes";
 
 /** What the portrait shows — an Atlas region, or an editorial global issue. */
@@ -163,11 +163,16 @@ export default async function Portrait({
         />
       </header>
 
-      {/* Data only for a global issue: regional averages confused readers (decision of
-          2026-10-07); national figures live on each country. */}
-      {subject.kind === "issue" && subject.showMetrics !== false ? (
-        <IndicatorCards stats={stats} metrics={dossier.metrics} />
-      ) : null}
+      {/* The editors' key facts (sourced cards) everywhere; computed figures only for a
+          global issue — regional averages confused readers (decision of 2026-10-07),
+          national figures live on each country. */}
+      {subject.kind === "issue" ? (
+        subject.showMetrics !== false ? (
+          <IndicatorCards stats={stats} metrics={dossier.metrics} />
+        ) : null
+      ) : (
+        <IndicatorCards metrics={dossier.metrics} />
+      )}
 
       <ProfileSections
         kind={subject.kind}

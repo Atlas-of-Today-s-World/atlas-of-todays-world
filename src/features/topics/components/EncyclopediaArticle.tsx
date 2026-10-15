@@ -7,6 +7,7 @@ import { PhotoCredit } from "@/components/atlas/ui";
 import { Breadcrumbs } from "@/components/atlas/Breadcrumbs";
 import RegionFocus from "@/components/map/RegionFocus";
 import { FaqList } from "@/components/portrait/sections";
+import { Timeline } from "@/components/portrait/Timeline";
 import type { Atlas } from "@/features/geography/types";
 import { format } from "@/lib/i18n/messages";
 import { getRequestLocale, getT } from "@/lib/i18n/request";
@@ -124,6 +125,16 @@ export async function EncyclopediaArticle({
           {/* Text runs the full width of the content, like the tile rows below. */}
           <EntryHeader item={item} atlas={atlas} share={share} />
           {item.html ? <SafeHtml className="prose-atlas mt-7" html={item.html} /> : null}
+          {/* The topic's history right after its intro; without events nothing is shown. */}
+          {item.timeline ? (
+            <div className="-mx-6 mt-10 sm:-mx-10">
+              <Timeline
+                items={item.timeline.items}
+                title={item.timeline.title}
+                subtitle={item.timeline.subtitle}
+              />
+            </div>
+          ) : null}
 
           <DossierExplorer
             topics={item.chapters.map((chapter, index) => ({

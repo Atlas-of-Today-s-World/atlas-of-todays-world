@@ -24,17 +24,6 @@ export const COLLECTION_UI: Record<Collection, CollectionUi> = {
       },
     ],
   },
-  timeline: {
-    title: "Timeline",
-    lead: "Events that explain today's situation — oldest first.",
-    itemLabel: "Event",
-    fields: [
-      { name: "date_label", label: "Date (“1991”, “March 2014”)", required: true, max: 60 },
-      { name: "title", label: "Title", required: true, max: 200 },
-      { name: "body", label: "Description", kind: "textarea", max: 2000, full: true },
-      { name: "image_url", label: "Image (https)", kind: "url", full: true },
-    ],
-  },
   visuals: {
     title: "Maps & charts",
     lead: "Images or interactive charts. For a Datawrapper chart, paste its responsive iframe embed code (or the chart URL) — only the chart link is kept.",

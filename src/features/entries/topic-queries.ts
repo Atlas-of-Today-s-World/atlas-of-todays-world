@@ -8,6 +8,7 @@ import { must } from "@/lib/db/result";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { createPublicClient } from "@/lib/supabase/public";
 import { toTileIcon } from "./constants";
+import { EVENT_COLUMNS, toTimeline, type EventRow } from "@/features/timelines/rows";
 import { BASE_COLUMNS, pickVersion, type Row, TILE_COLUMNS, toSummary } from "./rows";
 import type { Encyclopedia, Entry, LearnMoreTile } from "./types";
 
@@ -92,6 +93,11 @@ interface EncyclopediaParts {
     articles_label: string | null;
     learn_more_label: string | null;
     hero_background?: string | null;
+  };
+  /** The heading and events of the topic's timeline (the preview has none). */
+  timeline?: {
+    head: { timeline_title: string | null; timeline_subtitle: string | null };
+    events: EventRow[];
   };
 }
 
@@ -178,19 +184,21 @@ export function toEncyclopedia(item: Entry, parts: EncyclopediaParts): Encyclope
       geoSummary: optional(seo?.geo_summary),
       noindex: seo?.noindex ?? false,
     },
+    timeline: parts.timeline ? toTimeline(parts.timeline.head, parts.timeline.events) : null,
   };
 }
 
 // Anon may read only the listed columns (DB-08) — nested tables included.
 const ENCYCLOPEDIA_COLUMNS = `${BASE_COLUMNS}, body_html, summary_points,
   seo_title, seo_description, og_image_url, seo_keywords, geo_summary, noindex,
-  articles_label, learn_more_label, hero_background,
+  articles_label, learn_more_label, hero_background, timeline_title, timeline_subtitle,
   authors(${PUBLIC_AUTHOR_COLUMNS}),
   entry_chapters(position, title, summary_points, body_html, illustration_url, illustration_credit, audio_url, tile_background, updated_at),
   resources(position, kind, tile_id, title, source, url, image_url),
   learn_more_tiles!learn_more_tiles_entry_id_fkey(${TILE_COLUMNS}, position),
   entry_tile_notes(tile_id, body_html),
-  entry_faq(position, question, answer)`;
+  entry_faq(position, question, answer),
+  timeline_events(${EVENT_COLUMNS})`;
 
 /**
  * A single published entry with everything the page shows — in the page
@@ -217,12 +225,15 @@ export async function getEncyclopediaEntry(
           articles_label: string | null;
           learn_more_label: string | null;
           hero_background: string | null;
+          timeline_title: string | null;
+          timeline_subtitle: string | null;
           authors: AuthorRow | null;
           entry_chapters: ChapterRow[];
           resources: ResourceRow[];
           learn_more_tiles: TileRow[];
           entry_tile_notes: NoteRow[];
           entry_faq: FaqRow[];
+          timeline_events: EventRow[];
         })[];
     },
     ["encyclopedia", slug],
@@ -248,6 +259,7 @@ export async function getEncyclopediaEntry(
       faq: row.entry_faq,
       seo: row,
       labels: row,
+      timeline: { head: row, events: row.timeline_events },
     },
   );
 }

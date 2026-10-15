@@ -105,3 +105,25 @@ export function htmlToText(
 export function wordCount(html: string): number {
   return htmlToText(html).split(/\s+/).filter(Boolean).length;
 }
+
+const ESCAPES: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" };
+
+/**
+ * Plain text → paragraphs of HTML (the opposite direction): a blank line
+ * starts a paragraph, a single line break stays a `<br>`. Everything is
+ * escaped, so the output holds no markup but `<p>` and `<br>` — for plain text
+ * stored before a field became rich text (timeline events), so the rich text
+ * editor and the page show it the same way.
+ */
+export function textToHtml(text: string): string {
+  return text
+    .replace(/\r\n?/g, "\n")
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean)
+    .map(
+      (paragraph) =>
+        `<p>${paragraph.replace(/[&<>"]/g, (char) => ESCAPES[char] ?? char).replace(/\n/g, "<br>")}</p>`,
+    )
+    .join("");
+}

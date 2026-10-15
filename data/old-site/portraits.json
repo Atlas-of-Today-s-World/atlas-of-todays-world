@@ -1,0 +1,558 @@
+{
+  "middle-east-and-north-africa": {
+    "source": "https://www.atlasoftodaysworld.org/middle-east-and-north-africa",
+    "target": {
+      "kind": "region",
+      "slug": "middle-east-north-africa"
+    },
+    "intro": {
+      "html": "<p>The Middle East and North Africa (MENA) region predominantly comprises Arab-speaking and Muslim-majority countries that share broad historical, political, and demographic characteristics, while also reflecting considerable internal diversity. The region encompasses a range of political systems, including monarchies, republics, and hybrid or formally democratic structures. Despite these institutional differences, many states have experienced comparable trajectories of state formation, governance centralization, and socio-economic development.<br></p><p>Since 2011, the region has been significantly shaped by waves of political mobilization and upheaval, often referred to as the Arab uprisings, which challenged established political orders and prompted varying degrees of reform, conflict, or regime consolidation. Although the majority of countries in the region are Muslim-majority, MENA is characterized by substantial ethnic, linguistic, and sectarian diversity. These plural social compositions continue to influence political dynamics, state–society relations, and processes of reform and transformation across the region.</p>",
+      "text": "The Middle East and North Africa (MENA) region predominantly comprises Arab-speaking and Muslim-majority countries that share broad historical, political, and demographic characteristics, while also reflecting considerable internal diversity. The region encompasses a range of political systems, including monarchies, republics, and hybrid or formally democratic structures. Despite these institutional differences, many states have experienced comparable trajectories of state formation, governance centralization, and socio-economic development.Since 2011, the region has been significantly shaped by waves of political mobilization and upheaval, often referred to as the Arab uprisings, which challenged established political orders and prompted varying degrees of reform, conflict, or regime consolidation. Although the majority of countries in the region are Muslim-majority, MENA is characterized by substantial ethnic, linguistic, and sectarian diversity. These plural social compositions continue to influence political dynamics, state–society relations, and processes of reform and transformation across the region."
+    },
+    "keyFacts": [
+      {
+        "position": 0,
+        "value": "10+",
+        "label": "Ethnic Groups",
+        "description": "The region is comprised of more than 10 different groups, with Arabs being the majority. Others who call it home are Berbers, Kurds, Jews, Persians, Turks, and an array of other ethnic and religious minorities.",
+        "source": "Council on Foreign Relations",
+        "source_url": "https://education.cfr.org/learn/reading/people-and-society-middle-east-and-north-africa",
+        "icon": "https://cdn.prod.website-files.com/634f136e4c46bf4bc88735e9/662abdb4749cbab80d552ba3_Final-03.png"
+      },
+      {
+        "position": 1,
+        "value": "10%",
+        "label": "Level of Freedom",
+        "description": "More than 90% of the people in the Middle East live in countries rated 'Not Free' according to a 2024 Freedom House report.",
+        "source": "Freedom House",
+        "source_url": "https://freedomhouse.org/article/new-report-freedom-middle-east-remains-out-reach-most-israel-and-gaza-strip-experienced",
+        "icon": "https://cdn.prod.website-files.com/634f136e4c46bf4bc88735e9/69bd71d5956f080916fb4490_Freedom.png"
+      },
+      {
+        "position": 2,
+        "value": "4/10",
+        "label": "World's Least Peaceful Countries",
+        "description": "The region remains the least peaceful globally, home to four of the ten countries in the world experiencing the most unrest.",
+        "source": "Global Finance",
+        "source_url": "https://gfmag.com/data/most-peaceful-countries/",
+        "icon": "https://cdn.prod.website-files.com/634f136e4c46bf4bc88735e9/69bd71d5304a576b9ca248fc_Peace.png"
+      },
+      {
+        "position": 3,
+        "value": "24.4%",
+        "label": "Youth Unemployment",
+        "description": "Amount of unemployment in the region for the over 60% of the population who are under 30.",
+        "source": "IOM",
+        "source_url": "https://publications.iom.int/system/files/pdf/pub2025-005-r-regional-strategy_mena-2025-2029-en.pdf",
+        "icon": "https://cdn.prod.website-files.com/634f136e4c46bf4bc88735e9/69bd71d470ae268ceac11751_Unemployment.png"
+      },
+      {
+        "position": 4,
+        "value": "17.8M",
+        "label": "Number of Displaced",
+        "description": "The total number of forcibly displaced or stateless people in the region by mid-2025.",
+        "source": "UNHCR",
+        "source_url": "https://www.unhcr.org/where-we-work/regions/middle-east-and-north-africa?dataset=POP&yearsMode=range&selectedYears=%5B2012%2C2026%5D&level=REG&category=PTY&fundingSource=ALS&compareBy=%5B%22category%22%5D&levelCompare=%5B%5B%22RMENA%22%5D%5D&viewType=chart&chartType=bar&contextualDataset=BUD&tableDataView=absolute",
+        "icon": "https://cdn.prod.website-files.com/634f136e4c46bf4bc88735e9/662abdb503a3e6f75a4e044c_Final-06.png"
+      },
+      {
+        "position": 5,
+        "value": "34M",
+        "label": "Child Food Poverty",
+        "description": "Approximately 34 million people under five years of age, or three in every five children in the region, experience food poverty.",
+        "source": "UNICEF",
+        "source_url": "https://www.unicef.org/mena/press-releases/Three-in-five-children-in-MENA-region-suffer-from-child-food-poverty",
+        "icon": "https://cdn.prod.website-files.com/634f136e4c46bf4bc88735e9/69bd71d4d458c80d6f56d16e_Food%20Poverty.png"
+      }
+    ],
+    "timeline": {
+      "title": "Historical Context of the Region",
+      "subtitle": "An overview of the key events.",
+      "events": [
+        {
+          "position": 0,
+          "title": "Fall of the Ottoman Empire and wartime agreements",
+          "date": "1924",
+          "body_html": "<p>The Ottoman Empire (1516-1924) lost control over many of its territories in the last few decades before its collapse due to the growing influence of colonial powers. Its attempts to implement a reform plan and regain lost territory in the mid-19th century largely failed, and by World War I, the empire was in full decline. The collapse of the Ottoman Empire had a strong impact on the MENA region, as colonial powers vied for spheres of influence. It would also directly lead to the creation of the state of Israel and the Arab-Israeli conflict.</p><p>Entente proposals for the partition of Ottoman territories were settled through several wartime agreements. By the Istanbul Agreements (March–April 1915), Russia was promised Istanbul and the straits, while France was to receive a sphere of influence in Syria and Cilicia. By the Anglo-French Sykes-Picot Agreement (January 3, 1916), France would take direct control of Lebanon and indirect control of Syria, while Britain would control Iraq and the Persian Gulf. Under this agreement, Palestine was also placed under an international regime.</p>",
+          "sources": [
+            {
+              "title": "Birmingham City University - The Sykes Picot Agreement",
+              "url": "https://www.bcu.ac.uk/research/english/stories-of-sacrifice/virtual-tour/the-sykes-picot-agreement"
+            },
+            {
+              "title": "Britannica - Dissolution of the empire",
+              "url": "https://www.britannica.com/place/Ottoman-Empire/Dissolution-of-the-empire"
+            },
+            {
+              "title": "The Conversation - What was the Sykes‑Picot agreement, and why does it still affect the Middle East today?",
+              "url": "https://theconversation.com/what-was-the-sykes-picot-agreement-and-why-does-it-still-affect-the-middle-east-today-246332"
+            }
+          ]
+        },
+        {
+          "position": 1,
+          "title": "Israeli-Palestinian Conflict - Origins",
+          "date": "1880s",
+          "body_html": "<p>The early history of the Israeli-Palestinian conflict can be traced back to the late 19th century, with the immigration of Jews to Palestine, which, back then, had been ruled by the Ottoman Empire. The influx of Jewish immigrants seeking to establish their promised homeland subsequently led to political tensions with the indigenous Arab population. In 1897, the first Zionist Congress was held in the Swiss city of Basel, leading to the adoption of the ‘Basel Program’, which set the Zionist movement's goal as the establishment of a homeland for the Jewish people.</p><p>In the early 20th century, the Zionist movement gained momentum when the British government issued the Balfour Declaration in 1917, expressing support for the establishment of a Jewish homeland in Palestine. Following the increasing tensions between the Arab and Jewish populations, mutual attacks and acts of retaliation were carried out, including the 1920 Nebi Musa riots. In 1936, the Arab Higher Committee, led by the Grand Mufti of Jerusalem, Haj Mohammed Amin Al-Husseini launched a general strike on Jewish businesses, which set staged the subsequent Arab revolt from 1936 to 1939. In 1947, the United Nations General Assembly accepted the proposed Partition Plan, which laid the foundation for the Nakba and the first Arab-Israeli War in May 1948.</p>",
+          "sources": []
+        },
+        {
+          "position": 2,
+          "title": "Creation of the Israeli State and 'Nakba'",
+          "date": "1948",
+          "body_html": "<p>The establishment of the State of Israel in 1948 was accompanied by the Nakba (Arabic: “Catastrophe”), which had a devastating impact on all aspects of Palestinian life and society. More than 750,000 Palestinians were expelled from their homeland, and 531 villages were demolished and depopulated. This period also saw numerous massacres against the Palestinian population carried out by right-wing Zionist militias, including Irgun and Lehi, most notably the 1948 Deir Yassin massacre.</p><p>Following these events, Palestinians in the Galilee, Naqab, and the Triangle were subjected to Israeli military rule until 1968, after which they became citizens of Israel, while the West Bank came under Jordanian administration and the Gaza Strip fell under Egyptian military control.</p>",
+          "sources": []
+        },
+        {
+          "position": 3,
+          "title": "Discovery of oil and oil exports",
+          "date": "1908 - 1962",
+          "body_html": "<p>In the aftermath of World War I, the Arab states of the Gulf were weak, with faltering economies and local rulers who maintained their autonomy only with British assistance. The discovery of oil in the region changed this. Oil was first discovered in Iran in May 1908, and by 1911, the Anglo-Persian Oil Company (APOC) was producing oil there. The British discovered oil in Iraq after World War I. In 1932, Standard Oil Company of California (Socal) also discovered oil in commercial quantities in Bahrain. Socal then obtained a concession in Saudi Arabia in 1933, and by 1938, it had discovered oil in commercial quantities.</p><p>A flurry of oil exploration activity occurred in the Gulf in the 1930s, with Britain and the United States vying for oil concessions. Although the oil companies struck large oil deposits in Bahrain almost immediately, it took longer to locate commercial-sized finds in other countries. Oman, for example, was unable to export oil until 1967. The oil fields in Kuwait were developed the fastest, and by 1953, that nation had become the largest oil producer in the Gulf. Significantly, smaller fields in Qatar came onstream in commercial quantities in the 1950s, and Abu Dhabi began to export offshore oil in 1962.</p>",
+          "sources": [
+            {
+              "title": "Country Studies - Discovery of oil: Persian Gulf States",
+              "url": "https://countrystudies.us/persian-gulf-states/14.htm"
+            }
+          ]
+        },
+        {
+          "position": 4,
+          "title": "MENA colonies, independence movements and decolonisation",
+          "date": "1911 - 1962",
+          "body_html": "<p>During the 20th Century, North Africa experienced decades of European colonisation. Italy controlled Libya from 1911 to 1947, while Spain controlled colonies in parts of modern-day Morocco. France also controlled other parts of Morocco, as well as modern-day Tunisia and Algeria, where hundreds of thousands of French people settled. Libya finally gained independence in 1951 following Italy’s defeat in World War II. Riots and political unrest characterised the postwar era in Tunisia. Under pressure from independence leader Habib Bourguiba and other nationalists, France formally recognised Tunisian independence on March 20, 1956. Bourguiba became the new nation's first leader, and the old puppet regime was abolished in 1957 in favour of a republic. Spain relinquished most territory in 1956 and 1958, after a brief war with Moroccan insurgents. Algeria’s fight, however, was longer and even bloodier. Opposition to French colonisation erupted in 1954 in the Algerian War of Independence, leaving hundreds of thousands dead and millions more displaced. The war ended in 1962, with Algeria becoming independent.</p><p>‍</p>",
+          "sources": [
+            {
+              "title": "EBSCO Information Services- National Revolution Day (Tunisia)",
+              "url": "https://www.ebsco.com/research-starters/politics-and-government/national-revolution-day-tunisia"
+            }
+          ]
+        },
+        {
+          "position": 5,
+          "title": "The Pahlavi Dynasty and Coup in Iran",
+          "date": "1921 -1953",
+          "body_html": "<p>The Pahlavi dynasty, the former ruling dynasty of Iran, began following a coup d’état against the Qājār dynasty in 1921 and ended with Iran’s Islamic Revolution of 1979. After Mohammad Reza Shah Pahlavi was deposed, Mohammad Mossadeq returned to parliament in 1941. To prevent foreign interests from controlling the Iranian economy, Prime Minister Mohammed Mossadeq nationalised the oil industry. This move was met with fierce resistance, especially from the British, who owned substantial oil interests.</p><p>Set against the backdrop of the Cold War, American and British intelligence groups worried that Mossadeq's nationalist aspirations would lead to an eventual communist takeover. To avoid this, U.S. President Dwight Eisenhower approved a joint British-American operation (Operation Ajax) to overthrow Mossadeq. Following the August 1953 coup, Mossadeq was defeated, bringing Mohammed Reza Shah Pahlevi back to power. Mohammad Reza subsequently imposed aggressive economic development policies, including the modernisation program known as the White Revolution. The program, however, upended the country's traditional power structures and heightened tensions that eventually led to Mohammad Reza’s downfall in 1979.</p>",
+          "sources": [
+            {
+              "title": "Public Broadcasting Services (PBS) – Events: 1950 – 1979",
+              "url": "https://www.pbs.org/wgbh/globalconnections/mideast/timeline/text/time4.html"
+            },
+            {
+              "title": "Britannica - 1953 coup in Iran",
+              "url": "https://www.britannica.com/event/1953-coup-in-Iran"
+            }
+          ]
+        },
+        {
+          "position": 6,
+          "title": "Gulf states declare independence",
+          "date": "1961 - 1971",
+          "body_html": "<p>With the exception of Saudi Arabia and Iraq, the Arab coast of the Gulf was ruled by ten families. These families owed their positions to tribal leadership. It was also on this traditional basis that the British negotiated treaties with their leaders in the nineteenth and early twentieth centuries. In the aftermath of World War II, however, Britain was burdened by the sacrifices it had made during the war and could not be as globally involved as it had been before.</p><p>Kuwait was the first state to terminate the agreement with Britain and to declare independence in 1961. Oil production in Kuwait had developed more quickly than in neighbouring states, and as a result, Kuwaitis were better prepared for independence. Qatar and Bahrain achieved independence from British rule in 1971, marking a crucial turning point in their histories. Prior to this, both nations were under British protectorate status, with Qatar governed by the Al Thani tribe and Bahrain by the Al Khalifa dynasty. The movement towards independence was influenced by growing nationalist sentiments, especially after World War II, when local populations became increasingly resentful of foreign control.</p>",
+          "sources": [
+            {
+              "title": "Country studies: Persian Gulf States - Independence",
+              "url": "https://countrystudies.us/persian-gulf-states/15.htm"
+            },
+            {
+              "title": "EBSCO - Bahrain and Qatar Achieve Independence",
+              "url": "https://www.ebsco.com/research-starters/history/bahrain-and-qatar-achieve-independence"
+            }
+          ]
+        },
+        {
+          "position": 7,
+          "title": "Six-Day War",
+          "date": "1967",
+          "body_html": "<p>The Six-Day War of 1967 was a turning point in the Arab-Israeli conflict and took place frrom June 5th, until June, 10th. Escalating tensions between Israel and its neighbors, particularly Egypt, Jordan, and Syria, led Israel to launch a military strike. Within six days, Israel had achieved a decisive victory, capturing the Sinai Peninsula, the Gaza Strip, the West Bank, East Jerusalem, and the Golan Heights. The war not only expanded Israel’s territory dramatically but also gave it strategic control over vital water resources.</p>",
+          "sources": []
+        },
+        {
+          "position": 8,
+          "title": "Iranian Revolution",
+          "date": "1978 - 1979",
+          "body_html": "<p>The Iranian Revolution (1978-1979) arose from widespread and diverse discontent with Iran's monarchical government. Iranians from the secular left to the religious right came together to bring an end to the shah’s autocracy and Western interference in the country’s policies. The Jaleh Square Massacre took place on 8 September, when Mohammad Reza Shah's troops fired into a crowd of 20,000 pro-Khomeini protestors in Tehran. The day became known in Iran as 'Black Friday', and led to greater discontent with the government.<br> <br>On 10 and 11 December, hundreds of thousands of people participated in anti-regime marches across the country, leading to violent clashes between protesters and the Shah's troops. After Mohammad Reza Shah fled Iran on 16 January, Khomeini called for a 'street referendum' on the monarchy. By Khomeini's proclamation, Mehdi Bazargan became the first prime minister of the revolutionary regime in February 1979. In his attempts to Islamise Iran, Khomeini established various institutions, including the Islamic Revolutionary Guard Corps, a military force loyal to the clerical leaders. On 1 April, Khomeini declared the establishment of the Islamic Republic of Iran.</p>",
+          "sources": [
+            {
+              "title": "Britannica - Iranian Revolution",
+              "url": "https://www.britannica.com/event/Iranian-Revolution"
+            },
+            {
+              "title": "World History Encyclopedia - Iranian Revolution",
+              "url": "https://www.worldhistory.org/Iranian_Revolution/"
+            }
+          ]
+        },
+        {
+          "position": 9,
+          "title": "Israel-Egypt Peace Agreement",
+          "date": "1979",
+          "body_html": "<p>After five wars over three decades, Egypt and Israel signed a peace agreement in March 1979. Cairo and Jerusalem had clear motivations to choose peace over conflict. Egypt wanted to restore its sovereignty over the Sinai Peninsula, which it lost in the 1967 Six-Day War. Israel also wanted to secure its southern border and neutralise the region’s largest and most powerful Arab country.</p><p>A second agreement, “The Framework for Peace in the Middle East called for a process through which a “self-governing authority in the West Bank and Gaza” would be elected by the inhabitants of these territories, in a process agreed upon through negotiations between Egypt, Israel, and Jordan. The Palestinian Liberation Organisation rejected the agreement, arguing that ‘accepting the five-year “transitional period” without having the future of the occupied territories specified after the five-year period bestowed legitimacy upon the occupation and gave Israel time to establish further settlements in the West Bank and Gaza.’</p>",
+          "sources": [
+            {
+              "title": "The Conversation - Israel-Egypt peace treaty has stood the test of time over 45 years",
+              "url": "https://theconversation.com/israel-egypt-peace-treaty-has-stood-the-test-of-time-over-45-years-expert-explains-its-significance-223560https://theconversation.com/israel-egypt-peace-treaty-has-stood-the-test-of-time-over-45-years-expert-explains-its-significance-223560"
+            },
+            {
+              "title": "Interactive Encyclopaedia of the Palestinian Question - Camp David Accords, 1978-1979",
+              "url": "https://www.palquest.org/en/highlight/167/camp-david-accords-1978-1979"
+            }
+          ]
+        },
+        {
+          "position": 10,
+          "title": "First Intifada",
+          "date": "1987",
+          "body_html": "<p>The First Intifada erupted in December 1987, beginning in the Jabalia refugee camp in Gaza, following a traffic incident that killed four Palestinian workers during a collision with an Israeli truck. The event subsequently resulted in widespread demonstrations that further spread throughout Gaza, the West Bank and East Jerusalem.</p>",
+          "sources": []
+        },
+        {
+          "position": 11,
+          "title": "Persian Gulf War",
+          "date": "1990 - 1991",
+          "body_html": "<p>The Persian Gulf War (1990–91) was triggered when Iraq’s leader, Saddam Hussein, ordered the invasion and occupation of Kuwait on August 2, 1990. The apparent aims included cancelling a large debt Iraq owed Kuwait, acquiring that nation’s large oil reserves and expanding Iraqi power in the region. It was the first significant international crisis of the post-Cold War era, and the U.S.-led response would set important precedents for the use of military force over subsequent decades. Active resistance to the invasion lasted about 14 hours, during which time an estimated 4,200 Kuwaitis were killed in combat. As many as 350,000 Kuwaiti refugees also fled south into Saudi Arabia. Iraq was ultimately defeated due to a range of factors, including the overall ineffectiveness of Iraq's chemical weapons. Another factor was Iraq's strategic isolation as Saddam faced a strong U.S.-led coalition that included most major Arab powers.</p>",
+          "sources": [
+            {
+              "title": "Britannica - Persian Gulf War",
+              "url": "https://www.britannica.com/event/Persian-Gulf-War"
+            }
+          ]
+        },
+        {
+          "position": 12,
+          "title": "Oslo Accords",
+          "date": "1993 - 1995",
+          "body_html": "<p>The Oslo Accords are a set of agreements between Israel and the Palestine Liberation Organization (PLO) that established a peace process for the Israeli-Palestinian conflict based on a two-state solution. The Oslo I Agreement of 1993 established a ‘Palestinian interim Self-Governing Authority,’ setting up a framework for the Palestinians to govern themselves in the West Bank and Gaza. In 1995, the Oslo II Agreement established the PLO-based Palestinian Authority (PA) in Gaza and Jericho.<br> <br>The Oslo process faced recurring obstacles. Firstly, the assassination of Israeli Prime Minister Yitzhak Rabin in 1996 resulted in the rise of Benjamin Netanyahu, an outspoken critic of the Oslo Accords. Although the process resumed in 1998 under the new prime minister, Ehud Barak, tension had already been increasing. The Palestinians were aggrieved that they were still deprived of self-governance after the proposed timeline of five years. The Israelis were also increasingly suspicious of the PLO’s ability to prevent attacks.</p>",
+          "sources": [
+            {
+              "title": "Britannica, Oslo Accords",
+              "url": "https://www.britannica.com/topic/Oslo-Accords"
+            }
+          ]
+        },
+        {
+          "position": 13,
+          "title": "Second Intifada",
+          "date": "2000 - 2004",
+          "body_html": "<p>On September 28, 2000, Israeli politician Ariel Sharon visited the Israeli-occupied areas of East Jerusalem, sparking the second intifada. Palestinian leaders saw this visit as Israel laying claim to the occupied territories as well as Islam's holy sites at Jerusalem's Temple Mount. Sharon’s election as Israel’s prime minister also sparked resentment, linked to the breakdown of the Camp David peace talks in July 2000. The second mass uprising saw Hamas and other jihadist groups shell Israeli towns and fight gunbattles with Israeli soldiers. In response, Israel launched airstrikes against targets in Gaza and large-scale military attacks in the occupied territories. Although the second intifada has no clearly defined end date, some observers point to the death of Yasser Arafat in November 2004 as the decisive moment. However, lethal attacks continued for months after his death.</p>",
+          "sources": [
+            {
+              "title": "DW. Intifadas: What you need to know",
+              "url": "https://www.dw.com/en/intifadas-what-you-need-to-know/a-41695912"
+            }
+          ]
+        },
+        {
+          "position": 14,
+          "title": "9/11 and War in Afghanistan",
+          "date": "2001 - 2021",
+          "body_html": "<p>Following 9/11, US President George W. Bush announced a global ‘War on Terror.’ The Afghanistan War consisted of three phases. The first phase involved toppling the Taliban-led government of Afghanistan, which Bush accused of hosting Osama Bin Laden and Al Qaeda. The second phase, from 2002 until 2008, was marked by a U.S. strategy of defeating the Taliban militarily and rebuilding core institutions of the Afghan state. The third phase, a turn to counterinsurgency, began in 2008 and accelerated with U.S. Pres. Barack Obama’s 2009 decision to temporarily increase the U.S. troop presence in Afghanistan.</p><p>Various factors ultimately contributed to the Taliban’s reconquest of Afghanistan in August 2021, following twenty years of conflict. Firstly, the international military presence, with its large number of contractors, fuelled corruption. Warlords were also politically and financially empowered. Likewise, the international intervention in Afghanistan lacked local-level ownership and accountability. This lack of accountability further undermined the belief that the newly created order was a true advocate of the rule of law and human rights.</p>",
+          "sources": [
+            {
+              "title": "Britannica - Afghanistan War",
+              "url": "https://www.britannica.com/event/Afghanistan-War"
+            },
+            {
+              "title": "LSE Public Policy Review - Why Did the Taliban Win (Again) in Afghanistan?",
+              "url": "https://ppr.lse.ac.uk/articles/10.31389/lseppr.54"
+            }
+          ]
+        },
+        {
+          "position": 15,
+          "title": "Iraq War",
+          "date": "2003 - 2011",
+          "body_html": "<p>In 2002, the new U.S. president, George W. Bush, argued that the vulnerability of the United States following the September 11 attacks of 2001, together with Iraq’s alleged continued possession and manufacture of weapons of mass destruction (an accusation that was later proved wrong), made disarming Iraq a priority.</p><p>The Iraq War, also referred to as the Second Gulf War, began in March 2003 when the United States led a coalition to invade Iraq. Despite the quick toppling of Hussein's regime, the aftermath led to an insurgency, fuelled by sectarian violence between Shia and Sunni groups as well as resistance to foreign intervention. As the conflict evolved, significant incidents, such as the Abu Ghraib scandal, fuelled public scrutiny of the war’s justification and execution. The U.S. military ultimately withdrew from Iraq in December 2011, leaving behind a nation still grappling with political and cultural challenges.</p>",
+          "sources": [
+            {
+              "title": "Britannica - Iraq War",
+              "url": "https://www.britannica.com/event/Iraq-War"
+            },
+            {
+              "title": "EBSCO - Iraq War",
+              "url": "https://www.ebsco.com/research-starters/military-history-and-science/iraq-war"
+            }
+          ]
+        },
+        {
+          "position": 16,
+          "title": "Authoritarianism and the Arab Spring",
+          "date": "2010 – 2011",
+          "body_html": "<p>The Arab Spring resulted in a wave of pro-democracy uprisings and protests across the Middle East and North Africa from 2010 to 2011. People rose up to protest against authoritarianism, poverty and corruption, challenging some of the region’s authoritarian regimes. The initial protests in Tunisia and Egypt toppled their regimes, inspiring similar attempts in other Arab countries. The Libyan uprising turned into a civil war with French, American and British air forces intervening against Muammar Gaddafi. On October 20, 2011, Gaddafi was captured and killed in his home region of Sirte by rebels. In Syria, the torture of youths sparked mainly peaceful protests at first, and calls for democratic reform. However, the revolt escalated into a civil war due to violent government repression.</p>",
+          "sources": [
+            {
+              "title": "Britannica - Arab Spring",
+              "url": "https://www.britannica.com/event/Arab-Spring"
+            },
+            {
+              "title": "Aljazeera - What is the Arab Spring, and how did it start?",
+              "url": "https://www.aljazeera.com/news/2020/12/17/what-is-the-arab-spring-and-how-did-it-start"
+            }
+          ]
+        },
+        {
+          "position": 17,
+          "title": "Revolts and anti-government protests – Algeria, Sudan, Iraq, Lebanon",
+          "date": "2019",
+          "body_html": "<p>In 2019, a renewed wave of mass protests swept parts of the Arab world, driven by popular frustration with corruption, economic hardship, and maladministration. In Iraq, the October protests, known as the Tishreen Revolution, were largely led by young Iraqis opposing corruption, nepotism, and the sectarian-based Muhasasa system. Sustained demonstrations and violent repression underscored deep public disaffection and ultimately forced Prime Minister Adil Abdul-Mahdi to resign.</p><p>Similar dynamics unfolded in Algeria and Lebanon. Algeria’s Hirak movement erupted in February 2019 in response to President Abdelaziz Bouteflika’s bid for a fifth term, quickly evolving into a nationwide call for systemic political reform. While the protests succeeded in removing Bouteflika, they failed to dismantle le pouvoir, the entrenched military–political elite, and faced internal debates over leadership and representation. In Lebanon, the October 17 protest, sparked by new taxes, including a proposed levy on WhatsApp calls, rapidly became the largest cross-sectarian mobilization since the civil war, forcing Prime Minister Saad Hariri to resign.</p>",
+          "sources": [
+            {
+              "title": "Foreign Policy - Why Protesters in Lebanon Are Taking to the Streets",
+              "url": "https://foreignpolicy.com/2019/11/02/lebanon-protesters-movement-streets-explainer/"
+            },
+            {
+              "title": "Tishreen Report - Inside Look at Iraq's Popular Movement for Reform",
+              "url": "https://enablingpeace.org/tishreen/"
+            },
+            {
+              "title": "Chatham House - Why was Algeria’s Hirak movement defeated — And why it can return?",
+              "url": "https://kalam.chathamhouse.org/articles/why-was-algerias-hirak-movement-defeated-and-why-it-can-return/"
+            }
+          ]
+        },
+        {
+          "position": 18,
+          "title": "Hamas attack Israel and Israel’s War on Gaza and War on Lebanon",
+          "date": "2023 - 2025",
+          "body_html": "<p>On October 7, 2023, Hamas launched a large-scale attack on Israel, triggering what would become a two-year campaign of genocide against the Palestinian population in the Gaza Strip and marking the deadliest and most destructive phase of the long-standing Israeli–Palestinian conflict. By early 2025, nearly 90 percent of Gaza’s population had been displaced amid severe humanitarian crises and the widespread destruction of civilian infrastructure. A first major, albeit short-lived, ceasefire was declared on January 19, 2025, following international mediation, even as Israel continued targeting civilians in Gaza. The genocide also projected a similar peak in violence, killings, and arbitrary arrests in the West Bank.</p><p>The conflict sparked a dangerous regional escalation, particularly along Israel’s northern border with Lebanon. Beginning on October 8, 2023, clashes between Israel and Hezbollah intensified. What initially began as limited cross-border exchanges escalated into sustained confrontations involving airstrikes, rocket fire, and artillery bombardments across southern Lebanon, northern Israel, and parts of Syria. This represented one of the most severe escalations in over a decade and ultimately culminated in the assassination of Hezbollah’s former secretary-general, Hassan Nasrallah, in Beirut on September 27, 2014.</p>",
+          "sources": [
+            {
+              "title": "Despoina Antonakaki, Sotiris Ioannidis (2025). Cross-Platform Digital Discourse Analysis of the Israel-Hamas Conflict: Sentiment, Topics, and Event Dynamics",
+              "url": "https://arxiv.org/abs/2601.02367"
+            },
+            {
+              "title": "Amnesty International - Israel/Occupied Palestinian Territory: Targeting Civilians: Murder, Hostage-Taking and Other Violations by Palestinian Armed Groups in Israel and Gaza",
+              "url": "https://www.amnesty.org/en/documents/mde15/0282/2025/en/"
+            },
+            {
+              "title": "UN - Indiscriminate and disproportionate attacks during the conflict in Gaza (October – December 2023)",
+              "url": "https://www.un.org/unispal/wp-content/uploads/2024/06/20240619-ohchr-thematic-report-indiscrim-disprop-attacks-gaza-oct-dec2023.pdf"
+            },
+            {
+              "title": "Corey Scher, Jamon Van Den Hoek (2025). Active InSAR monitoring of building damage in Gaza during the Israel-Hamas War",
+              "url": "https://arxiv.org/abs/2506.14730"
+            },
+            {
+              "title": "Institute for Palestine Studies - #PalestineChronology: Press Summaries on the War on Gaza, October 1-31, 2024",
+              "url": "https://www.palestine-studies.org/en/node/1656817"
+            }
+          ]
+        },
+        {
+          "position": 19,
+          "title": "Iran Protests",
+          "date": "December 2025 - January 2026",
+          "body_html": "<p>Nationwide protests began in Iran on 28 December 2025 in response to severe economic conditions, including record inflation and currency collapse. In addition to internet shutdowns across Iran at the beginning of January, there were disruptions to mobile networks and GPS interference. Within weeks, the protests were suppressed following a brutal crackdown that began on 9 January. Thousands of protesters were killed during this protest, some of whom government officials characterised as “foreign agents” and “terrorists.”</p>",
+          "sources": [
+            {
+              "title": "OHCHR - Experts urge Iran to break cycle of violence",
+              "url": "https://www.ohchr.org/en/press-releases/2026/01/experts-urge-iran-break-cycle-violence-create-space-dialogue"
+            },
+            {
+              "title": "Britannica - 2026 Iranian Protests",
+              "url": "https://www.britannica.com/event/2026-Iranian-Protests"
+            }
+          ]
+        },
+        {
+          "position": 20,
+          "title": "Iran War",
+          "date": "2026",
+          "body_html": "<p>On February 28, 2026, the United States and Israel launched a joint military operation against Iran, resulting in the killing of Supreme Leader Ali Khamenei. In the first days of airstrikes, the two nations also killed several top leaders of the Iranian military and the Islamic Revolutionary Guards Corps (IRGC).</p><p>The Iran War has triggered hundreds of retaliatory missiles and thousands of drones from Iran across the region. The attacks have had a serious impact, leaving more than 2,000 people dead in Iran, Lebanon, and Israel and hundreds of thousands of people displaced in Lebanon. Iranian attacks have also targeted commercial hubs in neighbouring countries that aid the U.S. military as well as oil infrastructure in the region, including vessels in the Strait of Hormuz, through which 20 per cent of the world’s oil passes.</p>",
+          "sources": [
+            {
+              "title": "CNN - What we know on the 21st day of the US and Israel’s war with Iran",
+              "url": "https://edition.cnn.com/2026/03/20/middleeast/us-israel-iran-middle-east-war-day-21-what-we-know-intl-hnk"
+            },
+            {
+              "title": "Britannica - 2026 Iran War",
+              "url": "https://www.britannica.com/event/2026-Iran-War"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "adecadeofwarinukraine": {
+    "source": "https://www.atlasoftodaysworld.org/adecadeofwarinukraine",
+    "target": {
+      "kind": "issue",
+      "slug": "russia-ukraine-war"
+    },
+    "intro": {
+      "html": "<p>A comprehensive portrait of the war: from its origins, to societal and governmental developments, to its impact on living conditions and daily life around the world.</p>",
+      "text": "A comprehensive portrait of the war: from its origins, to societal and governmental developments, to its impact on living conditions and daily life around the world."
+    },
+    "keyFacts": [
+      {
+        "position": 0,
+        "value": "51 245",
+        "label": "Ukrainian Soldiers Killed",
+        "description": "The total number of Ukrainian soldiers killed since 24. 2. 2022.",
+        "source": "UA Losses, 9. 5. 2024",
+        "source_url": "#",
+        "icon": "https://cdn.prod.website-files.com/634f136e4c46bf4bc88735e9/662abc419d41c6893113bfc8_Final-02.png"
+      },
+      {
+        "position": 1,
+        "value": "52 789",
+        "label": "Russian Soldiers Killed",
+        "description": "The total number of Russian soldiers killed since 24. 2. 2022. The probate registry estimate is~ 85 000.",
+        "source": "Mediazona and the BBC Russian Service, May 2024; estimates by Meduza, March 2024",
+        "source_url": "https://en.zona.media/article/2022/05/11/casualties_eng",
+        "icon": "https://cdn.prod.website-files.com/634f136e4c46bf4bc88735e9/662abdb4f5d7294715ea114a_Final-01.png"
+      },
+      {
+        "position": 2,
+        "value": "10 582",
+        "label": "Ukrainian Civilians Killed",
+        "description": "The total number of Ukrainian civilians killed since 24. 2. 2022.",
+        "source": "OHCHR, 15 February 2024",
+        "source_url": "https://www.ohchr.org/sites/default/files/2024-02/two-year-update-protection-civilians-impact-hostilities-civilians-24.pdf",
+        "icon": "https://cdn.prod.website-files.com/634f136e4c46bf4bc88735e9/662abdb4749cbab80d552ba3_Final-03.png"
+      },
+      {
+        "position": 3,
+        "value": "6.5M",
+        "label": "Ukrainian Refugees in the World",
+        "description": "The total number of refugees from Ukraine that have been recorded globally.",
+        "source": "UNHCR, February 2024",
+        "source_url": "https://www.unrefugees.org/emergencies/ukraine/#:~:text=There%20are%20nearly%205.1%20million,(as%20of%20May%202023).&text=More%20than%206.2%20million%20refugees,(as%20of%20July%202023).&text=Approximately%2017.6%20million%20people%20are%20in%20need%20of%20humanitarian%20assistance%20in%202023.",
+        "icon": "https://cdn.prod.website-files.com/634f136e4c46bf4bc88735e9/662abdb4cada6895474a5983_Final-05.png"
+      },
+      {
+        "position": 4,
+        "value": "3.41M",
+        "label": "Internally Displaced Ukrainians",
+        "description": "The total number of internally displaced people in Ukraine.",
+        "source": "UNOCHA, 14. 5. 2024",
+        "source_url": "https://reports.unocha.org/en/country/ukraine/",
+        "icon": "https://cdn.prod.website-files.com/634f136e4c46bf4bc88735e9/662abdb503a3e6f75a4e044c_Final-06.png"
+      },
+      {
+        "position": 5,
+        "value": "14.6M",
+        "label": "People in Need in Ukraine",
+        "description": "The total number of people in need of humanitarian assistance in Ukraine.",
+        "source": "UNOCHA, 14. 5. 2024",
+        "source_url": "https://reports.unocha.org/en/country/ukraine/",
+        "icon": "https://cdn.prod.website-files.com/634f136e4c46bf4bc88735e9/662abdb58c803dfadb395f20_Final-04.png"
+      }
+    ],
+    "timeline": {
+      "title": "Historical Context of the War",
+      "subtitle": "An overview of the key events since the Ukrainian declaration of independence in 1991.",
+      "events": [
+        {
+          "position": 0,
+          "title": "Ukraine declares its independence",
+          "date": "24th August 1991",
+          "body_html": "<p>The declaration of independence was followed by a referendum on 1st December 1991, in which it was affirmed by an overwhelming majority of the country, including a majority in all regions of Ukraine. Leonid Kravchuk is elected the first president of Ukraine on the same day.</p>",
+          "sources": []
+        },
+        {
+          "position": 1,
+          "title": "Leonid Kuchma is elected the President of Ukraine",
+          "date": "10th July 1994",
+          "body_html": "<p>Kuchma defeats incumbent Leonid Kravchuk in a second round run-off, advocating for pro-market, privatizing reforms, as well as strengthening economic ties with Russia through cooperation with the Commonwealth of Independent States.</p>",
+          "sources": []
+        },
+        {
+          "position": 2,
+          "title": "Signing of the Budapest Memorandum",
+          "date": "5th December 1994",
+          "body_html": "<p>As signatories, Russia, the USA, and the UK commit to respect the independence, sovereignty, and territorial integrity of Ukraine. The soviet-commissioned nuclear weapons then stationed on Ukrainian soil were given up as a result of the treaty.</p>",
+          "sources": [
+            {
+              "title": "www.city.ac.uk",
+              "url": "https://www.city.ac.uk/news-and-events/news/2022/03/ukraine-war-what-is-the-budapest-memorandum-and-why-has-russias-invasion-torn-it-up"
+            }
+          ]
+        },
+        {
+          "position": 3,
+          "title": "Russia and Ukraine sign the “Friendship Treaty”",
+          "date": "31st May 1997",
+          "body_html": "<p>The treaty confirmed the two countries’ commitment to “respect each other’s territorial integrity and confirm the inviolability of their common borders”, as well as to peacefully settle any disputes.</p>",
+          "sources": []
+        },
+        {
+          "position": 4,
+          "title": "Vladimir Putin assumes Presidency",
+          "date": "3rd December 1999",
+          "body_html": "<p>Vladimir Putin immediately succeeds Boris Yeltsin as President following his resignation. Putin then went on to win the 2000 presidential elections, with strong support from state media outlets aiding in his campaign.</p>",
+          "sources": []
+        },
+        {
+          "position": 5,
+          "title": "Presidential elections and the Orange Revolution",
+          "date": "November - December 2004",
+          "body_html": "<p>Following widespread and credible claims of election fraud in favour of Viktor Yanukovych, a pro-Russian candidate backed by the incumbent Leonid Kuchma, mass protests broke out across Ukraine demanding constitutional reform and the conduct of free and fair elections. The protests were successful, leading to a revote of the second round of the election which took place on 26th December, resulting in the election of Viktor Yushchenko as the 3rd president of Ukraine</p>",
+          "sources": []
+        },
+        {
+          "position": 6,
+          "title": "Putin addresses NATO members in Bucharest",
+          "date": "8th April 2008",
+          "body_html": "<p>Putin sharply criticises the prospect of a NATO membership action plan (MAP) for Ukraine and Georgia, which he described as a “direct threat” to Russian security.</p>",
+          "sources": []
+        },
+        {
+          "position": 7,
+          "title": "Discussions for an EU Association Agreement",
+          "date": "July 2008",
+          "body_html": "<p>President Viktor Yushchenko opens talks in order to secure an EU Association Agreement for Ukraine. Political, economic, and judicial reform were required in order to more closely align with EU standards.</p>",
+          "sources": []
+        },
+        {
+          "position": 8,
+          "title": "Viktor Yanukovych elected President of Ukraine",
+          "date": "17th January 2010",
+          "body_html": "<p>In 2010, Viktor Yanukovych ran for president again, this time winning in a contest considered to be free and fair. Progress towards an EU Association Agreement was soured following the President’s move to detain his political opponent Yulia Tymoshenko.</p>",
+          "sources": []
+        },
+        {
+          "position": 9,
+          "title": "The Maidan Revolution",
+          "date": "November 2013 - February 2014",
+          "body_html": "<p>Yanukovych’s decision to withdraw from an EU Association Agreement in order to develop stronger economic ties with Russia sparked widespread protests. Attempts to put down the protest through violence saw the growth of a movement which rejected the endemic corruption of the Yanukovych regime. After Yanykovych fled to Russia, presidential elections were held in which Petro Poroshenko was elected President</p>",
+          "sources": []
+        },
+        {
+          "position": 10,
+          "title": "Russia annexes the Crimean Peninsula",
+          "date": "February 2014",
+          "body_html": "<p>Soldiers in unmarked uniforms seize key strategic locations on the Crimean Peninsula, facing little resistance. Within a month, a referendum, widely considered to be illegitimate, was held as a means of showing popular support for the region to become part of Russia. The following year, Putin acknowledged the presence of the Russian military in Crimea.</p>",
+          "sources": []
+        },
+        {
+          "position": 11,
+          "title": "Uprising in Donetsk and Luhansk Oblasts",
+          "date": "March 2014",
+          "body_html": "<p>Russia-backed separatists seize Ukrainian government buildings in the Donetsk and Luhansk regions of Eastern Ukraine, declaring two independent republics, the DPR and the LPR.</p>",
+          "sources": []
+        },
+        {
+          "position": 12,
+          "title": "1st Minsk Agreement Signed",
+          "date": "5 September 2015",
+          "body_html": "<p>A ceasefire agreement, overseen by the OSCE, was signed between Russia, Ukraine, and representatives of the DPR and LPR militias. It failed to provide a lasting peace, leading to the signing of a 2nd Minsk agreement in 2015.</p>",
+          "sources": []
+        },
+        {
+          "position": 13,
+          "title": "Vladimir Putin’s essay is published",
+          "date": "12th July 2021",
+          "body_html": "<p>An essay attributed to Vladimir Putin argues for the historical and cultural unity of Russia, Ukraine, and Belarus. The essay draws criticism from within Ukraine and the West, and is denounced as both historical revisionism and a false pretext for a future invasion of Ukraine.</p>",
+          "sources": []
+        },
+        {
+          "position": 14,
+          "title": "Russia launches full-scale invasion of Ukraine",
+          "date": "24th February 2022",
+          "body_html": "<p>Vladimir Putin announces the launch of a “special military operation” in Ukraine in order to “demilitarise” and “denazify\" the country. Russian forces cross the border into Ukraine from both Russia and Belarus. The invasion is condemned by the US and EU, and is faced by strong resistance from the armed forces of Ukraine.</p>",
+          "sources": []
+        }
+      ]
+    }
+  }
+}

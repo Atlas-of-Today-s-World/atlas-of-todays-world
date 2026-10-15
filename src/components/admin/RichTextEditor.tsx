@@ -57,17 +57,20 @@ const linkPattern = (sitePaths: boolean) =>
  * Storage. The resulting HTML goes into a hidden field and the server sanitizes it again.
  * `sitePaths`: links may also be paths on this site (site pages; article
  * text keeps absolute links, as it is also read outside the site — feeds, Markdown).
+ * `compact`: a shorter box for many short texts on one page (timeline events).
  */
 export function RichTextEditor({
   name,
   initialHtml,
   label,
   sitePaths = false,
+  compact = false,
 }: {
   name: string;
   initialHtml: string;
   label: string;
   sitePaths?: boolean;
+  compact?: boolean;
 }) {
   const [html, setHtml] = useState(initialHtml);
   const allowedLink = linkPattern(sitePaths);
@@ -94,7 +97,7 @@ export function RichTextEditor({
     content: initialHtml,
     editorProps: {
       attributes: {
-        class: "prose-atlas min-h-80 px-4 py-3 focus:outline-none",
+        class: cn("prose-atlas px-4 py-3 focus:outline-none", compact ? "min-h-32" : "min-h-80"),
         "aria-label": label,
         role: "textbox",
         "aria-multiline": "true",

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
-import { decodeEntities, htmlToText, stripTags, wordCount } from "./html";
+import { decodeEntities, htmlToText, stripTags, textToHtml, wordCount } from "./html";
 
 /** Editorial HTML as it is stored and rendered: always through the one allowlist. */
 const ARTICLE = sanitizeRichHtml(
@@ -88,5 +88,30 @@ describe("wordCount", () => {
         .split(/\s+/)
         .filter(Boolean).length;
     expect(wordCount(ARTICLE)).toBe(former(ARTICLE));
+  });
+});
+
+describe("textToHtml", () => {
+  it("makes a paragraph of each block and a <br> of a single line break", () => {
+    expect(textToHtml("First line\nsecond line\n\n  \r\n\r\nNext paragraph  ")).toBe(
+      "<p>First line<br>second line</p><p>Next paragraph</p>",
+    );
+  });
+
+  it("escapes markup, so the text never becomes HTML", () => {
+    expect(textToHtml('<script>alert("x")</script> & co')).toBe(
+      "<p>&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt; &amp; co</p>",
+    );
+  });
+
+  it("gives nothing for empty text", () => {
+    expect(textToHtml("")).toBe("");
+    expect(textToHtml(" \n\n ")).toBe("");
+  });
+
+  it("round-trips through the sanitizer and back to the same words", () => {
+    const html = textToHtml("A & B\n\nC");
+    expect(sanitizeRichHtml(html)).toBe(html);
+    expect(htmlToText(html, { blockEnd: "\n", tagGap: "" }).trim()).toBe("A & B\nC");
   });
 });

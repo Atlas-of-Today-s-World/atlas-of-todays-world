@@ -1,0 +1,70 @@
+# Manual import of the old site's portrait content (scripts/webflow/import-portraits.mjs):
+# intro, key-fact cards and timeline of Middle East & North Africa and of the
+# Russia–Ukraine war (data/old-site/portraits.json). Only what a portrait doesn't
+# have yet is written; "replace" overwrites the cards and the timeline.
+# atlas-dev: through the API with its service key. Production: one SQL
+# transaction through the database password the deploy already uses (the access
+# token may not read API keys).
+name: Import portraits
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Project"
+        type: choice
+        options: [dev, prod]
+        default: dev
+      replace:
+        description: "Replace existing key facts and timelines with the old site's"
+        type: boolean
+        default: false
+
+concurrency:
+  group: import-portraits-${{ inputs.target }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  import:
+    # Production content only from the reviewed code on main.
+    if: inputs.target == 'dev' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+
+      - name: Import to atlas-dev
+        if: inputs.target == 'dev'
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL_DEV }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY_DEV }}
+          REPLACE: ${{ inputs.replace && '--replace' || '' }}
+        run: node scripts/webflow/import-portraits.mjs --apply --project dev --env /dev/null $REPLACE
+
+      - uses: supabase/setup-cli@45a513f8c64c0bc8e0e3dfe572b5c95be85f6359 # v3 (pinned: runs next to production credentials)
+        if: inputs.target == 'prod'
+        with:
+          version: 2.120.0
+      - name: Import to production
+        if: inputs.target == 'prod'
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          PROD_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+          REPLACE: ${{ inputs.replace && '--replace' || '' }}
+        run: |
+          node scripts/webflow/import-portraits.mjs --sql portraits.sql $REPLACE
+          supabase link --project-ref "$PROD_REF" --password "$SUPABASE_DB_PASSWORD"
+          # Session mode (5432); the password goes through PGPASSWORD, never into
+          # the URL or the command line. psql stops at the first error and rolls back.
+          url=$(sed -E "s#:6543/#:5432/#" supabase/.temp/pooler-url)
+          PGPASSWORD="$SUPABASE_DB_PASSWORD" psql "$url" -v ON_ERROR_STOP=1 -q -f portraits.sql

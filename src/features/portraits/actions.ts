@@ -24,9 +24,7 @@ import {
 import { adminRoutes, routes } from "@/config/routes";
 
 const FIELD_LABEL: Record<string, string> = {
-  date_label: "date",
   title: "title",
-  body: "text",
   question: "question",
   answer: "answer",
   kind: "type",
@@ -49,7 +47,7 @@ function refresh(kind: PortraitKind, slug: string) {
 }
 
 /**
- * Saves a whole portrait section (timeline, FAQ, sources, visuals, cards)
+ * Saves a whole portrait section (FAQ, sources, visuals, cards)
  * with a single call to the DB function `replace_portrait_items` — in one transaction.
  */
 export async function savePortraitSection(
@@ -106,12 +104,7 @@ export async function saveRegion(_prev: ActionState, formData: FormData): Promis
   const { slug, ...fields } = parsed.data;
   const { data, error } = await session.supabase
     .from("regions")
-    .update({
-      ...fields,
-      hero_url: fields.hero_url ?? null,
-      timeline_title: fields.timeline_title || null,
-      timeline_subtitle: fields.timeline_subtitle || null,
-    })
+    .update({ ...fields, hero_url: fields.hero_url ?? null })
     .eq("slug", slug)
     .select("slug");
   if (error) return failed(error);
@@ -145,12 +138,7 @@ export async function saveIssue(_prev: ActionState, formData: FormData): Promise
   if (!session) return NOT_SIGNED_IN;
   const { supabase } = session;
   const { original_slug, countries, ...fields } = parsed.data;
-  const row = {
-    ...fields,
-    hero_url: fields.hero_url ?? null,
-    timeline_title: fields.timeline_title || null,
-    timeline_subtitle: fields.timeline_subtitle || null,
-  };
+  const row = { ...fields, hero_url: fields.hero_url ?? null };
 
   if (original_slug) {
     // An update RLS filters out is no error — only the rows it returns prove the write.
