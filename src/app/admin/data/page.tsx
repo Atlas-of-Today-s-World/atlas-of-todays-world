@@ -33,8 +33,6 @@ export default async function DataPage() {
   // The layer switcher, legends and country cards follow this order.
   const canMove = can(access.permissions, "layers", "e");
   const canDelete = can(access.permissions, "layers", "d");
-  // Edit, open, up, down, delete — ~32 px per icon.
-  const icons = 2 + (canMove ? 2 : 0) + (canDelete && custom.size ? 1 : 0);
 
   return (
     <>
@@ -56,7 +54,8 @@ export default async function DataPage() {
         emptyTitle="No indicators yet"
         initialSort={{ key: "position", dir: "asc" }}
         stats={optionStats("type", TYPES)}
-        actionsWidth={`${icons * 32}px`}
+        // Edit, open, up + down, delete (custom layers only).
+        maxRowActions={2 + (canMove ? 2 : 0) + (canDelete ? 1 : 0)}
         columns={[
           {
             key: "position",

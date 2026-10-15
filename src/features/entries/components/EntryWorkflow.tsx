@@ -273,7 +273,6 @@ export function RevisionList({ entryId, revisions }: { entryId: string; revision
       tableKey="admin-entry-revisions"
       caption="Earlier versions"
       emptyTitle="No earlier versions yet"
-      actionsWidth="48px"
       columns={[
         { key: "saved", label: "Saved", kind: "datetime", width: "150px" },
         { key: "title", label: "Title", width: "minmax(160px, 1fr)" },

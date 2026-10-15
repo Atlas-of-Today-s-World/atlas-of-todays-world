@@ -81,7 +81,6 @@ export default async function AccountsPage({
             </ToolbarLink>
           </>
         }
-        actionsWidth="48px"
         columns={[
           {
             key: "email",

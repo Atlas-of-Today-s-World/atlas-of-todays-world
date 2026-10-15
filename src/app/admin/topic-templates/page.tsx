@@ -45,7 +45,7 @@ export default async function TopicTemplatesPage() {
         caption="Topic templates"
         emptyTitle="No templates"
         initialSort={{ key: "name", dir: "asc" }}
-        actionsWidth="112px"
+        maxRowActions={1 + (canEdit ? 1 : 0) + (canDelete ? 1 : 0)}
         columns={[
           {
             key: "name",

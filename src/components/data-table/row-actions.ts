@@ -22,7 +22,9 @@ export type RowActionIcon =
   | "hide"
   | "show"
   | "up"
-  | "down";
+  | "down"
+  | "on"
+  | "off";
 
 export type RowAction =
   | { kind: "link"; icon: RowActionIcon; label: string; href: string; newTab?: boolean }

@@ -39,7 +39,7 @@ export default async function RegionsPage() {
         tableKey="admin-regions"
         caption="Regions"
         initialSort={{ key: "position", dir: "asc" }}
-        actionsWidth={canMove ? "136px" : "72px"}
+        maxRowActions={canMove ? 4 : 2}
         columns={[
           {
             key: "position",
@@ -90,7 +90,7 @@ export default async function RegionsPage() {
         initialSort={{ key: "name", dir: "asc" }}
         initialFilters={{ profile: ["yes"] }}
         stats={optionStats("profile", PROFILE)}
-        actionsWidth="72px"
+        maxRowActions={2}
         columns={[
           {
             key: "name",

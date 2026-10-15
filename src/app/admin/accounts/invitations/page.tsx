@@ -81,7 +81,7 @@ export default async function InvitationsPage() {
           emptyTitle="No team invitations yet"
           initialSort={{ key: "created", dir: "desc" }}
           stats={optionStats("state", STATE)}
-          actionsWidth="104px"
+          maxRowActions={3}
           columns={[
             {
               key: "email",
