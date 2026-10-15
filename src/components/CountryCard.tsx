@@ -80,7 +80,7 @@ export default async function CountryCard({
         ) : (
           <span aria-hidden />
         )}
-        <ShareButton title={country.name} className="flex-row-reverse" />
+        <ShareButton title={country.name} className="ml-auto flex-row-reverse" />
       </div>
 
       <h1 className="font-display mt-2 text-[26px] leading-tight font-bold text-[var(--color-ink)]">

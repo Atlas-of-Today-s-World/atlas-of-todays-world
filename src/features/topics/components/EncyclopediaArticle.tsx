@@ -113,7 +113,7 @@ export async function EncyclopediaArticle({
                 ]}
               />
               {share ? (
-                <ShareButton title={item.title} tone="dark" className="flex-row-reverse" />
+                <ShareButton title={item.title} tone="dark" className="ml-auto flex-row-reverse" />
               ) : null}
             </div>
             <h1 className="font-display mt-3 text-[34px] leading-[1.08] font-bold text-balance sm:text-[52px]">
