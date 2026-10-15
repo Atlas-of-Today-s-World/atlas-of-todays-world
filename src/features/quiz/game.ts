@@ -57,11 +57,13 @@ export function newGame(shapes: readonly CountryShape[], random: Random = Math.r
     });
 }
 
-/** Verbal rating at the end of the game. */
-export function verdict(score: number): string {
-  if (score === QUESTIONS_PER_GAME) return "Flawless. You could draw the Atlas from memory.";
-  if (score >= 8) return "Excellent — a seasoned map reader.";
-  if (score >= 5) return "Not bad at all. The globe is waiting for the rest.";
-  if (score >= 1) return "A start! Spin the globe and come back for a rematch.";
-  return "Every explorer starts somewhere. Try another round?";
+/** Verbal rating at the end of the game; its text is `quiz.verdicts.<verdict>` in the UI texts. */
+type Verdict = "perfect" | "excellent" | "good" | "start" | "none";
+
+export function verdict(score: number): Verdict {
+  if (score === QUESTIONS_PER_GAME) return "perfect";
+  if (score >= 8) return "excellent";
+  if (score >= 5) return "good";
+  if (score >= 1) return "start";
+  return "none";
 }

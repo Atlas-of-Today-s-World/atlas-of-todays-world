@@ -85,17 +85,21 @@ export function colorMapFor(indicator: IndicatorData): Record<string, string> {
   return out;
 }
 
-/** Data for the legend below the globe. */
+/**
+ * Data for the legend below the globe. `sourceLabel` is the "Source:" UI text
+ * (`ui.source` in the messages) in the page language.
+ */
 export function legendFor(
   indicator: Indicator,
-  locale: Locale = "en",
+  locale: Locale,
+  sourceLabel: string,
 ): {
   swatches: { color: string; label: string }[];
   caption: string;
 } {
   const caption = `${indicator.label}${
     indicator.latestYear ? ` – ${indicator.latestYear}` : ""
-  } · Source: ${indicator.source}`;
+  } · ${sourceLabel} ${indicator.source}`;
 
   if (indicator.type === "categorical") {
     return {

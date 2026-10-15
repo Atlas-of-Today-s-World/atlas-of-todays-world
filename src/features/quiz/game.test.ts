@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import en from "@/messages/en.json";
 import shapes from "./shapes.generated.json";
 import {
   newGame,
@@ -83,10 +84,17 @@ describe("shuffle and verdict", () => {
     expect([...output].sort()).toEqual(input);
   });
 
-  it("rating covers 0 to 10 points", () => {
+  it("rating covers 0 to 10 points, each with a text in the messages", () => {
     for (let score = 0; score <= QUESTIONS_PER_GAME; score++) {
-      expect(verdict(score).length).toBeGreaterThan(0);
+      expect(en.quiz.verdicts[verdict(score)].length).toBeGreaterThan(0);
     }
     expect(verdict(10)).not.toBe(verdict(9));
+    expect([0, 1, 5, 8, 10].map(verdict)).toEqual([
+      "none",
+      "start",
+      "good",
+      "excellent",
+      "perfect",
+    ]);
   });
 });
