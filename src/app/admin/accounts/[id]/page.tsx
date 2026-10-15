@@ -12,7 +12,7 @@ import { uuid } from "@/lib/validation/common";
 
 export const metadata: Metadata = { title: "Account" };
 
-export default async function AccountPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function AccountPage({ params }: PageProps<"/admin/accounts/[id]">) {
   const access = await sectionAccess("users");
   if (!access) return <NoAccess />;
   const { id } = await params;

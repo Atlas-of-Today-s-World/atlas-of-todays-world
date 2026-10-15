@@ -65,11 +65,11 @@ skládá z hotových dílů; když díl chybí, vznikne jako sdílený, ne jako 
 
 | Úroveň | Kde | Co tam patří |
 |---|---|---|
-| 1. Design tokeny | `src/app/globals.css` (`@theme` v Tailwind 4) + `src/config/layout.ts` | barvy, radiusy, stíny, typografie, **rozměry layoutu** (`--rail-width`, `--rail-width-wide`, `--header-h`, `--touch-min: 44px`) |
-| 2. Primitiva | `src/components/ui/` (shadcn/ui) | `Button`, `IconButton`, `Input`, `Select`, `Dialog`, `Sheet`, `Tabs`, `Tooltip`, `Badge`, `Card`, `Skeleton`, `Form*` |
-| 3. Vzory Atlasu | `src/components/atlas/` | `Rail` (jediný karusel), `Section`, `SectionLabel`, `MetricCard`, `EmptySection`, `PatronsCallout`, `SafeHtml`, `ExternalLink`, `Breadcrumbs` |
-| 4. Doménové bloky | `src/components/portrait/`, `features/*/components/` | `Portrait` (region **i** global issue), `CountryCard`, `EntryHeader`… |
-| 5. Stránky | `src/app/**` | jen skládání bloků + data; žádné vlastní styly nad rámec rozvržení |
+| 1. Design tokeny | `src/app/globals.css` (`@theme` v Tailwind 4) + `src/config/layout.ts` | barvy, radiusy, stíny, typografie, **rozměry layoutu** (`--rail-width`, `--rail-width-wide`, `--touch-min: 44px`) |
+| 2. Primitiva | `src/components/ui/` (shadcn/ui) | `Button` + `buttonVariants` (i pro odkazy a ikonová tlačítka), `Badge`, `Dialog`, `Popover`, `CheckboxControl`, `ColorField`; formuláře v `field.tsx` (`FormField`, `Input`, `Textarea`, `Select`, `Checkbox`, `RequiredNote`) a `action-form.tsx` (`ActionForm`, `useServerAction`, `useAddForm`). *Plán, až bude potřeba:* `Sheet`, `Tabs`, `Tooltip`, `Skeleton` |
+| 3. Vzory Atlasu | `src/components/atlas/` | `Rail` (jediný karusel), `ui.tsx` (`SectionLabel`, `MetricCards`, `StatGrid`/`StatItem`, `SourceLink`, `PhotoCredit`, `NewsBadge`), `Breadcrumbs` (`tone` light/dark), `Note.tsx` (`EmptyNote`, `Lead`), `PhotoCard`, `PhotoTile`, `Accordion`, `SafeHtml`, `RichText`, `ShareButton`, `ErrorState`, `RouteError` (hranice chyb tras), `BrandLogo`, `ContactLink`, varianty `kickerVariants`, `glassVariants`; tabulky `components/data-table/DataTable` (ADR-019) |
+| 4. Doménové bloky | `src/components/portrait/`, `src/components/` (`CountryCard`, `PagesShell`, `PagesFrame`, `FullPage`), `features/*/components/` | `Portrait` (region **i** global issue), `PortraitSection`, `PatronsCallout`, `NewsTabs`, `ArticleFrame`, `EncyclopediaArticle`, `NewsArticle`, `map/RegionFocus`, `admin/RegionSelect`… |
+| 5. Stránky | `src/app/**` | jen skládání bloků + data; žádné vlastní styly nad rámec rozvržení. Metadata přes `lib/seo/metadata.ts` (`pageMetadata`, `staticPageMetadata`, `privateMetadata`), props přes globální `PageProps<"/…">` / `LayoutProps<"/…">` (Next 16, `next typegen`) |
 
 Pravidla:
 
@@ -79,38 +79,42 @@ Pravidla:
   kopírováním dlouhých `className`. Opakovaný řetězec delší než ~6 utilit = signál pro variantu.
 - **Žádná magická čísla v komponentách**: rozměry panelů, breakpointy a z-indexy jen z tokenů. JS, který
   potřebuje rozměr (např. padding globusu), ho čte z `config/layout.ts`, ze kterého vznikají i CSS proměnné.
-- **Jedna datová definice**: navigace (`src/config/navigation.ts`) pro všechna menu (desktop, mobil, stránky
-  bez globusu, patička); kategorie, sekce oprávnění, typy zdrojů — z DB typů nebo jednoho `const`, nikdy
-  opsané do komponenty.
+- **Jedna datová definice**: navigace (`getNavigation()` z tabulky `nav_items`, záloha
+  `src/config/navigation.ts`) pro všechna menu (desktop, mobil, stránky bez globusu, patička); kategorie
+  (`lib/content-types.ts`, popisek `categoryLabel()`), sekce oprávnění, typy zdrojů — z DB typů nebo
+  jednoho `const`, nikdy opsané do komponenty.
 - **Stejná data = stejná komponenta**: region a global issue mají stejné sekce → jedna `Portrait` s propsem
   `subject: { kind: "region" | "issue", … }`.
-- **Formuláře administrace** z jednoho vzoru: `FormField` (label + control + chyba ze Zod) + `useActionState`;
-  tabulky z jednoho `DataTable` (`components/data-table`, ADR-019) s konfigurací sloupců.
-- **Klientské volání serveru** jen přes Server Actions nebo jeden `apiFetch()` helper (timeout, chyby) —
-  ne ručně psaný `fetch` v každé komponentě.
+- **Formuláře administrace** z jednoho vzoru: `FormField` (label + control + chyba ze Zod) + `useServerAction`
+  nad Server Action z `formAction()` (`lib/actions.ts`); tabulky z jednoho `DataTable` (`components/data-table`,
+  ADR-019) s konfigurací sloupců a akcemi v řádku (`editAction`, `deleteAction`, `moveActions`…).
+- **Klientské volání serveru** jen přes Server Actions nebo `apiFetch()` (`lib/api-fetch.ts`: timeout,
+  abort, JSON, typované chyby) — ne ručně psaný `fetch` v komponentě (ESLint ho v komponentách zakazuje).
 - **Ikony** z jedné sady (`lucide-react`), ne vložené SVG v každém souboru.
-- **Texty** z `messages/{locale}.json`; opakovaný text (CTA, chybové hlášky) má jeden klíč.
+- **Texty** z `messages/en.json` (web je jen anglicky, ADR-022) s úpravami týmu z Admin → UI texts
+  (`getT()` / `getMessagesFor()`); opakovaný text (CTA, chybové hlášky) má jeden klíč.
 
 ### 15.2 Nástroje, které duplicitu hlídají (CI)
 
 | Nástroj | Co hlídá | Práh |
 |---|---|---|
-| `jscpd` | copy-paste bloky v `src/` | selže nad 1 % duplicit nebo u bloku ≥ 30 řádků |
+| `jscpd` (`.jscpd.json`) | copy-paste bloky v `src/` (TS, TSX, CSS; bez testů, `src/content`, `src/data`) | klon = ≥ 10 řádků a ≥ 70 tokenů; selže nad 1 % duplicit |
 | `knip` | nepoužité soubory, exporty, závislosti | 0 nálezů (výjimky v `knip.json` s komentářem) |
-| ESLint `no-restricted-imports` | import interních souborů cizí domény; `@supabase/supabase-js` mimo `lib/supabase` | chyba |
-| ESLint `no-restricted-syntax` | `dangerouslySetInnerHTML` mimo `SafeHtml`; `fetch(` v `components/` | chyba |
+| ESLint `no-restricted-imports` | `@supabase/supabase-js` mimo `lib/supabase` (typové importy smí) | chyba |
+| ESLint `no-restricted-syntax` | `dangerouslySetInnerHTML` mimo `SafeHtml`, `JsonLd`, `PrePaintScript`; ručně skládané veřejné URL (`` `/country/${…}` `` atd. → `routes.*`); ručně psané `/admin…` (→ `adminRoutes.*`) | chyba |
+| ESLint `no-restricted-globals` / `-properties` | `fetch` (i `window.fetch`…) v `src/components` a `features/*/components` (→ `apiFetch()`) | chyba |
 | `prettier-plugin-tailwindcss` | jednotné řazení tříd (snazší hledání duplicit) | formát |
 | Storybook (nebo Ladle) | katalog dílů úrovně 2–4 → je vidět, co existuje | každý sdílený díl má story |
 
-### 15.3 Známé duplicity k odstranění (stav 2026-09-30)
+### 15.3 Známé duplicity k odstranění (zjištěno 2026-09-30, stav 2026-10-15)
 
-| # | Duplicita | Cíl |
-|---|---|---|
-| D1 | Šířka panelu natvrdo na 4 místech (`ContentRail`, `Header`, `MapControls`, `AtlasGlobe`: `27rem`/`432`, `46rem`/`52vw`) | tokeny `--rail-width(-wide)` + `config/layout.ts` |
-| D2 | 4 karusely v `PortraitSections` (`Timeline`, `ThematicEntries`, `VisualCarousel`, `ResourceLibrary`) + `NewsTabs` | jeden `Rail` (šipky, klávesnice, snap) |
-| D3 | Stránka global issue (218 ř.) skládá portrét znovu místo `RegionPortrait` | jedna `Portrait` |
-| D4 | Menu definované 2× (`Header.tsx` pole `NAV`, `(pages)/layout.tsx` natvrdo) | `config/navigation.ts` |
-| D5 | ≥ 7 ručních variant primárního tlačítka, přestože existuje `PrimaryButton` | `ui/Button` s variantami |
-| D6 | `fetch` ručně v 7 klientských komponentách (admin formuláře, newsletter, search, login) | Server Actions / `apiFetch` |
-| D7 | Tři admin formuláře (530, 664, 357 ř.) s vlastní validací a stavem | `FormField` + Zod + `useActionState`, `DataTable` |
-| D8 | Obsah renderuje aplikace i `demo/` zvlášť | demo jen jako prezentace nad exportem, nebo zrušit |
+| # | Duplicita | Cíl | Stav |
+|---|---|---|---|
+| D1 | Šířka panelu natvrdo na 4 místech (`ContentRail`, `Header`, `MapControls`, `AtlasGlobe`: `27rem`/`432`, `46rem`/`52vw`) | tokeny `--rail-width(-wide)` + `config/layout.ts` | hotovo (hodnoty jen v `globals.css` a `config/layout.ts`) |
+| D2 | 4 karusely v `PortraitSections` (`Timeline`, `ThematicEntries`, `VisualCarousel`, `ResourceLibrary`) + `NewsTabs` | jeden `Rail` (šipky, klávesnice, snap) | hotovo (`components/atlas/Rail`) |
+| D3 | Stránka global issue (218 ř.) skládá portrét znovu místo `RegionPortrait` | jedna `Portrait` | hotovo (`features/portraits/group-page.tsx` pro obě trasy) |
+| D4 | Menu definované 2× (`Header.tsx` pole `NAV`, `(pages)/layout.tsx` natvrdo) | `config/navigation.ts` | hotovo (`getNavigation()` z `nav_items`, záloha v `config/navigation.ts`) |
+| D5 | ≥ 7 ručních variant primárního tlačítka, přestože existuje `PrimaryButton` | `ui/Button` s variantami | hotovo (`Button` / `buttonVariants`) |
+| D6 | `fetch` ručně v 7 klientských komponentách (admin formuláře, newsletter, search, login) | Server Actions / `apiFetch` | hotovo (Server Actions, `apiFetch()` + zákaz `fetch` v ESLint; výjimkou s odůvodněním jen zahřátí cache v `map/maplibre.ts`) |
+| D7 | Tři admin formuláře (530, 664, 357 ř.) s vlastní validací a stavem | `FormField` + Zod + `useActionState`, `DataTable` | hotovo (`formAction` + `useServerAction`, `DataTable`) |
+| D8 | Obsah renderuje aplikace i `demo/` zvlášť | demo jen jako prezentace nad exportem, nebo zrušit | hotovo (`demo/` zrušeno) |

@@ -18,15 +18,7 @@ import type { Country, CountryStat } from "@/features/geography/types";
 import { formatPopulation } from "@/lib/format";
 import { geoMeta } from "@/lib/seo";
 import { pageMetadata, pageTitle } from "@/lib/seo/metadata";
-import {
-  breadcrumbNode,
-  countryNode,
-  graph,
-  homeCrumb,
-  ids,
-  pageUrl,
-  webPageNode,
-} from "@/lib/seo/jsonld";
+import { breadcrumbNode, countryNode, graph, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { JsonLd } from "@/components/JsonLd";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
 import { RelatedTopics } from "@/components/topics/RelatedTopics";
@@ -82,9 +74,7 @@ function fallbackDescription(
 
 export async function generateMetadata({
   params,
-}: {
-  params: Promise<{ locale: string; slug: string }>;
-}): Promise<Metadata> {
+}: PageProps<"/[locale]/country/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const locale = await localeFrom(params);
   const country = (await getAtlas(locale)).countryBySlug.get(slug);
@@ -119,11 +109,7 @@ export async function generateMetadata({
   });
 }
 
-export default async function CountryPage({
-  params,
-}: {
-  params: Promise<{ locale: string; slug: string }>;
-}) {
+export default async function CountryPage({ params }: PageProps<"/[locale]/country/[slug]">) {
   const { slug } = await params;
   const locale = await localeFrom(params);
   const atlas = await getAtlas(locale);
@@ -200,8 +186,8 @@ export default async function CountryPage({
             type: "ItemPage",
             about: ids.country(country.slug),
             breadcrumb: breadcrumbNode(
+              site,
               [
-                homeCrumb(site),
                 ...(region ? [{ name: region.name, path: routes.region(region.slug) }] : []),
                 { name: country.name, path: routes.country(country.slug) },
               ],

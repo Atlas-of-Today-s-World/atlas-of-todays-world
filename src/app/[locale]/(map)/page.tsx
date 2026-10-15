@@ -10,11 +10,7 @@ import { datasetNode, graph, itemListNode, pageUrl, webPageNode } from "@/lib/se
 import { JsonLd } from "@/components/JsonLd";
 import { routes } from "@/config/routes";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<"/[locale]">): Promise<Metadata> {
   const locale = await localeFrom(params);
   const t = (await getMessagesFor(locale)).home;
   return pageMetadata({
@@ -35,7 +31,7 @@ export async function generateMetadata({
   });
 }
 
-export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function HomePage({ params }: PageProps<"/[locale]">) {
   const locale = await localeFrom(params);
   const [messages, site, { countries, regions, indicators }] = await Promise.all([
     getMessagesFor(locale),

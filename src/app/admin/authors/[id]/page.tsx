@@ -22,10 +22,7 @@ export const metadata: Metadata = { title: "Author profile" };
 export default async function AuthorPage({
   params,
   searchParams,
-}: {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<{ saved?: string }>;
-}) {
+}: PageProps<"/admin/authors/[id]">) {
   const access = await sectionAccess("news");
   if (!access) return <NoAccess />;
   const { id } = await params;

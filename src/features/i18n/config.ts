@@ -11,7 +11,7 @@ export const DEFAULT_LOCALE: Locale = "en";
 export const isLocale = (value: string | undefined | null): value is Locale =>
   (LOCALES as readonly string[]).includes(value ?? "");
 
-/** Path in the given language: English without a prefix, otherwise `/cs/…`. */
+/** Path in the given language: English without a prefix, otherwise `/<code>/…`. */
 export function localePath(locale: Locale, path: string): string {
   const clean = path.startsWith("/") ? path : `/${path}`;
   if (locale === DEFAULT_LOCALE) return clean;
@@ -32,7 +32,7 @@ export const withoutDefaultPrefix = (path: string): string =>
 
 /**
  * Language and path without the language prefix from the browser URL
- * (`/cs/country/x` → cs, `/country/x`; `/country/x` → en, unchanged).
+ * (`/<code>/country/x` → that language, `/country/x`; `/country/x` → en, unchanged).
  */
 export function splitLocale(pathname: string): { locale: Locale; path: string } {
   const [, first, ...rest] = pathname.split("/");

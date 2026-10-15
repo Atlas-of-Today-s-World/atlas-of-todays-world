@@ -8,12 +8,10 @@ import { getSiteSettings } from "@/features/site/queries";
 import { sitePageMetadata } from "@/features/site-pages/components/SitePage";
 import { SitePageView } from "@/features/site-pages/components/SitePageView";
 import { getSitePage } from "@/features/site-pages/queries";
-import { breadcrumbNode, graph, homeCrumb, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import { breadcrumbNode, graph, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { routes } from "@/config/routes";
 
-type Params = { params: Promise<{ locale: string }> };
-
-export function generateMetadata({ params }: Params) {
+export function generateMetadata({ params }: PageProps<"/[locale]/about">) {
   return sitePageMetadata("about", params);
 }
 
@@ -22,7 +20,7 @@ export function generateMetadata({ params }: Params) {
  * list of data sources (at the body's {{data-sources}} paragraph) and the
  * publisher line stay in code.
  */
-export default async function AboutPage({ params }: Params) {
+export default async function AboutPage({ params }: PageProps<"/[locale]/about">) {
   const locale = await localeFrom(params);
   const messages = await getMessagesFor(locale);
   const t = messages.about;
@@ -70,10 +68,7 @@ export default async function AboutPage({ params }: Params) {
             locale,
             type: "AboutPage",
             about: ids.organization,
-            breadcrumb: breadcrumbNode(
-              [homeCrumb(site), { name: page.title, path: routes.about }],
-              locale,
-            ),
+            breadcrumb: breadcrumbNode(site, [{ name: page.title, path: routes.about }], locale),
           }),
         )}
       />

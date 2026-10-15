@@ -13,7 +13,7 @@ import { FlagKey } from "@/features/flags/schema";
 export const metadata: Metadata = { title: "Switch note" };
 
 /** The note next to one switch (permissions "e", like the switch itself; RLS decides). */
-export default async function SwitchPage({ params }: { params: Promise<{ key: string }> }) {
+export default async function SwitchPage({ params }: PageProps<"/admin/switches/[key]">) {
   const access = await sectionAccess("permissions", "e");
   if (!access) return <NoAccess />;
   const { key } = await params;

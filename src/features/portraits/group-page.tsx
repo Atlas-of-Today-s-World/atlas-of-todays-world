@@ -26,7 +26,6 @@ import {
   breadcrumbNode,
   faqNode,
   graph,
-  homeCrumb,
   groupPlaceNode,
   ids,
   pageUrl,
@@ -193,7 +192,7 @@ export function groupPortraitPage(kind: GroupKind) {
               locale,
               about: kind === "region" ? ids.region(group.slug) : ids.issue(group.slug),
               image: group.hero,
-              breadcrumb: breadcrumbNode([homeCrumb(site), { name: group.name, path }], locale),
+              breadcrumb: breadcrumbNode(site, [{ name: group.name, path }], locale),
             }),
             // A region lists its news as what the place is the subject of.
             kind === "region"

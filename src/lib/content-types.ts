@@ -4,6 +4,8 @@
  * runtime dependencies, so client code may import it.
  */
 
+import type { Messages } from "@/features/i18n/messages";
+
 /**
  * The two kinds of article (`entries.kind`): a news item, or a topic (an
  * encyclopedia entry, P9). Labels for the editor in `ARTICLE_KIND_LABEL`.
@@ -18,7 +20,7 @@ export const ARTICLE_KIND_LABEL: Record<ArticleKind, string> = {
 
 /**
  * The four topic groups of a portrait (brief), in display order. Labels:
- * `messages.categories[group]`.
+ * `categoryLabel(group, messages)`.
  */
 export const ENTRY_CATEGORIES = [
   "Living Conditions",
@@ -34,7 +36,7 @@ type EntryCategory = (typeof ENTRY_CATEGORIES)[number];
  * of these — the keys, in display order, are exactly the DB `CHECK` on
  * `entries.category` — and each belongs to one portrait topic group ("Political
  * System" and "International Relations" share one). Labels:
- * `messages.categories[category]`.
+ * `categoryLabel(category, messages)`.
  */
 const CATEGORY_GROUP = {
   "Living Conditions": "Living Conditions",
@@ -47,6 +49,16 @@ const CATEGORY_GROUP = {
 export type NewsCategory = keyof typeof CATEGORY_GROUP;
 
 export const NEWS_CATEGORIES = Object.keys(CATEGORY_GROUP) as NewsCategory[];
+
+/**
+ * Label of a category or a portrait topic group in the UI texts
+ * (`messages.categories`); an unknown key shows as itself.
+ */
+export function categoryLabel(category: string, t: Pick<Messages, "categories">): string {
+  return Object.hasOwn(t.categories, category)
+    ? t.categories[category as keyof Messages["categories"]]
+    : category;
+}
 
 /** The portrait topic group of a category; an unknown one counts as "Society". */
 export function entryCategory(category: string): EntryCategory {

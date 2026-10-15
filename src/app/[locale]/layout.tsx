@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { CookieNotice } from "@/components/CookieNotice";
 import { TabReminder } from "@/components/TabReminder";
@@ -12,19 +11,13 @@ import { getSiteSettings, getSocialLinks } from "@/features/site/queries";
 
 /**
  * Language version of the public site (G5). English lives at URLs without a prefix
- * (the proxy rewrites them to /en/…), other languages under /cs/… and so on.
+ * (the proxy rewrites them to /en/…); another language would get its own /<code>/… prefix.
  */
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
 }
 
-export default async function LocaleLayout({
-  children,
-  params,
-}: {
-  children: ReactNode;
-  params: Promise<{ locale: string }>;
-}) {
+export default async function LocaleLayout({ children, params }: LayoutProps<"/[locale]">) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const [messages, overrides, site, socials] = await Promise.all([

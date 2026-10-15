@@ -4,7 +4,7 @@ import { useState } from "react";
 import { EmptyNote } from "@/components/atlas/Note";
 import { PhotoCard } from "@/components/atlas/PhotoCard";
 import { Rail } from "@/components/atlas/Rail";
-import { NEWS_CATEGORIES, type NewsCategory } from "@/lib/content-types";
+import { categoryLabel, NEWS_CATEGORIES, type NewsCategory } from "@/lib/content-types";
 import { safeUrl } from "@/lib/security/urls";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { routes } from "@/config/routes";
@@ -47,7 +47,7 @@ export default function NewsTabs({ newsItems }: { newsItems: NewsCard[] }) {
                   : "text-white/65 hover:text-white"
               }`}
             >
-              {t.categories[category]}
+              {categoryLabel(category, t)}
             </button>
           ))}
         </div>

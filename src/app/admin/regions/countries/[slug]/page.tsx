@@ -15,7 +15,9 @@ import { adminRoutes, routes } from "@/config/routes";
 
 export const metadata: Metadata = { title: "Country profile" };
 
-export default async function CountryEditPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function CountryEditPage({
+  params,
+}: PageProps<"/admin/regions/countries/[slug]">) {
   const access = await sectionAccess("regions");
   if (!access) return <NoAccess />;
   const { slug } = await params;

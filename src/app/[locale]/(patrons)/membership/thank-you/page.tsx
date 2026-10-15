@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { CircleCheck } from "lucide-react";
 import Link from "@/components/i18n/Link";
 import { buttonVariants } from "@/components/ui/button";
@@ -7,20 +6,18 @@ import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { getPatronSettings } from "@/features/membership/queries";
 import { parseDonation } from "@/features/membership/schema";
 import { formatEuro } from "@/lib/format";
+import { privateMetadata } from "@/lib/seo/metadata";
 import { routes } from "@/config/routes";
 
-type Props = {
-  params: Promise<{ locale: string }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-};
-
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const t = (await getMessagesFor(await localeFrom(params))).patrons.thankYou;
-  return { title: t.title, robots: { index: false, follow: false } };
+export async function generateMetadata({ params }: PageProps<"/[locale]/membership/thank-you">) {
+  return privateMetadata((await getMessagesFor(await localeFrom(params))).patrons.thankYou.title);
 }
 
 /** After the (demo) payment. The amount line is shown only for a valid donation. */
-export default async function ThankYouPage({ params, searchParams }: Props) {
+export default async function ThankYouPage({
+  params,
+  searchParams,
+}: PageProps<"/[locale]/membership/thank-you">) {
   const locale = await localeFrom(params);
   const messages = await getMessagesFor(locale);
   const t = messages.patrons.thankYou;

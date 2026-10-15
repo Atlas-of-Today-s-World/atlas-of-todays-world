@@ -11,11 +11,7 @@ import { redirectOrNotFound } from "@/features/redirects/queries";
  */
 export const dynamic = "force-dynamic";
 
-export default async function UnknownPath({
-  params,
-}: {
-  params: Promise<{ locale: string; path: string[] }>;
-}) {
+export default async function UnknownPath({ params }: PageProps<"/[locale]/[...path]">) {
   const { path } = await params;
   return redirectOrNotFound(`/${path.join("/")}`, await localeFrom(params));
 }

@@ -11,14 +11,7 @@ import { format } from "@/features/i18n/messages";
 import { getMessagesFor, getRequestLocale, getT, localeFrom } from "@/features/i18n/request";
 import { formatValue } from "@/lib/indicators";
 import { pageMetadata, pageTitle } from "@/lib/seo/metadata";
-import {
-  breadcrumbNode,
-  datasetNode,
-  graph,
-  homeCrumb,
-  pageUrl,
-  webPageNode,
-} from "@/lib/seo/jsonld";
+import { breadcrumbNode, datasetNode, graph, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { JsonLd } from "@/components/JsonLd";
 import { routes } from "@/config/routes";
 
@@ -33,9 +26,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({
   params,
-}: {
-  params: Promise<{ locale: string; indicator: string }>;
-}): Promise<Metadata> {
+}: PageProps<"/[locale]/view/[indicator]">): Promise<Metadata> {
   const { indicator: id } = await params;
   const locale = await localeFrom(params);
   const t = (await getMessagesFor(locale)).view;
@@ -63,9 +54,7 @@ export async function generateMetadata({
 
 export default async function IndicatorViewPage({
   params,
-}: {
-  params: Promise<{ locale: string; indicator: string }>;
-}) {
+}: PageProps<"/[locale]/view/[indicator]">) {
   const { indicator: id } = await params;
   const locale = await localeFrom(params);
   const [atlas, indicator] = await Promise.all([getAtlas(locale), getIndicator(id)]);
@@ -157,7 +146,8 @@ export default async function IndicatorViewPage({
             locale,
             about: `${pageUrl(routes.view(indicator.id), locale)}#dataset`,
             breadcrumb: breadcrumbNode(
-              [homeCrumb(site), { name: indicator.label, path: routes.view(indicator.id) }],
+              site,
+              [{ name: indicator.label, path: routes.view(indicator.id) }],
               locale,
             ),
           }),

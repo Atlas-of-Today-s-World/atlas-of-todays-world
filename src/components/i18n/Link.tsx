@@ -11,7 +11,7 @@ const UNLOCALIZED = /^\/(admin|api|auth)(\/|$)/;
 
 /**
  * `next/link` for the public site: an internal path gets the page's language
- * prefix (`/country/x` → `/cs/country/x`), so components write links
+ * prefix, if any (`/country/x` → `/<code>/country/x`), so components write links
  * just once, regardless of language.
  *
  * `prefetchOnIntent`: no prefetch when the link scrolls into view, only once the

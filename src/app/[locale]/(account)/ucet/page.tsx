@@ -1,27 +1,20 @@
-import type { Metadata } from "next";
 import Link from "@/components/i18n/Link";
 import { redirect } from "next/navigation";
 import { getAccess, isStaff } from "@/features/auth/access";
 import { localePath } from "@/features/i18n/config";
 import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import { privateMetadata } from "@/lib/seo/metadata";
 import DeleteAccount from "./DeleteAccount";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { adminRoutes, routes } from "@/config/routes";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
-  return {
-    title: (await getMessagesFor(await localeFrom(params))).account.title,
-    robots: { index: false, follow: false },
-  };
+export async function generateMetadata({ params }: PageProps<"/[locale]/ucet">) {
+  return privateMetadata((await getMessagesFor(await localeFrom(params))).account.title);
 }
 
-export default async function AccountPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function AccountPage({ params }: PageProps<"/[locale]/ucet">) {
   const locale = await localeFrom(params);
   const t = (await getMessagesFor(locale)).account;
   const access = await getAccess();

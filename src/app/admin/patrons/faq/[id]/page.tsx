@@ -13,10 +13,7 @@ export const metadata: Metadata = { title: "Membership FAQ question" };
 export default async function PatronFaqPage({
   params,
   searchParams,
-}: {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<{ saved?: string }>;
-}) {
+}: PageProps<"/admin/patrons/faq/[id]">) {
   const access = await getAccess();
   if (!access || !patronRight(access.permissions, "v")) return <NoAccess />;
   const { id } = await params;

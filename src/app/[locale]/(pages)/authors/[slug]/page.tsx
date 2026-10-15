@@ -9,6 +9,7 @@ import { getArticlesByAuthor } from "@/features/entries/queries";
 import { format } from "@/features/i18n/messages";
 import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { redirectOrNotFound } from "@/features/redirects/queries";
+import { categoryLabel } from "@/lib/content-types";
 import { formatLongDate } from "@/lib/format";
 import { cssBackgroundImage } from "@/lib/security/urls";
 import { PHOTO_WIDTH } from "@/lib/images";
@@ -16,7 +17,6 @@ import { pageMetadata } from "@/lib/seo/metadata";
 import {
   breadcrumbNode,
   graph,
-  homeCrumb,
   ids,
   itemListNode,
   pageUrl,
@@ -24,12 +24,6 @@ import {
   webPageNode,
 } from "@/lib/seo/jsonld";
 import { routes } from "@/config/routes";
-
-/**
- * Public author profile (G8): who writes the Atlas and from what position,
- * with all their articles — the page bylines and Person structured data link to.
- */
-type Params = { params: Promise<{ locale: string; slug: string }> };
 
 export const dynamicParams = true;
 
@@ -45,7 +39,9 @@ async function articlesOf(slug: string) {
   }));
 }
 
-export async function generateMetadata({ params }: Params): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/authors/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const locale = await localeFrom(params);
   const author = await getAuthorBySlug(slug);
@@ -64,7 +60,11 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   });
 }
 
-export default async function AuthorPage({ params }: Params) {
+/**
+ * Public author profile (G8): who writes the Atlas and from what position,
+ * with all their articles — the page bylines and Person structured data link to.
+ */
+export default async function AuthorPage({ params }: PageProps<"/[locale]/authors/[slug]">) {
   const { slug } = await params;
   const locale = await localeFrom(params);
   const author = await getAuthorBySlug(slug);
@@ -119,7 +119,7 @@ export default async function AuthorPage({ params }: Params) {
                   {item.title}
                 </Link>
                 <span className="mt-1 block text-[12.5px] text-[var(--color-ink-muted)]">
-                  {messages.categories[item.category]}
+                  {categoryLabel(item.category, messages)}
                   {item.published ? (
                     <>
                       {" · "}
@@ -147,8 +147,8 @@ export default async function AuthorPage({ params }: Params) {
             type: "ProfilePage",
             about: ids.author(slug),
             breadcrumb: breadcrumbNode(
+              site,
               [
-                homeCrumb(site),
                 { name: messages.about.title, path: routes.about },
                 { name: author.name, path: routes.author(slug) },
               ],
@@ -160,7 +160,9 @@ export default async function AuthorPage({ params }: Params) {
             name: author.name,
             description: author.bio,
             image: author.photo,
-            knowsAbout: [...new Set(articles.map((item) => messages.categories[item.category]))],
+            knowsAbout: [
+              ...new Set(articles.map((item) => categoryLabel(item.category, messages))),
+            ],
           }),
           articles.length
             ? itemListNode(

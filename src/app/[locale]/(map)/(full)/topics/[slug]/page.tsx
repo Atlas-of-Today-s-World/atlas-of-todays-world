@@ -6,14 +6,14 @@ import { getEncyclopediaEntry } from "@/features/entries/topic-queries";
 import { redirectOrNotFound } from "@/features/redirects/queries";
 import { countriesOf } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
-import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import { localeFrom } from "@/features/i18n/request";
+import { articleMetaOf } from "@/features/entries/article-meta";
 import { clampText, DESCRIPTION_MAX, pageMetadata, pageTitle } from "@/lib/seo/metadata";
 import {
   articleNode,
   breadcrumbNode,
   faqNode,
   graph,
-  homeCrumb,
   pageUrl,
   webPageNode,
 } from "@/lib/seo/jsonld";
@@ -35,9 +35,7 @@ const seoDescription = (item: { summary: string; summaryPoints: string[] }) =>
 
 export async function generateMetadata({
   params,
-}: {
-  params: Promise<{ locale: string; slug: string }>;
-}): Promise<Metadata> {
+}: PageProps<"/[locale]/topics/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const locale = await localeFrom(params);
   const item = await getEncyclopediaEntry(slug, locale);
@@ -49,7 +47,7 @@ export async function generateMetadata({
     title: pageTitle(item.seo.title ?? item.title),
     description: item.seo.description ?? seoDescription(item),
     authoredDescription: Boolean(item.seo.description),
-    // Without a translation /cs is a copy of the original — the canonical URL is the original's.
+    // Without a translation the page shows the original — the canonical URL is the original's.
     contentLocale: item.locale,
     languages: item.languages,
     image: item.seo.image,
@@ -59,20 +57,14 @@ export async function generateMetadata({
     markdown: true,
     keywords: item.seo.keywords,
     article: {
-      published: item.published,
-      modified: item.updated ?? item.published,
+      ...(await articleMetaOf(item)),
       authors: item.author ? [item.author] : undefined,
-      section: (await getMessagesFor(item.locale)).categories[item.category] ?? item.category,
       tags: item.seo.keywords,
     },
   });
 }
 
-export default async function EntryPage({
-  params,
-}: {
-  params: Promise<{ locale: string; slug: string }>;
-}) {
+export default async function EntryPage({ params }: PageProps<"/[locale]/topics/[slug]">) {
   const { slug } = await params;
   const locale = await localeFrom(params);
   const [item, atlas] = await Promise.all([getEncyclopediaEntry(slug, locale), getAtlas(locale)]);
@@ -81,8 +73,9 @@ export default async function EntryPage({
   if (!item) return redirectOrNotFound(routes.topic(slug), locale);
 
   const region = item.region ? atlas.regionBySlug.get(item.region) : undefined;
-  // Canonical URL: the language the text is in (an untranslated original under /cs points to it).
+  // Canonical URL: the language the text is in (an untranslated original points to it).
   const url = pageUrl(routes.topic(item.slug), item.locale);
+  const meta = await articleMetaOf(item);
   const words = wordCount([item.html, ...item.chapters.map((chapter) => chapter.html)].join(" "));
 
   return (
@@ -97,13 +90,13 @@ export default async function EntryPage({
             description: item.seo.description ?? seoDescription(item),
             locale: item.locale,
             image: item.seo.image ?? item.hero,
-            modified: item.updated ?? item.published,
+            modified: meta.modified,
             about: `${url}#article`,
             // GEO: the answer-first summary and key points are what an assistant should read out.
             speakable: ["#in-short", "#key-points"],
             breadcrumb: breadcrumbNode(
+              site,
               [
-                homeCrumb(site),
                 ...(region ? [{ name: region.name, path: routes.region(region.slug) }] : []),
                 { name: item.title, path: routes.topic(item.slug) },
               ],
@@ -124,8 +117,8 @@ export default async function EntryPage({
               item.hero,
               ...(item.seo.image || item.hero ? [] : [site.ogImage]),
             ],
-            published: item.published,
-            modified: item.updated ?? item.published,
+            published: meta.published,
+            modified: meta.modified,
             locale: item.locale,
             author: item.authorProfile
               ? {
@@ -137,7 +130,7 @@ export default async function EntryPage({
               : item.author
                 ? { name: item.author, slug: item.authorSlug }
                 : null,
-            section: (await getMessagesFor(item.locale)).categories[item.category] ?? item.category,
+            section: meta.section,
             keywords: item.seo.keywords,
             wordCount: words,
             about: countriesOf(atlas, item.countries),

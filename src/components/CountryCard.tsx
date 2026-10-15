@@ -10,6 +10,7 @@ import { formatPopulation } from "@/lib/format";
 import { PHOTO_WIDTH } from "@/lib/images";
 import { cssBackgroundImage } from "@/lib/security/urls";
 import { format } from "@/features/i18n/messages";
+import { categoryLabel } from "@/lib/content-types";
 import { MetricCards, SourceLink, StatGrid, StatIcon, StatItem } from "./atlas/ui";
 import { routes } from "@/config/routes";
 
@@ -222,7 +223,7 @@ export default async function CountryCard({
                   className="group block rounded-xl border border-[var(--color-line)] p-3 transition hover:border-[var(--color-accent)]"
                 >
                   <span className="text-[10.5px] tracking-wide text-[var(--color-ink-muted)] uppercase">
-                    {t.categories[item.category]}
+                    {categoryLabel(item.category, t)}
                   </span>
                   <span className="mt-0.5 block text-[13.5px] font-medium text-[var(--color-ink)] group-hover:text-[var(--color-accent)]">
                     {item.title}

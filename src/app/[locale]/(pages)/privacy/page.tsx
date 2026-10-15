@@ -1,8 +1,6 @@
 import { SitePage, sitePageMetadata } from "@/features/site-pages/components/SitePage";
 
-type Params = { params: Promise<{ locale: string }> };
-
-export function generateMetadata({ params }: Params) {
+export function generateMetadata({ params }: PageProps<"/[locale]/privacy">) {
   return sitePageMetadata("privacy", params);
 }
 
@@ -11,6 +9,6 @@ export function generateMetadata({ params }: Params) {
  * built-in version in features/site-pages/defaults.ts. Describes only what
  * the app actually does — update it when data processing changes.
  */
-export default function PrivacyPage({ params }: Params) {
+export default function PrivacyPage({ params }: PageProps<"/[locale]/privacy">) {
   return <SitePage slug="privacy" params={params} />;
 }

@@ -74,10 +74,7 @@ function DossierTabs({ id, current }: { id: string; current: Tab }) {
 export default async function EditEntryPage({
   params,
   searchParams,
-}: {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<{ saved?: string; tab?: string }>;
-}) {
+}: PageProps<"/admin/content/[id]">) {
   const access = await sectionAccess("news");
   if (!access) return <NoAccess />;
   const { id } = await params;

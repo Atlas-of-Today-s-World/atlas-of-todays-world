@@ -39,7 +39,7 @@ export async function redirectOrNotFound(
   const rule = matchRedirect(await getRedirectMap(), pathname);
   if (rule) {
     // The DB already restricts the target to a path on this site; safeRedirect is a second safety net.
-    // Target in the same language the visitor came in (/cs/old → /cs/new).
+    // Target in the same language the visitor came in (/<code>/old → /<code>/new).
     const target = safeRedirect(
       rule.to.startsWith("/") ? localePath(locale, rule.to) : rule.to,
       "",

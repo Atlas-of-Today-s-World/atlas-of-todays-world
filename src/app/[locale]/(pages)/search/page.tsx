@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { searchKindKey } from "@/lib/search-kind";
 import { headers } from "next/headers";
 import Link from "@/components/i18n/Link";
@@ -11,35 +10,18 @@ import { buttonVariants } from "@/components/ui/button";
 import { localePath } from "@/features/i18n/config";
 import { format } from "@/features/i18n/messages";
 import { getMessagesFor, localeFrom } from "@/features/i18n/request";
-import { pageMetadata } from "@/lib/seo/metadata";
+import { staticPageMetadata } from "@/lib/seo/metadata";
 import { routes } from "@/config/routes";
+
+// Result pages are thin and endless: out of the index, links still followed.
+export const generateMetadata = staticPageMetadata("searchPage", routes.search, { noindex: true });
 
 /**
  * Server-rendered results page. It exists because of SearchAction in structured
  * data (Google can offer a search box right in its results from it) and
  * for users without JavaScript. The results themselves are not indexed.
  */
-type Params = { params: Promise<{ locale: string }> };
-
-export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const locale = await localeFrom(params);
-  const t = (await getMessagesFor(locale)).searchPage;
-  // Result pages are thin and endless: out of the index, links still followed.
-  return pageMetadata({
-    locale,
-    path: routes.search,
-    title: t.title,
-    description: t.description,
-    noindex: true,
-  });
-}
-
-export default async function SearchPage({
-  params,
-  searchParams,
-}: Params & {
-  searchParams: Promise<{ q?: string | string[] }>;
-}) {
+export default async function SearchPage({ params, searchParams }: PageProps<"/[locale]/search">) {
   const locale = await localeFrom(params);
   const messages = await getMessagesFor(locale);
   const t = messages.searchPage;

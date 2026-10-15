@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import en from "@/messages/en.json";
-import { ENTRY_CATEGORIES, NEWS_CATEGORIES, entryCategory } from "./content-types";
+import { ENTRY_CATEGORIES, NEWS_CATEGORIES, categoryLabel, entryCategory } from "./content-types";
 
 describe("content categories", () => {
   it("are exactly the DB CHECK on entries.category, in display order", () => {
@@ -39,5 +39,13 @@ describe("content categories", () => {
   it("have a label for every category and group", () => {
     for (const key of [...NEWS_CATEGORIES, ...ENTRY_CATEGORIES])
       expect(en.categories[key]).toBeTruthy();
+  });
+});
+
+describe("categoryLabel", () => {
+  it("reads the label from the UI texts; an unknown key shows as itself", () => {
+    expect(categoryLabel("Political System", en)).toBe(en.categories["Political System"]);
+    expect(categoryLabel("Unknown", en)).toBe("Unknown");
+    expect(categoryLabel("toString", en)).toBe("toString");
   });
 });

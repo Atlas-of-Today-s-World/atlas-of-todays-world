@@ -1,19 +1,22 @@
 ---
 name: atlas-architektura
-description: Architektura a závazné postupové standardy projektu Atlas of Today's World (Next.js 15 + Supabase + Vercel). Použij VŽDY před návrhem nebo změnou kódu, databáze (migrace, RLS, funkce), přihlašování a oprávnění, administrace, testů, CI/CD nebo bezpečnosti v tomto repozitáři, a při review PR.
+description: Architektura a závazné postupové standardy projektu Atlas of Today's World (Next.js 16 + Supabase + Vercel). Použij VŽDY před návrhem nebo změnou kódu, databáze (migrace, RLS, funkce), přihlašování a oprávnění, administrace, testů, CI/CD nebo bezpečnosti v tomto repozitáři, a při review PR.
 ---
 
 # Atlas of Today's World — architektura a standardy
 
 Úplný dokument: `ARCHITEKTURA.md` v kořeni repa je rejstřík; kapitoly jsou v `docs/architecture/` (přečti relevantní kapitolu před prací, aktuální stav a dluh v `docs/architecture/analyza-2026-10.md`).
 Neveřejné konkrétní nálezy: `docs/architektura-nalezy.md` (SEC-xx, DB-xx) — složka `docs/` je
-v `.gitignore` a repo je **veřejné**: nikdy necommituj `docs/`, tajné údaje ani popisy zranitelností.
+v `.gitignore` (verzuje se jen `docs/architecture/`) a repo je **veřejné**: nic dalšího z `docs/`,
+tajné údaje ani popisy zranitelností nikdy necommituj.
 
 ## Kontext v kostce
 
 - **Web je jen v angličtině** (ADR-022): žádný `cs.json`, přepínač jazyka ani `/cs` adresy (ty přesměrují na angličtinu). Texty UI dál z `messages/en.json`. Nový jazyk jen na výslovné přání vlastníka.
 - **Téma (topic) = heslo `kind='entry'`** s vlastními dlaždicemi ze šablony (`topic_templates`, ADR-024); počty témat na mapě počítá `features/topics/map-counts.ts`. Sdílené dlaždice `entry_id is null` jsou jen pro staré `resources.kind`, nečti je.
-- Next.js 15 App Router, React 19, TS strict, Tailwind 4, MapLibre (globus v layoutu `(map)`, nepřemontovává se).
+- Next.js 16 App Router, React 19, TS strict, Tailwind 4, MapLibre (globus v layoutu `(map)`, nepřemontovává se).
+  Props stránek a layoutů přes globální `PageProps<"/[locale]/…">` / `LayoutProps<"/[locale]">` (generuje
+  `next typegen`, který spouští `npm run typecheck`); route groups `(pages)`, `(map)`… mají `LayoutProps<"/[locale]">`.
 - Supabase (Frankfurt): Postgres 17, 30 tabulek, RLS všude, role × sekce × `vced`, workflow
   `planned → draft → pending → published` jen přes RPC (`submit_entry`, `approve_entry`, `send_back_entry`, `unpublish_entry`).
 - Vercel Hobby (nasazení jen z GitHub Actions přes token), GitHub veřejné repo `Atlas-of-Today-s-World/atlas-of-todays-world`.
@@ -21,7 +24,9 @@ v `.gitignore` a repo je **veřejné**: nikdy necommituj `docs/`, tajné údaje 
 - **Čtenáři** se registrují sami → role `reader`, bez přístupu do administrace.
 - **Interní tým jen na pozvánku** (`invitations`): admin určí roli a schvalování; přijetí `claim_invitation()`
   jen pro **ověřený** e-mail shodný s pozvánkou (odkaz nenese tajemství). Role a práva se mění v sekcích
-  Účty / Role a práva. Administrace se nezamyká 404, ale přihlášením (čtenář → 403 „Nemáte přístup“).
+  Účty / Role a práva. Administrace se nezamyká 404, ale přihlášením: bez přihlášení přesměrování na
+  `/login`, čtenář bez týmové role (a sekce bez práva `v`) dostane `<NoAccess />` / „No access“ s **HTTP 200** —
+  žádné `forbidden()` ani `experimental.authInterrupts` (zdynamizovaly by i veřejné stránky, PR #189).
 
 ## Nepřekročitelná pravidla
 
@@ -31,11 +36,17 @@ v `.gitignore` a repo je **veřejné**: nikdy necommituj `docs/`, tajné údaje 
    Nic citlivého s prefixem `NEXT_PUBLIC_`.
 3. **Na serveru identita vždy `supabase.auth.getUser()`**, nikdy jen `getSession()`.
 4. **Mutace = Server Action** ve `features/<doména>/actions.ts`: Zod → getUser → sanitizace → zápis (RLS) →
-   `mapDbError` → `revalidateTag` (tagy z `lib/cache/tags.ts`). Stav obsahu nikdy přímým UPDATE, jen RPC.
+   `mapDbError` → `updateTag(tag)` (tagy z `lib/cache/tags.ts`, read-your-writes) + `revalidatePath(adminRoutes.…)`
+   pro admin obrazovky; `revalidateTag` nepoužívej. Stav obsahu nikdy přímým UPDATE, jen RPC.
 5. **Validace:** Zod na každé hranici; limity shodné s DB `CHECK`.
 6. **HTML:** jen přes jedinou allowlist v `lib/security/sanitize.ts`, při uložení i vykreslení (`<SafeHtml>`).
    URL do `href/src/style` jen přes `safeUrl()`; `next`/redirect jen přes `safeRedirect()`.
-7. **Veřejné stránky** statické/ISR s cache tagy; nikdy `force-dynamic` na veřejném obsahu. Admin `force-dynamic` + `noindex`.
+7. **Veřejné stránky** statické/ISR s cache tagy; nikdy `force-dynamic` na veřejném obsahu. Admin `force-dynamic` + `noindex`
+   (`privateMetadata()`). **Veřejné cesty nikdy nečtou `cookies()` ani `headers()`** — ani ve sdíleném layoutu,
+   `generateMetadata` nebo helperu, který volají (texty přes `getMessagesFor`/`getT`, nastavení přes `getSiteSettings`,
+   oboje cache bez cookies). CI to hlídá: job „Build, smoke a e2e“ po buildu spustí
+   `scripts/check-static-routes.mjs` a selže, když klíčové veřejné trasy (home, about, topics, countries, portréty,
+   news, view) přestanou být prerenderované.
 8. **CSP s nonce**, bez `unsafe-eval`; nová externí služba = úprava `lib/security/csp.ts` + test.
 9. **Rate limit** ve sdíleném úložišti (Postgres `rate_limits`), nikdy v paměti procesu.
 10. **Žádné zápisy do filesystému** za běhu (Vercel je read-only).
@@ -45,20 +56,49 @@ v `.gitignore` a repo je **veřejné**: nikdy necommituj `docs/`, tajné údaje 
 Každý vizuální vzor, konstanta a datová definice existuje **právě jednou**. Postup u každé UI změny:
 
 1. **Nejdřív hledej**, v tomto pořadí: tokeny (`globals.css` `@theme`, `config/layout.ts`) → primitiva
-   `components/ui/` (shadcn) → vzory `components/atlas/` (`Rail`, `Section`, `MetricCard`, `EmptySection`,
-   `SafeHtml`…) → doménové bloky (`components/portrait/`, `features/*/components/`). Hledej podle názvu i tříd.
+   `components/ui/` (shadcn: `Button`/`buttonVariants`, `Badge`, `Dialog`, `Popover`, `FormField`…) → vzory
+   `components/atlas/` (`Rail`, `Breadcrumbs`, `EmptyNote`/`Lead`, `SectionLabel`, `MetricCards`, `StatGrid`, `SourceLink`,
+   `PhotoCard`, `Accordion`, `RouteError`, `SafeHtml`…) → doménové bloky (`components/portrait/`, `features/*/components/`). Hledej podle názvu i tříd.
 2. **Podobné existuje → přidej variantu** (`cva`: `variant`/`size`/`tone`), nekopíruj. Nová komponenta jen
    když nic podobného není — a rovnou na správnou úroveň, sdílenou.
 3. **Žádná magická čísla**: šířky panelu, breakpointy, z-indexy, 44 px cíle jen z tokenů / `config/layout.ts`.
-4. **Jedna datová definice**: menu z `getNavigation()` (tabulka `nav_items`, Administrace → Site menus; záloha a účet v `config/navigation.ts`); kategorie, sekce, typy z DB typů nebo jednoho `const`.
+4. **Jedna datová definice**: menu z `getNavigation()` (tabulka `nav_items`, Administrace → Site menus; záloha a účet v `config/navigation.ts`); kategorie, sekce, typy z DB typů nebo jednoho `const`; URL jen z `routes.*` / `adminRoutes.*` (`config/routes.ts`).
 5. **Stejná data = stejná komponenta**: region i global issue → `Portrait`; všechny karusely → `Rail`;
-   formuláře → `FormField` + Zod + `useActionState`; tabulky → `DataTable` (skill `atlas-datatable`, vždy s akcemi v řádku); ikony → `lucide-react`;
-   volání serveru z klienta → Server Action nebo `apiFetch()`, nikdy ruční `fetch` v komponentě.
+   formuláře → `FormField` + Zod + `useServerAction`; tabulky → `DataTable` (skill `atlas-datatable`, vždy s akcemi v řádku); ikony → `lucide-react`;
+   volání serveru z klienta → Server Action nebo `apiFetch()` (`lib/api-fetch.ts`), nikdy ruční `fetch` v komponentě.
 6. **Při úpravě souboru s duplicitou z tabulky D1–D8** (ARCHITEKTURA 15.3) ji v témže PR odstraň nebo
    zapiš, proč ne. Nezaváděj nové výskyty.
-7. CI hlídá: `jscpd` (≤ 1 %, blok < 30 ř.), `knip` (0 nepoužitých exportů), ESLint zákazy
-   (`dangerouslySetInnerHTML` mimo `SafeHtml`, `fetch(` v `components/`, `@supabase/supabase-js` mimo `lib/supabase`).
+7. CI hlídá: `jscpd` (`.jscpd.json`: `src/` bez testů, `src/content`, `src/data`; klon = ≥ 10 řádků a ≥ 70 tokenů,
+   práh 1 %), `knip` (0 nepoužitých souborů, exportů a závislostí), ESLint zákazy (`eslint.config.mjs`):
+   `dangerouslySetInnerHTML` mimo `SafeHtml`/`JsonLd`/`PrePaintScript`; ručně skládané veřejné URL
+   (`` `/country/${…}` ``, `/region/`, `/news/`, `/topics/`… → `routes.*`); ručně psané `"/admin…"` (→ `adminRoutes.*`;
+   řetězec v typu jako `PageProps<"/admin/…">` smí); `fetch` v `src/components` a `features/*/components`
+   (→ `apiFetch()`); `@supabase/supabase-js` mimo `lib/supabase` (typy smí);
+   `eslint-plugin-security` a pravidla React Compileru.
    Každý sdílený díl má story ve Storybooku.
+
+## Sdílené helpery (použij, nepiš znovu)
+
+- **DB čtení:** `must(result, scope)` / `rowsOf(result, scope)` (`lib/db/result.ts`) — chyba vyhodí `[scope] …`.
+- **Server Actions:** `formAction(schema, handler)`, `idAction(handler)`, `affected(result, message)`, `failed`,
+  `signedIn` (`lib/actions.ts`); klient `useServerAction` / `useAddForm` / `ActionForm` (`components/ui/action-form.tsx`).
+- **Řádkové akce DataTable:** `editAction`, `openAction`, `deleteAction`, `confirmAction`, `visibilityAction`,
+  `moveActions(up, down, { first, last })`, `noteAction` (`components/data-table/row-actions.ts`).
+- **URL:** `routes.*` a `adminRoutes.*` (`config/routes.ts`). **Klient → naše API:** `apiFetch()` (`lib/api-fetch.ts`).
+- **Texty a nastavení:** `getT()` / `getMessagesFor(locale)` (`features/i18n/request.ts`, async, s úpravami z UI texts),
+  `localeFrom(params)`; `getSiteSettings()` (`features/site/queries.ts`).
+- **SEO:** `pageMetadata`, `staticPageMetadata(section, path)` pro indexové stránky z UI textů, `privateMetadata(title)`
+  pro neindexované (`lib/seo/metadata.ts`); `breadcrumbNode(site, crumbs, locale)` přidá úvodní drobek webu sám
+  (`lib/seo/jsonld.ts`); `articleMetaOf(item)` (`features/entries/article-meta.ts`) pro data a sekci článku;
+  `categoryLabel(category, t)` (`lib/content-types.ts`) pro popisek kategorie.
+- **Rámy stránek:** `PagesFrame` (skupiny `(pages)`, `(patrons)`, `(account)`), `PagesShell`, `FullPage`.
+
+## Administrace obsahu webu (sekce `site`)
+
+Tým mění obsah webu bez nasazení v Administraci: **Site pages** (About, Privacy, Terms, Accessibility),
+**Site settings** (název, přípona titulku, OG obrázek, kontakty, sociální sítě), **UI texts** (přepis
+`en.json`), **Site menus** (`nav_items`), **Home page** a **URL redirects** (i `news`), **Switches & maintenance**
+(i `permissions`), **Patron settings** (i `members`). Data mají cache tagy; zápis = `updateTag`.
 
 ## Co má mít správná webová aplikace (ARCHITEKTURA kap. 16)
 
@@ -106,7 +146,8 @@ po dokončení zaškrtni úkol a doplň odkaz na PR.
 
 | Příkaz | Kdy |
 |---|---|
-| `npm run typecheck && npm run lint && npm test` | každá změna |
+| `npm run typecheck && npm run lint && npm test` (typecheck = `next typegen` + `tsc`) | každá změna |
+| `npx knip && npx jscpd` | každá změna (běží ve `full-tests.yml`) |
 | `npm run test:db` (PGlite, bez Dockeru) | změna DB, RLS, seedu |
 | `npx playwright test` (po `npm run build`) | změna UI toků |
 | `npm run test:smoke` (`BASE_URL=…`) | po nasazení |
@@ -140,7 +181,8 @@ Oprava chyby začíná testem, který ji reprodukuje. Server Action = unit test 
   přihlášené účty v shellu nepoužívej a globální přihlášení neměň. Token nikdy nevypisuj.
 - **Paralelní session:** na plánu pracuje víc session najednou. Před větší změnou se domluv (vlastnictví souborů,
   čísla migrací, pořadí slučování); jeden úkol = jedna větev = jeden PR, žádné společné rozpracované soubory.
-- **Komentáře a názvy testů anglicky**, texty UI administrace anglicky, veřejný web přes `src/messages/{en,cs}.json`.
+- **Komentáře a názvy testů anglicky**, texty UI administrace anglicky, veřejný web přes `src/messages/en.json`
+  (jediný jazyk, ADR-022).
 - **Migrace a atlas-dev:** e2e v CI běží proti `atlas-dev`; novou migraci aplikuj na `atlas-dev` dřív, než na ni
   spoléháš v e2e (ověř project-ref = dev).
 - **Tajné údaje** jen v GitHub Secrets / `.env*.local` (gitignored); repo je veřejné.

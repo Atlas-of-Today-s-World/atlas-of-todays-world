@@ -1,5 +1,4 @@
 import { getSiteSettings } from "@/features/site/queries";
-import type { Metadata } from "next";
 import { preload } from "react-dom";
 import { PHOTO_WIDTH, photoUrl } from "@/lib/images";
 import { safeUrl } from "@/lib/security/urls";
@@ -8,32 +7,14 @@ import { getAtlas } from "@/features/geography/queries";
 import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { TopicsBrowser } from "@/features/topics/components/TopicsBrowser";
 import { topicIndex } from "@/features/topics/related";
-import { pageMetadata } from "@/lib/seo/metadata";
-import {
-  breadcrumbNode,
-  graph,
-  homeCrumb,
-  itemListNode,
-  pageUrl,
-  webPageNode,
-} from "@/lib/seo/jsonld";
+import { staticPageMetadata } from "@/lib/seo/metadata";
+import { breadcrumbNode, graph, itemListNode, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { routes } from "@/config/routes";
 
-type Params = { params: Promise<{ locale: string }> };
-
-export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const locale = await localeFrom(params);
-  const t = (await getMessagesFor(locale)).topics;
-  return pageMetadata({
-    locale,
-    path: routes.topics,
-    title: t.metaTitle,
-    description: t.description,
-  });
-}
+export const generateMetadata = staticPageMetadata("topics", routes.topics);
 
 /** Topics: every encyclopedia dossier as a photo card, full width over the map. */
-export default async function TopicsPage({ params }: Params) {
+export default async function TopicsPage({ params }: PageProps<"/[locale]/topics">) {
   const locale = await localeFrom(params);
   const t = (await getMessagesFor(locale)).topics;
   const atlas = await getAtlas(locale);
@@ -93,10 +74,7 @@ export default async function TopicsPage({ params }: Params) {
             description: t.description,
             locale,
             type: "CollectionPage",
-            breadcrumb: breadcrumbNode(
-              [homeCrumb(site), { name: t.title, path: routes.topics }],
-              locale,
-            ),
+            breadcrumb: breadcrumbNode(site, [{ name: t.title, path: routes.topics }], locale),
           }),
           itemListNode(
             t.title,

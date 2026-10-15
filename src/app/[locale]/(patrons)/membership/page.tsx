@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { ArrowRight, Mail, PenLine } from "lucide-react";
 import { DevelogiCredit } from "@/components/DevelogiCredit";
 import Link from "@/components/i18n/Link";
@@ -28,34 +27,16 @@ import { cn } from "@/lib/cn";
 import { formatEuro, formatNumber, formatPercent } from "@/lib/format";
 import { JsonLd } from "@/components/JsonLd";
 import { getSiteSettings } from "@/features/site/queries";
-import { pageMetadata } from "@/lib/seo/metadata";
-import {
-  breadcrumbNode,
-  faqNode,
-  graph,
-  homeCrumb,
-  ids,
-  pageUrl,
-  webPageNode,
-} from "@/lib/seo/jsonld";
+import { staticPageMetadata } from "@/lib/seo/metadata";
+import { breadcrumbNode, faqNode, graph, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { routes } from "@/config/routes";
-
-type Params = { params: Promise<{ locale: string }> };
 
 /** Id of the bottom donation card ("Donate and Join" in the hero scrolls there). */
 const JOIN_ID = "join";
 
-export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const locale = await localeFrom(params);
-  const t = (await getMessagesFor(locale)).patrons;
-  return pageMetadata({
-    locale,
-    path: routes.membership,
-    title: t.title,
-    description: t.description,
-    ownImage: true,
-  });
-}
+export const generateMetadata = staticPageMetadata("patrons", routes.membership, {
+  ownImage: true,
+});
 
 /** The original site's faint world map, self-hosted (public/brand). */
 function WorldMap({ className }: { className?: string }) {
@@ -249,7 +230,7 @@ function GoalProgress({
  * amounts, the goal, its progress and the FAQ come from the database (cached
  * under tags.patrons, edited in /admin/patrons).
  */
-export default async function MembershipPage({ params }: Params) {
+export default async function MembershipPage({ params }: PageProps<"/[locale]/membership">) {
   const locale = await localeFrom(params);
   const t = (await getMessagesFor(locale)).patrons;
   const [stats, flags, settings, faq, site] = await Promise.all([
@@ -389,7 +370,8 @@ export default async function MembershipPage({ params }: Params) {
               locale,
               about: ids.organization,
               breadcrumb: breadcrumbNode(
-                [homeCrumb(site), { name: t.title, path: routes.membership }],
+                site,
+                [{ name: t.title, path: routes.membership }],
                 locale,
               ),
             }),

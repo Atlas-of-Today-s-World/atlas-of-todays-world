@@ -1,5 +1,4 @@
 import { getSiteSettings } from "@/features/site/queries";
-import type { Metadata } from "next";
 import { ArrowRight, Check, HandHeart, Mail, PenLine } from "lucide-react";
 import Link from "@/components/i18n/Link";
 import { JsonLd } from "@/components/JsonLd";
@@ -7,22 +6,11 @@ import NewsletterForm from "@/components/NewsletterForm";
 import { getFlags } from "@/features/flags/queries";
 import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { VOLUNTEER_ID } from "@/features/membership/config";
-import { breadcrumbNode, graph, homeCrumb, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
-import { pageMetadata } from "@/lib/seo/metadata";
+import { breadcrumbNode, graph, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import { staticPageMetadata } from "@/lib/seo/metadata";
 import { routes } from "@/config/routes";
 
-type Params = { params: Promise<{ locale: string }> };
-
-export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const locale = await localeFrom(params);
-  const t = (await getMessagesFor(locale)).newsletterPage;
-  return pageMetadata({
-    locale,
-    path: routes.newsletter,
-    title: t.metaTitle,
-    description: t.description,
-  });
-}
+export const generateMetadata = staticPageMetadata("newsletterPage", routes.newsletter);
 
 /** Two ways to do more, as graphic cards under the sign-up. */
 const CARD =
@@ -32,7 +20,7 @@ const CARD =
  * Newsletter sign-up: what it brings, the form (Mailchimp, double opt-in) and
  * under it two graphic cards — support the Atlas, or write for it.
  */
-export default async function NewsletterPage({ params }: Params) {
+export default async function NewsletterPage({ params }: PageProps<"/[locale]/newsletter">) {
   const locale = await localeFrom(params);
   const t = (await getMessagesFor(locale)).newsletterPage;
   const flags = await getFlags();
@@ -124,10 +112,7 @@ export default async function NewsletterPage({ params }: Params) {
             description: t.description,
             locale,
             about: ids.organization,
-            breadcrumb: breadcrumbNode(
-              [homeCrumb(site), { name: t.title, path: routes.newsletter }],
-              locale,
-            ),
+            breadcrumb: breadcrumbNode(site, [{ name: t.title, path: routes.newsletter }], locale),
           }),
         )}
       />

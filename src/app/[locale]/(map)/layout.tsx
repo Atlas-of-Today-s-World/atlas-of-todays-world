@@ -83,13 +83,7 @@ function lookup(groups: (Region | GlobalIssue)[]): RegionLookup {
   };
 }
 
-export default async function MapLayout({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: Promise<{ locale: string }>;
-}) {
+export default async function MapLayout({ children, params }: LayoutProps<"/[locale]">) {
   const [atlas, flags, places, featured, socials, nav] = await Promise.all([
     getAtlas(await localeFrom(params)),
     getFlags(),

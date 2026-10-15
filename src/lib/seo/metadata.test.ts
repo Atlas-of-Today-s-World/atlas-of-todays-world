@@ -1,11 +1,25 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SITE_DEFAULTS, type SiteSettings } from "@/features/site/model";
 import { SITE_URL } from "@/lib/site";
+import en from "@/messages/en.json";
 
 const getSiteSettings = vi.hoisted(() => vi.fn());
 vi.mock("@/features/site/queries", () => ({ getSiteSettings }));
+// The UI texts without the team's overrides (no database in unit tests).
+vi.mock("@/features/i18n/request", () => ({
+  localeFrom: async () => "en",
+  getMessagesFor: async () => en,
+}));
 
-const { clampText, fullTitle, pageMetadata, pageTitle, TITLE_SUFFIX } = await import("./metadata");
+const {
+  clampText,
+  fullTitle,
+  pageMetadata,
+  pageTitle,
+  privateMetadata,
+  staticPageMetadata,
+  TITLE_SUFFIX,
+} = await import("./metadata");
 
 const SITE = SITE_URL.replace(/\/$/, "");
 
@@ -109,5 +123,45 @@ describe("pageMetadata", () => {
     });
     expect(meta.description).toBe(description.trim());
     expect(meta.robots).toMatchObject({ index: false, follow: true });
+  });
+});
+
+describe("privateMetadata", () => {
+  it("keeps the page out of the index without following its links", () => {
+    expect(privateMetadata("Sign in")).toEqual({
+      title: "Sign in",
+      robots: { index: false, follow: false },
+    });
+  });
+});
+
+describe("staticPageMetadata", () => {
+  beforeEach(() => {
+    getSiteSettings.mockReset().mockResolvedValue(SITE_DEFAULTS);
+  });
+
+  const params = Promise.resolve({ locale: "en" });
+
+  it("is the page metadata from the section's metaTitle, else its title", async () => {
+    const topics = await staticPageMetadata("topics", "/topics")({ params });
+    expect(topics).toEqual(
+      await pageMetadata({
+        locale: "en",
+        path: "/topics",
+        title: en.topics.metaTitle,
+        description: en.topics.description,
+      }),
+    );
+    const news = await staticPageMetadata("newsIndex", "/news")({ params });
+    expect(news.title).toBe(en.newsIndex.title);
+  });
+
+  it("passes noindex and ownImage on", async () => {
+    const search = await staticPageMetadata("searchPage", "/search", { noindex: true })({ params });
+    expect(search.robots).toMatchObject({ index: false, follow: true });
+    const membership = await staticPageMetadata("patrons", "/membership", { ownImage: true })({
+      params,
+    });
+    expect(membership.openGraph).not.toHaveProperty("images");
   });
 });
