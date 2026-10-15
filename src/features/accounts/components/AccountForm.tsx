@@ -5,6 +5,7 @@ import { ActionStatus } from "@/components/admin/ActionStatus";
 import { CountryPicker, type CountryOption } from "@/components/admin/CountryPicker";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { Checkbox, FormField, Select, Textarea } from "@/components/ui/field";
+import { AdminOnlyRolesNote } from "@/features/roles/components/AdminOnlyRolesNote";
 import { saveAccount } from "../actions";
 import { ActionForm, useServerAction } from "@/components/ui/action-form";
 
@@ -53,6 +54,7 @@ export function AccountForm({
           You can’t change your own role or status — ask another admin.
         </p>
       ) : null}
+      {!isAdmin ? <AdminOnlyRolesNote /> : null}
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField id="role_id" label="Role" hint={role?.note} errors={errors.role_id}>
           <Select

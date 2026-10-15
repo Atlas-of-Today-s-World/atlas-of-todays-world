@@ -275,12 +275,13 @@ export async function getEntryParts(id: string) {
 
 /**
  * What the signed-in editor may do with an article (asked in the database):
- * approve it, and edit it — a published article only by someone who may also
- * approve it. A failed check throws instead of quietly hiding the editor.
+ * approve it, edit it — a pending or published article only by someone who may
+ * also approve it — and withdraw it from review (anyone who edits it). A failed
+ * check throws instead of quietly hiding the editor.
  */
 export async function entryRights(
   entry: Pick<EditorialRow, "id" | "owner_id" | "status">,
-): Promise<{ canApprove: boolean; canEdit: boolean }> {
+): Promise<{ canApprove: boolean; canEdit: boolean; canWithdraw: boolean }> {
   const supabase = await createServerClient();
   const [approve, edit] = await Promise.all([
     supabase.rpc("can_approve_entry", { p_entry: entry.id }),
@@ -288,8 +289,10 @@ export async function entryRights(
     supabase.rpc("can_edit_entry", { p_owner: entry.owner_id as string }),
   ]);
   const canApprove = must(approve, "entries") === true;
-  const canEdit = must(edit, "entries") === true && (entry.status !== "published" || canApprove);
-  return { canApprove, canEdit };
+  const editsIt = must(edit, "entries") === true;
+  // Pending and published articles are changed only by someone who may approve them.
+  const canEdit = editsIt && (entry.status === "draft" || entry.status === "planned" || canApprove);
+  return { canApprove, canEdit, canWithdraw: editsIt };
 }
 
 /** Approval queue: pending articles this person may approve. */

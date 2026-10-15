@@ -65,15 +65,14 @@ export async function saveAccount(_prev: ActionState, formData: FormData): Promi
     .single();
   if (readError) return failed(readError);
 
+  // The kind of account (staff / reader) follows the role in the DB (guard_profiles).
   const update: {
     role_id: string;
-    kind: string;
     status: string;
     blocked_note: string | null;
     approval_global?: boolean;
   } = {
     role_id: fields.role_id,
-    kind: fields.role_id === "reader" ? "reader" : "staff",
     status: fields.status,
     blocked_note: fields.status === "blocked" ? (blocked_note ?? null) : null,
   };

@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { mapDbError } from "./errors";
 
@@ -24,6 +26,20 @@ describe("mapDbError", () => {
     expect(mapDbError({ code: "23514", message: "check constraint" })).toMatch(
       /doesn't meet the rules/,
     );
+  });
+
+  it("shows every workflow and role message of the hardening migration as written", () => {
+    const sql = readFileSync(
+      join(process.cwd(), "supabase/migrations/20261013000310_workflow_and_access_hardening.sql"),
+      "utf8",
+    );
+    const raised = [
+      ...sql.matchAll(
+        /raise exception '((?:[^']|'')+)' using errcode = '(42501|22023|23505|23503)'/g,
+      ),
+    ].map(([, message, code]) => ({ code, message: message!.replaceAll("''", "'") }));
+    expect(raised.length).toBeGreaterThan(10);
+    for (const error of raised) expect(mapDbError(error)).toBe(error.message);
   });
 
   it("only logs an unknown error and doesn't reveal details to the user", () => {

@@ -27,7 +27,7 @@ export default async function RolesPage() {
       <PageHeader
         icon={navIcon(adminRoutes.roles)}
         title="Roles & permissions"
-        lead="Who can do what in the administration. The database enforces everything — this is just where it's configured. You can't change your own role, and only an admin can grant account or permission management."
+        lead="Who can do what in the administration. The database enforces everything — this is just where it's configured. You can't change your own role, and only an admin creates, changes or gives a role that edits everyone's articles, approves articles, or manages accounts, members or permissions."
         actions={
           <>
             <Link

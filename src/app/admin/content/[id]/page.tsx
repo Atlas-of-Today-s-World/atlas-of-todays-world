@@ -86,16 +86,23 @@ export default async function EditEntryPage({
   if (!entry) notFound();
 
   const isEntry = entry.kind === "entry";
-  const [options, revisions, { canApprove, canEdit }, published, authors, parts, templates] =
-    await Promise.all([
-      getPickerOptions(),
-      listRevisions(id),
-      entryRights(entry),
-      entry.status === "pending" ? publishedVersion(id) : Promise.resolve(null),
-      listAuthors(),
-      isEntry ? getEntryParts(id) : Promise.resolve(null),
-      isEntry ? listTemplates() : Promise.resolve([]),
-    ]);
+  const [
+    options,
+    revisions,
+    { canApprove, canEdit, canWithdraw },
+    published,
+    authors,
+    parts,
+    templates,
+  ] = await Promise.all([
+    getPickerOptions(),
+    listRevisions(id),
+    entryRights(entry),
+    entry.status === "pending" ? publishedVersion(id) : Promise.resolve(null),
+    listAuthors(),
+    isEntry ? getEntryParts(id) : Promise.resolve(null),
+    isEntry ? listTemplates() : Promise.resolve([]),
+  ]);
   const { saved, tab: tabParam } = await searchParams;
   const tab: Tab =
     isEntry && TABS.some((item) => item.key === tabParam) ? (tabParam as Tab) : "article";
@@ -201,7 +208,9 @@ export default async function EditEntryPage({
             <p className="rounded-xl bg-[var(--color-line)]/30 p-4 text-[13.5px]">
               {entry.status === "published"
                 ? "A published article can only be edited by someone who may also approve it. Ask an article approver, or have it unpublished."
-                : "You can't edit this article."}
+                : entry.status === "pending"
+                  ? "This article is waiting for approval, so it can't be changed until an approver decides. To edit it again, withdraw it from review."
+                  : "You can't edit this article."}
             </p>
           )}
         </div>
@@ -225,6 +234,8 @@ export default async function EditEntryPage({
               id={entry.id}
               status={entry.status}
               canApprove={canApprove}
+              canWithdraw={canWithdraw}
+              updatedAt={entry.updated_at}
               canDelete={canEdit && can(access.permissions, "news", "d")}
               reviewNote={entry.review_note}
               publishAt={entry.publish_at}

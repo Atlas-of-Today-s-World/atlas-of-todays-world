@@ -508,6 +508,8 @@ const APP_RPCS = {
   apply_topic_template: ["authenticated"],
   save_topic_as_template: ["authenticated"],
   submit_entry: ["authenticated"],
+  withdraw_entry: ["authenticated"],
+  // approve_entry(uuid, timestamptz) since 20261013000310 (expected version).
   approve_entry: ["authenticated"],
   unpublish_entry: ["authenticated"],
   send_back_entry: ["authenticated"],
