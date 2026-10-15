@@ -3,7 +3,7 @@ import Link from "@/components/i18n/Link";
 import { RelatedTopics, TopicsLink } from "@/components/topics/RelatedTopics";
 import { NoTopicsCta } from "@/components/topics/NoTopicsCta";
 import type { EntrySummary } from "@/features/entries/types";
-import { NewsBadge, PhotoCredit, SectionLabel } from "@/components/atlas/ui";
+import { PhotoCredit, SectionLabel } from "@/components/atlas/ui";
 import type { RegionDossier } from "@/lib/content-types";
 import type { RegionStat } from "@/features/geography/region-stats";
 import { formatPopulation } from "@/lib/format";
@@ -75,7 +75,6 @@ function wordingFor(kind: PortraitPlace, t: Messages, groupKind?: GroupKind) {
  */
 export default async function Portrait({
   subject,
-  newsCount,
   dossier,
   stats,
   topics,
@@ -83,8 +82,6 @@ export default async function Portrait({
   subject: PortraitSubject;
   /** Topics about the region and the filtered Topics list. */
   topics?: { items: EntrySummary[]; href: string };
-  /** News published about the group (the count under a global issue's intro). */
-  newsCount: number;
   dossier: RegionDossier;
   stats: RegionStat[];
 }) {
@@ -138,11 +135,6 @@ export default async function Portrait({
         <p className="mt-3 text-[13.5px] leading-relaxed whitespace-pre-line text-[var(--color-ink-soft)]">
           {dossier.intro?.trim() || subject.summary}
         </p>
-        {subject.kind === "issue" ? (
-          <div className="mt-4">
-            <NewsBadge count={newsCount} />
-          </div>
-        ) : null}
         {/* The way to the place's topics comes first, above the counts. */}
         {topics ? (
           <>

@@ -129,6 +129,6 @@ describe("override validation", () => {
       UiTextInput.safeParse(input).error?.issues[0]?.path[0];
     expect(issue({ key: "home.unknown", value: "x" })).toBe("key");
     expect(issue({ key: "home.title", value: "<p>x</p>" })).toBe("value");
-    expect(issue({ key: "ui.newsOne", value: "news published" })).toBe("value");
+    expect(issue({ key: "ui.fromOrbit", value: "seen from orbit" })).toBe("value");
   });
 });
