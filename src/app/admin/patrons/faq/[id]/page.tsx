@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { forbidden, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
+import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { getAccess } from "@/features/auth/access";
 import { DeletePatronFaq, PatronFaqForm } from "@/features/membership/components/PatronFaqForm";
@@ -17,11 +18,11 @@ export default async function PatronFaqPage({
   searchParams: Promise<{ saved?: string }>;
 }) {
   const access = await getAccess();
-  if (!access || !patronRight(access.permissions, "v")) forbidden();
+  if (!access || !patronRight(access.permissions, "v")) return <NoAccess />;
   const { id } = await params;
 
   if (id === "new") {
-    if (!patronRight(access.permissions, "c")) forbidden();
+    if (!patronRight(access.permissions, "c")) return <NoAccess />;
     return (
       <>
         <PageHeader
@@ -36,7 +37,7 @@ export default async function PatronFaqPage({
   if (!uuid.safeParse(id).success) notFound();
   const item = await getPatronFaqItem(id);
   if (!item) notFound();
-  if (!patronRight(access.permissions, "e")) forbidden();
+  if (!patronRight(access.permissions, "e")) return <NoAccess />;
   const { saved } = await searchParams;
 
   return (

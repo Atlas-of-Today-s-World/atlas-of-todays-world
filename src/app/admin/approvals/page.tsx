@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { forbidden } from "next/navigation";
+import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
@@ -25,7 +25,7 @@ const WHO = [
  */
 export default async function ApprovalsPage() {
   const access = await sectionAccess("approvals");
-  if (!access) forbidden();
+  if (!access) return <NoAccess />;
   const canApprove = can(access.permissions, "approvals", "e");
   const queue = await approvalQueue();
 

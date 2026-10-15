@@ -161,7 +161,9 @@ test.describe("menu administrace", () => {
     await expect(page.getByTestId("admin-forbidden")).toBeVisible();
     await expect(page.getByRole("navigation", { name: "Administration" })).toHaveCount(0);
     const response = await page.goto("/admin/data/internet-users");
-    expect(response?.status()).toBe(403);
+    // The admin renders "No access" in the page (200): forbidden() needs
+    // experimental.authInterrupts, which makes every public page dynamic.
+    expect(response?.status()).toBe(200);
     expect(response?.headers()["x-robots-tag"]).toBe("noindex, nofollow");
     await expect(page.getByTestId("admin-forbidden")).toBeVisible();
   });
@@ -225,7 +227,7 @@ test.describe("direct URLs without the right", () => {
       await signInAs(page, role);
       for (const path of paths) {
         const response = await page.goto(path);
-        expect(response?.status(), path).toBe(403);
+        expect(response?.status(), path).toBe(200);
         await forbidden(page);
       }
     });

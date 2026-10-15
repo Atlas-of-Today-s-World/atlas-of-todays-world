@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { forbidden } from "next/navigation";
+import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
@@ -31,7 +31,7 @@ const PLANS = MEMBERSHIP_PLANS.map((plan) => ({
  */
 export default async function MembersPage() {
   const access = await sectionAccess("members");
-  if (!access) forbidden();
+  if (!access) return <NoAccess />;
   const canGrant = access.isAdmin && can(access.permissions, "members", "c");
   const canRevoke = access.isAdmin && can(access.permissions, "members", "d");
   const [members, grantable] = await Promise.all([

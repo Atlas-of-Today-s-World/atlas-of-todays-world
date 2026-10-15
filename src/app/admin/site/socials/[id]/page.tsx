@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { forbidden, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
+import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { navIcon } from "@/config/admin-nav";
 import { adminRoutes } from "@/config/routes";
@@ -15,7 +16,7 @@ export const metadata: Metadata = { title: "Social link" };
 /** Editing one social link (section `site`, "e"); new ones are added on /admin/site. */
 export default async function SocialLinkPage({ params }: { params: Promise<{ id: string }> }) {
   const access = await sectionAccess("site", "e");
-  if (!access) forbidden();
+  if (!access) return <NoAccess />;
   const { id } = await params;
   if (!SocialId.safeParse(id).success) notFound();
   const link = await getSocialLink(id);

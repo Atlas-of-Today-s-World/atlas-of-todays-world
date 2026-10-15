@@ -18,9 +18,6 @@ const nextConfig: NextConfig = {
   // Usage: NEXT_DIST_DIR=.next-build npx next build
   distDir: process.env.NEXT_DIST_DIR || ".next",
   env: { MAPLIBRE_VERSION },
-  // forbidden(): admin pages without permission answer 403 instead of 200
-  // (app/forbidden.tsx, app/admin/forbidden.tsx).
-  experimental: { authInterrupts: true },
   // Old URL shapes (renamed sections, the former Czech version, old admin
   // bookmarks) — one list in src/config/redirects.ts, also shown read-only in
   // the admin next to the redirects editors manage.

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { forbidden } from "next/navigation";
+import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
@@ -55,7 +55,7 @@ const DEFAULT_VALUES: SettingsValues = {
  */
 export default async function SiteSettingsPage() {
   const access = await sectionAccess("site");
-  if (!access) forbidden();
+  if (!access) return <NoAccess />;
   const [settings, links] = await Promise.all([getSettingsRecord(), listSocialLinks()]);
   const canCreate = can(access.permissions, "site", "c");
   const canEdit = can(access.permissions, "site", "e");

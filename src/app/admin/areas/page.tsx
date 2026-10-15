@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { forbidden } from "next/navigation";
+import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
@@ -16,7 +16,7 @@ export const metadata: Metadata = { title: "Custom map areas" };
 
 export default async function AreasPage() {
   const access = await sectionAccess("areas");
-  if (!access) forbidden();
+  if (!access) return <NoAccess />;
   const { areas, countryByIso3 } = await getAtlas();
   const canDelete = can(access.permissions, "areas", "d");
   // An area has no page of its own; one tied to a country is seen on that country's

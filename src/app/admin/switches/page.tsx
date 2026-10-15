@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { forbidden } from "next/navigation";
+import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { ReadOnly } from "@/components/admin/ReadOnly";
 import { DataTable } from "@/components/data-table/DataTable";
@@ -30,7 +30,7 @@ const STATE = [
  */
 export default async function SwitchesPage() {
   const access = await sectionAccess(["permissions", "site"]);
-  if (!access) forbidden();
+  if (!access) return <NoAccess />;
   const [flags, message] = await Promise.all([listFlags(), getMaintenanceMessage()]);
   const canSwitch = can(access.permissions, "permissions", "e");
   const canWord = can(access.permissions, "site", "e");

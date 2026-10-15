@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { forbidden } from "next/navigation";
+import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
@@ -32,7 +32,7 @@ export default async function RedirectsPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   const access = await sectionAccess(["news", "site"]);
-  if (!access) forbidden();
+  if (!access) return <NoAccess />;
   const { q } = await searchParams;
   const rows = await listRedirects(q);
   const canEdit = can(access.permissions, "news", "e") || can(access.permissions, "site", "e");

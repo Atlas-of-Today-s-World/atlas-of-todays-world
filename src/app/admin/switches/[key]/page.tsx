@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { forbidden, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
+import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { buttonVariants } from "@/components/ui/button";
 import { adminRoutes } from "@/config/routes";
@@ -14,7 +15,7 @@ export const metadata: Metadata = { title: "Switch note" };
 /** The note next to one switch (permissions "e", like the switch itself; RLS decides). */
 export default async function SwitchPage({ params }: { params: Promise<{ key: string }> }) {
   const access = await sectionAccess("permissions", "e");
-  if (!access) forbidden();
+  if (!access) return <NoAccess />;
   const { key } = await params;
   if (!FlagKey.safeParse(key).success) notFound();
   const flag = await getFlag(key);
