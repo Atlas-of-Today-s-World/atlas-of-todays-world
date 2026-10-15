@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { PGlite } from "@electric-sql/pglite";
 
 /**
- * Admin gaps (migration 20261013000290_admin_gaps): an author's URL change
+ * Admin gaps (migration 20261013000330_admin_gaps): an author's URL change
  * leaves a redirect behind, the link from an author profile to a team account
  * is set only by account managers (and audited), and roles are reordered in
  * one transaction by whoever may edit permissions.
