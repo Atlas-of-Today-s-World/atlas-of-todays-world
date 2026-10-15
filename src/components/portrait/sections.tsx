@@ -75,47 +75,6 @@ export function PortraitSection({
 }
 
 /**
- * The support call as a button in the patrons colour. The site is used for
- * fundraising first: wherever content is missing, this is what should catch the eye.
- */
-async function PatronsButton() {
-  const t = await getT();
-  return (
-    <Link
-      href={routes.membership}
-      className="inline-flex min-h-(--touch-min) items-center gap-1.5 rounded-full bg-[var(--color-patron)] px-4 text-[12.5px] font-semibold text-white shadow-sm transition hover:bg-[var(--color-patron-strong)] focus-visible:ring-2 focus-visible:ring-[var(--color-patron)] focus-visible:ring-offset-2 focus-visible:outline-none"
-    >
-      {t.portrait.patronsCta} →
-    </Link>
-  );
-}
-
-/**
- * The parts of a portrait the editors haven't written yet, together in one quiet
- * section at the end — instead of a grey placeholder for each (they read like a
- * page still loading and pushed the real content down).
- */
-export async function ComingSections({ items }: { items: { title: string; lead: string }[] }) {
-  const t = await getT();
-  if (!items.length) return null;
-  return (
-    <PortraitSection title={t.portrait.comingTitle} lead={t.portrait.comingLead} muted>
-      <ul className="mt-4 space-y-3">
-        {items.map((item) => (
-          <li key={item.title} className="text-[13px] leading-relaxed">
-            <span className="font-medium text-[var(--color-ink)]">{item.title}</span>
-            <span className="text-[var(--color-ink-muted)]"> — {item.lead}</span>
-          </li>
-        ))}
-      </ul>
-      <div className="mt-5">
-        <PatronsButton />
-      </div>
-    </PortraitSection>
-  );
-}
-
-/**
  * Six key indicators with source citations.
  *
  * When the editors entered custom indicators (key facts), they take precedence: they
