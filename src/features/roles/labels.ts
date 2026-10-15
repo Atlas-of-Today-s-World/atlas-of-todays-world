@@ -1,5 +1,5 @@
 // Role labels and code lists without Zod (the client PermissionMatrix and RoleForm import them too).
-import type { SECTIONS } from "@/features/auth/sections";
+import type { SECTIONS } from "@/config/sections";
 
 type SectionKey = (typeof SECTIONS)[number];
 

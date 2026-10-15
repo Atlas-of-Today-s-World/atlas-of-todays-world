@@ -10,7 +10,7 @@ import { ChaptersEditor } from "@/features/entries/components/ChaptersEditor";
 import { LearnMoreEditor } from "@/features/entries/components/LearnMoreEditor";
 import { SeoForm } from "@/features/entries/components/SeoForm";
 import { TemplateTools, TopicTilesForm } from "@/features/entries/components/TopicTileForms";
-import { DEFAULT_LOCALE, isLocale, localePath } from "@/features/i18n/config";
+import { DEFAULT_LOCALE, isLocale, localePath } from "@/lib/i18n/config";
 import { EditStamp } from "@/features/entries/components/EditStamp";
 import { EntryForm } from "@/features/entries/components/EntryForm";
 import { EntryWorkflow, RevisionList } from "@/features/entries/components/EntryWorkflow";

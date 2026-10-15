@@ -2,19 +2,12 @@ import "server-only";
 import { createServerClient } from "@/lib/supabase/server";
 import { ilikeAny } from "@/lib/db/filters";
 import { must } from "@/lib/db/result";
+import type { RedirectRow } from "./types";
 
 /**
  * Redirects — admin reads (layer: features/<domain>/editorial.ts). Under the session,
  * no cache; the public side reads them through redirects/queries.ts.
  */
-
-export interface RedirectRow {
-  id: string;
-  from_path: string;
-  to_path: string;
-  permanent: boolean;
-  created_at: string;
-}
 
 /** List of redirects for the admin (under the session, no cache). */
 export async function listRedirects(q?: string): Promise<RedirectRow[]> {

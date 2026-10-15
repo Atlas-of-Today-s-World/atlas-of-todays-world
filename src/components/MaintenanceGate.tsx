@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import ContentRail from "@/components/ContentRail";
 import { ErrorState } from "@/components/atlas/ErrorState";
-import { getT } from "@/features/i18n/request";
-import { getMaintenance } from "../queries";
+import { getT } from "@/lib/i18n/request";
+import { getMaintenance } from "@/features/flags/queries";
 
 /**
  * Maintenance mode for the public site: while feature_flags.maintenance is on,

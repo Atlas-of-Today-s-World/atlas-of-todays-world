@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { badgeNumbers, countTopics, type TopicPlace } from "./map-counts";
+import { badgeNumbers, countTopics } from "./map-counts";
+import type { TopicPlace } from "@/features/entries/types";
 
 const ALL = ["countries", "regions", "issues"] as const;
 const groups = {

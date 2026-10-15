@@ -10,7 +10,7 @@ import { getAccess, isStaff } from "@/features/auth/access";
 import { MfaGate } from "@/features/auth/components/MfaGate";
 import { mfaGate } from "@/features/auth/mfa";
 import { routes } from "@/config/routes";
-import { privateMetadata } from "@/lib/seo/metadata";
+import { privateMetadata } from "@/features/seo/metadata";
 
 export const dynamic = "force-dynamic";
 

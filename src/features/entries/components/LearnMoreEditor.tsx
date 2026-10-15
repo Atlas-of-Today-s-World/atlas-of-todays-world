@@ -8,12 +8,12 @@ import { ActionForm } from "@/components/ui/action-form";
 import { Button } from "@/components/ui/button";
 import { FormField, Input, Textarea } from "@/components/ui/field";
 import { IconAction } from "@/components/admin/IconAction";
-import type { ActionState } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 import { swap } from "@/lib/array";
 import { withPreviews } from "@/lib/previews/merge";
 import { saveLearnMore } from "../parts-actions";
 import { MAX_LINKS } from "../constants";
-import type { EditableLink, EditableTile } from "../editorial";
+import type { EditableLink, EditableTile } from "@/features/entries/types";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 
 const blankLink = (): EditableLink => ({

@@ -1,6 +1,6 @@
-import type { Locale } from "@/features/i18n/config";
+import type { Locale } from "@/lib/i18n/config";
 import { saturateMap } from "@/lib/color";
-import { colorMapFor, formatValue } from "@/lib/indicators";
+import { colorMapFor, formatValue } from "@/features/geography/indicators";
 import type { IndicatorData } from "./types";
 
 /**

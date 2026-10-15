@@ -1,10 +1,10 @@
 import { SafeHtml } from "@/components/atlas/SafeHtml";
 import Link from "@/components/i18n/Link";
 import type { Atlas } from "@/features/geography/types";
-import { getRequestLocale, getT } from "@/features/i18n/request";
-import { format } from "@/features/i18n/messages";
+import { getRequestLocale, getT } from "@/lib/i18n/request";
+import { format } from "@/lib/i18n/messages";
 import { formatLongDate } from "@/lib/format";
-import type { Entry } from "@/features/entries/queries";
+import type { Entry } from "@/features/entries/types";
 import { ArticleFrame, META_LINE, PlaceLinks } from "./ArticleFrame";
 import { routes } from "@/config/routes";
 

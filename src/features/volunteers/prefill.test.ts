@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { topicPrefill, volunteerHref } from "./prefill";
+import { volunteerHref } from "@/config/routes";
+import { topicPrefill } from "./prefill";
 
 describe("volunteer form prefill", () => {
   it("links to the form on the membership page with the place in the query", () => {

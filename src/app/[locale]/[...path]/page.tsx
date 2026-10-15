@@ -1,4 +1,4 @@
-import { localeFrom } from "@/features/i18n/request";
+import { localeFrom } from "@/lib/i18n/request";
 import { redirectOrNotFound } from "@/features/redirects/queries";
 
 /**

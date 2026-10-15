@@ -9,7 +9,7 @@ import { MapStage } from "@/components/map/MapStage";
 import { MapProvider } from "@/components/map/MapContext";
 import { MapLegend, type ViewOption } from "@/components/map/ViewSwitcher";
 import { FloatingActions } from "@/components/membership/FloatingActions";
-import { MaintenanceGate } from "@/features/flags/components/MaintenanceGate";
+import { MaintenanceGate } from "@/components/MaintenanceGate";
 import { getFlags } from "@/features/flags/queries";
 import { getNavigation } from "@/features/navigation/queries";
 import { getSocialLinks } from "@/features/site/queries";
@@ -17,11 +17,11 @@ import { regionColorMap } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
 import { getTopicPlaces } from "@/features/entries/queries";
 import { badgeNumbers, countTopics } from "@/features/topics/map-counts";
-import { format, type Messages } from "@/features/i18n/messages";
-import { getRequestLocale, getT, localeFrom } from "@/features/i18n/request";
+import { format, type Messages } from "@/lib/i18n/messages";
+import { getRequestLocale, getT, localeFrom } from "@/lib/i18n/request";
 import type { GlobalIssue, Indicator, Region } from "@/features/geography/types";
 import { saturate, saturateMap } from "@/lib/color";
-import { legendFor } from "@/lib/indicators";
+import { legendFor } from "@/features/geography/indicators";
 import { captchaEnabled } from "@/lib/security/turnstile";
 
 /** Options for the layer switcher – generated from imported indicators. */

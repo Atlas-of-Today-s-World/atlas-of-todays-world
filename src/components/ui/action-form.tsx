@@ -10,7 +10,7 @@ import {
   type FormHTMLAttributes,
   type Ref,
 } from "react";
-import type { ActionState } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 
 const Pending = createContext(false);
 

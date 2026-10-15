@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import type { ActionState } from "@/lib/actions";
+import type { ActionState } from "./action-state";
 
 /**
  * Field errors of a public form whose Server Action returns message codes

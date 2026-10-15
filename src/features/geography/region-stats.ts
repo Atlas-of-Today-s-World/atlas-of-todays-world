@@ -1,6 +1,6 @@
 import type { Country, IndicatorData } from "@/features/geography/types";
-import type { Locale } from "@/features/i18n/config";
-import { formatValue } from "@/lib/indicators";
+import type { Locale } from "@/lib/i18n/config";
+import { formatValue } from "@/features/geography/indicators";
 
 /**
  * Key indicators for the region portrait and global issue.

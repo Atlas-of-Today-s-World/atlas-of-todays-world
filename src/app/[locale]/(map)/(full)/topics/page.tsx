@@ -4,11 +4,11 @@ import { PHOTO_WIDTH, photoUrl } from "@/lib/images";
 import { safeUrl } from "@/lib/security/urls";
 import { JsonLd } from "@/components/JsonLd";
 import { getAtlas } from "@/features/geography/queries";
-import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
 import { TopicsBrowser } from "@/features/topics/components/TopicsBrowser";
 import { topicIndex } from "@/features/topics/related";
-import { staticPageMetadata } from "@/lib/seo/metadata";
-import { breadcrumbNode, graph, itemListNode, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import { staticPageMetadata } from "@/features/seo/metadata";
+import { breadcrumbNode, graph, itemListNode, pageUrl, webPageNode } from "@/features/seo/jsonld";
 import { routes } from "@/config/routes";
 
 export const generateMetadata = staticPageMetadata("topics", routes.topics);

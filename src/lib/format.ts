@@ -1,4 +1,4 @@
-import type { Locale } from "@/features/i18n/config";
+import type { Locale } from "@/lib/i18n/config";
 
 /**
  * Number and date formatting in the page language — the one place for

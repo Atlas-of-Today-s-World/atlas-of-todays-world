@@ -4,7 +4,7 @@
  * match — layout.test.ts enforces it.
  */
 
-import { splitLocale, withoutDefaultPrefix } from "@/features/i18n/config";
+import { splitLocale, withoutDefaultPrefix } from "@/lib/i18n/config";
 import { ROUTE_PREFIX, isAtOrUnder, routes } from "./routes";
 
 /** Right content panel: min(vw, rem). */

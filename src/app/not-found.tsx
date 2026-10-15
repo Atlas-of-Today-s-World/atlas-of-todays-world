@@ -1,6 +1,6 @@
 import { ErrorState } from "@/components/atlas/ErrorState";
 import { LazyCountryQuiz } from "@/features/quiz/LazyCountryQuiz";
-import { getT } from "@/features/i18n/request";
+import { getT } from "@/lib/i18n/request";
 
 /** 404 outside the map (pages without the globe, unknown URLs) — with the outline quiz as consolation. */
 export default async function NotFound() {

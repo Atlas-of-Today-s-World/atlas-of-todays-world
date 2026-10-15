@@ -1,12 +1,12 @@
 import { CircleCheck } from "lucide-react";
 import Link from "@/components/i18n/Link";
 import { buttonVariants } from "@/components/ui/button";
-import { format } from "@/features/i18n/messages";
-import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import { format } from "@/lib/i18n/messages";
+import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
 import { getPatronSettings } from "@/features/membership/queries";
 import { parseDonation } from "@/features/membership/schema";
 import { formatEuro } from "@/lib/format";
-import { privateMetadata } from "@/lib/seo/metadata";
+import { privateMetadata } from "@/features/seo/metadata";
 import { routes } from "@/config/routes";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/membership/thank-you">) {

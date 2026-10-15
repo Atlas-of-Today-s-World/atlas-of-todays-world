@@ -2,7 +2,7 @@
 
 import "server-only";
 import { redirect } from "next/navigation";
-import { DEFAULT_LOCALE, isLocale, localePath } from "@/features/i18n/config";
+import { DEFAULT_LOCALE, isLocale, localePath } from "@/lib/i18n/config";
 import { formObject } from "@/lib/actions";
 import { checkoutHref } from "./links";
 import { getPatronSettings } from "./queries";

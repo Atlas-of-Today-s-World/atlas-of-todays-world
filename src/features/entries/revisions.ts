@@ -1,17 +1,12 @@
 import "server-only";
 import { createServerClient } from "@/lib/supabase/server";
 import { must } from "@/lib/db/result";
+import type { Revision } from "./types";
 
 /**
  * An article's revision history for editors — under the user's session (RLS).
  * No cache.
  */
-
-export interface Revision {
-  id: number;
-  saved_at: string;
-  title: string;
-}
 
 export async function listRevisions(entryId: string): Promise<Revision[]> {
   const supabase = await createServerClient();

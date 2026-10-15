@@ -1,7 +1,7 @@
 import "server-only";
 import { createHash } from "node:crypto";
 import { after } from "next/server";
-import { LOCALES, localePath } from "@/features/i18n/config";
+import { LOCALES, localePath } from "@/lib/i18n/config";
 import { serverEnv } from "@/lib/env.server";
 import { allowKey } from "@/lib/security/rate-limit";
 import { SITE_URL } from "@/lib/site";

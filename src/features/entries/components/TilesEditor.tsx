@@ -10,7 +10,7 @@ import { IconAction } from "@/components/admin/IconAction";
 import { swap } from "@/lib/array";
 import { slugify } from "@/lib/slug";
 import { MAX_TILES } from "../constants";
-import type { EditableTile } from "../editorial";
+import type { EditableTile } from "@/features/entries/types";
 import { IconPicker } from "./IconPicker";
 import { TileIcon } from "@/components/topics/TileIcon";
 import { UploadField } from "@/components/admin/UploadField";

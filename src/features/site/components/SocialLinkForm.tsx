@@ -4,7 +4,7 @@ import { ActionStatus } from "@/components/admin/ActionStatus";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { ActionForm, useAddForm } from "@/components/ui/action-form";
 import { Checkbox, describedBy, FormField, Input } from "@/components/ui/field";
-import type { ActionState } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 
 export interface SocialValues {
   label: string;

@@ -1,7 +1,7 @@
 import "server-only";
-import { DEFAULT_LOCALE, isLocale, LOCALES, type Locale } from "@/features/i18n/config";
+import { DEFAULT_LOCALE, isLocale, LOCALES, type Locale } from "@/lib/i18n/config";
 import type { NewsCategory } from "@/lib/content-types";
-import type { EntrySummary } from "./queries";
+import type { EntrySummary } from "./types";
 
 /**
  * Row shape and mapping shared by the public article reads (`queries.ts`,

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { useHydrated } from "@/lib/use-hydrated";
-import type { EditableEntry } from "../editorial";
+import type { EditableEntry } from "@/features/entries/types";
 
 /** How often an unsaved article is backed up to the browser. */
 const INTERVAL_MS = 5000;

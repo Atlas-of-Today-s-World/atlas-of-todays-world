@@ -5,7 +5,7 @@ import { SubmitButton } from "@/components/admin/SubmitButton";
 import { ActionForm, useAddForm } from "@/components/ui/action-form";
 import { Checkbox, describedBy, FormField, Input, Select } from "@/components/ui/field";
 import type { NavFlag, NavMenu } from "@/config/navigation";
-import type { ActionState } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 import { FLAG_LABELS, MENU_LABELS, NAV_PAGE_CHOICES } from "../pages";
 
 export interface NavItemValues {

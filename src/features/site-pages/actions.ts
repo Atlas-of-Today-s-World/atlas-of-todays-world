@@ -3,14 +3,8 @@
 import "server-only";
 import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
-import {
-  failed,
-  formObject,
-  invalid,
-  NOT_SIGNED_IN,
-  signedIn,
-  type ActionState,
-} from "@/lib/actions";
+import { failed, formObject, invalid, NOT_SIGNED_IN, signedIn } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 import { adminRoutes } from "@/config/routes";
 import { tags } from "@/lib/cache/tags";
 import { isSitePageSlug, type SitePageSlug } from "./pages";

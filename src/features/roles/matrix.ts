@@ -1,6 +1,6 @@
 // Permission matrix rules without React or server (tested by matrix.test.ts).
 import { ADMIN_NAV } from "@/config/admin-nav";
-import { SECTIONS, type Action, type Section } from "@/features/auth/sections";
+import { SECTIONS, type Action, type Section } from "@/config/sections";
 import { SECTION_DESCRIPTION, SECTION_LABEL } from "./labels";
 
 /** Order of actions in the DB string (`role_permissions.actions`). */

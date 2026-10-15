@@ -1,6 +1,6 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
-import { DEFAULT_LOCALE, type Locale } from "@/features/i18n/config";
+import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n/config";
 import { entryPageTags, PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import type { ArticleKind, NewsCategory } from "@/lib/content-types";
 import { must } from "@/lib/db/result";
@@ -8,43 +8,20 @@ import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { createPublicClient } from "@/lib/supabase/public";
 import { MAP_LAYERS, type MapLayer } from "./constants";
 import { COLUMNS, pickVersion, type Row, toLocale, toSummary } from "./rows";
-import type { TopicPlace } from "@/features/topics/map-counts";
+import type {
+  AuthorArticle,
+  Entry,
+  EntrySummary,
+  Placed,
+  TopicPlace,
+  UpcomingEntry,
+} from "./types";
 
 /**
  * Public reads of published articles: the lists (news, topics, an author's
  * articles, planned entries, topic places) and the news item page. The topic
  * page is in `topic-queries.ts`, the preview by link in `preview-queries.ts`.
  */
-
-/** Published news item without body — for lists, portraits, sitemap. */
-export interface EntrySummary {
-  slug: string;
-  title: string;
-  summary: string;
-  category: NewsCategory;
-  /** Slug of the region the news item belongs to. */
-  region: string | null;
-  /** Slug of the global issue, if the news item belongs to one. */
-  issue: string | null;
-  countries: string[];
-  hero?: string;
-  heroCredit?: string;
-  author?: string;
-  /** Public profile of the author (/authors/<slug>), when the byline is a profile. */
-  authorSlug?: string;
-  published?: string;
-  updated?: string;
-  readingMinutes?: number;
-  /** Languages it is published in — for hreflang. */
-  languages: Locale[];
-}
-
-export interface Entry extends EntrySummary {
-  /** Sanitized HTML (sanitized on save and again here on read). */
-  html: string;
-  /** Language of the displayed text — differs from the page when a translation is missing. */
-  locale: Locale;
-}
 
 /** Published originals of the given kind, newest first (language versions never list twice). */
 function listPublished(kind: ArticleKind) {
@@ -73,15 +50,6 @@ export const getEntries = listPublished("news");
 
 /** Published encyclopedia entries (originals), newest first. */
 export const getEncyclopediaEntries = listPublished("entry");
-
-/** An author's published articles (originals) for the profile page, newest first. */
-export interface AuthorArticle {
-  kind: ArticleKind;
-  slug: string;
-  title: string;
-  category: NewsCategory;
-  published?: string;
-}
 
 /**
  * Cached per author (a new profile is a cache miss, not a stale list);
@@ -148,13 +116,6 @@ export async function getEntry(
   };
 }
 
-/** Where an article belongs — shared by news, entries and planned entries. */
-interface Placed {
-  region: string | null;
-  issue: string | null;
-  countries: string[];
-}
-
 export const entriesOfRegion = <T extends Placed>(entries: T[], region: string) =>
   entries.filter((entry) => entry.region === region);
 
@@ -169,12 +130,6 @@ export function entriesOfIssue<T extends Placed>(entries: T[], issue: string, co
     (entry) => entry.issue !== issue && entry.countries.some((iso3) => members.has(iso3)),
   );
   return [...tagged, ...related];
-}
-
-/** A planned, not yet written entry — shown greyed out and unlinked on the portrait. */
-export interface UpcomingEntry extends Placed {
-  title: string;
-  category: NewsCategory;
 }
 
 export const getPlannedEntries = unstable_cache(

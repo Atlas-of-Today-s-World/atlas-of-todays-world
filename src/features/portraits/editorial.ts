@@ -1,5 +1,6 @@
 import "server-only";
-import { can, type Permissions } from "@/features/auth/access";
+import { can } from "@/features/auth/access";
+import type { Permissions } from "@/config/sections";
 import { must, rowsOf } from "@/lib/db/result";
 import { createServerClient } from "@/lib/supabase/server";
 import type { Collection } from "./schema";

@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { LOCALES, localePath, type Locale } from "@/features/i18n/config";
-import type { Messages } from "@/features/i18n/messages";
-import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import { LOCALES, localePath, type Locale } from "@/lib/i18n/config";
+import type { Messages } from "@/lib/i18n/messages";
+import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
 import { SITE_DEFAULTS, titleSuffix, type SiteSettings } from "@/features/site/model";
 import { getSiteSettings } from "@/features/site/queries";
-import { absoluteUrl, alternates } from "./index";
+import { absoluteUrl, alternates } from "@/lib/seo";
 
 /**
  * Brand appended to page titles — the default; the live one is the site

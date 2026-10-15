@@ -6,7 +6,7 @@ import { ReadOnly } from "@/components/admin/ReadOnly";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { describedBy, FormField, Input, Textarea } from "@/components/ui/field";
-import type { ActionState } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 import { saveSiteSettings } from "../actions";
 
 /** What the form starts from: the saved row, or the built-in values when it is missing. */

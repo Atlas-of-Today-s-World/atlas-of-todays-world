@@ -10,7 +10,7 @@ import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { Button } from "@/components/ui/button";
 import { PLACE_KINDS as KINDS, type PlaceKind as Kind } from "@/features/geography/kinds";
-import { format } from "@/features/i18n/messages";
+import { format } from "@/lib/i18n/messages";
 import { cn } from "@/lib/cn";
 import { PHOTO_WIDTH } from "@/lib/images";
 import { normalizeSearchQuery } from "@/lib/search-query";

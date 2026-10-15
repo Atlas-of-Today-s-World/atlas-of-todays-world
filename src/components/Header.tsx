@@ -12,7 +12,7 @@ import type { SocialLink } from "@/features/site/model";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { useFocusTrap } from "@/lib/use-focus-trap";
-import NewsletterForm from "./NewsletterForm";
+import NewsletterForm from "@/features/newsletter/components/NewsletterForm";
 import { BrandLogo } from "./atlas/BrandLogo";
 import { useMessages } from "./i18n/LocaleProvider";
 

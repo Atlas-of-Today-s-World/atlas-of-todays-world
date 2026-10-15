@@ -1,12 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { publicEnv } from "@/lib/env";
 import { buildCsp, newNonce, securityHeaderEntries } from "@/lib/security/csp";
-import {
-  DEFAULT_LOCALE,
-  localePath,
-  splitLocale,
-  withoutDefaultPrefix,
-} from "@/features/i18n/config";
+import { DEFAULT_LOCALE, localePath, splitLocale, withoutDefaultPrefix } from "@/lib/i18n/config";
 import { refreshSession } from "@/lib/supabase/middleware";
 import { ROUTE_PREFIX, isAtOrUnder, routes } from "@/config/routes";
 

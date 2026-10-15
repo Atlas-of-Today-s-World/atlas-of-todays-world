@@ -1,11 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { createServerClient } from "@/lib/supabase/server";
-import { SECTIONS, type Action, type Section } from "./sections";
-
-export type { Action, Section };
-
-export type Permissions = Record<Section, string>;
+import { SECTIONS, type Action, type Permissions, type Section } from "@/config/sections";
 
 export interface Access {
   userId: string;

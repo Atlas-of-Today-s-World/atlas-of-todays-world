@@ -4,10 +4,10 @@ import { JsonLd } from "@/components/JsonLd";
 import { buttonVariants } from "@/components/ui/button";
 import { getAtlas } from "@/features/geography/queries";
 import type { Country } from "@/features/geography/types";
-import { format } from "@/features/i18n/messages";
-import { getMessagesFor, localeFrom } from "@/features/i18n/request";
-import { staticPageMetadata } from "@/lib/seo/metadata";
-import { breadcrumbNode, graph, itemListNode, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import { format } from "@/lib/i18n/messages";
+import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
+import { staticPageMetadata } from "@/features/seo/metadata";
+import { breadcrumbNode, graph, itemListNode, pageUrl, webPageNode } from "@/features/seo/jsonld";
 import { routes } from "@/config/routes";
 
 /** The same chip as a portrait's country list. */

@@ -6,14 +6,14 @@ import Link from "@/components/i18n/Link";
 import { JsonLd } from "@/components/JsonLd";
 import { getAuthorBySlug, getAuthors } from "@/features/authors/queries";
 import { getArticlesByAuthor } from "@/features/entries/queries";
-import { format } from "@/features/i18n/messages";
-import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import { format } from "@/lib/i18n/messages";
+import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
 import { redirectOrNotFound } from "@/features/redirects/queries";
 import { categoryLabel } from "@/lib/content-types";
 import { formatLongDate } from "@/lib/format";
 import { cssBackgroundImage } from "@/lib/security/urls";
 import { PHOTO_WIDTH } from "@/lib/images";
-import { pageMetadata } from "@/lib/seo/metadata";
+import { pageMetadata } from "@/features/seo/metadata";
 import {
   breadcrumbNode,
   graph,
@@ -22,7 +22,7 @@ import {
   pageUrl,
   personNode,
   webPageNode,
-} from "@/lib/seo/jsonld";
+} from "@/features/seo/jsonld";
 import { routes } from "@/config/routes";
 
 export const dynamicParams = true;

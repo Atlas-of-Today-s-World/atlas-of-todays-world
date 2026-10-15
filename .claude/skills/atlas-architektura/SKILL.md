@@ -73,9 +73,17 @@ Každý vizuální vzor, konstanta a datová definice existuje **právě jednou*
    `dangerouslySetInnerHTML` mimo `SafeHtml`/`JsonLd`/`PrePaintScript`; ručně skládané veřejné URL
    (`` `/country/${…}` ``, `/region/`, `/news/`, `/topics/`… → `routes.*`); ručně psané `"/admin…"` (→ `adminRoutes.*`;
    řetězec v typu jako `PageProps<"/admin/…">` smí); `fetch` v `src/components` a `features/*/components`
-   (→ `apiFetch()`); `@supabase/supabase-js` mimo `lib/supabase` (typy smí);
+   (→ `apiFetch()`); `@supabase/supabase-js` mimo `lib/supabase` (typy smí); hranice vrstev (níže);
    `eslint-plugin-security` a pravidla React Compileru.
    Každý sdílený díl má story ve Storybooku.
+8. **Hranice vrstev (ARCHITEKTURA 4.1, ESLint `no-restricted-imports`):** `lib/` a `config/` neimportují nic
+   z `features/` (ani typy) — i18n je `lib/i18n` (`config`, `messages`, `request`), sekce oprávnění
+   `config/sections.ts`; `components/` nevolá `features/*/actions` (`*-actions`) a nevykresluje
+   `features/*/components/*` (taková komponenta patří do `features/<doména>/components/`); `features/X`
+   nevykresluje komponenty `features/Y` (sdílený díl → `components/`). Typy pro klienta v `features/*/types.ts`
+   (`ActionState` v `lib/action-state.ts`), ne v `server-only` modulech. Výjimky jen se zdůvodněním v
+   `eslint.config.mjs` (dnes `lib/i18n/request.ts` → `ui-texts/queries`, `Header.tsx` → `NewsletterForm`); testy
+   `*.test.ts` jsou vyjmuté.
 
 ## Sdílené helpery (použij, nepiš znovu)
 
@@ -85,11 +93,11 @@ Každý vizuální vzor, konstanta a datová definice existuje **právě jednou*
 - **Řádkové akce DataTable:** `editAction`, `openAction`, `deleteAction`, `confirmAction`, `visibilityAction`,
   `moveActions(up, down, { first, last })`, `noteAction` (`components/data-table/row-actions.ts`).
 - **URL:** `routes.*` a `adminRoutes.*` (`config/routes.ts`). **Klient → naše API:** `apiFetch()` (`lib/api-fetch.ts`).
-- **Texty a nastavení:** `getT()` / `getMessagesFor(locale)` (`features/i18n/request.ts`, async, s úpravami z UI texts),
+- **Texty a nastavení:** `getT()` / `getMessagesFor(locale)` (`lib/i18n/request.ts`, async, s úpravami z UI texts),
   `localeFrom(params)`; `getSiteSettings()` (`features/site/queries.ts`).
 - **SEO:** `pageMetadata`, `staticPageMetadata(section, path)` pro indexové stránky z UI textů, `privateMetadata(title)`
-  pro neindexované (`lib/seo/metadata.ts`); `breadcrumbNode(site, crumbs, locale)` přidá úvodní drobek webu sám
-  (`lib/seo/jsonld.ts`); `articleMetaOf(item)` (`features/entries/article-meta.ts`) pro data a sekci článku;
+  pro neindexované (`features/seo/metadata.ts`); `breadcrumbNode(site, crumbs, locale)` přidá úvodní drobek webu sám
+  (`features/seo/jsonld.ts`); `articleMetaOf(item)` (`features/entries/article-meta.ts`) pro data a sekci článku;
   `categoryLabel(category, t)` (`lib/content-types.ts`) pro popisek kategorie.
 - **Rámy stránek:** `PagesFrame` (skupiny `(pages)`, `(patrons)`, `(account)`), `PagesShell`, `FullPage`.
 
@@ -139,7 +147,7 @@ po dokončení zaškrtni úkol a doplň odkaz na PR.
 - Po migraci: `supabase gen types typescript --linked > src/lib/db/types.gen.ts`.
 - Každá změna oprávnění = DB test v `supabase/tests/` (anon / s právem / bez práva): RLS a výchozí role
   v `rls.test.mjs`, granty sloupců v `column-grants.test.mjs`, sekce matice v `site-section.test.mjs`;
-  nová sekce = CHECK `role_permissions.section` + `my_permissions()` + `src/features/auth/sections.ts`
+  nová sekce = CHECK `role_permissions.section` + `my_permissions()` + `src/config/sections.ts`
   + `src/features/roles/labels.ts`. Nový testovací soubor přidej do skriptu `test:db`.
 
 ## Testy (co spustit)

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { COOKIE_NOTICE_KEY, COOKIE_NOTICE_SECONDS } from "@/config/cookies";
-import { format } from "@/features/i18n/messages";
+import { format } from "@/lib/i18n/messages";
 import { useHydrated } from "@/lib/use-hydrated";
 import { useLatest } from "@/lib/use-latest";
 import { routes } from "@/config/routes";

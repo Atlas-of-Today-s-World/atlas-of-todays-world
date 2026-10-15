@@ -10,7 +10,7 @@ import { Checkbox, FormField, Input, describedBy } from "@/components/ui/field";
 import { adminRoutes } from "@/config/routes";
 import { deletePatronFaq, savePatronFaq } from "../admin-actions";
 import { EMAIL_PLACEHOLDER } from "../config";
-import type { PatronFaqRow } from "../editorial";
+import type { PatronFaqRow } from "@/features/membership/types";
 
 const ANSWER_HINT = `Up to 3,000 characters of formatted text. Write {${EMAIL_PLACEHOLDER}} where the contact e-mail address should appear as a link.`;
 

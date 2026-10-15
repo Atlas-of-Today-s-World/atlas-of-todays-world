@@ -9,7 +9,7 @@ import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { FormField, Input, Textarea } from "@/components/ui/field";
 import { adminRoutes } from "@/config/routes";
-import type { ActionState } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 import { formatDateTime } from "@/lib/format";
 import { deleteEntry, restoreRevision } from "../actions";
 import {
@@ -21,7 +21,7 @@ import {
   unscheduleEntry,
   withdrawEntry,
 } from "../workflow-actions";
-import type { Revision } from "../revisions";
+import type { Revision } from "@/features/entries/types";
 import type { EntryStatus } from "../constants";
 import { ActionForm } from "@/components/ui/action-form";
 

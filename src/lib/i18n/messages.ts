@@ -8,7 +8,7 @@ import type { Locale } from "./config";
  *
  * The team can change the public texts in the admin (Admin → UI texts, table
  * `ui_text_overrides`). Server code reads the texts with those changes through
- * `getMessagesFor` / `getT` (features/i18n/request.ts); client components get
+ * `getMessagesFor` / `getT` (lib/i18n/request.ts); client components get
  * them from `LocaleProvider` (`useMessages`). `getMessages` is only the
  * built-in en.json — for the few places that need a value synchronously and
  * can't wait for the database (see its callers).

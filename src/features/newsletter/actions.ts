@@ -2,7 +2,8 @@
 
 import "server-only";
 import { headers } from "next/headers";
-import { invalidCodes, type ActionState } from "@/lib/actions";
+import { invalidCodes } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 import { serverEnv } from "@/lib/env.server";
 import { allowRequest } from "@/lib/security/rate-limit";
 import { passesCaptcha } from "@/lib/security/turnstile";

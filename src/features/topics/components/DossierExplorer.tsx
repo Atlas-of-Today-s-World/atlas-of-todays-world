@@ -3,7 +3,7 @@
 import { type ReactNode, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { flushSync } from "react-dom";
 import { useMessages } from "@/components/i18n/LocaleProvider";
-import { format } from "@/features/i18n/messages";
+import { format } from "@/lib/i18n/messages";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { PhotoTile } from "@/components/atlas/PhotoTile";
 import { cn } from "@/lib/cn";

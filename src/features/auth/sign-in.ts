@@ -1,7 +1,7 @@
 import "server-only";
 import { NextResponse } from "next/server";
 import { routes } from "@/config/routes";
-import { splitLocale } from "@/features/i18n/config";
+import { splitLocale } from "@/lib/i18n/config";
 import { safeRedirect } from "@/lib/security/redirect";
 import type { ServerClient } from "@/lib/supabase/server";
 

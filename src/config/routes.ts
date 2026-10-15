@@ -82,6 +82,23 @@ export const routes = {
   searchFor: (query: string) => `${SEARCH}?q=${encodeURIComponent(query)}`,
 } as const;
 
+/** Anchor of the volunteer editors section on the membership page. */
+export const VOLUNTEER_ID = "volunteer";
+
+/**
+ * "Write a topic about X" leads to the volunteer form on /membership with the
+ * place already filled in (?topic=X#volunteer) instead of a mailto:, which
+ * fails for the many visitors without a mail client. The form reads it back
+ * with `topicPrefill` (features/volunteers/prefill.ts).
+ */
+export const VOLUNTEER_TOPIC_PARAM = "topic";
+
+/** Link to the volunteer application form, prefilled with `place`. */
+export function volunteerHref(place: string): string {
+  const query = new URLSearchParams({ [VOLUNTEER_TOPIC_PARAM]: place });
+  return `${routes.membership}?${query.toString()}#${VOLUNTEER_ID}`;
+}
+
 type Query = Record<string, string>;
 
 const withQuery = (path: string, query?: Query) => {

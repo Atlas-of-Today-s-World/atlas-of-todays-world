@@ -50,9 +50,24 @@ src/
 Pravidla vrstev:
 
 - `app/` smí importovat `features/`, `components/`, `lib/`. Opačně nikdy.
-- `features/X` nesmí importovat z `features/Y` interní soubory — jen jejich `queries.ts`/`schema.ts`.
+- `lib/` a `config/` jsou základní vrstva: **neimportují nic z `features/`** (ani typy). Infrastruktura, kterou
+  používají všechny vrstvy, je proto v `lib/` — i18n v `lib/i18n` (`config.ts`, `messages.ts`, `request.ts`
+  s `getMessagesFor`/`getT`), sekce oprávnění v `config/sections.ts`, URL včetně odkazu na formulář dobrovolníků
+  v `config/routes.ts`. Kód, který potřebuje doménová data, patří do feature (`features/search/queries.ts`,
+  `features/seo/metadata.ts`, `features/seo/jsonld.ts`, `features/geography/indicators.ts`…).
+- `components/` (sdílené UI) smí číst z `features/` data a typy, ale **nevolá jejich Server Actions**
+  (`features/*/actions.ts`, `*-actions.ts`) a **nevykresluje jejich komponenty** (`features/*/components/*`);
+  komponenta, která to potřebuje, patří do `features/<doména>/components/`.
+- `features/X` nesmí importovat z `features/Y` interní soubory — jen jejich `queries.ts`/`schema.ts`/`types.ts`;
+  **komponenty jiné feature nikdy** (sdílený díl patří do `components/`).
+- Typy, které potřebuje klient i server, jsou v `types.ts` bez `server-only` (`features/entries/types.ts`,
+  `features/topics/types.ts`, `lib/action-state.ts`…), ne v `queries.ts`/`editorial.ts`.
 - Soubory, které smí běžet jen na serveru (`queries.ts`, `actions.ts`, `lib/supabase/server|service|public.ts`),
   začínají `import "server-only"`.
+- Hranice hlídá ESLint `no-restricted-imports` (`eslint.config.mjs`, testy `*.test.ts` jsou vyjmuté). Povolené
+  výjimky (krátký seznam s důvodem v konfiguraci): `lib/i18n/request.ts` → `features/ui-texts/queries`
+  (úpravy textů z Admin → UI texts) a `components/Header.tsx` → `features/newsletter/components/NewsletterForm`
+  (formulář v mobilním menu).
 
 ### 4.2 Čtení dat (veřejný web)
 

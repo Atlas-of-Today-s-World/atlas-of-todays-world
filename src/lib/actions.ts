@@ -4,20 +4,7 @@ import type { ZodError, ZodType } from "zod";
 import { mapDbError } from "@/lib/db/errors";
 import { createServerClient, type ServerClient } from "@/lib/supabase/server";
 import { uuid } from "@/lib/validation/common";
-
-/**
- * Server Action result for `useActionState` (ARCHITEKTURA 4.3): a message for
- * the user, Zod field errors and optionally the id of the newly created record.
- */
-export interface ActionState {
-  ok: boolean;
-  error?: string;
-  message?: string;
-  fieldErrors?: Record<string, string[] | undefined>;
-  id?: string;
-  /** Preview images the server found for saved links ({ link → image }), for the editor to show. */
-  previews?: Record<string, string>;
-}
+import type { ActionState } from "@/lib/action-state";
 
 /** Client with a session and the verified user (getUser, not getSession); null = signed out. */
 export async function signedIn(): Promise<{ supabase: ServerClient; user: User } | null> {

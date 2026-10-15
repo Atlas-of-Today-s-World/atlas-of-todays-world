@@ -1,6 +1,6 @@
 import { renderOg } from "@/lib/og";
-import { DEFAULT_LOCALE } from "@/features/i18n/config";
-import { getMessagesFor } from "@/features/i18n/request";
+import { DEFAULT_LOCALE } from "@/lib/i18n/config";
+import { getMessagesFor } from "@/lib/i18n/request";
 
 /**
  * Default preview image (1200×630) for pages without their own

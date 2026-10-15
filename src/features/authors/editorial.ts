@@ -1,17 +1,9 @@
 import "server-only";
 import { must } from "@/lib/db/result";
 import { createServerClient } from "@/lib/supabase/server";
+import type { AuthorRow } from "./types";
 
 /** Reading authors for editors — under the user's session, no cache. */
-
-export interface AuthorRow {
-  id: string;
-  name: string;
-  slug: string;
-  photo_url: string | null;
-  bio: string;
-  positionality: string;
-}
 
 const COLUMNS = "id, name, slug, photo_url, bio, positionality";
 

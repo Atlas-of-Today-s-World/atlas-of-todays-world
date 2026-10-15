@@ -10,7 +10,7 @@ import { PhotoCard } from "@/components/atlas/PhotoCard";
 import { PhotoTile } from "@/components/atlas/PhotoTile";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
-import type { RegionStat } from "@/lib/region-stats";
+import type { RegionStat } from "@/features/geography/region-stats";
 import {
   categoryLabel,
   ENTRY_CATEGORIES,
@@ -23,8 +23,8 @@ import { safeUrl } from "@/lib/security/urls";
 import { datawrapperChartUrl } from "@/lib/embeds";
 import { DatawrapperChart } from "./DatawrapperChart";
 import { PHOTO_WIDTH } from "@/lib/images";
-import { format } from "@/features/i18n/messages";
-import { getT } from "@/features/i18n/request";
+import { format } from "@/lib/i18n/messages";
+import { getT } from "@/lib/i18n/request";
 import { routes } from "@/config/routes";
 
 /**
