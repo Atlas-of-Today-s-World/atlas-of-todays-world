@@ -20,7 +20,7 @@ describe("supabase migrations", () => {
     const seen = new Map<string, string>();
     const clashes: string[] = [];
     for (const file of files) {
-      const version = file.split("_")[0];
+      const version = file.slice(0, file.indexOf("_"));
       const other = seen.get(version);
       if (other) clashes.push(`${other} ↔ ${file}`);
       else seen.set(version, file);
