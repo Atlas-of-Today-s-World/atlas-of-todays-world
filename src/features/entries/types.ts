@@ -62,12 +62,6 @@ export interface Placed {
   countries: string[];
 }
 
-/** A planned, not yet written entry — shown greyed out and unlinked on the portrait. */
-export interface UpcomingEntry extends Placed {
-  title: string;
-  category: NewsCategory;
-}
-
 export interface EntryChapter {
   title: string;
   /** 3–5 bullet points that open the chapter. */

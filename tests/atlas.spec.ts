@@ -115,7 +115,9 @@ test.describe("regional profile under a country", () => {
 
     const profile = page.getByRole("region", { name: "Middle East & North Africa" });
     await expect(profile.getByText("Regional profile")).toBeVisible();
-    await expect(profile.getByRole("heading", { name: "Topics", exact: true })).toBeVisible();
+    // No themed topic rows or news strip in a profile (owner's decision of 2026-10-15).
+    await expect(profile.getByRole("heading", { name: "Topics", exact: true })).toHaveCount(0);
+    await expect(profile.getByRole("heading", { name: "Our News" })).toHaveCount(0);
     await expect(profile.getByRole("link", { name: /View the whole region/ })).toHaveAttribute(
       "href",
       "/region/middle-east-north-africa",
@@ -127,7 +129,13 @@ test.describe("region portrait", () => {
   test("opens in full right away and offers no second version", async ({ page }) => {
     await page.goto("/region/middle-east-north-africa");
 
-    await expect(page.getByRole("heading", { name: "Topics", exact: true })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Middle East & North Africa" }),
+    ).toBeVisible();
+    // Share sits above the heading; the countries are only in the header's list.
+    await expect(page.locator("#content").getByRole("button", { name: "Share" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Countries in this region" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Topics", exact: true })).toHaveCount(0);
     // No computed regional averages (decision of 2026-10-07): national data live on each
     // country. The editors' sourced key-fact cards may show; computed figures never.
     await expect(page.getByText(/Population-weighted across the countries/)).toHaveCount(0);
@@ -141,11 +149,6 @@ test.describe("region portrait", () => {
     // One "coming" section instead of a grey placeholder per missing part.
     await expect(page.getByRole("heading", { name: "Coming to this portrait" })).toHaveCount(1);
     await expect(page.getByRole("link", { name: /Help us complete it/ }).first()).toBeVisible();
-
-    // Planned entries must not link anywhere.
-    const planned = page.locator('[aria-disabled="true"]').first();
-    await expect(planned).toBeVisible();
-    await expect(planned).not.toHaveAttribute("href", /./);
   });
 });
 
@@ -156,7 +159,13 @@ test.describe("global issues", () => {
 
     await page.goto("/global-issue/russia-ukraine-war");
     await expect(page.getByRole("heading", { name: "Russia–Ukraine War" })).toBeVisible();
+    // The countries open from the count in the header.
+    await page.getByRole("button", { name: /^Countries: d+$/ }).click();
     await expect(page.getByRole("link", { name: "Ukraine" }).first()).toBeVisible();
+    // Topics belong to regions and countries, not to global issues (2026-10-15).
+    await expect(page.getByRole("link", { name: /^See (all d+ topics|the topic)/ })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Related topics" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Countries in this group" })).toHaveCount(0);
   });
 });
 

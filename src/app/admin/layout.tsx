@@ -1,9 +1,10 @@
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { BrandLogo } from "@/components/atlas/BrandLogo";
 import { Lead } from "@/components/atlas/Note";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { RequiredNote } from "@/components/ui/field";
 import { ADMIN_NAV, navVisible } from "@/config/admin-nav";
 import { getAccess, isStaff } from "@/features/auth/access";
@@ -69,10 +70,18 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <BrandLogo className="h-5" />
         </Link>
         <span className="text-[13px] font-medium">Administration</span>
+        {/* The way out of the admin, in the middle of the bar (beside the title on phones). */}
+        <Link
+          href="/"
+          className={`${buttonVariants({ variant: "outline", size: "sm" })} sm:mx-auto`}
+        >
+          <ArrowLeft aria-hidden className="size-4" />
+          Back to website
+        </Link>
         {/* A long address is cut, not wrapped onto a third header row on phones. */}
         <span
           title={`${access.email} · ${access.roleName}`}
-          className="ml-auto max-w-[min(60vw,28rem)] min-w-0 truncate text-[12.5px] text-[var(--color-ink-muted)]"
+          className="ml-auto max-w-[min(60vw,28rem)] min-w-0 truncate text-[12.5px] text-[var(--color-ink-muted)] sm:ml-0"
         >
           {access.email} · {access.roleName}
         </span>

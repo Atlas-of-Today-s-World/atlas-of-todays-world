@@ -34,7 +34,8 @@ const badge =
 /**
  * How far the portrait's content is, under its heading. Ready and in
  * preparation are quiet facts; a place nobody has started on asks for support
- * and links to Atlas Patrons — the site raises money per region.
+ * in red (the same red as the empty places on the globe) and links to Atlas
+ * Patrons — the site raises money per region.
  */
 export function ContentStatusBadge({ status, t }: { status: ContentStatus; t: Messages }) {
   if (status === "none") {
@@ -44,7 +45,7 @@ export function ContentStatusBadge({ status, t }: { status: ContentStatus; t: Me
         className={cn(
           badge,
           // A link, so a full touch target (the quiet badges below are just text).
-          "min-h-(--touch-min) border-[var(--color-accent)] px-3.5 text-[var(--color-accent)] transition hover:bg-[var(--color-accent)] hover:text-white",
+          "min-h-(--touch-min) border-[var(--color-empty)] bg-[var(--color-empty-soft)] px-3.5 font-semibold text-[var(--color-empty-strong)] transition hover:bg-[var(--color-empty)] hover:text-white focus-visible:ring-2 focus-visible:ring-[var(--color-empty)] focus-visible:ring-offset-2 focus-visible:outline-none",
         )}
       >
         <HeartHandshake size={14} aria-hidden />

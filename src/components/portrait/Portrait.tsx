@@ -1,16 +1,10 @@
 import { ShareButton } from "@/components/atlas/ShareButton";
 import Link from "@/components/i18n/Link";
-import { buttonVariants } from "@/components/ui/button";
 import { RelatedTopics, TopicsLink } from "@/components/topics/RelatedTopics";
 import { NoTopicsCta } from "@/components/topics/NoTopicsCta";
 import type { EntrySummary } from "@/features/entries/types";
 import { NewsBadge, PhotoCredit, SectionLabel } from "@/components/atlas/ui";
-import {
-  categoryLabel,
-  ENTRY_CATEGORIES,
-  entryCategory,
-  type RegionDossier,
-} from "@/lib/content-types";
+import type { RegionDossier } from "@/lib/content-types";
 import type { RegionStat } from "@/features/geography/region-stats";
 import { formatPopulation } from "@/lib/format";
 import { cssBackgroundImage } from "@/lib/security/urls";
@@ -20,21 +14,16 @@ import { getRequestLocale, getT } from "@/lib/i18n/request";
 import type { ContentStatus } from "@/features/geography/content-status";
 import type { GroupKind, PortraitPlace } from "@/features/geography/kinds";
 import { ContentStatusBadge } from "./ContentStatusBadge";
-import NewsTabs, { type NewsCard } from "./NewsTabs";
 import { PortraitCounts } from "./PortraitCounts";
 import {
   ComingSections,
   FaqList,
   IndicatorCards,
   PatronsCallout,
-  PortraitSection,
   ResourceLibrary,
-  ThematicEntries,
-  type PlannedEntry,
 } from "./sections";
 import { Timeline } from "./Timeline";
 import { VisualsCarousel } from "@/components/visuals/VisualsCarousel";
-import { routes } from "@/config/routes";
 
 /** What the portrait shows — an Atlas region, or an editorial global issue. */
 export interface PortraitSubject {
@@ -67,7 +56,6 @@ function wordingFor(kind: PortraitPlace, t: Messages, groupKind?: GroupKind) {
       : groupKind === "region"
         ? t.portrait.customRegion
         : t.portrait.globalIssue,
-    countriesTitle: region ? t.portrait.countriesInRegion : t.portrait.countriesInGroup,
     timelineEmpty: region ? t.portrait.timelineEmptyRegion : t.portrait.timelineEmptyGroup,
     mapsEmpty: region ? t.portrait.mapsEmptyRegion : t.portrait.mapsEmptyGroup,
     faqEmpty: region ? t.portrait.faqEmptyRegion : t.portrait.faqEmptyGroup,
@@ -77,25 +65,26 @@ function wordingFor(kind: PortraitPlace, t: Messages, groupKind?: GroupKind) {
 /**
  * Portrait of a region or a global issue (ARCHITEKTURA 15.1, D3). Per the brief
  * there is only one – no short and long version – and it opens in full right away.
+ * Topics belong to regions and countries only (owner's decision of 2026-10-15):
+ * a global issue's page gets no `topics`. Its countries are listed under the
+ * count in the header, not in a section of their own.
  *
- * Sections the editors haven't written anything for yet aren't skipped: they're drawn
- * grey and non-clickable, with a call for support. Key indicators have data
- * everywhere, because they're computed from imported data, not editorial text.
+ * Sections the editors haven't written anything for yet are listed at the end
+ * with a call for support. Key indicators have data everywhere, because they're
+ * computed from imported data, not editorial text.
  */
 export default async function Portrait({
   subject,
-  news,
-  entries,
+  newsCount,
   dossier,
   stats,
   topics,
 }: {
   subject: PortraitSubject;
-  /** Topics about the region / group and the filtered Topics list. */
+  /** Topics about the region and the filtered Topics list. */
   topics?: { items: EntrySummary[]; href: string };
-  news: NewsCard[];
-  /** Encyclopedia entries (P9): published ones with a link, planned ones with `slug: null`. */
-  entries: PlannedEntry[];
+  /** News published about the group (the count under a global issue's intro). */
+  newsCount: number;
   dossier: RegionDossier;
   stats: RegionStat[];
 }) {
@@ -119,12 +108,13 @@ export default async function Portrait({
       ) : null}
 
       <header className="px-6 pt-7 pb-7 sm:px-10">
-        {wording.label ? <SectionLabel>{wording.label}</SectionLabel> : null}
-        <h1
-          className={`font-display text-[30px] leading-tight font-bold text-[var(--color-ink)] ${
-            wording.label ? "mt-4" : ""
-          }`}
-        >
+        {/* Sharing sits above the heading, at the right of the label. Without a
+            photo the panel's close button (×) takes that corner, so it moves in. */}
+        <div className={`flex flex-wrap items-center justify-between gap-2 ${hero ? "" : "pr-12"}`}>
+          {wording.label ? <SectionLabel>{wording.label}</SectionLabel> : <span aria-hidden />}
+          <ShareButton title={subject.name} className="flex-row-reverse" />
+        </div>
+        <h1 className="font-display mt-4 text-[30px] leading-tight font-bold text-[var(--color-ink)]">
           {subject.name}
         </h1>
         {subject.subtitle ? (
@@ -150,16 +140,15 @@ export default async function Portrait({
         </p>
         {subject.kind === "issue" ? (
           <div className="mt-4">
-            <NewsBadge count={news.length} />
+            <NewsBadge count={newsCount} />
           </div>
         ) : null}
-        {/* The way to the place's topics comes first, above the counts; sharing sits beside it. */}
-        <div className="mt-5 flex flex-wrap items-center gap-2">
-          {topics ? <TopicsLink count={topics.items.length} href={topics.href} /> : null}
-          <ShareButton title={subject.name} />
-        </div>
+        {/* The way to the place's topics comes first, above the counts. */}
         {topics ? (
-          <NoTopicsCta count={topics.items.length} place={subject.name} className="mt-4" />
+          <>
+            <TopicsLink count={topics.items.length} href={topics.href} className="mt-5" />
+            <NoTopicsCta count={topics.items.length} place={subject.name} className="mt-4" />
+          </>
         ) : null}
         <PortraitCounts
           countries={subject.countries}
@@ -178,29 +167,7 @@ export default async function Portrait({
         <IndicatorCards metrics={dossier.metrics} />
       )}
 
-      <ProfileSections
-        kind={subject.kind}
-        groupKind={subject.groupKind}
-        name={subject.name}
-        dossier={dossier}
-        entries={entries}
-        news={news}
-      />
-
-      <PortraitSection title={wording.countriesTitle}>
-        <ul className="mt-4 flex flex-wrap gap-1.5">
-          {subject.countries.map((country) => (
-            <li key={country.slug}>
-              <Link
-                href={routes.country(country.slug)}
-                className={buttonVariants({ variant: "outline", size: "chip" })}
-              >
-                {country.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </PortraitSection>
+      <ProfileSections kind={subject.kind} groupKind={subject.groupKind} dossier={dossier} />
 
       {topics ? (
         <RelatedTopics
@@ -226,24 +193,17 @@ export default async function Portrait({
  * The body of a regional profile, the same wherever it is shown: on the
  * region's or global issue's own page and under each of the region's
  * countries (RegionalProfile) — written once, shown in both places.
- * Timeline, topics by theme, infographics, news, further resources and FAQ;
- * what the editors haven't written yet is grey with the support call.
+ * Timeline, maps & charts, further resources and FAQ; what the editors
+ * haven't written yet is listed at the end with the support call.
  */
 export async function ProfileSections({
   kind,
   groupKind,
-  name,
   dossier,
-  entries,
-  news = [],
 }: {
   kind: PortraitPlace;
   groupKind?: GroupKind;
-  /** Name used in the titles of planned topics ("Society in Middle East"). */
-  name: string;
   dossier: RegionDossier;
-  entries: PlannedEntry[];
-  news?: NewsCard[];
 }) {
   const t = await getT();
   const wording = wordingFor(kind, t, groupKind);
@@ -264,13 +224,9 @@ export async function ProfileSections({
         />
       ) : null}
 
-      <ThematicEntries entries={plannedEntries(name, entries, t)} />
-
       {dossier.visuals?.length ? (
         <VisualsCarousel items={dossier.visuals} lead={t.portrait.mapsLead} />
       ) : null}
-
-      {news.length ? <NewsTabs newsItems={news} /> : null}
 
       {dossier.resources?.length ? <ResourceLibrary resources={dossier.resources} /> : null}
 
@@ -284,44 +240,3 @@ export async function ProfileSections({
 /** Whether the editors finished the regional profile (the support call changes its words). */
 export const profileComplete = (dossier: RegionDossier) =>
   Boolean(dossier.timeline?.length && dossier.resources?.length && dossier.faq?.length);
-
-/** News item → portrait card (only what the client component needs). */
-export function newsCards(
-  items: {
-    slug: string;
-    title: string;
-    summary: string;
-    category: NewsCard["category"];
-    hero?: string;
-  }[],
-): NewsCard[] {
-  return items.map(({ slug, title, summary, category, hero }) => ({
-    slug,
-    title,
-    summary,
-    category,
-    hero,
-  }));
-}
-
-/**
- * Entries by four topics. Where the editors haven't written or planned any entry
- * yet, we show at least the generic topics – greyed out.
- */
-function plannedEntries(name: string, entries: PlannedEntry[], t: Messages): PlannedEntry[] {
-  const planned: PlannedEntry[] = entries.map((entry) => ({
-    ...entry,
-    category: entryCategory(entry.category),
-  }));
-  // One greyed placeholder per empty group — numbered copies ("… (1)", "(2)",
-  // "(3)") read like filler text on a public page.
-  for (const category of ENTRY_CATEGORIES) {
-    if (planned.some((entry) => entry.category === category)) continue;
-    planned.push({
-      title: format(t.portrait.plannedTitle, { category: categoryLabel(category, t), place: name }),
-      category,
-      slug: null,
-    });
-  }
-  return planned;
-}

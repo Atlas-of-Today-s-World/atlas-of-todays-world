@@ -66,17 +66,22 @@ export default async function CountryCard({
 
   return (
     <article className="px-6 pt-6 pb-10">
-      {region ? (
-        // pr-12: a long trail must not run under the panel's close button (×).
-        <Breadcrumbs
-          label={t.ui.breadcrumb}
-          className="pr-12"
-          items={[
-            { label: region.name, href: routes.region(region.slug) },
-            { label: country.name, current: true },
-          ]}
-        />
-      ) : null}
+      {/* The trail to the region and, at the right, sharing — both above the name.
+          pr-12: neither may run under the panel's close button (×). */}
+      <div className="flex flex-wrap items-center justify-between gap-2 pr-12">
+        {region ? (
+          <Breadcrumbs
+            label={t.ui.breadcrumb}
+            items={[
+              { label: region.name, href: routes.region(region.slug) },
+              { label: country.name, current: true },
+            ]}
+          />
+        ) : (
+          <span aria-hidden />
+        )}
+        <ShareButton title={country.name} className="flex-row-reverse" />
+      </div>
 
       <h1 className="font-display mt-2 text-[26px] leading-tight font-bold text-[var(--color-ink)]">
         {country.name}
@@ -89,12 +94,11 @@ export default async function CountryCard({
       ) : null}
 
       <p className="mt-3 text-[13px] leading-relaxed text-[var(--color-ink-soft)]">{description}</p>
-      <div className="mt-4 flex flex-wrap items-center gap-2">
-        {topics ? <TopicsLink count={topics.items.length} href={topics.href} /> : null}
-        <ShareButton title={country.name} />
-      </div>
       {topics ? (
-        <NoTopicsCta count={topics.items.length} place={country.name} className="mt-4" />
+        <>
+          <TopicsLink count={topics.items.length} href={topics.href} className="mt-4" />
+          <NoTopicsCta count={topics.items.length} place={country.name} className="mt-4" />
+        </>
       ) : null}
 
       <StatGrid className="mt-5">
