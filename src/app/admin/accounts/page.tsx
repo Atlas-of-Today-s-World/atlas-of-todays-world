@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { forbidden } from "next/navigation";
+import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
@@ -27,7 +27,7 @@ export default async function AccountsPage({
 }: {
   searchParams: Promise<{ kind?: string; q?: string }>;
 }) {
-  if (!(await sectionAccess("users"))) forbidden();
+  if (!(await sectionAccess("users"))) return <NoAccess />;
   const params = await searchParams;
   const kind = params.kind === "readers" ? "reader" : "staff";
   const [accounts, roles] = await Promise.all([listAccounts(kind, params.q), listRoles()]);

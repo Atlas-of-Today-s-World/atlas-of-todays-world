@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { forbidden, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
+import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { navIcon } from "@/config/admin-nav";
 import type { NavFlag, NavMenu } from "@/config/navigation";
@@ -16,7 +17,7 @@ export const metadata: Metadata = { title: "Menu item" };
 /** Editing one menu item (section `site`, "e"); new ones are added on the list. */
 export default async function NavItemPage({ params }: { params: Promise<{ id: string }> }) {
   const access = await sectionAccess("site", "e");
-  if (!access) forbidden();
+  if (!access) return <NoAccess />;
   const { id } = await params;
   if (!uuid.safeParse(id).success) notFound();
   const item = await getNavItem(id);

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { forbidden, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
+import { NoAccess } from "@/components/admin/NoAccess";
 import { ReadOnly } from "@/components/admin/ReadOnly";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { can, sectionAccess } from "@/features/auth/access";
@@ -22,7 +23,7 @@ export const metadata: Metadata = { title: "Global issue" };
 
 export default async function IssueEditPage({ params }: { params: Promise<{ slug: string }> }) {
   const access = await sectionAccess("specials");
-  if (!access) forbidden();
+  if (!access) return <NoAccess />;
   const { slug } = await params;
   const issue = await issueForEdit(slug);
   if (!issue) notFound();

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { forbidden } from "next/navigation";
+import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
@@ -21,7 +21,7 @@ export const metadata: Metadata = { title: "Topic templates" };
  */
 export default async function TopicTemplatesPage() {
   const access = await sectionAccess("news");
-  if (!access) forbidden();
+  if (!access) return <NoAccess />;
   const templates = await listTemplates();
   const canEdit = can(access.permissions, "news", "e");
   const canDelete = can(access.permissions, "news", "d");

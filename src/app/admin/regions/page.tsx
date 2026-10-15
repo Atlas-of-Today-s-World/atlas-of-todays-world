@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { forbidden } from "next/navigation";
+import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
@@ -22,7 +22,7 @@ const PROFILE = [
 
 export default async function RegionsPage() {
   const access = await sectionAccess("regions");
-  if (!access) forbidden();
+  if (!access) return <NoAccess />;
   const [atlas, withText] = await Promise.all([getAtlas(), countriesWithProfileText()]);
   // The globe's pills, the Countries page and the admin list follow this order.
   const canMove = can(access.permissions, "regions", "e");

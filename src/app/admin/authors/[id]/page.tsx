@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { forbidden, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
+import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { can, sectionAccess } from "@/features/auth/access";
 import { AuthorForm, DeleteAuthor } from "@/features/authors/components/AuthorForm";
@@ -17,11 +18,11 @@ export default async function AuthorPage({
   searchParams: Promise<{ saved?: string }>;
 }) {
   const access = await sectionAccess("news");
-  if (!access) forbidden();
+  if (!access) return <NoAccess />;
   const { id } = await params;
 
   if (id === "new") {
-    if (!can(access.permissions, "news", "c")) forbidden();
+    if (!can(access.permissions, "news", "c")) return <NoAccess />;
     return (
       <>
         <PageHeader title="New author profile" />

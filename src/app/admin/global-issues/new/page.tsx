@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { forbidden } from "next/navigation";
+import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { sectionAccess } from "@/features/auth/access";
 import { getPickerOptions } from "@/features/geography/queries";
@@ -13,7 +13,7 @@ export default async function NewIssuePage({
 }: {
   searchParams: Promise<{ kind?: string }>;
 }) {
-  if (!(await sectionAccess("specials", "c"))) forbidden();
+  if (!(await sectionAccess("specials", "c"))) return <NoAccess />;
   const kind = (await searchParams).kind === "region" ? "region" : "issue";
   const { countries } = await getPickerOptions();
   return (

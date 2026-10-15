@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { forbidden } from "next/navigation";
+import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { buttonVariants } from "@/components/ui/button";
 import { navIcon } from "@/config/admin-nav";
@@ -14,7 +14,7 @@ export const metadata: Metadata = { title: "Roles & permissions" };
 
 export default async function RolesPage() {
   const access = await sectionAccess("permissions");
-  if (!access) forbidden();
+  if (!access) return <NoAccess />;
   const { roles, permissions, security } = await rolesOverview();
   const canEdit = can(access.permissions, "permissions", "e");
   const canCreate = can(access.permissions, "permissions", "c");

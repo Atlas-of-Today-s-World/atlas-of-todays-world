@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { forbidden } from "next/navigation";
+import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
@@ -28,7 +28,7 @@ const STATE = [
 
 export default async function InvitationsPage() {
   const access = await sectionAccess("users");
-  if (!access) forbidden();
+  if (!access) return <NoAccess />;
 
   const [invitations, roles, { countries }] = await Promise.all([
     listInvitations(),
