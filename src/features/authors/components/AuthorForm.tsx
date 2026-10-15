@@ -3,17 +3,19 @@
 import { useRouter } from "next/navigation";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { ConfirmButton } from "@/components/admin/ConfirmButton";
+import { SlugField, useSlug } from "@/components/admin/SlugField";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { ActionForm, useServerAction } from "@/components/ui/action-form";
-import { FormField, Input, Textarea, describedBy } from "@/components/ui/field";
+import { FormField, Input, Select, Textarea, describedBy } from "@/components/ui/field";
 import { UploadField } from "@/components/admin/UploadField";
-import { adminRoutes } from "@/config/routes";
-import { deleteAuthor, saveAuthor } from "../actions";
+import { adminRoutes, routes } from "@/config/routes";
+import { deleteAuthor, saveAuthor, saveAuthorAccount } from "../actions";
 import type { AuthorRow } from "../editorial";
 
 /** Entry author profile: name, photo, bio and positionality statement (P9). */
 export function AuthorForm({ author }: { author: AuthorRow | null }) {
   const [state, action] = useServerAction(saveAuthor);
+  const slug = useSlug(author?.slug);
   const errors = state.fieldErrors ?? {};
   const field = (id: string, hint?: string) => describedBy(id, { hint, errors: errors[id] });
 
@@ -31,6 +33,16 @@ export function AuthorForm({ author }: { author: AuthorRow | null }) {
           {...field("name")}
         />
       </FormField>
+
+      {/* A new profile gets its URL from the name (unique, made by the DB). */}
+      {author ? (
+        <SlugField
+          slug={slug}
+          label="Profile URL (slug)"
+          hint={`atlasoftodaysworld.org${routes.author(slug.value || "…")} — changing it redirects the old URL to the new one.`}
+          errors={errors.slug}
+        />
+      ) : null}
 
       <FormField
         id="photo_url"
@@ -102,5 +114,48 @@ export function DeleteAuthor({ id, name }: { id: string; name: string }) {
         if (state.ok) router.push(adminRoutes.authors.list);
       }}
     />
+  );
+}
+
+/**
+ * The team account this author profile belongs to (account managers only):
+ * the linked account may then edit the bio itself. Saved through the DB
+ * function set_author_account, which also checks the right.
+ */
+export function AuthorAccountForm({
+  authorId,
+  accountId,
+  accounts,
+}: {
+  authorId: string;
+  accountId: string | null;
+  accounts: { id: string; label: string }[];
+}) {
+  const [state, action] = useServerAction(saveAuthorAccount);
+  return (
+    <ActionForm action={action} className="grid max-w-2xl gap-3">
+      <input type="hidden" name="id" value={authorId} />
+      <FormField
+        id="profile_id"
+        label="Team account"
+        hint="The linked account can edit this profile itself. One account per author profile."
+        errors={state.fieldErrors?.profile_id}
+      >
+        <Select id="profile_id" name="profile_id" defaultValue={accountId ?? ""}>
+          <option value="">Not linked</option>
+          {accounts.map((account) => (
+            <option key={account.id} value={account.id}>
+              {account.label}
+            </option>
+          ))}
+        </Select>
+      </FormField>
+      <div className="flex flex-wrap items-center gap-3">
+        <SubmitButton variant="outline" pending="Saving…">
+          Save account link
+        </SubmitButton>
+        <ActionStatus state={state} />
+      </div>
+    </ActionForm>
   );
 }

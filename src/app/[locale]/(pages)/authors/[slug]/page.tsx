@@ -1,6 +1,5 @@
 import { getSiteSettings } from "@/features/site/queries";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { kickerVariants } from "@/components/atlas/kicker";
 import Link from "@/components/i18n/Link";
 import { JsonLd } from "@/components/JsonLd";
@@ -8,6 +7,7 @@ import { getAuthorBySlug, getAuthors } from "@/features/authors/queries";
 import { getArticlesByAuthor } from "@/features/entries/queries";
 import { format } from "@/features/i18n/messages";
 import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import { redirectOrNotFound } from "@/features/redirects/queries";
 import { formatLongDate } from "@/lib/format";
 import { cssBackgroundImage } from "@/lib/security/urls";
 import { PHOTO_WIDTH } from "@/lib/images";
@@ -67,7 +67,8 @@ export default async function AuthorPage({ params }: Params) {
   const { slug } = await params;
   const locale = await localeFrom(params);
   const author = await getAuthorBySlug(slug);
-  if (!author) notFound();
+  // A renamed profile URL leads to the new one (redirect left by the admin), else 404.
+  if (!author) return redirectOrNotFound(routes.author(slug), locale);
   const messages = await getMessagesFor(locale);
   const t = messages.authorPage;
   const articles = await articlesOf(slug);

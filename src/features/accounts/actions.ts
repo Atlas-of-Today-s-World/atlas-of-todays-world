@@ -46,7 +46,8 @@ async function syncAssignments(
 }
 
 /**
- * Account update (ARCHITEKTURA 7, E6): role, block, approver assignments.
+ * Account update (ARCHITEKTURA 7, E6): name and phone, role, block, approver
+ * assignments.
  * Who may do what is enforced by guard_profiles + RLS; a blocked account is
  * also banned in Supabase Auth so its session stops working immediately (DB-18).
  */
@@ -67,11 +68,15 @@ export async function saveAccount(_prev: ActionState, formData: FormData): Promi
 
   // The kind of account (staff / reader) follows the role in the DB (guard_profiles).
   const update: {
+    name: string;
+    phone: string | null;
     role_id: string;
     status: string;
     blocked_note: string | null;
     approval_global?: boolean;
   } = {
+    name: fields.name,
+    phone: fields.phone ?? null,
     role_id: fields.role_id,
     status: fields.status,
     blocked_note: fields.status === "blocked" ? (blocked_note ?? null) : null,
