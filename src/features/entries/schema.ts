@@ -109,6 +109,12 @@ export const CHAPTER_FIELD_LABEL: Record<string, string> = {
   tile_background: "tile colour",
 };
 
+/**
+ * The `updated_at` of the article the approver saw, exactly as the DB returned it
+ * (microseconds included) — approve_entry refuses the article if it changed since.
+ */
+export const EntryVersion = z.iso.datetime({ offset: true });
+
 export const SendBackInput = z.object({
   id: uuid,
   note: requiredText(2000),

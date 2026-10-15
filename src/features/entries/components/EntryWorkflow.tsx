@@ -19,6 +19,7 @@ import {
   submitEntry,
   unpublishEntry,
   unscheduleEntry,
+  withdrawEntry,
 } from "../workflow-actions";
 import type { Revision } from "../revisions";
 import type { EntryStatus } from "../constants";
@@ -26,22 +27,30 @@ import { ActionForm } from "@/components/ui/action-form";
 
 /**
  * Article status and approval steps. Buttons are shown per permissions, but
- * whether a step succeeds is decided by DB functions (submit/approve/send_back/unpublish).
+ * whether a step succeeds is decided by DB functions
+ * (submit/withdraw/approve/send_back/unpublish). A pending article is frozen
+ * for everyone but its approvers; its editors withdraw it to change it.
  */
 export function EntryWorkflow({
   id,
   status,
   canApprove,
+  canWithdraw,
   canDelete,
   reviewNote,
   publishAt,
+  updatedAt,
 }: {
   id: string;
   status: EntryStatus;
   canApprove: boolean;
+  /** Edits the article (its author, or an editor of everyone's articles). */
+  canWithdraw: boolean;
   canDelete: boolean;
   reviewNote: string | null;
   publishAt: string | null;
+  /** The version shown on this page — approval is refused if the article changed since. */
+  updatedAt: string;
 }) {
   const router = useRouter();
   const [result, setResult] = useState<ActionState>({ ok: false });
@@ -65,7 +74,7 @@ export function EntryWorkflow({
             label="Submit for approval"
             variant="primary"
             title="Submit for approval?"
-            body="Article approvers will see it. You can keep editing it until they decide."
+            body="Article approvers will see it. While it waits for approval it can't be changed; withdraw it from review if you need to edit it again."
             confirm="Submit"
             action={() => submitEntry(id)}
             onDone={done}
@@ -76,9 +85,19 @@ export function EntryWorkflow({
             label="Approve and publish"
             variant="primary"
             title="Publish the article?"
-            body="The article will appear on the website right away."
+            body="The article will appear on the website right away, exactly as shown on this page."
             confirm="Publish"
-            action={() => approveEntry(id)}
+            action={() => approveEntry(id, updatedAt)}
+            onDone={done}
+          />
+        ) : null}
+        {status === "pending" && canWithdraw ? (
+          <ConfirmButton
+            label="Withdraw from review"
+            title="Withdraw the article from review?"
+            body="It returns to drafts so you can edit it, and any scheduled publication is canceled. Submit it again when it's ready."
+            confirm="Withdraw"
+            action={() => withdrawEntry(id)}
             onDone={done}
           />
         ) : null}
