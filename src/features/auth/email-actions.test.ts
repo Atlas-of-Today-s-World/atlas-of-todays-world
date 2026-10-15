@@ -18,7 +18,7 @@ const { verifyEmailCode } = await import("./email-actions");
 const attempt = (email = "ana@example.org") => {
   const form = new FormData();
   form.set("email", email);
-  form.set("code", "123456");
+  form.set("code", "12345678");
   return verifyEmailCode({ ok: false }, form);
 };
 

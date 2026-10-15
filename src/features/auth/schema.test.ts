@@ -18,10 +18,10 @@ describe("EmailCodeRequest", () => {
 });
 
 describe("EmailCodeVerify", () => {
-  it("code has exactly six digits", () => {
+  it("code has exactly eight digits", () => {
     const base = { email: "ana@example.org" };
-    expect(EmailCodeVerify.safeParse({ ...base, code: " 123456 " }).success).toBe(true);
-    for (const code of ["12345", "1234567", "12345a", ""]) {
+    expect(EmailCodeVerify.safeParse({ ...base, code: " 12345678 " }).success).toBe(true);
+    for (const code of ["1234567", "123456789", "1234567a", ""]) {
       expect(EmailCodeVerify.safeParse({ ...base, code }).success).toBe(false);
     }
   });
