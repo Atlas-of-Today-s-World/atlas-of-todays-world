@@ -65,6 +65,16 @@ test("custom region: created from countries, type in list and article sections",
     "POL",
   ]);
 
+  // A whole region at once: its countries join the chips, and leave them again (not saved).
+  const chips = page.getByRole("list", { name: "Selected countries" }).getByRole("listitem");
+  await expect(chips).toHaveCount(2);
+  await page.getByLabel("Whole region or custom region").selectOption({ index: 1 });
+  await page.getByRole("button", { name: "Add its countries" }).click();
+  await expect(page.getByText(/^Added \d+ countr(y|ies) of /)).toBeVisible();
+  expect(await chips.count()).toBeGreaterThan(2);
+  await page.getByRole("button", { name: "Remove its countries" }).click();
+  await expect(page.getByText(/^Removed \d+ countr(y|ies) of /)).toBeVisible();
+
   await page.goto("/admin/global-issues");
   const row = page.getByRole("row", { name });
   await expect(row).toContainText("Custom region");

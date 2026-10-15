@@ -8,7 +8,7 @@ import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
 import { TopicsBrowser } from "@/features/topics/components/TopicsBrowser";
 import { topicIndex } from "@/features/topics/related";
 import { staticPageMetadata } from "@/features/seo/metadata";
-import { breadcrumbNode, graph, itemListNode, pageUrl, webPageNode } from "@/features/seo/jsonld";
+import { collectionPageGraph } from "@/features/seo/jsonld";
 import { routes } from "@/config/routes";
 
 export const generateMetadata = staticPageMetadata("topics", routes.topics);
@@ -45,16 +45,8 @@ export default async function TopicsPage({ params }: PageProps<"/[locale]/topics
     <>
       {/* The static render lists everything; the filter and the search run in the browser. */}
       <TopicsBrowser
-        heading={
-          <>
-            <h1 className="font-display text-[34px] font-bold tracking-tight sm:text-[44px]">
-              {t.title}
-            </h1>
-            <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-[var(--color-ink-soft)]">
-              {t.intro}
-            </p>
-          </>
-        }
+        title={t.title}
+        intro={t.intro}
         items={cards}
         filters={filters}
         names={names}
@@ -67,23 +59,14 @@ export default async function TopicsPage({ params }: PageProps<"/[locale]/topics
       />
 
       <JsonLd
-        data={graph(
-          webPageNode({
-            url: pageUrl(routes.topics, locale),
-            name: t.title,
-            description: t.description,
-            locale,
-            type: "CollectionPage",
-            breadcrumb: breadcrumbNode(site, [{ name: t.title, path: routes.topics }], locale),
-          }),
-          itemListNode(
-            t.title,
-            entries.map((item) => ({
-              name: item.title,
-              url: pageUrl(routes.topic(item.slug), locale),
-            })),
-          ),
-        )}
+        data={collectionPageGraph({
+          path: routes.topics,
+          name: t.title,
+          description: t.description,
+          locale,
+          site,
+          items: entries.map((item) => ({ name: item.title, path: routes.topic(item.slug) })),
+        })}
       />
     </>
   );

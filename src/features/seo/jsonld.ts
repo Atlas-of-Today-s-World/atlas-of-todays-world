@@ -264,6 +264,35 @@ export function itemListNode(name: string, items: { name: string; url: string }[
   };
 }
 
+/**
+ * An index page over the map (Topics, Global issues): a CollectionPage one
+ * crumb below home, and the list of what it links to. Paths in the page language.
+ */
+export function collectionPageGraph(input: {
+  path: string;
+  name: string;
+  description: string;
+  locale: Locale;
+  site: Pick<SiteSettings, "name">;
+  items: { name: string; path: string }[];
+}): JsonLdGraph {
+  const { path, name, locale } = input;
+  return graph(
+    webPageNode({
+      url: pageUrl(path, locale),
+      name,
+      description: input.description,
+      locale,
+      type: "CollectionPage",
+      breadcrumb: breadcrumbNode(input.site, [{ name, path }], locale),
+    }),
+    itemListNode(
+      name,
+      input.items.map((item) => ({ name: item.name, url: pageUrl(item.path, locale) })),
+    ),
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Places
 // ---------------------------------------------------------------------------

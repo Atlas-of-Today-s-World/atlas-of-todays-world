@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { NoAccess } from "@/components/admin/NoAccess";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { sectionAccess } from "@/features/auth/access";
-import { getPickerOptions } from "@/features/geography/queries";
+import { getCountryGroups, getPickerOptions } from "@/features/geography/queries";
 import { IssueForm } from "@/features/portraits/components/HeaderForms";
 import { GROUP_KIND_LABEL } from "@/features/portraits/constants";
 
@@ -15,7 +15,7 @@ export default async function NewIssuePage({
 }) {
   if (!(await sectionAccess("specials", "c"))) return <NoAccess />;
   const kind = (await searchParams).kind === "region" ? "region" : "issue";
-  const { countries } = await getPickerOptions();
+  const [{ countries }, groups] = await Promise.all([getPickerOptions(), getCountryGroups()]);
   return (
     <>
       <PageHeader
@@ -26,7 +26,7 @@ export default async function NewIssuePage({
             : "Once created, fill in the portrait sections (indicators, timeline, sources, FAQ…)."
         }
       />
-      <IssueForm issue={null} countries={countries} defaultKind={kind} />
+      <IssueForm issue={null} countries={countries} groups={groups} defaultKind={kind} />
     </>
   );
 }

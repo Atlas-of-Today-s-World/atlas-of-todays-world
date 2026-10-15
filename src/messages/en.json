@@ -1,6 +1,7 @@
 {
   "nav": {
     "topics": "Topics",
+    "globalIssues": "Global issues",
     "countries": "Countries",
     "news": "News",
     "about": "About",
@@ -154,6 +155,7 @@
     "maintenanceTitle": "The Atlas is being updated",
     "maintenanceText": "We are working on the site right now. Please come back in a little while.",
     "latestSubtopics": "Latest subtopics",
+    "allIssues": "All global issues",
     "noData": "no data",
     "openPlace": "Open {name}",
     "globeUnavailable": "The 3D globe can't run in this browser",
@@ -621,6 +623,31 @@
     "noResults": "Nothing found in the text of these topics.",
     "introPart": "Introduction",
     "inTopic": "in {topic}"
+  },
+  "globalIssues": {
+    "title": "Global issues",
+    "metaTitle": "Global issues — wars, migration, climate across borders",
+    "description": "Every global issue of the Atlas in one place: wars, forced displacement, climate and more, each followed across the countries it touches, with its topics, timeline and sources.",
+    "intro": "Issues that cross the borders of regions. Each one follows the countries it touches, with its own topics, timeline and sources.",
+    "empty": "No global issues have been published yet.",
+    "relatedWith": "Global issues related to {name}",
+    "filterNone": "No global issue covers {name} yet.",
+    "allCountries": "All countries",
+    "allRegions": "All regions",
+    "allCustomRegions": "All custom regions",
+    "filters": "Filter global issues",
+    "filterCountry": "Country",
+    "filterRegion": "Region",
+    "filterCustomRegion": "Custom region",
+    "filterHint": "One filter at a time — choosing one clears the others.",
+    "clearFilter": "Show all global issues",
+    "search": "Search in global issues",
+    "searchPlaceholder": "Search global issues and their countries…",
+    "resultsCount": "{count} global issues found",
+    "resultsOne": "1 global issue found",
+    "noResults": "No global issue matches your search.",
+    "statusReady": "Ready",
+    "statusPreparing": "In preparation"
   },
   "cookies": {
     "label": "Cookie notice",

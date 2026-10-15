@@ -2,27 +2,124 @@
 
 import { X } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Input } from "@/components/ui/field";
+import { Button } from "@/components/ui/button";
+import { Input, Select } from "@/components/ui/field";
+import { addGroup, removeGroup, type CountryGroupOption } from "./country-groups";
 
 export interface CountryOption {
   iso3: string;
   name: string;
 }
 
+/** Groups whose countries can be added or removed at once ("Regions", "Custom regions"). */
+export interface CountryGroups {
+  label: string;
+  options: CountryGroupOption[];
+}
+
+/**
+ * "Add / remove all countries of …": one select over every group (regions,
+ * custom regions) and two buttons. Says what it did, since the chips above
+ * may change out of view.
+ */
+function GroupActions({
+  id,
+  groups,
+  selected,
+  known,
+  onChange,
+}: {
+  id: string;
+  groups: CountryGroups[];
+  selected: string[];
+  known: ReadonlySet<string>;
+  onChange: (next: string[]) => void;
+}) {
+  const [choice, setChoice] = useState("");
+  const [note, setNote] = useState("");
+  const [groupIndex, key] = choice.split(":");
+  const group = groups[Number(groupIndex)]?.options.find((option) => option.key === key);
+
+  const apply = (mode: "add" | "remove") => {
+    if (!group) return;
+    const result =
+      mode === "add"
+        ? addGroup(selected, group.countries, known)
+        : removeGroup(selected, group.countries);
+    onChange(result.selected);
+    setNote(
+      `${mode === "add" ? "Added" : "Removed"} ${result.changed} ${result.changed === 1 ? "country" : "countries"} of ${group.name}.`,
+    );
+  };
+
+  return (
+    <div className="grid gap-1.5">
+      <div className="flex flex-wrap items-center gap-2">
+        <label htmlFor={`${id}-group`} className="sr-only">
+          Whole region or custom region
+        </label>
+        <Select
+          id={`${id}-group`}
+          value={choice}
+          onChange={(event) => setChoice(event.target.value)}
+          className="w-auto min-w-56 flex-1"
+        >
+          <option value="">Whole region or custom region…</option>
+          {groups.map((set, index) =>
+            set.options.length ? (
+              <optgroup key={set.label} label={set.label}>
+                {set.options.map((option) => (
+                  <option key={option.key} value={`${index}:${option.key}`}>
+                    {option.name} ({option.countries.length})
+                  </option>
+                ))}
+              </optgroup>
+            ) : null,
+          )}
+        </Select>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={!group}
+          onClick={() => apply("add")}
+        >
+          Add its countries
+        </Button>
+        <Button
+          type="button"
+          variant="quiet"
+          size="sm"
+          disabled={!group}
+          onClick={() => apply("remove")}
+        >
+          Remove its countries
+        </Button>
+      </div>
+      <p aria-live="polite" className="text-[12px] text-[var(--color-ink-muted)]">
+        {note}
+      </p>
+    </div>
+  );
+}
+
 /**
  * Multi-country picker (article, global issue, approver assignment). Searches
  * by name and ISO code; selected countries go into the form as a repeated field.
+ * With `groups`, whole regions or custom regions can be added or removed at once.
  */
 export function CountryPicker({
   id,
   name,
   options,
   defaultSelected,
+  groups,
 }: {
   id: string;
   name: string;
   options: CountryOption[];
   defaultSelected: string[];
+  groups?: CountryGroups[];
 }) {
   const [selected, setSelected] = useState<string[]>(defaultSelected);
   const [query, setQuery] = useState("");
@@ -104,6 +201,15 @@ export function CountryPicker({
             </li>
           ))}
         </ul>
+      ) : null}
+      {groups?.some((set) => set.options.length) ? (
+        <GroupActions
+          id={id}
+          groups={groups}
+          selected={selected}
+          known={new Set(byIso.keys())}
+          onChange={setSelected}
+        />
       ) : null}
     </div>
   );

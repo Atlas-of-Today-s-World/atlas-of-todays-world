@@ -33,6 +33,11 @@ export const routes = {
   /** Overview of all encyclopedia entries (full-width page, the globe in a corner window). */
   topics: P.topics,
   /**
+   * Overview of every global issue (full-width page like Topics). Not under
+   * ROUTE_PREFIX.issue: an issue's own portrait is `/global-issue/<slug>`.
+   */
+  globalIssues: "/global-issues",
+  /**
    * Every region, country and global issue as a plain list: the way in without
    * the globe (keyboard, screen readers, browsers without WebGL).
    */

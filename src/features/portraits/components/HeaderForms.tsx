@@ -7,7 +7,11 @@ import {
   GROUP_KIND_OPTION,
 } from "../constants";
 import { ActionStatus } from "@/components/admin/ActionStatus";
-import { CountryPicker, type CountryOption } from "@/components/admin/CountryPicker";
+import {
+  CountryPicker,
+  type CountryGroups,
+  type CountryOption,
+} from "@/components/admin/CountryPicker";
 import { OrderedPicker } from "@/components/admin/OrderedPicker";
 import { RegionSelect, type PlaceOption } from "@/components/admin/RegionSelect";
 import { SubmitButton } from "@/components/admin/SubmitButton";
@@ -264,10 +268,13 @@ export interface IssueValues {
 export function IssueForm({
   issue,
   countries,
+  groups,
   defaultKind = "issue",
 }: {
   issue: IssueValues | null;
   countries: CountryOption[];
+  /** Regions and custom regions whose countries can be added or removed at once. */
+  groups?: CountryGroups[];
   /** Type of the new group (button „New custom region" / „New global issue"). */
   defaultKind?: GroupKind;
 }) {
@@ -345,7 +352,7 @@ export function IssueForm({
       <FormField
         id="countries"
         label="Countries in this group"
-        hint="Pick any countries — a group can freely cross Atlas region boundaries."
+        hint="Pick any countries — a group can freely cross Atlas region boundaries. To assign it to a whole region or custom region, add all of its countries at once below."
         errors={errors.countries}
       >
         <CountryPicker
@@ -353,6 +360,7 @@ export function IssueForm({
           name="countries"
           options={countries}
           defaultSelected={values.countries}
+          groups={groups}
         />
       </FormField>
       <ColorFields fill={values.fill} stroke={values.stroke} errors={errors} />

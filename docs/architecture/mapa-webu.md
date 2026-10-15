@@ -35,6 +35,8 @@ flowchart TD
   Featured --> Subtopic
 
   Topics["Seznam témat /topics<br/>filtry: země · region · globální téma + fulltext"] --> Topic
+  Issues["Seznam globálních témat /global-issues<br/>filtry: země · region · vlastní region + hledání"] --> Issue
+  M3 -.->|"All global issues"| Issues
   Country -.->|"See all topics"| Topics
   Region -.-> Topics
 
@@ -113,7 +115,7 @@ erDiagram
 |---|---|---|---|
 | Region | `regions` | Admin → Regions & countries | Úvod, hero foto, timeline nadpis, `portrait_status` (`populated` = napsaný, `skeleton` = šedý „v přípravě" s výzvou k podpoře). |
 | Země | `countries` | Admin → Regions & countries → země | Patří do jednoho regionu (`region_slug`); profil `profile_html`, tagline, doporučené ukazatele. |
-| Globální téma (Global issue) | `special_regions` (`kind = 'issue'`) | Admin → Global issues (`/admin/global-issues`) | Skupina zemí přes `special_region_countries` (např. Migration, War in Ukraine). `kind = 'region'` je vlastní skupina zemí. |
+| Globální téma (Global issue) | `special_regions` (`kind = 'issue'`) | Admin → Global issues (`/admin/global-issues`) | Skupina zemí přes `special_region_countries` (např. Migration, War in Ukraine). `kind = 'region'` je vlastní skupina zemí. Přehled všech globálních témat je `/global-issues` (v hlavním menu hned za Topics); téma se k celému regionu či vlastnímu regionu přiřadí v adminu tlačítkem „Add its countries" (uloží se pořád jen členské země). |
 | Vlastní mapová oblast | `map_areas` | Admin → Custom map areas | Polygon na mapě, téma se k ní může vázat (`entries.area_id`). |
 | Ukazatel (World metrics) | `indicators` + `indicator_values` | Admin → Map data layers | Hodnoty po zemích a letech; barvení glóbu `/view/[indicator]`, karty v panelu země. |
 

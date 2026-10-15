@@ -111,6 +111,11 @@ export async function getSitemaps(now = Date.now()): Promise<Record<SitemapName,
       { path: "/", lastmod: latest([dataChanged, ...articles.map(articleDate)]) },
       { path: routes.newsIndex, lastmod: latest(news.map(articleDate)) },
       { path: routes.topics, lastmod: latest(entries.map(articleDate)) },
+      // The overview changes with the issues themselves (and with their topic counts).
+      {
+        path: routes.globalIssues,
+        lastmod: latest([...Object.values(stamps.issue), ...entries.map(articleDate)]),
+      },
       // The list of every place changes with the places themselves (names, slugs).
       {
         path: routes.countries,
@@ -286,6 +291,11 @@ function sections(
       links: [
         { name: t.about.title, url: url(locale, routes.about), note: t.about.description },
         { name: t.topics.title, url: url(locale, routes.topics), note: t.topics.description },
+        {
+          name: t.globalIssues.title,
+          url: url(locale, routes.globalIssues),
+          note: t.globalIssues.description,
+        },
         { name: t.patrons.title, url: url(locale, routes.membership), note: t.patrons.description },
         { name: "RSS", url: url(locale, "/feed.xml") },
         { name: "Sitemap", url: absoluteUrl("/sitemap.xml") },

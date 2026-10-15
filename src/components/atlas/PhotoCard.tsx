@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 import Link from "@/components/i18n/Link";
 import { cn } from "@/lib/cn";
 import { PHOTO_WIDTH } from "@/lib/images";
-import { cssBackgroundImage } from "@/lib/security/urls";
 import { kickerVariants } from "./kicker";
+import { tileStyle } from "./PhotoTile";
 
 const card = cva(
   "group overflow-hidden bg-white text-[var(--color-ink)] transition focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none",
@@ -60,8 +60,10 @@ export interface PhotoCardProps extends VariantProps<typeof card> {
   href: string;
   /** Another site: opens in a new tab, without the language prefix. */
   external?: boolean;
-  /** Photo URL; without a usable one the header is ink, or `placeholder`. */
+  /** Photo URL; without a usable one the header is `background`, ink, or `placeholder`. */
   image?: string | null;
+  /** `#rrggbb` header colour without a photo (a global issue's colour on the map). */
+  background?: string | null;
   /** Width the photo is requested at (PHOTO_WIDTH). */
   width?: number;
   /** Shown in a calm accent header when there is no photo (a source's category). */
@@ -86,6 +88,7 @@ export function PhotoCard({
   href,
   external = false,
   image,
+  background,
   width = PHOTO_WIDTH.tile,
   placeholder,
   shade = false,
@@ -96,15 +99,11 @@ export function PhotoCard({
   size,
   className,
 }: PhotoCardProps) {
-  const photo = cssBackgroundImage(image, width);
+  const style = tileStyle(image, background, width);
   const content = (
     <>
-      {photo || !placeholder ? (
-        <span
-          aria-hidden
-          className={header({ size })}
-          style={photo ? { backgroundImage: photo } : undefined}
-        >
+      {style || !placeholder ? (
+        <span aria-hidden className={header({ size })} style={style}>
           {shade ? (
             <span className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-80 transition group-hover:opacity-100" />
           ) : null}

@@ -20,6 +20,7 @@ describe("built-in menus (fallback)", () => {
       nav.main.map((item) => [item.label, item.href, item.primary, item.compactHidden]),
     ).toEqual([
       ["Topics", "/topics", false, false],
+      ["Global issues", "/global-issues", false, false],
       ["Countries", "/countries", false, true],
       ["News", "/news", false, true],
       ["About", "/about", false, false],
@@ -38,7 +39,7 @@ describe("built-in menus (fallback)", () => {
 
   it("leave News out while news_menu is off, as the header did before", () => {
     const labels = navigationFrom(NAV_DEFAULT_ROWS, OFF).main.map((item) => item.label);
-    expect(labels).toEqual(["Topics", "Countries", "About", "Atlas Patrons"]);
+    expect(labels).toEqual(["Topics", "Global issues", "Countries", "About", "Atlas Patrons"]);
   });
 });
 

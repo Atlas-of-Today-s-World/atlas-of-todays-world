@@ -1,17 +1,16 @@
 "use client";
 
-import { Search, X } from "lucide-react";
 import { TopicsInvite } from "@/components/topics/TopicsInvite";
-import { type ReactNode, useSyncExternalStore } from "react";
 import { kickerVariants } from "@/components/atlas/kicker";
+import { FilterHeader } from "@/components/atlas/FilterHeader";
 import { EmptyNote } from "@/components/atlas/Note";
 import { PhotoCard } from "@/components/atlas/PhotoCard";
+import { activeFilter, useUrlParams } from "@/components/atlas/url-filters";
 import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { Button } from "@/components/ui/button";
 import { PLACE_KINDS as KINDS, type PlaceKind as Kind } from "@/features/geography/kinds";
 import { format } from "@/lib/i18n/messages";
-import { cn } from "@/lib/cn";
 import { PHOTO_WIDTH } from "@/lib/images";
 import { normalizeSearchQuery } from "@/lib/search-query";
 import { useDebouncedSearch } from "@/lib/use-debounced-search";
@@ -32,50 +31,6 @@ export type TopicFilters = Record<Kind, Record<string, string[]>>;
 export type PlaceNames = Record<Kind, Record<string, string>>;
 
 /**
- * The one active place filter from the URL — `?country=ita`, `?region=…` or
- * `?issue=…` (also what "See all topics" on a country or portrait links to).
- */
-function filterFrom(params: URLSearchParams): { kind: Kind; key: string } | null {
-  for (const kind of KINDS) {
-    const value = params.get(kind);
-    if (value) return { kind, key: kind === "country" ? value.toUpperCase() : value };
-  }
-  return null;
-}
-
-// The filter and the search text live in the URL (shareable, back button), read
-// as an external store: the server renders the unfiltered list (search engines).
-const URL_EVENT = "atlas:topics-url";
-const subscribe = (onChange: () => void) => {
-  window.addEventListener("popstate", onChange);
-  window.addEventListener(URL_EVENT, onChange);
-  return () => {
-    window.removeEventListener("popstate", onChange);
-    window.removeEventListener(URL_EVENT, onChange);
-  };
-};
-const readSearch = () => window.location.search;
-const noSearch = () => "";
-
-function setParams(update: Record<string, string | null>) {
-  const params = new URLSearchParams(window.location.search);
-  for (const [key, value] of Object.entries(update)) {
-    if (value) params.set(key, value);
-    else params.delete(key);
-  }
-  const query = params.toString();
-  window.history.replaceState(
-    null,
-    "",
-    `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`,
-  );
-  window.dispatchEvent(new Event(URL_EVENT));
-}
-
-const FIELD =
-  "min-h-(--touch-min) w-full rounded-xl border border-[var(--color-field-border)] bg-white px-3 text-[14px] text-[var(--color-ink)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none";
-
-/**
  * The Topics list: one place filter (country, region or special region — a
  * new choice replaces the old one; the same topics as the counts on the globe)
  * and a full-text search inside the topics showing an excerpt and a link to
@@ -87,10 +42,12 @@ export function TopicsBrowser({
   filters,
   names,
   regionOf = {},
-  heading,
+  title,
+  intro,
 }: {
-  /** Title and intro of the page; the search panel sits beside them on wide screens. */
-  heading: ReactNode;
+  /** Title and intro of the page; the filter panel sits beside them on wide screens. */
+  title: string;
+  intro: string;
   items: TopicCard[];
   filters: TopicFilters;
   names: PlaceNames;
@@ -99,9 +56,10 @@ export function TopicsBrowser({
 }) {
   const messages = useMessages();
   const t = messages.topics;
-  const search = useSyncExternalStore(subscribe, readSearch, noSearch);
-  const params = new URLSearchParams(search);
-  const filter = filterFrom(params);
+  const params = useUrlParams();
+  // The one active place filter — `?country=ita`, `?region=…` or `?issue=…`
+  // (also what "See all topics" on a country or portrait links to).
+  const filter = activeFilter(params, KINDS);
   const filterName = filter ? (names[filter.kind][filter.key] ?? filter.key) : "";
   // A country's list also holds its region's topics — the heading says so.
   const filterRegion = filter?.kind === "country" ? regionOf[filter.key] : undefined;
@@ -136,81 +94,26 @@ export function TopicsBrowser({
 
   return (
     <div className="mx-auto max-w-7xl px-4 pt-12 pb-6 sm:px-8 sm:pt-16">
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,34rem)] lg:items-end">
-        <div>{heading}</div>
-        <div className="rounded-2xl bg-white p-3 shadow-sm ring-1 ring-black/5">
-          <fieldset className="grid gap-2 sm:grid-cols-3">
-            <legend className="sr-only">{t.filters}</legend>
-            <span className="relative col-span-full flex items-center gap-1">
-              <label htmlFor="topics-search" className="sr-only">
-                {t.search}
-              </label>
-              <Search
-                aria-hidden
-                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[var(--color-ink-muted)]"
-              />
-              <input
-                id="topics-search"
-                type="search"
-                value={query}
-                onChange={(event) => setParams({ q: event.target.value || null })}
-                placeholder={t.searchPlaceholder}
-                maxLength={200}
-                className={cn(FIELD, "pl-9")}
-              />
-              {filter ? (
-                <button
-                  type="button"
-                  onClick={() => setParams({ country: null, region: null, issue: null })}
-                  aria-label={t.clearFilter}
-                  title={t.clearFilter}
-                  className="inline-flex min-h-(--touch-min) shrink-0 items-center justify-center gap-1.5 rounded-xl px-3 text-[13px] font-medium whitespace-nowrap text-[var(--color-link)] hover:bg-[var(--color-accent-soft)]"
-                >
-                  <X aria-hidden className="size-4" />
-                  {t.clearFilter}
-                </button>
-              ) : null}
-            </span>
-            {KINDS.map((kind) => (
-              <span key={kind} className="block">
-                <label htmlFor={`topics-filter-${kind}`} className="sr-only">
-                  {labels[kind]}
-                </label>
-                <select
-                  id={`topics-filter-${kind}`}
-                  value={filter?.kind === kind ? filter.key : ""}
-                  title={t.filterHint}
-                  // One filter at a time: picking one clears the other two.
-                  onChange={(event) =>
-                    setParams(
-                      Object.fromEntries(
-                        KINDS.map((other) => [
-                          other,
-                          // Lowercase ISO3 for countries, like the "See all topics" links.
-                          other === kind ? event.target.value.toLowerCase() || null : null,
-                        ]),
-                      ),
-                    )
-                  }
-                  // The chosen filter stands out on a light gold ground.
-                  className={cn(
-                    FIELD,
-                    filter?.kind === kind &&
-                      "border-[var(--color-gold)] bg-[var(--color-gold-light)]/45 font-medium",
-                  )}
-                >
-                  <option value="">{allLabels[kind]}</option>
-                  {options(kind).map(([key, name]) => (
-                    <option key={key} value={key}>
-                      {name}
-                    </option>
-                  ))}
-                </select>
-              </span>
-            ))}
-          </fieldset>
-        </div>
-      </div>
+      <FilterHeader
+        id="topics"
+        title={title}
+        intro={intro}
+        query={query}
+        filter={filter}
+        selects={KINDS.map((kind) => ({
+          kind,
+          label: labels[kind],
+          allLabel: allLabels[kind],
+          options: options(kind),
+        }))}
+        texts={{
+          legend: t.filters,
+          search: t.search,
+          searchPlaceholder: t.searchPlaceholder,
+          clear: t.clearFilter,
+          hint: t.filterHint,
+        }}
+      />
 
       {searching ? (
         <section aria-live="polite" aria-busy={loading} className="mt-8">
