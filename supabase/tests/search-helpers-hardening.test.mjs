@@ -523,6 +523,7 @@ const APP_RPCS = {
   move_site_social_link: ["authenticated"],
   move_nav_item: ["authenticated"],
   move_region: ["authenticated"],
+  move_visual: ["authenticated"],
   move_indicator: ["authenticated"],
   move_role: ["authenticated"],
   set_author_account: ["authenticated"],

@@ -12,7 +12,7 @@
 |---|---|
 | Přístup | `roles`, `role_permissions`, `profiles`, `approver_countries`, `approver_authors`, `allowed_emails`, `security_settings`, `audit_log` |
 | Geografie a data | `regions`, `countries`, `indicators`, `indicator_categories`, `indicator_values`, `indicator_styles`, `site_theme`, `special_regions`, `special_region_countries`, `map_areas` |
-| Obsah | `authors`, `entries`, `entry_countries`, `entry_chapters`, `entry_revisions`, `timeline_events`, `faq_items`, `resources`, `portrait_metrics`, `visual_embeds` |
+| Obsah | `authors`, `entries`, `entry_countries`, `entry_chapters`, `entry_revisions`, `timeline_events`, `faq_items`, `resources`, `portrait_metrics`, `visuals` (Maps & charts; `visual_embeds` do kontrakce nepoužívaná) |
 | Členství | `memberships`, `page_views_daily`, view `members_overview` |
 | Storage | bucket `entry-images` (+ plánované `author-photos`, `illustrations`, `audio`) |
 | Plánované | `invitations` (7.3), `translations` (P15), `rate_limits` (S9), `entries.search` tsvector (4.2) |

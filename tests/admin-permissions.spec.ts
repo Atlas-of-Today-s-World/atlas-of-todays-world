@@ -450,20 +450,52 @@ test.describe("region portrait sections", () => {
     await expect(faq.getByRole("button", { name: "Save section" })).toBeDisabled();
     await expect(faq.getByRole("button", { name: "Add question" })).toBeDisabled();
     await expect(
-      page
-        .getByText("Portrait texts (timeline, FAQ, sources, visuals) are edited by editors")
-        .first(),
+      page.getByText("Portrait texts (timeline, FAQ, sources) are edited by editors").first(),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Save region" })).toBeDisabled();
+    // Maps & charts: neither a region editor nor an editor of all articles.
+    const visuals = page.getByRole("region", { name: "Maps & charts", exact: true });
+    await expect(visuals.getByRole("button", { name: "Add map or chart" })).toBeDisabled();
   });
 
-  test("data-editor edits header and cards, texts read-only", async ({ page }) => {
+  test("data-editor edits header, cards and maps & charts, texts read-only", async ({ page }) => {
     await signInAs(page, "data-editor", `/admin/regions/${region}`);
     await expect(page.getByRole("button", { name: "Save region" })).toBeEnabled();
     const metrics = page.getByRole("region", { name: "Key indicators" });
     await expect(metrics.getByRole("button", { name: "Save section" })).toBeEnabled();
     const faq = page.getByRole("region", { name: "FAQ", exact: true });
     await expect(faq.getByRole("button", { name: "Save section" })).toBeDisabled();
+    const visuals = page.getByRole("region", { name: "Maps & charts", exact: true });
+    await expect(visuals.getByRole("button", { name: "Add map or chart" })).toBeEnabled();
+  });
+
+  test("content-editor adds a chart by its link, then removes it", async ({ page }) => {
+    const title = `E2E chart ${run}`;
+    try {
+      await signInAs(page, "content-editor", `/admin/regions/${region}`);
+      const visuals = page.getByRole("region", { name: "Maps & charts", exact: true });
+      await visuals
+        .locator("textarea[name=embed]")
+        .fill("https://ourworldindata.org/grapher/life-expectancy?tab=chart");
+      await expect(visuals.getByTestId("visual-provider")).toContainText("Our World in Data");
+      await visuals.locator("input[name=title]").fill(title);
+      await visuals.getByRole("button", { name: "Add map or chart" }).click();
+      await expect(visuals.getByRole("status").filter({ hasText: "Added." })).toBeVisible();
+      const { data } = await service
+        .from("visuals")
+        .select("provider, embed_url")
+        .eq("region_slug", region)
+        .eq("title", title);
+      expect(data).toEqual([
+        {
+          provider: "owid",
+          embed_url: "https://ourworldindata.org/grapher/life-expectancy?tab=chart",
+        },
+      ]);
+      await expect(visuals.getByRole("link", { name: title })).toBeVisible();
+    } finally {
+      await service.from("visuals").delete().eq("region_slug", region).eq("title", title);
+    }
   });
 
   test("content-editor saves the section", async ({ page }) => {

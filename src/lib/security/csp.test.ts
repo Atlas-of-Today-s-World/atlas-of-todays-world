@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
+import { EMBED_ORIGINS } from "@/lib/embeds";
 import { PRE_PAINT_CODE, PRE_PAINT_HASH } from "@/lib/pre-paint";
 import { buildCsp, newNonce, securityHeaderEntries } from "./csp";
 
@@ -50,18 +51,20 @@ describe("buildCsp", () => {
     expect(directive(prod, "script-src")).not.toMatch(/https:(\s|$)/);
   });
 
-  it("frames Datawrapper charts only from their exact CDN host", () => {
+  it("frames charts only from each provider's exact embed host", () => {
     const frames = directive(prod, "frame-src").split(" ");
-    expect(frames).toContain("https://datawrapper.dwcdn.net");
     expect(frames.filter((source) => source.includes("datawrapper"))).toEqual([
       "https://datawrapper.dwcdn.net",
     ]);
     expect(frames).not.toContain("https:");
+    expect(frames.some((source) => source.includes("*"))).toBe(false);
+    // The allowlist of lib/embeds.ts is the frame-src: one source of truth.
+    for (const origin of EMBED_ORIGINS) expect(frames).toContain(origin);
   });
 
-  it("frames nothing but Datawrapper charts and the Turnstile challenge", () => {
+  it("frames nothing but the allowed chart providers and the Turnstile challenge", () => {
     expect(directive(prod, "frame-src")).toBe(
-      "frame-src https://datawrapper.dwcdn.net https://challenges.cloudflare.com",
+      "frame-src https://datawrapper.dwcdn.net https://flo.uri.sh https://ourworldindata.org https://data.worldbank.org https://challenges.cloudflare.com",
     );
   });
 

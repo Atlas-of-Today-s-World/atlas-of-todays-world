@@ -21,14 +21,12 @@ function ownerFilter(owner: Owner) {
 const SELECT: Record<Collection, string> = {
   faq: "question, answer",
   resources: "kind, title, source, description, url, image_url",
-  visuals: "provider, title, caption, url",
   metrics: "value, label, description, source, source_url, period",
 };
 
 const TABLE = {
   faq: "faq_items",
   resources: "resources",
-  visuals: "visual_embeds",
   metrics: "portrait_metrics",
 } as const;
 
@@ -117,10 +115,11 @@ export async function countryForEdit(slug: string) {
 
 /**
  * What the signed-in user may save in a portrait — the same rules as RLS:
- * header = section regions/specials "e", section texts (timeline, FAQ, sources,
- * visuals) = article editors with scope over all articles, manual cards =
- * regions "e" (groups: specials "e"). A country's timeline follows its
- * profile (regions "e"), see features/timelines. The page shows the editor accordingly, or just a preview.
+ * header = section regions/specials "e", section texts (timeline, FAQ, sources)
+ * = article editors with scope over all articles, manual cards = regions "e"
+ * (groups: specials "e"), maps & charts = either of the two (features/visuals).
+ * A country's timeline follows its profile (regions "e"), see
+ * features/timelines. The page shows the editor accordingly, or just a preview.
  */
 export async function portraitRights(
   permissions: Permissions,
@@ -130,10 +129,16 @@ export async function portraitRights(
   const { data: allNews } = await supabase.rpc("can_edit_entry", {
     p_owner: null as unknown as string,
   });
+  const head = can(permissions, kind === "issue" ? "specials" : "regions", "e");
+  const text = can(permissions, "news", "e") && allNews === true;
   return {
-    head: can(permissions, kind === "issue" ? "specials" : "regions", "e"),
-    text: can(permissions, "news", "e") && allNews === true,
+    head,
+    text,
     // Group metric cards are governed by the groups right (RLS portrait_metrics, migration 30).
-    metrics: can(permissions, kind === "issue" ? "specials" : "regions", "e"),
+    metrics: head,
+    // can_edit_visual (migration 20261015000100): the place's editors or the texts' editors;
+    // removing through the texts' right needs news "d".
+    visuals: head || text,
+    removeVisuals: head || (text && can(permissions, "news", "d")),
   };
 }

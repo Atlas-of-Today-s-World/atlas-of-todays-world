@@ -5,6 +5,7 @@ import type {
   NewsCategory,
   ResourceItem,
   Timeline,
+  VisualItem,
 } from "@/lib/content-types";
 import type { EntryStatus, MapLayer, TileIcon } from "./constants";
 
@@ -81,6 +82,8 @@ export interface EntryChapter {
   updated?: string;
   /** Audio version of the chapter — the player shows only when it exists. */
   audio?: string;
+  /** Maps & charts at the end of the opened subtopic (none in a preview). */
+  visuals: VisualItem[];
 }
 
 export interface EntryAuthor {
@@ -134,6 +137,8 @@ export interface Encyclopedia extends Entry {
   seo: EntrySeo;
   /** The topic's timeline (after its intro); null = no events, nothing shown. */
   timeline: Timeline | null;
+  /** The topic's maps & charts (after the timeline, before the subtopics; none in a preview). */
+  visuals: VisualItem[];
 }
 
 /* Editor shapes (admin, read under the user's session in `editorial.ts`). */

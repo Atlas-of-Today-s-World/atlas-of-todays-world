@@ -30,10 +30,10 @@ import {
   PortraitSection,
   ResourceLibrary,
   ThematicEntries,
-  VisualCarousel,
   type PlannedEntry,
 } from "./sections";
 import { Timeline } from "./Timeline";
+import { VisualsCarousel } from "@/components/visuals/VisualsCarousel";
 import { routes } from "@/config/routes";
 
 /** What the portrait shows — an Atlas region, or an editorial global issue. */
@@ -266,7 +266,9 @@ export async function ProfileSections({
 
       <ThematicEntries entries={plannedEntries(name, entries, t)} />
 
-      {dossier.visuals?.length ? <VisualCarousel visuals={dossier.visuals} /> : null}
+      {dossier.visuals?.length ? (
+        <VisualsCarousel items={dossier.visuals} lead={t.portrait.mapsLead} />
+      ) : null}
 
       {news.length ? <NewsTabs newsItems={news} /> : null}
 

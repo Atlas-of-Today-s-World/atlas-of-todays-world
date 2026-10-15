@@ -8,6 +8,7 @@ import { Breadcrumbs } from "@/components/atlas/Breadcrumbs";
 import RegionFocus from "@/components/map/RegionFocus";
 import { FaqList } from "@/components/portrait/sections";
 import { Timeline } from "@/components/portrait/Timeline";
+import { VisualsCarousel } from "@/components/visuals/VisualsCarousel";
 import type { Atlas } from "@/features/geography/types";
 import { format } from "@/lib/i18n/messages";
 import { getRequestLocale, getT } from "@/lib/i18n/request";
@@ -134,6 +135,14 @@ export async function EncyclopediaArticle({
                 subtitle={item.timeline.subtitle}
               />
             </div>
+          ) : null}
+          {/* Its maps & charts next, still before the subtopics. */}
+          {item.visuals.length ? (
+            <VisualsCarousel
+              items={item.visuals}
+              lead={messages.portrait.mapsTopicLead}
+              className={item.timeline ? "-mx-6 sm:-mx-10" : "-mx-6 mt-10 sm:-mx-10"}
+            />
           ) : null}
 
           <DossierExplorer
@@ -351,6 +360,9 @@ async function TopicPanel({ chapter, index }: { chapter: Chapter; index: number 
       ) : null}
       <EntryAudio src={chapter.audio} title={chapter.title} />
       {chapter.html ? <SafeHtml className="prose-atlas mt-5" html={chapter.html} /> : null}
+      {chapter.visuals.length ? (
+        <VisualsCarousel items={chapter.visuals} variant="inline" id={`${id}-maps`} />
+      ) : null}
     </section>
   );
 }

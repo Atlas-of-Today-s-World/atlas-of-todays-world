@@ -1002,7 +1002,7 @@ test("portrait: only permitted editors replace a collection, in one transaction"
   );
 });
 
-test("visuals: a Datawrapper chart only as its exact chart URL; portrait() says which is which", async () => {
+test("visual_embeds: a Datawrapper chart only as its exact chart URL", async () => {
   const call = "select replace_portrait_items('region', 'east-asia', 'visuals', $1::jsonb)";
   const chart = "https://datawrapper.dwcdn.net/aB3dE/2/";
   await as(id.editor, () =>
@@ -1036,9 +1036,13 @@ test("visuals: a Datawrapper chart only as its exact chart URL; portrait() says 
     ),
   );
 
-  const portrait = await as(null, () => one("select portrait('region', 'east-asia') p"));
+  // The old table keeps what the old app saves; portrait() reads `visuals` since
+  // 20261015000100 (supabase/tests/visuals.test.mjs).
+  const stored = await q(
+    "select provider, url from visual_embeds where region_slug = 'east-asia' order by position",
+  );
   assert.deepEqual(
-    portrait.p.visuals.map((v) => [v.provider, v.image]),
+    stored.map((v) => [v.provider, v.url]),
     [
       ["datawrapper", chart],
       ["image", "https://example.org/map.png"],

@@ -19,8 +19,6 @@ import {
   type ResourceItem,
 } from "@/lib/content-types";
 import { safeUrl } from "@/lib/security/urls";
-import { datawrapperChartUrl } from "@/lib/embeds";
-import { DatawrapperChart } from "./DatawrapperChart";
 import { PHOTO_WIDTH } from "@/lib/images";
 import { format } from "@/lib/i18n/messages";
 import { getT } from "@/lib/i18n/request";
@@ -283,51 +281,6 @@ export async function ThematicEntries({ entries }: { entries: PlannedEntry[] }) 
       <div className="mt-4">
         <PatronsButton />
       </div>
-    </PortraitSection>
-  );
-}
-
-/**
- * Carousel of infographics and maps: images, and interactive Datawrapper charts in our
- * own sandboxed iframe — the chart URL is checked again here, so only the one
- * allowed origin is ever framed whatever the database holds.
- */
-export async function VisualCarousel({
-  visuals,
-}: {
-  visuals: { title: string; image: string; caption: string; provider?: string }[];
-}) {
-  const t = await getT();
-  const safe = visuals.flatMap((visual) => {
-    const chart = visual.provider === "datawrapper";
-    const image = chart ? datawrapperChartUrl(visual.image) : safeUrl(visual.image);
-    return image ? [{ ...visual, image, chart }] : [];
-  });
-  return (
-    <PortraitSection title={t.portrait.maps} lead={t.portrait.mapsLead}>
-      <Rail label={t.portrait.maps}>
-        {safe.map((visual, index) => (
-          <figure
-            key={`${index}-${visual.image}`}
-            className={`${visual.chart ? "w-[30rem] max-w-[85vw]" : "w-[22rem] max-w-[80vw]"} shrink-0 snap-start`}
-          >
-            {visual.chart ? (
-              <DatawrapperChart src={visual.image} title={visual.title} />
-            ) : (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                src={visual.image}
-                alt={visual.title}
-                loading="lazy"
-                className="h-48 w-full rounded-xl object-cover"
-              />
-            )}
-            <figcaption className="mt-2 text-[11px] text-[var(--color-ink-muted)]">
-              {visual.caption}
-            </figcaption>
-          </figure>
-        ))}
-      </Rail>
     </PortraitSection>
   );
 }

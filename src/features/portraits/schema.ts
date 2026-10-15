@@ -1,6 +1,5 @@
 import { z } from "zod";
-import { FEATURED_MAX, RESOURCE_KINDS, VISUAL_PROVIDERS } from "./constants";
-import { datawrapperChartUrl, extractDatawrapperUrl } from "@/lib/embeds";
+import { FEATURED_MAX, RESOURCE_KINDS } from "./constants";
 import { CONTENT_STATUSES } from "@/features/geography/content-status";
 import { GROUP_KINDS, PLACE_KINDS, type PlaceKind } from "@/features/geography/kinds";
 import {
@@ -17,52 +16,13 @@ import {
 
 /**
  * Portrait sections as lists of items. Shapes and limits match the tables
- * (faq_items, resources, visual_embeds, portrait_metrics); the DB function
- * `replace_portrait_items` saves them in one transaction. The timeline has its
- * own editor and save (features/timelines).
+ * (faq_items, resources, portrait_metrics); the DB function
+ * `replace_portrait_items` saves them in one transaction. The timeline
+ * (features/timelines) and the maps & charts (features/visuals) have their
+ * own editors and saves.
  */
 
 const optionalText = (max: number) => z.preprocess(blankToUndefined, text(max).optional());
-
-/**
- * Datawrapper: the editor pastes the embed code or the chart URL. Only the chart
- * URL it contains is kept (lib/embeds.ts) — never the pasted HTML. A paste that
- * is a valid Datawrapper chart switches the type to "datawrapper" on its own, so a
- * forgotten type select can't turn it into a broken image.
- */
-function withChartUrl(raw: unknown) {
-  if (typeof raw !== "object" || raw === null) return raw;
-  const item = raw as Record<string, unknown>;
-  const chart = extractDatawrapperUrl(item.url);
-  return chart ? { ...item, provider: "datawrapper", url: chart } : item;
-}
-
-const DATAWRAPPER_HINT =
-  "Paste Datawrapper's responsive iframe embed code or the chart URL (https://datawrapper.dwcdn.net/…/1/).";
-
-const visual = z.preprocess(
-  withChartUrl,
-  z
-    .object({
-      provider: z.enum(VISUAL_PROVIDERS),
-      title: requiredText(200),
-      caption: text(500).default(""),
-      // Checked below together with the type: a Datawrapper item gets its own message.
-      url: z.string().trim(),
-    })
-    .superRefine((item, ctx) => {
-      const datawrapper = item.provider === "datawrapper";
-      const ok = datawrapper
-        ? datawrapperChartUrl(item.url) !== null
-        : httpsUrl.safeParse(item.url).success;
-      if (!ok)
-        ctx.addIssue({
-          code: "custom",
-          path: ["url"],
-          message: datawrapper ? DATAWRAPPER_HINT : "The URL must start with https://.",
-        });
-    }),
-);
 
 export const COLLECTIONS = {
   faq: z.object({
@@ -77,7 +37,6 @@ export const COLLECTIONS = {
     url: httpsUrl,
     image_url: optionalHttpsUrl,
   }),
-  visuals: visual,
   // A card without a citation isn't published (P1) — the source is required.
   metrics: z.object({
     value: requiredText(30),
