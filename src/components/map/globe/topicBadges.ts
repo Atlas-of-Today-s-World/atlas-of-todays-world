@@ -1,6 +1,11 @@
 import type { ExpressionSpecification, Map as MapLibreMap } from "maplibre-gl";
 import { loadMapLibre } from "../maplibre";
-import { COUNTRY_RANK_FILTER, TOPIC_BADGE_IMAGES, TOPIC_LAYERS } from "../mapStyle";
+import {
+  COUNTRY_RANK_FILTER,
+  TOPIC_BADGE_IMAGES,
+  TOPIC_LAYERS,
+  ZERO_GLOW_LAYERS,
+} from "../mapStyle";
 import { withStatusMark } from "../global-issues";
 import type { ContentStatus } from "@/features/geography/content-status";
 import { GLOBE_COLORS } from "@/config/palette";
@@ -8,7 +13,8 @@ import { GLOBE_COLORS } from "@/config/palette";
 export type SelectionModeKey = keyof typeof TOPIC_LAYERS;
 
 /** The pill behind a topic count: rounded, stretchable around the number. */
-export function topicBadgeImage(soft: boolean) {
+export function topicBadgeImage(variant: keyof typeof TOPIC_BADGE_IMAGES) {
+  const soft = variant === "none";
   const ratio = 2;
   const [w, h, r] = [16 * ratio, 12 * ratio, 6 * ratio];
   const canvas = document.createElement("canvas");
@@ -16,8 +22,13 @@ export function topicBadgeImage(soft: boolean) {
   canvas.height = h;
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
-  ctx.fillStyle = soft ? "rgba(8,14,28,0.55)" : "#ffffff";
-  ctx.strokeStyle = soft ? "rgba(255,255,255,0.75)" : "rgba(11,18,32,0.35)";
+  ctx.fillStyle = variant === "zero" ? GLOBE_COLORS.empty : soft ? "rgba(8,14,28,0.55)" : "#ffffff";
+  ctx.strokeStyle =
+    variant === "zero"
+      ? "rgba(255,255,255,0.9)"
+      : soft
+        ? "rgba(255,255,255,0.75)"
+        : "rgba(11,18,32,0.35)";
   ctx.lineWidth = ratio;
   ctx.beginPath();
   ctx.roundRect(ratio / 2, ratio / 2, w - ratio, h - ratio, r);
@@ -103,16 +114,28 @@ export function applyTopicBadges(
     );
     // The small globe window on full-width pages shows no counts.
     map.setLayoutProperty(layer, "visibility", key === mode && !mini ? "visible" : "none");
-    // The same pill everywhere: solid with linked topics, soft and faint at 0.
+    // White pill with linked topics; a red one at 0 on countries and regions —
+    // the place is waiting for content (its glow pulses, see zeroPulse.ts).
     map.setLayoutProperty(layer, "icon-image", [
       "case",
       has,
       TOPIC_BADGE_IMAGES.some,
-      TOPIC_BADGE_IMAGES.none,
+      TOPIC_BADGE_IMAGES.zero,
     ]);
     map.setPaintProperty(layer, "text-color", ["case", has, GLOBE_COLORS.badgeText, "#ffffff"]);
-    map.setPaintProperty(layer, "icon-opacity", ["case", has, 0.92, 0.5]);
-    map.setPaintProperty(layer, "text-opacity", ["case", has, 1, 0.7]);
+    map.setPaintProperty(layer, "icon-opacity", 0.95);
+    map.setPaintProperty(layer, "text-opacity", 1);
+
+    if (key === "issue") continue;
+    const glow = ZERO_GLOW_LAYERS[key];
+    const empty: ExpressionSpecification = ["!", has];
+    map.setFilter(
+      glow,
+      key === "countries"
+        ? (["all", COUNTRY_RANK_FILTER, empty] as unknown as ExpressionSpecification)
+        : empty,
+    );
+    map.setLayoutProperty(glow, "visibility", key === mode && !mini ? "visible" : "none");
   }
 }
 

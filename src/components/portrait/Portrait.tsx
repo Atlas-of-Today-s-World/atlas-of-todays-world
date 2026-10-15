@@ -2,6 +2,7 @@ import { ShareButton } from "@/components/atlas/ShareButton";
 import Link from "@/components/i18n/Link";
 import { buttonVariants } from "@/components/ui/button";
 import { RelatedTopics, TopicsLink } from "@/components/topics/RelatedTopics";
+import { NoTopicsCta } from "@/components/topics/NoTopicsCta";
 import type { EntrySummary } from "@/features/entries/types";
 import { NewsBadge, PhotoCredit, SectionLabel } from "@/components/atlas/ui";
 import {
@@ -157,6 +158,9 @@ export default async function Portrait({
           {topics ? <TopicsLink count={topics.items.length} href={topics.href} /> : null}
           <ShareButton title={subject.name} />
         </div>
+        {topics ? (
+          <NoTopicsCta count={topics.items.length} place={subject.name} className="mt-4" />
+        ) : null}
         <PortraitCounts
           countries={subject.countries}
           population={formatPopulation(subject.population, getRequestLocale())}
