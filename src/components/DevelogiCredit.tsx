@@ -1,3 +1,4 @@
+import { BUILDER } from "@/config/organization";
 import { cn } from "@/lib/cn";
 
 /**
@@ -21,7 +22,7 @@ export function DevelogiCredit({
     >
       <p className="m-0 text-[13px] text-[var(--color-ink-soft)]">{text}</p>
       <a
-        href="https://develogi.cz"
+        href={BUILDER.url}
         target="_blank"
         rel="noopener"
         className="inline-flex min-h-(--touch-min) items-center rounded-md px-1 transition hover:opacity-80 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none"
@@ -29,7 +30,7 @@ export function DevelogiCredit({
         {/* eslint-disable-next-line @next/next/no-img-element -- small static logo, no optimizer (next.config) */}
         <img
           src="/brand/develogi-logo-dark.png"
-          alt="Develogi.cz"
+          alt={BUILDER.name}
           width={155}
           height={24}
           loading="lazy"

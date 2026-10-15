@@ -3,7 +3,7 @@
 import Link from "@/components/i18n/Link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Menu, UserRound, X } from "lucide-react";
+import { ArrowLeft, Menu, X } from "lucide-react";
 import { RAIL_OFFSET, isFullPage, isHome, railKind } from "@/config/layout";
 import { ACCOUNT_NAV } from "@/config/navigation";
 import { activeItemId } from "@/features/navigation/active";
@@ -13,6 +13,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 import NewsletterForm from "@/features/newsletter/components/NewsletterForm";
+import { AccountMenu } from "./AccountMenu";
 import { BrandLogo } from "./atlas/BrandLogo";
 import { useMessages } from "./i18n/LocaleProvider";
 
@@ -136,6 +137,8 @@ export default function Header({
                   }
                 />
               ))}
+            {/* The account, as on the home map: sign in, or your account and sign out. */}
+            <AccountMenu className="text-white/85" />
           </nav>
           <button
             type="button"
@@ -197,14 +200,7 @@ export default function Header({
         <span className="hidden items-center gap-2 [text-shadow:none] xl:flex">
           <SocialLinks socials={socials} className="size-(--touch-min) text-[11px]" />
         </span>
-        <Link
-          href={ACCOUNT_NAV.href}
-          className="grid min-h-(--touch-min) min-w-(--touch-min) place-items-center text-white/80 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] transition hover:text-white"
-          title={t.header.accountTitle}
-          aria-label={t.header.account}
-        >
-          <UserRound size={17} strokeWidth={1.6} aria-hidden />
-        </Link>
+        <AccountMenu className="text-white/80 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] hover:text-white" />
       </nav>
 
       {/* Mobil */}

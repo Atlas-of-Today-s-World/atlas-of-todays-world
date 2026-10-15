@@ -1,5 +1,6 @@
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
+import { BUILDER } from "@/config/organization";
 import { Inter, Manrope } from "next/font/google";
 import "./globals.css";
 import { PrePaintScript } from "@/components/PrePaintScript";
@@ -54,8 +55,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const STATIC_METADATA: Metadata = {
   metadataBase: new URL(SITE_URL),
-  // The website was built by Develogi.cz s.r.o. (https://develogi.cz) — also in /humans.txt.
-  creator: "Develogi.cz s.r.o. (https://develogi.cz)",
+  // Who built the website (config/organization.ts BUILDER; also JSON-LD, llms.txt, humans.txt).
+  creator: `${BUILDER.name} (${BUILDER.url})`,
   category: "reference",
   twitter: { card: "summary_large_image" },
   verification: {
