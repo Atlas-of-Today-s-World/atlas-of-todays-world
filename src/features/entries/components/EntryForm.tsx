@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { CountryPicker, type CountryOption } from "@/components/admin/CountryPicker";
+import { RegionSelect, type PlaceOption } from "@/components/admin/RegionSelect";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { Button } from "@/components/ui/button";
 import { ColorField } from "@/components/ui/color-field";
@@ -23,11 +24,6 @@ import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { MAP_LAYER_LABEL, MAP_LAYERS } from "../constants";
 import { routes } from "@/config/routes";
 
-interface Option {
-  slug: string;
-  name: string;
-}
-
 /**
  * News/entry editor: metadata, countries, cover and text (Server Action `saveEntry`).
  * An encyclopedia entry (P9) also has summary bullets, audio and an author from a profile;
@@ -44,8 +40,8 @@ export function EntryForm({
   entry: EditableEntry | null;
   /** Type of a new item ("entry" = a topic, from the New topic button). */
   defaultKind?: ArticleKind;
-  regions: Option[];
-  issues: Option[];
+  regions: PlaceOption[];
+  issues: PlaceOption[];
   countries: CountryOption[];
   authors: { id: string; name: string }[];
 }) {
@@ -157,28 +153,19 @@ export function EntryForm({
           </Select>
         </FormField>
         <FormField id="region_slug" label="Region" errors={errors.region_slug}>
-          <Select id="region_slug" name="region_slug" defaultValue={values?.region_slug ?? ""}>
-            <option value="">— no region —</option>
-            {regions.map((region) => (
-              <option key={region.slug} value={region.slug}>
-                {region.name}
-              </option>
-            ))}
-          </Select>
+          <RegionSelect options={regions} defaultValue={values?.region_slug} />
         </FormField>
         <FormField
           id="special_slug"
           label="Global issue or custom region"
           errors={errors.special_slug}
         >
-          <Select id="special_slug" name="special_slug" defaultValue={values?.special_slug ?? ""}>
-            <option value="">— none —</option>
-            {issues.map((issue) => (
-              <option key={issue.slug} value={issue.slug}>
-                {issue.name}
-              </option>
-            ))}
-          </Select>
+          <RegionSelect
+            id="special_slug"
+            options={issues}
+            defaultValue={values?.special_slug}
+            emptyLabel="— none —"
+          />
         </FormField>
       </div>
 

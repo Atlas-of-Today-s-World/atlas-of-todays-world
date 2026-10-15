@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ContentRail from "@/components/ContentRail";
 import CountryCard from "@/components/CountryCard";
-import MapFocus from "@/components/map/MapFocus";
+import RegionFocus from "@/components/map/RegionFocus";
 import {
   entriesOfCountry,
   entriesOfRegion,
@@ -149,7 +149,8 @@ export default async function CountryPage({
 
   return (
     <>
-      <MapFocus
+      <RegionFocus
+        region={region}
         bbox={country.bbox}
         center={
           country.labelLon !== null && country.labelLat !== null
@@ -158,8 +159,6 @@ export default async function CountryPage({
         }
         zoom={3.2}
         activeIso3={country.iso3}
-        regionCountries={region?.countries ?? []}
-        regionStroke={region?.stroke ?? null}
       />
 
       <ContentRail>

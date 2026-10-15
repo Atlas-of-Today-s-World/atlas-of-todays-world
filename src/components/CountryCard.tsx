@@ -1,3 +1,4 @@
+import { Breadcrumbs } from "@/components/atlas/Breadcrumbs";
 import { kickerVariants } from "@/components/atlas/kicker";
 import { ShareButton } from "@/components/atlas/ShareButton";
 import Link from "@/components/i18n/Link";
@@ -65,22 +66,14 @@ export default async function CountryCard({
     <article className="px-6 pt-6 pb-10">
       {region ? (
         // pr-12: a long trail must not run under the panel's close button (×).
-        <nav
-          aria-label={t.ui.breadcrumb}
-          className="pr-12 text-[12px] text-[var(--color-ink-muted)]"
-        >
-          <Link
-            href={routes.region(region.slug)}
-            // The hit area reaches above and below the small text (44 px row).
-            className="relative font-medium text-[var(--color-link)] after:absolute after:inset-x-0 after:-inset-y-4 after:content-[''] hover:underline"
-          >
-            {region.name}
-          </Link>
-          <span aria-hidden className="px-1.5">
-            ›
-          </span>
-          <span className="text-[var(--color-ink)]">{country.name}</span>
-        </nav>
+        <Breadcrumbs
+          label={t.ui.breadcrumb}
+          className="pr-12"
+          items={[
+            { label: region.name, href: routes.region(region.slug) },
+            { label: country.name, current: true },
+          ]}
+        />
       ) : null}
 
       <h1 className="font-display mt-2 text-[26px] leading-tight font-bold text-[var(--color-ink)]">
