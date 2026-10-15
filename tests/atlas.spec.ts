@@ -302,13 +302,100 @@ test.describe("sign-in", () => {
   });
 
   test("account page without sign-in leads to sign-in", async ({ page }) => {
-    await page.goto("/ucet");
-    await expect(page).toHaveURL(/\/login\?next=%2Fucet/);
+    await page.goto("/account");
+    await expect(page).toHaveURL(/\/login\?next=%2Faccount/);
   });
 
   test("invitation page explains how to sign in", async ({ page }) => {
-    await page.goto("/pozvanka");
+    await page.goto("/invite");
     await expect(page.getByRole("heading", { name: "Invitation to the Atlas team" })).toBeVisible();
+  });
+
+  test("old Czech account addresses redirect permanently, with their query", async ({
+    request,
+  }) => {
+    const moved: [string, string][] = [
+      ["/ucet", "/account"],
+      ["/pozvanka?email=x%40example.org&ref=mail", "/invite?email=x%40example.org&ref=mail"],
+    ];
+    for (const [old, now] of moved) {
+      const response = await request.get(old, { maxRedirects: 0 });
+      expect(response.status(), old).toBe(308);
+      const location = new URL(response.headers().location ?? "", "https://atlas.example");
+      expect(`${location.pathname}${location.search}`, old).toBe(now);
+    }
+  });
+
+  test("an invitation link sent before the rename still opens the invitation", async ({ page }) => {
+    await page.goto("/pozvanka?ref=mail");
+    await expect(page).toHaveURL(/\/invite\?ref=mail$/);
+    await expect(page.getByRole("heading", { name: "Invitation to the Atlas team" })).toBeVisible();
+  });
+});
+
+test.describe("account menu", () => {
+  test("signed out: opens by keyboard, offers sign-in back to the page, closes", async ({
+    page,
+  }) => {
+    await page.goto("/about");
+    const button = page.getByRole("button", { name: "Sign in or open your account" });
+    await expect(button).toHaveAttribute("aria-haspopup", "menu");
+    await expect(button).toHaveAttribute("aria-expanded", "false");
+
+    await button.focus();
+    await page.keyboard.press("Enter");
+    await expect(button).toHaveAttribute("aria-expanded", "true");
+    const menu = page.getByRole("menu");
+    const signIn = menu.getByRole("menuitem", { name: "Sign in" });
+    await expect(signIn).toBeFocused();
+    await expect(signIn).toHaveAttribute("href", "/login?next=%2Fabout");
+    await expect(menu.getByRole("menuitem")).toHaveCount(1);
+
+    // Esc closes and gives the focus back to the button.
+    await page.keyboard.press("Escape");
+    await expect(menu).toHaveCount(0);
+    await expect(button).toBeFocused();
+
+    // A click outside closes it too.
+    await button.click();
+    await expect(signIn).toBeVisible();
+    await page.getByRole("heading", { level: 1 }).click();
+    await expect(menu).toHaveCount(0);
+
+    await button.click();
+    await signIn.click();
+    await expect(page).toHaveURL(/\/login\?next=%2Fabout$/);
+  });
+
+  test("never cached and only the four fields", async ({ request }) => {
+    const response = await request.get("/api/me");
+    expect(response.status()).toBe(200);
+    expect(response.headers()["cache-control"]).toContain("no-store");
+    expect(Object.keys(await response.json()).sort()).toEqual([
+      "email",
+      "isStaff",
+      "roleName",
+      "signedIn",
+    ]);
+  });
+
+  test("works from the globe header and the mobile menu", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("button", { name: "Sign in or open your account" }).click();
+    await expect(page.getByRole("menuitem", { name: "Sign in" })).toBeVisible();
+    await page.keyboard.press("Escape");
+
+    await page.setViewportSize({ width: 390, height: 800 });
+    await page.goto("/about");
+    await page.getByRole("button", { name: "Open menu" }).click();
+    const dialog = page.getByRole("dialog", { name: "Menu" });
+    await dialog.getByRole("button", { name: "Account", exact: true }).click();
+    // The menu opens inside the modal site menu, so it stays reachable.
+    await expect(dialog.getByRole("menuitem", { name: "Sign in" })).toBeVisible();
+    // Esc closes the account menu first, the site menu stays open.
+    await page.keyboard.press("Escape");
+    await expect(dialog.getByRole("menu")).toHaveCount(0);
+    await expect(dialog).toBeVisible();
   });
 });
 

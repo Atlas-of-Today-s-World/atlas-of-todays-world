@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   adminRoutes,
+  apiRoutes,
   PRIVATE_PATHS,
   ROUTE_PREFIX,
   isAtOrUnder,
@@ -60,8 +61,9 @@ describe("routes", () => {
       accessibility: "/accessibility",
       login: "/login",
       loginConfirm: "/login/confirm",
-      account: "/ucet",
-      invitation: "/pozvanka",
+      account: "/account",
+      invitation: "/invite",
+      signOut: "/auth/signout",
       admin: "/admin",
     });
     expect(ROUTE_PREFIX.issue).toBe("/global-issue");
@@ -74,9 +76,17 @@ describe("routes", () => {
       "/membership/thank-you",
       "/membership/manage",
       "/preview/",
-      "/ucet",
-      "/pozvanka",
+      "/account",
+      "/invite",
     ]);
+  });
+
+  it("uses English path segments only (old Czech addresses redirect, config/redirects.ts)", () => {
+    const paths = Object.values(routes).filter((value) => typeof value === "string");
+    for (const path of [...paths, ...Object.values(apiRoutes)]) {
+      expect(path, path).toMatch(/^\/[a-z0-9/-]*$/);
+      expect(path, path).not.toMatch(/\/(ucet|pozvanka|prihlaseni|clenstvi|novinky)(\/|$)/);
+    }
   });
 
   it("matches a page and the pages under it", () => {
@@ -114,6 +124,7 @@ describe("adminRoutes", () => {
       audit: "/admin/roles/audit",
       members: "/admin/members",
       patrons: "/admin/patrons",
+      account: "/admin/account",
     });
     expect(adminRoutes.overview).toBe(routes.admin);
   });

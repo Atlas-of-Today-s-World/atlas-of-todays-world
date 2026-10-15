@@ -50,7 +50,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <p className="mt-6 text-[13px] text-[var(--color-ink-muted)]">
             Signed in as {access.email}.{" "}
             <Link href={routes.account} className="underline">
-              Your account
+              Account settings
             </Link>
           </p>
         </main>
@@ -76,7 +76,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         >
           {access.email} · {access.roleName}
         </span>
-        <form action="/auth/signout" method="post">
+        <form action={routes.signOut} method="post">
           <Button type="submit" variant="ghost" size="sm">
             Sign out
           </Button>

@@ -8,7 +8,7 @@
 
 | Vrstva | Kde | Odpovídá za |
 |---|---|---|
-| Hrana | `src/proxy.ts` | bezpečnostní hlavičky a CSP, malá písmena v URL, `/` → `/en/…` (rewrite) a zpět, obnova relace jen na `/admin`, `/ucet`, `/login`, `/auth`, `/pozvanka`; brána `/admin`, `/api/admin`, `/ucet` |
+| Hrana | `src/proxy.ts` | bezpečnostní hlavičky a CSP, malá písmena v URL, `/` → `/en/…` (rewrite) a zpět, obnova relace jen na `/admin`, `/account`, `/login`, `/auth`, `/invite`; brána `/admin`, `/api/admin`, `/account` |
 | Trasy | `src/app/` | `[locale]/(map)` — layout drží glóbus (AtlasGlobe, MapControls, ContentRail), stránky posílají fokus mapy; `(pages)`, `(patrons)` — PagesShell; `admin/` — dynamické; `api/` — search, topics/search, geo, health, account/export; SEO trasy (sitemapy, feedy, `llms*.txt`, markdown, OG obrázky) |
 | Doména | `src/features/<doména>/` | `queries.ts` veřejné čtení (`server-only`, anon klient + `unstable_cache` s tagy) · `editorial.ts` čtení administrace pod relací, bez cache · `actions.ts` zápisy (`"use server"`) · `schema.ts` Zod · `components/` |
 | Sdílené UI | `src/components/` | `ui` primitiva, `atlas` vzory, `data-table`, `map`, `portrait`, `admin`, i18n |

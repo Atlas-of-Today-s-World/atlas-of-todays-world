@@ -1,6 +1,7 @@
 import {
   BadgeCheck,
   Brush,
+  CircleUserRound,
   FileText,
   Globe2,
   HandCoins,
@@ -116,6 +117,8 @@ export const ADMIN_NAV: readonly AdminNavItem[] = [
     section: ["site", "members"],
     icon: HandCoins,
   },
+  // Last, like an account item in any app; every team member has it.
+  { href: adminRoutes.account, label: "My account", section: null, icon: CircleUserRound },
 ];
 
 /** Section icon by URL (tile in PageHeader) — same as in the menu. */

@@ -87,7 +87,7 @@ Dva druhy účtů (`profiles.kind`), dvě různé cesty vzniku:
   3. nastaví `profiles.kind = 'staff'`, `role_id`, schvalovací přiřazení, označí pozvánku jako přijatou, zapíše audit.
 - **Doručení pozvánky:**
   - **teď (bez vlastního SMTP):** admin v administraci vytvoří pozvánku a zkopíruje odkaz
-    `/pozvanka` s instrukcí „přihlaste se přes Google e-mailem X“. Odkaz nenese žádné tajemství — oprávnění
+    `/invite` (dřív `/pozvanka`, přesměrováno) s instrukcí „přihlaste se přes Google e-mailem X“. Odkaz nenese žádné tajemství — oprávnění
     je vázané na **ověřený e-mail**, ne na znalost odkazu. Odešle ho vlastním e-mailem/chatem.
   - **po zřízení SMTP:** Server Action po zápisu pozvánky (pod session admina → RLS ověří `users:c`)
     zavolá `auth.admin.inviteUserByEmail()` se servisním klíčem; pozvaný si nastaví přihlášení z e-mailu.
@@ -116,3 +116,9 @@ Dva druhy účtů (`profiles.kind`), dvě různé cesty vzniku:
 - Přihlášený `reader`: totéž + vlastní profil, členství, odběr novinek.
 - `/admin` bez přihlášení → přesměrování na `/login?next=/admin` (už ne 404); přihlášený čtenář bez týmové
   role → stránka „Nemáte přístup“ (403).
+- **Menu účtu v hlavičce** (ADR-026): ikona osoby otevře menu, které při otevření načte `GET /api/me`
+  (`private, no-store`, `getUser()`; jen `signedIn`, `email`, `roleName`, `isStaff`). Nepřihlášený: Sign in
+  (`next` = aktuální stránka). Tým (`opensAdmin`: sekce s právem `v`, nebo role čekající na druhý faktor):
+  e-mail a role, Open the administration, My account (`/admin/account`), Sign out. Čtenář: e-mail,
+  Account settings (`/account`), Sign out. Stažení dat a smazání účtu jsou jen na `/account` (čtenář)
+  a `/admin/account` (tým; `/account` ho tam přesměruje). Sign out = POST `/auth/signout` s kontrolou Origin.

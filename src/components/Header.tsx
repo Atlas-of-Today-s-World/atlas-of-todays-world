@@ -3,9 +3,8 @@
 import Link from "@/components/i18n/Link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Menu, UserRound, X } from "lucide-react";
+import { ArrowLeft, Menu, X } from "lucide-react";
 import { RAIL_OFFSET, isFullPage, isHome, railKind } from "@/config/layout";
-import { ACCOUNT_NAV } from "@/config/navigation";
 import { activeItemId } from "@/features/navigation/active";
 import type { Navigation, NavLink } from "@/features/navigation/model";
 import type { SocialLink } from "@/features/site/model";
@@ -13,6 +12,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 import NewsletterForm from "@/features/newsletter/components/NewsletterForm";
+import { AccountMenu } from "./AccountMenu";
 import { BrandLogo } from "./atlas/BrandLogo";
 import { useMessages } from "./i18n/LocaleProvider";
 
@@ -23,6 +23,8 @@ import { useMessages } from "./i18n/LocaleProvider";
  * - everywhere else (`bar`, or any other map page): a dark bar with the logo,
  *   "Back to Atlas" in the middle and the menu as buttons on the right.
  * On narrow screens the menu becomes a full-screen dialog behind a hamburger.
+ * The person icon (all three places) opens the account menu (AccountMenu),
+ * which asks who is signed in only then — the header itself never reads the session.
  * The menus come from Admin → Site menus and the social badges from Admin →
  * Site settings (`nav`, `socials`: read on the server, `nav` already filtered by
  * the feature switches — News shows only while news_menu is on).
@@ -136,6 +138,7 @@ export default function Header({
                   }
                 />
               ))}
+            <AccountMenu look="bar" />
           </nav>
           <button
             type="button"
@@ -197,14 +200,7 @@ export default function Header({
         <span className="hidden items-center gap-2 [text-shadow:none] xl:flex">
           <SocialLinks socials={socials} className="size-(--touch-min) text-[11px]" />
         </span>
-        <Link
-          href={ACCOUNT_NAV.href}
-          className="grid min-h-(--touch-min) min-w-(--touch-min) place-items-center text-white/80 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] transition hover:text-white"
-          title={t.header.accountTitle}
-          aria-label={t.header.account}
-        >
-          <UserRound size={17} strokeWidth={1.6} aria-hidden />
-        </Link>
+        <AccountMenu look="globe" />
       </nav>
 
       {/* Mobil */}
@@ -292,12 +288,9 @@ function MenuDialog({
 
         <div className="flex items-center gap-3">
           <SocialLinks socials={socials} className="size-(--touch-min) text-[12px]" />
-          <Link
-            href={ACCOUNT_NAV.href}
-            className="ml-auto flex min-h-(--touch-min) min-w-(--touch-min) items-center justify-center text-[13px] whitespace-nowrap text-white/70"
-          >
-            {t.nav[ACCOUNT_NAV.key]}
-          </Link>
+          <span className="ml-auto">
+            <AccountMenu look="menu" />
+          </span>
         </div>
       </div>
     </div>

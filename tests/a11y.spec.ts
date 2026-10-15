@@ -54,6 +54,13 @@ test("accessibility: quiz on the 404 page during a game", async ({ page }) => {
   expect(await seriousViolations(page)).toEqual([]);
 });
 
+test("accessibility: the header's account menu, open", async ({ page }) => {
+  await page.goto("/about");
+  await page.getByRole("button", { name: "Sign in or open your account" }).click();
+  await expect(page.getByRole("menuitem", { name: "Sign in" })).toBeVisible();
+  expect(await seriousViolations(page)).toEqual([]);
+});
+
 for (const path of PAGES) {
   test(`accessibility: ${path}`, async ({ page }) => {
     await page.goto(path);

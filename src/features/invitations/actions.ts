@@ -4,7 +4,7 @@ import "server-only";
 import { revalidatePath } from "next/cache";
 import { affected, failed, formAction, idAction } from "@/lib/actions";
 import type { ActionState } from "@/lib/action-state";
-import { adminRoutes } from "@/config/routes";
+import { adminRoutes, routes } from "@/config/routes";
 import { getFlags } from "@/features/flags/queries";
 import { serverEnv } from "@/lib/env.server";
 import { SITE_URL } from "@/lib/site";
@@ -40,7 +40,7 @@ export const createInvitation = formAction(
   { arrays: ["countries", "authors"] },
 );
 
-const SHARE_LINK = "Send the invitee a link to the /pozvanka page.";
+const SHARE_LINK = `Send the invitee a link to the ${routes.invitation} page.`;
 
 /**
  * Invitation email (G1) — only with the `email_auth` flag enabled (own SMTP,

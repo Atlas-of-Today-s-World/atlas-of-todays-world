@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { BUILT_IN_REDIRECTS } from "./redirects";
+import { routes } from "./routes";
 
 describe("BUILT_IN_REDIRECTS", () => {
   const index = (source: string) => BUILT_IN_REDIRECTS.findIndex((rule) => rule.source === source);
@@ -19,6 +20,12 @@ describe("BUILT_IN_REDIRECTS", () => {
     expect(index("/entry/:slug.md")).toBeLessThan(index("/entry/:slug"));
     expect(index("/admin/obsah/novy")).toBeLessThan(index("/admin/obsah/:path*"));
     expect(index("/admin/regiony/zeme/:slug")).toBeLessThan(index("/admin/regiony/:path*"));
+  });
+
+  it("sends the old Czech account addresses to the English pages, permanently", () => {
+    const target = (source: string) => BUILT_IN_REDIRECTS.find((rule) => rule.source === source);
+    expect(target("/ucet")).toMatchObject({ destination: routes.account, permanent: true });
+    expect(target("/pozvanka")).toMatchObject({ destination: routes.invitation, permanent: true });
   });
 
   it("keeps old admin bookmarks inside the admin", () => {

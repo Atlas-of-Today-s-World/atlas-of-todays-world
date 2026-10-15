@@ -58,7 +58,7 @@ describe("startGoogleSignIn", () => {
     "never carries an off-site next (%s)",
     async (next) => {
       await expect(start(next)).rejects.toThrow();
-      expect(returnAddress().searchParams.get("next")).toBe("/ucet");
+      expect(returnAddress().searchParams.get("next")).toBe("/account");
     },
   );
 
@@ -76,7 +76,7 @@ describe("startGoogleSignIn", () => {
   it("when Supabase can't start the flow the form shows an error and nothing redirects", async () => {
     signInWithOAuth.mockResolvedValue({ data: { url: null }, error: { message: "down" } });
     vi.spyOn(console, "error").mockImplementation(() => {});
-    expect(await start("/ucet")).toEqual({ ok: false, error: "unreachable" });
+    expect(await start("/account")).toEqual({ ok: false, error: "unreachable" });
     expect(redirect).not.toHaveBeenCalled();
   });
 });

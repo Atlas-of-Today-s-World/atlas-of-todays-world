@@ -29,6 +29,8 @@ const ISSUES_RENAMED = "Custom units were renamed to Global Issues";
 const ENGLISH_ONLY = "The site is English only (2026-10-05); the former Czech version";
 const MEMBERSHIP = "Atlas Patrons live at /membership, the address of the original site";
 const ADMIN_ENGLISH = "The admin moved to English URLs; old Czech bookmarks";
+const ACCOUNT_ENGLISH =
+  "Account pages moved to English URLs (2026-10-15); old links, bookmarks and shared invitations";
 
 export const BUILT_IN_REDIRECTS: readonly BuiltInRedirect[] = [
   permanent("/entry/:slug.md", "/topics/:slug.md", TOPICS_MOVED),
@@ -38,6 +40,10 @@ export const BUILT_IN_REDIRECTS: readonly BuiltInRedirect[] = [
   permanent("/cs", "/", ENGLISH_ONLY),
   permanent("/cs/:path*", "/:path*", ENGLISH_ONLY),
   permanent("/:old(support|patrons)", "/membership", MEMBERSHIP),
+  // The query string goes along (Next passes it through), so nothing an old
+  // link carried is lost; the pages themselves read no secret from it.
+  permanent("/ucet", "/account", ACCOUNT_ENGLISH),
+  permanent("/pozvanka", "/invite", ACCOUNT_ENGLISH),
   permanent(
     "/region/:slug/full",
     "/region/:slug",

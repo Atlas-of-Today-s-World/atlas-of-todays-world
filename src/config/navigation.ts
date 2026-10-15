@@ -5,8 +5,9 @@ import { routes } from "./routes";
  * The menus as the code knows them (ARCHITEKTURA 15.1, D4). The main menu and
  * the legal links are edited in Admin → Site menus (table nav_items,
  * features/navigation); the lists below are what the migration seeded and what
- * the site falls back to when that table can't be read. The sign-in item stays
- * here. The addresses themselves come from config/routes.ts.
+ * the site falls back to when that table can't be read. The account (sign-in)
+ * is not a menu item but the header's account menu (components/AccountMenu).
+ * The addresses themselves come from config/routes.ts.
  */
 
 /** Menus the team edits (nav_items.menu). */
@@ -42,8 +43,6 @@ export const MAIN_NAV: readonly NavItem[] = [
   { href: routes.membership, key: "support" },
   { href: routes.membership, key: "patrons", primary: true },
 ];
-
-export const ACCOUNT_NAV: NavItem = { href: routes.login, key: "signIn" };
 
 /** Built-in footer links (fallback): legal and informational pages. */
 export const LEGAL_NAV: readonly NavItem[] = [

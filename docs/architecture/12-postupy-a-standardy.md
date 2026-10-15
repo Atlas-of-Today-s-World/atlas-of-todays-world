@@ -83,7 +83,7 @@ Doplňky, které má mít produkční webová aplikace. Stav: ✅ máme · 🟡 
 | 🟡 | `loading.tsx` / skeletony na každé datové stránce (zatím jen část rout) |
 | ✅ | Režim údržby (feature flag `maintenance`) |
 | ✅ | Právní stránky: Privacy policy, Terms, Accessibility; cookie-less analytika = bez cookie lišty |
-| 🟡 | GDPR: export (`/api/account/export`) a smazání vlastního účtu na stránce účtu; retence dat zbývá popsat |
+| 🟡 | GDPR: export (`/api/account/export`) a smazání vlastního účtu — čtenář na `/account`, tým v administraci (`/admin/account`, My account), obojí z menu účtu v hlavičce (ADR-026); retence dat zbývá popsat |
 | 🟡 | E-mailové šablony Auth EN/CS připravené (`supabase/templates`, G1), zapnou se se SMTP (U5) |
 | ✅ | Přístupnost: skip-link, focus trap v dialozích, axe v CI, prohlášení o přístupnosti, `lang` jazykových verzí |
 | ✅ | SEO: OG obrázky přes `next/og`, hreflang (jen en — ADR-022), index sitemap z DB s jazykovými verzemi a `lastmod`, strukturovaná data z `features/seo/jsonld.ts`, RSS/Atom, `llms.txt`, IndexNow (ADR-021) |

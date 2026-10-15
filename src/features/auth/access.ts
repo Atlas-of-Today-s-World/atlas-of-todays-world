@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { createServerClient } from "@/lib/supabase/server";
 import { SECTIONS, type Action, type Permissions, type Section } from "@/config/sections";
+import { awaitsSecondFactor } from "./mfa";
 
 export interface Access {
   userId: string;
@@ -26,6 +27,16 @@ export function can(permissions: Permissions, section: Section, action: Action):
 /** May they access the admin at all (at least one section to show)? */
 export function isStaff(permissions: Permissions): boolean {
   return SECTIONS.some((section) => can(permissions, section, "v"));
+}
+
+/**
+ * Does the admin open for them — the same test the admin layout makes: a
+ * section to show, or a team role whose permissions wait for the second
+ * factor (the admin asks for it). Everyone else is a reader: the account
+ * menu and /account treat them as one, the admin shows them "No access".
+ */
+export async function opensAdmin(access: Access): Promise<boolean> {
+  return isStaff(access.permissions) || (await awaitsSecondFactor());
 }
 
 /**

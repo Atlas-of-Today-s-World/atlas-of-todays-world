@@ -11,7 +11,7 @@ vi.mock("@/lib/supabase/server", () => ({
 const { GET, POST } = await import("@/app/auth/confirm/route");
 
 const SITE = "https://atlas.example";
-const link = `${SITE}/auth/confirm?token_hash=abc123&type=magiclink&next=/ucet`;
+const link = `${SITE}/auth/confirm?token_hash=abc123&type=magiclink&next=/account`;
 
 const post = (origin: string | null, fields = { token_hash: "abc123", type: "magiclink" }) => {
   const body = new URLSearchParams(fields);
@@ -38,7 +38,7 @@ describe("/auth/confirm", () => {
     expect(Object.fromEntries(target.searchParams)).toEqual({
       token_hash: "abc123",
       type: "magiclink",
-      next: "/ucet",
+      next: "/account",
     });
   });
 
@@ -57,7 +57,7 @@ describe("/auth/confirm", () => {
     const response = await post(SITE);
     expect(verifyOtp).toHaveBeenCalledWith({ token_hash: "abc123", type: "magiclink" });
     expect(response.status).toBe(303);
-    expect(new URL(response.headers.get("location") ?? "").pathname).toBe("/ucet");
+    expect(new URL(response.headers.get("location") ?? "").pathname).toBe("/account");
   });
 
   it("a wrong token or type ends on the sign-in page", async () => {

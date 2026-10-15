@@ -21,6 +21,16 @@
     "account": "Sign in or open your account",
     "accountTitle": "Sign in / your account"
   },
+  "accountMenu": {
+    "label": "Account",
+    "loading": "Loading…",
+    "unavailable": "Your account couldn’t be loaded. Try again in a moment.",
+    "signedInAs": "Signed in as {email}",
+    "openAdmin": "Open the administration",
+    "myAccount": "My account",
+    "settings": "Account settings",
+    "signOut": "Sign out"
+  },
   "common": {
     "close": "Close",
     "backToGlobe": "Back to the globe",
@@ -475,13 +485,13 @@
     "expires": "This link expires on {date} UTC."
   },
   "account": {
-    "title": "Your account",
+    "title": "Account settings",
     "email": "Email",
     "role": "Role",
     "reader": "Reader",
-    "openAdmin": "Open the administration",
+    "dataHeading": "Your data",
+    "dataLead": "Download a copy of everything the Atlas keeps about your account, as one JSON file.",
     "download": "Download my data",
-    "signOut": "Sign out",
     "delete": "Delete my account",
     "deleteText": "This removes your account and personal data for good. Type {email} to confirm.",
     "emailLabel": "Your email address",
