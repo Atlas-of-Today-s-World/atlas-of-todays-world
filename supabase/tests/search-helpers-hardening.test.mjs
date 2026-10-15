@@ -342,8 +342,17 @@ test("search() and search_topics() run as definer and never return unpublished o
   assert.deepEqual(
     fns.map((f) => [f.proname, f.prosecdef, f.proconfig]),
     [
-      ["search", true, ["search_path=public, pg_temp"]],
-      ["search_topics", true, ["search_path=public, pg_temp"]],
+      // Bitmap index scans only: 20261013000320_short_query_search.
+      [
+        "search",
+        true,
+        ["search_path=public, pg_temp", "enable_seqscan=off", "enable_indexscan=off"],
+      ],
+      [
+        "search_topics",
+        true,
+        ["search_path=public, pg_temp", "enable_seqscan=off", "enable_indexscan=off"],
+      ],
     ],
   );
   for (const who of [null, id.admin, id.publisher]) {

@@ -42,8 +42,16 @@ describe("/search page", () => {
   });
 
   it("a repeated ?q= doesn't fail — the first value counts", async () => {
-    await expect(render(["a", "b"])).resolves.toBeTruthy();
-    expect(search).toHaveBeenCalledWith("a", 40);
+    await expect(render(["sahel", "niger"])).resolves.toBeTruthy();
+    expect(search).toHaveBeenCalledWith("sahel", 40);
+  });
+
+  it("without a word of three letters it neither searches nor counts", async () => {
+    for (const q of ["a", "of", "eu un"]) {
+      await expect(render(q)).resolves.toBeTruthy();
+    }
+    expect(allowRequest).not.toHaveBeenCalled();
+    expect(search).not.toHaveBeenCalled();
   });
 });
 

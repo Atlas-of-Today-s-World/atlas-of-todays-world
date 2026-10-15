@@ -332,9 +332,19 @@ async function main() {
   });
 
   await check("search has an upper result limit", async () => {
-    const { body } = await get("/api/search?q=a&limit=100000");
+    // "the" starts a word in nearly every text: the broadest query there is.
+    const { status, body } = await get("/api/search?q=the&limit=100000");
+    assert(status === 200, `/api/search?q=the returned ${status}`);
     const { results } = JSON.parse(body);
-    assert(Array.isArray(results) && results.length <= 40, "result limit does not work");
+    assert(Array.isArray(results) && results.length > 0, "a broad search found nothing");
+    assert(results.length <= 40, `result limit does not work (${results.length} results)`);
+  });
+
+  await check("a one-letter search answers empty, without searching", async () => {
+    const { status, body } = await get("/api/search?q=a&limit=100000");
+    assert(status === 200, `/api/search?q=a returned ${status}`);
+    const { results } = JSON.parse(body);
+    assert(Array.isArray(results) && results.length === 0, "one letter must not search");
   });
 
   await check("security.txt is available", async () => {

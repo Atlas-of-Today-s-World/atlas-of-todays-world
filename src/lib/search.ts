@@ -4,6 +4,7 @@ import { routes } from "@/config/routes";
 import { getEntries } from "@/features/entries/queries";
 import { getAtlas } from "@/features/geography/queries";
 import { rowsOf } from "@/lib/db/result";
+import { isSearchable } from "@/lib/search-query";
 import { createPublicClient } from "@/lib/supabase/public";
 
 /**
@@ -38,7 +39,8 @@ export interface SearchHit {
  */
 export async function search(query: string, limit = 12): Promise<SearchHit[]> {
   const trimmed = query.trim().slice(0, 200);
-  if (!trimmed) return [];
+  // Nothing the database would look for ("a", "of"): don't ask it.
+  if (!isSearchable(trimmed)) return [];
 
   const [result, atlas, entries] = await Promise.all([
     createPublicClient().rpc("search", { p_text: trimmed, p_limit: limit }),
