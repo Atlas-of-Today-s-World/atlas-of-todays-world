@@ -4,6 +4,8 @@ const state = vi.hoisted(() => ({
   configured: true,
   access: null as null | Record<string, unknown>,
   staff: false,
+  profile: null as null | { name: string | null },
+  filters: [] as Array<[string, unknown]>,
 }));
 
 vi.mock("@/lib/supabase/config", () => ({
@@ -12,6 +14,24 @@ vi.mock("@/lib/supabase/config", () => ({
 vi.mock("@/features/auth/access", () => ({
   getAccess: async () => state.access,
   opensAdmin: async () => state.staff,
+}));
+vi.mock("@/lib/supabase/server", () => ({
+  createServerClient: async () => ({
+    from: (table: string) => {
+      const builder = {
+        select: (columns: string) => {
+          expect([table, columns]).toEqual(["profiles", "name"]);
+          return builder;
+        },
+        eq: (column: string, value: unknown) => {
+          state.filters.push([column, value]);
+          return builder;
+        },
+        maybeSingle: async () => ({ data: state.profile, error: null }),
+      };
+      return builder;
+    },
+  }),
 }));
 
 const { GET } = await import("./route");
@@ -30,6 +50,8 @@ describe("GET /api/me", () => {
     state.configured = true;
     state.access = null;
     state.staff = false;
+    state.profile = null;
+    state.filters = [];
   });
 
   it("answers signed out without a session, never cached", async () => {
@@ -37,6 +59,7 @@ describe("GET /api/me", () => {
     expect(response.headers.get("cache-control")).toBe("private, no-store");
     expect(await response.json()).toEqual({
       signedIn: false,
+      name: null,
       email: null,
       roleName: null,
       isStaff: false,
@@ -49,21 +72,28 @@ describe("GET /api/me", () => {
     expect((await (await GET()).json()).signedIn).toBe(false);
   });
 
-  it("returns only the four fields the menu shows", async () => {
+  it("returns only the five fields the menu shows, the name from the own profile", async () => {
     state.access = ACCESS;
     state.staff = true;
+    state.profile = { name: "  Ana Nováková " };
     const response = await GET();
     expect(response.headers.get("cache-control")).toBe("private, no-store");
     expect(await response.json()).toEqual({
       signedIn: true,
+      name: "Ana Nováková",
       email: "ana@example.org",
       roleName: "Article writer",
       isStaff: true,
     });
+    expect(state.filters).toEqual([["id", "u1"]]);
   });
 
-  it("tells a reader from the team", async () => {
+  it("tells a reader from the team; no name is fine", async () => {
     state.access = { ...ACCESS, roleId: "reader", roleName: "Reader", permissions: {} };
-    expect(await (await GET()).json()).toMatchObject({ signedIn: true, isStaff: false });
+    expect(await (await GET()).json()).toMatchObject({
+      signedIn: true,
+      name: null,
+      isStaff: false,
+    });
   });
 });

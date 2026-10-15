@@ -117,7 +117,7 @@ Dva druhy účtů (`profiles.kind`), dvě různé cesty vzniku:
 - `/admin` bez přihlášení → přesměrování na `/login?next=/admin` (už ne 404); přihlášený čtenář bez týmové
   role → stránka „Nemáte přístup“ (403).
 - **Menu účtu v hlavičce** (ADR-026): ikona osoby otevře menu, které při otevření načte `GET /api/me`
-  (`private, no-store`, `getUser()`; jen `signedIn`, `email`, `roleName`, `isStaff`). Nepřihlášený: Sign in
+  (`private, no-store`, `getUser()`; jen `signedIn`, `name` z vlastního profilu pod RLS, `email`, `roleName`, `isStaff`). Nepřihlášený: Sign in
   (`next` = aktuální stránka). Tým (`opensAdmin`: sekce s právem `v`, nebo role čekající na druhý faktor):
   e-mail a role, Open the administration, My account (`/admin/account`), Sign out. Čtenář: e-mail,
   Account settings (`/account`), Sign out. Stažení dat a smazání účtu jsou jen na `/account` (čtenář)

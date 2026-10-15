@@ -6,7 +6,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { isLocale, LOCALES, localePath } from "@/lib/i18n/config";
 import { getMessagesFor, getOverridesFor } from "@/lib/i18n/request";
 import { absoluteUrl } from "@/lib/seo";
-import { graph, organizationNode, websiteNode } from "@/features/seo/jsonld";
+import { graph, organizationNode, websiteNode, builderNode } from "@/features/seo/jsonld";
 import { getSiteSettings, getSocialLinks } from "@/features/site/queries";
 
 /**
@@ -48,7 +48,9 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
         href={absoluteUrl(localePath(locale, "/llms.txt"))}
       />
       {/* The publisher and the website, referenced by @id from every page's own graph. */}
-      <JsonLd data={graph(organizationNode(site, socials), websiteNode(locale, site))} />
+      <JsonLd
+        data={graph(organizationNode(site, socials), websiteNode(locale, site), builderNode())}
+      />
       {/* <html lang> is the shared root; this wrapper carries the content language (WCAG 3.1.2). */}
       <div lang={locale} className="contents">
         {children}

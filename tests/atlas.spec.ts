@@ -367,13 +367,14 @@ test.describe("account menu", () => {
     await expect(page).toHaveURL(/\/login\?next=%2Fabout$/);
   });
 
-  test("never cached and only the four fields", async ({ request }) => {
+  test("never cached and only the five fields", async ({ request }) => {
     const response = await request.get("/api/me");
     expect(response.status()).toBe(200);
     expect(response.headers()["cache-control"]).toContain("no-store");
     expect(Object.keys(await response.json()).sort()).toEqual([
       "email",
       "isStaff",
+      "name",
       "roleName",
       "signedIn",
     ]);

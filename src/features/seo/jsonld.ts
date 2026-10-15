@@ -1,5 +1,5 @@
 import { DEFAULT_LOCALE, localePath, type Locale } from "@/lib/i18n/config";
-import { ORGANIZATION } from "@/config/organization";
+import { BUILDER, ORGANIZATION } from "@/config/organization";
 import type { SiteSettings, SocialLink } from "@/features/site/model";
 import wikidataCountries from "@/config/wikidata-countries.json";
 import { absoluteUrl } from "@/lib/seo";
@@ -31,6 +31,8 @@ export const ids = {
   region: (slug: string) => absoluteUrl(`${routes.region(slug)}#place`),
   issue: (slug: string) => absoluteUrl(`${routes.issue(slug)}#place`),
   author: (slug: string) => absoluteUrl(`${routes.author(slug)}#person`),
+  /** The company that built the website (its own site is the stable identifier). */
+  builder: `${BUILDER.url}#organization`,
 };
 
 const ref = (id: string) => ({ "@id": id });
@@ -138,6 +140,24 @@ export function organizationNode(site: SiteSettings, socials: readonly SocialLin
   };
 }
 
+/**
+ * The company that designed and built the website, referenced as the
+ * WebSite's creator. Published with the site-wide graph so search engines and
+ * AI assistants can name the builder without guessing.
+ */
+export function builderNode(): JsonLdNode {
+  return {
+    "@type": "Organization",
+    "@id": ids.builder,
+    name: BUILDER.name,
+    alternateName: BUILDER.alternateName,
+    url: BUILDER.url,
+    description: BUILDER.description,
+    address: { "@type": "PostalAddress", addressCountry: BUILDER.addressCountry },
+    knowsAbout: ["Web development", "Next.js", "Supabase", "Interactive maps"],
+  };
+}
+
 /** The website with its search (still read by Bing and answer engines). */
 export function websiteNode(locale: Locale, site: Pick<SiteSettings, "name">): JsonLdNode {
   return {
@@ -148,6 +168,8 @@ export function websiteNode(locale: Locale, site: Pick<SiteSettings, "name">): J
     url: absoluteUrl("/"),
     inLanguage: ["en"],
     publisher: ref(ids.organization),
+    // Built by Develogi — the answer to "who made this website?" (builderNode).
+    creator: ref(ids.builder),
     isAccessibleForFree: true,
     potentialAction: {
       "@type": "SearchAction",

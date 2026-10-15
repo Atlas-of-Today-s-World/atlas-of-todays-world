@@ -40,7 +40,6 @@ export const MAIN_NAV: readonly NavItem[] = [
   { href: routes.countries, key: "countries", compactHidden: true },
   { href: routes.newsIndex, key: "news", compactHidden: true, flag: "news_menu" },
   { href: routes.about, key: "about" },
-  { href: routes.membership, key: "support" },
   { href: routes.membership, key: "patrons", primary: true },
 ];
 

@@ -107,6 +107,13 @@ test("site pages: the four pages are seeded and published, each with its first r
   const about = rows.find((row) => row.slug === "about").body_html;
   assert.match(about, /<p>\{\{data-sources\}\}<\/p>/);
   assert.match(about, /<h2 id="editorial-standards">/);
+  // The story, partners and team from the original About page (20261015000020),
+  // between the mission and the data sources.
+  for (const id of ["what-why-how", "our-story", "partnerships", "team", "collaborate", "join"]) {
+    assert.ok(about.includes(`<h2 id="${id}">`), id);
+  }
+  assert.ok(about.indexOf('id="mission"') < about.indexOf('id="our-story"'));
+  assert.ok(about.indexOf('id="our-story"') < about.indexOf('id="data"'));
   assert.match(rows.find((row) => row.slug === "privacy").body_html, /\{\{contact\}\}/);
   for (const { slug } of rows) {
     const first = await one(

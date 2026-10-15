@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { UserRound } from "lucide-react";
+import { LogIn, LogOut, Settings, UserRound, type LucideIcon } from "lucide-react";
 import Link from "@/components/i18n/Link";
 import { Popover, focusFirstMenuItem } from "@/components/ui/popover";
 import { adminRoutes, apiRoutes, isAtOrUnder, routes } from "@/config/routes";
 import { readMe, type Me } from "@/features/auth/types";
 import { ApiError, apiFetch } from "@/lib/api-fetch";
 import { cn } from "@/lib/cn";
-import { format, type Messages } from "@/lib/i18n/messages";
+import type { Messages } from "@/lib/i18n/messages";
 import { useMessages } from "./i18n/LocaleProvider";
 
 /** Where the button sits: over the home globe, in the dark bar, in the mobile menu. */
@@ -24,14 +24,15 @@ const TRIGGER: Record<Look, string> = {
 };
 
 const ITEM =
-  "flex min-h-(--touch-min) w-full items-center rounded-lg px-3 text-left text-[13.5px] text-[var(--color-ink)] transition hover:bg-[var(--color-line)]/50 focus-visible:bg-[var(--color-accent-soft)] focus-visible:outline-none";
+  "flex min-h-(--touch-min) w-full items-center gap-2.5 rounded-lg px-3 text-left text-[13.5px] text-[var(--color-ink)] transition hover:bg-[var(--color-line)]/50 focus-visible:bg-[var(--color-accent-soft)] focus-visible:outline-none";
 
 /**
  * The person icon in the header: a menu that asks `/api/me` who is signed in
  * when it opens (the header is on static pages, so the server never reads the
  * session for it). Signed out: Sign in (back to this page afterwards). A team
- * member: e-mail and role, the administration, My account (admin), Sign out.
- * A reader: e-mail, Account settings (/account), Sign out. Sign-out is the
+ * member: name (from their own profile), e-mail and role, the administration,
+ * My account (admin), Sign out. A reader: name, e-mail, Account settings
+ * (/account), Sign out. Sign-out is the
  * same POST form as before (the route checks the Origin).
  */
 export function AccountMenu({ look }: { look: Look }) {
@@ -61,7 +62,8 @@ export function AccountMenu({ look }: { look: Look }) {
   };
 
   const me = state.status === "ready" && state.me.signedIn ? state.me : null;
-  const label = me?.email ? format(t.signedInAs, { email: me.email }) : t.label;
+  const who = me?.name ?? me?.email;
+  const label = who ? `${t.signedInAs} ${who}` : t.label;
 
   return (
     <Popover
@@ -120,8 +122,9 @@ function MenuItems({
   }
 
   const me = state.status === "ready" && state.me.signedIn ? state.me : null;
-  const link = (href: string, text: string) => (
+  const link = (href: string, text: string, Icon: LucideIcon) => (
     <Link role="menuitem" tabIndex={-1} href={href} onClick={onPick} className={ITEM}>
+      <Icon aria-hidden className="size-4 shrink-0" />
       {text}
     </Link>
   );
@@ -135,30 +138,38 @@ function MenuItems({
       ) : null}
       {me ? (
         <>
-          <div role="none" className="mb-1 border-b border-[var(--color-line)] px-3 pt-1 pb-2">
-            <p className="truncate font-medium" title={me.email ?? undefined}>
-              {me.email}
-            </p>
-            {me.isStaff && me.roleName ? (
-              <p className="text-[12px] text-[var(--color-ink-muted)]">{me.roleName}</p>
+          <div
+            role="none"
+            className="mb-1 border-b border-[var(--color-line)] px-3 pt-1 pb-2 text-[12px] text-[var(--color-ink-muted)]"
+          >
+            {t.signedInAs}
+            <span className="block truncate text-[13.5px] font-medium text-[var(--color-ink)]">
+              {me.name ?? me.email}
+            </span>
+            {me.name && me.email ? (
+              <span className="block truncate" title={me.email}>
+                {me.email}
+              </span>
             ) : null}
+            {me.isStaff && me.roleName ? <span className="block">{me.roleName}</span> : null}
           </div>
           {me.isStaff ? (
             <>
-              {link(adminRoutes.overview, t.openAdmin)}
-              {link(adminRoutes.account, t.myAccount)}
+              {link(adminRoutes.overview, t.openAdmin, Settings)}
+              {link(adminRoutes.account, t.myAccount, UserRound)}
             </>
           ) : (
-            link(routes.account, t.settings)
+            link(routes.account, t.settings, UserRound)
           )}
           <form role="none" action={routes.signOut} method="post">
             <button role="menuitem" tabIndex={-1} type="submit" className={ITEM}>
+              <LogOut aria-hidden className="size-4 shrink-0" />
               {t.signOut}
             </button>
           </form>
         </>
       ) : (
-        link(signInHref(here), messages.nav.signIn)
+        link(signInHref(here), messages.nav.signIn, LogIn)
       )}
     </div>
   );

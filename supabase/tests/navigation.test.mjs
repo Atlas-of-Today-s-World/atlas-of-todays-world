@@ -103,6 +103,8 @@ before(async () => {
 // ---------------------------------------------------------------------------
 
 test("nav items: the main menu is seeded with today's items, labels and styles", async () => {
+  // As readers see it: "Support the Atlas" is hidden since 20261015000030 (it
+  // duplicated the "Atlas Patrons" button), still in the table for the admin.
   const rows = await as(null, () => items("main"));
   assert.deepEqual(
     rows.map((row) => [row.label, row.href, row.is_primary, row.compact_hidden, row.requires_flag]),
@@ -111,10 +113,12 @@ test("nav items: the main menu is seeded with today's items, labels and styles",
       ["Countries", "/countries", false, true, null],
       ["News", "/news", false, true, "news_menu"],
       ["About", "/about", false, false, null],
-      ["Support the Atlas", "/membership", false, false, null],
       ["Atlas Patrons", "/membership", true, false, null],
     ],
   );
+  assert.deepEqual(await one("select visible from nav_items where label = 'Support the Atlas'"), {
+    visible: false,
+  });
 });
 
 test("nav items: the legal links are seeded in today's order", async () => {
@@ -143,7 +147,6 @@ test("nav items: anon reads only visible items and the public columns, and can't
       "Countries",
       "News",
       "About",
-      "Support the Atlas",
       "Atlas Patrons",
     ]);
     await refused(q("select updated_at from nav_items"), /permission denied/);
@@ -158,8 +161,8 @@ test("nav items: anon reads only visible items and the public columns, and can't
   // The team with `site` "v" sees the hidden one too; other team members and readers don't.
   assert.equal((await as(id.viewer, () => items("main"))).length, 7);
   assert.equal((await as(id.editor, () => items("main"))).length, 7);
-  assert.equal((await as(id.observer, () => items("main"))).length, 6);
-  assert.equal((await as(id.reader, () => items("main"))).length, 6);
+  assert.equal((await as(id.observer, () => items("main"))).length, 5);
+  assert.equal((await as(id.reader, () => items("main"))).length, 5);
   await q("delete from nav_items where id = $1", [hidden.id]);
 });
 
