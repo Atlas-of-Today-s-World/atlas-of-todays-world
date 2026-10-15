@@ -110,7 +110,7 @@ test("site pages: the four pages are seeded and published, each with its first r
   // The story, partners and team from the original About page (20261015000020),
   // between the mission and the data sources.
   for (const id of ["what-why-how", "our-story", "partnerships", "team", "collaborate", "join"]) {
-    assert.match(about, new RegExp(`<h2 id="${id}">`));
+    assert.ok(about.includes(`<h2 id="${id}">`), id);
   }
   assert.ok(about.indexOf('id="mission"') < about.indexOf('id="our-story"'));
   assert.ok(about.indexOf('id="our-story"') < about.indexOf('id="data"'));
