@@ -13,7 +13,7 @@ import { publicEnv } from "@/lib/env";
 const TURNSTILE_KEY = publicEnv.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
 /**
- * Sign-in with an e-mailed code (G1): e-mail → six-digit code → signed in.
+ * Sign-in with an e-mailed code (G1): e-mail → eight-digit code → signed in.
  * The second step appears once the action returns the address the code was sent to.
  * Turnstile (only with a key in the environment) adds `cf-turnstile-response` to the form.
  */
