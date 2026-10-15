@@ -11,6 +11,7 @@
  */
 
 import { MINI_GLOBE } from "@/config/layout";
+import { apiFetch } from "./api-fetch";
 
 /** Center of Europe – the default view when the location can't be determined. */
 export const EUROPE_CENTER: [number, number] = [14, 49.5];
@@ -66,11 +67,10 @@ const IP_COUNTRY_TIMEOUT_MS = 1200;
  */
 export async function fetchIpCountry(): Promise<string | null> {
   try {
-    const response = await fetch("/api/geo", {
+    const data = await apiFetch<{ country?: unknown }>("/api/geo", {
       cache: "no-store",
-      signal: AbortSignal.timeout(IP_COUNTRY_TIMEOUT_MS),
+      timeoutMs: IP_COUNTRY_TIMEOUT_MS,
     });
-    const data = (await response.json()) as { country?: unknown };
     return typeof data.country === "string" && /^[A-Z]{2}$/.test(data.country)
       ? data.country
       : null;

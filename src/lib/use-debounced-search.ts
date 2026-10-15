@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { apiFetch } from "./api-fetch";
 
 type Outcome<T> = { query: string; attempt: number } & (
   { failed: false; results: T[] } | { failed: true }
@@ -29,11 +30,10 @@ export function useDebouncedSearch<T>(
     const controller = new AbortController();
     const timer = setTimeout(async () => {
       try {
-        const response = await fetch(`${endpoint}?q=${encodeURIComponent(query)}`, {
-          signal: controller.signal,
-        });
-        if (!response.ok) throw new Error(`Search answered ${response.status}`);
-        const data = (await response.json()) as { results?: T[] };
+        const data = await apiFetch<{ results?: T[] }>(
+          `${endpoint}?q=${encodeURIComponent(query)}`,
+          { signal: controller.signal },
+        );
         setOutcome({ query, attempt, failed: false, results: data.results ?? [] });
       } catch {
         // Aborted because the query changed: the newer request answers instead.

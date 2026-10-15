@@ -29,6 +29,7 @@ function warmUp() {
     /* webpackIgnore: true */ /* turbopackIgnore: true */ `${BASE}/maplibre-gl-shared.mjs`
   ).catch(() => {});
   // Same URL as the map's source: the worker then reads it from the HTTP cache.
+  // eslint-disable-next-line no-restricted-globals -- a cache warm-up of static map data, not an API call
   void fetch(GLOBE_DATA.countries).catch(() => {});
 }
 
