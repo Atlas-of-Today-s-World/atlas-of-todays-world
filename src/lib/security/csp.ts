@@ -16,7 +16,10 @@ import { PRE_PAINT_HASH } from "@/lib/pre-paint";
  *   page dynamic and end the caching.
  * 'unsafe-eval' is only in development (React dev overlay).
  */
-/** Cloudflare Turnstile (script and challenge iframe) for sign-in with an email code. */
+/**
+ * Cloudflare Turnstile (script and challenge iframe) for sign-in with an email
+ * code and the public forms. Its token is checked server-side (no connect-src).
+ */
 const TURNSTILE = "https://challenges.cloudflare.com";
 /** Google's OAuth consent screen, the last hop of the sign-in redirect. */
 const GOOGLE_SIGN_IN = "https://accounts.google.com";
@@ -39,7 +42,8 @@ export function buildCsp({
 
   const directives: Record<string, string[]> = {
     "default-src": ["'self'"],
-    // blob: is needed by MapLibre for web workers; Turnstile protects email sign-in (G1).
+    // blob: is needed by MapLibre for web workers; Turnstile protects email sign-in (G1)
+    // and the public forms.
     // With 'strict-dynamic' browsers ignore 'self' and the hosts (kept for older ones).
     "script-src": ["'self'", ...inline, "blob:", TURNSTILE, ...(dev ? ["'unsafe-eval'"] : [])],
     // Inline event handlers (onclick="…") never run: React doesn't use them, so an

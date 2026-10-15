@@ -22,6 +22,7 @@ import { getRequestLocale, getT, localeFrom } from "@/features/i18n/request";
 import type { GlobalIssue, Indicator, Region } from "@/features/geography/types";
 import { saturate, saturateMap } from "@/lib/color";
 import { legendFor } from "@/lib/indicators";
+import { captchaEnabled } from "@/lib/security/turnstile";
 
 /** Options for the layer switcher – generated from imported indicators. */
 function buildViewOptions(indicators: Indicator[], saturation: number, t: Messages): ViewOption[] {
@@ -125,7 +126,12 @@ export default async function MapLayout({ children, params }: LayoutProps<"/[loc
   return (
     <MapProvider>
       <main className="relative h-dvh w-full overflow-hidden bg-[var(--color-space-deep)]">
-        <Header newsletter={flags.newsletter} nav={nav} socials={socials} />
+        <Header
+          newsletter={flags.newsletter}
+          captcha={captchaEnabled()}
+          nav={nav}
+          socials={socials}
+        />
         <FloatingActions onMap newsletter={flags.newsletter} />
         <MapStage>
           <AtlasGlobe

@@ -1,3 +1,8 @@
+/** The client's address as the proxy reports it (first entry of x-forwarded-for), if any. */
+export function clientIp(headers: Headers): string | undefined {
+  return headers.get("x-forwarded-for")?.split(",")[0]?.trim() || undefined;
+}
+
 /**
  * The part of a client address a rate limit counts by. IPv4 as it is; IPv6 by
  * its /64 network — one subscriber usually gets a whole /64, so counting each

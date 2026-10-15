@@ -29,11 +29,14 @@ import { useMessages } from "./i18n/LocaleProvider";
  */
 export default function Header({
   newsletter = true,
+  captcha,
   bar = false,
   nav,
   socials,
 }: {
   newsletter?: boolean;
+  /** The menu's newsletter form shows Turnstile (`captchaEnabled()`, read on the server). */
+  captcha: boolean;
   /** Pages that render the header themselves (full-width pages, pages without the globe). */
   bar?: boolean;
   nav: Navigation;
@@ -80,6 +83,7 @@ export default function Header({
       nav={nav}
       active={active}
       newsletter={newsletter}
+      captcha={captcha}
       socials={socials}
       onClose={() => setMenuOpen(false)}
     />
@@ -227,6 +231,7 @@ function MenuDialog({
   nav,
   active,
   newsletter,
+  captcha,
   socials,
   onClose,
 }: {
@@ -235,6 +240,7 @@ function MenuDialog({
   /** Id of the current page's item, if any. */
   active: string | null;
   newsletter: boolean;
+  captcha: boolean;
   socials: readonly SocialLink[];
   onClose: () => void;
 }) {
@@ -271,7 +277,7 @@ function MenuDialog({
       </nav>
 
       <div className="mt-auto space-y-6 pb-2">
-        {newsletter ? <NewsletterForm /> : null}
+        {newsletter ? <NewsletterForm captcha={captcha} /> : null}
 
         <nav aria-label={t.header.legal} className="flex gap-4 text-[12.5px] text-white/60">
           {nav.legal.map((item) => (

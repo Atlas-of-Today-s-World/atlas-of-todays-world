@@ -359,6 +359,7 @@
         "name": "Enter your name.",
         "tooLong": "That text is too long.",
         "consent": "Please confirm the consent.",
+        "captcha": "Please complete the security check above the button, then send again.",
         "failed": "Something went wrong. Try again later."
       }
     }
@@ -541,6 +542,7 @@
       "invalidEmail": "That address looks wrong.",
       "consent": "Please tick the consent box.",
       "rateLimited": "Too many attempts. Try again later.",
+      "captcha": "Please complete the security check, then sign up again.",
       "notConnected": "The newsletter is not connected yet.",
       "failed": "Sign-up failed. Try again later.",
       "interests": "Pick at least one kind of email."

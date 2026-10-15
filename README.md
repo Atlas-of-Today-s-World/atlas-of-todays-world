@@ -26,7 +26,8 @@ cp .env.example .env.local   # doplnit NEXT_PUBLIC_SUPABASE_URL a _ANON_KEY
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Veřejné čtení obsahu a přihlášení (povinné). |
 | `SUPABASE_SERVICE_ROLE_KEY` | Jen server: smazání účtu, ban v Auth, rate limit, e2e účty. |
 | `RATE_LIMIT_SECRET` | Jen server: klíč (HMAC, ≥ 32 znaků) pro hashované IP a e-maily v rate limitu. V produkci jako GitHub secret `RATE_LIMIT_SECRET` (deploy.yml ho předá Vercelu); prázdné = dosavadní odvození. |
-| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Veřejný klíč Cloudflare Turnstile pro přihlášení kódem e-mailem. V produkci jako GitHub variable stejného jména (deploy.yml ho předá do buildu); tajný klíč patří jen do Supabase → Attack Protection. |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Veřejný klíč Cloudflare Turnstile pro přihlášení kódem e-mailem a pro veřejné formuláře (newsletter, dobrovolníci). V produkci jako GitHub variable stejného jména (deploy.yml ho předá do buildu); tajný klíč pro přihlášení patří do Supabase → Attack Protection. |
+| `TURNSTILE_SECRET_KEY` | Jen server: tajný klíč Turnstile pro newsletter a přihlášku dobrovolníka. Teprve s ním **a** s `NEXT_PUBLIC_TURNSTILE_SITE_KEY` formuláře ukážou widget a server token ověří; prázdné = formuláře jako dřív. V produkci jako GitHub secret `TURNSTILE_SECRET_KEY` (deploy.yml ho předá buildu i Vercelu). Když Cloudflare neodpovídá, formulář projde (dostupnost má přednost). |
 | `NEXT_PUBLIC_MAPTILER_KEY` | Satelitní dlaždice MapTileru místo Esri. Pro produkci doporučeno (Esri nemá SLA pro komerční provoz). |
 | `NEXT_PUBLIC_SITE_URL` | Kanonická adresa pro sitemapu, robots.txt a og:url. |
 | `MAILCHIMP_API_KEY`, `MAILCHIMP_LIST_ID` | Odběr novinek. |

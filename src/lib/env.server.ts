@@ -12,6 +12,11 @@ const schema = z.object({
   // Key for the hashed IP/e-mail rate-limit keys (lib/security/rate-limit.ts).
   // Empty = the previous derivation; setting it starts fresh rate-limit windows once.
   RATE_LIMIT_SECRET: optional(z.string().min(32, "RATE_LIMIT_SECRET: at least 32 characters")),
+  // Cloudflare Turnstile secret for the public forms (lib/security/turnstile.ts). Together
+  // with NEXT_PUBLIC_TURNSTILE_SITE_KEY it turns the check on; empty = forms as before.
+  // Deliberately lenient: a wrong value must not stop the app from starting (siteverify
+  // reports it and the forms stay open).
+  TURNSTILE_SECRET_KEY: optional(z.string().min(1)),
   // IndexNow (ADR-021): public by design (served at /indexnow-key.txt); empty = pings off.
   // Search console ownership tokens (public, rendered as <meta>); empty = verify by DNS instead.
   GOOGLE_SITE_VERIFICATION: optional(z.string().regex(/^[\w-]{10,100}$/)),

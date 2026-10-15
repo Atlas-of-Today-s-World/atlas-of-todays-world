@@ -8,6 +8,7 @@ import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { VOLUNTEER_ID } from "@/features/membership/config";
 import { breadcrumbNode, graph, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { staticPageMetadata } from "@/lib/seo/metadata";
+import { captchaEnabled } from "@/lib/security/turnstile";
 import { routes } from "@/config/routes";
 
 export const generateMetadata = staticPageMetadata("newsletterPage", routes.newsletter);
@@ -63,7 +64,7 @@ export default async function NewsletterPage({ params }: PageProps<"/[locale]/ne
         </ul>
         <div className="mt-7 max-w-md">
           {flags.newsletter ? (
-            <NewsletterForm />
+            <NewsletterForm captcha={captchaEnabled()} />
           ) : (
             <p className="rounded-xl bg-white/10 p-4 text-[14px] text-white/85">{t.off}</p>
           )}
