@@ -91,7 +91,7 @@ before(async () => {
   }
 });
 
-test("site pages: the four pages are seeded, published, each with its first revision", async () => {
+test("site pages: the four pages are seeded and published, each with its first revision", async () => {
   const rows = await q(
     "select slug, published, last_reviewed::text d, body_html from site_pages order by slug",
   );
@@ -100,7 +100,7 @@ test("site pages: the four pages are seeded, published, each with its first revi
     [
       ["about", true, null],
       ["accessibility", true, "2026-09-30"],
-      ["privacy", true, "2026-09-30"],
+      ["privacy", true, "2026-10-15"], // reviewed again by 20261015000010
       ["terms", true, "2026-09-30"],
     ],
   );
@@ -110,7 +110,7 @@ test("site pages: the four pages are seeded, published, each with its first revi
   assert.match(rows.find((row) => row.slug === "privacy").body_html, /\{\{contact\}\}/);
   for (const { slug } of rows) {
     const first = await one(
-      "select saved_by, title from site_page_revisions where page_slug = $1",
+      "select saved_by, title from site_page_revisions where page_slug = $1 order by id limit 1",
       [slug],
     );
     assert.equal(first.saved_by, null, `${slug}: seeded by the migration`);
