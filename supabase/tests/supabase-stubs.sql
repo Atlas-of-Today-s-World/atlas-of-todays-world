@@ -65,3 +65,7 @@ grant execute on function storage.foldername(text) to anon, authenticated;
 grant usage on schema storage to anon, authenticated;
 grant select, insert, update, delete on storage.objects to authenticated;
 grant select on storage.buckets to anon, authenticated;
+
+-- Supabase installs extensions (pg_trgm, …) into their own schema.
+create schema extensions;
+grant usage on schema extensions to anon, authenticated, service_role;
