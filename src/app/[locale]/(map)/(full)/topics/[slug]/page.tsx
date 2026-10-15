@@ -8,7 +8,7 @@ import { countriesOf } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
 import { localeFrom } from "@/features/i18n/request";
 import { articleMetaOf } from "@/features/entries/article-meta";
-import { clampText, DESCRIPTION_MAX, pageMetadata, pageTitle } from "@/lib/seo/metadata";
+import { clampText, DESCRIPTION_MAX, pageMetadata, pageTitle } from "@/features/seo/metadata";
 import {
   articleNode,
   breadcrumbNode,
@@ -16,7 +16,7 @@ import {
   graph,
   pageUrl,
   webPageNode,
-} from "@/lib/seo/jsonld";
+} from "@/features/seo/jsonld";
 import { wordCount } from "@/lib/text/html";
 import { JsonLd } from "@/components/JsonLd";
 import { routes } from "@/config/routes";

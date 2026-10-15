@@ -7,8 +7,8 @@ import { getAtlas } from "@/features/geography/queries";
 import { format } from "@/features/i18n/messages";
 import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { JsonLd } from "@/components/JsonLd";
-import { staticPageMetadata } from "@/lib/seo/metadata";
-import { breadcrumbNode, graph, itemListNode, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import { staticPageMetadata } from "@/features/seo/metadata";
+import { breadcrumbNode, graph, itemListNode, pageUrl, webPageNode } from "@/features/seo/jsonld";
 import { categoryLabel, NEWS_CATEGORIES } from "@/lib/content-types";
 import { routes } from "@/config/routes";
 

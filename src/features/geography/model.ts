@@ -1,5 +1,5 @@
 import type { Locale } from "@/features/i18n/config";
-import { formatValue } from "@/lib/indicators";
+import { formatValue } from "@/features/geography/indicators";
 import { contentStatus } from "./content-status";
 import type {
   Atlas,

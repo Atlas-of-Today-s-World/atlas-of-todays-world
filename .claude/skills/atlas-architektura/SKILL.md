@@ -88,8 +88,8 @@ Každý vizuální vzor, konstanta a datová definice existuje **právě jednou*
 - **Texty a nastavení:** `getT()` / `getMessagesFor(locale)` (`features/i18n/request.ts`, async, s úpravami z UI texts),
   `localeFrom(params)`; `getSiteSettings()` (`features/site/queries.ts`).
 - **SEO:** `pageMetadata`, `staticPageMetadata(section, path)` pro indexové stránky z UI textů, `privateMetadata(title)`
-  pro neindexované (`lib/seo/metadata.ts`); `breadcrumbNode(site, crumbs, locale)` přidá úvodní drobek webu sám
-  (`lib/seo/jsonld.ts`); `articleMetaOf(item)` (`features/entries/article-meta.ts`) pro data a sekci článku;
+  pro neindexované (`features/seo/metadata.ts`); `breadcrumbNode(site, crumbs, locale)` přidá úvodní drobek webu sám
+  (`features/seo/jsonld.ts`); `articleMetaOf(item)` (`features/entries/article-meta.ts`) pro data a sekci článku;
   `categoryLabel(category, t)` (`lib/content-types.ts`) pro popisek kategorie.
 - **Rámy stránek:** `PagesFrame` (skupiny `(pages)`, `(patrons)`, `(account)`), `PagesShell`, `FullPage`.
 
@@ -139,7 +139,7 @@ po dokončení zaškrtni úkol a doplň odkaz na PR.
 - Po migraci: `supabase gen types typescript --linked > src/lib/db/types.gen.ts`.
 - Každá změna oprávnění = DB test v `supabase/tests/` (anon / s právem / bez práva): RLS a výchozí role
   v `rls.test.mjs`, granty sloupců v `column-grants.test.mjs`, sekce matice v `site-section.test.mjs`;
-  nová sekce = CHECK `role_permissions.section` + `my_permissions()` + `src/features/auth/sections.ts`
+  nová sekce = CHECK `role_permissions.section` + `my_permissions()` + `src/config/sections.ts`
   + `src/features/roles/labels.ts`. Nový testovací soubor přidej do skriptu `test:db`.
 
 ## Testy (co spustit)

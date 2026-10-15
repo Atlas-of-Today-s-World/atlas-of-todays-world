@@ -1,5 +1,6 @@
 import "server-only";
-import { can, type Action, type Permissions } from "@/features/auth/access";
+import { can } from "@/features/auth/access";
+import type { Action, Permissions } from "@/config/sections";
 import { must, rowsOf } from "@/lib/db/result";
 import { createServerClient } from "@/lib/supabase/server";
 import { clampFeaturedCount } from "./config";

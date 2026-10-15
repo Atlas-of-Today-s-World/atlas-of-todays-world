@@ -13,7 +13,7 @@ import { categoryLabel } from "@/lib/content-types";
 import { formatLongDate } from "@/lib/format";
 import { cssBackgroundImage } from "@/lib/security/urls";
 import { PHOTO_WIDTH } from "@/lib/images";
-import { pageMetadata } from "@/lib/seo/metadata";
+import { pageMetadata } from "@/features/seo/metadata";
 import {
   breadcrumbNode,
   graph,
@@ -22,7 +22,7 @@ import {
   pageUrl,
   personNode,
   webPageNode,
-} from "@/lib/seo/jsonld";
+} from "@/features/seo/jsonld";
 import { routes } from "@/config/routes";
 
 export const dynamicParams = true;

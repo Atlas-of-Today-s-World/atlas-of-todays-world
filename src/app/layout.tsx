@@ -43,7 +43,7 @@ export async function generateMetadata(): Promise<Metadata> {
     applicationName: site.name,
     authors: [{ name: site.name }],
     publisher: site.name,
-    // Pages set their own URL, locale and image (lib/seo/metadata.ts); this is the fallback.
+    // Pages set their own URL, locale and image (features/seo/metadata.ts); this is the fallback.
     openGraph: {
       type: "website",
       siteName: site.name,

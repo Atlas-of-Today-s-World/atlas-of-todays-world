@@ -15,7 +15,8 @@ import { optionStats } from "@/components/data-table/stats";
 import { navIcon } from "@/config/admin-nav";
 import { NAV_MENUS, type NavFlag, type NavMenu } from "@/config/navigation";
 import { adminRoutes } from "@/config/routes";
-import { can, sectionAccess, type Permissions } from "@/features/auth/access";
+import { can, sectionAccess } from "@/features/auth/access";
+import type { Permissions } from "@/config/sections";
 import {
   addNavItem,
   deleteNavItem,

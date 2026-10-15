@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SECTIONS } from "@/features/auth/sections";
+import { SECTIONS } from "@/config/sections";
 import { MatrixInput } from "./schema";
 import { matrixFormData, matrixSections, toggleAction } from "./matrix";
 

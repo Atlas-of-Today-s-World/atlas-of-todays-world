@@ -17,8 +17,15 @@ import { getRequestLocale, getT, localeFrom } from "@/features/i18n/request";
 import type { Country, CountryStat } from "@/features/geography/types";
 import { formatPopulation } from "@/lib/format";
 import { geoMeta } from "@/lib/seo";
-import { pageMetadata, pageTitle } from "@/lib/seo/metadata";
-import { breadcrumbNode, countryNode, graph, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import { pageMetadata, pageTitle } from "@/features/seo/metadata";
+import {
+  breadcrumbNode,
+  countryNode,
+  graph,
+  ids,
+  pageUrl,
+  webPageNode,
+} from "@/features/seo/jsonld";
 import { JsonLd } from "@/components/JsonLd";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
 import { RelatedTopics } from "@/components/topics/RelatedTopics";

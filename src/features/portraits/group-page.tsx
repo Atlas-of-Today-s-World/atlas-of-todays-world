@@ -20,7 +20,7 @@ import type { Atlas, GlobalIssue, Region } from "@/features/geography/types";
 import { getRequestLocale, localeFrom } from "@/features/i18n/request";
 import { redirectOrNotFound } from "@/features/redirects/queries";
 import { relatedTopics } from "@/features/topics/related";
-import { CARD_INDICATORS, groupStats, population } from "@/lib/region-stats";
+import { CARD_INDICATORS, groupStats, population } from "@/features/geography/region-stats";
 import { geoMeta } from "@/lib/seo";
 import {
   breadcrumbNode,
@@ -30,8 +30,8 @@ import {
   ids,
   pageUrl,
   webPageNode,
-} from "@/lib/seo/jsonld";
-import { pageMetadata, pageTitle } from "@/lib/seo/metadata";
+} from "@/features/seo/jsonld";
+import { pageMetadata, pageTitle } from "@/features/seo/metadata";
 import { getPortrait } from "./queries";
 
 /**

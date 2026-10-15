@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getAccess, isStaff } from "@/features/auth/access";
 import { localePath } from "@/features/i18n/config";
 import { getMessagesFor, localeFrom } from "@/features/i18n/request";
-import { privateMetadata } from "@/lib/seo/metadata";
+import { privateMetadata } from "@/features/seo/metadata";
 import DeleteAccount from "./DeleteAccount";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { adminRoutes, routes } from "@/config/routes";

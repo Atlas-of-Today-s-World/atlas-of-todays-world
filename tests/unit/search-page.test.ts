@@ -5,7 +5,7 @@ const allowRequest = vi.hoisted(() => vi.fn());
 const SEARCH_LIMIT = vi.hoisted(() => ({ limit: 60, windowSeconds: 60 }));
 
 vi.mock("next/headers", () => ({ headers: async () => new Headers() }));
-vi.mock("@/lib/search", () => ({ search, SEARCH_LIMIT }));
+vi.mock("@/features/search/queries", () => ({ search, SEARCH_LIMIT }));
 vi.mock("@/lib/security/rate-limit", () => ({ allowRequest }));
 
 const { default: SearchPage } = await import("@/app/[locale]/(pages)/search/page");

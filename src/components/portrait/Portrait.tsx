@@ -10,7 +10,7 @@ import {
   entryCategory,
   type RegionDossier,
 } from "@/lib/content-types";
-import type { RegionStat } from "@/lib/region-stats";
+import type { RegionStat } from "@/features/geography/region-stats";
 import { formatPopulation } from "@/lib/format";
 import { cssBackgroundImage } from "@/lib/security/urls";
 import { PHOTO_WIDTH } from "@/lib/images";

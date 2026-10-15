@@ -21,7 +21,7 @@ import { format, type Messages } from "@/features/i18n/messages";
 import { getRequestLocale, getT, localeFrom } from "@/features/i18n/request";
 import type { GlobalIssue, Indicator, Region } from "@/features/geography/types";
 import { saturate, saturateMap } from "@/lib/color";
-import { legendFor } from "@/lib/indicators";
+import { legendFor } from "@/features/geography/indicators";
 import { captchaEnabled } from "@/lib/security/turnstile";
 
 /** Options for the layer switcher – generated from imported indicators. */

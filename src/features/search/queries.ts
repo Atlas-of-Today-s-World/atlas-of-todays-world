@@ -6,7 +6,7 @@ import { getAtlas } from "@/features/geography/queries";
 import { rowsOf } from "@/lib/db/result";
 import { isSearchable } from "@/lib/search-query";
 import { createPublicClient } from "@/lib/supabase/public";
-import type { SearchHit, SearchKind } from "@/features/search/types";
+import type { SearchHit, SearchKind } from "./types";
 
 /**
  * Site search (header search, /search, /api/search): one Postgres RPC over

@@ -10,7 +10,7 @@ import { PhotoCard } from "@/components/atlas/PhotoCard";
 import { PhotoTile } from "@/components/atlas/PhotoTile";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
-import type { RegionStat } from "@/lib/region-stats";
+import type { RegionStat } from "@/features/geography/region-stats";
 import {
   categoryLabel,
   ENTRY_CATEGORIES,

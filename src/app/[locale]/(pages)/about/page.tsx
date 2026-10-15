@@ -8,7 +8,7 @@ import { getSiteSettings } from "@/features/site/queries";
 import { sitePageMetadata } from "@/features/site-pages/components/SitePage";
 import { SitePageView } from "@/features/site-pages/components/SitePageView";
 import { getSitePage } from "@/features/site-pages/queries";
-import { breadcrumbNode, graph, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import { breadcrumbNode, graph, ids, pageUrl, webPageNode } from "@/features/seo/jsonld";
 import { routes } from "@/config/routes";
 
 export function generateMetadata({ params }: PageProps<"/[locale]/about">) {

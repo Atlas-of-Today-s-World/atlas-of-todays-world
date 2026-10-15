@@ -61,8 +61,6 @@ export const FALLBACK_PATRON_SETTINGS: PatronSettings = {
   goal: { patrons: 1000, monthlyEur: 10_000, countsFromPatrons: 10 },
 };
 
-export const PATRONS_EMAIL = "info@atlasoftodaysworld.org";
-
 /*
  * The donation flow's addresses (membership, checkout, thank-you, manage) are
  * in config/routes.ts with every other public URL.

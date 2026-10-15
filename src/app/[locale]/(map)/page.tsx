@@ -5,8 +5,8 @@ import Link from "@/components/i18n/Link";
 import { SKIP_LINK } from "@/config/layout";
 import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { getSiteSettings } from "@/features/site/queries";
-import { pageMetadata } from "@/lib/seo/metadata";
-import { datasetNode, graph, itemListNode, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import { pageMetadata } from "@/features/seo/metadata";
+import { datasetNode, graph, itemListNode, pageUrl, webPageNode } from "@/features/seo/jsonld";
 import { JsonLd } from "@/components/JsonLd";
 import { routes } from "@/config/routes";
 

@@ -3,7 +3,7 @@
 import "server-only";
 import { revalidatePath } from "next/cache";
 import { adminRoutes } from "@/config/routes";
-import { SECTIONS } from "@/features/auth/sections";
+import { SECTIONS } from "@/config/sections";
 import {
   affected,
   failed,

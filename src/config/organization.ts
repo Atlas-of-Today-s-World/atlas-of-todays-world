@@ -1,4 +1,5 @@
-import { PATRONS_EMAIL } from "@/features/membership/config";
+/** The publisher's contact address (also for patrons). */
+const PATRONS_EMAIL = "info@atlasoftodaysworld.org";
 
 /**
  * Facts about the publisher as they were when the admin took them over: the

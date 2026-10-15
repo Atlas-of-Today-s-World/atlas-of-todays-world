@@ -1,7 +1,7 @@
 import "server-only";
 import type { Metadata } from "next";
 import { localeFrom } from "@/features/i18n/request";
-import { pageMetadata } from "@/lib/seo/metadata";
+import { pageMetadata } from "@/features/seo/metadata";
 import { SITE_PAGE_PATH, type SitePageSlug } from "../pages";
 import { getSitePage } from "../queries";
 import { SitePageView } from "./SitePageView";

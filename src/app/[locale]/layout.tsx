@@ -6,7 +6,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { isLocale, LOCALES, localePath } from "@/features/i18n/config";
 import { getMessagesFor, getOverridesFor } from "@/features/i18n/request";
 import { absoluteUrl } from "@/lib/seo";
-import { graph, organizationNode, websiteNode } from "@/lib/seo/jsonld";
+import { graph, organizationNode, websiteNode } from "@/features/seo/jsonld";
 import { getSiteSettings, getSocialLinks } from "@/features/site/queries";
 
 /**

@@ -24,8 +24,7 @@ import {
   Users,
 } from "lucide-react";
 import { adminRoutes } from "@/config/routes";
-import type { Permissions } from "@/features/auth/access";
-import type { Section } from "@/features/auth/sections";
+import type { Permissions, Section } from "./sections";
 
 export interface AdminNavItem {
   href: string;

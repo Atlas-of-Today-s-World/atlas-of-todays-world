@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { SECTIONS } from "@/features/auth/sections";
+import { SECTIONS } from "@/config/sections";
 import { checkbox, requiredText, slug, text } from "@/lib/validation/common";
 import { APPROVAL_SCOPES, NEWS_SCOPES } from "./labels";
 

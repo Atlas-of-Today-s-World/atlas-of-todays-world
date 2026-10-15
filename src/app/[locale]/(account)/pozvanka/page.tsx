@@ -2,7 +2,7 @@ import { Lead } from "@/components/atlas/Note";
 import { adminRoutes } from "@/config/routes";
 import { supabaseConfig } from "@/lib/supabase/config";
 import { getMessagesFor, localeFrom } from "@/features/i18n/request";
-import { privateMetadata } from "@/lib/seo/metadata";
+import { privateMetadata } from "@/features/seo/metadata";
 import GoogleSignIn from "../login/GoogleSignIn";
 
 // Rendered per request: the proxy sends it a nonce CSP (ADR-025), which a static page couldn't carry.

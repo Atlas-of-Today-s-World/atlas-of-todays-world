@@ -2,7 +2,7 @@ import { DEFAULT_LOCALE, localePath, type Locale } from "@/features/i18n/config"
 import { ORGANIZATION } from "@/config/organization";
 import type { SiteSettings, SocialLink } from "@/features/site/model";
 import wikidataCountries from "@/config/wikidata-countries.json";
-import { absoluteUrl } from "./index";
+import { absoluteUrl } from "@/lib/seo";
 import { routes } from "@/config/routes";
 import type { ArticleKind } from "@/lib/content-types";
 

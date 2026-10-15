@@ -27,9 +27,9 @@ import { cn } from "@/lib/cn";
 import { formatEuro, formatNumber, formatPercent } from "@/lib/format";
 import { JsonLd } from "@/components/JsonLd";
 import { getSiteSettings } from "@/features/site/queries";
-import { staticPageMetadata } from "@/lib/seo/metadata";
+import { staticPageMetadata } from "@/features/seo/metadata";
 import { captchaEnabled } from "@/lib/security/turnstile";
-import { breadcrumbNode, faqNode, graph, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import { breadcrumbNode, faqNode, graph, ids, pageUrl, webPageNode } from "@/features/seo/jsonld";
 import { routes } from "@/config/routes";
 
 /** Id of the bottom donation card ("Donate and Join" in the hero scrolls there). */

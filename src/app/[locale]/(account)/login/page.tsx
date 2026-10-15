@@ -3,7 +3,7 @@ import { Lead } from "@/components/atlas/Note";
 import { getFlags } from "@/features/flags/queries";
 import { localePath } from "@/features/i18n/config";
 import { getMessagesFor, localeFrom } from "@/features/i18n/request";
-import { privateMetadata } from "@/lib/seo/metadata";
+import { privateMetadata } from "@/features/seo/metadata";
 import { safeRedirect } from "@/lib/security/redirect";
 import { supabaseConfig } from "@/lib/supabase/config";
 import { currentUser } from "@/lib/supabase/server";

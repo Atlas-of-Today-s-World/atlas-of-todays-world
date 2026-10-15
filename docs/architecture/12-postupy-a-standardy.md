@@ -86,7 +86,7 @@ Doplňky, které má mít produkční webová aplikace. Stav: ✅ máme · 🟡 
 | 🟡 | GDPR: export (`/api/account/export`) a smazání vlastního účtu na stránce účtu; retence dat zbývá popsat |
 | 🟡 | E-mailové šablony Auth EN/CS připravené (`supabase/templates`, G1), zapnou se se SMTP (U5) |
 | ✅ | Přístupnost: skip-link, focus trap v dialozích, axe v CI, prohlášení o přístupnosti, `lang` jazykových verzí |
-| ✅ | SEO: OG obrázky přes `next/og`, hreflang (jen en — ADR-022), index sitemap z DB s jazykovými verzemi a `lastmod`, strukturovaná data z `lib/seo/jsonld.ts`, RSS/Atom, `llms.txt`, IndexNow (ADR-021) |
+| ✅ | SEO: OG obrázky přes `next/og`, hreflang (jen en — ADR-022), index sitemap z DB s jazykovými verzemi a `lastmod`, strukturovaná data z `features/seo/jsonld.ts`, RSS/Atom, `llms.txt`, IndexNow (ADR-021) |
 | ✅ | Tisková verze (`@media print`: jen obsah panelu, u odkazů adresa) |
 
 ### 16.3 Redakce a obsah

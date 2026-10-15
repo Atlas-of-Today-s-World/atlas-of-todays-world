@@ -1,4 +1,4 @@
-import { search, SEARCH_LIMIT } from "@/lib/search";
+import { search, SEARCH_LIMIT } from "@/features/search/queries";
 import { searchResponse } from "@/lib/search-response";
 
 export const dynamic = "force-dynamic";

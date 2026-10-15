@@ -4,7 +4,7 @@ import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { DemoCheckout } from "@/features/membership/components/DemoCheckout";
 import { getPatronSettings } from "@/features/membership/queries";
 import { parseDonation } from "@/features/membership/schema";
-import { privateMetadata } from "@/lib/seo/metadata";
+import { privateMetadata } from "@/features/seo/metadata";
 import { routes } from "@/config/routes";
 
 // Rendered per request: the proxy sends it a nonce CSP (ADR-025), which a static page couldn't carry.
