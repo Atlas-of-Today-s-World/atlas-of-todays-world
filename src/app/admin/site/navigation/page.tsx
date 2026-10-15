@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { NoAccess } from "@/components/admin/NoAccess";
+import { forbidden } from "next/navigation";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
@@ -158,7 +158,7 @@ function MenuTable({
  */
 export default async function SiteNavigationPage() {
   const access = await sectionAccess("site");
-  if (!access) return <NoAccess />;
+  if (!access) forbidden();
   const items = await listNavItems();
 
   return (
