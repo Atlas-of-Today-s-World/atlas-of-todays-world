@@ -1,15 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { cn } from "@/lib/cn";
 import { kickerVariants } from "./kicker";
-import {
-  MetricCards,
-  NewsBadge,
-  PhotoCredit,
-  SectionLabel,
-  StatGrid,
-  StatIcon,
-  StatItem,
-} from "./ui";
+import { MetricCards, PhotoCredit, SectionLabel, StatGrid, StatIcon, StatItem } from "./ui";
 
 const meta = {
   title: "atlas/Stat cards",
@@ -24,7 +16,6 @@ export const Labels: Story = {
   render: () => (
     <div className="flex items-center gap-4">
       <SectionLabel>Society</SectionLabel>
-      <NewsBadge count={3} />
     </div>
   ),
 };

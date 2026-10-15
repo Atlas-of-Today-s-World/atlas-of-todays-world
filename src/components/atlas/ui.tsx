@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import type { MetricCard } from "@/lib/content-types";
 import { safeUrl } from "@/lib/security/urls";
-import { format } from "@/lib/i18n/messages";
 import { getT } from "@/lib/i18n/request";
 import { cn } from "@/lib/cn";
 import { kickerVariants } from "./kicker";
@@ -46,16 +45,6 @@ export function PhotoCredit({
     >
       {children}
     </p>
-  );
-}
-
-export async function NewsBadge({ count }: { count: number }) {
-  const t = (await getT()).ui;
-  return (
-    <span className="inline-flex items-center gap-1.5 text-[12px] text-[var(--color-ink-muted)]">
-      <span className="h-2 w-2 rounded-full bg-[var(--color-live)]" />
-      {format(count === 1 ? t.newsOne : t.newsMany, { count: String(count) })}
-    </span>
   );
 }
 

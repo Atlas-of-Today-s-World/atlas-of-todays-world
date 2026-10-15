@@ -166,6 +166,8 @@ test.describe("global issues", () => {
     await expect(page.getByRole("link", { name: /^See (all d+ topics|the topic)/ })).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "Related topics" })).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "Countries in this group" })).toHaveCount(0);
+    // No "N news items published" line either (2026-10-15).
+    await expect(page.getByText(/news items? published/)).toHaveCount(0);
   });
 });
 

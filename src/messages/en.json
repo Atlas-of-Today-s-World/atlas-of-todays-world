@@ -528,8 +528,6 @@
     "railNext": "{label}: next",
     "railPage": "{label}: show {number} of {total}",
     "railShown": "{number} of {total}",
-    "newsOne": "{count} news item published",
-    "newsMany": "{count} news items published",
     "source": "Source:",
     "fromOrbit": "{name} seen from orbit",
     "breadcrumb": "Breadcrumb"

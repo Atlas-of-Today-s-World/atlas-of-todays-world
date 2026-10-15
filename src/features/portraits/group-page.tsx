@@ -167,7 +167,6 @@ export function groupPortraitPage(kind: GroupKind) {
           <Portrait
             topics={topics}
             subject={subject}
-            newsCount={newsItems.length}
             dossier={dossier}
             stats={groupStats(countries, indicators, getRequestLocale())}
           />

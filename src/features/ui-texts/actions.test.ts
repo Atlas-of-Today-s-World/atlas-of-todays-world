@@ -92,7 +92,7 @@ describe("UI text actions", () => {
       ["home.unknown", "x"],
       ["auth.title", "Log in"],
       ["home.title", "<b>Atlas</b>"],
-      ["ui.newsOne", "one news item"],
+      ["ui.fromOrbit", "seen from orbit"],
     ] as const) {
       const state = await saveUiText({ ok: false }, form(key, value));
       expect(state.ok, key).toBe(false);
