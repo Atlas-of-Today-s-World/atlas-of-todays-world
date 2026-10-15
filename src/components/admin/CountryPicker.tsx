@@ -104,8 +104,9 @@ function GroupActions({
 }
 
 /**
- * Multi-country picker (article, global issue, approver assignment). Searches
- * by name and ISO code; selected countries go into the form as a repeated field.
+ * Multi-country picker (article, global issue, approver assignment, map
+ * visual). Searches by name and ISO code; selected countries go into the form
+ * as a repeated field (`name`) and/or to `onChange`.
  * With `groups`, whole regions or custom regions can be added or removed at once.
  */
 export function CountryPicker({
@@ -114,14 +115,21 @@ export function CountryPicker({
   options,
   defaultSelected,
   groups,
+  onChange,
 }: {
   id: string;
-  name: string;
+  name?: string;
   options: CountryOption[];
   defaultSelected: string[];
   groups?: CountryGroups[];
+  onChange?: (selected: string[]) => void;
 }) {
-  const [selected, setSelected] = useState<string[]>(defaultSelected);
+  const [selected, setSelectedState] = useState<string[]>(defaultSelected);
+  const setSelected = (update: string[] | ((current: string[]) => string[])) => {
+    const next = typeof update === "function" ? update(selected) : update;
+    setSelectedState(next);
+    onChange?.(next);
+  };
   const [query, setQuery] = useState("");
   const byIso = useMemo(() => new Map(options.map((o) => [o.iso3, o.name])), [options]);
   const matches = useMemo(() => {
@@ -143,9 +151,9 @@ export function CountryPicker({
 
   return (
     <div className="grid gap-2">
-      {selected.map((iso3) => (
-        <input key={iso3} type="hidden" name={name} value={iso3} />
-      ))}
+      {name
+        ? selected.map((iso3) => <input key={iso3} type="hidden" name={name} value={iso3} />)
+        : null}
       {selected.length ? (
         <ul className="flex flex-wrap gap-1.5" aria-label="Selected countries">
           {selected.map((iso3) => (

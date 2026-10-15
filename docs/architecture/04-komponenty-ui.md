@@ -29,6 +29,7 @@
 | `components/visuals/` | `VisualsCarousel` (Maps & charts: portrét, téma, podtéma; `Rail layout="pages"`), `EmbedFrame` | jediný iframe vložených grafů (ADR-027) |
 | `components/` | `ContentRail`, `Header`, `AccountMenu` (menu účtu v hlavičce, ADR-026), `EncyclopediaPanel`, `MaintenanceGate`, `SafeHtml` | |
 | `features/newsletter/components/` | `NewsletterForm` | Server Action `subscribe` |
+| `features/visuals/map/` | `MapVisual` (veřejný renderer vlastní mapy), `MapVisualBuilder` (editor v administraci), `parseMapSpec` (Zod + sanitizace popupů, `index.ts`) | MapLibre se načte až u viewportu; jen data globusu (`countries.geo.json`, popisky, satelit); popupy jako React prvky z `sanitizePopupHtml`, ikony z jednoho registru (`icons.ts`) |
 
 **Administrace** (`app/admin/`, `components/ui` + `components/data-table/DataTable`, ADR-019)
 
@@ -68,7 +69,7 @@ skládá z hotových dílů; když díl chybí, vznikne jako sdílený, ne jako 
 | Úroveň | Kde | Co tam patří |
 |---|---|---|
 | 1. Design tokeny | `src/app/globals.css` (`@theme` v Tailwind 4) + `src/config/layout.ts` | barvy, radiusy, stíny, typografie, **rozměry layoutu** (`--rail-width`, `--rail-width-wide`, `--touch-min: 44px`) |
-| 2. Primitiva | `src/components/ui/` (shadcn/ui) | `Button` + `buttonVariants` (i pro odkazy a ikonová tlačítka), `Badge`, `Dialog`, `Popover` (i `role="menu"`: šipky, Home/End, Tab/Esc zavře), `CheckboxControl`, `ColorField`; formuláře v `field.tsx` (`FormField`, `Input`, `Textarea`, `Select`, `Checkbox`, `RequiredNote`) a `action-form.tsx` (`ActionForm`, `useServerAction`, `useAddForm`). *Plán, až bude potřeba:* `Sheet`, `Tabs`, `Tooltip`, `Skeleton` |
+| 2. Primitiva | `src/components/ui/` (shadcn/ui) | `Button` + `buttonVariants` (i pro odkazy a ikonová tlačítka), `Badge`, `Dialog`, `Popover` (i `role="menu"`: šipky, Home/End, Tab/Esc zavře), `CheckboxControl`, `ColorField`, `Tabs` + `TabPanel` (vzor WAI-ARIA tabs, šipky/Home/End); formuláře v `field.tsx` (`FormField`, `Input`, `Textarea`, `Select`, `Checkbox`, `RequiredNote`) a `action-form.tsx` (`ActionForm`, `useServerAction`, `useAddForm`). *Plán, až bude potřeba:* `Sheet`, `Tooltip`, `Skeleton` |
 | 3. Vzory Atlasu | `src/components/atlas/` | `Rail` (jediný karusel), `ui.tsx` (`SectionLabel`, `MetricCards`, `StatGrid`/`StatItem`, `SourceLink`, `PhotoCredit`, `NewsBadge`), `Breadcrumbs` (`tone` light/dark), `Note.tsx` (`EmptyNote`, `Lead`), `PhotoCard`, `PhotoTile`, `Accordion`, `SafeHtml`, `RichText`, `ShareButton`, `ErrorState`, `RouteError` (hranice chyb tras), `BrandLogo`, `ContactLink`, varianty `kickerVariants`, `glassVariants`; tabulky `components/data-table/DataTable` (ADR-019) |
 | 4. Doménové bloky | `src/components/portrait/`, `src/components/` (`CountryCard`, `PagesShell`, `PagesFrame`, `FullPage`), `features/*/components/` | `Portrait` (region **i** global issue), `PortraitSection`, `PatronsCallout`, `NewsTabs`, `ArticleFrame`, `EncyclopediaArticle`, `NewsArticle`, `map/RegionFocus`, `admin/RegionSelect`… |
 | 5. Stránky | `src/app/**` | jen skládání bloků + data; žádné vlastní styly nad rámec rozvržení. Metadata přes `features/seo/metadata.ts` (`pageMetadata`, `staticPageMetadata`, `privateMetadata`), props přes globální `PageProps<"/…">` / `LayoutProps<"/…">` (Next 16, `next typegen`) |

@@ -172,6 +172,20 @@
     "globeUnavailableText": "Your browser or device can't draw the globe (it needs WebGL). Every region and country is still one click away.",
     "globeUnavailableLink": "Browse countries and regions"
   },
+  "mapVisual": {
+    "region": "Map",
+    "regionTitled": "Map: {title}",
+    "loading": "Loading the map…",
+    "unavailable": "This map can't be shown in this browser (it needs WebGL).",
+    "placesOnMap": "Places on this map",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "resetView": "Back to the original view",
+    "legend": "Legend",
+    "showLegend": "Show the legend",
+    "hideLegend": "Hide the legend",
+    "closePopup": "Close"
+  },
   "panel": {
     "content": "Content panel",
     "loading": "Loading…",

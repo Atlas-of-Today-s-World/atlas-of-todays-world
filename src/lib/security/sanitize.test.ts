@@ -1,6 +1,6 @@
 import { afterAll, describe, expect, it, vi } from "vitest";
 import { SITE_URL } from "@/lib/site";
-import { sanitizeRichHtml } from "./sanitize";
+import { sanitizePopupHtml, sanitizeRichHtml } from "./sanitize";
 
 // lib/images reads the project URL as it loads, so it is set before the imports run.
 const STORAGE = vi.hoisted(() => {
@@ -116,5 +116,66 @@ describe("sanitizeRichHtml", () => {
 
   it("a mailto link passes", () => {
     expect(sanitizeRichHtml('<a href="mailto:a@b.cz">a</a>')).toContain('href="mailto:a@b.cz"');
+  });
+
+  it("never keeps a span or its classes in article text", () => {
+    expect(sanitizeRichHtml('<p><span class="rt-color-red">x</span></p>')).toBe("<p>x</p>");
+  });
+});
+
+describe("sanitizePopupHtml", () => {
+  const STYLE_PAYLOADS = [
+    '<span style="color:red">x</span>',
+    '<span style="background:url(javascript:alert(1))">x</span>',
+    '<span style="font-size:999px;position:fixed;inset:0">x</span>',
+    '<p style="color:#ff0000">x</p>',
+    '<span class="rt-color-red" style="color:expression(alert(1))">x</span>',
+    "<style>body{display:none}</style>",
+  ];
+
+  it.each([...XSS_PAYLOADS, ...STYLE_PAYLOADS])("neutralizes %s", (payload) => {
+    expect(isInert(sanitizePopupHtml(payload))).toBe(true);
+  });
+
+  it("keeps the popup formatting and opens links in a new tab without opener", () => {
+    expect(
+      sanitizePopupHtml(
+        '<p><strong>Gaza</strong> <em>2.1 m</em> <a href="https://unrwa.org">UNRWA</a></p><ul><li>a</li></ul><ol><li>b<br>c</li></ol>',
+      ),
+    ).toBe(
+      '<p><strong>Gaza</strong> <em>2.1 m</em> <a href="https://unrwa.org" rel="noopener noreferrer" target="_blank">UNRWA</a></p><ul><li>a</li></ul><ol><li>b<br />c</li></ol>',
+    );
+  });
+
+  it("drops the empty paragraphs the editor leaves behind", () => {
+    expect(sanitizePopupHtml("<ul><li><p>a</p></li></ul><p></p><p> </p>")).toBe(
+      "<ul><li><p>a</p></li></ul>",
+    );
+  });
+
+  it("keeps only the fixed colour and size classes on a span", () => {
+    expect(sanitizePopupHtml('<span class="rt-color-red rt-size-large">x</span>')).toBe(
+      '<span class="rt-color-red rt-size-large">x</span>',
+    );
+    expect(sanitizePopupHtml('<span class="rt-color-red evil rt-color-pink">x</span>')).toBe(
+      '<span class="rt-color-red">x</span>',
+    );
+    expect(sanitizePopupHtml('<span class="fixed inset-0 bg-black">x</span>')).toBe("<span>x</span>");
+    // Classes only on spans: a paragraph never keeps one.
+    expect(sanitizePopupHtml('<p class="rt-color-red">x</p>')).toBe("<p>x</p>");
+  });
+
+  it("drops what an article may have but a popup may not", () => {
+    expect(
+      sanitizePopupHtml(
+        `<h2>t</h2><blockquote>q</blockquote><img src="${STORAGE}/a.webp" alt="a"><table><tr><td>c</td></tr></table>`,
+      ),
+    ).toBe("tqc");
+    expect(sanitizePopupHtml('<a href="http://plain.example">x</a>')).toBe(
+      '<a rel="noopener noreferrer" target="_blank">x</a>',
+    );
+    expect(sanitizePopupHtml('<a href="mailto:a@b.cz" target="_top">m</a>')).toBe(
+      '<a href="mailto:a@b.cz" target="_blank" rel="noopener noreferrer">m</a>',
+    );
   });
 });

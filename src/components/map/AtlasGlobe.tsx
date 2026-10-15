@@ -4,6 +4,7 @@ import type { GlobeLayer } from "@/features/geography/globe-layer";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { Map as MapLibreMap, ErrorEvent, MapSourceDataEvent } from "maplibre-gl";
+import { foldAttribution } from "./attribution";
 import { loadMapLibre } from "./maplibre";
 import {
   buildStyle,
@@ -169,18 +170,8 @@ export default function AtlasGlobe({
         });
         mapRef.current = map;
         map.addControl(new AttributionControl({ compact: true }), "bottom-left");
-        // Only the ⓘ shows; its text opens on click. MapLibre opens it by itself the
-        // first time the imagery credits arrive, so that one opening is undone.
-        const attribution = containerRef.current.querySelector(".maplibregl-ctrl-attrib");
-        if (attribution) {
-          const collapse = new MutationObserver(() => {
-            if (!attribution.classList.contains("maplibregl-compact-show")) return;
-            attribution.classList.remove("maplibregl-compact-show");
-            attribution.removeAttribute("open");
-            collapse.disconnect();
-          });
-          collapse.observe(attribution, { attributes: true, attributeFilter: ["class"] });
-        }
+        // Only the ⓘ shows; its text opens on click.
+        foldAttribution(containerRef.current);
 
         map.on("error", (event: ErrorEvent) => {
           console.error("[atlas-globe]", event.error?.message ?? event);

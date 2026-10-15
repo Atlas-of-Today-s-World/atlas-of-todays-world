@@ -55,7 +55,7 @@ export const GLOBE_DATA = {
  * Satellite basemap. With a MapTiler key we use their tiles, without a key
  * Esri World Imagery (free, requires attribution).
  */
-function satelliteSource() {
+export function satelliteSource() {
   const key = publicEnv.NEXT_PUBLIC_MAPTILER_KEY;
   if (key) {
     return {

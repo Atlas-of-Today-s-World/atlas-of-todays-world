@@ -13,6 +13,16 @@ export const THEME_COLORS = {
   statusPreparing: "#d98a00",
 } as const;
 
+/** The plain light map of map visuals (features/visuals/map): sea, land, borders, names. */
+export const PLAIN_MAP_COLORS = {
+  water: "#d7e2ec",
+  land: "#f5f3ee",
+  border: "#a6b0c0",
+  disputed: "#7d879a",
+  label: "#4a5068",
+  labelHalo: "#f5f3ee",
+} as const;
+
 /** Globe colours with no CSS counterpart, shared by the map style and its repaints. */
 export const GLOBE_COLORS = {
   /** Countries before (or without) a colour layer. */
