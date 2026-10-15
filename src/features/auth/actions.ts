@@ -28,10 +28,11 @@ const DeleteInput = z.object({ confirm: z.string().trim().toLowerCase() });
  * only the service key can delete the user in Auth. A role that requires two-factor
  * sign-in must have it in this session too (aal2), the same as for the admin.
  *
- * 1. delete_my_personal_data() (session; the DB checks the caller): invitations to
- *    the caller's verified e-mail that were never accepted and their volunteer
- *    applications — rows no foreign key ties to the account. Refused for the last
- *    admin, before anything is removed.
+ * 1. delete_my_personal_data() (session; the DB checks the caller): every invitation
+ *    to the caller's verified e-mail (accepted ones too — history only; their audit
+ *    rows stay, ids only), their volunteer applications and their exact address on
+ *    the allowed e-mails list (unless it is the list's last row) — rows no foreign
+ *    key ties to the account. Refused for the last admin, before anything is removed.
  * 2. The Auth account. The profile, membership, page views and approver scope go
  *    by cascade; authors.profile_id and every *_by column are set null (the public
  *    author profile and the articles stay — editorial content).
@@ -56,6 +57,9 @@ export async function deleteAccount(_prev: ActionState, formData: FormData): Pro
     return { ok: false, error: "failed" };
   }
 
+  // TODO(payments): Stripe runs in test mode only. When payments go live, cancel the
+  // user's Stripe subscription (memberships.stripe_subscription_id) here, before the
+  // account and its membership row are gone — otherwise Stripe keeps charging.
   const service = createServiceClient();
   const { error } = await service.auth.admin.deleteUser(user.id);
   if (error) {

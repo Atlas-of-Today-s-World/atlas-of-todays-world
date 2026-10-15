@@ -56,6 +56,18 @@ describe("deleteAccount", () => {
     expect(removeUnusedUploads).toHaveBeenCalledWith(expect.anything(), "u1");
   });
 
+  it("the personal data goes under the caller's session, never the service key", async () => {
+    sessionRpc.mockImplementation(async (name: string) => {
+      steps.push(name);
+      return { data: { invitations: 2, volunteerApplications: 0, allowedEmails: 1 }, error: null };
+    });
+    await confirmWith("ana@example.org");
+    // No arguments: the database decides whose rows (auth.uid(), verified e-mail).
+    expect(sessionRpc).toHaveBeenCalledExactlyOnceWith("delete_my_personal_data");
+    expect(steps).toEqual(["delete_my_personal_data", "deleteUser", "uploads"]);
+    expect(signOut).toHaveBeenCalled();
+  });
+
   it("keeps the account when the personal data can't be removed (e.g. the last admin)", async () => {
     sessionRpc.mockResolvedValue({ data: null, error: { message: "At least one admin" } });
     expect(await confirmWith("ana@example.org")).toEqual({ ok: false, error: "failed" });
