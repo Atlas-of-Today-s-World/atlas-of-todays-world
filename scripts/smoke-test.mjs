@@ -96,14 +96,14 @@ async function main() {
     );
   });
 
-  await check("unwritten sections have a call for support", async () => {
+  await check("unwritten sections are left out, the call for support stays", async () => {
     const text = visible((await get("/region/east-asia")).body);
     assert(
       text.includes("Help us complete it – join Atlas Patrons"),
       "missing call to action on an empty portrait",
     );
-    // Unwritten parts are listed once, in one section at the end (U13).
-    assert(text.includes("Coming to this portrait"), "missing the coming-soon section");
+    // Unwritten parts are left out — no "coming" list duplicating the support call.
+    assert(!text.includes("Coming to this portrait"), "the coming-soon list is back");
   });
 
   await check("a country shows its region's profile below its own data", async () => {

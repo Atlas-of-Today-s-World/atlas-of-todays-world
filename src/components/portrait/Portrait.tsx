@@ -15,13 +15,7 @@ import type { ContentStatus } from "@/features/geography/content-status";
 import type { GroupKind, PortraitPlace } from "@/features/geography/kinds";
 import { ContentStatusBadge } from "./ContentStatusBadge";
 import { PortraitCounts } from "./PortraitCounts";
-import {
-  ComingSections,
-  FaqList,
-  IndicatorCards,
-  PatronsCallout,
-  ResourceLibrary,
-} from "./sections";
+import { FaqList, IndicatorCards, PatronsCallout, ResourceLibrary } from "./sections";
 import { Timeline } from "./Timeline";
 import { VisualsCarousel } from "@/components/visuals/VisualsCarousel";
 
@@ -56,9 +50,6 @@ function wordingFor(kind: PortraitPlace, t: Messages, groupKind?: GroupKind) {
       : groupKind === "region"
         ? t.portrait.customRegion
         : t.portrait.globalIssue,
-    timelineEmpty: region ? t.portrait.timelineEmptyRegion : t.portrait.timelineEmptyGroup,
-    mapsEmpty: region ? t.portrait.mapsEmptyRegion : t.portrait.mapsEmptyGroup,
-    faqEmpty: region ? t.portrait.faqEmptyRegion : t.portrait.faqEmptyGroup,
   };
 }
 
@@ -69,8 +60,8 @@ function wordingFor(kind: PortraitPlace, t: Messages, groupKind?: GroupKind) {
  * a global issue's page gets no `topics`. Its countries are listed under the
  * count in the header, not in a section of their own.
  *
- * Sections the editors haven't written anything for yet are listed at the end
- * with a call for support. Key indicators have data everywhere, because they're
+ * Sections the editors haven't written anything for yet are left out; the
+ * call for support closes the page. Key indicators have data everywhere, because they're
  * computed from imported data, not editorial text.
  */
 export default async function Portrait({
@@ -159,7 +150,7 @@ export default async function Portrait({
         <IndicatorCards metrics={dossier.metrics} />
       )}
 
-      <ProfileSections kind={subject.kind} groupKind={subject.groupKind} dossier={dossier} />
+      <ProfileSections dossier={dossier} />
 
       {topics ? (
         <RelatedTopics
@@ -185,27 +176,12 @@ export default async function Portrait({
  * The body of a regional profile, the same wherever it is shown: on the
  * region's or global issue's own page and under each of the region's
  * countries (RegionalProfile) — written once, shown in both places.
- * Timeline, maps & charts, further resources and FAQ; what the editors
- * haven't written yet is listed at the end with the support call.
+ * Timeline, maps & charts, further resources and FAQ — each only once the
+ * editors have written it (empty parts are left out; the support call
+ * follows below).
  */
-export async function ProfileSections({
-  kind,
-  groupKind,
-  dossier,
-}: {
-  kind: PortraitPlace;
-  groupKind?: GroupKind;
-  dossier: RegionDossier;
-}) {
+export async function ProfileSections({ dossier }: { dossier: RegionDossier }) {
   const t = await getT();
-  const wording = wordingFor(kind, t, groupKind);
-  // Sections without content yet: listed once at the end, not as grey placeholders.
-  const coming = [
-    !dossier.timeline?.length && { title: t.portrait.timeline, lead: wording.timelineEmpty },
-    !dossier.visuals?.length && { title: t.portrait.maps, lead: wording.mapsEmpty },
-    !dossier.resources?.length && { title: t.portrait.learnMore, lead: t.portrait.learnMoreEmpty },
-    !dossier.faq?.length && { title: t.portrait.faq, lead: wording.faqEmpty },
-  ].filter((item): item is { title: string; lead: string } => Boolean(item));
   return (
     <>
       {dossier.timeline?.length ? (
@@ -223,8 +199,6 @@ export async function ProfileSections({
       {dossier.resources?.length ? <ResourceLibrary resources={dossier.resources} /> : null}
 
       {dossier.faq?.length ? <FaqList items={dossier.faq} /> : null}
-
-      <ComingSections items={coming} />
     </>
   );
 }

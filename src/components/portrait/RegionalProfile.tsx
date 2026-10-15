@@ -63,7 +63,7 @@ export async function RegionalProfile({
 
       <IndicatorCards metrics={dossier.metrics} />
 
-      <ProfileSections kind="region" dossier={dossier} />
+      <ProfileSections dossier={dossier} />
       <PatronsCallout complete={profileComplete(dossier)} />
     </section>
   );

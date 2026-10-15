@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { ComingSections, FaqList, PatronsCallout, PortraitSection } from "./sections";
+import { FaqList, PatronsCallout, PortraitSection } from "./sections";
 import { Timeline } from "./Timeline";
 
 const meta = {
@@ -17,20 +17,6 @@ export const Section: Story = {
     lead: "What the numbers say about everyday life.",
     children: <p className="mt-4 text-[14px]">Obsah sekce.</p>,
   },
-};
-
-export const NotWrittenYet: Story = {
-  render: () => (
-    <ComingSections
-      items={[
-        {
-          title: "Timeline",
-          lead: "An interactive timeline of the events behind the region's situation.",
-        },
-        { title: "FAQ", lead: "The five questions people ask most often about this region." },
-      ]}
-    />
-  ),
 };
 
 export const TimelineRail: Story = {

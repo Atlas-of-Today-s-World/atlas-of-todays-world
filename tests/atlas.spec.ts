@@ -143,11 +143,11 @@ test.describe("region portrait", () => {
     await expect(page.getByText(/news items? published/)).toHaveCount(0);
   });
 
-  test("unwritten sections are listed once at the end and invite support", async ({ page }) => {
+  test("unwritten sections are left out and the page invites support", async ({ page }) => {
     await page.goto("/region/east-asia");
 
-    // One "coming" section instead of a grey placeholder per missing part.
-    await expect(page.getByRole("heading", { name: "Coming to this portrait" })).toHaveCount(1);
+    // Unwritten parts are left out (no "coming" list); only the support call remains.
+    await expect(page.getByRole("heading", { name: "Coming to this portrait" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: /Help us complete it/ }).first()).toBeVisible();
   });
 });
