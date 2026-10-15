@@ -93,7 +93,11 @@ Pravidla:
   abort, JSON, typované chyby) — ne ručně psaný `fetch` v komponentě (ESLint ho v komponentách zakazuje).
 - **Ikony** z jedné sady (`lucide-react`), ne vložené SVG v každém souboru.
 - **Texty** z `messages/en.json` (web je jen anglicky, ADR-022) s úpravami týmu z Admin → UI texts
-  (`getT()` / `getMessagesFor()`); opakovaný text (CTA, chybové hlášky) má jeden klíč.
+  (`getT()` / `getMessagesFor()` z `lib/i18n/request.ts`); opakovaný text (CTA, chybové hlášky) má jeden klíč.
+- **Úroveň podle závislostí**: komponenta, která volá Server Action domény nebo vykresluje její komponentu,
+  patří do `features/<doména>/components/` (např. `NewsletterForm`), ne do `components/`; díl sdílený
+  dvěma doménami patří do `components/` (např. `components/admin/AdminOnlyRolesNote`, `MaintenanceGate`).
+  Typy pro klientské komponenty z `features/*/types.ts`, ne ze `server-only` modulů. Hlídá ESLint (15.2).
 
 ### 15.2 Nástroje, které duplicitu hlídají (CI)
 
@@ -101,7 +105,7 @@ Pravidla:
 |---|---|---|
 | `jscpd` (`.jscpd.json`) | copy-paste bloky v `src/` (TS, TSX, CSS; bez testů, `src/content`, `src/data`) | klon = ≥ 10 řádků a ≥ 70 tokenů; selže nad 1 % duplicit |
 | `knip` | nepoužité soubory, exporty, závislosti | 0 nálezů (výjimky v `knip.json` s komentářem) |
-| ESLint `no-restricted-imports` | `@supabase/supabase-js` mimo `lib/supabase` (typové importy smí) | chyba |
+| ESLint `no-restricted-imports` | `@supabase/supabase-js` mimo `lib/supabase` (typové importy smí); hranice vrstev (ARCHITEKTURA 4.1): `lib/**` a `config/**` neimportují `@/features/*`, `components/**` neimportuje `@/features/*/actions` (ani `*-actions`) ani `@/features/*/components/*`, `features/X` neimportuje `@/features/Y/components/*`; testy vyjmuté, výjimky jen `lib/i18n/request.ts` → `ui-texts/queries` a `Header.tsx` → `NewsletterForm` | chyba |
 | ESLint `no-restricted-syntax` | `dangerouslySetInnerHTML` mimo `SafeHtml`, `JsonLd`, `PrePaintScript`; ručně skládané veřejné URL (`` `/country/${…}` `` atd. → `routes.*`); ručně psané `/admin…` (→ `adminRoutes.*`) | chyba |
 | ESLint `no-restricted-globals` / `-properties` | `fetch` (i `window.fetch`…) v `src/components` a `features/*/components` (→ `apiFetch()`) | chyba |
 | `prettier-plugin-tailwindcss` | jednotné řazení tříd (snazší hledání duplicit) | formát |

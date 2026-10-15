@@ -73,9 +73,17 @@ Každý vizuální vzor, konstanta a datová definice existuje **právě jednou*
    `dangerouslySetInnerHTML` mimo `SafeHtml`/`JsonLd`/`PrePaintScript`; ručně skládané veřejné URL
    (`` `/country/${…}` ``, `/region/`, `/news/`, `/topics/`… → `routes.*`); ručně psané `"/admin…"` (→ `adminRoutes.*`;
    řetězec v typu jako `PageProps<"/admin/…">` smí); `fetch` v `src/components` a `features/*/components`
-   (→ `apiFetch()`); `@supabase/supabase-js` mimo `lib/supabase` (typy smí);
+   (→ `apiFetch()`); `@supabase/supabase-js` mimo `lib/supabase` (typy smí); hranice vrstev (níže);
    `eslint-plugin-security` a pravidla React Compileru.
    Každý sdílený díl má story ve Storybooku.
+8. **Hranice vrstev (ARCHITEKTURA 4.1, ESLint `no-restricted-imports`):** `lib/` a `config/` neimportují nic
+   z `features/` (ani typy) — i18n je `lib/i18n` (`config`, `messages`, `request`), sekce oprávnění
+   `config/sections.ts`; `components/` nevolá `features/*/actions` (`*-actions`) a nevykresluje
+   `features/*/components/*` (taková komponenta patří do `features/<doména>/components/`); `features/X`
+   nevykresluje komponenty `features/Y` (sdílený díl → `components/`). Typy pro klienta v `features/*/types.ts`
+   (`ActionState` v `lib/action-state.ts`), ne v `server-only` modulech. Výjimky jen se zdůvodněním v
+   `eslint.config.mjs` (dnes `lib/i18n/request.ts` → `ui-texts/queries`, `Header.tsx` → `NewsletterForm`); testy
+   `*.test.ts` jsou vyjmuté.
 
 ## Sdílené helpery (použij, nepiš znovu)
 

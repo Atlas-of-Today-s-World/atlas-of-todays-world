@@ -39,6 +39,11 @@ verze hesel v administraci) je odstraněný; tabulky a sloupce v DB zůstávají
 
 ## 3. Porušení hranic modulů (ověřeno)
 
+> **Stav 2026-10-15** (větev `refactor/layer-boundaries`): lib/config → features, typy v `server-only`
+> souborech, cyklus `entries ↔ topics` a doménové komponenty v `components/` jsou vyřešené (i18n v `lib/i18n`)
+> a hranice hlídá ESLint `no-restricted-imports` (ARCHITEKTURA 4.1). Zbývají cykly `entries ↔ portraits`
+> (`entries/schema` ↔ `portraits/schema`, `group-page`) a `home ↔ topics` (`home/config` ↔ `topics/featured`).
+
 - **lib → features:** `lib/search.ts`, `lib/seo/*`, `lib/format.ts`, `lib/indicators.ts`,
   `lib/region-stats.ts` importují z `features/i18n` a `features/geography/types`. i18n je ve
   skutečnosti infrastruktura — patří do `lib/i18n`.
