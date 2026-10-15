@@ -4,7 +4,7 @@ const allowRequest = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/security/rate-limit", () => ({ allowRequest }));
 
 const { searchResponse } = await import("./search-response");
-const { normalizeSearchQuery } = await import("./search-query");
+const { isSearchable, normalizeSearchQuery } = await import("./search-query");
 
 const LIMITS = { limit: 60, windowSeconds: 60 };
 const request = (q: string) =>
@@ -20,6 +20,20 @@ describe("normalizeSearchQuery", () => {
   it("caps the length without leaving a trailing space", () => {
     expect(normalizeSearchQuery("a".repeat(199) + " b")).toBe("a".repeat(199));
     expect(normalizeSearchQuery("a".repeat(500))).toHaveLength(200);
+  });
+});
+
+describe("isSearchable", () => {
+  it("needs a word of at least three letters or digits, as search_query() does", () => {
+    expect(isSearchable("")).toBe(false);
+    expect(isSearchable("a")).toBe(false);
+    expect(isSearchable("ab")).toBe(false);
+    expect(isSearchable("eu un of")).toBe(false);
+    expect(isSearchable("a-b c'd")).toBe(false);
+    expect(isSearchable("abc")).toBe(true);
+    expect(isSearchable("of water")).toBe(true);
+    expect(isSearchable("Čad")).toBe(true);
+    expect(isSearchable("g20")).toBe(true);
   });
 });
 

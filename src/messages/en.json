@@ -172,6 +172,7 @@
   "search": {
     "placeholder": "Search places, regions, news…",
     "searching": "Searching…",
+    "tooShort": "Type a word of at least three letters.",
     "nothing": "Nothing found in the Atlas yet.",
     "failed": "Search is unavailable right now — try again in a moment.",
     "countOne": "1 result",
@@ -387,6 +388,7 @@
     "resultsOne": "1 result for “{query}”",
     "resultsMany": "{count} results for “{query}”",
     "nothing": "Nothing in the Atlas matches that yet.",
+    "tooShort": "Search for a word of at least three letters.",
     "tooMany": "Too many searches from your connection. Try again in a minute."
   },
   "countryText": {

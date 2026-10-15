@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import Link from "@/components/i18n/Link";
 import { firstParam } from "@/lib/query-params";
 import { search, SEARCH_LIMIT } from "@/lib/search";
+import { isSearchable } from "@/lib/search-query";
 import { allowRequest } from "@/lib/security/rate-limit";
 import { buttonVariants } from "@/components/ui/button";
 import { localePath } from "@/features/i18n/config";
@@ -43,9 +44,12 @@ export default async function SearchPage({
   const t = messages.searchPage;
   const { q } = await searchParams;
   const query = firstParam(q).trim().slice(0, 200);
+  // "a" or "of" alone: a hint instead of a search that can't find anything.
+  const tooShort = Boolean(query) && !isSearchable(query);
   // The same per-address limit as /api/search — the page must not be a way around it.
-  const limited = query ? !(await allowRequest("search", await headers(), SEARCH_LIMIT)) : false;
-  const results = query && !limited ? await search(query, 40) : [];
+  const limited =
+    query && !tooShort ? !(await allowRequest("search", await headers(), SEARCH_LIMIT)) : false;
+  const results = query && !tooShort && !limited ? await search(query, 40) : [];
 
   return (
     <main>
@@ -65,9 +69,9 @@ export default async function SearchPage({
         </button>
       </form>
 
-      {limited ? (
+      {limited || tooShort ? (
         <p role="status" className="mt-5 text-[13px] text-[var(--color-ink-muted)]">
-          {t.tooMany}
+          {limited ? t.tooMany : t.tooShort}
         </p>
       ) : query ? (
         <p className="mt-5 text-[13px] text-[var(--color-ink-muted)]">
@@ -104,7 +108,7 @@ export default async function SearchPage({
         ))}
       </ul>
 
-      {query && !limited && !results.length ? (
+      {query && !tooShort && !limited && !results.length ? (
         <p className="mt-6 text-[14px] text-[var(--color-ink-soft)]">{t.nothing}</p>
       ) : null}
     </main>

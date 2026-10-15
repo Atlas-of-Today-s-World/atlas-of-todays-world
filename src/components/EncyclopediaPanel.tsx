@@ -8,7 +8,7 @@ import {
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
-import { normalizeSearchQuery } from "@/lib/search-query";
+import { isSearchable, normalizeSearchQuery } from "@/lib/search-query";
 import { useDebouncedSearch } from "@/lib/use-debounced-search";
 import { glassVariants } from "@/components/atlas/glass";
 import Link from "@/components/i18n/Link";
@@ -37,13 +37,15 @@ export default function EncyclopediaPanel() {
   const t = useMessages();
   const [query, setQuery] = useState("");
   const trimmed = query.trim();
+  // "ab" opens the list with a hint; the search starts at a three-letter word.
+  const searchable = isSearchable(trimmed);
   const {
     loading: searching,
     failed,
     results: hits,
   } = useDebouncedSearch<SearchHit>("/api/search", normalizeSearchQuery(query), {
     delay: 180,
-    enabled: trimmed.length >= 2,
+    enabled: searchable,
   });
   // The highlight belongs to one set of results: new results start without one.
   const [highlight, setHighlight] = useState<{ hits: SearchHit[]; index: number }>({
@@ -108,15 +110,17 @@ export default function EncyclopediaPanel() {
     if (next >= 0) document.getElementById(optionId(next))?.scrollIntoView({ block: "nearest" });
   };
 
-  const status = searching
-    ? t.search.searching
-    : failed
-      ? t.search.failed
-      : hits.length === 0
-        ? t.search.nothing
-        : hits.length === 1
-          ? t.search.countOne
-          : format(t.search.countMany, { count: String(hits.length) });
+  const status = !searchable
+    ? t.search.tooShort
+    : searching
+      ? t.search.searching
+      : failed
+        ? t.search.failed
+        : hits.length === 0
+          ? t.search.nothing
+          : hits.length === 1
+            ? t.search.countOne
+            : format(t.search.countMany, { count: String(hits.length) });
 
   return (
     // No visible heading (compact block); the name stays for screen readers.
