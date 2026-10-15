@@ -82,6 +82,29 @@ const config = [
     },
   },
   {
+    // Client → server only via a Server Action or apiFetch() (lib/api-fetch.ts: timeout,
+    // abort, JSON, typed errors), never a hand-rolled fetch in a component (ARCHITEKTURA 15.1).
+    files: ["src/components/**/*.{ts,tsx}", "src/features/**/components/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-globals": [
+        "error",
+        {
+          name: "fetch",
+          message:
+            "Call our API through apiFetch() from @/lib/api-fetch, or use a Server Action (ARCHITEKTURA 15.1).",
+        },
+      ],
+      "no-restricted-properties": [
+        "error",
+        ...["window", "globalThis", "self"].map((object) => ({
+          object,
+          property: "fetch",
+          message: "Call our API through apiFetch() from @/lib/api-fetch (ARCHITEKTURA 15.1).",
+        })),
+      ],
+    },
+  },
+  {
     // Tests spell the expected URLs out on purpose; routes.ts is where URLs are built and
     // redirects.ts lists the old (legacy) addresses as path patterns.
     files: ["src/**/*.test.{ts,tsx}", "src/config/routes.ts", "src/config/redirects.ts"],

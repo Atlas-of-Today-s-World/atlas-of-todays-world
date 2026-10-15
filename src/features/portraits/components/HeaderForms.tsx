@@ -9,6 +9,7 @@ import {
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { CountryPicker, type CountryOption } from "@/components/admin/CountryPicker";
 import { OrderedPicker } from "@/components/admin/OrderedPicker";
+import { RegionSelect, type PlaceOption } from "@/components/admin/RegionSelect";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { FormField, Input, Select, Textarea } from "@/components/ui/field";
 import { UploadField } from "@/components/admin/UploadField";
@@ -482,7 +483,7 @@ export function CountryForm({
     profile_html: string;
     featured_indicators: string[];
   };
-  regions: { slug: string; name: string }[];
+  regions: PlaceOption[];
   indicators: { id: string; label: string }[];
   /** UN subregions already in use (suggestions for the field). */
   subregions: string[];
@@ -507,14 +508,7 @@ export function CountryForm({
           hint="Without a region, the country has no profile."
           errors={errors.region_slug}
         >
-          <Select id="region_slug" name="region_slug" defaultValue={country.region_slug ?? ""}>
-            <option value="">— no region —</option>
-            {regions.map((region) => (
-              <option key={region.slug} value={region.slug}>
-                {region.name}
-              </option>
-            ))}
-          </Select>
+          <RegionSelect options={regions} defaultValue={country.region_slug} />
         </FormField>
         <FormField id="tagline" label="Subtitle" errors={errors.tagline}>
           <Input id="tagline" name="tagline" maxLength={300} defaultValue={country.tagline} />

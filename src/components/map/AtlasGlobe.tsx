@@ -12,6 +12,7 @@ import {
   type RegionLabel,
   type StyleOptions,
 } from "./mapStyle";
+import { apiFetch } from "@/lib/api-fetch";
 import { EUROPE_CENTER, globeFillZoom } from "@/lib/home-location";
 import { useMapState } from "./MapContext";
 import { useLatest } from "@/lib/use-latest";
@@ -258,8 +259,9 @@ export default function AtlasGlobe({
   useEffect(() => {
     if (view === "encyclopedia" || colorSets[view] || layers[view]) return;
     const controller = new AbortController();
-    fetch(`/api/globe-layer/${encodeURIComponent(view)}`, { signal: controller.signal })
-      .then((response) => (response.ok ? (response.json() as Promise<GlobeLayer>) : null))
+    apiFetch<GlobeLayer | null>(`/api/globe-layer/${encodeURIComponent(view)}`, {
+      signal: controller.signal,
+    })
       .then((layer) => {
         if (layer) setLayers((loaded) => ({ ...loaded, [view]: layer }));
       })

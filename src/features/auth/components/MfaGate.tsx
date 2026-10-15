@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
+import { Lead } from "@/components/atlas/Note";
 import { Button } from "@/components/ui/button";
 import { FormField, Input } from "@/components/ui/field";
 import { startMfaEnrollment, verifyMfaCode } from "@/features/auth/mfa-actions";
@@ -60,11 +61,11 @@ export function MfaGate({ hasFactor }: { hasFactor: boolean }) {
   return (
     <main className="mx-auto max-w-md py-12" data-testid="mfa-gate">
       <h1 className="font-display text-[26px] font-bold">Two-factor authentication</h1>
-      <p className="mt-3 text-[14px] leading-relaxed text-[var(--color-ink-soft)]">
+      <Lead className="mt-3">
         {hasFactor
           ? "Your role manages sensitive parts of the Atlas. Enter the six-digit code from your authenticator app."
           : "Your role manages sensitive parts of the Atlas, so it needs a second factor. Scan the QR code with an authenticator app (Google Authenticator, 1Password, Authy…) and enter the code it shows."}
-      </p>
+      </Lead>
       {qr ? (
         <div className="mt-6 grid justify-items-start gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -2,7 +2,7 @@ import { getSiteSettings } from "@/features/site/queries";
 import type { Metadata } from "next";
 import ContentRail from "@/components/ContentRail";
 import { JsonLd } from "@/components/JsonLd";
-import MapFocus from "@/components/map/MapFocus";
+import RegionFocus from "@/components/map/RegionFocus";
 import MapModeSetter from "@/components/map/MapModeSetter";
 import Portrait, { newsCards, type PortraitSubject } from "@/components/portrait/Portrait";
 import { routes } from "@/config/routes";
@@ -169,12 +169,7 @@ export function groupPortraitPage(kind: GroupKind) {
 
     return (
       <>
-        <MapFocus
-          center={group.center}
-          zoom={group.zoom}
-          regionCountries={group.countries}
-          regionStroke={group.stroke}
-        />
+        <RegionFocus region={group} />
         {kind === "issue" ? <MapModeSetter mode="issue" /> : null}
 
         <ContentRail wide>

@@ -5,6 +5,7 @@ import { kickerVariants } from "@/components/atlas/kicker";
 import { MetricCards, SourceLink, StatGrid, StatIcon, StatItem } from "@/components/atlas/ui";
 import { Rail } from "@/components/atlas/Rail";
 import { Accordion } from "@/components/atlas/Accordion";
+import { EmptyNote } from "@/components/atlas/Note";
 import { PhotoCard } from "@/components/atlas/PhotoCard";
 import { PhotoTile } from "@/components/atlas/PhotoTile";
 import { buttonVariants } from "@/components/ui/button";
@@ -280,9 +281,9 @@ export async function ThematicEntries({ entries }: { entries: PlannedEntry[] }) 
                   })}
                 </Rail>
               ) : (
-                <p className="mt-2.5 text-[12px] text-[var(--color-ink-muted)]">
+                <EmptyNote size="xs" tone="muted" className="mt-2.5">
                   {t.portrait.nothingPlanned}
-                </p>
+                </EmptyNote>
               )}
             </div>
           );

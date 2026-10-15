@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useActionState, useState } from "react";
+import { type ReactNode, useActionState, useState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
@@ -168,45 +168,75 @@ export function EntryWorkflow({
  * field to ISO with offset (the server runs in UTC and doesn't know the editor's time zone).
  */
 function Schedule({ id, onDone }: { id: string; onDone: (state: ActionState) => void }) {
-  const [state, action] = useActionState<ActionState, FormData>(
-    async (prev, data) => {
-      const local = String(data.get("publish_at_local") ?? "");
-      const at = new Date(local);
-      data.set("publish_at", local && !Number.isNaN(at.getTime()) ? at.toISOString() : "");
-      data.delete("publish_at_local");
-      const next = await scheduleEntry(prev, data);
-      onDone(next);
-      return next;
-    },
-    { ok: false },
-  );
   return (
-    <ActionForm
-      action={action}
-      className="grid gap-3 rounded-xl border border-[var(--color-line)] p-4"
+    <WorkflowNoteForm
+      id={id}
+      onDone={onDone}
+      action={scheduleEntry}
+      prepare={(data) => {
+        const local = String(data.get("publish_at_local") ?? "");
+        const at = new Date(local);
+        data.set("publish_at", local && !Number.isNaN(at.getTime()) ? at.toISOString() : "");
+        data.delete("publish_at_local");
+      }}
+      field={{
+        id: "publish_at_local",
+        errorKey: "publish_at",
+        label: "Publish at a set time…",
+        hint: "Instead of publishing now. The article will appear on the website within an hour of the chosen time.",
+      }}
+      submit={{ label: "Schedule publication", pending: "Scheduling…" }}
     >
-      <input type="hidden" name="id" value={id} />
-      <FormField
-        id="publish_at_local"
-        label="Publish at a set time…"
-        hint="Instead of publishing now. The article will appear on the website within an hour of the chosen time."
-        errors={state.fieldErrors?.publish_at}
-      >
-        <Input id="publish_at_local" name="publish_at_local" type="datetime-local" required />
-      </FormField>
-      <div>
-        <SubmitButton variant="outline" pending="Scheduling…">
-          Schedule publication
-        </SubmitButton>
-      </div>
-    </ActionForm>
+      <Input id="publish_at_local" name="publish_at_local" type="datetime-local" required />
+    </WorkflowNoteForm>
   );
 }
 
 function SendBack({ id, onDone }: { id: string; onDone: (state: ActionState) => void }) {
+  return (
+    <WorkflowNoteForm
+      id={id}
+      onDone={onDone}
+      action={sendBackEntry}
+      field={{
+        id: "note",
+        label: "Return to the author with a note",
+        hint: "The author will see the note on the article.",
+      }}
+      submit={{ label: "Request changes", pending: "Returning…" }}
+    >
+      <Textarea id="note" name="note" rows={3} maxLength={2000} required />
+    </WorkflowNoteForm>
+  );
+}
+
+/**
+ * A workflow step that needs one input first (a publication time, a note for
+ * the author): a framed form with the article id, the field and its errors,
+ * and an outline submit button. `prepare` adjusts the data before it's sent.
+ */
+function WorkflowNoteForm({
+  id,
+  onDone,
+  action: serverAction,
+  prepare,
+  field,
+  submit,
+  children,
+}: {
+  id: string;
+  onDone: (state: ActionState) => void;
+  action: (prev: ActionState, data: FormData) => Promise<ActionState>;
+  prepare?: (data: FormData) => void;
+  /** The control's id; `errorKey` when the server reports errors under another name. */
+  field: { id: string; errorKey?: string; label: string; hint: string };
+  submit: { label: string; pending: string };
+  children: ReactNode;
+}) {
   const [state, action] = useActionState<ActionState, FormData>(
     async (prev, data) => {
-      const next = await sendBackEntry(prev, data);
+      prepare?.(data);
+      const next = await serverAction(prev, data);
       onDone(next);
       return next;
     },
@@ -219,16 +249,16 @@ function SendBack({ id, onDone }: { id: string; onDone: (state: ActionState) => 
     >
       <input type="hidden" name="id" value={id} />
       <FormField
-        id="note"
-        label="Return to the author with a note"
-        hint="The author will see the note on the article."
-        errors={state.fieldErrors?.note}
+        id={field.id}
+        label={field.label}
+        hint={field.hint}
+        errors={state.fieldErrors?.[field.errorKey ?? field.id]}
       >
-        <Textarea id="note" name="note" rows={3} maxLength={2000} required />
+        {children}
       </FormField>
       <div>
-        <SubmitButton variant="outline" pending="Returning…">
-          Request changes
+        <SubmitButton variant="outline" pending={submit.pending}>
+          {submit.label}
         </SubmitButton>
       </div>
     </ActionForm>

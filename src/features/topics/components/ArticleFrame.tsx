@@ -1,6 +1,7 @@
 import Link from "@/components/i18n/Link";
 import ContentRail from "@/components/ContentRail";
-import MapFocus from "@/components/map/MapFocus";
+import RegionFocus from "@/components/map/RegionFocus";
+import { Lead } from "@/components/atlas/Note";
 import { SectionLabel } from "@/components/atlas/ui";
 import type { Atlas } from "@/features/geography/types";
 import { getT } from "@/features/i18n/request";
@@ -38,13 +39,7 @@ export async function ArticleFrame({
 
   return (
     <>
-      <MapFocus
-        center={region?.center ?? null}
-        zoom={region?.zoom ?? null}
-        regionCountries={region?.countries ?? []}
-        regionStroke={region?.stroke ?? null}
-        activeIso3={item.countries[0] ?? null}
-      />
+      <RegionFocus region={region} activeIso3={item.countries[0] ?? null} />
 
       <ContentRail wide>
         {banner}
@@ -80,9 +75,7 @@ export async function ArticleFrame({
               {item.title}
             </h1>
 
-            <p className="mt-3 text-[14px] leading-relaxed text-[var(--color-ink-soft)]">
-              {item.summary}
-            </p>
+            <Lead className="mt-3">{item.summary}</Lead>
 
             {children}
           </div>

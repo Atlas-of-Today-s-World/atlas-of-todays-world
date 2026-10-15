@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Lead } from "@/components/atlas/Note";
 import { adminRoutes } from "@/config/routes";
 import { supabaseConfig } from "@/lib/supabase/config";
 import { getMessagesFor, localeFrom } from "@/features/i18n/request";
@@ -27,7 +28,7 @@ export default async function InvitationPage({ params }: { params: Promise<{ loc
   return (
     <main className="mx-auto max-w-md">
       <h1 className="font-display text-[28px] font-bold">{t.heading}</h1>
-      <p className="mt-3 text-[14px] leading-relaxed text-[var(--color-ink-soft)]">{t.lead}</p>
+      <Lead className="mt-3">{t.lead}</Lead>
       <p className="mt-3 text-[13px] leading-relaxed text-[var(--color-ink-muted)]">{t.validity}</p>
       <div className="mt-8">
         {supabaseConfig() ? (

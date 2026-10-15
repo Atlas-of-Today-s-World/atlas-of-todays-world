@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminNav } from "@/components/admin/AdminNav";
 import { BrandLogo } from "@/components/atlas/BrandLogo";
+import { Lead } from "@/components/atlas/Note";
 import { Button } from "@/components/ui/button";
 import { RequiredNote } from "@/components/ui/field";
 import { ADMIN_NAV, navVisible } from "@/config/admin-nav";
@@ -42,10 +43,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <Shell>
         <main className="mx-auto max-w-md py-16" data-testid="admin-forbidden">
           <h1 className="font-display text-[28px] font-bold">No access</h1>
-          <p className="mt-3 text-[14px] leading-relaxed text-[var(--color-ink-soft)]">
+          <Lead className="mt-3">
             Administration is for the Atlas team only. You join the team by invitation — if you
             received one, sign in with the same email address it was sent to.
-          </p>
+          </Lead>
           <p className="mt-6 text-[13px] text-[var(--color-ink-muted)]">
             Signed in as {access.email}.{" "}
             <Link href={routes.account} className="underline">

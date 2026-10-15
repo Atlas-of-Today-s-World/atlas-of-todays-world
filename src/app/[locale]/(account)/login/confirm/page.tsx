@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Lead } from "@/components/atlas/Note";
 import Link from "@/components/i18n/Link";
 import { Button } from "@/components/ui/button";
 import { getMessagesFor, localeFrom } from "@/features/i18n/request";
@@ -34,7 +35,7 @@ export default async function ConfirmSignInPage({
       <h1 className="font-display text-[28px] font-bold">{t.title}</h1>
       {tokenHash && type ? (
         <>
-          <p className="mt-3 text-[14px] leading-relaxed text-[var(--color-ink-soft)]">{t.lead}</p>
+          <Lead className="mt-3">{t.lead}</Lead>
           <form method="post" action="/auth/confirm" className="mt-8">
             <input type="hidden" name="token_hash" value={tokenHash} />
             <input type="hidden" name="type" value={type} />

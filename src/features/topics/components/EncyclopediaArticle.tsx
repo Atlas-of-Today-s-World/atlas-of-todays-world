@@ -4,7 +4,8 @@ import { kickerVariants } from "@/components/atlas/kicker";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
 import { ShareButton } from "@/components/atlas/ShareButton";
 import { PhotoCredit } from "@/components/atlas/ui";
-import MapFocus from "@/components/map/MapFocus";
+import { Breadcrumbs } from "@/components/atlas/Breadcrumbs";
+import RegionFocus from "@/components/map/RegionFocus";
 import { FaqList } from "@/components/portrait/sections";
 import type { Atlas } from "@/features/geography/types";
 import { format } from "@/features/i18n/messages";
@@ -58,12 +59,8 @@ export async function EncyclopediaArticle({
   const hero = safeUrl(item.hero);
   return (
     <>
-      <MapFocus
-        center={region?.center ?? null}
-        regionCountries={region?.countries ?? []}
-        regionStroke={region?.stroke ?? null}
-        activeIso3={item.countries[0] ?? null}
-      />
+      {/* The corner window shows the whole globe turned to the region: no zoom. */}
+      <RegionFocus region={region} zoom={null} activeIso3={item.countries[0] ?? null} />
       {/* A direct child of the FullPage frame, so it stays under the header all the way down. */}
       <ReadingProgress />
       {banner}
@@ -96,36 +93,20 @@ export async function EncyclopediaArticle({
           />
           <div className="mx-auto flex min-h-72 max-w-6xl flex-col justify-end px-4 pt-16 pb-10 sm:min-h-96 sm:px-8">
             {/* The way back: Atlas › Topics › the topic's category (the title follows). */}
-            <nav aria-label={messages.article.breadcrumb}>
-              <ol className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[13px] font-medium text-white/80">
-                <li>
-                  <Link
-                    href="/"
-                    className="inline-flex min-h-(--touch-min) min-w-(--touch-min) items-center hover:text-white hover:underline"
-                  >
-                    {messages.article.breadcrumbAtlas}
-                  </Link>
-                </li>
-                <li aria-hidden className="text-white/45">
-                  ›
-                </li>
-                <li>
-                  <Link
-                    href={routes.topics}
-                    className="inline-flex min-h-(--touch-min) items-center gap-1.5 rounded-full bg-white/15 px-3.5 text-white ring-1 ring-white/25 backdrop-blur transition hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
-                  >
-                    <LayoutGrid aria-hidden className="size-3.5" />
-                    {messages.topics.title}
-                  </Link>
-                </li>
-                <li aria-hidden className="text-white/45">
-                  ›
-                </li>
-                <li className="tracking-[0.14em] uppercase">
-                  {messages.categories[item.category]}
-                </li>
-              </ol>
-            </nav>
+            <Breadcrumbs
+              tone="dark"
+              label={messages.article.breadcrumb}
+              items={[
+                { label: messages.article.breadcrumbAtlas, href: "/" },
+                {
+                  label: messages.topics.title,
+                  href: routes.topics,
+                  pill: true,
+                  icon: <LayoutGrid aria-hidden className="size-3.5" />,
+                },
+                { label: messages.categories[item.category] },
+              ]}
+            />
             <h1 className="font-display mt-3 text-[34px] leading-[1.08] font-bold text-balance sm:text-[52px]">
               {item.title}
             </h1>

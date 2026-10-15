@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { adminRoutes } from "@/config/routes";
+import { EmptyNote } from "@/components/atlas/Note";
 import { Button } from "@/components/ui/button";
 import { FormField, Select } from "@/components/ui/field";
 import { setEntryGroup } from "../actions";
@@ -80,9 +81,9 @@ export function GroupArticles({
           ))}
         </ul>
       ) : (
-        <p className="mt-4 text-[13px] text-[var(--color-ink-muted)]">
+        <EmptyNote size="sm" tone="muted" className="mt-4">
           No articles in this group yet.
-        </p>
+        </EmptyNote>
       )}
 
       {candidates.length ? (
