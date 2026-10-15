@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
 import { THEME_COLORS } from "@/config/palette";
+import { useLogError } from "@/lib/use-log-error";
 
 /**
  * The page's texts, kept here on purpose: this boundary replaces the root
@@ -27,9 +27,7 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    console.error(error);
-  }, [error]);
+  useLogError(error);
   return (
     <html lang="en">
       <body
