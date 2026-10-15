@@ -5,7 +5,7 @@ import { ActionStatus } from "@/components/admin/ActionStatus";
 import { CountryPicker, type CountryOption } from "@/components/admin/CountryPicker";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { Checkbox, FormField, Input, Select, Textarea } from "@/components/ui/field";
-import { AdminOnlyRolesNote } from "@/features/roles/components/AdminOnlyRolesNote";
+import { AdminOnlyRolesNote } from "@/components/admin/AdminOnlyRolesNote";
 import { saveAccount } from "../actions";
 import { ActionForm, useServerAction } from "@/components/ui/action-form";
 

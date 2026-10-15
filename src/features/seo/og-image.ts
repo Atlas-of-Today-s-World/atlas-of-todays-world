@@ -1,6 +1,6 @@
-import type { Locale } from "@/features/i18n/config";
-import { type Messages } from "@/features/i18n/messages";
-import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import type { Locale } from "@/lib/i18n/config";
+import { type Messages } from "@/lib/i18n/messages";
+import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
 import { renderOg } from "@/lib/og";
 
 /** What a preview image shows: label, title, subtitle and accent colour. */

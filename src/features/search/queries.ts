@@ -6,6 +6,7 @@ import { getAtlas } from "@/features/geography/queries";
 import { rowsOf } from "@/lib/db/result";
 import { isSearchable } from "@/lib/search-query";
 import { createPublicClient } from "@/lib/supabase/public";
+import type { SearchHit, SearchKind } from "./types";
 
 /**
  * Site search (header search, /search, /api/search): one Postgres RPC over
@@ -13,24 +14,8 @@ import { createPublicClient } from "@/lib/supabase/public";
  * summaries and map centres from the already cached atlas model.
  */
 
-type SearchKind = "region" | "country" | "issue" | "news";
-
 /** How often one address may search; the /search page and /api/search share the limit. */
 export const SEARCH_LIMIT = { limit: 60, windowSeconds: 60 };
-
-export interface SearchHit {
-  id: string;
-  kind: SearchKind;
-  title: string;
-  subtitle: string;
-  /** Snippet below the result. */
-  body: string;
-  url: string;
-  /** Where to rotate the globe when the user opens the result. */
-  center?: [number, number];
-  zoom?: number;
-  score: number;
-}
 
 /**
  * Full-text search across the whole Atlas via the Postgres RPC `search()` (ADR-005):

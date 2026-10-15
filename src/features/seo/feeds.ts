@@ -1,14 +1,14 @@
 import "server-only";
-import { isLocale, localePath, LOCALES } from "@/features/i18n/config";
+import { isLocale, localePath, LOCALES } from "@/lib/i18n/config";
 import { ORGANIZATION } from "@/config/organization";
 import { absoluteUrl } from "@/lib/seo";
 import { machineResponse } from "@/lib/seo/response";
 import { atomXml, rssXml, type FeedMeta } from "@/lib/seo/xml";
-import type { Messages } from "@/features/i18n/messages";
+import type { Messages } from "@/lib/i18n/messages";
 import type { SiteSettings } from "@/features/site/model";
 import { getSiteSettings } from "@/features/site/queries";
 import { getFeedItems, getLlmsFullTxt, getLlmsTxt } from "./queries";
-import { getMessagesFor } from "@/features/i18n/request";
+import { getMessagesFor } from "@/lib/i18n/request";
 
 /**
  * Route handlers of the per-language machine files (`/feed.xml`, `/<code>/feed.xml`,

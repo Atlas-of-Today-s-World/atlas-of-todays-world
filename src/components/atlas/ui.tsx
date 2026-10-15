@@ -13,8 +13,8 @@ import {
 } from "lucide-react";
 import type { MetricCard } from "@/lib/content-types";
 import { safeUrl } from "@/lib/security/urls";
-import { format } from "@/features/i18n/messages";
-import { getT } from "@/features/i18n/request";
+import { format } from "@/lib/i18n/messages";
+import { getT } from "@/lib/i18n/request";
 import { cn } from "@/lib/cn";
 import { kickerVariants } from "./kicker";
 

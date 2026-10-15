@@ -12,8 +12,8 @@ import {
   listItemError,
   NOT_SIGNED_IN,
   signedIn,
-  type ActionState,
 } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 import { adminRoutes } from "@/config/routes";
 import { entryChangedTags } from "@/lib/cache/tags";
 import { checkbox, requiredText, uuid } from "@/lib/validation/common";

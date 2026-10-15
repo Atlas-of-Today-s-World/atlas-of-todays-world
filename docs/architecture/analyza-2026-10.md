@@ -39,6 +39,11 @@ verze hesel v administraci) je odstraněný; tabulky a sloupce v DB zůstávají
 
 ## 3. Porušení hranic modulů (ověřeno)
 
+> **Stav 2026-10-15** (větev `refactor/layer-boundaries`): lib/config → features, typy v `server-only`
+> souborech, cyklus `entries ↔ topics` a doménové komponenty v `components/` jsou vyřešené (i18n v `lib/i18n`)
+> a hranice hlídá ESLint `no-restricted-imports` (ARCHITEKTURA 4.1). Zbývají cykly `entries ↔ portraits`
+> (`entries/schema` ↔ `portraits/schema`, `group-page`) a `home ↔ topics` (`home/config` ↔ `topics/featured`).
+
 - **lib → features:** `lib/search.ts`, `lib/seo/*`, `lib/format.ts`, `lib/indicators.ts`,
   `lib/region-stats.ts` importují z `features/i18n` a `features/geography/types`. i18n je ve
   skutečnosti infrastruktura — patří do `lib/i18n`.
@@ -70,7 +75,7 @@ verze hesel v administraci) je odstraněný; tabulky a sloupce v DB zůstávají
    kapitoly, šablony, náhledy a překlady.
 6. **Hranice modulů bez vynucení** (oddíl 3) — `no-restricted-imports` pro směry
    `lib ↛ features`, `features ↛ features/*/components`.
-7. **Křehký stav jazyka:** per-request mutable stav v `features/i18n/request.ts` funguje s
+7. **Křehký stav jazyka:** per-request mutable stav v `lib/i18n/request.ts` funguje s
    jedním jazykem, s druhým by souběžně renderované layouty a stránky mohly dostat špatný text.
 8. **Zápisy mimo RPC:** část přechodů stavu článku jde přímým `update` místo RPC (§4.3);
    dva typy `ActionState` a dvě strategie chybových hlášek.

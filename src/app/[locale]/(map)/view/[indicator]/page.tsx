@@ -7,11 +7,11 @@ import { RankingFocus } from "@/components/map/RankingFocus";
 import MapViewSetter from "@/components/map/MapViewSetter";
 import { SectionLabel, SourceLink } from "@/components/atlas/ui";
 import { getAtlas, getIndicator } from "@/features/geography/queries";
-import { format } from "@/features/i18n/messages";
-import { getMessagesFor, getRequestLocale, getT, localeFrom } from "@/features/i18n/request";
-import { formatValue } from "@/lib/indicators";
-import { pageMetadata, pageTitle } from "@/lib/seo/metadata";
-import { breadcrumbNode, datasetNode, graph, pageUrl, webPageNode } from "@/lib/seo/jsonld";
+import { format } from "@/lib/i18n/messages";
+import { getMessagesFor, getRequestLocale, getT, localeFrom } from "@/lib/i18n/request";
+import { formatValue } from "@/features/geography/indicators";
+import { pageMetadata, pageTitle } from "@/features/seo/metadata";
+import { breadcrumbNode, datasetNode, graph, pageUrl, webPageNode } from "@/features/seo/jsonld";
 import { JsonLd } from "@/components/JsonLd";
 import { routes } from "@/config/routes";
 

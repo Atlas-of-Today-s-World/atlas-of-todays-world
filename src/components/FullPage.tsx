@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import Header from "@/components/Header";
 import { LegalFooter } from "@/components/PagesShell";
 import { RememberedScroll } from "@/components/RememberedScroll";
-import type { Messages } from "@/features/i18n/messages";
+import type { Messages } from "@/lib/i18n/messages";
 import { getNavigation } from "@/features/navigation/queries";
 import { getSiteSettings, getSocialLinks } from "@/features/site/queries";
 import { captchaEnabled } from "@/lib/security/turnstile";

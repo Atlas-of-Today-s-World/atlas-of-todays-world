@@ -6,8 +6,8 @@ import { PrePaintScript } from "@/components/PrePaintScript";
 import { SKIP_LINK } from "@/config/layout";
 import { THEME_COLORS } from "@/config/palette";
 import { serverEnv } from "@/lib/env.server";
-import { DEFAULT_LOCALE } from "@/features/i18n/config";
-import { getMessagesFor } from "@/features/i18n/request";
+import { DEFAULT_LOCALE } from "@/lib/i18n/config";
+import { getMessagesFor } from "@/lib/i18n/request";
 import { titleSuffix } from "@/features/site/model";
 import { getSiteSettings } from "@/features/site/queries";
 import { SITE_URL } from "@/lib/site";
@@ -43,7 +43,7 @@ export async function generateMetadata(): Promise<Metadata> {
     applicationName: site.name,
     authors: [{ name: site.name }],
     publisher: site.name,
-    // Pages set their own URL, locale and image (lib/seo/metadata.ts); this is the fallback.
+    // Pages set their own URL, locale and image (features/seo/metadata.ts); this is the fallback.
     openGraph: {
       type: "website",
       siteName: site.name,

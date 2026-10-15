@@ -1,4 +1,4 @@
-import type { Messages } from "@/features/i18n/messages";
+import type { Messages } from "@/lib/i18n/messages";
 import { routes } from "./routes";
 
 /**

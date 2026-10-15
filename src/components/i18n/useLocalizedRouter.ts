@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
-import { localePath } from "@/features/i18n/config";
+import { localePath } from "@/lib/i18n/config";
 import { useLocale } from "./LocaleProvider";
 
 /** `useRouter` for the public site: push/prefetch with the page's language prefix. */

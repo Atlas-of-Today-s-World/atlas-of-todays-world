@@ -7,7 +7,7 @@ import { ConfirmButton } from "@/components/admin/ConfirmButton";
 import { Button } from "@/components/ui/button";
 import { CheckboxControl } from "@/components/ui/checkbox";
 import { Dialog } from "@/components/ui/dialog";
-import type { Action, Section } from "@/features/auth/sections";
+import type { Action, Section } from "@/config/sections";
 import { cn } from "@/lib/cn";
 import { deleteRole, saveMatrix } from "../actions";
 import { ACTIONS, matrixFormData, matrixSections, toggleAction, type RoleGrants } from "../matrix";

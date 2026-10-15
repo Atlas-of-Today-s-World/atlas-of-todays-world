@@ -3,7 +3,7 @@
 import { ErrorState } from "@/components/atlas/ErrorState";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { Button } from "@/components/ui/button";
-import { format } from "@/features/i18n/messages";
+import { format } from "@/lib/i18n/messages";
 import { useLogError } from "@/lib/use-log-error";
 
 /** Props Next.js passes to a route's `error.tsx`. */

@@ -3,7 +3,7 @@
 import { ArrowRight } from "lucide-react";
 import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
-import { format } from "@/features/i18n/messages";
+import { format } from "@/lib/i18n/messages";
 import { cn } from "@/lib/cn";
 
 /** What the label under the cursor says. */

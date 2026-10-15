@@ -1,6 +1,7 @@
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 import security from "eslint-plugin-security";
+import { readdirSync } from "node:fs";
 
 // Rules follow ARCHITEKTURA.md ch. 8 (security) and 15 (deduplication).
 
@@ -29,6 +30,51 @@ const NO_HAND_BUILT_ADMIN_ROUTE = [
     message: ADMIN_ROUTE_MESSAGE,
   },
 ];
+
+// Supabase only via lib/supabase (the right key in the right place).
+const SUPABASE_ONLY_VIA_LIB = {
+  name: "@supabase/supabase-js",
+  message: "Použij klienta z @/lib/supabase/* (ARCHITEKTURA 4.1).",
+  allowTypeImports: true,
+};
+/** `no-restricted-imports` with the Supabase rule plus the layer `patterns` of a directory. */
+const restrictImports = (...patterns) => [
+  "error",
+  { paths: [SUPABASE_ONLY_VIA_LIB], ...(patterns.length ? { patterns } : {}) },
+];
+
+// Layer boundaries (ARCHITEKTURA 4.1): lib/ and config/ are the base every layer builds on,
+// components/ are shared UI, features/<domain>/ the domains. `allow` is the short list of
+// exceptions below (each with its reason). Patterns match like .gitignore: "!" re-allows one
+// module, and its folders must be re-allowed too ("@/features/x", then "@/features/x/queries").
+// Colocated tests may cross layers (e.g. a lib test checking every public form's schema).
+const allowing = (allow) =>
+  allow.flatMap((path) => {
+    // "@/features/x/queries" → "!@/features/x", "!@/features/x/queries"
+    const segments = path.split("/");
+    return segments.slice(2).map((_, i) => `!${segments.slice(0, i + 3).join("/")}`);
+  });
+const TESTS = ["src/**/*.test.{ts,tsx}"];
+const LIB_NO_FEATURES = (allow = []) => ({
+  group: ["@/features/**", ...allowing(allow)],
+  message:
+    "lib/ and config/ must not import features: move the code into the feature, or the shared type/constant down into lib or config (ARCHITEKTURA 4.1).",
+});
+const COMPONENTS_NO_FEATURE_UI = (allow = []) => ({
+  group: ["@/features/*/*actions", "@/features/*/components/**", ...allowing(allow)],
+  message:
+    "Shared components must not call a feature's Server Actions or render its components: move the component into features/<domain>/components (ARCHITEKTURA 4.1).",
+});
+const FEATURE_NO_OTHER_FEATURE_UI = (feature) => ({
+  group: ["@/features/*/components/**", `!@/features/${feature}/components/**`],
+  message:
+    "A feature must not render another feature's components: move the shared piece into src/components (ARCHITEKTURA 4.1).",
+});
+const FEATURES = readdirSync(new URL("./src/features", import.meta.url), {
+  withFileTypes: true,
+})
+  .filter((entry) => entry.isDirectory())
+  .map((entry) => entry.name);
 
 const config = [
   {
@@ -64,19 +110,7 @@ const config = [
   {
     files: ["src/**/*.{ts,tsx}"],
     rules: {
-      // Supabase only via lib/supabase (the right key in the right place).
-      "no-restricted-imports": [
-        "error",
-        {
-          paths: [
-            {
-              name: "@supabase/supabase-js",
-              message: "Použij klienta z @/lib/supabase/* (ARCHITEKTURA 4.1).",
-              allowTypeImports: true,
-            },
-          ],
-        },
-      ],
+      "no-restricted-imports": restrictImports(),
       "no-restricted-syntax": [
         "error",
         NO_RAW_HTML,
@@ -85,6 +119,40 @@ const config = [
       ],
     },
   },
+  // Layer boundaries (ARCHITEKTURA 4.1). Each block repeats the Supabase rule:
+  // a later block's options replace an earlier one's, they don't merge.
+  {
+    files: ["src/lib/**/*.{ts,tsx}", "src/config/**/*.{ts,tsx}"],
+    ignores: TESTS,
+    rules: { "no-restricted-imports": restrictImports(LIB_NO_FEATURES()) },
+  },
+  {
+    // The text loader behind getMessagesFor/getT applies the team's UI text overrides,
+    // which the ui-texts feature reads (cached, cookie-less) and validates.
+    files: ["src/lib/i18n/request.ts"],
+    rules: {
+      "no-restricted-imports": restrictImports(LIB_NO_FEATURES(["@/features/ui-texts/queries"])),
+    },
+  },
+  {
+    files: ["src/components/**/*.{ts,tsx}"],
+    ignores: TESTS,
+    rules: { "no-restricted-imports": restrictImports(COMPONENTS_NO_FEATURE_UI()) },
+  },
+  {
+    // The site header's mobile menu embeds the newsletter sign-up form.
+    files: ["src/components/Header.tsx"],
+    rules: {
+      "no-restricted-imports": restrictImports(
+        COMPONENTS_NO_FEATURE_UI(["@/features/newsletter/components/NewsletterForm"]),
+      ),
+    },
+  },
+  ...FEATURES.map((feature) => ({
+    files: [`src/features/${feature}/**/*.{ts,tsx}`],
+    ignores: TESTS,
+    rules: { "no-restricted-imports": restrictImports(FEATURE_NO_OTHER_FEATURE_UI(feature)) },
+  })),
   {
     // Client → server only via a Server Action or apiFetch() (lib/api-fetch.ts: timeout,
     // abort, JSON, typed errors), never a hand-rolled fetch in a component (ARCHITEKTURA 15.1).
@@ -125,8 +193,9 @@ const config = [
     rules: { "no-restricted-syntax": "off" },
   },
   {
+    // lib/supabase wraps @supabase/supabase-js; the layer rule still applies.
     files: ["src/lib/supabase/**"],
-    rules: { "no-restricted-imports": "off" },
+    rules: { "no-restricted-imports": ["error", { patterns: [LIB_NO_FEATURES()] }] },
   },
   {
     // Node scripts and configs run outside the browser and read files from

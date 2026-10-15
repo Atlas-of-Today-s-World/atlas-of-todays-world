@@ -8,8 +8,8 @@ import { Breadcrumbs } from "@/components/atlas/Breadcrumbs";
 import RegionFocus from "@/components/map/RegionFocus";
 import { FaqList } from "@/components/portrait/sections";
 import type { Atlas } from "@/features/geography/types";
-import { format } from "@/features/i18n/messages";
-import { getRequestLocale, getT } from "@/features/i18n/request";
+import { format } from "@/lib/i18n/messages";
+import { getRequestLocale, getT } from "@/lib/i18n/request";
 import { formatLongDate } from "@/lib/format";
 import { cssBackgroundImage, safeUrl } from "@/lib/security/urls";
 import { PHOTO_WIDTH, photoSrcSet, photoUrl } from "@/lib/images";
@@ -18,7 +18,7 @@ import type {
   EntryAuthor,
   EntryChapter as Chapter,
   LearnMoreTile,
-} from "@/features/entries/topic-queries";
+} from "@/features/entries/types";
 import { META_LINE, PlaceLinks } from "./ArticleFrame";
 import { DossierExplorer } from "./DossierExplorer";
 import { OpenOnHash } from "./OpenOnHash";

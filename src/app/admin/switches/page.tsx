@@ -12,8 +12,8 @@ import { can, sectionAccess } from "@/features/auth/access";
 import { setFlag } from "@/features/flags/actions";
 import { MaintenanceMessageForm } from "@/features/flags/components/SwitchForms";
 import { getMaintenanceMessage, listFlags } from "@/features/flags/editorial";
-import { DEFAULT_LOCALE } from "@/features/i18n/config";
-import { getMessagesFor } from "@/features/i18n/request";
+import { DEFAULT_LOCALE } from "@/lib/i18n/config";
+import { getMessagesFor } from "@/lib/i18n/request";
 
 export const metadata: Metadata = { title: "Switches & maintenance" };
 

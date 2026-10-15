@@ -17,3 +17,5 @@ export const SECTIONS = [
 ] as const;
 export type Section = (typeof SECTIONS)[number];
 export type Action = "v" | "c" | "e" | "d";
+/** A role's rights per section (letters of "vced"), as `my_permissions()` returns them. */
+export type Permissions = Record<Section, string>;

@@ -3,7 +3,7 @@
 import "server-only";
 import { revalidatePath } from "next/cache";
 import { adminRoutes } from "@/config/routes";
-import { SECTIONS } from "@/features/auth/sections";
+import { SECTIONS } from "@/config/sections";
 import {
   affected,
   failed,
@@ -12,8 +12,8 @@ import {
   invalid,
   NOT_SIGNED_IN,
   signedIn,
-  type ActionState,
 } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 import { slug } from "@/lib/validation/common";
 import { MatrixInput, RoleInput, SecurityInput } from "./schema";
 

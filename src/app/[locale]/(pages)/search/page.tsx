@@ -3,14 +3,14 @@ import { headers } from "next/headers";
 import Link from "@/components/i18n/Link";
 import { EmptyNote } from "@/components/atlas/Note";
 import { firstParam } from "@/lib/query-params";
-import { search, SEARCH_LIMIT } from "@/lib/search";
+import { search, SEARCH_LIMIT } from "@/features/search/queries";
 import { isSearchable } from "@/lib/search-query";
 import { allowRequest } from "@/lib/security/rate-limit";
 import { buttonVariants } from "@/components/ui/button";
-import { localePath } from "@/features/i18n/config";
-import { format } from "@/features/i18n/messages";
-import { getMessagesFor, localeFrom } from "@/features/i18n/request";
-import { staticPageMetadata } from "@/lib/seo/metadata";
+import { localePath } from "@/lib/i18n/config";
+import { format } from "@/lib/i18n/messages";
+import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
+import { staticPageMetadata } from "@/features/seo/metadata";
 import { routes } from "@/config/routes";
 
 // Result pages are thin and endless: out of the index, links still followed.

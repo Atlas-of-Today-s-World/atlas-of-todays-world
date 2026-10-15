@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import type { Locale } from "@/features/i18n/config";
-import { localeFrom } from "@/features/i18n/request";
+import type { Locale } from "@/lib/i18n/config";
+import { localeFrom } from "@/lib/i18n/request";
 import { redirectOrNotFound } from "./queries";
 
 /**

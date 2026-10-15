@@ -1,32 +1,27 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import { getAuthors } from "@/features/authors/queries";
-import {
-  getEncyclopediaEntries,
-  getEntries,
-  getEntry,
-  type Entry,
-  type EntrySummary,
-} from "@/features/entries/queries";
+import { getEncyclopediaEntries, getEntries, getEntry } from "@/features/entries/queries";
+import type { Entry, EntrySummary } from "@/features/entries/types";
 import { getEncyclopediaEntry } from "@/features/entries/topic-queries";
 import { getAtlas, getIndicators } from "@/features/geography/queries";
 import type { Atlas, IndicatorData } from "@/features/geography/types";
-import { DEFAULT_LOCALE, localePath, LOCALES, type Locale } from "@/features/i18n/config";
-import { format, type Messages } from "@/features/i18n/messages";
+import { DEFAULT_LOCALE, localePath, LOCALES, type Locale } from "@/lib/i18n/config";
+import { format, type Messages } from "@/lib/i18n/messages";
 import type { SiteSettings } from "@/features/site/model";
 import { getSiteSettings } from "@/features/site/queries";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import { must } from "@/lib/db/result";
-import { formatValue } from "@/lib/indicators";
+import { formatValue } from "@/features/geography/indicators";
 import { absoluteUrl } from "@/lib/seo";
 import { llmsFullTxt, llmsTxt, type LlmsDocument, type LlmsLink } from "@/lib/seo/llms";
-import { clampText } from "@/lib/seo/metadata";
+import { clampText } from "@/features/seo/metadata";
 import { latest, type FeedItem, type SitemapUrl } from "@/lib/seo/xml";
 import { createPublicClient } from "@/lib/supabase/public";
 import { categoryLabel, type ArticleKind } from "@/lib/content-types";
 import { articleDocument, articleUrl } from "./documents";
 import { routes } from "@/config/routes";
-import { getMessagesFor } from "@/features/i18n/request";
+import { getMessagesFor } from "@/lib/i18n/request";
 
 /**
  * Data for the machine-readable views of the Atlas: sitemaps, feeds and

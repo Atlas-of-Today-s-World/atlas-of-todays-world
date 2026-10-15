@@ -4,7 +4,7 @@
  * runtime dependencies, so client code may import it.
  */
 
-import type { Messages } from "@/features/i18n/messages";
+import type { Messages } from "@/lib/i18n/messages";
 
 /**
  * The two kinds of article (`entries.kind`): a news item, or a topic (an

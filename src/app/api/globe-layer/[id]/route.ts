@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { globeLayer } from "@/features/geography/globe-layer";
 import { getAtlas, getIndicator } from "@/features/geography/queries";
-import { DEFAULT_LOCALE } from "@/features/i18n/config";
+import { DEFAULT_LOCALE } from "@/lib/i18n/config";
 
 /** Same as PUBLIC_REVALIDATE_SECONDS (segment config must be a literal). */
 export const revalidate = 3600;

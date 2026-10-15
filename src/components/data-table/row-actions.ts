@@ -1,4 +1,4 @@
-import type { ActionState } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 
 /**
  * Row actions as plain data (a Server Component page builds them, the client

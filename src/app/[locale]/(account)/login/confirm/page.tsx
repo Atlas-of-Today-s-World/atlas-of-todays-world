@@ -1,9 +1,9 @@
 import { Lead } from "@/components/atlas/Note";
 import Link from "@/components/i18n/Link";
 import { Button } from "@/components/ui/button";
-import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
 import { firstParam } from "@/lib/query-params";
-import { privateMetadata } from "@/lib/seo/metadata";
+import { privateMetadata } from "@/features/seo/metadata";
 import { routes } from "@/config/routes";
 
 export const dynamic = "force-dynamic";

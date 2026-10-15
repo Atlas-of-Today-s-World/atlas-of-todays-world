@@ -5,7 +5,7 @@ import {
   settingsFromRow,
   socialsFromRows,
 } from "@/features/site/model";
-import { jsonLdHtml } from "./index";
+import { jsonLdHtml } from "@/lib/seo";
 import {
   articleNode,
   breadcrumbNode,
@@ -23,7 +23,7 @@ import {
   webPageNode,
   websiteNode,
 } from "./jsonld";
-import { jsonLdNodes, validateJsonLd } from "./jsonld-rules";
+import { jsonLdNodes, validateJsonLd } from "@/lib/seo/jsonld-rules";
 
 /** Round-trip through the rendered script text, as a robot reads it. */
 const parsed = (data: unknown) => JSON.parse(jsonLdHtml(data).replace(/\\u003c/g, "<"));

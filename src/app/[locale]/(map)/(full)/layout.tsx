@@ -1,6 +1,6 @@
 import { FullPage } from "@/components/FullPage";
 import { getFlags } from "@/features/flags/queries";
-import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
 
 /**
  * Full-width pages inside the map shell (Topics, encyclopedia entries). The

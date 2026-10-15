@@ -7,7 +7,7 @@ import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import { useLocalizedRouter } from "@/components/i18n/useLocalizedRouter";
 import { Button } from "@/components/ui/button";
 import { describedBy, FormField, Input, RequiredNote, Select } from "@/components/ui/field";
-import { format } from "@/features/i18n/messages";
+import { format } from "@/lib/i18n/messages";
 import { formatEuro } from "@/lib/format";
 import {
   cardErrors,

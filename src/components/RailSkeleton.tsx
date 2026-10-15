@@ -1,4 +1,4 @@
-import { getT } from "@/features/i18n/request";
+import { getT } from "@/lib/i18n/request";
 import ContentRail from "./ContentRail";
 
 /**

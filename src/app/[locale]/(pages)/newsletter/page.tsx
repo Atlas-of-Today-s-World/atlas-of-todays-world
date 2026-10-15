@@ -2,14 +2,13 @@ import { getSiteSettings } from "@/features/site/queries";
 import { ArrowRight, Check, HandHeart, Mail, PenLine } from "lucide-react";
 import Link from "@/components/i18n/Link";
 import { JsonLd } from "@/components/JsonLd";
-import NewsletterForm from "@/components/NewsletterForm";
+import NewsletterForm from "@/features/newsletter/components/NewsletterForm";
 import { getFlags } from "@/features/flags/queries";
-import { getMessagesFor, localeFrom } from "@/features/i18n/request";
-import { VOLUNTEER_ID } from "@/features/membership/config";
-import { breadcrumbNode, graph, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
-import { staticPageMetadata } from "@/lib/seo/metadata";
+import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
+import { breadcrumbNode, graph, ids, pageUrl, webPageNode } from "@/features/seo/jsonld";
+import { staticPageMetadata } from "@/features/seo/metadata";
 import { captchaEnabled } from "@/lib/security/turnstile";
-import { routes } from "@/config/routes";
+import { routes, VOLUNTEER_ID } from "@/config/routes";
 
 export const generateMetadata = staticPageMetadata("newsletterPage", routes.newsletter);
 

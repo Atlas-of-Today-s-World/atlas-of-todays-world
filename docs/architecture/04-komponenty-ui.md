@@ -26,7 +26,8 @@
 | `components/map/` | `AtlasGlobe`, `MapContext`, `MapFocus`, `MapControls`, `ModeSwitch`, `ViewSwitcher`, `MapLegend` | beze změny architektury; data vrstev z DB |
 | `components/portrait/` | `Portrait` (jeden pro region i issue), `IndicatorCards`, `Timeline`, `ThematicEntries`, `VisualCarousel`, `ResourceLibrary`, `FaqList`, `EmptySection`, `PatronsCallout`, `Rail` | sjednotit 4 kopie karuselu do `Rail` (klávesnice, šipky) |
 | `features/entries/components/` | `EntryHeader`, `EntryChapter`, `EntryAudio`, `AuthorBio` | P9 |
-| `components/` | `ContentRail`, `Header`, `EncyclopediaPanel`, `NewsletterForm`, `SafeHtml` | |
+| `components/` | `ContentRail`, `Header`, `EncyclopediaPanel`, `MaintenanceGate`, `SafeHtml` | |
+| `features/newsletter/components/` | `NewsletterForm` | Server Action `subscribe` |
 
 **Administrace** (`app/admin/`, `components/ui` + `components/data-table/DataTable`, ADR-019)
 
@@ -69,7 +70,7 @@ skládá z hotových dílů; když díl chybí, vznikne jako sdílený, ne jako 
 | 2. Primitiva | `src/components/ui/` (shadcn/ui) | `Button` + `buttonVariants` (i pro odkazy a ikonová tlačítka), `Badge`, `Dialog`, `Popover`, `CheckboxControl`, `ColorField`; formuláře v `field.tsx` (`FormField`, `Input`, `Textarea`, `Select`, `Checkbox`, `RequiredNote`) a `action-form.tsx` (`ActionForm`, `useServerAction`, `useAddForm`). *Plán, až bude potřeba:* `Sheet`, `Tabs`, `Tooltip`, `Skeleton` |
 | 3. Vzory Atlasu | `src/components/atlas/` | `Rail` (jediný karusel), `ui.tsx` (`SectionLabel`, `MetricCards`, `StatGrid`/`StatItem`, `SourceLink`, `PhotoCredit`, `NewsBadge`), `Breadcrumbs` (`tone` light/dark), `Note.tsx` (`EmptyNote`, `Lead`), `PhotoCard`, `PhotoTile`, `Accordion`, `SafeHtml`, `RichText`, `ShareButton`, `ErrorState`, `RouteError` (hranice chyb tras), `BrandLogo`, `ContactLink`, varianty `kickerVariants`, `glassVariants`; tabulky `components/data-table/DataTable` (ADR-019) |
 | 4. Doménové bloky | `src/components/portrait/`, `src/components/` (`CountryCard`, `PagesShell`, `PagesFrame`, `FullPage`), `features/*/components/` | `Portrait` (region **i** global issue), `PortraitSection`, `PatronsCallout`, `NewsTabs`, `ArticleFrame`, `EncyclopediaArticle`, `NewsArticle`, `map/RegionFocus`, `admin/RegionSelect`… |
-| 5. Stránky | `src/app/**` | jen skládání bloků + data; žádné vlastní styly nad rámec rozvržení. Metadata přes `lib/seo/metadata.ts` (`pageMetadata`, `staticPageMetadata`, `privateMetadata`), props přes globální `PageProps<"/…">` / `LayoutProps<"/…">` (Next 16, `next typegen`) |
+| 5. Stránky | `src/app/**` | jen skládání bloků + data; žádné vlastní styly nad rámec rozvržení. Metadata přes `features/seo/metadata.ts` (`pageMetadata`, `staticPageMetadata`, `privateMetadata`), props přes globální `PageProps<"/…">` / `LayoutProps<"/…">` (Next 16, `next typegen`) |
 
 Pravidla:
 
@@ -92,7 +93,11 @@ Pravidla:
   abort, JSON, typované chyby) — ne ručně psaný `fetch` v komponentě (ESLint ho v komponentách zakazuje).
 - **Ikony** z jedné sady (`lucide-react`), ne vložené SVG v každém souboru.
 - **Texty** z `messages/en.json` (web je jen anglicky, ADR-022) s úpravami týmu z Admin → UI texts
-  (`getT()` / `getMessagesFor()`); opakovaný text (CTA, chybové hlášky) má jeden klíč.
+  (`getT()` / `getMessagesFor()` z `lib/i18n/request.ts`); opakovaný text (CTA, chybové hlášky) má jeden klíč.
+- **Úroveň podle závislostí**: komponenta, která volá Server Action domény nebo vykresluje její komponentu,
+  patří do `features/<doména>/components/` (např. `NewsletterForm`), ne do `components/`; díl sdílený
+  dvěma doménami patří do `components/` (např. `components/admin/AdminOnlyRolesNote`, `MaintenanceGate`).
+  Typy pro klientské komponenty z `features/*/types.ts`, ne ze `server-only` modulů. Hlídá ESLint (15.2).
 
 ### 15.2 Nástroje, které duplicitu hlídají (CI)
 
@@ -100,7 +105,7 @@ Pravidla:
 |---|---|---|
 | `jscpd` (`.jscpd.json`) | copy-paste bloky v `src/` (TS, TSX, CSS; bez testů, `src/content`, `src/data`) | klon = ≥ 10 řádků a ≥ 70 tokenů; selže nad 1 % duplicit |
 | `knip` | nepoužité soubory, exporty, závislosti | 0 nálezů (výjimky v `knip.json` s komentářem) |
-| ESLint `no-restricted-imports` | `@supabase/supabase-js` mimo `lib/supabase` (typové importy smí) | chyba |
+| ESLint `no-restricted-imports` | `@supabase/supabase-js` mimo `lib/supabase` (typové importy smí); hranice vrstev (ARCHITEKTURA 4.1): `lib/**` a `config/**` neimportují `@/features/*`, `components/**` neimportuje `@/features/*/actions` (ani `*-actions`) ani `@/features/*/components/*`, `features/X` neimportuje `@/features/Y/components/*`; testy vyjmuté, výjimky jen `lib/i18n/request.ts` → `ui-texts/queries` a `Header.tsx` → `NewsletterForm` | chyba |
 | ESLint `no-restricted-syntax` | `dangerouslySetInnerHTML` mimo `SafeHtml`, `JsonLd`, `PrePaintScript`; ručně skládané veřejné URL (`` `/country/${…}` `` atd. → `routes.*`); ručně psané `/admin…` (→ `adminRoutes.*`) | chyba |
 | ESLint `no-restricted-globals` / `-properties` | `fetch` (i `window.fetch`…) v `src/components` a `features/*/components` (→ `apiFetch()`) | chyba |
 | `prettier-plugin-tailwindcss` | jednotné řazení tříd (snazší hledání duplicit) | formát |

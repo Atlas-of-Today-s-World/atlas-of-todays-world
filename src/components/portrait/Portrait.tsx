@@ -2,7 +2,7 @@ import { ShareButton } from "@/components/atlas/ShareButton";
 import Link from "@/components/i18n/Link";
 import { buttonVariants } from "@/components/ui/button";
 import { RelatedTopics, TopicsLink } from "@/components/topics/RelatedTopics";
-import type { EntrySummary } from "@/features/entries/queries";
+import type { EntrySummary } from "@/features/entries/types";
 import { NewsBadge, PhotoCredit, SectionLabel } from "@/components/atlas/ui";
 import {
   categoryLabel,
@@ -10,12 +10,12 @@ import {
   entryCategory,
   type RegionDossier,
 } from "@/lib/content-types";
-import type { RegionStat } from "@/lib/region-stats";
+import type { RegionStat } from "@/features/geography/region-stats";
 import { formatPopulation } from "@/lib/format";
 import { cssBackgroundImage } from "@/lib/security/urls";
 import { PHOTO_WIDTH } from "@/lib/images";
-import { format, type Messages } from "@/features/i18n/messages";
-import { getRequestLocale, getT } from "@/features/i18n/request";
+import { format, type Messages } from "@/lib/i18n/messages";
+import { getRequestLocale, getT } from "@/lib/i18n/request";
 import type { ContentStatus } from "@/features/geography/content-status";
 import type { GroupKind, PortraitPlace } from "@/features/geography/kinds";
 import { ContentStatusBadge } from "./ContentStatusBadge";

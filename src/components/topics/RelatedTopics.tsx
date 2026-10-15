@@ -2,9 +2,9 @@ import { ArrowRight } from "lucide-react";
 import { PhotoTile } from "@/components/atlas/PhotoTile";
 import Link from "@/components/i18n/Link";
 import { TopicsInvite } from "@/components/topics/TopicsInvite";
-import type { EntrySummary } from "@/features/entries/queries";
-import { format } from "@/features/i18n/messages";
-import { getT } from "@/features/i18n/request";
+import type { EntrySummary } from "@/features/entries/types";
+import { format } from "@/lib/i18n/messages";
+import { getT } from "@/lib/i18n/request";
 import { cn } from "@/lib/cn";
 import { routes } from "@/config/routes";
 

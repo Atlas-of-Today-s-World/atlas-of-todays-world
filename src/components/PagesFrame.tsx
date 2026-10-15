@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 import { FloatingActions } from "@/components/membership/FloatingActions";
 import { PagesShell } from "@/components/PagesShell";
-import { MaintenanceGate } from "@/features/flags/components/MaintenanceGate";
+import { MaintenanceGate } from "@/components/MaintenanceGate";
 import { getFlags } from "@/features/flags/queries";
-import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
 
 /**
  * Layout body of the light pages outside the map: the (pages) group (About,

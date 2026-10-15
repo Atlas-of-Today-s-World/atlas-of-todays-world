@@ -1,6 +1,6 @@
 import "server-only";
-import type { Locale } from "@/features/i18n/config";
-import { getMessagesFor } from "@/features/i18n/request";
+import type { Locale } from "@/lib/i18n/config";
+import { getMessagesFor } from "@/lib/i18n/request";
 import { categoryLabel } from "@/lib/content-types";
 
 /**

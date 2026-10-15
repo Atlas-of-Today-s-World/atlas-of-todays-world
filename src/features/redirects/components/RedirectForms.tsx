@@ -5,7 +5,7 @@ import { SubmitButton } from "@/components/admin/SubmitButton";
 import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { Checkbox, FormField, Input } from "@/components/ui/field";
 import { addRedirect, updateRedirect } from "../actions";
-import type { RedirectRow } from "../editorial";
+import type { RedirectRow } from "@/features/redirects/types";
 
 /**
  * A redirect from an old path to a new one (both on this site): a new one, or

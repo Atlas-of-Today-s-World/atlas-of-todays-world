@@ -1,9 +1,6 @@
 import "server-only";
-import {
-  getEncyclopediaEntries,
-  getTopicPlaces,
-  type EntrySummary,
-} from "@/features/entries/queries";
+import { getEncyclopediaEntries, getTopicPlaces } from "@/features/entries/queries";
+import type { EntrySummary } from "@/features/entries/types";
 import type { PlaceKind } from "@/features/geography/kinds";
 import type { Atlas } from "@/features/geography/types";
 import { countTopics, type TopicCounts } from "./map-counts";

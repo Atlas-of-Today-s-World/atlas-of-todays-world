@@ -4,19 +4,7 @@ import { clampFeaturedCount } from "@/features/home/config";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import { must } from "@/lib/db/result";
 import { createPublicClient } from "@/lib/supabase/public";
-
-/** A subtopic as a tile: its topic, title, photo (or colour) and anchor on the topic page. */
-export interface SubtopicTile {
-  id: string;
-  topicSlug: string;
-  topicTitle: string;
-  title: string;
-  image?: string;
-  background?: string;
-  /** `topic-2` — the subtopic's place on its topic page. */
-  anchor: string;
-  createdAt: string;
-}
+import type { SubtopicTile } from "./types";
 
 interface Row {
   slug: string;

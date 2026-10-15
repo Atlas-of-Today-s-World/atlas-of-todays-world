@@ -12,8 +12,8 @@ import {
   invalid,
   NOT_SIGNED_IN,
   signedIn,
-  type ActionState,
 } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 import { tags } from "@/lib/cache/tags";
 import { SettingsInput, SocialId, SocialInput } from "./schema";
 

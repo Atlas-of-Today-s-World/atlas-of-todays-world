@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { PRIVATE_PATHS, routes } from "@/config/routes";
-import { LOCALES, localePath } from "@/features/i18n/config";
+import { LOCALES, localePath } from "@/lib/i18n/config";
 import { absoluteUrl } from "./index";
 
 /**

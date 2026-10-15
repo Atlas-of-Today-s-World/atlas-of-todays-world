@@ -3,7 +3,7 @@
 import { useState, useTransition, type ReactNode } from "react";
 import { Button, type ButtonVariants } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
-import type { ActionState } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 
 /**
  * Button for an irreversible or sensitive action (delete, unpublish…):

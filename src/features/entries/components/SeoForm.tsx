@@ -7,7 +7,7 @@ import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { Checkbox, FormField, Input, Textarea, describedBy } from "@/components/ui/field";
 import { saveEntrySeo } from "../parts-actions";
 import { GEO_SUMMARY_MAX, SEO_DESCRIPTION_MAX, SEO_TITLE_MAX } from "../constants";
-import type { EditableSeo } from "../editorial";
+import type { EditableSeo } from "@/features/entries/types";
 import { UploadField } from "@/components/admin/UploadField";
 
 /** Characters used / allowed; turns amber close to the limit search engines show. */

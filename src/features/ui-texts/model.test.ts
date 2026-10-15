@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyOverrides, getMessages } from "@/features/i18n/messages";
+import { applyOverrides, getMessages } from "@/lib/i18n/messages";
 import en from "@/messages/en.json";
 import {
   EDITABLE_TEXTS,

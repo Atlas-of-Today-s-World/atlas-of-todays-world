@@ -5,10 +5,10 @@ import { NewsArticle } from "@/features/topics/components/NewsArticle";
 import { getPreview } from "@/features/entries/preview-queries";
 import { getFlags } from "@/features/flags/queries";
 import { getAtlas } from "@/features/geography/queries";
-import { format } from "@/features/i18n/messages";
-import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import { format } from "@/lib/i18n/messages";
+import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
 import { DATE_INTL } from "@/lib/format";
-import { privateMetadata } from "@/lib/seo/metadata";
+import { privateMetadata } from "@/features/seo/metadata";
 
 // Preview of an unpublished article via a shared link (G2): always fresh, never indexed.
 export const dynamic = "force-dynamic";

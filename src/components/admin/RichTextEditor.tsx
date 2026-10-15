@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { useId, useState } from "react";
 import { cn } from "@/lib/cn";
-import { uploadImage } from "@/lib/upload";
+import { uploadImage } from "@/features/uploads/upload";
 import { ACCEPT_IMAGES } from "@/lib/upload-rules";
 
 /**

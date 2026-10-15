@@ -4,15 +4,8 @@ import "server-only";
 import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import {
-  failed,
-  formObject,
-  invalid,
-  NOT_SIGNED_IN,
-  signedIn,
-  type ActionState,
-  listItemError,
-} from "@/lib/actions";
+import { failed, formObject, invalid, NOT_SIGNED_IN, signedIn, listItemError } from "@/lib/actions";
+import type { ActionState } from "@/lib/action-state";
 import { tags } from "@/lib/cache/tags";
 import { notifyIndexNow } from "@/lib/seo/indexnow";
 import { previewNote, storePreviewImages } from "@/lib/previews/store";

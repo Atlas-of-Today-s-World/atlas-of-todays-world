@@ -1,33 +1,23 @@
 import "server-only";
 import { createServerClient } from "@/lib/supabase/server";
-import type { ArticleKind } from "@/lib/content-types";
 import type { EntryStatus } from "./constants";
 import { ilikeAny } from "@/lib/db/filters";
 import { must, rowsOf } from "@/lib/db/result";
 import { TILE_COLUMNS } from "./rows";
+import type {
+  EditableChapter,
+  EditableEntry,
+  EditableLink,
+  EditableSeo,
+  EditableTile,
+  EditorialRow,
+  TemplateSummary,
+} from "./types";
 
 /**
  * Reads for editors — under the user's session, so RLS shows only what the
  * role can reach (own drafts, approval queue…). No cache.
  */
-
-export interface EditorialRow {
-  id: string;
-  slug: string;
-  kind: ArticleKind;
-  title: string;
-  status: EntryStatus;
-  category: string;
-  region_slug: string | null;
-  owner_id: string | null;
-  author_name: string | null;
-  updated_at: string;
-  review_note: string | null;
-  publish_at: string | null;
-  /** Text language; a translation also has `translation_of` (G5.3). */
-  locale: string;
-  translation_of: string | null;
-}
 
 const LIST_COLUMNS =
   "id, slug, kind, title, status, category, region_slug, owner_id, author_name, updated_at, review_note, publish_at, locale, translation_of";
@@ -54,21 +44,6 @@ export async function listEntries({
   return must(await query, "entries") as EditorialRow[];
 }
 
-export interface EditableEntry extends EditorialRow {
-  summary: string;
-  special_slug: string | null;
-  cover_url: string | null;
-  cover_credit: string | null;
-  reading_minutes: number | null;
-  body_html: string;
-  published_on: string | null;
-  countries: string[];
-  summary_points: string[];
-  author_id: string | null;
-  map_layers: string[];
-  hero_background: string | null;
-}
-
 export async function getEditableEntry(id: string): Promise<EditableEntry | null> {
   const supabase = await createServerClient();
   const result = await supabase
@@ -89,23 +64,6 @@ export async function getEditableEntry(id: string): Promise<EditableEntry | null
   };
 }
 
-/** A chapter in the editor (order = position). */
-export interface EditableChapter {
-  /** Kept across saves, so the subtopic keeps who created it and when. */
-  id?: string;
-  title: string;
-  summary_points: string[];
-  body_html: string;
-  illustration_url: string | null;
-  illustration_credit: string | null;
-  audio_url: string | null;
-  tile_background: string | null;
-  created_at?: string;
-  created_by?: string | null;
-  updated_at?: string;
-  updated_by?: string | null;
-}
-
 /** "Who and when" of a topic and its subtopics, with the editors' names. */
 interface EditStamps {
   created_at: string;
@@ -113,28 +71,6 @@ interface EditStamps {
   updated_at: string;
   updated_by: string | null;
   names: Record<string, string>;
-}
-
-/** A "Learn more" tile of a topic or a template in the admin. */
-export interface EditableTile {
-  id: string;
-  slug: string;
-  label: string;
-  description: string;
-  icon: string;
-  image_url: string | null;
-  image_credit: string | null;
-  background: string | null;
-}
-
-export interface TemplateSummary {
-  id: string;
-  name: string;
-  description: string;
-  is_default: boolean;
-  articles_label: string;
-  learn_more_label: string;
-  tiles: EditableTile[];
 }
 
 /** Topic templates with their tiles, the default first. */
@@ -161,24 +97,6 @@ export async function listTemplates(): Promise<TemplateSummary[]> {
 
 export async function getTemplate(id: string): Promise<TemplateSummary | null> {
   return (await listTemplates()).find((template) => template.id === id) ?? null;
-}
-
-/** A link of a tile in the editor; text fields, null as an empty string. */
-export interface EditableLink {
-  title: string;
-  source: string;
-  description: string;
-  url: string;
-  image_url: string;
-}
-
-export interface EditableSeo {
-  seo_title: string;
-  seo_description: string;
-  og_image_url: string;
-  seo_keywords: string[];
-  geo_summary: string;
-  noindex: boolean;
 }
 
 /** Everything of a dossier below the article form: topics, learn more, FAQ, SEO & GEO. */
