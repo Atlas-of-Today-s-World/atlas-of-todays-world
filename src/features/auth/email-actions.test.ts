@@ -11,7 +11,7 @@ vi.mock("@/lib/security/rate-limit", () => ({ allowRequest, allowEmail }));
 vi.mock("@/lib/supabase/server", () => ({
   createServerClient: async () => ({ auth: { verifyOtp } }),
 }));
-vi.mock("./sign-in", () => ({ signInDestination: async () => "/ucet" }));
+vi.mock("./sign-in", () => ({ signInDestination: async () => "/account" }));
 
 const { verifyEmailCode } = await import("./email-actions");
 

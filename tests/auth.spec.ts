@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import {
   cleanUp,
   createUser,
@@ -13,16 +13,37 @@ import {
 requireDevAccounts();
 test.afterAll(cleanUp);
 
+/** Opens the header's account menu (desktop) and waits until it has loaded. */
+async function openAccountMenu(page: Page) {
+  await page.getByRole("button", { name: "Sign in or open your account" }).click();
+  const menu = page.getByRole("menu");
+  await expect(menu).toBeVisible();
+  await expect(menu.getByText("Loading…")).toHaveCount(0);
+  return menu;
+}
+
 test.describe("accounts and invitations", () => {
   test("reader signs in but may not enter the admin", async ({ page }) => {
     const email = testEmail("reader");
     await createUser(email);
     await signIn(page, email);
 
-    await expect(page).toHaveURL(/\/ucet$/);
-    await expect(page.getByRole("heading", { name: "Your account" })).toBeVisible();
+    await expect(page).toHaveURL(/\/account$/);
+    await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
     await expect(page.getByRole("definition").filter({ hasText: email })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Open the administration" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Download my data" })).toBeVisible();
+    // Deleting is collapsed until opened.
+    await expect(page.getByRole("button", { name: "Delete my account" })).toBeHidden();
+
+    // The header's account menu: e-mail, Account settings, Sign out — no admin.
+    await page.goto("/about");
+    const menu = await openAccountMenu(page);
+    await expect(menu.getByText(email)).toBeVisible();
+    await expect(menu.getByRole("menuitem", { name: "Account settings" })).toBeVisible();
+    await expect(menu.getByRole("menuitem", { name: "Sign out" })).toBeVisible();
+    await expect(menu.getByRole("menuitem", { name: "Open the administration" })).toHaveCount(0);
+    await menu.getByRole("menuitem", { name: "Account settings" }).click();
+    await expect(page).toHaveURL(/\/account$/);
 
     await page.goto("/admin");
     await expect(page.getByTestId("admin-forbidden")).toBeVisible();
@@ -53,6 +74,24 @@ test.describe("accounts and invitations", () => {
       .eq("email", email)
       .single();
     expect(invitation?.accepted_at).not.toBeNull();
+
+    // The header's account menu offers the admin and My account (admin).
+    await page.goto("/about");
+    const menu = await openAccountMenu(page);
+    await expect(menu.getByText("Article writer")).toBeVisible();
+    await expect(menu.getByRole("menuitem", { name: "Open the administration" })).toBeVisible();
+    await menu.getByRole("menuitem", { name: "My account" }).click();
+    await expect(page).toHaveURL(/\/admin\/account$/);
+    await expect(page.getByRole("heading", { name: "My account" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Download my data" })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "My account" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+
+    // The reader's settings page sends the team to the admin's.
+    await page.goto("/account");
+    await expect(page).toHaveURL(/\/admin\/account$/);
   });
 
   test("invitation for a different e-mail cannot be accepted", async ({ page }) => {
@@ -62,7 +101,7 @@ test.describe("accounts and invitations", () => {
     await createUser(intruder);
     await signIn(page, intruder);
 
-    await expect(page).toHaveURL(/\/ucet$/);
+    await expect(page).toHaveURL(/\/account$/);
     await page.goto("/admin");
     await expect(page.getByTestId("admin-forbidden")).toBeVisible();
 
@@ -78,19 +117,24 @@ test.describe("accounts and invitations", () => {
     const email = testEmail("signout");
     await createUser(email);
     await signIn(page, email);
-    await expect(page).toHaveURL(/\/ucet$/);
+    await expect(page).toHaveURL(/\/account$/);
 
-    await page.getByRole("button", { name: "Sign out" }).click();
+    const menu = await openAccountMenu(page);
+    await menu.getByRole("menuitem", { name: "Sign out" }).click();
     await expect(page).toHaveURL(/\/$/);
-    await page.goto("/ucet");
-    await expect(page).toHaveURL(/\/login\?next=%2Fucet/);
+    // Signed out, the menu offers only signing in.
+    await expect(
+      (await openAccountMenu(page)).getByRole("menuitem", { name: "Sign in" }),
+    ).toBeVisible();
+    await page.goto("/account");
+    await expect(page).toHaveURL(/\/login\?next=%2Faccount/);
   });
 
   test("session cookies are httpOnly — page scripts never see the session", async ({ page }) => {
     const email = testEmail("httponly");
     await createUser(email);
     await signIn(page, email);
-    await expect(page).toHaveURL(/\/ucet$/);
+    await expect(page).toHaveURL(/\/account$/);
 
     const session = (await page.context().cookies()).filter((c) =>
       /^sb-.+-auth-token/.test(c.name),

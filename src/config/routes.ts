@@ -55,10 +55,16 @@ export const routes = {
   login: "/login",
   /** The page an e-mail link leads to; its button posts the token to /auth/confirm. */
   loginConfirm: "/login/confirm",
-  /** The reader's account page. */
-  account: "/ucet",
+  /**
+   * A reader's account settings (download or delete own data), reached from
+   * the header's account menu. The team has the same in the admin
+   * (`adminRoutes.account`); this page sends them there.
+   */
+  account: "/account",
   /** Accepting an invitation to the team. */
-  invitation: "/pozvanka",
+  invitation: "/invite",
+  /** Sign-out (unlocalized; a POST from our own site only). */
+  signOut: "/auth/signout",
   /** Administration (unlocalized; its pages are in `adminRoutes`). */
   admin: ADMIN,
 
@@ -80,6 +86,14 @@ export const routes = {
     kind === "entry" ? `${P.topics}/${slug}` : `${P.news}/${slug}`,
   /** Search results for a query; Enter in the search over the map goes there. */
   searchFor: (query: string) => `${SEARCH}?q=${encodeURIComponent(query)}`,
+} as const;
+
+/** Our own JSON endpoints the browser reads (unlocalized; `apiFetch` or a plain link). */
+export const apiRoutes = {
+  /** Who is signed in, for the header's account menu (never cached). */
+  me: "/api/me",
+  /** Download of one's own data (GDPR Art. 15 and 20). */
+  accountExport: "/api/account/export",
 } as const;
 
 /** Anchor of the volunteer editors section on the membership page. */
@@ -172,6 +186,8 @@ export const adminRoutes = {
   roles: `${ADMIN}/roles`,
   audit: `${ADMIN}/roles/audit`,
   members: `${ADMIN}/members`,
+  /** The signed-in team member's own account: profile, data download, deletion. */
+  account: `${ADMIN}/account`,
   /** Patron settings (the membership page's texts and FAQ). */
   patrons: `${ADMIN}/patrons`,
   /** Questions of the membership FAQ by id. */

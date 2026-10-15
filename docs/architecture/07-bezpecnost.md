@@ -50,8 +50,8 @@ object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; 
 ```
 
 CSP skládá `buildCsp()` v `lib/security/csp.ts`; proxy ji posílá s každou odpovědí. Stránky renderované
-na každý požadavek, které drží session (`NONCE_PATHS` v `proxy.ts`: `/admin`, `/auth`, `/login`, `/ucet`,
-`/pozvanka`, `/membership/checkout`), dostanou při každém požadavku nový nonce: proxy ho pošle v hlavičce
+na každý požadavek, které drží session (`NONCE_PATHS` v `proxy.ts`: `/admin`, `/auth`, `/login`, `/account`,
+`/invite`, `/membership/checkout`), dostanou při každém požadavku nový nonce: proxy ho pošle v hlavičce
 odpovědi i v předané hlavičce požadavku, odkud ho Next dá na své skripty; jediný vlastní inline skript
 (`PrePaintScript`) projde podle hashe (`lib/pre-paint.ts`, test hlídá shodu). Taková stránka musí být
 dynamická (`force-dynamic`) — statická by nonce neměla a nespustila by se. Veřejné statické/ISR stránky

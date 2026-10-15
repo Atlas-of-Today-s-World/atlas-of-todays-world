@@ -33,6 +33,30 @@ export const AlignEnd: Story = {
   args: { align: "end" },
   decorators: [(Story) => <div className="flex justify-end">{Story()}</div>],
 };
+/** An actions menu (the header's account menu): ↑/↓, Home/End, Tab and Esc close it. */
+export const Menu: Story = {
+  args: {
+    role: "menu",
+    label: "Account",
+    align: "end",
+    children: (
+      <div role="none" className="grid gap-0.5">
+        {["Open the administration", "My account", "Sign out"].map((item) => (
+          <button
+            key={item}
+            type="button"
+            role="menuitem"
+            tabIndex={-1}
+            className="min-h-(--touch-min) rounded-lg px-3 text-left hover:bg-[var(--color-line)]/50 focus-visible:bg-[var(--color-accent-soft)] focus-visible:outline-none"
+          >
+            {item}
+          </button>
+        ))}
+      </div>
+    ),
+  },
+  decorators: [(Story) => <div className="flex justify-end">{Story()}</div>],
+};
 export const IndeterminateCheckbox: Story = {
   args: {
     children: (

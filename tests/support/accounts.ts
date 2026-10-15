@@ -66,7 +66,7 @@ export async function invite(email: string, roleId: string) {
  * Sign-in via a one-time link → /auth/confirm (same path as the e-mail), then
  * the "continue" button of the confirmation page, as a person would.
  */
-export async function signIn(page: Page, email: string, next = "/ucet") {
+export async function signIn(page: Page, email: string, next = "/account") {
   const { data, error } = await service.auth.admin.generateLink({ type: "magiclink", email });
   if (error) throw error;
   const params = new URLSearchParams({

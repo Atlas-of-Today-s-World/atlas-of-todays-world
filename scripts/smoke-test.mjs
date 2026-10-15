@@ -308,6 +308,25 @@ async function main() {
     assert(/noindex/.test(body), "missing noindex");
   });
 
+  await check("old Czech account URLs redirect to English, query kept", async () => {
+    for (const [old, now] of [
+      ["/ucet", "/account"],
+      ["/pozvanka?ref=mail", "/invite?ref=mail"],
+    ]) {
+      const { status, headers } = await get(old);
+      assert(status === 308, `${old} returned ${status}`);
+      const location = new URL(headers.get("location") ?? "", BASE);
+      assert(`${location.pathname}${location.search}` === now, `${old} → ${location}`);
+    }
+  });
+
+  await check("account menu endpoint answers signed out, never cached", async () => {
+    const { status, headers, body } = await get("/api/me");
+    assert(status === 200, `/api/me returned ${status}`);
+    assert(/no-store/.test(headers.get("cache-control") ?? ""), "/api/me may be cached");
+    assert(JSON.parse(body).signedIn === false, `unexpected answer ${body}`);
+  });
+
   // Production build = CI or a deployed site (not a local `next dev`).
   const production = Boolean(process.env.CI) || !BASE.startsWith("http://localhost");
 

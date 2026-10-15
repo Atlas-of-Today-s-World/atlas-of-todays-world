@@ -8,7 +8,7 @@ import GoogleSignIn from "../login/GoogleSignIn";
 // Rendered per request: the proxy sends it a nonce CSP (ADR-025), which a static page couldn't carry.
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }: PageProps<"/[locale]/pozvanka">) {
+export async function generateMetadata({ params }: PageProps<"/[locale]/invite">) {
   return privateMetadata((await getMessagesFor(await localeFrom(params))).invite.title);
 }
 
@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/pozvanka
  * The page an invitation link leads to. It carries no secret — the role is
  * assigned by the verified e-mail at sign-in (ARCHITEKTURA 7.3).
  */
-export default async function InvitationPage({ params }: PageProps<"/[locale]/pozvanka">) {
+export default async function InvitationPage({ params }: PageProps<"/[locale]/invite">) {
   const t = (await getMessagesFor(await localeFrom(params))).invite;
   return (
     <main className="mx-auto max-w-md">

@@ -5,7 +5,7 @@ import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
 import { optionStats } from "@/components/data-table/stats";
 import { navIcon } from "@/config/admin-nav";
-import { adminRoutes } from "@/config/routes";
+import { adminRoutes, routes } from "@/config/routes";
 import { listRoles } from "@/features/roles/editorial";
 import { can, sectionAccess } from "@/features/auth/access";
 import { getPickerOptions } from "@/features/geography/queries";
@@ -57,7 +57,11 @@ export default async function InvitationsPage() {
             <strong>the same email</strong> and gets the role from the invitation. Invitations are
             valid for {INVITATION_DAYS} days; resending or extending one makes it valid for{" "}
             {INVITATION_DAYS} days from then. Until Atlas emails are enabled, send them the link{" "}
-            <code className="text-[13px]">{SITE_URL}/pozvanka</code> yourself.
+            <code className="text-[13px]">
+              {SITE_URL}
+              {routes.invitation}
+            </code>{" "}
+            yourself.
           </>
         }
       />

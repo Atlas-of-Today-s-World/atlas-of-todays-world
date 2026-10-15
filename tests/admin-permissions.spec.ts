@@ -152,7 +152,8 @@ test.describe("menu administrace", () => {
     }) => {
       await signInAs(page, role as (typeof ROLES)[number]);
       const menu = page.getByRole("navigation", { name: "Administration" });
-      await expect(menu.getByRole("link")).toHaveText(items);
+      // Every team member also has their own account, last in the menu.
+      await expect(menu.getByRole("link")).toHaveText([...items, "My account"]);
     });
   }
 

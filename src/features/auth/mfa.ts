@@ -1,5 +1,12 @@
 import "server-only";
-import { createServerClient } from "@/lib/supabase/server";
+import { createServerClient, type ServerClient } from "@/lib/supabase/server";
+
+/** Does the user's role require a second factor this session hasn't given yet? (DB function mfa_status, E10) */
+async function secondFactorMissing(supabase: ServerClient): Promise<boolean> {
+  const { data } = await supabase.rpc("mfa_status");
+  const status = data as { required: boolean; aal: string } | null;
+  return Boolean(status?.required) && status?.aal !== "aal2";
+}
 
 /**
  * Does the user need a second factor, and do they have it in this session? (DB
@@ -7,9 +14,15 @@ import { createServerClient } from "@/lib/supabase/server";
  */
 export async function mfaGate(): Promise<null | { hasFactor: boolean }> {
   const supabase = await createServerClient();
-  const { data } = await supabase.rpc("mfa_status");
-  const status = data as { required: boolean; aal: string } | null;
-  if (!status?.required || status.aal === "aal2") return null;
+  if (!(await secondFactorMissing(supabase))) return null;
   const { data: factors } = await supabase.auth.mfa.listFactors();
   return { hasFactor: Boolean(factors?.totp.some((factor) => factor.status === "verified")) };
+}
+
+/**
+ * A team role still waiting for its second factor: no permissions yet, but the
+ * admin is where they give it (the admin layout shows the MFA step).
+ */
+export async function awaitsSecondFactor(): Promise<boolean> {
+  return secondFactorMissing(await createServerClient());
 }

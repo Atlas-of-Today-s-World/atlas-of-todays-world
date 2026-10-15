@@ -37,8 +37,8 @@ describe("proxy: X-Robots-Tag", () => {
       "/auth/callback",
       "/login",
       "/login/confirm",
-      "/ucet",
-      "/pozvanka",
+      "/account",
+      "/invite",
       "/preview/news/x",
     ]) {
       expect(await robots(path), path).toBe("noindex, nofollow");
@@ -60,7 +60,7 @@ describe("proxy: script policy", () => {
       .find((part) => part.startsWith("script-src ")) ?? "";
 
   it("dynamic pages with a session get a fresh nonce, also handed to Next in the request", async () => {
-    for (const path of ["/login", "/login/confirm", "/pozvanka", "/membership/checkout"]) {
+    for (const path of ["/login", "/login/confirm", "/invite", "/membership/checkout"]) {
       const response = await proxy(new NextRequest(`https://atlas.example${path}`));
       expect(scripts(response)).toMatch(/'nonce-[A-Za-z0-9+/=]+' 'strict-dynamic'/);
       expect(scripts(response)).not.toContain("'unsafe-inline'");
