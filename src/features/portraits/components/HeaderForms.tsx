@@ -126,7 +126,7 @@ function ContentStatusField({ value, errors }: { value: string; errors: Errors }
   );
 }
 
-/** Portrait header (photo, intro, timeline heading) — shared by region and issue. */
+/** Portrait header (photo, intro) — shared by region and issue. The timeline has its own editor. */
 function PortraitHead({
   values,
   errors,
@@ -136,8 +136,6 @@ function PortraitHead({
     intro: string;
     hero_url: string | null;
     hero_credit: string;
-    timeline_title: string | null;
-    timeline_subtitle: string | null;
   };
   errors: Errors;
 }) {
@@ -171,25 +169,6 @@ function PortraitHead({
           defaultValue={values.hero_credit}
         />
       </FormField>
-      <div className="grid gap-5 sm:grid-cols-2">
-        <FormField id="timeline_title" label="Timeline heading" errors={errors.timeline_title}>
-          <Input
-            id="timeline_title"
-            name="timeline_title"
-            maxLength={120}
-            defaultValue={values.timeline_title ?? ""}
-            placeholder="How the present came about"
-          />
-        </FormField>
-        <FormField id="timeline_subtitle" label="Subheading" errors={errors.timeline_subtitle}>
-          <Input
-            id="timeline_subtitle"
-            name="timeline_subtitle"
-            maxLength={300}
-            defaultValue={values.timeline_subtitle ?? ""}
-          />
-        </FormField>
-      </div>
     </>
   );
 }
@@ -210,8 +189,6 @@ export function RegionForm({
     center_lon: number;
     center_lat: number;
     zoom: number;
-    timeline_title: string | null;
-    timeline_subtitle: string | null;
     content_status: string;
   };
 }) {
@@ -259,8 +236,6 @@ export interface IssueValues {
   center_lon: number;
   center_lat: number;
   zoom: number;
-  timeline_title: string | null;
-  timeline_subtitle: string | null;
   content_status: ContentStatus;
   countries: string[];
 }
@@ -295,8 +270,6 @@ export function IssueForm({
     center_lon: 20,
     center_lat: 30,
     zoom: 2.6,
-    timeline_title: null,
-    timeline_subtitle: null,
     content_status: "none",
     countries: [],
   };

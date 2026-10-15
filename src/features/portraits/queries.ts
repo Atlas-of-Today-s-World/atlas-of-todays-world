@@ -5,6 +5,7 @@ import type { RegionDossier } from "@/lib/content-types";
 import { must } from "@/lib/db/result";
 import { createPublicClient } from "@/lib/supabase/public";
 import type { PortraitPlace } from "@/features/geography/kinds";
+import { toSources } from "@/features/timelines/rows";
 
 /**
  * Editorial content of a region or global issue portrait — in a single call to the
@@ -33,6 +34,12 @@ export function getPortrait(kind: PortraitPlace, slug: string): Promise<RegionDo
         ...dossier,
         timelineTitle: dossier.timelineTitle ?? undefined,
         timelineSubtitle: dossier.timelineSubtitle ?? undefined,
+        // Events from before rich text have an empty `html`: the page shows their plain text.
+        timeline: (dossier.timeline ?? []).map((item) => ({
+          ...item,
+          html: item.html || undefined,
+          sources: toSources(item.sources),
+        })),
         // A card without a citation isn't published (P1); the DB enforces it, this is a safety net.
         metrics: (dossier.metrics ?? []).filter((metric) => metric.source?.trim()),
       };

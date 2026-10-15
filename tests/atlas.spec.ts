@@ -128,8 +128,9 @@ test.describe("region portrait", () => {
     await page.goto("/region/middle-east-north-africa");
 
     await expect(page.getByRole("heading", { name: "Topics", exact: true })).toBeVisible();
-    // No regional averages (decision of 2026-10-07): national data live on each country.
-    await expect(page.getByRole("heading", { name: "Key indicators" })).toHaveCount(0);
+    // No computed regional averages (decision of 2026-10-07): national data live on each
+    // country. The editors' sourced key-fact cards may show; computed figures never.
+    await expect(page.getByText(/Population-weighted across the countries/)).toHaveCount(0);
     await expect(page.getByText("A Comprehensive Portrait")).toHaveCount(0);
     await expect(page.getByText(/news items? published/)).toHaveCount(0);
   });

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { ComingSections, FaqList, PatronsCallout, PortraitSection, Timeline } from "./sections";
+import { ComingSections, FaqList, PatronsCallout, PortraitSection } from "./sections";
+import { Timeline } from "./Timeline";
 
 const meta = {
   title: "portrait/Sections",
@@ -36,7 +37,15 @@ export const TimelineRail: Story = {
   render: () => (
     <Timeline
       items={[
-        { date: "1991", title: "Independence", text: "The country declares independence." },
+        {
+          date: "1991",
+          title: "Independence",
+          text: "The country declares independence.",
+          html: "<p>The country <strong>declares independence</strong>; a referendum confirms it.</p>",
+          sources: [
+            { title: "Britannica – Ukraine", url: "https://www.britannica.com/place/Ukraine" },
+          ],
+        },
         { date: "2014", title: "Annexation of Crimea", text: "Russia annexes the peninsula." },
         { date: "2022", title: "Full-scale invasion", text: "Russia invades on 24 February." },
       ]}

@@ -4,7 +4,7 @@ import { cssBackgroundImage } from "@/lib/security/urls";
 import { PHOTO_WIDTH } from "@/lib/images";
 import { format } from "@/lib/i18n/messages";
 import { getT } from "@/lib/i18n/request";
-import { PatronsCallout, type PlannedEntry } from "./sections";
+import { IndicatorCards, PatronsCallout, type PlannedEntry } from "./sections";
 import { ProfileSections, profileComplete } from "./Portrait";
 import { routes } from "@/config/routes";
 
@@ -13,8 +13,9 @@ import { routes } from "@/config/routes";
  * the editors write per region, so a reader of Turkey sees the Middle East's
  * story, topics and sources without a click to the region. Set apart by a
  * dark header with the region's photo and a paper-grey background, so it's
- * clear where the country ends and the region begins. No regional figures —
- * the country's own data are above.
+ * clear where the country ends and the region begins. No computed regional
+ * figures — the country's own data are above; the region's key facts (the
+ * editors' sourced cards) are part of its story.
  */
 export async function RegionalProfile({
   country,
@@ -62,6 +63,8 @@ export async function RegionalProfile({
       <p className="px-6 py-6 text-[13.5px] leading-relaxed whitespace-pre-line text-[var(--color-ink-soft)] sm:px-10">
         {dossier.intro?.trim() || region.summary}
       </p>
+
+      <IndicatorCards metrics={dossier.metrics} />
 
       <ProfileSections kind="region" name={region.name} dossier={dossier} entries={entries} />
       <PatronsCallout complete={profileComplete(dossier)} />

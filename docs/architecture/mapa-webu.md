@@ -96,6 +96,8 @@ erDiagram
 
   regions ||--o{ timeline_events : "Timeline"
   special_regions ||--o{ timeline_events : "Timeline"
+  countries ||--o{ timeline_events : "Timeline"
+  entries ||--o{ timeline_events : "Timeline (téma)"
   regions ||--o{ visual_embeds : "Maps & infographics"
   special_regions ||--o{ visual_embeds : "Maps & infographics"
   regions ||--o{ faq_items : "FAQ"
@@ -154,8 +156,8 @@ s výzvou k podpoře (ne skryté).
 
 | Sekce | Tabulka | Vazba |
 |---|---|---|
-| Key indicators | `portrait_metrics` (+ ukazatele zemí) | `region_slug` / `special_slug` |
-| Timeline | `timeline_events` | `region_slug` / `special_slug` |
+| Key indicators | `portrait_metrics` (karty se zdrojem; u regionu jen ony, žádné dopočtené průměry) | `region_slug` / `special_slug` |
+| Timeline | `timeline_events` (rich text + zdroje; nadpis `timeline_title` / `timeline_subtitle` u vlastníka) | právě jeden z `region_slug` / `special_slug` / `country_iso3` / `entry_id` |
 | Témata po kategoriích | `entries` | viz 2.2 (včetně `planned`) |
 | Maps & infographics | `visual_embeds` | `region_slug` / `special_slug`; jen povolení poskytovatelé iframe |
 | News | `entries` (`kind = 'news'`) | země / region |
@@ -163,8 +165,12 @@ s výzvou k podpoře (ne skryté).
 | FAQ | `faq_items` | `region_slug` / `special_slug` |
 | Země | `countries` / `special_region_countries` | — |
 
-Timeline a infografiky dnes patří **k portrétu** (regionu / globálnímu tématu), ne
-k jednotlivému tématu; téma má podtémata, Learn more a FAQ.
+Infografiky patří **k portrétu** (regionu / globálnímu tématu). Timeline má vlastní
+editor (`features/timelines`, uložení `replace_timeline()`) a jednu veřejnou komponentu
+`components/portrait/Timeline` — u regionu (i v regionálním profilu pod zemí), globálního
+tématu, země (nad regionálním profilem) a tématu (po úvodu); země a téma bez událostí
+timeline nezobrazují. Obsah ze starého webu: `scripts/webflow/import-portraits.mjs`
+(workflow *Import portraits*).
 
 ### 2.4 Podpora a komunita
 

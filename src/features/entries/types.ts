@@ -1,5 +1,11 @@
 import type { Locale } from "@/lib/i18n/config";
-import type { ArticleKind, FaqItem, NewsCategory, ResourceItem } from "@/lib/content-types";
+import type {
+  ArticleKind,
+  FaqItem,
+  NewsCategory,
+  ResourceItem,
+  Timeline,
+} from "@/lib/content-types";
 import type { EntryStatus, MapLayer, TileIcon } from "./constants";
 
 /**
@@ -126,6 +132,8 @@ export interface Encyclopedia extends Entry {
   heroBackground?: string;
   faq: FaqItem[];
   seo: EntrySeo;
+  /** The topic's timeline (after its intro); null = no events, nothing shown. */
+  timeline: Timeline | null;
 }
 
 /* Editor shapes (admin, read under the user's session in `editorial.ts`). */

@@ -16,6 +16,8 @@ import { listGroupArticles } from "@/features/entries/editorial";
 import { DeleteIssue } from "@/features/portraits/components/DeleteIssue";
 import { issueForEdit, portraitItems, portraitRights } from "@/features/portraits/editorial";
 import { COLLECTION_NAMES } from "@/features/portraits/schema";
+import { TimelineEditor } from "@/features/timelines/components/TimelineEditor";
+import { timelineForEdit } from "@/features/timelines/editorial";
 import { contentStatus } from "@/features/geography/content-status";
 import { routes } from "@/config/routes";
 
@@ -27,12 +29,13 @@ export default async function IssueEditPage({ params }: PageProps<"/admin/global
   const { slug } = await params;
   const issue = await issueForEdit(slug);
   if (!issue) notFound();
-  const [{ countries }, groups, items, rights, articles] = await Promise.all([
+  const [{ countries }, groups, items, rights, articles, timeline] = await Promise.all([
     getPickerOptions(),
     getCountryGroups(slug),
     portraitItems({ issue: slug }, COLLECTION_NAMES),
     portraitRights(access.permissions, "issue"),
     listGroupArticles(slug),
+    timelineForEdit("issue", slug),
   ]);
   const kind = issue.kind === "region" ? "region" : "issue";
 
@@ -70,6 +73,19 @@ export default async function IssueEditPage({ params }: PageProps<"/admin/global
         />
       </ReadOnly>
       <div className="mt-12 grid max-w-4xl gap-6">
+        <ReadOnly
+          readOnly={!rights.text}
+          reason={
+            "Portrait texts (timeline, FAQ, sources, visuals) are edited by editors with rights to all articles."
+          }
+        >
+          <TimelineEditor
+            kind="issue"
+            ownerKey={slug}
+            initial={timeline}
+            lead="The history behind it as a row of events on its portrait — oldest first."
+          />
+        </ReadOnly>
         {COLLECTION_NAMES.map((collection) => (
           <ReadOnly
             key={collection}

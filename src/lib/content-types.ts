@@ -67,10 +67,28 @@ export function entryCategory(category: string): EntryCategory {
     : "Society";
 }
 
+/** A source an event rests on (https link with its title). */
+export interface TimelineSource {
+  title: string;
+  url: string;
+}
+
+/** One event of a timeline (region, global issue, country or topic). */
 export interface TimelineItem {
   title: string;
   date: string;
+  /** Plain text: the stored text of events from before rich text, else the rich text's words. */
   text: string;
+  /** Rich text (sanitized again on render); empty for events from before it. */
+  html?: string;
+  sources?: TimelineSource[];
+}
+
+/** A whole timeline with its heading (empty title / subtitle = the default heading). */
+export interface Timeline {
+  title?: string;
+  subtitle?: string;
+  items: TimelineItem[];
 }
 
 export interface ResourceItem {

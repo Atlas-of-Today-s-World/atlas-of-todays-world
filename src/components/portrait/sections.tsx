@@ -2,7 +2,7 @@ import Link from "@/components/i18n/Link";
 import type { ReactNode } from "react";
 import { cva } from "class-variance-authority";
 import { kickerVariants } from "@/components/atlas/kicker";
-import { MetricCards, SourceLink, StatGrid, StatIcon, StatItem } from "@/components/atlas/ui";
+import { SourceLink, StatGrid, StatIcon, StatItem } from "@/components/atlas/ui";
 import { Rail } from "@/components/atlas/Rail";
 import { Accordion } from "@/components/atlas/Accordion";
 import { EmptyNote } from "@/components/atlas/Note";
@@ -17,7 +17,6 @@ import {
   type FaqItem,
   type MetricCard,
   type ResourceItem,
-  type TimelineItem,
 } from "@/lib/content-types";
 import { safeUrl } from "@/lib/security/urls";
 import { datawrapperChartUrl } from "@/lib/embeds";
@@ -130,22 +129,24 @@ export async function ComingSections({ items }: { items: { title: string; lead: 
 /**
  * Six key indicators with source citations.
  *
- * When the editors entered custom indicators, they take precedence: they measure things
- * that aren't in Our World in Data — ethnic groups, displacement, child poverty.
- * Without them, values computed from imported data are drawn so the portrait isn't empty.
+ * When the editors entered custom indicators (key facts), they take precedence: they
+ * measure things that aren't in Our World in Data — ethnic groups, displacement, child
+ * poverty — and are drawn as cards like on the original site. Without them, values
+ * computed from imported data are drawn so the portrait isn't empty — only where the
+ * caller passes them (a global issue; a region never shows computed averages).
  */
 export async function IndicatorCards({
-  stats,
+  stats = [],
   metrics = [],
 }: {
-  stats: RegionStat[];
+  stats?: RegionStat[];
   metrics?: MetricCard[];
 }) {
   const t = await getT();
   if (metrics.length) {
     return (
       <PortraitSection title={t.portrait.keyIndicators} lead={t.portrait.keyIndicatorsManual}>
-        <MetricCards metrics={metrics} className="mt-5" />
+        <KeyFactCards metrics={metrics} />
       </PortraitSection>
     );
   }
@@ -175,52 +176,41 @@ export async function IndicatorCards({
   );
 }
 
-/** Horizontal timeline. */
-export async function Timeline({
-  items,
-  title,
-  subtitle,
-}: {
-  items: TimelineItem[];
-  title?: string;
-  subtitle?: string;
-}) {
+/**
+ * Editorial key facts as cards, like the original site's number cards: the big
+ * value, what it counts, the sentence explaining it and "Source: …" (a card
+ * without a source is never published). One <dl> per card keeps name and value
+ * together for screen readers, like StatItem.
+ */
+async function KeyFactCards({ metrics }: { metrics: MetricCard[] }) {
   const t = await getT();
   return (
-    <PortraitSection
-      title={title || t.portrait.timeline}
-      lead={subtitle || t.portrait.timelineLead}
-    >
-      <Rail label={t.portrait.timeline} gap="lg" className="mt-6">
-        {items.map((item) => (
-          <div key={`${item.date}-${item.title}`} className="w-60 shrink-0 snap-start">
-            <h3 className="font-display text-[14px] leading-snug font-bold text-[var(--color-ink)]">
-              {item.title}
-            </h3>
-            <p className="mt-1 text-[11.5px] text-[var(--color-ink-muted)]">{item.date}</p>
-            <div className="my-3 flex items-center">
-              <span className="h-3 w-3 rounded-full bg-[var(--color-accent)]" />
-              <span className="h-px flex-1 bg-[var(--color-line)]" />
-            </div>
-            {item.text ? (
-              // Folded by default: the row of ~20 events stays scannable, each opens on demand.
-              <details className="group">
-                <summary className="flex min-h-(--touch-min) cursor-pointer list-none items-center gap-1 text-[12px] font-medium text-[var(--color-link)] [&::-webkit-details-marker]:hidden">
-                  <span className="group-open:hidden">{t.portrait.timelineMore}</span>
-                  <span className="hidden group-open:inline">{t.portrait.timelineLess}</span>
-                  <span aria-hidden className="transition group-open:rotate-180">
-                    ▾
-                  </span>
-                </summary>
-                <p className="mt-1 text-[12.5px] leading-relaxed text-[var(--color-ink-soft)]">
-                  {item.text}
-                </p>
-              </details>
+    <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+      {metrics.map((metric) => (
+        <li
+          key={`${metric.label}-${metric.value}`}
+          className="rounded-2xl border border-[var(--color-line)] bg-white p-5"
+        >
+          <dl className="flex h-full flex-col">
+            <dt className="order-2 mt-2 text-[14px] leading-snug font-semibold text-[var(--color-ink)]">
+              {metric.label}
+            </dt>
+            <dd className="font-display order-1 text-[34px] leading-none font-bold text-[var(--color-accent)]">
+              {metric.value}
+            </dd>
+            {metric.description ? (
+              <dd className="order-3 mt-2 text-[12.5px] leading-relaxed text-[var(--color-ink-soft)]">
+                {metric.description}
+              </dd>
             ) : null}
-          </div>
-        ))}
-      </Rail>
-    </PortraitSection>
+            <dd className="order-4 mt-auto pt-3 text-[11.5px] text-[var(--color-ink-muted)]">
+              {t.ui.source} <SourceLink href={metric.sourceUrl}>{metric.source}</SourceLink>
+              {metric.year ? `, ${metric.year}` : ""}
+            </dd>
+          </dl>
+        </li>
+      ))}
+    </ul>
   );
 }
 

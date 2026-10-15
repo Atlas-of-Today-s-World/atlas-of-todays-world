@@ -15,8 +15,6 @@ const region = (fields: Record<string, unknown> = {}) =>
     center_lon: "115",
     center_lat: "36",
     zoom: "2.6",
-    timeline_title: "",
-    timeline_subtitle: "",
     ...fields,
   });
 

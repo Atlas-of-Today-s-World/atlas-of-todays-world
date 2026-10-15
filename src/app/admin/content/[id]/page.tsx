@@ -30,6 +30,8 @@ import { COLLECTION_UI } from "@/features/portraits/components/fields";
 import { cn } from "@/lib/cn";
 import { uuid } from "@/lib/validation/common";
 import { adminRoutes, routes } from "@/config/routes";
+import { TimelineEditor } from "@/features/timelines/components/TimelineEditor";
+import { timelineForEdit } from "@/features/timelines/editorial";
 
 export const metadata: Metadata = { title: "Edit article" };
 
@@ -37,6 +39,7 @@ export const metadata: Metadata = { title: "Edit article" };
 const TABS = [
   { key: "article", label: "Article" },
   { key: "topics", label: "Subtopics" },
+  { key: "timeline", label: "Timeline" },
   { key: "learn-more", label: "Learn more" },
   { key: "seo", label: "SEO & GEO" },
 ] as const;
@@ -104,6 +107,7 @@ export default async function EditEntryPage({
   const { saved, tab: tabParam } = await searchParams;
   const tab: Tab =
     isEntry && TABS.some((item) => item.key === tabParam) ? (tabParam as Tab) : "article";
+  const timeline = isEntry && tab === "timeline" ? await timelineForEdit("topic", id) : null;
 
   return (
     <>
@@ -142,6 +146,14 @@ export default async function EditEntryPage({
                   entryId={entry.id}
                   initial={parts.chapters}
                   names={parts.stamps.names}
+                />
+              ) : null}
+              {timeline ? (
+                <TimelineEditor
+                  kind="topic"
+                  ownerKey={entry.id}
+                  initial={timeline}
+                  lead="The topic's history as a row of events right after its introduction — oldest first. Without events nothing is shown."
                 />
               ) : null}
               {parts && tab === "learn-more" ? (

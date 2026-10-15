@@ -12,6 +12,8 @@ import { savePortraitSection } from "@/features/portraits/actions";
 import { CountryForm } from "@/features/portraits/components/HeaderForms";
 import { countryForEdit, portraitItems, portraitRights } from "@/features/portraits/editorial";
 import { adminRoutes, routes } from "@/config/routes";
+import { TimelineEditor } from "@/features/timelines/components/TimelineEditor";
+import { timelineForEdit } from "@/features/timelines/editorial";
 
 export const metadata: Metadata = { title: "Country profile" };
 
@@ -23,10 +25,11 @@ export default async function CountryEditPage({
   const { slug } = await params;
   const country = await countryForEdit(slug);
   if (!country) notFound();
-  const [atlas, items, rights] = await Promise.all([
+  const [atlas, items, rights, timeline] = await Promise.all([
     getAtlas(),
     portraitItems({ country: country.iso3 }, ["metrics"]),
     portraitRights(access.permissions, "country"),
+    timelineForEdit("country", country.iso3),
   ]);
 
   return (
@@ -77,6 +80,19 @@ export default async function CountryEditPage({
             initial={items.metrics ?? []}
           />
         </ReadOnly>
+        <div className="mt-6">
+          <ReadOnly
+            readOnly={!rights.head}
+            reason="The country's timeline is edited by roles allowed to edit regions."
+          >
+            <TimelineEditor
+              kind="country"
+              ownerKey={country.iso3}
+              initial={timeline}
+              lead="The country's own history, shown on its page above its region's profile — oldest first. Without events nothing is shown."
+            />
+          </ReadOnly>
+        </div>
       </div>
     </>
   );

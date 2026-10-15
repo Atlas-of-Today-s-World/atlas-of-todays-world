@@ -436,6 +436,16 @@ body {
   font-style: italic;
 }
 
+/* The same typography at card size: a timeline event's text (portrait/Timeline.tsx). */
+.prose-atlas.prose-compact {
+  font-size: 13px;
+  line-height: 1.625;
+}
+
+.prose-atlas.prose-compact :is(p, ul, ol) {
+  margin-bottom: 0.625rem;
+}
+
 /* Print (ARCHITEKTURA 16): only the panel content at full width, no globe or controls. */
 @media print {
   [data-print="hide"],

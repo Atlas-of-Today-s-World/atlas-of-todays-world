@@ -19,7 +19,6 @@ function ownerFilter(owner: Owner) {
 }
 
 const SELECT: Record<Collection, string> = {
-  timeline: "date_label, title, body, image_url",
   faq: "question, answer",
   resources: "kind, title, source, description, url, image_url",
   visuals: "provider, title, caption, url",
@@ -27,7 +26,6 @@ const SELECT: Record<Collection, string> = {
 };
 
 const TABLE = {
-  timeline: "timeline_events",
   faq: "faq_items",
   resources: "resources",
   visuals: "visual_embeds",
@@ -68,7 +66,7 @@ export async function regionForEdit(slug: string) {
     await supabase
       .from("regions")
       .select(
-        "slug, name, tagline, summary, intro, hero_url, hero_credit, fill, stroke, center_lon, center_lat, zoom, timeline_title, timeline_subtitle, content_status",
+        "slug, name, tagline, summary, intro, hero_url, hero_credit, fill, stroke, center_lon, center_lat, zoom, content_status",
       )
       .eq("slug", slug)
       .maybeSingle(),
@@ -82,7 +80,7 @@ export async function issueForEdit(slug: string) {
     await supabase
       .from("special_regions")
       .select(
-        "slug, kind, name, subtitle, summary, intro, hero_url, hero_credit, fill, stroke, center_lon, center_lat, zoom, timeline_title, timeline_subtitle, content_status, special_region_countries(country_iso3)",
+        "slug, kind, name, subtitle, summary, intro, hero_url, hero_credit, fill, stroke, center_lon, center_lat, zoom, content_status, special_region_countries(country_iso3)",
       )
       .eq("slug", slug)
       .maybeSingle(),
@@ -121,7 +119,8 @@ export async function countryForEdit(slug: string) {
  * What the signed-in user may save in a portrait — the same rules as RLS:
  * header = section regions/specials "e", section texts (timeline, FAQ, sources,
  * visuals) = article editors with scope over all articles, manual cards =
- * regions "e". The page shows the editor accordingly, or just a preview.
+ * regions "e" (groups: specials "e"). A country's timeline follows its
+ * profile (regions "e"), see features/timelines. The page shows the editor accordingly, or just a preview.
  */
 export async function portraitRights(
   permissions: Permissions,
