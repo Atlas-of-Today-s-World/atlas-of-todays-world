@@ -12,7 +12,7 @@ import { routes } from "@/config/routes";
  * "See all 5 topics →" — to the Topics list filtered to this place. A spark
  * runs round its edge (`spark-ring`, globals.css) to draw the eye to it.
  */
-export function TopicsLink({
+export async function TopicsLink({
   count,
   href,
   className,
@@ -21,7 +21,7 @@ export function TopicsLink({
   href: string;
   className?: string;
 }) {
-  const t = getT().topics;
+  const t = (await getT()).topics;
   if (!count) return null;
   return (
     <Link
@@ -42,7 +42,7 @@ export function TopicsLink({
  * photo tiles (at most six), the link to all of them and an invitation to
  * write or support more. With no topic yet, only the invitation.
  */
-export function RelatedTopics({
+export async function RelatedTopics({
   items,
   href,
   place,
@@ -54,7 +54,7 @@ export function RelatedTopics({
   place: string;
   className?: string;
 }) {
-  const t = getT().topics;
+  const t = (await getT()).topics;
   if (!items.length) {
     return (
       <div className={cn("mt-8", className)}>

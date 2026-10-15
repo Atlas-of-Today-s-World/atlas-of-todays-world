@@ -3,11 +3,12 @@ import type { ReactNode } from "react";
 import { contactTarget } from "@/components/atlas/ContactLink";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
 import type { Locale } from "@/features/i18n/config";
-import { format, getMessages } from "@/features/i18n/messages";
+import { format } from "@/features/i18n/messages";
 import { formatLongDate } from "@/lib/format";
 import { xmlEscape } from "@/lib/seo/xml";
 import { PAGE_TOKENS, type SitePageContent } from "../pages";
 import { fillInline, linkHtml, splitAtBlock } from "../render";
+import { getMessagesFor } from "@/features/i18n/request";
 
 /**
  * An editable site page (About, Privacy, Terms, Accessibility): heading,
@@ -40,7 +41,7 @@ export async function SitePageView({
       <h1 className="font-display text-[34px] font-bold text-[var(--color-ink)]">{page.title}</h1>
       {page.last_reviewed ? (
         <p className="text-[13px] text-[var(--color-ink-muted)]">
-          {format(getMessages(locale).sitePages.lastUpdated, {
+          {format((await getMessagesFor(locale)).sitePages.lastUpdated, {
             date: formatLongDate(`${page.last_reviewed}T12:00:00Z`, locale),
           })}
         </p>

@@ -26,7 +26,7 @@ const TERRITORY_STATUS_KEY = {
   occupied: "occupied",
 } as const;
 
-export default function CountryCard({
+export default async function CountryCard({
   country,
   stats,
   newsItems,
@@ -43,7 +43,7 @@ export default function CountryCard({
   /** Topics about the country (own, its region's, its groups') and the filtered list. */
   topics?: { items: EntrySummary[]; href: string };
 }) {
-  const t = getT();
+  const t = await getT();
   const region = country.region;
 
   /**

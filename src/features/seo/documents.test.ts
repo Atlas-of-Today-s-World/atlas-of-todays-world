@@ -3,6 +3,7 @@ import type { Entry } from "@/features/entries/queries";
 import type { Encyclopedia } from "@/features/entries/topic-queries";
 import type { Atlas } from "@/features/geography/types";
 import { SITE_URL } from "@/lib/site";
+import en from "@/messages/en.json";
 import { articleMarkdown } from "./documents";
 
 const SITE = SITE_URL.replace(/\/$/, "");
@@ -31,7 +32,7 @@ const news: Entry = {
 
 describe("article Markdown", () => {
   it("news: title, citable facts first, then the text", () => {
-    expect(articleMarkdown("news", news, atlas)).toBe(
+    expect(articleMarkdown("news", news, atlas, en)).toBe(
       [
         "# The Sahel's Coup Belt",
         [
@@ -72,7 +73,7 @@ describe("article Markdown", () => {
         keywords: [],
       },
     } as unknown as Encyclopedia;
-    const markdown = articleMarkdown("entry", entry, atlas);
+    const markdown = articleMarkdown("entry", entry, atlas, en);
     expect(markdown).toContain(`- URL: ${SITE}/topics/smuggling`);
     expect(markdown).toContain("- Author: Atlas editorial team");
     expect(markdown).toContain(

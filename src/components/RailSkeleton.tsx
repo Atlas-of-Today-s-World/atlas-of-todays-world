@@ -5,8 +5,8 @@ import ContentRail from "./ContentRail";
  * Shown right after clicking the globe, before the panel content arrives.
  * Without it nothing at all would happen for a moment after the click.
  */
-export default function RailSkeleton({ wide = false }: { wide?: boolean }) {
-  const t = getT();
+export default async function RailSkeleton({ wide = false }: { wide?: boolean }) {
+  const t = await getT();
   return (
     <ContentRail wide={wide} placeholder>
       {/* The grey bars say nothing to a screen reader; this does. */}

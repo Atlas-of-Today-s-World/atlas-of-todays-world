@@ -1,6 +1,6 @@
 import { getAtlas } from "@/features/geography/queries";
-import { format, getMessages } from "@/features/i18n/messages";
-import { localeFrom } from "@/features/i18n/request";
+import { format } from "@/features/i18n/messages";
+import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { DevelogiCredit } from "@/components/DevelogiCredit";
 import { JsonLd } from "@/components/JsonLd";
 import { postalAddress } from "@/features/site/model";
@@ -24,7 +24,7 @@ export function generateMetadata({ params }: Params) {
  */
 export default async function AboutPage({ params }: Params) {
   const locale = await localeFrom(params);
-  const messages = getMessages(locale);
+  const messages = await getMessagesFor(locale);
   const t = messages.about;
   const [page, { indicators }, site] = await Promise.all([
     getSitePage("about"),

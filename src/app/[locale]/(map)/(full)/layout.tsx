@@ -1,8 +1,7 @@
 import type { ReactNode } from "react";
 import { FullPage } from "@/components/FullPage";
 import { getFlags } from "@/features/flags/queries";
-import { getMessages } from "@/features/i18n/messages";
-import { localeFrom } from "@/features/i18n/request";
+import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 
 /**
  * Full-width pages inside the map shell (Topics, encyclopedia entries). The
@@ -18,7 +17,7 @@ export default async function FullPageLayout({
 }) {
   const [locale, flags] = await Promise.all([localeFrom(params), getFlags()]);
   return (
-    <FullPage t={getMessages(locale)} newsletter={flags.newsletter}>
+    <FullPage t={await getMessagesFor(locale)} newsletter={flags.newsletter}>
       {children}
     </FullPage>
   );

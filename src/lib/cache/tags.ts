@@ -41,6 +41,8 @@ export const tags = {
   sitePage: (slug: string) => `page:${slug}`,
   /** Site settings and social links (publisher facts, contact, SEO defaults, footer). */
   site: "site",
+  /** The team's changes to the public UI texts (ui_text_overrides) — every public page uses them. */
+  uiTexts: "ui-texts",
 } as const;
 
 /**

@@ -10,8 +10,8 @@ import { RichText } from "@/components/atlas/RichText";
 import { DonationCard } from "@/components/membership/DonationCard";
 import { buttonVariants } from "@/components/ui/button";
 import type { Locale } from "@/features/i18n/config";
-import { format, getMessages, type Messages } from "@/features/i18n/messages";
-import { localeFrom } from "@/features/i18n/request";
+import { format, type Messages } from "@/features/i18n/messages";
+import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { startCheckout } from "@/features/membership/actions";
 import { PatronsEmail } from "@/features/membership/components/PatronsEmail";
 import { EMAIL_PLACEHOLDER, type PatronGoal } from "@/features/membership/config";
@@ -47,7 +47,7 @@ const JOIN_ID = "join";
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const locale = await localeFrom(params);
-  const t = getMessages(locale).patrons;
+  const t = (await getMessagesFor(locale)).patrons;
   return pageMetadata({
     locale,
     path: routes.membership,
@@ -251,7 +251,7 @@ function GoalProgress({
  */
 export default async function MembershipPage({ params }: Params) {
   const locale = await localeFrom(params);
-  const t = getMessages(locale).patrons;
+  const t = (await getMessagesFor(locale)).patrons;
   const [stats, flags, settings, faq, site] = await Promise.all([
     getPatronStats(),
     getFlags(),

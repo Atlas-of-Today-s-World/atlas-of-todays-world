@@ -74,7 +74,7 @@ function wordingFor(kind: PortraitPlace, t: Messages, groupKind?: GroupKind) {
  * grey and non-clickable, with a call for support. Key indicators have data
  * everywhere, because they're computed from imported data, not editorial text.
  */
-export default function Portrait({
+export default async function Portrait({
   subject,
   news,
   entries,
@@ -91,7 +91,7 @@ export default function Portrait({
   dossier: RegionDossier;
   stats: RegionStat[];
 }) {
-  const t = getT();
+  const t = await getT();
   const wording = wordingFor(subject.kind, t, subject.groupKind);
   const hero = cssBackgroundImage(subject.hero, PHOTO_WIDTH.card);
   const complete = profileComplete(dossier);
@@ -210,7 +210,7 @@ export default function Portrait({
  * Timeline, topics by theme, infographics, news, further resources and FAQ;
  * what the editors haven't written yet is grey with the support call.
  */
-export function ProfileSections({
+export async function ProfileSections({
   kind,
   groupKind,
   name,
@@ -226,7 +226,7 @@ export function ProfileSections({
   entries: PlannedEntry[];
   news?: NewsCard[];
 }) {
-  const t = getT();
+  const t = await getT();
   const wording = wordingFor(kind, t, groupKind);
   // Sections without content yet: listed once at the end, not as grey placeholders.
   const coming = [

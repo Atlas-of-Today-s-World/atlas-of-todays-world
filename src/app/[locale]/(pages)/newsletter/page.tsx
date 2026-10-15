@@ -5,8 +5,7 @@ import Link from "@/components/i18n/Link";
 import { JsonLd } from "@/components/JsonLd";
 import NewsletterForm from "@/components/NewsletterForm";
 import { getFlags } from "@/features/flags/queries";
-import { getMessages } from "@/features/i18n/messages";
-import { localeFrom } from "@/features/i18n/request";
+import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { VOLUNTEER_ID } from "@/features/membership/config";
 import { breadcrumbNode, graph, homeCrumb, ids, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { pageMetadata } from "@/lib/seo/metadata";
@@ -16,7 +15,7 @@ type Params = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const locale = await localeFrom(params);
-  const t = getMessages(locale).newsletterPage;
+  const t = (await getMessagesFor(locale)).newsletterPage;
   return pageMetadata({
     locale,
     path: routes.newsletter,
@@ -35,7 +34,7 @@ const CARD =
  */
 export default async function NewsletterPage({ params }: Params) {
   const locale = await localeFrom(params);
-  const t = getMessages(locale).newsletterPage;
+  const t = (await getMessagesFor(locale)).newsletterPage;
   const flags = await getFlags();
   const site = await getSiteSettings();
 

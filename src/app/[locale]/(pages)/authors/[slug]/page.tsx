@@ -6,8 +6,8 @@ import Link from "@/components/i18n/Link";
 import { JsonLd } from "@/components/JsonLd";
 import { getAuthorBySlug, getAuthors } from "@/features/authors/queries";
 import { getArticlesByAuthor } from "@/features/entries/queries";
-import { format, getMessages } from "@/features/i18n/messages";
-import { localeFrom } from "@/features/i18n/request";
+import { format } from "@/features/i18n/messages";
+import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { formatLongDate } from "@/lib/format";
 import { cssBackgroundImage } from "@/lib/security/urls";
 import { PHOTO_WIDTH } from "@/lib/images";
@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const locale = await localeFrom(params);
   const author = await getAuthorBySlug(slug);
   if (!author) return {};
-  const t = getMessages(locale).authorPage;
+  const t = (await getMessagesFor(locale)).authorPage;
   const articles = await articlesOf(slug);
   return pageMetadata({
     locale,
@@ -68,7 +68,7 @@ export default async function AuthorPage({ params }: Params) {
   const locale = await localeFrom(params);
   const author = await getAuthorBySlug(slug);
   if (!author) notFound();
-  const messages = getMessages(locale);
+  const messages = await getMessagesFor(locale);
   const t = messages.authorPage;
   const articles = await articlesOf(slug);
   const site = await getSiteSettings();

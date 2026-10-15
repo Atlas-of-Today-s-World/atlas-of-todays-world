@@ -24,7 +24,7 @@ export async function MaintenanceGate({
   children: ReactNode;
   inRail?: boolean;
 }) {
-  const t = getT();
+  const t = await getT();
   const notice = await getMaintenance({
     title: t.map.maintenanceTitle,
     text: t.map.maintenanceText,

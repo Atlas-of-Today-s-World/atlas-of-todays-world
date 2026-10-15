@@ -35,7 +35,7 @@ function buildViewOptions(indicators: Indicator[], saturation: number, t: Messag
       swatches: [],
     },
     ...indicators.map((indicator) => {
-      const legend = legendFor(indicator, getRequestLocale());
+      const legend = legendFor(indicator, getRequestLocale(), t.ui.source);
       return {
         id: indicator.id,
         label: indicator.label,
@@ -114,7 +114,7 @@ export default async function MapLayout({
 
   const regionLookup = lookup(atlas.regions);
   const issue = lookup(atlas.issues);
-  const t = getT();
+  const t = await getT();
   const viewOptions = buildViewOptions(atlas.indicators, atlas.theme.saturation, t);
   const regionLabels = atlas.regions.map(({ slug, name, center }) => ({ slug, name, center }));
   // Topic counts over places (ADR-024): computed here once, the globe only draws them.

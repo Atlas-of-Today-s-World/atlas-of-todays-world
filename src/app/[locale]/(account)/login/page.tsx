@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getFlags } from "@/features/flags/queries";
 import { localePath } from "@/features/i18n/config";
-import { getMessages } from "@/features/i18n/messages";
-import { localeFrom } from "@/features/i18n/request";
+import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { safeRedirect } from "@/lib/security/redirect";
 import { supabaseConfig } from "@/lib/supabase/config";
 import { currentUser } from "@/lib/supabase/server";
@@ -18,7 +17,7 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  const t = getMessages(await localeFrom(params)).auth;
+  const t = (await getMessagesFor(await localeFrom(params))).auth;
   return { title: t.title, robots: { index: false, follow: false } };
 }
 
@@ -35,7 +34,7 @@ export default async function LoginPage({
   searchParams: Promise<{ next?: string; error?: string }>;
 }) {
   const locale = await localeFrom(params);
-  const t = getMessages(locale).auth;
+  const t = (await getMessagesFor(locale)).auth;
   const { next, error } = await searchParams;
   const target = safeRedirect(next, localePath(locale, routes.account));
   const configured = supabaseConfig() !== null;

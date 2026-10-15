@@ -3,8 +3,8 @@ import HomeFocus from "@/components/map/HomeFocus";
 import { getAtlas } from "@/features/geography/queries";
 import Link from "@/components/i18n/Link";
 import { SKIP_LINK } from "@/config/layout";
-import { getMessages } from "@/features/i18n/messages";
-import { localeFrom } from "@/features/i18n/request";
+import { getMessagesFor, localeFrom } from "@/features/i18n/request";
+import { getSiteSettings } from "@/features/site/queries";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { datasetNode, graph, itemListNode, pageUrl, webPageNode } from "@/lib/seo/jsonld";
 import { JsonLd } from "@/components/JsonLd";
@@ -16,7 +16,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const locale = await localeFrom(params);
-  const t = getMessages(locale).home;
+  const t = (await getMessagesFor(locale)).home;
   return pageMetadata({
     locale,
     path: "/",
@@ -37,8 +37,12 @@ export async function generateMetadata({
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const locale = await localeFrom(params);
-  const t = getMessages(locale).home;
-  const { countries, regions, indicators } = await getAtlas(locale);
+  const [messages, site, { countries, regions, indicators }] = await Promise.all([
+    getMessagesFor(locale),
+    getSiteSettings(),
+    getAtlas(locale),
+  ]);
+  const t = messages.home;
 
   // ISO2 -> [lon, lat]: HomeFocus uses this to rotate the globe over the visitor's country.
   const homeCenters: Record<string, [number, number]> = {};
@@ -86,7 +90,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         place, hidden until a keyboard user tabs onto it.
       */}
       <div id="content" tabIndex={-1} className="outline-none">
-        <h1 className="sr-only">Atlas of Today&rsquo;s World</h1>
+        {/* The site's name from Admin → Site settings. */}
+        <h1 className="sr-only">{site.name}</h1>
         <p className="sr-only">{t.intro}</p>
         <Link href={routes.countries} className={SKIP_LINK}>
           {t.browseAll}

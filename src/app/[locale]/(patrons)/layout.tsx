@@ -1,8 +1,7 @@
 import { PagesShell } from "@/components/PagesShell";
 import { MaintenanceGate } from "@/features/flags/components/MaintenanceGate";
 import { getFlags } from "@/features/flags/queries";
-import { getMessages } from "@/features/i18n/messages";
-import { localeFrom } from "@/features/i18n/request";
+import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 
 /** Atlas Patrons pages: same header and footer, full-width content bands. */
 export default async function PatronsLayout({
@@ -14,7 +13,11 @@ export default async function PatronsLayout({
 }) {
   const flags = await getFlags();
   return (
-    <PagesShell t={getMessages(await localeFrom(params))} newsletter={flags.newsletter} bleed>
+    <PagesShell
+      t={await getMessagesFor(await localeFrom(params))}
+      newsletter={flags.newsletter}
+      bleed
+    >
       <MaintenanceGate>{children}</MaintenanceGate>
     </PagesShell>
   );

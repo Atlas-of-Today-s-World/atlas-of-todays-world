@@ -5,13 +5,14 @@ import {
   getEncyclopediaEntries,
   getEntries,
   getEntry,
+  type Entry,
   type EntrySummary,
 } from "@/features/entries/queries";
 import { getEncyclopediaEntry } from "@/features/entries/topic-queries";
 import { getAtlas, getIndicators } from "@/features/geography/queries";
 import type { Atlas, IndicatorData } from "@/features/geography/types";
-import { DEFAULT_LOCALE, localePath, type Locale } from "@/features/i18n/config";
-import { format, getMessages } from "@/features/i18n/messages";
+import { DEFAULT_LOCALE, localePath, LOCALES, type Locale } from "@/features/i18n/config";
+import { format, type Messages } from "@/features/i18n/messages";
 import type { SiteSettings } from "@/features/site/model";
 import { getSiteSettings } from "@/features/site/queries";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
@@ -25,6 +26,7 @@ import { createPublicClient } from "@/lib/supabase/public";
 import type { ArticleKind } from "@/lib/content-types";
 import { articleDocument, articleUrl } from "./documents";
 import { routes } from "@/config/routes";
+import { getMessagesFor } from "@/features/i18n/request";
 
 /**
  * Data for the machine-readable views of the Atlas: sitemaps, feeds and
@@ -178,7 +180,7 @@ export async function getSitemaps(now = Date.now()): Promise<Record<SitemapName,
 /** Latest news and entries (full text) for the RSS and Atom feeds of a language. */
 export async function getFeedItems(locale: Locale, limit = 30): Promise<FeedItem[]> {
   const [news, entries] = await Promise.all([getEntries(), getEncyclopediaEntries()]);
-  const t = getMessages(locale);
+  const t = await getMessagesFor(locale);
   const recent = [
     ...news.map((item) => ({ kind: "news" as const, item })),
     ...entries.map((item) => ({ kind: "entry" as const, item })),
@@ -233,8 +235,8 @@ function sections(
   news: EntrySummary[],
   entries: EntrySummary[],
   locale: Locale,
+  t: Messages,
 ) {
-  const t = getMessages(locale);
   const s = t.seo;
   const date = (item: EntrySummary) => (item.published ? `${item.published} — ` : "");
   return [
@@ -310,8 +312,9 @@ function head(
   entries: EntrySummary[],
   locale: Locale,
   site: SiteSettings,
+  t: Messages,
 ) {
-  const s = getMessages(locale).seo;
+  const s = t.seo;
   return llmsTxt({
     title: site.name,
     summary: site.description,
@@ -326,25 +329,29 @@ function head(
         sitemap: absoluteUrl("/sitemap.xml"),
       }),
     ],
-    sections: sections(data, news, entries, locale),
+    sections: sections(data, news, entries, locale, t),
     optional: countryLinks(data.atlas, locale),
   });
 }
 
 /** /llms.txt — the map of the site for language models. */
 export async function getLlmsTxt(locale: Locale): Promise<string> {
-  const [data, news, entries, site] = await Promise.all([
+  const [data, news, entries, site, t] = await Promise.all([
     getAtlasData(),
     getEntries(),
     getEncyclopediaEntries(),
     getSiteSettings(),
+    getMessagesFor(locale),
   ]);
-  return head(data, news, entries, locale, site);
+  return head(data, news, entries, locale, site, t);
 }
 
 /** One table of the latest value of every indicator for every country, with sources. */
-function countryData({ atlas, indicators: columns }: AtlasData, locale: Locale): LlmsDocument {
-  const s = getMessages(locale).seo;
+function countryData(
+  { atlas, indicators: columns }: AtlasData,
+  locale: Locale,
+  s: Messages["seo"],
+): LlmsDocument {
   const header = `| ${s.country} | ${s.region} | ${columns.map((c) => c.shortLabel).join(" | ")} |`;
   const rows = atlas.countries.map((country) => {
     const cells = columns.map((indicator) => {
@@ -370,29 +377,33 @@ function countryData({ atlas, indicators: columns }: AtlasData, locale: Locale):
 
 /** /llms-full.txt — llms.txt plus the full text of every article and the country data. */
 export async function getLlmsFullTxt(locale: Locale): Promise<string> {
-  const [data, news, entries, site] = await Promise.all([
+  const [data, news, entries, site, t, textsByLocale] = await Promise.all([
     getAtlasData(),
     getEntries(),
     getEncyclopediaEntries(),
     getSiteSettings(),
+    getMessagesFor(locale),
+    Promise.all(LOCALES.map((language) => getMessagesFor(language))),
   ]);
   const { atlas } = data;
+  // Article labels follow the language of each article's text (articleDocument).
+  const textsOf = (language: Locale) => textsByLocale[LOCALES.indexOf(language)] ?? t;
   const [fullEntries, fullNews] = await Promise.all([
     Promise.all(entries.map((item) => getEncyclopediaEntry(item.slug, locale))),
     Promise.all(news.map((item) => getEntry(item.slug, locale))),
   ]);
+  const document = (kind: ArticleKind, item: Entry | null) =>
+    item ? [articleDocument(kind, item, atlas, textsOf(item.locale), site.name)] : [];
   const documents = [
-    ...fullEntries.flatMap((item) =>
-      item ? [articleDocument("entry", item, atlas, site.name)] : [],
-    ),
-    ...fullNews.flatMap((item) => (item ? [articleDocument("news", item, atlas, site.name)] : [])),
+    ...fullEntries.flatMap((item) => document("entry", item)),
+    ...fullNews.flatMap((item) => document("news", item)),
     ...atlas.regions.map((region) => ({
       title: region.name,
       url: url(locale, routes.region(region.slug)),
       facts: [],
       markdown: [
         region.summary,
-        `${getMessages(locale).seo.countries}: ${region.countries
+        `${t.seo.countries}: ${region.countries
           .map((iso3) => atlas.countryByIso3.get(iso3)?.name)
           .filter(Boolean)
           .join(", ")}`,
@@ -404,15 +415,15 @@ export async function getLlmsFullTxt(locale: Locale): Promise<string> {
       facts: [],
       markdown: [
         issue.summary,
-        `${getMessages(locale).seo.countries}: ${issue.countries
+        `${t.seo.countries}: ${issue.countries
           .map((iso3) => atlas.countryByIso3.get(iso3)?.name)
           .filter(Boolean)
           .join(", ")}`,
       ].join("\n\n"),
     })),
-    countryData(data, locale),
+    countryData(data, locale, t.seo),
   ];
-  return llmsFullTxt(head(data, news, entries, locale, site), documents);
+  return llmsFullTxt(head(data, news, entries, locale, site, t), documents);
 }
 
 // ---------------------------------------------------------------------------

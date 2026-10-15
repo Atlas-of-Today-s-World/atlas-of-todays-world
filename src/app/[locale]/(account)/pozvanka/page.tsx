@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { adminRoutes } from "@/config/routes";
 import { supabaseConfig } from "@/lib/supabase/config";
-import { getMessages } from "@/features/i18n/messages";
-import { localeFrom } from "@/features/i18n/request";
+import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import GoogleSignIn from "../login/GoogleSignIn";
 
 // Rendered per request: the proxy sends it a nonce CSP (ADR-025), which a static page couldn't carry.
@@ -14,7 +13,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   return {
-    title: getMessages(await localeFrom(params)).invite.title,
+    title: (await getMessagesFor(await localeFrom(params))).invite.title,
     robots: { index: false, follow: false },
   };
 }
@@ -24,7 +23,7 @@ export async function generateMetadata({
  * assigned by the verified e-mail at sign-in (ARCHITEKTURA 7.3).
  */
 export default async function InvitationPage({ params }: { params: Promise<{ locale: string }> }) {
-  const t = getMessages(await localeFrom(params)).invite;
+  const t = (await getMessagesFor(await localeFrom(params))).invite;
   return (
     <main className="mx-auto max-w-md">
       <h1 className="font-display text-[28px] font-bold">{t.heading}</h1>

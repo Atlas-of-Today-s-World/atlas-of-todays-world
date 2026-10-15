@@ -12,8 +12,8 @@ import { can, sectionAccess } from "@/features/auth/access";
 import { FlagToggle } from "@/features/flags/components/FlagToggle";
 import { MaintenanceMessageForm } from "@/features/flags/components/SwitchForms";
 import { getMaintenanceMessage, listFlags } from "@/features/flags/editorial";
-import { getMessages } from "@/features/i18n/messages";
 import { DEFAULT_LOCALE } from "@/features/i18n/config";
+import { getMessagesFor } from "@/features/i18n/request";
 
 export const metadata: Metadata = { title: "Switches & maintenance" };
 
@@ -34,7 +34,7 @@ export default async function SwitchesPage() {
   const [flags, message] = await Promise.all([listFlags(), getMaintenanceMessage()]);
   const canSwitch = can(access.permissions, "permissions", "e");
   const canWord = can(access.permissions, "site", "e");
-  const t = getMessages(DEFAULT_LOCALE).map;
+  const t = (await getMessagesFor(DEFAULT_LOCALE)).map;
   const maintenanceOn = flags.some((flag) => flag.key === "maintenance" && flag.enabled);
 
   return (

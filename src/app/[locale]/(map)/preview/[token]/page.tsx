@@ -6,8 +6,8 @@ import { NewsArticle } from "@/features/topics/components/NewsArticle";
 import { getPreview } from "@/features/entries/preview-queries";
 import { getFlags } from "@/features/flags/queries";
 import { getAtlas } from "@/features/geography/queries";
-import { format, getMessages } from "@/features/i18n/messages";
-import { localeFrom } from "@/features/i18n/request";
+import { format } from "@/features/i18n/messages";
+import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { DATE_INTL } from "@/lib/format";
 
 // Preview of an unpublished article via a shared link (G2): always fresh, never indexed.
@@ -19,7 +19,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   return {
-    title: getMessages(await localeFrom(params)).preview.title,
+    title: (await getMessagesFor(await localeFrom(params))).preview.title,
     robots: { index: false, follow: false },
   };
 }
@@ -31,7 +31,7 @@ export default async function PreviewPage({
 }) {
   const { token } = await params;
   const locale = await localeFrom(params);
-  const messages = getMessages(locale);
+  const messages = await getMessagesFor(locale);
   const flags = await getFlags();
   const t = messages.preview;
   const [preview, atlas] = await Promise.all([getPreview(token), getAtlas(locale)]);

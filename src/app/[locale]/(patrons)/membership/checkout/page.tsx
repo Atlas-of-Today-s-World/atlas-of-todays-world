@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { localePath } from "@/features/i18n/config";
-import { getMessages } from "@/features/i18n/messages";
-import { localeFrom } from "@/features/i18n/request";
+import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { DemoCheckout } from "@/features/membership/components/DemoCheckout";
 import { getPatronSettings } from "@/features/membership/queries";
 import { parseDonation } from "@/features/membership/schema";
@@ -17,7 +16,7 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const t = getMessages(await localeFrom(params)).patrons.checkout;
+  const t = (await getMessagesFor(await localeFrom(params))).patrons.checkout;
   return { title: t.title, robots: { index: false, follow: false } };
 }
 

@@ -130,6 +130,10 @@ export const adminRoutes = {
   socialLink: (id: string) => `${ADMIN}/site/socials/${id}`,
   /** The main menu and the legal links; an item by id (new ones are added on the list). */
   siteNavigation: records(`${ADMIN}/site/navigation`),
+  /** The public site's UI texts (buttons, headings, labels) the team can change. */
+  uiTexts: `${ADMIN}/site/texts`,
+  /** One UI text by its key (a dot path in en.json; may contain spaces and "&", hence encoded). */
+  uiText: (key: string) => `${ADMIN}/site/texts/${encodeURIComponent(key)}`,
   /** Regions by slug; their countries are under `country(slug)`. */
   regions: records(`${ADMIN}/regions`),
   country: (slug: string) => `${ADMIN}/regions/countries/${slug}`,

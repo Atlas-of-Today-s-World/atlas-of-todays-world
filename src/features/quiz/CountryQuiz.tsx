@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useMessages } from "@/components/i18n/LocaleProvider";
 import { Button } from "@/components/ui/button";
+import { format } from "@/features/i18n/messages";
 import { cn } from "@/lib/cn";
 import { newGame, QUESTIONS_PER_GAME, verdict, type CountryShape, type Question } from "./game";
 
@@ -16,6 +18,7 @@ type Phase = "idle" | "loading" | "playing" | "done";
  * only after clicking „Play“ — the 404 itself stays light.
  */
 export function CountryQuiz() {
+  const t = useMessages().quiz;
   const [phase, setPhase] = useState<Phase>("idle");
   const [game, setGame] = useState<Question[]>([]);
   const [index, setIndex] = useState(0);
@@ -62,14 +65,10 @@ export function CountryQuiz() {
   if (phase === "idle" || phase === "loading") {
     return (
       <Panel>
-        <p className="font-display text-[17px] font-bold text-[var(--color-ink)]">
-          While you&rsquo;re here: can you name a country by its outline?
-        </p>
-        <p className="mt-1 text-[13px] text-[var(--color-ink-soft)]">
-          Ten shapes, four choices each. A different set every time.
-        </p>
+        <p className="font-display text-[17px] font-bold text-[var(--color-ink)]">{t.invite}</p>
+        <p className="mt-1 text-[13px] text-[var(--color-ink-soft)]">{t.inviteLead}</p>
         <Button size="sm" className="mt-4" onClick={start} disabled={phase === "loading"}>
-          {phase === "loading" ? "Loading the shapes…" : "Play the outline quiz"}
+          {phase === "loading" ? t.loading : t.play}
         </Button>
       </Panel>
     );
@@ -83,11 +82,13 @@ export function CountryQuiz() {
           tabIndex={-1}
           className="font-display text-[20px] font-bold text-[var(--color-ink)] focus:outline-none"
         >
-          You scored {score} out of {QUESTIONS_PER_GAME}
+          {format(t.score, { score: String(score), total: String(QUESTIONS_PER_GAME) })}
         </h2>
-        <p className="mt-1 text-[13.5px] text-[var(--color-ink-soft)]">{verdict(score)}</p>
+        <p className="mt-1 text-[13.5px] text-[var(--color-ink-soft)]">
+          {t.verdicts[verdict(score)]}
+        </p>
         <Button size="sm" className="mt-4" onClick={start}>
-          Play again with new countries
+          {t.playAgain}
         </Button>
       </Panel>
     );
@@ -104,23 +105,27 @@ export function CountryQuiz() {
           tabIndex={-1}
           className="font-display text-[17px] font-bold text-[var(--color-ink)] focus:outline-none"
         >
-          Which country is this?
+          {t.question}
         </h2>
         <p className="shrink-0 text-[12px] whitespace-nowrap text-[var(--color-ink-muted)]">
-          {index + 1} / {game.length} · Score {score}
+          {format(t.progress, {
+            current: String(index + 1),
+            total: String(game.length),
+            score: String(score),
+          })}
         </p>
       </div>
 
       <svg
         viewBox="0 0 100 100"
         role="img"
-        aria-label={`Outline of country number ${index + 1}`}
+        aria-label={format(t.outline, { number: String(index + 1) })}
         className="mx-auto mt-4 block size-48 sm:size-56"
       >
         <path d={question.answer.path} fill="var(--color-accent)" fillRule="evenodd" />
       </svg>
 
-      <div role="group" aria-label="Choices" className="mt-4 grid gap-2 sm:grid-cols-2">
+      <div role="group" aria-label={t.choices} className="mt-4 grid gap-2 sm:grid-cols-2">
         {question.options.map((option) => {
           const isAnswer = option.iso3 === question.answer.iso3;
           const isPicked = option.iso3 === picked;
@@ -140,7 +145,7 @@ export function CountryQuiz() {
               )}
             >
               {option.name}
-              {picked && isAnswer ? <span className="sr-only"> (correct answer)</span> : null}
+              {picked && isAnswer ? <span className="sr-only"> {t.correctAnswer}</span> : null}
             </button>
           );
         })}
@@ -150,15 +155,17 @@ export function CountryQuiz() {
         <p aria-live="polite" className="text-[13.5px] font-medium">
           {picked ? (
             correct ? (
-              <span className="text-green-800">Correct!</span>
+              <span className="text-green-800">{t.correct}</span>
             ) : (
-              <span className="text-red-800">Not quite — it&rsquo;s {question.answer.name}.</span>
+              <span className="text-red-800">
+                {format(t.wrong, { name: question.answer.name })}
+              </span>
             )
           ) : null}
         </p>
         {picked ? (
           <Button size="sm" variant="outline" onClick={next}>
-            {index + 1 >= game.length ? "See your score" : "Next"}
+            {index + 1 >= game.length ? t.seeScore : t.next}
           </Button>
         ) : null}
       </div>
@@ -167,9 +174,10 @@ export function CountryQuiz() {
 }
 
 function Panel({ children }: { children: React.ReactNode }) {
+  const t = useMessages().quiz;
   return (
     <section
-      aria-label="Outline quiz"
+      aria-label={t.label}
       className="mx-6 mb-12 rounded-2xl border border-[var(--color-line)] bg-[var(--color-accent-soft)]/40 p-5"
     >
       {children}

@@ -5,8 +5,8 @@ import { JsonLd } from "@/components/JsonLd";
 import { buttonVariants } from "@/components/ui/button";
 import { getAtlas } from "@/features/geography/queries";
 import type { Country } from "@/features/geography/types";
-import { format, getMessages } from "@/features/i18n/messages";
-import { localeFrom } from "@/features/i18n/request";
+import { format } from "@/features/i18n/messages";
+import { getMessagesFor, localeFrom } from "@/features/i18n/request";
 import { pageMetadata } from "@/lib/seo/metadata";
 import {
   breadcrumbNode,
@@ -25,7 +25,7 @@ const CHIP = buttonVariants({ variant: "outline", size: "chip" });
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const locale = await localeFrom(params);
-  const t = getMessages(locale).countriesIndex;
+  const t = (await getMessagesFor(locale)).countriesIndex;
   return pageMetadata({
     locale,
     path: routes.countries,
@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
  */
 export default async function CountriesPage({ params }: Params) {
   const locale = await localeFrom(params);
-  const t = getMessages(locale).countriesIndex;
+  const t = (await getMessagesFor(locale)).countriesIndex;
   const atlas = await getAtlas(locale);
   const site = await getSiteSettings();
   const byName = (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name, locale);

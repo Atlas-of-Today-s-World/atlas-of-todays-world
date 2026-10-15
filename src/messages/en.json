@@ -24,7 +24,8 @@
   "common": {
     "close": "Close",
     "backToGlobe": "Back to the globe",
-    "sending": "Sending…"
+    "sending": "Sending…",
+    "skipToContent": "Skip to content"
   },
   "auth": {
     "title": "Sign in",
@@ -438,14 +439,17 @@
     "issue": "Global issue",
     "news": "News",
     "entry": "Topic",
-    "patrons": "Atlas Patrons"
+    "patrons": "Atlas Patrons",
+    "defaultKicker": "Non-profit encyclopedia of the present",
+    "defaultTitle": "Every country, region and global issue on one globe"
   },
   "errors": {
     "pageNotFoundTitle": "Page not found",
     "pageNotFoundLead": "The page may have moved, or the address has a typo.",
     "pageErrorTitle": "Something went wrong",
     "pageErrorLead": "Try again in a moment. If it keeps happening, let us know.",
-    "errorCode": "Error {digest}"
+    "errorCode": "Error {digest}",
+    "notFoundCode": "404"
   },
   "home": {
     "title": "Atlas of Today's World — interactive atlas of every country",
@@ -643,5 +647,30 @@
   },
   "tab": {
     "comeBack": "Come back, we need you"
+  },
+  "quiz": {
+    "label": "Outline quiz",
+    "invite": "While you’re here: can you name a country by its outline?",
+    "inviteLead": "Ten shapes, four choices each. A different set every time.",
+    "play": "Play the outline quiz",
+    "loading": "Loading the shapes…",
+    "question": "Which country is this?",
+    "progress": "{current} / {total} · Score {score}",
+    "outline": "Outline of country number {number}",
+    "choices": "Choices",
+    "correctAnswer": "(correct answer)",
+    "correct": "Correct!",
+    "wrong": "Not quite — it’s {name}.",
+    "next": "Next",
+    "seeScore": "See your score",
+    "score": "You scored {score} out of {total}",
+    "playAgain": "Play again with new countries",
+    "verdicts": {
+      "perfect": "Flawless. You could draw the Atlas from memory.",
+      "excellent": "Excellent — a seasoned map reader.",
+      "good": "Not bad at all. The globe is waiting for the rest.",
+      "start": "A start! Spin the globe and come back for a rematch.",
+      "none": "Every explorer starts somewhere. Try another round?"
+    }
   }
 }

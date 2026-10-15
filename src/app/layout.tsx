@@ -6,6 +6,8 @@ import { PrePaintScript } from "@/components/PrePaintScript";
 import { SKIP_LINK } from "@/config/layout";
 import { THEME_COLORS } from "@/config/palette";
 import { serverEnv } from "@/lib/env.server";
+import { DEFAULT_LOCALE } from "@/features/i18n/config";
+import { getMessagesFor } from "@/features/i18n/request";
 import { titleSuffix } from "@/features/site/model";
 import { getSiteSettings } from "@/features/site/queries";
 import { SITE_URL } from "@/lib/site";
@@ -92,7 +94,8 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const t = await getMessagesFor(DEFAULT_LOCALE);
   return (
     // suppressHydrationWarning: PrePaintScript may add an attribute before React hydrates.
     <html lang="en" className={`${inter.variable} ${manrope.variable}`} suppressHydrationWarning>
@@ -107,7 +110,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <PrePaintScript />
         {/* Keyboard and screen readers: straight to content, past the menu and map controls (WCAG 2.4.1). */}
         <a href="#content" className={SKIP_LINK}>
-          Skip to content
+          {t.common.skipToContent}
         </a>
         {children}
         {/* Analytics without cookies or personal data (F3); Vercel only. */}

@@ -4,6 +4,19 @@ import { useEffect } from "react";
 import { THEME_COLORS } from "@/config/palette";
 
 /**
+ * The page's texts, kept here on purpose: this boundary replaces the root
+ * layout, so it can't wait for data (the team's text changes from the
+ * database) and must work even when everything else failed. Not editable in
+ * the admin.
+ */
+const TEXT = {
+  title: "Atlas of Today’s World is having a problem",
+  lead: "Please try again in a moment.",
+  errorCode: (digest: string) => ` (Error ${digest})`,
+  tryAgain: "Try again",
+} as const;
+
+/**
  * Last resort when even the root layout fails. It must have its own <html>
  * and work without the app's styles.
  */
@@ -28,9 +41,10 @@ export default function GlobalError({
         }}
       >
         <main style={{ maxWidth: 480, margin: "15vh auto", padding: 24 }}>
-          <h1 style={{ fontSize: 26 }}>Atlas of Today&rsquo;s World is having a problem</h1>
+          <h1 style={{ fontSize: 26 }}>{TEXT.title}</h1>
           <p style={{ lineHeight: 1.6, opacity: 0.8 }}>
-            Please try again in a moment.{error.digest ? ` (Error ${error.digest})` : ""}
+            {TEXT.lead}
+            {error.digest ? TEXT.errorCode(error.digest) : ""}
           </p>
           <button
             type="button"
@@ -43,7 +57,7 @@ export default function GlobalError({
               cursor: "pointer",
             }}
           >
-            Try again
+            {TEXT.tryAgain}
           </button>
         </main>
       </body>

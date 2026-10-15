@@ -89,15 +89,16 @@ export async function generateMetadata({
   const locale = await localeFrom(params);
   const country = (await getAtlas(locale)).countryBySlug.get(slug);
   if (!country) return {};
+  const t = await getT();
 
   const description =
     country.profile.summary ||
-    fallbackDescription(country, await getCountryStats(country.iso3, locale), getT().countryText);
+    fallbackDescription(country, await getCountryStats(country.iso3, locale), t.countryText);
 
   return pageMetadata({
     locale,
     path: routes.country(country.slug),
-    title: pageTitle(format(getT().countryCard.title, { name: country.name })),
+    title: pageTitle(format(t.countryCard.title, { name: country.name })),
     description,
     type: "profile",
     ownImage: true,
@@ -143,7 +144,8 @@ export default async function CountryPage({
   ]);
   const newsItems = entriesOfCountry(entries, country.iso3);
   const profile = country.profile;
-  const description = profile.summary || fallbackDescription(country, stats, getT().countryText);
+  const t = await getT();
+  const description = profile.summary || fallbackDescription(country, stats, t.countryText);
 
   return (
     <>
