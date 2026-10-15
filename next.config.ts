@@ -18,6 +18,10 @@ const nextConfig: NextConfig = {
   // Usage: NEXT_DIST_DIR=.next-build npx next build
   distDir: process.env.NEXT_DIST_DIR || ".next",
   env: { MAPLIBRE_VERSION },
+  // CSS arrives inside the HTML as <style> instead of render-blocking <link>s:
+  // no extra round trip before first paint for new visitors. CSP allows it —
+  // style-src keeps 'unsafe-inline' on every page (no nonce there, lib/security/csp.ts).
+  experimental: { inlineCss: true },
   // Old URL shapes (renamed sections, the former Czech version, old admin
   // bookmarks) — one list in src/config/redirects.ts, also shown read-only in
   // the admin next to the redirects editors manage.
