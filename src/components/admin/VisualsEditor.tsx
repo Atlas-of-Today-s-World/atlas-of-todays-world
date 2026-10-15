@@ -12,13 +12,14 @@ import type { ActionState } from "@/lib/action-state";
 import { EMBED_PROVIDER_INFO } from "@/lib/embeds";
 import { VISUAL_KIND_LABEL, VISUAL_KINDS } from "@/features/visuals/constants";
 import type { EditableVisual, VisualOwner } from "@/features/visuals/types";
+import type { CountryGroups } from "./CountryPicker";
 import { ReadOnly } from "./ReadOnly";
 import { VisualForm } from "./VisualForm";
 
 const KIND_OPTIONS = VISUAL_KINDS.map((kind) => ({
   value: kind,
   label: VISUAL_KIND_LABEL[kind],
-  tone: kind === "map" ? ("warning" as const) : ("neutral" as const),
+  tone: "neutral" as const,
 }));
 
 /** The Server Actions of features/visuals, handed in by the page (components don't import them). */
@@ -48,6 +49,7 @@ export function VisualsEditor({
   title = "Maps & charts",
   lead,
   headingLevel = 2,
+  mapGroups,
 }: {
   owner: VisualOwner;
   visuals: EditableVisual[];
@@ -62,6 +64,8 @@ export function VisualsEditor({
   title?: string;
   lead?: string;
   headingLevel?: 2 | 3;
+  /** Regions and custom regions for the custom map builder (framing a region, adding its countries). */
+  mapGroups?: CountryGroups[];
 }) {
   const anchor = `visuals-${owner.kind}-${owner.key}`;
   // "Edit" lands on the form, "Done" back on the list.
@@ -174,6 +178,7 @@ export function VisualsEditor({
             owner={owner}
             visual={current}
             action={actions.save}
+            mapGroups={mapGroups}
           />
         </div>
       </ReadOnly>

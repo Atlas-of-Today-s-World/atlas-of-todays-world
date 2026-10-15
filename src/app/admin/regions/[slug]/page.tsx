@@ -16,6 +16,7 @@ import { timelineForEdit } from "@/features/timelines/editorial";
 import { VisualsEditor } from "@/components/admin/VisualsEditor";
 import { VISUAL_ACTIONS } from "@/features/visuals/admin";
 import { visualsForEdit } from "@/features/visuals/editorial";
+import { getCountryGroups } from "@/features/geography/queries";
 import { adminRoutes, routes } from "@/config/routes";
 
 export const metadata: Metadata = { title: "Region portrait" };
@@ -29,11 +30,12 @@ export default async function RegionEditPage({
   const { slug } = await params;
   const region = await regionForEdit(slug);
   if (!region) notFound();
-  const [items, rights, timeline, visuals, { visual }] = await Promise.all([
+  const [items, rights, timeline, visuals, mapGroups, { visual }] = await Promise.all([
     portraitItems({ region: slug }, COLLECTION_NAMES),
     portraitRights(access.permissions, "region"),
     timelineForEdit("region", slug),
     visualsForEdit("region", slug),
+    getCountryGroups(),
     searchParams,
   ]);
 
@@ -80,6 +82,7 @@ export default async function RegionEditPage({
           canRemove={rights.removeVisuals}
           readOnlyReason="Maps & charts are edited by roles allowed to edit regions or editors with rights to all articles."
           lead="Interactive charts and maps on the region's portrait and under each of its countries, one at a time in this order."
+          mapGroups={mapGroups}
         />
         {COLLECTION_NAMES.map((collection) => (
           <ReadOnly

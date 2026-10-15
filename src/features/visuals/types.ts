@@ -1,5 +1,6 @@
 import type { EmbedProvider } from "@/lib/embeds";
 import type { VisualKind, VisualOwnerKind } from "./constants";
+import type { MapSpec } from "./map/types";
 
 /** Whose visuals: the owner kind and its key (slug, or the topic's / subtopic's id). */
 export interface VisualOwner {
@@ -19,6 +20,6 @@ export interface EditableVisual {
   embed_url: string;
   image_url: string;
   height: number | null;
-  map_spec: Record<string, unknown> | null;
+  map_spec: MapSpec | null;
   updated_at: string;
 }

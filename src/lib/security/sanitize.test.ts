@@ -160,7 +160,9 @@ describe("sanitizePopupHtml", () => {
     expect(sanitizePopupHtml('<span class="rt-color-red evil rt-color-pink">x</span>')).toBe(
       '<span class="rt-color-red">x</span>',
     );
-    expect(sanitizePopupHtml('<span class="fixed inset-0 bg-black">x</span>')).toBe("<span>x</span>");
+    expect(sanitizePopupHtml('<span class="fixed inset-0 bg-black">x</span>')).toBe(
+      "<span>x</span>",
+    );
     // Classes only on spans: a paragraph never keeps one.
     expect(sanitizePopupHtml('<p class="rt-color-red">x</p>')).toBe("<p>x</p>");
   });

@@ -2,6 +2,8 @@ import type { VisualItem } from "@/lib/content-types";
 import { canonicalEmbedUrl, isEmbedProvider } from "@/lib/embeds";
 import { safeUrl } from "@/lib/security/urls";
 import { VISUAL_KINDS, type VisualKind } from "./constants";
+import type { MapSpec } from "./map/types";
+import { parseMapSpec } from "./map-spec";
 import type { EditableVisual } from "./types";
 
 /**
@@ -42,8 +44,16 @@ const httpsOnly = (value: unknown) => {
 const isKind = (value: unknown): value is VisualKind =>
   typeof value === "string" && (VISUAL_KINDS as readonly string[]).includes(value);
 
-const isObject = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
+/**
+ * A stored map spec validated again as it is read: popup HTML is sanitized on
+ * render as well as on save (ARCHITEKTURA 8.3), and a spec that no longer
+ * passes (written another way, or by an older version) is left out.
+ */
+function storedMapSpec(value: unknown): MapSpec | null {
+  if (value === null || value === undefined) return null;
+  const parsed = parseMapSpec(value);
+  return parsed.ok ? parsed.spec : null;
+}
 
 /**
  * Rows → the carousel's items, in order. Each is checked again here (the DB
@@ -75,8 +85,10 @@ export function toVisualItems(rows: readonly VisualRow[] | null | undefined): Vi
         const url = httpsOnly(row.image_url);
         return url ? [{ ...base, kind: "image", url }] : [];
       }
-      case "map":
-        return isObject(row.map_spec) ? [{ ...base, kind: "map", spec: row.map_spec }] : [];
+      case "map": {
+        const spec = storedMapSpec(row.map_spec);
+        return spec ? [{ ...base, kind: "map", spec }] : [];
+      }
     }
   });
 }
@@ -97,7 +109,7 @@ export function toEditableVisuals(rows: readonly VisualRow[]): EditableVisual[] 
             embed_url: row.embed_url ?? "",
             image_url: row.image_url ?? "",
             height: row.height ?? null,
-            map_spec: isObject(row.map_spec) ? row.map_spec : null,
+            map_spec: storedMapSpec(row.map_spec),
             updated_at: row.updated_at ?? "",
           },
         ]

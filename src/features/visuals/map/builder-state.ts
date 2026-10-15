@@ -7,6 +7,7 @@ import {
   type MapPopup,
   type MapSpec,
 } from "./types";
+import { storedBytes } from "./size";
 
 /**
  * The builder's edits as pure functions over the spec (each returns a new
@@ -194,8 +195,8 @@ export function legendFromPoints(points: readonly MapPoint[]): MapLegendItem[] {
   return [...seen.values()].slice(0, MAP_LIMITS.legendItems);
 }
 
-/** Size of the spec as stored (UTF-8 JSON bytes). */
-export const specBytes = (spec: MapSpec) => new TextEncoder().encode(JSON.stringify(spec)).length;
+/** Size of the spec as the database counts it (size.ts). */
+export const specBytes = (spec: MapSpec) => storedBytes(spec) ?? 0;
 
 /** Undo history: earlier specs, newest last; `key` groups edits of one field. */
 export interface History {
@@ -221,4 +222,3 @@ export function undo(history: History): { spec: MapSpec; history: History } | nu
   const spec = history.past.at(-1);
   return spec ? { spec, history: { past: history.past.slice(0, -1), key: null } } : null;
 }
-

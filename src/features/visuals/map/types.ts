@@ -123,13 +123,14 @@ export interface MapLegend {
   items: MapLegendItem[];
 }
 
-export interface MapSpec {
+// A type alias (not an interface), so it is a plain JSON object where one is expected.
+export type MapSpec = {
   version: 1;
   view: MapView;
   countries: MapCountryHighlight[];
   points: MapPoint[];
   legend: MapLegend;
-}
+};
 
 /** The whole world on a flat map (a new visual starts here). */
 const WORLD_BOUNDS: MapBounds = [-170, -58, 190, 78];

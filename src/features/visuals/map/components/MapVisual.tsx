@@ -23,8 +23,17 @@ const MAP_FRAME_CLASS =
  * nears the viewport. Without WebGL a message and the list of places take
  * the map's place. Pass a spec that went through `parseMapSpec` on the server.
  */
-export function MapVisual({ spec, title }: { spec: MapSpec; title?: string }) {
-  return <MapFrame spec={spec} title={title} />;
+export function MapVisual({
+  spec,
+  title,
+  height,
+}: {
+  spec: MapSpec;
+  title?: string;
+  /** The editors' height in px (Maps & charts); without it the box keeps its proportions. */
+  height?: number;
+}) {
+  return <MapFrame spec={spec} title={title} height={height} />;
 }
 
 /** The box and its states; the builder renders it with `editing` (same map, same look). */
@@ -32,12 +41,14 @@ export function MapFrame({
   spec,
   title,
   editing,
+  height,
   className,
   children,
 }: {
   spec: MapSpec;
   title?: string;
   editing?: MapEditing;
+  height?: number;
   className?: string;
   /** Extra overlays (the builder's hints). */
   children?: ReactNode;
@@ -77,8 +88,10 @@ export function MapFrame({
         MAP_FRAME_CLASS,
         "rounded-2xl",
         dark ? "bg-[var(--color-space-deep)]" : "bg-[var(--color-paper)]",
+        height && "aspect-auto sm:aspect-auto",
         className,
       )}
+      style={height ? { height } : undefined}
     >
       {failed ? (
         <Unavailable spec={spec} />

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { sanitizePopupHtml } from "@/lib/security/sanitize";
 import { hexColor, iso3 } from "@/lib/validation/common";
 import { MAP_ICON_NAMES, type MapIconName } from "./icon-names";
+import { storedBytes } from "./size";
 import {
   MAP_BASEMAPS,
   MAP_CORNERS,
@@ -122,15 +123,10 @@ const Spec = z
     }
   });
 
-/** Size of a value as JSON in UTF-8 bytes; null when it can't be written as JSON. */
-function jsonBytes(value: unknown): number | null {
-  try {
-    const json = JSON.stringify(value);
-    return json === undefined ? null : new TextEncoder().encode(json).length;
-  } catch {
-    return null;
-  }
-}
+const tooLarge = (bytes: number) => ({
+  ok: false as const,
+  error: `The map is too large (${Math.ceil(bytes / 1000)} kB, at most ${MAP_LIMITS.bytes / 1000} kB).`,
+});
 
 type ParseMapSpecResult = { ok: true; spec: MapSpec } | { ok: false; error: string };
 
@@ -141,16 +137,15 @@ type ParseMapSpecResult = { ok: true; spec: MapSpec } | { ok: false; error: stri
  * (`points.3.lat: …`).
  */
 export function parseMapSpec(json: unknown): ParseMapSpecResult {
-  const bytes = jsonBytes(json);
+  const bytes = storedBytes(json);
   if (bytes === null) return { ok: false, error: "The map isn't valid JSON." };
-  if (bytes > MAP_LIMITS.bytes) {
-    return {
-      ok: false,
-      error: `The map is too large (${Math.ceil(bytes / 1000)} kB, at most ${MAP_LIMITS.bytes / 1000} kB).`,
-    };
-  }
+  if (bytes > MAP_LIMITS.bytes) return tooLarge(bytes);
   const result = Spec.safeParse(json);
-  if (result.success) return { ok: true, spec: result.data };
+  if (result.success) {
+    // Sanitizing adds `rel` and `target` to links: the stored spec is measured again.
+    const stored = storedBytes(result.data) ?? 0;
+    return stored > MAP_LIMITS.bytes ? tooLarge(stored) : { ok: true, spec: result.data };
+  }
   const issue = result.error.issues[0];
   const where = issue?.path.length ? `${issue.path.join(".")}: ` : "";
   return { ok: false, error: `${where}${issue?.message ?? "Invalid map."}` };

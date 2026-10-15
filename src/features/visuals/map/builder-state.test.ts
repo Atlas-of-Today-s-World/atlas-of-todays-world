@@ -177,8 +177,9 @@ describe("undo history", () => {
   });
 });
 
-it("measures the spec as stored", () => {
-  expect(specBytes(emptyMapSpec())).toBe(JSON.stringify(emptyMapSpec()).length);
+it("measures the spec as stored (jsonb text: a space after each : and ,)", () => {
+  expect(specBytes(emptyMapSpec())).toBeGreaterThan(JSON.stringify(emptyMapSpec()).length);
+  // UTF-8 ("≈" is 3 bytes) on top of the separators.
   expect(specBytes(PALESTINIANS_SAMPLE)).toBeGreaterThan(
     JSON.stringify(PALESTINIANS_SAMPLE).length,
   );

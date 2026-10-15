@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { toEditableVisuals, toVisualItems, type VisualRow } from "./rows";
 import { EMBED_HINT, VisualInput } from "./schema";
+import { emptyMapSpec } from "./map/types";
 
 const CHART = "https://datawrapper.dwcdn.net/aB3dE/2/";
 const EMBED = `<iframe title="Chart" id="datawrapper-chart-aB3dE" src="${CHART}" scrolling="no" height="420"></iframe><script type="text/javascript">!function(){}();</script>`;
@@ -75,7 +76,13 @@ describe("VisualInput", () => {
     ]);
   });
 
-  it("a custom map can't be saved until the map module is there", () => {
+  it("a custom map is saved only as a valid map spec", () => {
+    const ok = parse({ kind: "map", map_spec: JSON.stringify(emptyMapSpec()) });
+    expect(ok.data?.visual).toMatchObject({
+      kind: "map",
+      map_spec: emptyMapSpec(),
+      provider: null,
+    });
     const parsed = parse({ kind: "map", map_spec: '{"layers":[]}' });
     expect(issueAt(parsed)).toEqual(["map_spec"]);
     expect(issueAt(parse({ kind: "map", map_spec: "{" }))).toEqual(["map_spec"]);
@@ -150,7 +157,7 @@ describe("toVisualItems", () => {
         kind: "map",
         provider: null,
         embed_url: null,
-        map_spec: { layers: [] },
+        map_spec: emptyMapSpec(),
       }),
     ]);
     expect(items).toEqual([
@@ -176,7 +183,7 @@ describe("toVisualItems", () => {
       {
         id: "c",
         kind: "map",
-        spec: { layers: [] },
+        spec: emptyMapSpec(),
         title: "Chart",
         caption: undefined,
         source: undefined,
@@ -194,11 +201,35 @@ describe("toVisualItems", () => {
         row({ kind: "image", image_url: "javascript:alert(1)" }),
         row({ kind: "image", image_url: "/relative.png" }),
         row({ kind: "map", map_spec: [1, 2] }),
+        row({ kind: "map", map_spec: { layers: [] } }),
         row({ kind: "video" }),
         row({ title: "  " }),
       ]),
     ).toEqual([]);
     expect(toVisualItems(null)).toEqual([]);
+    // A stored map's popup HTML is sanitized again on the way to the page.
+    const stored = emptyMapSpec();
+    stored.points.push({
+      id: "p1",
+      lat: 1,
+      lon: 2,
+      label: "P",
+      showLabel: false,
+      color: "#000000",
+      size: 18,
+      icon: null,
+      pulse: false,
+      popup: {
+        html: '<p onclick="alert(1)">a</p><script>alert(1)</script>',
+        font: "sans",
+        size: "md",
+        color: "#000000",
+        background: "#ffffff",
+        maxWidth: 280,
+      },
+    });
+    const [map] = toVisualItems([row({ kind: "map", map_spec: stored })]);
+    expect(map?.kind === "map" && JSON.stringify(map.spec)).toContain('"html":"<p>a</p>"');
     // A source link that isn't https is dropped; its label stays.
     expect(
       toVisualItems([row({ source_label: "X", source_url: "http://x.org/" })])[0]?.source,
