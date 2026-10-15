@@ -24,7 +24,7 @@ import {
   listTemplates,
 } from "@/features/entries/editorial";
 import { listRevisions, publishedVersion } from "@/features/entries/revisions";
-import { getPickerOptions } from "@/features/geography/queries";
+import { getCountryGroups, getPickerOptions } from "@/features/geography/queries";
 import { CollectionEditor } from "@/components/admin/CollectionEditor";
 import { COLLECTION_UI } from "@/features/portraits/components/fields";
 import { cn } from "@/lib/cn";
@@ -111,9 +111,10 @@ export default async function EditEntryPage({
   const { saved, tab: tabParam, visual } = await searchParams;
   const tab: Tab =
     isEntry && TABS.some((item) => item.key === tabParam) ? (tabParam as Tab) : "article";
-  const [timeline, visuals] = await Promise.all([
+  const [timeline, visuals, mapGroups] = await Promise.all([
     isEntry && tab === "timeline" ? timelineForEdit("topic", id) : null,
     isEntry && tab === "visuals" ? topicVisualsForEdit(id) : null,
+    isEntry && tab === "visuals" ? getCountryGroups() : undefined,
   ]);
   const visualsHref = (visualId: string | null) =>
     adminRoutes.content(id, visualId ? { tab: "visuals", visual: visualId } : { tab: "visuals" });
@@ -172,6 +173,7 @@ export default async function EditEntryPage({
                     visuals={visuals.topic}
                     actions={VISUAL_ACTIONS}
                     pageHref={visualsHref}
+                    mapGroups={mapGroups}
                     editing={typeof visual === "string" ? visual : undefined}
                     canEdit
                     title="Maps & charts of the topic"
@@ -184,6 +186,7 @@ export default async function EditEntryPage({
                       visuals={chapter.visuals}
                       actions={VISUAL_ACTIONS}
                       pageHref={visualsHref}
+                      mapGroups={mapGroups}
                       editing={typeof visual === "string" ? visual : undefined}
                       canEdit
                       title={`Subtopic ${index + 1}: ${chapter.title}`}

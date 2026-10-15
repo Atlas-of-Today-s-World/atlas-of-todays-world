@@ -55,7 +55,7 @@ export const GLOBE_DATA = {
  * Satellite basemap. With a MapTiler key we use their tiles, without a key
  * Esri World Imagery (free, requires attribution).
  */
-function satelliteSource() {
+export function satelliteSource() {
   const key = publicEnv.NEXT_PUBLIC_MAPTILER_KEY;
   if (key) {
     return {
@@ -118,7 +118,7 @@ export const ZERO_GLOW_LAYERS = {
 } as const;
 
 /** Pixels from the label point to the middle of the pill (badge offset in ems × 10 px + half a line). */
-export const ZERO_GLOW_OFFSET = { countries: 19.5, regions: 36 } as const;
+const ZERO_GLOW_OFFSET = { countries: 19.5, regions: 36 } as const;
 
 function zeroGlowLayer(id: string, source: string, offset: number, minzoom = 0) {
   return {

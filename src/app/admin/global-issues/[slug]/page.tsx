@@ -105,6 +105,7 @@ export default async function IssueEditPage({
           canRemove={rights.removeVisuals}
           readOnlyReason="Maps & charts are edited by roles allowed to edit global issues or editors with rights to all articles."
           lead="Interactive charts and maps on its portrait, one at a time in this order."
+          mapGroups={groups}
         />
         {COLLECTION_NAMES.map((collection) => (
           <ReadOnly

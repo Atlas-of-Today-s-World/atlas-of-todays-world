@@ -15,7 +15,8 @@ import {
   VISUAL_LIMITS,
   type VisualKind,
 } from "@/features/visuals/constants";
-import { MapVisualBuilder, type MapSpec } from "@/features/visuals/map-slot";
+import { emptyMapSpec, MapVisualBuilder, type MapSpec } from "@/features/visuals/map-slot";
+import type { CountryGroups } from "./CountryPicker";
 import type { EditableVisual, VisualOwner } from "@/features/visuals/types";
 
 const IDLE: ActionState = { ok: false };
@@ -38,19 +39,21 @@ const KIND_HINT: Record<VisualKind, string> = {
  * (the same lib/embeds.ts the server validates with) and the chart previews
  * in the same sandboxed frame the site uses. Nothing pasted is kept but the
  * chart's address. A custom map is edited in the map builder of the map slot
- * — until that update arrives, the form says so.
+ * (`mapGroups`: regions to frame or add at once).
  */
 export function VisualForm({
   idPrefix,
   owner,
   visual,
   action,
+  mapGroups,
 }: {
   idPrefix: string;
   owner: VisualOwner;
   /** The visual being edited; none = a new one. */
   visual?: EditableVisual;
   action: (prev: ActionState, formData: FormData) => Promise<ActionState>;
+  mapGroups?: CountryGroups[];
 }) {
   const [kind, setKind] = useState<VisualKind>(visual?.kind ?? "embed");
   const [embed, setEmbed] = useState(visual?.embed_url ?? "");
@@ -170,15 +173,9 @@ export function VisualForm({
 
       {kind === "map" ? (
         <div className="grid gap-2 sm:col-span-2">
-          <input type="hidden" name="map_spec" value={spec ? JSON.stringify(spec) : ""} />
-          {MapVisualBuilder ? (
-            <MapVisualBuilder value={spec} onChange={setSpec} />
-          ) : (
-            <p className="rounded-lg border border-dashed border-[var(--color-line)] p-4 text-[13px] text-[var(--color-ink-soft)]">
-              Custom map editor coming in the next update. Until then, embed a map from Datawrapper,
-              Flourish or Our World in Data.
-            </p>
-          )}
+          {/* A map nobody has touched yet is saved as the builder shows it (the whole world). */}
+          <input type="hidden" name="map_spec" value={JSON.stringify(spec ?? emptyMapSpec())} />
+          <MapVisualBuilder value={spec} onChange={setSpec} groups={mapGroups} />
           {errors("map_spec")?.length ? (
             <p className="text-[12px] text-[var(--color-danger)]">{errors("map_spec")![0]}</p>
           ) : null}

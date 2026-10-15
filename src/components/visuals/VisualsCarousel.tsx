@@ -4,7 +4,7 @@ import { SourceLink } from "@/components/atlas/ui";
 import type { VisualItem } from "@/lib/content-types";
 import { cn } from "@/lib/cn";
 import { getT } from "@/lib/i18n/request";
-import { MapVisual } from "@/features/visuals/map-slot";
+import { MapVisual, type MapSpec } from "@/features/visuals/map-slot";
 import { EmbedFrame } from "./EmbedFrame";
 
 /**
@@ -12,8 +12,8 @@ import { EmbedFrame } from "./EmbedFrame";
  * topic or a subtopic, the same everywhere: one visual at a time with
  * previous / next arrows and dots (Rail `pages`: swipe on touch, ←/→ on the
  * keyboard), its title, caption and source under it. Embedded charts load
- * only when they come near the viewport (EmbedFrame). Custom maps render
- * through the map slot; until the map module is there they are left out.
+ * only when they come near the viewport (EmbedFrame); so do custom maps,
+ * drawn by the map slot's MapVisual.
  *
  * `variant="section"`: a page section (portrait, topic page) — a "Maps &
  * charts" pill, a centred heading and lead, like the timeline. `"inline"`: a
@@ -37,8 +37,7 @@ export async function VisualsCarousel({
   className?: string;
 }) {
   const t = await getT();
-  const shown = items.filter((item) => item.kind !== "map" || MapVisual);
-  if (!shown.length) return null;
+  if (!items.length) return null;
   const heading = title ?? (variant === "section" ? t.portrait.mapsTitle : t.portrait.mapsKicker);
   const headingId = `${id}-title`;
 
@@ -73,11 +72,11 @@ export async function VisualsCarousel({
       )}
 
       <Rail label={heading} layout="pages" className={variant === "section" ? "mt-8" : "mt-3"}>
-        {shown.map((item, index) => (
+        {items.map((item, index) => (
           <figure
             key={item.id}
             aria-roledescription="slide"
-            aria-label={`${index + 1} / ${shown.length}: ${item.title}`}
+            aria-label={`${index + 1} / ${items.length}: ${item.title}`}
             className="w-full shrink-0 snap-start"
           >
             <Visual item={item} openLabel={t.portrait.mapsOpen} />
@@ -133,8 +132,7 @@ function Visual({ item, openLabel }: { item: VisualItem; openLabel: string }) {
         />
       );
     case "map":
-      return MapVisual ? (
-        <MapVisual spec={item.spec} title={item.title} height={item.height} />
-      ) : null;
+      // The spec passed parseMapSpec when it was read (features/visuals/rows.ts).
+      return <MapVisual spec={item.spec as MapSpec} title={item.title} height={item.height} />;
   }
 }
