@@ -251,7 +251,14 @@ describe("a confirmed write refreshes exactly its tags", { timeout: 30_000 }, ()
     const { saveCountry } = await import("@/features/portraits/actions");
     const result = await saveCountry(
       { ok: false },
-      form({ iso3: "CZE", blurb: "", tagline: "", profile_html: "<p>x</p>", region_slug: "" }),
+      form({
+        iso3: "CZE",
+        name: "Czechia",
+        blurb: "",
+        tagline: "",
+        profile_html: "<p>x</p>",
+        region_slug: "",
+      }),
     );
     expect(result).toMatchObject({ ok: true });
     expect(updatedTags()).toEqual(["atlas", "country:CZE"]);
@@ -273,6 +280,41 @@ describe("a confirmed write refreshes exactly its tags", { timeout: 30_000 }, ()
     );
     expect(result).toMatchObject({ ok: true });
     expect(updatedTags()).toEqual(["indicator:hdi"]);
+  });
+
+  it("setValue: the snapshot too when the value moved the layer's latest year", async () => {
+    // The DB recomputes latest_year on the write: read before 2023, after 2025.
+    const years = [2023, 2025];
+    client.current = fakeSupabase((table) =>
+      table === "indicators"
+        ? { data: { latest_year: years.shift() ?? null }, error: null }
+        : { data: [], error: null },
+    );
+    const { setValue } = await import("@/features/indicators/actions");
+    const result = await setValue(
+      { ok: false },
+      form({
+        indicator_id: "hdi",
+        country_iso3: "CZE",
+        value: "0.9",
+        year: "2025",
+        note: "",
+        source_note: "UNDP",
+      }),
+    );
+    expect(result).toMatchObject({ ok: true });
+    expect(updatedTags()).toEqual(["indicator:hdi", "atlas"]);
+  });
+
+  it("moveRegion / moveIndicator: the map snapshot (the order lives there)", async () => {
+    client.current = written({});
+    const { moveRegion } = await import("@/features/portraits/actions");
+    const { moveIndicator } = await import("@/features/indicators/actions");
+    expect(await moveRegion("east-asia", true)).toMatchObject({ ok: true });
+    expect(await moveIndicator("hdi", false)).toMatchObject({ ok: true });
+    expect(updatedTags()).toEqual(["atlas", "atlas"]);
+    expect(await moveRegion("East Asia!", true)).toMatchObject({ ok: false });
+    expect(updatedTags()).toHaveLength(2);
   });
 
   it("deleteValue: only that indicator's values", async () => {

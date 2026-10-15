@@ -3,6 +3,7 @@ import Link from "@/components/i18n/Link";
 import { kickerVariants } from "@/components/atlas/kicker";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
 import { ShareButton } from "@/components/atlas/ShareButton";
+import { PhotoCredit } from "@/components/atlas/ui";
 import MapFocus from "@/components/map/MapFocus";
 import { FaqList } from "@/components/portrait/sections";
 import type { Atlas } from "@/features/geography/types";
@@ -134,11 +135,7 @@ export async function EncyclopediaArticle({
               </p>
             ) : null}
           </div>
-          {item.heroCredit ? (
-            <p className="absolute right-3 bottom-2 text-[10.5px] text-white/55">
-              {item.heroCredit}
-            </p>
-          ) : null}
+          {item.heroCredit ? <PhotoCredit>{item.heroCredit}</PhotoCredit> : null}
         </header>
 
         <div className="mx-auto max-w-6xl px-4 pt-6 pb-12 sm:px-8">

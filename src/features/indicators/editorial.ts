@@ -3,6 +3,17 @@ import { must } from "@/lib/db/result";
 import { createServerClient } from "@/lib/supabase/server";
 import type { IndicatorScale, IndicatorType } from "./constants";
 
+/**
+ * Ids of the custom (editorial) layers — the only ones that may be deleted.
+ * The atlas snapshot leaves the flag out; the list reads it here.
+ */
+export async function customIndicatorIds(): Promise<Set<string>> {
+  const supabase = await createServerClient();
+  const { data, error } = await supabase.from("indicators").select("id").eq("is_custom", true);
+  if (error) throw new Error(`[indicators] ${error.message}`);
+  return new Set(data.map((row) => row.id));
+}
+
 /** Indicator with everything the editor needs (under the user's session, no cache). */
 export async function indicatorForEdit(id: string) {
   const supabase = await createServerClient();

@@ -67,7 +67,7 @@ export async function regionForEdit(slug: string) {
     await supabase
       .from("regions")
       .select(
-        "slug, name, tagline, summary, intro, hero_url, hero_credit, fill, stroke, timeline_title, timeline_subtitle, content_status",
+        "slug, name, tagline, summary, intro, hero_url, hero_credit, fill, stroke, center_lon, center_lat, zoom, timeline_title, timeline_subtitle, content_status",
       )
       .eq("slug", slug)
       .maybeSingle(),
@@ -107,7 +107,9 @@ export async function countryForEdit(slug: string) {
   return must(
     await supabase
       .from("countries")
-      .select("iso3, slug, name, region_slug, blurb, tagline, profile_html, featured_indicators")
+      .select(
+        "iso3, slug, name, name_formal, population, un_subregion, territory_note, region_slug, blurb, tagline, profile_html, featured_indicators",
+      )
       .eq("slug", slug)
       .maybeSingle(),
     "countries",

@@ -42,6 +42,9 @@ export default async function IndicatorPage({ params }: { params: Promise<{ id: 
         lead={
           <>
             {indicator.is_custom ? "Custom editorial indicator." : "Imported indicator."}{" "}
+            {/* Not edited: the newest year among the values (set by the import, recomputed
+                when a value is saved or deleted here). */}
+            Latest data year: {indicator.latest_year ?? "—"} (follows the values).{" "}
             <Link href={routes.view(indicator.id)} className="text-[var(--color-link)] underline">
               View on site
             </Link>

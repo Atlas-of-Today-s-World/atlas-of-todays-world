@@ -129,6 +129,22 @@ export async function saveRegion(_prev: ActionState, formData: FormData): Promis
   return { ok: true, message: "Region saved." };
 }
 
+/**
+ * Moves a region one place up or down (move_region: one transaction, RLS
+ * regions "e" applies). The order is part of the map snapshot.
+ */
+export async function moveRegion(slug: string, up: boolean): Promise<ActionState> {
+  if (!slugSchema(120).safeParse(slug).success || typeof up !== "boolean") {
+    return { ok: false, error: "Invalid region." };
+  }
+  const session = await signedIn();
+  if (!session) return NOT_SIGNED_IN;
+  const { error } = await session.supabase.rpc("move_region", { p_slug: slug, p_up: up });
+  if (error) return failed(error);
+  updateTag(tags.atlas);
+  return { ok: true, message: "Moved." };
+}
+
 export async function saveIssue(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = IssueInput.safeParse(formObject(formData, ["countries"]));
   if (!parsed.success) return invalid(parsed.error);
@@ -230,6 +246,10 @@ export async function saveCountry(_prev: ActionState, formData: FormData): Promi
     .from("countries")
     .update({
       ...fields,
+      name_formal: fields.name_formal ?? null,
+      population: fields.population ?? null,
+      un_subregion: fields.un_subregion ?? null,
+      territory_note: fields.territory_note ?? null,
       blurb: fields.blurb || null,
       region_slug: fields.region_slug ?? null,
       profile_html,

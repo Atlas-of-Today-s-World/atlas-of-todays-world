@@ -58,13 +58,14 @@ const loadSnapshot = unstable_cache(
             "slug, name, tagline, fill, stroke, center_lon, center_lat, zoom, summary, hero_url, hero_credit, show_metrics, content_status",
           )
           .order("position")
+          .order("slug")
           .range(a, b),
       ),
       all("countries", (a, b) =>
         db
           .from("countries")
           .select(
-            "iso3, slug, name, name_formal, region_slug, un_subregion, population, lon, lat, bbox, blurb, tagline, featured_indicators",
+            "iso3, slug, name, name_formal, region_slug, un_subregion, population, lon, lat, bbox, territory_note, blurb, tagline, featured_indicators",
           )
           .order("iso3")
           .range(a, b),
@@ -98,7 +99,7 @@ const loadSnapshot = unstable_cache(
         db
           .from("special_regions")
           .select(
-            "slug, name, subtitle, summary, fill, stroke, center_lon, center_lat, zoom, hero_url, kind, content_status",
+            "slug, name, subtitle, summary, fill, stroke, center_lon, center_lat, zoom, hero_url, hero_credit, kind, content_status",
           )
           .order("name")
           .range(a, b),
@@ -114,7 +115,7 @@ const loadSnapshot = unstable_cache(
       all("map_areas", (a, b) =>
         db
           .from("map_areas")
-          .select("slug, name, label, note, fill, stroke, geometry")
+          .select("slug, name, label, country_iso3, fill, stroke, geometry")
           .order("name")
           .range(a, b),
       ),

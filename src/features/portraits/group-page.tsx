@@ -131,8 +131,11 @@ export function groupPortraitPage(kind: GroupKind) {
         ? {
             kind: "region",
             name: group.name,
+            // Under the name, like a global issue's subtitle.
+            subtitle: located.group.tagline,
             summary: group.summary,
             hero: group.hero,
+            heroCredit: group.heroCredit,
             countries: members,
             population: population(countries),
             showMetrics: located.group.showMetrics,
@@ -147,6 +150,7 @@ export function groupPortraitPage(kind: GroupKind) {
             summary: group.summary,
             accent: group.fill,
             hero: group.hero,
+            heroCredit: group.heroCredit,
             countries: members,
             population: population(countries),
           };

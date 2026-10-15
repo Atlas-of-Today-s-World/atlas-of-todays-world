@@ -4,6 +4,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { PGlite } from "@electric-sql/pglite";
+import { LATER_DATA_CHANGES } from "./later-data-changes.mjs";
 
 /**
  * Low-priority DB findings (review 2026-10-07, D-L1 … D-L6), migrations
@@ -102,6 +103,8 @@ before(async () => {
   };
   await apply(files.filter((f) => f < FIRST_NEW));
   await db.exec(readFileSync(join(here, "..", "seed.sql"), "utf8"));
+  // Later migrations change searchable rows too; compare the functions on the same data.
+  await db.exec(LATER_DATA_CHANGES);
 
   // Entries that match only through a tagged country, through both, a draft
   // and a translation (neither of the last two may ever show up).

@@ -1,10 +1,16 @@
 "use client";
 
-import { CONTENT_STATUS_LABEL, GROUP_KIND_LABEL, GROUP_KIND_OPTION } from "../constants";
+import {
+  CONTENT_STATUS_LABEL,
+  FEATURED_MAX,
+  GROUP_KIND_LABEL,
+  GROUP_KIND_OPTION,
+} from "../constants";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { CountryPicker, type CountryOption } from "@/components/admin/CountryPicker";
+import { OrderedPicker } from "@/components/admin/OrderedPicker";
 import { SubmitButton } from "@/components/admin/SubmitButton";
-import { Checkbox, FormField, Input, Select, Textarea } from "@/components/ui/field";
+import { FormField, Input, Select, Textarea } from "@/components/ui/field";
 import { UploadField } from "@/components/admin/UploadField";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { SlugField, useSlug } from "@/components/admin/SlugField";
@@ -36,6 +42,56 @@ function ColorFields({ fill, stroke, errors }: { fill: string; stroke: string; e
           type="color"
           defaultValue={stroke}
           className="h-(--touch-min) p-1"
+        />
+      </FormField>
+    </div>
+  );
+}
+
+/** Where the globe turns when the place opens (the same ranges as the DB CHECKs). */
+function MapViewFields({
+  values,
+  errors,
+}: {
+  values: { center_lon: number; center_lat: number; zoom: number };
+  errors: Errors;
+}) {
+  return (
+    <div className="grid grid-cols-3 gap-5">
+      <FormField id="center_lon" label="Center – longitude" required errors={errors.center_lon}>
+        <Input
+          id="center_lon"
+          name="center_lon"
+          type="number"
+          step="0.1"
+          min={-180}
+          max={180}
+          required
+          defaultValue={values.center_lon}
+        />
+      </FormField>
+      <FormField id="center_lat" label="Center – latitude" required errors={errors.center_lat}>
+        <Input
+          id="center_lat"
+          name="center_lat"
+          type="number"
+          step="0.1"
+          min={-90}
+          max={90}
+          required
+          defaultValue={values.center_lat}
+        />
+      </FormField>
+      <FormField id="zoom" label="Zoom" required errors={errors.zoom}>
+        <Input
+          id="zoom"
+          name="zoom"
+          type="number"
+          step="0.1"
+          min={0.5}
+          max={9}
+          required
+          defaultValue={values.zoom}
         />
       </FormField>
     </div>
@@ -146,6 +202,9 @@ export function RegionForm({
     hero_credit: string;
     fill: string;
     stroke: string;
+    center_lon: number;
+    center_lat: number;
+    zoom: number;
     timeline_title: string | null;
     timeline_subtitle: string | null;
     content_status: string;
@@ -160,11 +219,17 @@ export function RegionForm({
         <FormField id="name" label="Name" required errors={errors.name}>
           <Input id="name" name="name" required maxLength={120} defaultValue={region.name} />
         </FormField>
-        <FormField id="tagline" label="Subtitle" errors={errors.tagline}>
+        <FormField
+          id="tagline"
+          label="Subtitle"
+          hint="Under the name in the portrait and on the Countries page."
+          errors={errors.tagline}
+        >
           <Input id="tagline" name="tagline" maxLength={200} defaultValue={region.tagline} />
         </FormField>
       </div>
       <ColorFields fill={region.fill} stroke={region.stroke} errors={errors} />
+      <MapViewFields values={region} errors={errors} />
       <ContentStatusField value={region.content_status} errors={errors} />
       <PortraitHead values={region} errors={errors} />
       <ActionStatus state={state} />
@@ -290,41 +355,7 @@ export function IssueForm({
         />
       </FormField>
       <ColorFields fill={values.fill} stroke={values.stroke} errors={errors} />
-      <div className="grid grid-cols-3 gap-5">
-        <FormField id="center_lon" label="Center – longitude" required errors={errors.center_lon}>
-          <Input
-            id="center_lon"
-            name="center_lon"
-            type="number"
-            step="0.1"
-            min={-180}
-            max={180}
-            defaultValue={values.center_lon}
-          />
-        </FormField>
-        <FormField id="center_lat" label="Center – latitude" required errors={errors.center_lat}>
-          <Input
-            id="center_lat"
-            name="center_lat"
-            type="number"
-            step="0.1"
-            min={-90}
-            max={90}
-            defaultValue={values.center_lat}
-          />
-        </FormField>
-        <FormField id="zoom" label="Zoom" required errors={errors.zoom}>
-          <Input
-            id="zoom"
-            name="zoom"
-            type="number"
-            step="0.1"
-            min={0.5}
-            max={9}
-            defaultValue={values.zoom}
-          />
-        </FormField>
-      </div>
+      <MapViewFields values={values} errors={errors} />
       <ContentStatusField value={values.content_status} errors={errors} />
       <PortraitHead values={values} errors={errors} />
       <ActionStatus state={state} />
@@ -337,14 +368,114 @@ export function IssueForm({
   );
 }
 
+/**
+ * The country's facts: imported first (Natural Earth), corrected here. The map
+ * position and outline are not — they come with the map geometry.
+ */
+function CountryFacts({
+  country,
+  subregions,
+  territoryStatus,
+  errors,
+}: {
+  country: {
+    name: string;
+    name_formal: string | null;
+    population: number | null;
+    un_subregion: string | null;
+    territory_note: string | null;
+  };
+  subregions: string[];
+  territoryStatus: string | null;
+  errors: Errors;
+}) {
+  return (
+    <>
+      <div className="grid gap-5 sm:grid-cols-2">
+        <FormField
+          id="name"
+          label="Name"
+          required
+          hint="In headings, lists and search. An abbreviated name (“Dem. Rep. Congo”) is spelled out from the formal name; the label on the globe comes with the map."
+          errors={errors.name}
+        >
+          <Input id="name" name="name" required maxLength={120} defaultValue={country.name} />
+        </FormField>
+        <FormField id="name_formal" label="Formal name" errors={errors.name_formal}>
+          <Input
+            id="name_formal"
+            name="name_formal"
+            maxLength={200}
+            defaultValue={country.name_formal ?? ""}
+          />
+        </FormField>
+        <FormField
+          id="population"
+          label="Population"
+          hint="Totals of regions and groups, and the order of lists, follow it."
+          errors={errors.population}
+        >
+          <Input
+            id="population"
+            name="population"
+            type="number"
+            min={0}
+            max={20_000_000_000}
+            step={1}
+            defaultValue={country.population ?? ""}
+          />
+        </FormField>
+        <FormField id="un_subregion" label="UN subregion" errors={errors.un_subregion}>
+          <Input
+            id="un_subregion"
+            name="un_subregion"
+            maxLength={60}
+            list="un-subregions"
+            defaultValue={country.un_subregion ?? ""}
+          />
+        </FormField>
+        <datalist id="un-subregions">
+          {subregions.map((subregion) => (
+            <option key={subregion} value={subregion} />
+          ))}
+        </datalist>
+      </div>
+      <FormField
+        id="territory_note"
+        label="Status note"
+        hint={
+          territoryStatus
+            ? `Shown in a box on the profile after the status from the map data (“${territoryStatus}”). Say what the border shows and on what basis. Empty = the note that comes with the map data.`
+            : "For a territory whose status or border needs explaining. Shown in a box on the profile; empty = none."
+        }
+        errors={errors.territory_note}
+      >
+        <Textarea
+          id="territory_note"
+          name="territory_note"
+          maxLength={1000}
+          rows={3}
+          defaultValue={country.territory_note ?? ""}
+        />
+      </FormField>
+    </>
+  );
+}
+
 export function CountryForm({
   country,
   regions,
   indicators,
+  subregions,
+  territoryStatus,
 }: {
   country: {
     iso3: string;
     name: string;
+    name_formal: string | null;
+    population: number | null;
+    un_subregion: string | null;
+    territory_note: string | null;
     region_slug: string | null;
     blurb: string | null;
     tagline: string;
@@ -353,12 +484,22 @@ export function CountryForm({
   };
   regions: { slug: string; name: string }[];
   indicators: { id: string; label: string }[];
+  /** UN subregions already in use (suggestions for the field). */
+  subregions: string[];
+  /** Status of the territory from the map data ("disputed"…), if it has one. */
+  territoryStatus: string | null;
 }) {
   const [state, action] = useServerAction(saveCountry);
   const errors = state.fieldErrors ?? {};
   return (
     <ActionForm action={action} className="grid max-w-3xl gap-5">
       <input type="hidden" name="iso3" value={country.iso3} />
+      <CountryFacts
+        country={country}
+        subregions={subregions}
+        territoryStatus={territoryStatus}
+        errors={errors}
+      />
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField
           id="region_slug"
@@ -393,22 +534,21 @@ export function CountryForm({
           defaultValue={country.blurb ?? ""}
         />
       </FormField>
-      <fieldset className="grid gap-1">
-        <legend className="mb-1 text-[12.5px] font-medium text-[var(--color-ink-soft)]">
-          Automatic indicators on the card (none selected = first six)
-        </legend>
-        <div className="grid sm:grid-cols-2">
-          {indicators.map((indicator) => (
-            <Checkbox
-              key={indicator.id}
-              name="featured_indicators"
-              value={indicator.id}
-              defaultChecked={country.featured_indicators.includes(indicator.id)}
-              label={indicator.label}
-            />
-          ))}
-        </div>
-      </fieldset>
+      <FormField
+        id="featured_indicators"
+        label="Automatic indicators on the card"
+        hint={`Up to ${FEATURED_MAX}, in the order the card shows them. None chosen = the first ${FEATURED_MAX} data layers.`}
+        errors={errors.featured_indicators}
+      >
+        <OrderedPicker
+          id="featured_indicators"
+          name="featured_indicators"
+          options={indicators.map(({ id, label }) => ({ value: id, label }))}
+          defaultSelected={country.featured_indicators}
+          max={FEATURED_MAX}
+          itemLabel="indicator"
+        />
+      </FormField>
       <div className="grid gap-1.5">
         <span className="text-[12.5px] font-medium text-[var(--color-ink-soft)]">Long text</span>
         <RichTextEditor

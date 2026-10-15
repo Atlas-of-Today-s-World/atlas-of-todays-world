@@ -34,3 +34,6 @@ export const CONTENT_STATUS_LABEL = {
   preparing: "In preparation (hourglass)",
   ready: "Ready (check mark)",
 } as const;
+
+/** How many automatic indicators a country card shows (CountryCard) — and the editor may pick. */
+export const FEATURED_MAX = 6;

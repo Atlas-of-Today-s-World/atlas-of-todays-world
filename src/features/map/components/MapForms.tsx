@@ -112,7 +112,12 @@ export function AreaForm({
         <FormField id="label" label="Map label" hint="Empty = name." errors={errors.label}>
           <Input id="label" name="label" maxLength={60} defaultValue={area?.label} />
         </FormField>
-        <FormField id="country_iso3" label="Country (optional)" errors={errors.country_iso3}>
+        <FormField
+          id="country_iso3"
+          label="Country (optional)"
+          hint="Its page turns the globe to the area (“Open on the site” in the list)."
+          errors={errors.country_iso3}
+        >
           <Select id="country_iso3" name="country_iso3" defaultValue={area?.country_iso3 ?? ""}>
             <option value="">—</option>
             {countries.map((country) => (
@@ -141,7 +146,12 @@ export function AreaForm({
           />
         </FormField>
       </div>
-      <FormField id="note" label="Note" errors={errors.note}>
+      <FormField
+        id="note"
+        label="Internal note"
+        hint="For the team only (where the shape comes from, what it shows) — not shown on the site. What readers see on the globe is the map label."
+        errors={errors.note}
+      >
         <Textarea id="note" name="note" maxLength={1000} rows={2} defaultValue={area?.note} />
       </FormField>
       <FormField

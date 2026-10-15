@@ -2764,7 +2764,9 @@ export type Database = {
         Returns: undefined
       }
       move_nav_item: { Args: { p_id: string; p_up: boolean }; Returns: undefined }
+      move_indicator: { Args: { p_id: string; p_up: boolean }; Returns: undefined }
       move_patron_faq: { Args: { p_id: string; p_up: boolean }; Returns: undefined }
+      move_region: { Args: { p_slug: string; p_up: boolean }; Returns: undefined }
       mfa_status: { Args: never; Returns: Json }
       move_site_social_link: {
         Args: { p_id: string; p_up: boolean }

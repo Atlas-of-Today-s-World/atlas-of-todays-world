@@ -4,6 +4,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { PGlite } from "@electric-sql/pglite";
+import { LATER_DATA_CHANGES } from "./later-data-changes.mjs";
 
 /**
  * Topic search in Postgres (migration 20261013000010_topic_search_in_db):
@@ -96,6 +97,8 @@ before(async () => {
   };
   await apply(files.filter((f) => f < FIRST_NEW));
   await db.exec(readFileSync(join(here, "..", "seed.sql"), "utf8"));
+  // Later migrations change searchable rows too; compare the functions on the same data.
+  await db.exec(LATER_DATA_CHANGES);
 
   // Two published topics with chapters, a draft topic, a translation and a
   // news item — the last three must never show up in the topic search.
