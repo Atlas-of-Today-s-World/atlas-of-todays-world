@@ -6,6 +6,7 @@ import {
   displayName,
   indicatorData,
   regionColorMap,
+  regionTagline,
   territoryNote,
   type AtlasSnapshot,
   type IndicatorValues,
@@ -270,6 +271,31 @@ describe("territoryNote", () => {
 
   it("an edited note without a status from the map data stands alone", () => {
     expect(territoryNote(null, "A note.")).toEqual({ status: null, note: "A note.", basis: null });
+  });
+});
+
+describe("regionTagline", () => {
+  it("drops the old site's placeholder (also before the migration clearing it has run)", () => {
+    expect(regionTagline("A Comprehensive Portrait with global perspective")).toBe("");
+    const built = buildAtlas(
+      {
+        ...snapshot,
+        regions: snapshot.regions.map((region) => ({
+          ...region,
+          tagline: "A Comprehensive Portrait with global perspective",
+        })),
+      },
+      [],
+    );
+    expect(built.regions[0]?.tagline).toBe("");
+  });
+
+  it("keeps a tagline an editor wrote, even one differing only in case", () => {
+    expect(regionTagline("Where empires met")).toBe("Where empires met");
+    expect(regionTagline("A comprehensive portrait with global perspective")).toBe(
+      "A comprehensive portrait with global perspective",
+    );
+    expect(regionTagline("")).toBe("");
   });
 });
 

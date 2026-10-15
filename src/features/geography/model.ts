@@ -236,6 +236,19 @@ export function territoryNote(
   return { status: fact?.status ?? null, note: text, basis: null };
 }
 
+/**
+ * The placeholder every region got from the old site. Migration
+ * 20261013000300 clears it in the database; until that has run in every
+ * environment (atlas-dev, a fresh seed) the model drops it too, so a portrait
+ * never shows it under the name. Exact match, like the migration.
+ */
+const PLACEHOLDER_TAGLINE = "A Comprehensive Portrait with global perspective";
+
+/** A region's tagline as the site shows it: empty for the old placeholder. */
+export function regionTagline(tagline: string): string {
+  return tagline === PLACEHOLDER_TAGLINE ? "" : tagline;
+}
+
 const byPopulation = (a: { population: number | null }, b: { population: number | null }) =>
   (b.population ?? 0) - (a.population ?? 0);
 
@@ -251,7 +264,7 @@ export function buildAtlas(snapshot: AtlasSnapshot, geo: GeoFacts[]): Atlas {
     id: row.slug,
     slug: row.slug,
     name: row.name,
-    tagline: row.tagline,
+    tagline: regionTagline(row.tagline),
     fill: row.fill,
     stroke: row.stroke,
     center: [Number(row.center_lon), Number(row.center_lat)],
