@@ -151,12 +151,17 @@ test("author slug: a publisher can't rename someone else's profile URL", async (
 test("author account: only account managers link a profile, through set_author_account", async () => {
   const author = await one("insert into authors (name) values ('Cy Cole') returning id");
 
-  // Writers can't set the column directly any more (insert or update).
+  // Writers link a new profile only to themselves, and never relink one directly.
   await as(id.editor, async () => {
     await refused(
-      q("insert into authors (name, profile_id) values ('Mine', $1)", [id.editor]),
-      /permission denied/,
+      q("insert into authors (name, profile_id) values ('Theirs', $1)", [id.publisher]),
+      /someone else's account/,
     );
+    const own = await q(
+      "insert into authors (name, slug, profile_id) values ('Mine', '', $1) returning id",
+      [id.editor],
+    );
+    assert.equal(own.length, 1);
     await refused(
       q("update authors set profile_id = $2 where id = $1", [author.id, id.editor]),
       /permission denied/,
@@ -228,10 +233,13 @@ test("author account: functions are not callable anonymously", async () => {
     ]);
     assert.equal(user.ok, true, `authenticated may execute ${fn}`);
   }
-  const trigger = await one(
-    "select has_function_privilege('authenticated', 'public.authors_slug_redirect()', 'execute') as ok",
-  );
-  assert.equal(trigger.ok, false);
+  for (const fn of ["authors_slug_redirect()", "guard_author_account()"]) {
+    const trigger = await one(
+      "select has_function_privilege('authenticated', $1, 'execute') as ok",
+      [`public.${fn}`],
+    );
+    assert.equal(trigger.ok, false, `${fn} is a trigger only`);
+  }
 });
 
 // ---------------------------------------------------------------------------
@@ -269,4 +277,13 @@ test("roles: move_role swaps neighbours for permissions e, nobody else", async (
 
   await as(id.editor, () => refused(q("select move_role('late-b', false)"), /can't reorder roles/));
   await as(id.accounts, () => refused(q("select move_role('nope', false)"), /no longer exists/));
+
+  // Moving the roles with editorial reach is fine; reshaping them still needs an admin.
+  await as(id.accounts, async () => {
+    await q("select move_role('content-editor', false)");
+    await refused(
+      q("update roles set name = 'Editor', position = 5 where id = 'content-editor'"),
+      /Only an admin/,
+    );
+  });
 });

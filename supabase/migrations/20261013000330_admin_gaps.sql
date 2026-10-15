@@ -10,16 +10,21 @@
 --    pointed at the new one (no chains), and a redirect *from* the new URL
 --    is dropped (the URL is a live page again; it would only loop).
 -- 2. authors.profile_id (which team account an author profile belongs to; the
---    account may then edit that bio, policy authors_change) is set only
+--    account may then edit that bio, policy authors_change) is changed only
 --    through set_author_account(): `users` "e" (admin included), audited.
 --    Before, anyone with `news` "c" could insert a profile linked to any
---    account and anyone editing all entries could relink one. The
---    table-wide INSERT / UPDATE grants become column grants without
---    profile_id. author_account() reads the link back for `users` "v" (the
---    column itself stays unreadable for `authenticated`, 20261008000030).
+--    account and anyone editing all entries could relink one. Now the
+--    UPDATE grant leaves profile_id out, and a new profile may be linked
+--    only to its creator (a writer adding their own bio, as before) — or
+--    to anyone by an account manager (guard_author_account). author_account()
+--    reads the link back for `users` "v" (the column itself stays
+--    unreadable for `authenticated`, 20261008000030).
 -- 3. move_role(id, up) — swaps a role with its neighbour in the menu order
 --    (invoker: RLS roles_change and the `permissions` "e" check decide).
 --    The reader role is not part of the team order and is left alone.
+--    guard_roles() (20261013000310) treats a change of the position alone
+--    as harmless: the order is not reach, so a permission manager may
+--    reorder roles that only an admin may reshape.
 --
 -- Default privileges are revoked (20261013000210): every grant is explicit.
 -- Tests: supabase/tests/admin-gaps.test.mjs.
@@ -58,8 +63,29 @@ create trigger authors_slug_redirect
 -- 2. Linking an author profile to a team account
 -- ---------------------------------------------------------------------------
 revoke insert, update on public.authors from authenticated;
-grant insert (name, slug, photo_url, bio, positionality) on public.authors to authenticated;
+grant insert (name, slug, photo_url, bio, positionality, profile_id) on public.authors to authenticated;
 grant update (name, slug, photo_url, bio, positionality) on public.authors to authenticated;
+
+-- A new profile is linked to nobody, to its creator, or (account managers) to anyone.
+create or replace function public.guard_author_account()
+returns trigger
+language plpgsql security definer
+set search_path = public, pg_temp
+as $$
+begin
+  if auth.uid() is null or new.profile_id is null or new.profile_id = auth.uid()
+     or has_perm('users', 'e') then
+    return new;
+  end if;
+  raise exception 'Only account managers can link an author to someone else''s account.'
+    using errcode = '42501';
+end;
+$$;
+revoke execute on function public.guard_author_account() from public, anon, authenticated;
+
+create trigger authors_guard_account
+  before insert on public.authors
+  for each row execute function public.guard_author_account();
 
 -- p_profile null = unlink. Only an active team account can be linked, and
 -- each account to at most one author profile (authors.profile_id is unique).
@@ -154,3 +180,45 @@ end;
 $$;
 revoke execute on function public.move_role(text, boolean) from public, anon;
 grant execute on function public.move_role(text, boolean) to authenticated;
+
+-- Reordering is not reshaping: a change of `position` alone passes; every
+-- other rule of 20261013000310 stays as it was.
+create or replace function public.guard_roles()
+returns trigger
+language plpgsql security definer
+set search_path = public, pg_temp
+as $$
+begin
+  if auth.uid() is null then
+    return coalesce(new, old);
+  end if;
+  if tg_op = 'DELETE' then
+    if old.locked then
+      raise exception 'The admin role cannot be removed.' using errcode = '42501';
+    end if;
+    if exists (select 1 from profiles where role_id = old.id and deleted_at is null) then
+      raise exception 'Accounts still hold this role. Move them to another role first.' using errcode = '23503';
+    end if;
+    if not is_admin() and role_needs_admin(old.id) then
+      raise exception 'Only an admin can create, change or remove a role that edits or approves everyone''s articles or manages accounts, members or permissions.' using errcode = '42501';
+    end if;
+    return old;
+  end if;
+  if tg_op = 'INSERT' and new.locked then
+    raise exception 'Only the built-in admin role is locked.' using errcode = '42501';
+  end if;
+  if tg_op = 'UPDATE' and (new.locked is distinct from old.locked or new.id is distinct from old.id) then
+    raise exception 'A role cannot be locked, unlocked or renamed at the id level.' using errcode = '42501';
+  end if;
+  if tg_op = 'UPDATE' and (to_jsonb(new) - 'position') = (to_jsonb(old) - 'position') then
+    return new;
+  end if;
+  if not is_admin()
+     and (new.news_scope = 'all' or new.approval_scope = 'global'
+          or (tg_op = 'UPDATE' and new is distinct from old and role_needs_admin(old.id))) then
+    raise exception 'Only an admin can create, change or remove a role that edits or approves everyone''s articles or manages accounts, members or permissions.' using errcode = '42501';
+  end if;
+  return new;
+end;
+$$;
+revoke execute on function public.guard_roles() from public, anon, authenticated;
