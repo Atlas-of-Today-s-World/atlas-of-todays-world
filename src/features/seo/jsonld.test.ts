@@ -9,6 +9,7 @@ import { jsonLdHtml } from "@/lib/seo";
 import {
   articleNode,
   breadcrumbNode,
+  collectionPageGraph,
   countryNode,
   countrySameAs,
   datasetNode,
@@ -283,6 +284,34 @@ describe("JSON-LD builders", () => {
       ),
     );
     expect(validateJsonLd(data)).toEqual([]);
+  });
+
+  it("an index page: CollectionPage one crumb below home, with its list", () => {
+    const data = parsed(
+      collectionPageGraph({
+        path: "/global-issues",
+        name: "Global issues",
+        description: "Every global issue.",
+        locale: "en",
+        site: { name: "Atlas" },
+        items: [{ name: "Migration", path: "/global-issue/migration" }],
+      }),
+    );
+    expect(validateJsonLd(data)).toEqual([]);
+    const nodes = jsonLdNodes(data);
+    expect(nodes.map((node) => node["@type"])).toEqual([
+      "CollectionPage",
+      "BreadcrumbList",
+      "ItemList",
+    ]);
+    expect(nodes[2]?.itemListElement).toEqual([
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Migration",
+        url: pageUrl("/global-issue/migration"),
+      },
+    ]);
   });
 
   it("drops empty values and escapes </script>", () => {

@@ -110,6 +110,8 @@ test("nav items: the main menu is seeded with today's items, labels and styles",
     rows.map((row) => [row.label, row.href, row.is_primary, row.compact_hidden, row.requires_flag]),
     [
       ["Topics", "/topics", false, false, null],
+      // Added by 20261015000040, right after Topics.
+      ["Global issues", "/global-issues", false, false, null],
       ["Countries", "/countries", false, true, null],
       ["News", "/news", false, true, "news_menu"],
       ["About", "/about", false, false, null],
@@ -119,6 +121,38 @@ test("nav items: the main menu is seeded with today's items, labels and styles",
   assert.deepEqual(await one("select visible from nav_items where label = 'Support the Atlas'"), {
     visible: false,
   });
+});
+
+test("nav items: Global issues goes right after Topics, once, wherever Topics is", async () => {
+  const migration = readFileSync(join(migrations, "20261015000040_global_issues_nav.sql"), "utf8");
+  const order = async () =>
+    (
+      await q("select label from nav_items where menu = 'main' order by position, created_at, id")
+    ).map((row) => row.label);
+  const seeded = await order();
+
+  // Run again (or with an item the team added themselves): nothing changes.
+  await db.exec(migration);
+  assert.deepEqual(await order(), seeded);
+  assert.equal(seeded.filter((label) => label === "Global issues").length, 1);
+
+  await db.exec("begin");
+  try {
+    // The team moved Topics to the end: the new item follows it there.
+    await db.exec(`delete from nav_items where href = '/global-issues';
+      update nav_items set position = 20 where href = '/topics';`);
+    await db.exec(migration);
+    assert.deepEqual((await order()).slice(-2), ["Topics", "Global issues"]);
+
+    // Without Topics the item comes first, the rest keep their order.
+    await db.exec(`delete from nav_items where href in ('/global-issues', '/topics');`);
+    const rest = await order();
+    await db.exec(migration);
+    assert.deepEqual(await order(), ["Global issues", ...rest]);
+  } finally {
+    await db.exec("rollback");
+  }
+  assert.deepEqual(await order(), seeded);
 });
 
 test("nav items: the legal links are seeded in today's order", async () => {
@@ -144,6 +178,7 @@ test("nav items: anon reads only visible items and the public columns, and can't
   await as(null, async () => {
     assert.deepEqual(await labels("main"), [
       "Topics",
+      "Global issues",
       "Countries",
       "News",
       "About",
@@ -159,10 +194,10 @@ test("nav items: anon reads only visible items and the public columns, and can't
     await refused(q("select move_nav_item($1, true)", [hidden.id]), /permission denied/);
   });
   // The team with `site` "v" sees the hidden one too; other team members and readers don't.
-  assert.equal((await as(id.viewer, () => items("main"))).length, 7);
-  assert.equal((await as(id.editor, () => items("main"))).length, 7);
-  assert.equal((await as(id.observer, () => items("main"))).length, 5);
-  assert.equal((await as(id.reader, () => items("main"))).length, 5);
+  assert.equal((await as(id.viewer, () => items("main"))).length, 8);
+  assert.equal((await as(id.editor, () => items("main"))).length, 8);
+  assert.equal((await as(id.observer, () => items("main"))).length, 6);
+  assert.equal((await as(id.reader, () => items("main"))).length, 6);
   await q("delete from nav_items where id = $1", [hidden.id]);
 });
 
@@ -295,6 +330,7 @@ test("nav items: move swaps neighbours within one menu, only with site 'e'", asy
   await as(id.editor, () => q("select move_nav_item($1, true)", [about.id]));
   assert.deepEqual(await labels("main"), [
     "Topics",
+    "Global issues",
     "Countries",
     "About",
     "News",
@@ -305,7 +341,7 @@ test("nav items: move swaps neighbours within one menu, only with site 'e'", asy
   assert.deepEqual(await labels("legal"), ["Privacy", "Terms", "Accessibility"]);
 
   await as(id.editor, () => q("select move_nav_item($1, false)", [about.id]));
-  assert.deepEqual((await labels("main")).slice(2, 4), ["News", "About"]);
+  assert.deepEqual((await labels("main")).slice(3, 5), ["News", "About"]);
 
   // At the ends nothing moves (the first legal link doesn't jump into the main menu).
   await as(id.editor, () => q("select move_nav_item($1, true)", [privacy.id]));
@@ -322,5 +358,5 @@ test("nav items: move swaps neighbours within one menu, only with site 'e'", asy
       /no longer exists/,
     ),
   );
-  assert.deepEqual((await labels("main")).slice(2, 4), ["News", "About"]);
+  assert.deepEqual((await labels("main")).slice(3, 5), ["News", "About"]);
 });

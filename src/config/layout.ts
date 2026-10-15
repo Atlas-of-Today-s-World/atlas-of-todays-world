@@ -92,10 +92,12 @@ const REM_PX = 16;
 const WIDE_RAIL = [ROUTE_PREFIX.news, ROUTE_PREFIX.region, ROUTE_PREFIX.issue];
 const isWideRail = (path: string) => WIDE_RAIL.some((prefix) => path.startsWith(`${prefix}/`));
 /**
- * Full-width pages over the map (Topics and topic pages): the globe shrinks to a
- * corner window. Old /entry/ links redirect (next.config) before they render.
+ * Full-width pages over the map (Topics, topic pages and the Global issues
+ * overview): the globe shrinks to a corner window. Old /entry/ links redirect
+ * (next.config) before they render.
  */
-const isFullPagePath = (path: string) => isAtOrUnder(path, routes.topics);
+const FULL_PAGES = [routes.topics, routes.globalIssues];
+const isFullPagePath = (path: string) => FULL_PAGES.some((page) => isAtOrUnder(path, page));
 
 export type RailKind = "none" | "normal" | "wide";
 

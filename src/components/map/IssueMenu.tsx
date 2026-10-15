@@ -1,9 +1,11 @@
 "use client";
 
+import { ArrowRight } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { glassVariants } from "@/components/atlas/glass";
 import { kickerVariants } from "@/components/atlas/kicker";
 import { PhotoTile } from "@/components/atlas/PhotoTile";
+import Link from "@/components/i18n/Link";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import type { ContentStatus } from "@/features/geography/content-status";
 import { StatusMark } from "@/components/portrait/ContentStatusBadge";
@@ -29,7 +31,8 @@ export interface IssueMenuItem {
  * the look of "Latest subtopics" (a group of countries has no name on the
  * globe, so without this nobody would know what is there): a photo tile per
  * issue with its topic count and how far the editors are. A click opens the
- * issue's panel; the open one is outlined. On phones a lower tile.
+ * issue's panel; the open one is outlined. On phones a lower tile. "All global
+ * issues" leads to the overview page with the cards and filters.
  */
 export function IssueMenu({ items }: { items: IssueMenuItem[] }) {
   const t = useMessages();
@@ -39,12 +42,21 @@ export function IssueMenu({ items }: { items: IssueMenuItem[] }) {
   const status = { ready: t.map.statusReady, preparing: t.map.statusPreparing, none: "" };
   return (
     <section aria-labelledby="global-issues-menu" className={glassVariants({ kind: "panel" })}>
-      <h2
-        id="global-issues-menu"
-        className={cn(kickerVariants({ tone: "glass" }), "max-sm:sr-only")}
-      >
-        {t.map.issuesMenu}
-      </h2>
+      <div className="flex items-center justify-between gap-2 max-sm:mb-1.5">
+        <h2
+          id="global-issues-menu"
+          className={cn(kickerVariants({ tone: "glass" }), "max-sm:sr-only")}
+        >
+          {t.map.issuesMenu}
+        </h2>
+        <Link
+          href={routes.globalIssues}
+          className="ml-auto inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11.5px] font-medium text-white/80 transition hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:outline-none"
+        >
+          {t.map.allIssues}
+          <ArrowRight aria-hidden className="size-3.5" />
+        </Link>
+      </div>
       <ul className="grid max-h-[min(50dvh,24rem)] [scrollbar-width:thin] grid-cols-2 gap-2 overflow-y-auto sm:mt-2">
         {items.map((item) => {
           const current = item.slug === open;

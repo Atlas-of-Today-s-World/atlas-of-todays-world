@@ -12,6 +12,7 @@ const PAGES = [
   "/region/middle-east-north-africa",
   "/country/ukraine",
   "/global-issue/russia-ukraine-war",
+  "/global-issues",
   "/topics",
   "/news",
   "/view/hdi",

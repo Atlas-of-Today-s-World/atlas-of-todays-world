@@ -65,7 +65,8 @@ describe("layout tokens", () => {
   it("classifies the same paths as the former route regexes", () => {
     // Before config/routes.ts: wide = /^\/(news|region|global-issue)\//, full = /^\/topics(\/|$)/.
     const wide = /^\/(news|region|global-issue)\//;
-    const full = /^\/topics(\/|$)/;
+    // Since then also the Global issues overview (/global-issues, never /global-issue/x).
+    const full = /^\/(topics|global-issues)(\/|$)/;
     const paths = [
       "/",
       "/news",
@@ -78,7 +79,9 @@ describe("layout tokens", () => {
       "/regions/x",
       "/global-issue",
       "/global-issue/sahel",
+      "/global-issues",
       "/global-issues/sahel",
+      "/global-issuesx",
       "/country/ukraine",
       "/countries",
       "/view/hdi",
@@ -107,6 +110,8 @@ describe("layout tokens", () => {
     expect(isFullPage("/")).toBe(false);
     expect(isFullPage("/news/sahel-coup-belt")).toBe(false);
     expect(isFullPage("/topicsx")).toBe(false);
+    expect(isFullPage("/global-issues")).toBe(true);
+    expect(isFullPage("/global-issue/sahel")).toBe(false);
     // No side panel there: the page itself is full width.
     expect(railKind("/topics/migrant-smuggling")).toBe("none");
   });

@@ -5,7 +5,7 @@ import { NoAccess } from "@/components/admin/NoAccess";
 import { ReadOnly } from "@/components/admin/ReadOnly";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { can, sectionAccess } from "@/features/auth/access";
-import { getPickerOptions } from "@/features/geography/queries";
+import { getCountryGroups, getPickerOptions } from "@/features/geography/queries";
 import { CollectionEditor } from "@/components/admin/CollectionEditor";
 import { COLLECTION_UI } from "@/features/portraits/components/fields";
 import { savePortraitSection } from "@/features/portraits/actions";
@@ -27,8 +27,9 @@ export default async function IssueEditPage({ params }: PageProps<"/admin/global
   const { slug } = await params;
   const issue = await issueForEdit(slug);
   if (!issue) notFound();
-  const [{ countries }, items, rights, articles] = await Promise.all([
+  const [{ countries }, groups, items, rights, articles] = await Promise.all([
     getPickerOptions(),
+    getCountryGroups(slug),
     portraitItems({ issue: slug }, COLLECTION_NAMES),
     portraitRights(access.permissions, "issue"),
     listGroupArticles(slug),
@@ -65,6 +66,7 @@ export default async function IssueEditPage({ params }: PageProps<"/admin/global
             zoom: Number(issue.zoom),
           }}
           countries={countries}
+          groups={groups}
         />
       </ReadOnly>
       <div className="mt-12 grid max-w-4xl gap-6">

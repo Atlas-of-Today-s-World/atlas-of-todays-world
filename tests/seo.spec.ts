@@ -27,6 +27,7 @@ function structuredData(body: string) {
 for (const [path, type, marker] of [
   ["/sitemap.xml", "application/xml", "<sitemapindex"],
   ["/sitemaps/countries.xml", "application/xml", "/country/czechia</loc>"],
+  ["/sitemaps/pages.xml", "application/xml", "/global-issues</loc>"],
   ["/sitemaps/news.xml", "application/xml", "<image:image>"],
   ["/feed.xml", "application/rss+xml", "<item>"],
   ["/atom.xml", "application/atom+xml", "<feed"],
@@ -48,6 +49,7 @@ for (const path of [
   "/",
   "/region/east-asia",
   "/global-issue/russia-ukraine-war",
+  "/global-issues",
   "/country/czechia",
   "/view/hdi",
   "/countries",

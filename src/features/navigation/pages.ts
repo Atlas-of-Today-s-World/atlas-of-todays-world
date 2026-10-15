@@ -22,6 +22,7 @@ export const FLAG_LABELS: Record<NavFlag, string> = {
 export const NAV_PAGE_CHOICES: readonly { label: string; href: string }[] = [
   { label: "Home (the globe)", href: routes.home },
   { label: "Topics", href: routes.topics },
+  { label: "Global issues", href: routes.globalIssues },
   { label: "Countries", href: routes.countries },
   { label: "News", href: routes.newsIndex },
   { label: "About", href: routes.about },

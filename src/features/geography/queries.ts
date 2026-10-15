@@ -243,3 +243,35 @@ export async function getPickerOptions() {
     countries: atlas.countries.map(({ iso3, name }) => ({ iso3, name })).sort(byName),
   };
 }
+
+/**
+ * Whole groups of countries for the country picker of a global issue: every
+ * Atlas region and every custom region (but `except`, the one being edited),
+ * with their countries, so an issue can be assigned to them at once.
+ */
+export async function getCountryGroups(except?: string) {
+  const atlas = await getAtlas();
+  const option = ({
+    slug,
+    name,
+    countries,
+  }: {
+    slug: string;
+    name: string;
+    countries: string[];
+  }) => ({
+    key: slug,
+    name,
+    countries,
+  });
+  return [
+    { label: "Regions", options: atlas.regions.map(option) },
+    {
+      label: "Custom regions",
+      options: atlas.issues
+        .filter((group) => group.kind === "region" && group.slug !== except)
+        .map(option)
+        .sort((a, b) => a.name.localeCompare(b.name, "en")),
+    },
+  ];
+}

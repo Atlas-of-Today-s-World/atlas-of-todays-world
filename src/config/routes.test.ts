@@ -47,6 +47,7 @@ describe("routes", () => {
     expect(routes).toMatchObject({
       home: "/",
       topics: "/topics",
+      globalIssues: "/global-issues",
       countries: "/countries",
       newsIndex: "/news",
       about: "/about",
