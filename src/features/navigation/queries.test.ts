@@ -87,7 +87,7 @@ describe("getNavigation (public read)", () => {
   it("falls back to the built-in menus when the read fails", async () => {
     answer.items.mockResolvedValue({ data: null, error: { message: "relation does not exist" } });
     expect(labels(await getNavigation())).toEqual({
-      main: ["Topics", "Countries", "About", "Support the Atlas", "Atlas Patrons"],
+      main: ["Topics", "Countries", "About", "Atlas Patrons"],
       legal: ["Privacy", "Terms", "Accessibility"],
     });
     expect(console.error).toHaveBeenCalledWith("[navigation]", "relation does not exist");
