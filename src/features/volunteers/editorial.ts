@@ -14,7 +14,7 @@ export async function volunteersOverview() {
     supabase.from("volunteer_settings").select("notify_email").eq("id", 1).maybeSingle(),
     supabase
       .from("volunteer_applications")
-      .select("id, name, email, topics, message, status, created_at")
+      .select("id, name, email, topics, message, status, created_at, notified_at")
       .order("created_at", { ascending: false })
       .limit(2000),
   ]);

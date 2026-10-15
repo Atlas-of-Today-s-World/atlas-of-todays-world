@@ -4,7 +4,7 @@ import { adminRoutes } from "@/config/routes";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "./DataTable";
 import { RowActions } from "./RowActions";
-import { deleteAction, moveActions, visibilityAction } from "./row-actions";
+import { deleteAction, moveActions, noteAction, visibilityAction } from "./row-actions";
 import type { ColumnDef, DataTableRow } from "./types";
 
 type Key = "title" | "status" | "tags" | "author" | "words" | "updated";
@@ -68,6 +68,18 @@ const rows: DataTableRow<Key>[] = Array.from({ length: 64 }, (_, index) => ({
           confirmTitle: "Archive this entry?",
           confirmBody: "It disappears from the site but stays in the admin.",
         },
+        noteAction(
+          "return",
+          "Send back",
+          async () => ({ ok: true }),
+          { id: String(index + 1) },
+          {
+            title: "Send this entry back?",
+            body: "The author sees your note on it.",
+            noteLabel: "What should change",
+            noteMax: 2000,
+          },
+        ),
         {
           kind: "action",
           icon: "delete",
