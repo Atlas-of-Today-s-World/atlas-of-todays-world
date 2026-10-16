@@ -13,18 +13,22 @@ const COUNTRY_CHIP = buttonVariants({ variant: "outline", size: "chip" });
 /**
  * The counts under a region's or special region's heading. The number of
  * countries opens, right in the same box, a compact list of them — each a link
- * to its profile.
+ * to its profile. On a full-width page (a global issue) the list starts open:
+ * there is room for it, and the countries are what the issue is about.
  */
 export function PortraitCounts({
   countries,
   population,
+  initiallyOpen = false,
 }: {
   countries: { slug: string; name: string }[];
   /** Already formatted for the page's language. */
   population: string;
+  /** Show the list of countries from the start. */
+  initiallyOpen?: boolean;
 }) {
   const t = useMessages().portrait;
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(initiallyOpen);
   const listId = useId();
 
   return (

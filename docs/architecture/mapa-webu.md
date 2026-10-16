@@ -8,8 +8,9 @@
 
 ## 1. Navigace návštěvníka
 
-Web stojí na glóbu. Mapové stránky (země, region, globální téma, novinka) se otevírají
-jako panel nad glóbem; stránky „na celou šířku" (seznam témat, téma, Atlas Patrons…)
+Web stojí na glóbu. Mapové stránky (země, region, novinka) se otevírají
+jako panel nad glóbem; stránky „na celou šířku" (seznam témat, téma, globální téma
+a jejich seznam, Atlas Patrons…)
 zmenší glóbus do okénka vlevo dole, kterým se dá vrátit zpět.
 
 ```mermaid
@@ -24,14 +25,14 @@ flowchart TD
 
   M1 --> Country["Panel země /country/[slug]<br/>údaje země + profil<br/>+ regionální profil pod zemí"]
   M2 --> Region["Portrét regionu /region/[slug]"]
-  M3 --> Issue["Portrét globálního tématu<br/>/global-issue/[slug]<br/>(zapojené země svítí, zbytek šedý)"]
+  M3 --> Issue["Globální téma /global-issue/[slug]<br/>stránka na celou šířku jako téma<br/>(v okénku glóbu svítí jeho země)"]
   Country -->|"View the whole region"| Region
   Region -->|"země regionu"| Country
   Issue -->|"zapojené země"| Country
 
   Country --> Topic
   Region --> Topic
-  Issue --> Topic
+  Issue -->|"Subtopics = jeho témata"| Topic
   Featured --> Subtopic
 
   Topics["Seznam témat /topics<br/>filtry: země · region · globální téma + fulltext"] --> Topic
@@ -219,3 +220,6 @@ timeline nezobrazují. Obsah ze starého webu: `scripts/webflow/import-portraits
   embed kód nebo odkaz (Datawrapper, Flourish, Our World in Data, World Bank), uloží se jen
   ověřená adresa grafu; na webu karusel po jednom se šipkami a tečkami.
 - **Write a topic** vede na formulář dobrovolných editorů s předvyplněným místem.
+- **Globální téma na celou šířku (16. 10. 2026, ADR-028):** stránka jako téma — fotka s drobečky
+  Atlas › Global issues, titulek, shrnutí, Share, země, Key indicators, „Subtopics" (témata přiřazená
+  v adminu v bloku *Articles in this group*), pak timeline, Maps & charts, zdroje, FAQ; glóbus v okénku.

@@ -11,6 +11,12 @@ import { scrollBehavior } from "@/lib/motion";
 import { useLatest } from "@/lib/use-latest";
 import type { TileIcon as TileIconName } from "@/features/entries/constants";
 import { TileIcon } from "@/components/topics/TileIcon";
+import {
+  DOSSIER_GAP,
+  DOSSIER_HEADING,
+  SUBTOPIC_GRID,
+  SUBTOPIC_HEIGHT,
+} from "@/components/topics/dossier-tiles";
 import { TopicJumpBar } from "./TopicJumpBar";
 
 export interface TopicTileData {
@@ -42,15 +48,11 @@ const readHash = () => window.location.hash.slice(1);
 const noHash = () => "";
 /** Older links pointed at `#chapter-3`; topics took their place. */
 const panelOf = (hash: string) => hash.replace(/^chapter-/, "topic-");
-const HEADING = "font-display text-[26px] font-semibold tracking-tight sm:text-[30px]";
 /**
- * One grid of four equal columns on wide screens: subtopics fill three, the
- * resource column the fourth. A resource tile is half a subtopic tile minus
- * half the gap, so two of them line up with one subtopic tile.
+ * A resource tile is half a subtopic tile minus half the gap, so two of them
+ * line up with one subtopic tile:
+ * (144 px − 12 px gap) / 2 = 66 px from `sm` up; on phones the columns stack, no pairing needed.
  */
-const GAP = "gap-3";
-const SUBTOPIC_HEIGHT = "h-30 sm:h-36";
-// (144 px − 12 px gap) / 2 = 66 px from `sm` up; on phones the columns stack, no pairing needed.
 const RESOURCE_HEIGHT = "h-16 sm:h-[4.125rem]";
 
 /**
@@ -178,13 +180,13 @@ export function DossierExplorer({
 
   return (
     <div className="mt-12">
-      <div ref={tilesRef} className={cn("grid gap-y-10 lg:grid-cols-4", GAP)}>
+      <div ref={tilesRef} className={cn("grid gap-y-10 lg:grid-cols-4", DOSSIER_GAP)}>
         {topics.length ? (
           <section aria-labelledby="dossier-topics" className="lg:col-span-3">
-            <h2 id="dossier-topics" className={HEADING}>
+            <h2 id="dossier-topics" className={DOSSIER_HEADING}>
               {labels.articles ?? t.chapters}
             </h2>
-            <ul className={cn("mt-5 grid grid-cols-2 sm:grid-cols-3", GAP)}>
+            <ul className={cn(SUBTOPIC_GRID, DOSSIER_GAP)}>
               {topics.map((topic, index) => {
                 return (
                   <li key={topic.id}>
@@ -213,10 +215,10 @@ export function DossierExplorer({
 
         {tiles.length ? (
           <section aria-labelledby="dossier-learn-more">
-            <h2 id="dossier-learn-more" className={HEADING}>
+            <h2 id="dossier-learn-more" className={DOSSIER_HEADING}>
               {labels.learnMore ?? t.learnMore}
             </h2>
-            <ul className={cn("mt-5 grid grid-cols-2 lg:grid-cols-1", GAP)}>
+            <ul className={cn("mt-5 grid grid-cols-2 lg:grid-cols-1", DOSSIER_GAP)}>
               {tiles.map((tile) => {
                 // Half-height: the icon beside the label instead of above it.
                 const resource = {

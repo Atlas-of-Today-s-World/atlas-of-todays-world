@@ -158,12 +158,17 @@ test.describe("global issues", () => {
     await expect(page.getByRole("radio", { name: "Global issues" })).toBeVisible();
 
     await page.goto("/global-issue/russia-ukraine-war");
-    await expect(page.getByRole("heading", { name: "Russia–Ukraine War" })).toBeVisible();
-    // The countries open from the count in the header.
-    await page.getByRole("button", { name: /^Countries: d+$/ }).click();
-    await expect(page.getByRole("link", { name: "Ukraine" }).first()).toBeVisible();
-    // Topics belong to regions and countries, not to global issues (2026-10-15).
-    await expect(page.getByRole("link", { name: /^See (all d+ topics|the topic)/ })).toHaveCount(0);
+    await expect(page.getByRole("heading", { level: 1, name: "Russia–Ukraine War" })).toBeVisible();
+    // A full-width page (2026-10-16): its countries are listed open under the count.
+    await expect(page.getByRole("button", { name: /^Countries: \d+$/ })).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    );
+    await expect(
+      page.locator("#content").getByRole("link", { name: "Ukraine", exact: true }).first(),
+    ).toBeVisible();
+    // Its topics are its "Subtopics" (2026-10-16), not the panel's "Related topics".
+    await expect(page.getByRole("heading", { level: 2, name: "Subtopics" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Related topics" })).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "Countries in this group" })).toHaveCount(0);
     // No "N news items published" line either (2026-10-15).

@@ -12,5 +12,5 @@ export const generateStaticParams = groupStaticParams("issue");
 
 export const generateMetadata = groupMetadata("issue");
 
-/** Portrait of a global issue or a custom region (the same `Portrait` as a region's). */
+/** A global issue or a custom region as a full-width page like a topic (IssueArticle). */
 export default groupPortraitPage("issue");

@@ -9,7 +9,7 @@ import { ROUTE_PREFIX, isAtOrUnder, routes } from "./routes";
 
 /** Right content panel: min(vw, rem). */
 export const RAIL = { vw: 38, rem: 27 } as const;
-/** Wide panel (region portrait, global issue, news item). */
+/** Wide panel (region portrait, news item). */
 export const RAIL_WIDE = { vw: 52, rem: 46 } as const;
 
 /** Globe window bottom left on full-width pages, in px (larger from Tailwind `sm` up). */
@@ -88,15 +88,15 @@ export const GLOBE = {
 export const TOUCH_MIN_PX = 44;
 
 const REM_PX = 16;
-/** Pages with the wide panel: a news item, a region and a global issue (not the /news index). */
-const WIDE_RAIL = [ROUTE_PREFIX.news, ROUTE_PREFIX.region, ROUTE_PREFIX.issue];
+/** Pages with the wide panel: a news item and a region (not the /news index). */
+const WIDE_RAIL = [ROUTE_PREFIX.news, ROUTE_PREFIX.region];
 const isWideRail = (path: string) => WIDE_RAIL.some((prefix) => path.startsWith(`${prefix}/`));
 /**
- * Full-width pages over the map (Topics, topic pages and the Global issues
- * overview): the globe shrinks to a corner window. Old /entry/ links redirect
- * (next.config) before they render.
+ * Full-width pages over the map (Topics, topic pages, the Global issues
+ * overview and each global issue's page): the globe shrinks to a corner
+ * window. Old /entry/ links redirect (next.config) before they render.
  */
-const FULL_PAGES = [routes.topics, routes.globalIssues];
+const FULL_PAGES = [routes.topics, routes.globalIssues, ROUTE_PREFIX.issue];
 const isFullPagePath = (path: string) => FULL_PAGES.some((page) => isAtOrUnder(path, page));
 
 export type RailKind = "none" | "normal" | "wide";

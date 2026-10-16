@@ -144,7 +144,7 @@ function PortraitHead({
       <FormField
         id="summary"
         label="Summary"
-        hint="Shown in the map panel and in search engines until the editors write an intro."
+        hint="A region: in its map panel until the editors write an intro. A global issue: the lead under the title of its page. Both: in search engines."
         errors={errors.summary}
       >
         <Textarea
@@ -155,10 +155,20 @@ function PortraitHead({
           defaultValue={values.summary}
         />
       </FormField>
-      <FormField id="intro" label="Portrait intro" errors={errors.intro}>
+      <FormField
+        id="intro"
+        label="Portrait intro"
+        hint="The opening paragraphs below the header."
+        errors={errors.intro}
+      >
         <Textarea id="intro" name="intro" maxLength={5000} rows={6} defaultValue={values.intro} />
       </FormField>
-      <FormField id="hero_url" label="Header photo" errors={errors.hero_url}>
+      <FormField
+        id="hero_url"
+        label="Header photo"
+        hint="Behind the title. A global issue without one gets a wash of its map fill colour."
+        errors={errors.hero_url}
+      >
         <UploadField id="hero_url" name="hero_url" defaultValue={values.hero_url ?? ""} />
       </FormField>
       <FormField id="hero_credit" label="Photo credit" errors={errors.hero_credit}>
