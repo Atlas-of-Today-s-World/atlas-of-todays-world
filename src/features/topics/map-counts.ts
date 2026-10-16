@@ -2,9 +2,10 @@
  * How many topics belong to each place on the globe (ADR-024). Pure, so the
  * server computes it once per page and a unit test pins the rules:
  *
- * - countries layer: a country counts the topics placed on it, on its region
- *   and on any global issue / country group it belongs to (Czechia = its own
- *   topic + the Europe topic = 2);
+ * - countries (per country, for its panel and Topics filter): the topics placed
+ *   on it, on its region and on any global issue / country group it belongs to
+ *   (Czechia = its own topic + the Europe topic = 2). The globe's countries
+ *   layer does not draw this number — it shows the region's (`countryBadges`);
  * - regions layer: a region counts its own topics and every topic of its
  *   countries (so a region never shows fewer than any of its countries);
  * - global issues layer: a group counts its own topics and the topics placed
@@ -71,6 +72,24 @@ export function countTopics(places: readonly TopicPlace[], groups: Groups): Topi
     }
   }
   return counts;
+}
+
+/**
+ * The globe's countries layer: each country carries its region's topic count,
+ * the one number shown under its name (owner's decision of 2026-10-16) — the
+ * editors write per region. A country without a region (or whose region has no
+ * topic yet) is left out and shows the red 0.
+ */
+export function countryBadges(
+  regions: Record<string, string[]>,
+  regionOf: Record<string, string | undefined>,
+): Record<string, number> {
+  return Object.fromEntries(
+    Object.entries(regionOf).flatMap(([iso3, region]) => {
+      const count = region ? (regions[region]?.length ?? 0) : 0;
+      return count ? [[iso3, count]] : [];
+    }),
+  );
 }
 
 /** Counts only (what the globe draws). */

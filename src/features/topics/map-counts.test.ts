@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { badgeNumbers, countTopics } from "./map-counts";
+import { badgeNumbers, countryBadges, countTopics } from "./map-counts";
 import type { TopicPlace } from "@/features/entries/types";
 
 const ALL = ["countries", "regions", "issues"] as const;
@@ -66,5 +66,26 @@ describe("topic counts on the globe", () => {
   it("a topic placed twice on the same country counts once", () => {
     const counts = countTopics([topic("both", { region: "europe", countries: ["CZE"] })], groups);
     expect(badgeNumbers(counts.countries)).toEqual({ CZE: 1, DEU: 1 });
+  });
+});
+
+describe("country badges on the globe", () => {
+  it("every country shows its region's count, not its own (2026-10-16)", () => {
+    const counts = countTopics(
+      [topic("europe-energy", { region: "europe" }), topic("czech-coal", { countries: ["CZE"] })],
+      groups,
+    );
+    // Czechia has 2 topics of its own reach, Germany 1 — both draw Europe's 2.
+    expect(countryBadges(counts.regions, groups.regionOf)).toEqual({ CZE: 2, DEU: 2 });
+  });
+
+  it("leaves out countries whose region has no topic or that have no region (the red 0)", () => {
+    const counts = countTopics([topic("syria", { countries: ["SYR"] })], {
+      ...groups,
+      regionOf: { ...groups.regionOf, ATA: undefined },
+    });
+    expect(countryBadges(counts.regions, { ...groups.regionOf, ATA: undefined })).toEqual({
+      SYR: 1,
+    });
   });
 });

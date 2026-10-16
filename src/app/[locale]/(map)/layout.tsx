@@ -16,7 +16,7 @@ import { getSocialLinks } from "@/features/site/queries";
 import { regionColorMap } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
 import { getTopicPlaces } from "@/features/entries/queries";
-import { badgeNumbers, countTopics } from "@/features/topics/map-counts";
+import { badgeNumbers, countryBadges, countTopics } from "@/features/topics/map-counts";
 import { format, type Messages } from "@/lib/i18n/messages";
 import { getRequestLocale, getT, localeFrom } from "@/lib/i18n/request";
 import type { GlobalIssue, Indicator, Region } from "@/features/geography/types";
@@ -113,12 +113,11 @@ export default async function MapLayout({ children, params }: LayoutProps<"/[loc
   const viewOptions = buildViewOptions(atlas.indicators, atlas.theme.saturation, t);
   const regionLabels = atlas.regions.map(({ slug, name, center }) => ({ slug, name, center }));
   // Topic counts over places (ADR-024): computed here once, the globe only draws them.
-  const counts = countTopics(places, {
-    regionOf: Object.fromEntries(atlas.countries.map((c) => [c.iso3, c.region?.slug])),
-    issues: atlas.issues,
-  });
+  const regionOf = Object.fromEntries(atlas.countries.map((c) => [c.iso3, c.region?.slug]));
+  const counts = countTopics(places, { regionOf, issues: atlas.issues });
   const topicCounts = {
-    countries: badgeNumbers(counts.countries),
+    // A country shows its region's count, the only number under its name.
+    countries: countryBadges(counts.regions, regionOf),
     regions: badgeNumbers(counts.regions),
     issue: badgeNumbers(counts.issues),
   };

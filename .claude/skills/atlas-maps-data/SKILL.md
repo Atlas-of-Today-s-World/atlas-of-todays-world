@@ -34,6 +34,8 @@ equivalent.**
 - **Topic badges**: the number of topics per place. Computed on the server
   (`src/features/topics/map-counts.ts`: `countTopics`, `badgeNumbers`) from `entries.map_layers`;
   the globe only draws them (`globe/topicBadges.ts`). Never count on the client.
+  On the countries layer a country shows its **region's** count (`countryBadges`, ADR-030) —
+  the only number under its name; per-country counts serve its panel and the Topics filter.
 - **Red pulsing zero**: a place with no topic gets a red pill (`GLOBE_COLORS.empty`) and a pulsing
   glow (`globe/zeroPulse.ts`, `useZeroPulse`) — an invitation to write. It pauses in hidden tabs and
   stays still with reduced motion. Keep both behaviours.
