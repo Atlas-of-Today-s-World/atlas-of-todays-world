@@ -6,9 +6,16 @@ const answer = vi.hoisted(() => ({
   socials: vi.fn(),
 }));
 
-// The cache is Next's; here every call reads the "database".
+/** An entry the Data Cache still holds from an older deploy; unset = read the "database". */
+const cached = vi.hoisted(() => ({ entry: undefined as unknown }));
+
+// The cache is Next's; here every call reads the "database" — unless a test
+// plants a stale entry, as a cache surviving a deploy would hand back.
 vi.mock("next/cache", () => ({
-  unstable_cache: (fn: () => unknown) => fn,
+  unstable_cache:
+    (fn: () => unknown) =>
+    (...args: unknown[]) =>
+      cached.entry !== undefined ? Promise.resolve(cached.entry) : fn(...(args as [])),
 }));
 
 vi.mock("@/lib/supabase/public", () => ({
@@ -58,6 +65,7 @@ describe("site settings (public read)", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
   });
   afterEach(() => {
+    cached.entry = undefined;
     vi.restoreAllMocks();
     answer.settings.mockReset();
     answer.socials.mockReset();
@@ -88,6 +96,17 @@ describe("site settings (public read)", () => {
       // The editors' order is kept as stored.
       sectionOrder: ["faq", "timeline", "topics", "visuals", "resources"],
     });
+  });
+
+  it("survives a cached entry from before a field existed (the 2026-10-16 build failure)", async () => {
+    // The Data Cache outlives deploys and CI restores .next/cache: the first
+    // build with `sectionOrder` got the old entry without it and every portrait
+    // crashed on `undefined.map`. Missing fields now take their defaults.
+    const { sectionOrder: _dropped, ...oldShape } = { ...SITE_DEFAULTS, name: "Cached Org" };
+    cached.entry = oldShape;
+    const settings = await getSiteSettings();
+    expect(settings.name).toBe("Cached Org");
+    expect(settings.sectionOrder).toEqual(["timeline", "topics", "visuals", "resources", "faq"]);
   });
 
   it("falls back to the built-in values when the row is missing, the read fails or throws", async () => {

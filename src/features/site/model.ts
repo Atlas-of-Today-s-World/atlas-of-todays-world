@@ -115,6 +115,22 @@ export function settingsFromRow(row: SettingsRow): SiteSettings {
   };
 }
 
+/**
+ * Settings as the site uses them, whatever produced them. A cached value can
+ * predate a field added later — the Data Cache outlives deployments, and CI
+ * restores `.next/cache` between builds — so every field missing from it gets
+ * its default, and the section order is normalised. Without this, the first
+ * deploy after a new field reads `undefined` from the old cache entry and every
+ * page that uses the field breaks until the entry expires.
+ */
+export function withSettingsDefaults(settings: Partial<SiteSettings>): SiteSettings {
+  return {
+    ...SITE_DEFAULTS,
+    ...settings,
+    sectionOrder: normalizeSectionOrder(settings.sectionOrder),
+  };
+}
+
 /** Public social links; a row whose address isn't a safe https URL is left out. */
 export function socialsFromRows(
   rows: readonly Pick<Tables<"site_social_links">, "label" | "url" | "icon">[],
