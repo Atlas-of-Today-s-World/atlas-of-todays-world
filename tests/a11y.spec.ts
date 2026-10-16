@@ -55,9 +55,16 @@ test("accessibility: quiz on the 404 page during a game", async ({ page }) => {
   expect(await seriousViolations(page)).toEqual([]);
 });
 
-test("accessibility: the header's account menu, open", async ({ page }) => {
+test("accessibility: the header's account menu, open", async ({ page, isMobile }) => {
   await page.goto("/about");
-  await page.getByRole("button", { name: "Sign in or open your account" }).click();
+  if (isMobile) {
+    // Phones have the account menu inside the site menu (the header shows only the hamburger).
+    await page.getByRole("button", { name: "Open menu" }).click();
+    const dialog = page.getByRole("dialog", { name: "Menu" });
+    await dialog.getByRole("button", { name: "Account", exact: true }).click();
+  } else {
+    await page.getByRole("button", { name: "Sign in or open your account" }).click();
+  }
   await expect(page.getByRole("menuitem", { name: "Sign in" })).toBeVisible();
   expect(await seriousViolations(page)).toEqual([]);
 });

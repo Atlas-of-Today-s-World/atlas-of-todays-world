@@ -48,7 +48,7 @@ describe("design tokens in class names", () => {
       // Search result preview: the link blue of a search engine, not ours.
       "features/entries/components/SeoForm.tsx: text-[#1a0dab]",
       // Mobile menu backdrop, a near-opaque shade of the space layer.
-      "components/Header.tsx: bg-[#0b101f]",
+      "components/MenuDialog.tsx: bg-[#0b101f]",
     ];
     expect(findAll(/[\w:-]+-\[#[\da-fA-F]{3,8}\]/g, allowed)).toEqual([]);
   });

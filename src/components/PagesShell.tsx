@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import Header, { MenuLink } from "@/components/Header";
+import Header from "@/components/Header";
+import { MenuLink } from "@/components/MenuLinks";
 import { getNavigation } from "@/features/navigation/queries";
 import type { NavLink } from "@/features/navigation/model";
 import { getSiteSettings, getSocialLinks } from "@/features/site/queries";

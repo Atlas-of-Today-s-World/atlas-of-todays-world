@@ -15,8 +15,12 @@ import { cn } from "@/lib/cn";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { format } from "@/lib/i18n/messages";
 
+// `scroll-px-1` matches the `px-1` gutter, so the first item's snap position is 0:
+// without it the browser snapped every track 4 px on its first layout, and that
+// scroll (before the first paint) ended Chrome's LCP recording — the country and
+// region pages reported no Largest Contentful Paint at all (field data, Lighthouse).
 const track = cva(
-  "panel-scroll -mx-1 flex snap-x snap-mandatory overflow-x-auto scroll-smooth px-1 pb-2 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none",
+  "panel-scroll -mx-1 flex snap-x snap-mandatory scroll-px-1 overflow-x-auto scroll-smooth px-1 pb-2 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none",
   {
     variants: {
       gap: { sm: "gap-2.5", md: "gap-3", lg: "gap-6" },

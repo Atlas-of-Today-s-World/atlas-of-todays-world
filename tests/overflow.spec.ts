@@ -94,9 +94,16 @@ test.describe("no overflow", () => {
       for (const width of WIDTHS) {
         await page.setViewportSize({ width, height: width < 768 ? 740 : 800 });
         await page.goto(path);
-        // The globe keeps fetching tiles; settled layout is what matters, not idle network.
-        await page.waitForLoadState("networkidle", { timeout: 15_000 }).catch(() => {});
-        expect(await overflowing(page), `${path} at ${width} px`).toEqual([]);
+        // Settled layout is what matters, not an idle network: the globe keeps fetching
+        // tiles, and the link prefetches Next starts once a page is idle are never
+        // reported finished to Playwright from the second load on (the RSC answers come
+        // from the context's cache), so "networkidle" sat out its whole cap at every
+        // width after the first. Wait for the web fonts (they set the text widths), then
+        // re-check until the layout holds.
+        await page.evaluate(() => document.fonts.ready.then(() => undefined));
+        await expect
+          .poll(() => overflowing(page), { message: `${path} at ${width} px`, timeout: 15_000 })
+          .toEqual([]);
       }
     });
   }

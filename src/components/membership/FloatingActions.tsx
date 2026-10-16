@@ -40,6 +40,8 @@ export function FloatingActions({
       {newsletter && !onNewsletter ? (
         <Link
           href={routes.newsletter}
+          // Site-wide chrome (every page shows it): prefetch on intent, see MenuLink.
+          prefetchOnIntent
           data-print="hide"
           className={cn(glassVariants({ kind: "pill" }), "focus-visible:outline-white")}
         >

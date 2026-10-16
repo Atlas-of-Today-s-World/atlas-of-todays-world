@@ -140,8 +140,8 @@ const config = [
     rules: { "no-restricted-imports": restrictImports(COMPONENTS_NO_FEATURE_UI()) },
   },
   {
-    // The site header's mobile menu embeds the newsletter sign-up form.
-    files: ["src/components/Header.tsx"],
+    // The site header's mobile menu (loaded on demand) embeds the newsletter sign-up form.
+    files: ["src/components/MenuDialog.tsx"],
     rules: {
       "no-restricted-imports": restrictImports(
         COMPONENTS_NO_FEATURE_UI(["@/features/newsletter/components/NewsletterForm"]),

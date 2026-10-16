@@ -166,9 +166,13 @@ export default function ContentRail({
         {fullPage ? (
           // Its own row at the top (not floating): it must never cover a
           // breadcrumb or a title. The close button keeps the right corner.
+          // Prefetched on intent: the full page is rendered on first visit and
+          // brings the full-width layout's own scripts, which a reader of the
+          // preview mostly never needs.
           <div data-print="hide" className="flex px-5 pt-3 pr-16 md:pt-3">
             <Link
               href={fullPage}
+              prefetchOnIntent
               className="inline-flex min-h-(--touch-min) items-center gap-2 rounded-full border border-[var(--color-line)] bg-white px-4 text-[13px] font-medium text-[var(--color-ink)] transition hover:border-[var(--color-ink-muted)] hover:bg-[var(--color-paper)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none active:scale-95"
             >
               <Maximize2 size={15} strokeWidth={1.8} aria-hidden />

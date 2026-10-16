@@ -66,7 +66,7 @@ Pravidla vrstev:
   začínají `import "server-only"`.
 - Hranice hlídá ESLint `no-restricted-imports` (`eslint.config.mjs`, testy `*.test.ts` jsou vyjmuté). Povolené
   výjimky (krátký seznam s důvodem v konfiguraci): `lib/i18n/request.ts` → `features/ui-texts/queries`
-  (úpravy textů z Admin → UI texts) a `components/Header.tsx` → `features/newsletter/components/NewsletterForm`
+  (úpravy textů z Admin → UI texts) a `components/MenuDialog.tsx` → `features/newsletter/components/NewsletterForm`
   (formulář v mobilním menu).
 
 ### 4.2 Čtení dat (veřejný web)
