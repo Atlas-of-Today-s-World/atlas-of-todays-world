@@ -35,7 +35,11 @@ export function TopicsInvite({
     return (
       <p className={cn("text-[12.5px] leading-relaxed text-[var(--color-ink-muted)]", className)}>
         {format(t.inviteMore, { place })}{" "}
-        <Link href={write} className="font-medium text-[var(--color-link)] hover:underline">
+        <Link
+          href={write}
+          data-track="topic_write_click"
+          className="font-medium text-[var(--color-link)] hover:underline"
+        >
           {t.inviteWrite}
         </Link>
         {" · "}
@@ -64,6 +68,7 @@ export function TopicsInvite({
       <div className="mt-3 flex flex-wrap gap-2">
         <Link
           href={write}
+          data-track="topic_write_click"
           className={cn(PILL, "bg-[var(--color-ink)] text-white hover:bg-[var(--color-accent)]")}
         >
           <PenLine aria-hidden className="size-4" />

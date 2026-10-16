@@ -9,6 +9,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { describedBy, FormField, Input, RequiredNote, Textarea } from "@/components/ui/field";
 import { Turnstile } from "@/components/ui/turnstile";
 import { useFormErrors } from "@/lib/use-form-errors";
+import { useTrackSuccess } from "@/features/conversions/use-track";
 import { applyAsVolunteer } from "../actions";
 import { topicPrefill } from "../prefill";
 
@@ -31,6 +32,7 @@ export function VolunteerForm({ captcha }: { captcha: boolean }) {
   const topicsRef = useRef<HTMLInputElement>(null);
   const thanksRef = useRef<HTMLParagraphElement>(null);
   const formError = state.error && !hasFieldErrors ? text(state.error) : null;
+  useTrackSuccess(state, "volunteer_submit");
 
   // "Write a topic about X" links here with ?topic=X. Read on the client so the
   // page stays static; filled only into an empty field, never over typed text.

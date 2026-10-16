@@ -10,6 +10,7 @@ import { subscribe } from "@/features/newsletter/actions";
 import { NEWSLETTER_INTERESTS } from "@/features/newsletter/interests";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { useFormErrors } from "@/lib/use-form-errors";
+import { useTrackSuccess } from "@/features/conversions/use-track";
 
 /**
  * Newsletter subscription (Server Action `subscribe`). Consent is explicit
@@ -34,6 +35,7 @@ export default function NewsletterForm({ captcha }: { captcha: boolean }) {
   // Field errors stand under their field; the alert under the form carries the rest.
   const formError = state.error && !hasFieldErrors ? text(state.error) : null;
   const success = state.ok && state.message ? text(state.message) : null;
+  useTrackSuccess(state, "newsletter_signup");
   const ids = {
     email: `${id}-email`,
     interests: `${id}-interests`,

@@ -12,12 +12,26 @@ export const RAIL = { vw: 38, rem: 27 } as const;
 /** Wide panel (region portrait, news item). */
 export const RAIL_WIDE = { vw: 52, rem: 46 } as const;
 
-/** Globe window bottom left on full-width pages, in px (larger from Tailwind `sm` up). */
+/**
+ * Globe window bottom left on full-width pages, in px. Hidden on phones; from
+ * Tailwind `sm` up a round button (`compact`); the full window (`desktop`)
+ * only from `windowMinPx` (Tailwind `3xl`), where a 72rem column leaves it
+ * room beside the text — narrower, the window covered the topic's summary.
+ * Content columns keep clear of either (`pl-clear-globe-*` in globals.css).
+ */
 export const MINI_GLOBE = {
   mobile: { width: 200, height: 132 },
+  compact: { width: 64, height: 64 },
   desktop: { width: 280, height: 180 },
   desktopMinPx: 640,
+  windowMinPx: 1712,
 } as const;
+
+/** Size of the globe window at a viewport width (as the CSS variables set it). */
+export function miniGlobeSize(viewportWidth: number): { width: number; height: number } {
+  if (viewportWidth >= MINI_GLOBE.windowMinPx) return MINI_GLOBE.desktop;
+  return viewportWidth >= MINI_GLOBE.desktopMinPx ? MINI_GLOBE.compact : MINI_GLOBE.mobile;
+}
 
 /** From this width up the panel is on the right; below it, a bottom sheet (Tailwind `md`). */
 export const DESKTOP_MIN_PX = 768;

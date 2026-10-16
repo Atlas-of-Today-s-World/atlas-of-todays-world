@@ -7,6 +7,7 @@ import { getPatronSettings } from "@/features/membership/queries";
 import { parseDonation } from "@/features/membership/schema";
 import { formatEuro } from "@/lib/format";
 import { privateMetadata } from "@/features/seo/metadata";
+import { TrackOnLoad } from "@/features/conversions/use-track";
 import { routes } from "@/config/routes";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/membership/thank-you">) {
@@ -26,6 +27,8 @@ export default async function ThankYouPage({
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-16">
+      {/* Counted only after a valid (demo) payment, not for a bare visit. */}
+      {donation ? <TrackOnLoad event="checkout_complete" /> : null}
       <CircleCheck aria-hidden size={44} className="text-[var(--color-success)]" />
       <h1 className="font-display mt-4 text-[34px] leading-tight font-bold">{t.heading}</h1>
       {donation ? (

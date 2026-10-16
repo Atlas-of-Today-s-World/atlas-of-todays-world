@@ -38,7 +38,12 @@ export async function FullPage({
 
       {children}
 
-      <LegalFooter t={t} width="max-w-7xl" copyright={site.copyright} links={nav.legal} />
+      <LegalFooter
+        t={t}
+        width="max-w-7xl pl-clear-globe-7xl"
+        copyright={site.copyright}
+        links={nav.legal}
+      />
       {/* Room at the end so the globe window bottom left (on phones the floating
           buttons) never covers the last lines. */}
       <div aria-hidden className="h-28 sm:h-[calc(var(--mini-globe-height)+2rem)]" />

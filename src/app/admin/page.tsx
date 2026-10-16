@@ -6,6 +6,8 @@ import { ADMIN_NAV, navVisible } from "@/config/admin-nav";
 import { adminRoutes } from "@/config/routes";
 import { can, getAccess } from "@/features/auth/access";
 import { approvalQueue, listEntries } from "@/features/entries/editorial";
+import { ConversionsCard } from "@/features/conversions/components/ConversionsCard";
+import { conversionSummary } from "@/features/conversions/editorial";
 
 export const metadata: Metadata = { title: "Overview" };
 
@@ -15,10 +17,13 @@ export default async function AdminHome() {
   if (!access) return null;
   const writes = can(access.permissions, "news", "v");
   const approves = can(access.permissions, "approvals", "v");
+  // Conversions belong to the people who look after patrons and supporters (RLS: members "v").
+  const seesConversions = can(access.permissions, "members", "v");
 
-  const [mine, queue] = await Promise.all([
+  const [mine, queue, conversions] = await Promise.all([
     writes ? listEntries({ mine: true, userId: access.userId }) : Promise.resolve([]),
     approves ? approvalQueue() : Promise.resolve([]),
+    seesConversions ? conversionSummary() : Promise.resolve(null),
   ]);
   const returned = mine.filter((entry) => entry.status === "draft" && entry.review_note);
   const drafts = mine.filter((entry) => entry.status === "draft");
@@ -80,6 +85,8 @@ export default async function AdminHome() {
           </ul>
         </section>
       ) : null}
+
+      {seesConversions ? <ConversionsCard summary={conversions} /> : null}
 
       <section className="mt-10">
         <h2 className="font-display mb-3 text-[17px] font-bold">Sections you can open</h2>

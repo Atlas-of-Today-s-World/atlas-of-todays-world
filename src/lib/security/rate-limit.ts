@@ -40,7 +40,14 @@ function keyHash(value: string, legacyKey: string | null): string {
 }
 
 /** Scopes where a failing limit store refuses the request instead of letting it through. */
-const FAIL_CLOSED_SCOPES = new Set(["email-code", "email-verify", "newsletter", "volunteer"]);
+const FAIL_CLOSED_SCOPES = new Set([
+  "email-code",
+  "email-verify",
+  "newsletter",
+  "volunteer",
+  // Conversion counter (/api/e): it writes rows, so an outage drops events.
+  "event",
+]);
 
 /**
  * A limit per email address, whichever IP the requests come from (e.g. code

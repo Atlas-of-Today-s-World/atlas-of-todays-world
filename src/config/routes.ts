@@ -104,6 +104,8 @@ export const apiRoutes = {
   me: "/api/me",
   /** Download of one's own data (GDPR Art. 15 and 20). */
   accountExport: "/api/account/export",
+  /** Cookie-less conversion counter (a POST from `navigator.sendBeacon`, features/conversions). */
+  event: "/api/e",
 } as const;
 
 /**

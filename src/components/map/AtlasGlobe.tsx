@@ -335,7 +335,8 @@ export default function AtlasGlobe({
         "fixed bottom-0 left-0 overflow-hidden bg-[var(--color-space-deep)] transition-[width,height,left,bottom,border-radius] duration-700 ease-[cubic-bezier(0.65,0,0.35,1)]",
         mini
           ? // On phones the window would cover the text; "Back to Atlas" is in the header.
-            "z-mini-globe bottom-4 left-4 h-(--mini-globe-height) w-(--mini-globe-width) rounded-2xl shadow-2xl ring-1 shadow-black/60 ring-white/25 max-sm:hidden"
+            // Below 3xl a round button, so it never covers the column (globals.css).
+            "z-mini-globe bottom-4 left-4 h-(--mini-globe-height) w-(--mini-globe-width) rounded-(--mini-globe-radius) shadow-2xl ring-1 shadow-black/60 ring-white/25 max-sm:hidden"
           : "h-dvh w-full",
       )}
     >

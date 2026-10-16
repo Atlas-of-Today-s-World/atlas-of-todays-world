@@ -98,6 +98,12 @@
   --z-index-notice: 60;
   /* "Skip to content": above everything once focused. */
   --z-index-skip-link: 100;
+  /*
+   * Wide enough for the full globe window beside a full-width page's 72rem
+   * column (MINI_GLOBE.windowMinPx in src/config/layout.ts); narrower, the
+   * window is a small round button.
+   */
+  --breakpoint-3xl: 107rem;
 }
 
 :root {
@@ -106,15 +112,49 @@
   --rail-width: min(38vw, 27rem);
   --rail-width-wide: min(52vw, 46rem);
   --touch-min: 44px;
-  /* Globe window on full-width pages — must match MINI_GLOBE in src/config/layout.ts. */
+  /*
+   * Globe window on full-width pages — must match MINI_GLOBE in src/config/layout.ts.
+   * Hidden on phones; a round button where a full window would cover the text;
+   * the full window only where the column leaves room for it beside the text.
+   */
   --mini-globe-width: 200px;
   --mini-globe-height: 132px;
+  --mini-globe-radius: 1rem;
+  /* Room a content column keeps on its left for the window (pl-clear-globe-*). */
+  --mini-globe-clearance: 0px;
 }
 
 @media (min-width: 640px) {
   :root {
+    --mini-globe-width: 64px;
+    --mini-globe-height: 64px;
+    --mini-globe-radius: 9999px;
+    /* left-4 + the window + a 1rem gap */
+    --mini-globe-clearance: calc(var(--mini-globe-width) + 2rem);
+  }
+}
+
+@media (min-width: 1712px) {
+  :root {
     --mini-globe-width: 280px;
     --mini-globe-height: 180px;
+    --mini-globe-radius: 1rem;
+  }
+}
+
+/*
+ * Left padding of a content column on a full-width page (FullPage) from
+ * Tailwind `sm` up: the usual 2rem, or more where the column's own margin
+ * (the room `mx-auto max-w-*` leaves beside it) is too narrow to keep the text
+ * clear of the globe window bottom left. The suffix is the column's max width
+ * (`pl-clear-globe-6xl` with `max-w-6xl`); pair it with `sm:pr-8`, not `sm:px-8`.
+ */
+@utility pl-clear-globe-* {
+  @media (width >= 40rem) {
+    padding-left: max(
+      2rem,
+      calc(var(--mini-globe-clearance) - max(0px, (100% - --value(--container- *)) / 2))
+    );
   }
 }
 
@@ -194,6 +234,17 @@ body {
 /* In the small globe window the attribution stays folded to its (i) button. */
 [data-globe-window] .maplibregl-ctrl-attrib-inner {
   display: none;
+}
+
+/*
+ * The round globe button (below 3xl, MINI_GLOBE.compact) has no room for it:
+ * its corner falls outside the circle. The credits stay on the full map one
+ * click away and in the full window.
+ */
+@media (width < 107rem) {
+  [data-globe-window] .maplibregl-ctrl-attrib {
+    display: none;
+  }
 }
 
 /* The globe is keyboard-operable too (arrows, +/−) — so focus must be visible. */
@@ -367,6 +418,17 @@ body {
 
   :root:has([data-content-rail][data-sheet="expanded"]) [data-cookie-notice] {
     display: none;
+  }
+
+  /*
+   * The map credits (MapLibre's (i), bottom left of the globe) would sit under
+   * the open sheet: they ride just above its top edge (MOBILE_SHEET.ratio)
+   * instead, still tappable. The round globe button of full-width pages keeps none.
+   */
+  :root:has([data-content-rail]:not([data-sheet="expanded"]))
+    .maplibregl-map:not([data-globe-window] *)
+    .maplibregl-ctrl-bottom-left {
+    bottom: calc(58dvh + 0.25rem);
   }
 }
 
