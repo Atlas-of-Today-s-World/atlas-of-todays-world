@@ -94,6 +94,7 @@ const MENU: Record<Exclude<(typeof ROLES)[number], "reader">, string[]> = {
     "Home page",
     "Site pages",
     "Site settings",
+    "Portrait layout",
     "UI texts",
     "Site menus",
     "Regions & countries",
@@ -120,6 +121,7 @@ const MENU: Record<Exclude<(typeof ROLES)[number], "reader">, string[]> = {
     "Home page",
     "Site pages",
     "Site settings",
+    "Portrait layout",
     "UI texts",
     "Site menus",
     "Regions & countries",
@@ -152,8 +154,9 @@ test.describe("menu administrace", () => {
     }) => {
       await signInAs(page, role as (typeof ROLES)[number]);
       const menu = page.getByRole("navigation", { name: "Administration" });
-      // Every team member also has their own account, last in the menu.
-      await expect(menu.getByRole("link")).toHaveText([...items, "My account"]);
+      // Every team member also has the published Claude skills and their own
+      // account, last in the menu.
+      await expect(menu.getByRole("link")).toHaveText([...items, "Claude skills", "My account"]);
     });
   }
 

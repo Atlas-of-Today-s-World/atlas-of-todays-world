@@ -142,6 +142,9 @@ async function expectShown(carousel: Locator, title: string, number: 1 | 2) {
       return a && b ? Math.round(Math.abs(a.x - b.x)) : Infinity;
     })
     .toBeLessThanOrEqual(6);
+  // The page may stop with the carousel half below the fold (the preview page
+  // has a banner above the article); what matters is the slide inside the track.
+  await carousel.scrollIntoViewIfNeeded();
   await expect(figure).toBeInViewport({ ratio: 0.9 });
   await expect(
     carousel.getByRole("button", { name: `${LABEL}: show ${number} of 2` }),
