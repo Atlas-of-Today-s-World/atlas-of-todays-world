@@ -171,12 +171,19 @@ export const saveSiteSettings = formAction(SettingsInput, async ({ data, supabas
 
 ## Webhooks and payments
 
-- Stripe stays in **test mode**. The checkout today is a demo (`features/membership/demo-card.ts`);
-  the switch to Stripe Checkout is described in `features/membership/actions.ts` (ADR G6).
-- When a webhook is added: a `route.ts` that reads the raw body (`await request.text()`), verifies
-  the signature with `STRIPE_WEBHOOK_SECRET`, stores `event.id` under a UNIQUE constraint and
-  skips duplicates, returns 2xx fast, and re-fetches the object when state matters. Membership
-  state comes only from webhook-confirmed events, never from the success redirect.
+- Stripe (ADR G6) is on only when `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` are both set
+  (`stripeEnabled()` in `lib/stripe.ts`); otherwise "Donate & Join" stays on the demo checkout.
+  Local work and tests use test keys (`sk_test_`) only; live keys live only in GitHub secrets.
+- Checkout: `startCheckout` → `createCheckoutUrl` (`features/membership/stripe.ts`), hosted page,
+  monthly = subscription marked `metadata.atlas = "patron"`, one-time = payment (no membership).
+- Webhook: `app/api/stripe/webhook/route.ts` reads the raw body, verifies the signature, stores
+  `event.id` (`stripe_event_seen`, forgotten on failure so the retry runs), re-fetches the
+  subscription and writes through `apply_stripe_subscription()` (service role). Membership state
+  comes only from webhook-confirmed events, never from the success redirect.
+- Donors without an account wait in `pending_memberships` (server-only) until they sign in with
+  that confirmed e-mail: `claim_my_donations()` runs in `signInDestination`.
+- Events to subscribe in Stripe: `checkout.session.completed`, `customer.subscription.updated`,
+  `customer.subscription.deleted`. Locally: `stripe listen --forward-to localhost:3000/api/stripe/webhook`.
 
 ## Checklist
 

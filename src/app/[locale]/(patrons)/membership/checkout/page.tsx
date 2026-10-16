@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { localePath } from "@/lib/i18n/config";
 import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
+import { stripeEnabled } from "@/lib/stripe";
+import { CheckoutRetry } from "@/features/membership/components/CheckoutRetry";
 import { DemoCheckout } from "@/features/membership/components/DemoCheckout";
 import { getPatronSettings } from "@/features/membership/queries";
 import { parseDonation } from "@/features/membership/schema";
@@ -15,8 +17,10 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/membersh
 }
 
 /**
- * DEMO checkout (no payment). Invalid amount or period — or one the donation
- * card no longer offers (patron_settings) → back to /membership.
+ * Without Stripe: the DEMO checkout (no payment). With Stripe: payment happens
+ * on Stripe's page, and this page only explains a Checkout that couldn't be
+ * opened (`?error=busy|failed`). Invalid amount or period — or one the
+ * donation card no longer offers (patron_settings) → back to /membership.
  */
 export default async function CheckoutPage({
   params,
@@ -26,6 +30,18 @@ export default async function CheckoutPage({
   const [query, settings] = await Promise.all([searchParams, getPatronSettings()]);
   const donation = parseDonation(query, settings.donation);
   if (!donation) redirect(localePath(locale, routes.membership));
+  if (stripeEnabled()) {
+    return (
+      <main>
+        <CheckoutRetry
+          donation={donation}
+          reason={query.error === "busy" ? "busy" : "failed"}
+          locale={locale}
+          messages={await getMessagesFor(locale)}
+        />
+      </main>
+    );
+  }
   return (
     <main>
       <DemoCheckout donation={donation} />

@@ -12,4 +12,4 @@
 3. **Google Cloud projekt** pro OAuth klienta — kdo ho založí a pod jakým účtem (doporučeno účet organizace Atlas).
 4. ~~Platnost pozvánky a doménové omezení~~ — **rozhodnuto 2026-09-30:** 5 dní, bez omezení domény.
 5. **Jazyky** (P15) a **audio** (R4) — potvrzení rozsahu před návrhem tabulky `translations` a bucketu `audio`.
-6. **Platby** — Stripe Payment Links (brief) vs. hosted Checkout + webhook (plán provozu).
+6. ~~**Platby** — Stripe Payment Links vs. hosted Checkout + webhook~~ — **rozhodnuto 2026-10-16:** hosted Checkout + webhook; dar bez účtu se k účtu připojí po přihlášení stejným e-mailem.

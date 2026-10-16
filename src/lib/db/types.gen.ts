@@ -3046,6 +3046,25 @@ export type Database = {
         Args: { event: string; path: string; ref: string }
         Returns: undefined
       }
+      apply_stripe_subscription: {
+        Args: {
+          p_customer: string
+          p_email: string
+          p_monthly_cents?: number
+          p_period_end?: string
+          p_started_at?: string
+          p_status: string
+          p_subscription: string
+          p_user?: string
+        }
+        Returns: string
+      }
+      claim_my_donations: { Args: never; Returns: boolean }
+      stripe_event_forget: { Args: { p_id: string }; Returns: undefined }
+      stripe_event_seen: {
+        Args: { p_id: string; p_type: string }
+        Returns: boolean
+      }
       apply_topic_template: {
         Args: { p_entry: string; p_remove_missing?: boolean; p_template: string }
         Returns: undefined

@@ -54,4 +54,12 @@ export const publicEnv = {
     process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
     minLength(10),
   ),
+  // Stripe's customer portal login page (Stripe → Settings → Billing → Customer portal):
+  // donors enter their e-mail there to change or cancel a monthly donation. Empty = the
+  // manage page shows the contact address only.
+  NEXT_PUBLIC_STRIPE_PORTAL_URL: optional(
+    "NEXT_PUBLIC_STRIPE_PORTAL_URL",
+    process.env.NEXT_PUBLIC_STRIPE_PORTAL_URL,
+    (value) => /^https:\/\/billing\.stripe\.com\/p\/login\/[\w-]+$/.test(value),
+  ),
 } as const;

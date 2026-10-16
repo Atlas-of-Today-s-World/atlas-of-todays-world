@@ -24,6 +24,8 @@ export async function finishSignIn(supabase: ServerClient, next: string | null, 
 export async function signInDestination(supabase: ServerClient, next: string | null) {
   const target = safeRedirect(next, DEFAULT_AFTER_SIGN_IN);
   await supabase.rpc("claim_invitation");
+  // A monthly donation made before the account existed (Stripe webhook, ADR G6).
+  await supabase.rpc("claim_my_donations");
 
   // Default destination in any language (/account, /<code>/account) = the team member has nowhere else to go.
   if (splitLocale(target).path === DEFAULT_AFTER_SIGN_IN) {

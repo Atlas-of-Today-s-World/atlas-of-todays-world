@@ -38,9 +38,9 @@ describe("buildCsp", () => {
     expect(prod).not.toContain("vercel");
   });
 
-  it("the Google sign-in form may end on Google's consent screen, and nowhere else", () => {
+  it("forms may end only on Google's consent screen (sign-in) and Stripe Checkout (donations)", () => {
     expect(directive(prod, "form-action")).toBe(
-      "form-action 'self' https://abc.supabase.co https://accounts.google.com",
+      "form-action 'self' https://abc.supabase.co https://accounts.google.com https://checkout.stripe.com",
     );
   });
 

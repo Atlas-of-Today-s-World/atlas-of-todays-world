@@ -17,6 +17,17 @@ const schema = z.object({
   // Deliberately lenient: a wrong value must not stop the app from starting (siteverify
   // reports it and the forms stay open).
   TURNSTILE_SECRET_KEY: optional(z.string().min(1)),
+  // Stripe (ADR G6, lib/stripe.ts): with both set, "Donate & Join" opens Stripe Checkout
+  // and /api/stripe/webhook writes memberships; without them the demo checkout stays.
+  // Test (sk_test_) or live (sk_live_) keys, or a restricted key (rk_).
+  STRIPE_SECRET_KEY: optional(
+    z
+      .string()
+      .regex(/^(sk|rk)_(test|live)_\w{10,}$/, "Stripe klíč začíná sk_test_, sk_live_ nebo rk_"),
+  ),
+  STRIPE_WEBHOOK_SECRET: optional(
+    z.string().regex(/^whsec_\w{10,}$/, "Podpisový klíč webhooku začíná whsec_"),
+  ),
   // IndexNow (ADR-021): public by design (served at /indexnow-key.txt); empty = pings off.
   // Search console ownership tokens (public, rendered as <meta>); empty = verify by DNS instead.
   GOOGLE_SITE_VERIFICATION: optional(z.string().regex(/^[\w-]{10,100}$/)),

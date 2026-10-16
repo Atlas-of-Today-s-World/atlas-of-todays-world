@@ -7,6 +7,7 @@ import { getPatronSettings } from "@/features/membership/queries";
 import { parseDonation } from "@/features/membership/schema";
 import { formatEuro } from "@/lib/format";
 import { privateMetadata } from "@/features/seo/metadata";
+import { stripeEnabled } from "@/lib/stripe";
 import { TrackOnLoad } from "@/features/conversions/use-track";
 import { routes } from "@/config/routes";
 
@@ -14,7 +15,11 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/membersh
   return privateMetadata((await getMessagesFor(await localeFrom(params))).patrons.thankYou.title);
 }
 
-/** After the (demo) payment. The amount line is shown only for a valid donation. */
+/**
+ * After the payment (Stripe's success URL, or the demo checkout). The amount
+ * line is shown only for a valid donation. The membership itself comes from
+ * the Stripe webhook, never from this page.
+ */
 export default async function ThankYouPage({
   params,
   searchParams,
@@ -38,7 +43,9 @@ export default async function ThankYouPage({
           })}
         </p>
       ) : null}
-      <p className="mt-2 text-[14px] font-semibold text-[var(--color-warning)]">{t.demoNote}</p>
+      {stripeEnabled() ? null : (
+        <p className="mt-2 text-[14px] font-semibold text-[var(--color-warning)]">{t.demoNote}</p>
+      )}
 
       <h2 className="font-display mt-10 text-[20px] font-bold">{t.nextTitle}</h2>
       <ul className="mt-4 list-disc space-y-2 pl-5 text-[15px] leading-relaxed text-[var(--color-ink-soft)]">

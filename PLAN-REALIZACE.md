@@ -150,7 +150,7 @@ Dělá se **před** napojením na DB, aby se komponenty přepisovaly jen jednou.
 - [x] **G5.2** Zbylé texty UI do `messages/*.json` (sekce portrétu, panely, formuláře veřejné části) a české verze
       novinek/hesel (`entries.locale` + vazba na originál).
       *Hotovo: texty UI v #23, překlady hesel a novinek migrací 20261002000020 (`entries.locale` + `translation_of`).*
-- [ ] **G6** Platby P10 (Stripe, webhook → `memberships`) — po přechodu na Vercel Pro (komerční použití).
+- [ ] **G6** Platby P10 (Stripe, webhook → `memberships`) — kód hotový 2026-10-16 (Checkout + webhook, zapne se klíči `STRIPE_*`); ostré klíče až po přechodu na Vercel Pro (komerční použití).
 - [ ] **G7** Webflow import P16 a přesměrování starých URL; přechod koncept → produkce (ARCHITEKTURA 13.5).
       *Připraveno: `scripts/import-webflow.mjs` (CSV z CMS Exportu i JSON z Data API v2, nanečisto bez `--apply`,
       zápis jen do projektu z `--project`, opakovatelný, obrázky z Webflow CDN do Storage, YouTube → zdroje),

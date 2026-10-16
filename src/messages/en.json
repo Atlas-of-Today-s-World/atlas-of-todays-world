@@ -316,6 +316,14 @@
         "expiry": "Your card's expiry date is invalid or in the past.",
         "cvc": "Your card's security code is invalid.",
         "declined": "Your card was declined. (Demo: 4000 0000 0000 0002 is always declined.)"
+      },
+      "stripe": {
+        "title": "We couldn't open the payment page",
+        "monthly": "Your monthly donation of {amount} hasn't been made yet.",
+        "oneTime": "Your donation of {amount} hasn't been made yet.",
+        "failed": "The secure Stripe payment page didn't open. Nothing was charged. Please try again in a moment.",
+        "busy": "There were too many attempts from your connection. Nothing was charged. Please wait a few minutes and try again.",
+        "retry": "Try again"
       }
     },
     "thankYou": {
@@ -340,7 +348,9 @@
       "title": "Manage your donation",
       "lead": "In production, this link opens the secure Stripe customer portal, where you can update your card, change the amount or cancel your donation.",
       "demo": "This is a demo — no Stripe account is connected yet.",
-      "help": "Need help? Email us at {email}."
+      "help": "Need help? Email us at {email}.",
+      "leadLive": "Open the secure Stripe customer portal and enter the email you donated with. Stripe sends you a link where you can update your card, change the amount or cancel your donation.",
+      "open": "Manage my donation"
     },
     "builtWith": "This website was designed and built by",
     "builtWithLabel": "Website by Develogi.cz",

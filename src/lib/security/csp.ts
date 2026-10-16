@@ -23,6 +23,8 @@ import { PRE_PAINT_HASH } from "@/lib/pre-paint";
 const TURNSTILE = "https://challenges.cloudflare.com";
 /** Google's OAuth consent screen, the last hop of the sign-in redirect. */
 const GOOGLE_SIGN_IN = "https://accounts.google.com";
+/** The hosted Stripe Checkout page "Donate & Join" redirects to (ADR G6). */
+const STRIPE_CHECKOUT = "https://checkout.stripe.com";
 
 export function buildCsp({
   dev,
@@ -81,7 +83,13 @@ export function buildCsp({
     "base-uri": ["'self'"],
     // Google sign-in is a form post to our Server Action that redirects via Supabase
     // Auth to Google; a natively submitted form (before hydration) is checked on every hop.
-    "form-action": ["'self'", ...(supabaseHttp ? [supabaseHttp] : []), GOOGLE_SIGN_IN],
+    // "Donate & Join" likewise redirects to the hosted Stripe Checkout page.
+    "form-action": [
+      "'self'",
+      ...(supabaseHttp ? [supabaseHttp] : []),
+      GOOGLE_SIGN_IN,
+      STRIPE_CHECKOUT,
+    ],
   };
 
   const parts = Object.entries(directives).map(
