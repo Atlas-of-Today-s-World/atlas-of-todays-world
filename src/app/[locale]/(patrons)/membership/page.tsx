@@ -31,7 +31,7 @@ import { captchaEnabled } from "@/lib/security/turnstile";
 import { breadcrumbNode, faqNode, graph, ids, pageUrl, webPageNode } from "@/features/seo/jsonld";
 import { routes, VOLUNTEER_ID } from "@/config/routes";
 
-/** Id of the bottom donation card ("Donate and Join" in the hero scrolls there). */
+/** Id of the bottom donation card (the goal section's call to action scrolls there). */
 const JOIN_ID = "join";
 
 export const generateMetadata = staticPageMetadata("patrons", routes.membership, {
@@ -261,8 +261,10 @@ export default async function MembershipPage({ params }: PageProps<"/[locale]/me
                   <RichText text={paragraph} />
                 </p>
               ))}
+              {/* The donation card sits right beside it; the hero button leads to
+                  the other way to help: the volunteer form further down. */}
               <a
-                href={`#${JOIN_ID}`}
+                href={`#${VOLUNTEER_ID}`}
                 className={buttonVariants({ variant: "patron", className: "mt-8" })}
               >
                 {t.heroCta}
@@ -377,7 +379,7 @@ export default async function MembershipPage({ params }: PageProps<"/[locale]/me
             }),
             potentialAction: {
               "@type": "DonateAction",
-              name: t.heroCta,
+              name: t.card.submit,
               target: pageUrl(routes.membership, locale),
               recipient: { "@id": ids.organization },
             },
