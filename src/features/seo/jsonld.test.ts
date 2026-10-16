@@ -354,7 +354,8 @@ describe("validateJsonLd", () => {
         { "@type": "Dataset", name: "D", description: "short" },
         { "@type": "BreadcrumbList", itemListElement: [{ position: 2, name: "" }, {}] },
         { "@type": "FAQPage", mainEntity: [{ name: "Q" }] },
-        { "@type": "Organization", name: "O" },
+        { "@type": "NGO", name: "O" },
+        { "@type": "Organization", name: "Builder", url: "https://example.org", logo: "x" },
         { name: "untyped" },
       ],
     });
@@ -367,9 +368,18 @@ describe("validateJsonLd", () => {
         "Dataset: description must have 50–5000 characters",
         "BreadcrumbList[0]: wrong position",
         "FAQPage: question without name or answer text",
+        "NGO: missing logo",
         "Organization: missing logo",
         "node without @type",
       ]),
     );
+  });
+
+  it("asks a logo only of the publisher, not of another organization (the site's builder)", () => {
+    const problems = validateJsonLd({
+      "@context": "https://schema.org",
+      "@graph": [{ "@type": "Organization", name: "Develogi", url: "https://example.org" }],
+    });
+    expect(problems).not.toContain("Organization: missing logo");
   });
 });
