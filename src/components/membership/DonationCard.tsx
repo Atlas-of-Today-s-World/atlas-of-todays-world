@@ -9,6 +9,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { format } from "@/lib/i18n/messages";
 import type { DonationOptions, Period } from "@/features/membership/config";
 import { cn } from "@/lib/cn";
+import { TurningCoin } from "./DonateCoin";
 import { formatEuro } from "@/lib/format";
 import { routes } from "@/config/routes";
 
@@ -63,8 +64,13 @@ function SubmitButton({ children }: { children: ReactNode }) {
       type="submit"
       disabled={pending}
       aria-busy={pending}
-      className={buttonVariants({ variant: "ink", block: true, className: "mt-6 rounded-lg" })}
+      className={buttonVariants({
+        variant: "ink",
+        block: true,
+        className: "group mt-6 gap-2.5 rounded-lg",
+      })}
     >
+      <TurningCoin />
       {children}
     </button>
   );

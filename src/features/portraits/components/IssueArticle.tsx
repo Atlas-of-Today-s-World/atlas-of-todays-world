@@ -82,15 +82,7 @@ export async function IssueArticle({
         />
 
         <div className={ARTICLE_BODY}>
-          <div className="flex flex-wrap items-center gap-3">
-            <ContentStatusBadge status={issue.contentStatus} t={t} />
-            {/* The issue's colour on the globe, as a key to the corner window. */}
-            <span
-              aria-hidden
-              className="h-2 w-24 rounded-full"
-              style={{ background: issue.fill }}
-            />
-          </div>
+          <ContentStatusBadge status={issue.contentStatus} t={t} />
           {/* The editors' intro; the Atlas summary is already under the title. */}
           {intro && intro !== issue.summary ? (
             <p className="mt-6 max-w-4xl text-[15px] leading-relaxed whitespace-pre-line text-[var(--color-ink-soft)]">
