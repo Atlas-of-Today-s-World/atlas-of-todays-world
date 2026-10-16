@@ -42,7 +42,7 @@ export interface AdminNavItem {
 /** Single definition of the admin menu (ARCHITEKTURA 5.2); shows only sections with the "v" right. */
 export const ADMIN_NAV: readonly AdminNavItem[] = [
   { href: adminRoutes.overview, label: "Overview", section: null, icon: LayoutDashboard },
-  { href: adminRoutes.content.list, label: "Articles", section: "news", icon: Newspaper },
+  { href: adminRoutes.content.list, label: "Topics & news", section: "news", icon: Newspaper },
   { href: adminRoutes.authors.list, label: "Author profiles", section: "news", icon: PenLine },
   {
     href: adminRoutes.topicTemplates.list,
@@ -52,7 +52,7 @@ export const ADMIN_NAV: readonly AdminNavItem[] = [
   },
   {
     href: adminRoutes.approvals,
-    label: "Article approvals",
+    label: "Approvals",
     section: "approvals",
     icon: BadgeCheck,
   },

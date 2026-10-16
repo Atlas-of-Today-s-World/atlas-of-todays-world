@@ -86,7 +86,7 @@ test("publisher cannot approve own article, editor can and it goes live", async 
   await expect(approver.getByText("První odstavec napsaný v e2e testu.")).toBeVisible();
 });
 
-test("row icons in Articles: editor unpublishes, then deletes the draft", async ({ page }) => {
+test("row icons in Topics & news: editor unpublishes, then deletes the draft", async ({ page }) => {
   await signIn(page, editor, "/admin");
   await page.goto("/admin/content?q=" + encodeURIComponent(slug));
   const row = page.getByRole("row", { name: title });

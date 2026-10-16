@@ -23,7 +23,7 @@ import { listEntries } from "@/features/entries/editorial";
 import { ENTRY_STATUSES, type EntryStatus } from "@/features/entries/constants";
 import { adminRoutes, routes } from "@/config/routes";
 
-export const metadata: Metadata = { title: "Articles" };
+export const metadata: Metadata = { title: "Topics & news" };
 
 export default async function EntriesPage({
   searchParams,
@@ -52,8 +52,8 @@ export default async function EntriesPage({
     <>
       <PageHeader
         icon={navIcon(adminRoutes.content.list)}
-        title="Articles"
-        lead="Topics (encyclopedia entries) and news articles — drafts, pending approval and published. Publishing always goes through Article approvals."
+        title="Topics & news"
+        lead="Topics (encyclopedia entries with subtopics) and news — drafts, pending approval and published. Publishing always goes through Approvals."
         actions={
           can(access.permissions, "news", "c") ? (
             <span className="flex flex-wrap gap-2">
@@ -64,7 +64,7 @@ export default async function EntriesPage({
                 href={adminRoutes.content.new}
                 className={buttonVariants({ size: "sm", variant: "outline" })}
               >
-                New article
+                New news item
               </Link>
             </span>
           ) : null
@@ -72,16 +72,16 @@ export default async function EntriesPage({
       />
       <DataTable
         tableKey="admin-entries"
-        caption="Articles"
+        caption="Topics & news"
         searchParam="q"
-        searchPlaceholder="Search articles…"
+        searchPlaceholder="Search topics and news…"
         seedFilters={status ? { status: [status] } : undefined}
         initialSort={{ key: "updated", dir: "desc" }}
-        emptyTitle="No articles yet"
+        emptyTitle="No topics or news yet"
         stats={optionStats("status", STATUS_OPTIONS)}
         toolbar={
           <ToolbarLink href={mineHref} active={mine}>
-            <UserRound aria-hidden className="size-3.5" /> Only my articles
+            <UserRound aria-hidden className="size-3.5" /> Only mine
           </ToolbarLink>
         }
         maxRowActions={2 + (canUnpublish ? 1 : 0) + (canDelete ? 1 : 0)}
@@ -137,7 +137,7 @@ export default async function EntriesPage({
                         "Unpublish",
                         unpublishEntry.bind(null, row.id),
                         `Unpublish ${row.title}?`,
-                        "The article leaves the site and goes back to drafts. You can publish it again through Article approvals.",
+                        "It leaves the site and goes back to drafts. You can publish it again through Approvals.",
                       ),
                     ]
                   : []),
@@ -145,8 +145,8 @@ export default async function EntriesPage({
                   ? [
                       deleteAction(
                         deleteEntry.bind(null, row.id),
-                        `article ${row.title}`,
-                        "The article, its topics, sources and history are deleted. This cannot be undone.",
+                        `${row.kind === "entry" ? "the topic" : "the news item"} ${row.title}`,
+                        "It is deleted with its subtopics, sources and history. This cannot be undone.",
                       ),
                     ]
                   : []),

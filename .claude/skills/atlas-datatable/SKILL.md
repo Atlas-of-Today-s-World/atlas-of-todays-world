@@ -24,13 +24,13 @@ no functions in column definitions.
 ```tsx
 <DataTable
   tableKey="admin-entries"            // unique; preferences are stored under it
-  caption="Articles"                  // accessible name of the table
+  caption="Topics & news"             // accessible name of the table
   searchParam="q"                     // optional: mirror search into the URL (server narrows)
-  searchPlaceholder="Search articles…"
+  searchPlaceholder="Search topics and news…"
   initialSort={{ key: "updated", dir: "desc" }}
   stats={optionStats("status", STATUS_OPTIONS)}   // KPI chips "All" + one per option
-  toolbar={<ToolbarLink href={…} active={mine}>Only my articles</ToolbarLink>}
-  emptyTitle="No articles yet"
+  toolbar={<ToolbarLink href={…} active={mine}>Only mine</ToolbarLink>}
+  emptyTitle="No topics or news yet"
   maxRowActions={2 + (canDelete ? 1 : 0)}  // most icons a row can show — sizes the Actions column
   columns={[
     { key: "title", label: "Title", link: true, sortable: true, filter: "text", width: "minmax(240px, 3fr)" },

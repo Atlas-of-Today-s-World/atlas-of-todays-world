@@ -26,8 +26,8 @@ and for AI agents drafting text for them.
 | Region portrait (9 regions) | `/region/<slug>` | [Regions & countries](https://atlas-of-todays-world.vercel.app/admin/regions) |
 | Global issue, or custom region (a group of countries) | `/global-issue/<slug>` | [Global issues](https://atlas-of-todays-world.vercel.app/admin/global-issues) |
 | Country profile and facts | `/country/<slug>` | [Regions & countries](https://atlas-of-todays-world.vercel.app/admin/regions) → the country |
-| Topic (encyclopedia dossier) with subtopics | `/topics/<slug>` | [Articles](https://atlas-of-todays-world.vercel.app/admin/content) (kind "Topic") |
-| News article | `/news/<slug>` | [Articles](https://atlas-of-todays-world.vercel.app/admin/content) (kind "News article") |
+| Topic (encyclopedia dossier) with subtopics | `/topics/<slug>` | [Topics & news](https://atlas-of-todays-world.vercel.app/admin/content) (kind "Topic") |
+| News article | `/news/<slug>` | [Topics & news](https://atlas-of-todays-world.vercel.app/admin/content) (kind "News article") |
 | Author profile (bio, positionality statement) | `/authors/<slug>` | [Author profiles](https://atlas-of-todays-world.vercel.app/admin/authors) |
 | Site pages: about, privacy, terms, accessibility | `/about` … | [Site pages](https://atlas-of-todays-world.vercel.app/admin/pages) |
 | UI texts (buttons, headings, labels) | everywhere | [UI texts](https://atlas-of-todays-world.vercel.app/admin/site/texts) |

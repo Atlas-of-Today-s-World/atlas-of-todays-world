@@ -3,6 +3,7 @@ import { createServerClient } from "@/lib/supabase/server";
 import type { EntryStatus } from "./constants";
 import { ilikeAny } from "@/lib/db/filters";
 import { must, rowsOf } from "@/lib/db/result";
+import { staffNames } from "@/lib/db/staff-names";
 import { TILE_COLUMNS } from "./rows";
 import type {
   EditableChapter,
@@ -144,24 +145,11 @@ export async function getEntryParts(id: string) {
     });
   }
   // Editors' names for the "created by / edited by" lines (team only, DB staff_name).
-  const people = [
-    ...new Set(
-      [
-        row?.owner_id,
-        row?.updated_by,
-        ...chapterRows.flatMap((c) => [c.created_by, c.updated_by]),
-      ].filter((value): value is string => Boolean(value)),
-    ),
-  ];
-  const named = await Promise.all(
-    people.map(
-      async (person) =>
-        [person, (await supabase.rpc("staff_name", { p_profile: person })).data] as const,
-    ),
-  );
-  const names = Object.fromEntries(
-    named.filter(([, name]) => name).map(([person, name]) => [person, name as string]),
-  );
+  const names = await staffNames(supabase, [
+    row?.owner_id,
+    row?.updated_by,
+    ...chapterRows.flatMap((c) => [c.created_by, c.updated_by]),
+  ]);
   return {
     chapters: chapterRows,
     stamps: {

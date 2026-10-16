@@ -275,11 +275,17 @@ export function RevisionList({ entryId, revisions }: { entryId: string; revision
       emptyTitle="No earlier versions yet"
       columns={[
         { key: "saved", label: "Saved", kind: "datetime", width: "150px" },
+        { key: "by", label: "By", width: "minmax(100px, 1fr)" },
         { key: "title", label: "Title", width: "minmax(160px, 1fr)" },
       ]}
       rows={revisions.map((revision) => ({
         id: String(revision.id),
-        values: { saved: revision.saved_at, title: revision.title },
+        values: {
+          saved: revision.saved_at,
+          // No editor: saved by a database job (scheduled publishing) or a removed account.
+          by: revision.saved_by ?? "—",
+          title: revision.title,
+        },
         actions: (
           <RowActions
             actions={[

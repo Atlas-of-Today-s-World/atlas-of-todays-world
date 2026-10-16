@@ -6,7 +6,7 @@ import { listAuthors } from "@/features/authors/editorial";
 import { EntryForm } from "@/features/entries/components/EntryForm";
 import { getPickerOptions } from "@/features/geography/queries";
 
-export const metadata: Metadata = { title: "New article" };
+export const metadata: Metadata = { title: "New topic or news" };
 
 export default async function NewEntryPage({
   searchParams,
@@ -19,11 +19,11 @@ export default async function NewEntryPage({
   return (
     <>
       <PageHeader
-        title={topic ? "New topic" : "New article"}
+        title={topic ? "New topic" : "New news item"}
         lead={
           topic
             ? "The topic is created as your draft with the default template's resource tiles; add subtopics and links after saving. It goes live only after approval."
-            : "The article is created as your draft. It goes live only after approval."
+            : "The news item is created as your draft. It goes live only after approval."
         }
       />
       <EntryForm

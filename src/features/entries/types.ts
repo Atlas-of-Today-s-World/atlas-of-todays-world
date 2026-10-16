@@ -230,6 +230,8 @@ export interface EditableSeo {
 export interface Revision {
   id: number;
   saved_at: string;
+  /** Editor's name (staff_name); null = a database job, a removed account or a non-staff profile. */
+  saved_by: string | null;
   title: string;
 }
 

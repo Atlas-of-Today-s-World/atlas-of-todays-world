@@ -36,7 +36,7 @@ import { VisualsEditor } from "@/components/admin/VisualsEditor";
 import { VISUAL_ACTIONS } from "@/features/visuals/admin";
 import { topicVisualsForEdit } from "@/features/visuals/editorial";
 
-export const metadata: Metadata = { title: "Edit article" };
+export const metadata: Metadata = { title: "Edit topic or news" };
 
 /** Sections of a dossier's editor, one per tab (`?tab=`). */
 const TABS = [

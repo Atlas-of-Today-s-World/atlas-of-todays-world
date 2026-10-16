@@ -177,7 +177,7 @@ const editable = (list: string) => Object.assign(records(list), { new: `${list}/
 export const adminRoutes = {
   /** Dashboard (the admin's home). */
   overview: ADMIN,
-  /** Articles: topics and news (`?tab=` picks a topic editor tab). */
+  /** Topics & news: topics (encyclopedia entries) and news (`?tab=` picks a topic editor tab). */
   content: editable(`${ADMIN}/content`),
   /** The signed-in editor's own drafts. */
   myDrafts: `${ADMIN}/content?mine=1&status=draft`,
