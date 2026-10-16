@@ -41,7 +41,7 @@ export default async function SkillsPage({ params }: PageProps<"/[locale]/skills
   const skills = getSkills();
   const groups = groupByRole(skills);
   const site = await getSiteSettings();
-  const example = skills[0]?.name ?? "atlas-architektura";
+  const example = skills[0]?.name ?? "atlas-web";
 
   return (
     <main className="max-w-3xl">

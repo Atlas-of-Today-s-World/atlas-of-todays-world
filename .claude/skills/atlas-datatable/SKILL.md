@@ -1,5 +1,7 @@
 ---
 name: atlas-datatable
+title: DataTable — the one table
+roles: [frontend]
 description: The one table component of Atlas of Today's World (components/data-table/DataTable, ported from TealHub). Use ALWAYS when adding or changing any list/table on the site (admin lists, audit logs, data values, invitations…) — never write a raw <table> or a custom list with filters.
 ---
 
@@ -56,7 +58,8 @@ Pre-rendered cells (`row.cells[key]`) only when a cell needs a link or a control
 `view` (Eye), `open` (ExternalLink, new tab), `share`, `archive`, `restore`, `revoke` (Ban),
 `delete` (Trash2, red), `up` / `down` (ArrowUp / ArrowDown, from `moveActions`), `hide` / `show`
 (EyeOff / Eye, from `visibilityAction` — confirmed like any other action), `on` / `off`
-(Power / PowerOff, turn a switch on / off). Rules (TealHub owner rule):
+(Power / PowerOff, turn a switch on / off), `source` (FileCode, view a source file) and `download`
+(Download; a link action with `download: true` renders a plain `<a download>`). Rules (TealHub owner rule):
 
 1. One click, icons right in the row — no "⋯" menu. Order: edit → open/view → archive/restore/revoke → delete last.
 2. Every record type the user can change gets its actions: **edit** (link to detail), **open on the site**

@@ -1,6 +1,6 @@
 # Plán realizace — Atlas of Today's World
 
-> Odvozeno z [`ARCHITEKTURA.md`](ARCHITEKTURA.md) a skillu `.claude/skills/atlas-architektura`.
+> Odvozeno z [`ARCHITEKTURA.md`](ARCHITEKTURA.md) a skillu `.claude/skills/atlas-architecture`.
 > **Stav:** připraveno k realizaci · **Datum:** 2026-09-30
 > Identifikátory `SEC-xx` / `DB-xx` odkazují na neveřejný `docs/architektura-nalezy.md`, `D1–D8` na ARCHITEKTURA 15.3.
 
