@@ -68,6 +68,18 @@ function readSkill(name: string): Skill | null {
   };
 }
 
+/**
+ * On Vercel the folder must be there: without it /skills would publish empty
+ * (it happened once, when .vercelignore left the folder out of the upload),
+ * so the build fails instead. Elsewhere a checkout without it is fine.
+ */
+function missing(): Skill[] {
+  if (process.env.VERCEL) {
+    throw new Error(`No skills in ${SKILLS_FOLDER}: check that .vercelignore uploads the folder.`);
+  }
+  return [];
+}
+
 function readSkills(): Skill[] {
   let folders: string[];
   try {
@@ -75,8 +87,9 @@ function readSkills(): Skill[] {
       .filter((entry) => entry.isDirectory() && NAME.test(entry.name))
       .map((entry) => entry.name);
   } catch {
-    return []; // no skills folder (a checkout without it)
+    return missing(); // no skills folder (a checkout without it)
   }
+  if (!folders.length) return missing();
   if (folders.includes(RESERVED)) {
     throw new Error(
       `${SKILLS_FOLDER}/${RESERVED}: "${RESERVED}" is reserved for the ZIP of all skills; rename the skill.`,
