@@ -110,7 +110,11 @@ function checkOrganization(node: Node, out: string[]) {
   if (!isUrl(node.url)) out.push(`${type}: missing url`);
   const logo = node.logo as Node | string | undefined;
   const logoUrl = typeof logo === "string" ? logo : logo?.url;
-  if (!isUrl(logoUrl)) out.push(`${type}: missing logo`);
+  // Google wants a logo from the publisher (the Atlas, an NGO); another
+  // organization named in the graph (the site's builder) may go without one,
+  // but a logo it does give must be a URL.
+  if (type === "NGO" ? !isUrl(logoUrl) : logo !== undefined && !isUrl(logoUrl))
+    out.push(`${type}: missing logo`);
   for (const link of list(node.sameAs)) if (!isUrl(link)) out.push(`${type}: sameAs not a URL`);
 }
 
