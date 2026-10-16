@@ -5,7 +5,7 @@
  */
 
 import { splitLocale, withoutDefaultPrefix } from "@/lib/i18n/config";
-import { ROUTE_PREFIX, isAtOrUnder, routes } from "./routes";
+import { FULL_VIEW_SEGMENT, ROUTE_PREFIX, isAtOrUnder, routes } from "./routes";
 
 /** Right content panel: min(vw, rem). */
 export const RAIL = { vw: 38, rem: 27 } as const;
@@ -102,8 +102,21 @@ export const GLOBE = {
 export const TOUCH_MIN_PX = 44;
 
 const REM_PX = 16;
-/** Pages with the wide panel: a news item and a region (not the /news index). */
-const WIDE_RAIL = [ROUTE_PREFIX.news, ROUTE_PREFIX.region];
+/**
+ * Pages with the wide panel: a news item and every place preview — a country,
+ * a region, a global issue (not the /news index).
+ */
+const WIDE_RAIL = [
+  ROUTE_PREFIX.news,
+  ROUTE_PREFIX.country,
+  ROUTE_PREFIX.region,
+  ROUTE_PREFIX.issue,
+];
+/** Places with a full-width view at `<place>/full-page` (routes.countryFull…). */
+const FULL_VIEW_PREFIXES = [ROUTE_PREFIX.country, ROUTE_PREFIX.region, ROUTE_PREFIX.issue];
+const isFullView = (path: string) =>
+  path.endsWith(`/${FULL_VIEW_SEGMENT}`) &&
+  FULL_VIEW_PREFIXES.some((prefix) => path.startsWith(`${prefix}/`));
 const isWideRail = (path: string) => WIDE_RAIL.some((prefix) => path.startsWith(`${prefix}/`));
 /**
  * Full-width pages over the map (Topics, topic pages, the Global issues
@@ -111,7 +124,8 @@ const isWideRail = (path: string) => WIDE_RAIL.some((prefix) => path.startsWith(
  * window. Old /entry/ links redirect (next.config) before they render.
  */
 const FULL_PAGES = [routes.topics, routes.globalIssues, ROUTE_PREFIX.issue];
-const isFullPagePath = (path: string) => FULL_PAGES.some((page) => isAtOrUnder(path, page));
+const isFullPagePath = (path: string) =>
+  isFullView(path) || FULL_PAGES.some((page) => isAtOrUnder(path, page));
 
 export type RailKind = "none" | "normal" | "wide";
 

@@ -181,7 +181,8 @@
     "errorText": "Something went wrong on our side. Try again in a moment; the globe still works.",
     "tryAgain": "Try again",
     "notFoundTitle": "This place is not on our map",
-    "notFoundText": "The page may have moved, or the address has a typo. Search the Atlas or pick a country on the globe."
+    "notFoundText": "The page may have moved, or the address has a typo. Search the Atlas or pick a country on the globe.",
+    "fullPage": "Full page view"
   },
   "search": {
     "placeholder": "Search places, regions, news…",
