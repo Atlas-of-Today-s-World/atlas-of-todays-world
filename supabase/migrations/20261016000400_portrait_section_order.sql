@@ -30,14 +30,32 @@
 -- default order, who may reorder, anon read grant, the CHECK).
 -- =============================================================================
 
+-- Idempotent on purpose: this change was first numbered 20261016000100 and
+-- applied to atlas-dev under that number; production meanwhile received
+-- 000200 and 000300, and `supabase db push` refuses a migration older than
+-- the last one applied. So it moved to 000400 (atlas-dev's 000100 entry was
+-- marked reverted with `supabase migration repair`), and on atlas-dev, where
+-- the column already exists, every statement below is a no-op.
 alter table public.site_settings
-  add column portrait_sections text[] not null
-    default array['timeline', 'topics', 'visuals', 'resources', 'faq']::text[]
-    constraint site_settings_portrait_sections_check check (
-      cardinality(portrait_sections) = 5
-      and portrait_sections <@ array['timeline', 'topics', 'visuals', 'resources', 'faq']::text[]
-      and array['timeline', 'topics', 'visuals', 'resources', 'faq']::text[] <@ portrait_sections
-    );
+  add column if not exists portrait_sections text[] not null
+    default array['timeline', 'topics', 'visuals', 'resources', 'faq']::text[];
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'site_settings_portrait_sections_check'
+      and conrelid = 'public.site_settings'::regclass
+  ) then
+    alter table public.site_settings
+      add constraint site_settings_portrait_sections_check check (
+        cardinality(portrait_sections) = 5
+        and portrait_sections <@ array['timeline', 'topics', 'visuals', 'resources', 'faq']::text[]
+        and array['timeline', 'topics', 'visuals', 'resources', 'faq']::text[] <@ portrait_sections
+      );
+  end if;
+end
+$$;
 
 comment on column public.site_settings.portrait_sections is
   'Order of the portrait sections on every country, region and global issue (Admin → Portrait layout).';
