@@ -39,6 +39,12 @@
   --color-gold-light: #ffe8a8;
   --color-gold-deep: #a8740f;
   --color-gold-edge: #7c520a;
+  /*
+   * Red of the "Support the Atlas" pill (DonateCoin). Its own token: red's
+   * other meanings (danger, empty) never mix with it. White text >= 4.5:1.
+   */
+  --color-support: #dc2626;
+  --color-support-strong: #b91c1c;
   --color-live: #22c55e;
   /* Status tones (badges, KPIs, errors) — single source instead of amber/green/red classes. */
   --color-success: #166534;
