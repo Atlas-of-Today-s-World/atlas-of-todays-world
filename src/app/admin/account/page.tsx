@@ -23,7 +23,7 @@ export default async function MyAccountPage() {
   const email = access.email ?? "";
 
   return (
-    <div className="max-w-xl">
+    <div>
       <PageHeader
         title="My account"
         icon={navIcon(adminRoutes.account)}

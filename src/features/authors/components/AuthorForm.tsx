@@ -20,7 +20,7 @@ export function AuthorForm({ author }: { author: AuthorRow | null }) {
   const field = (id: string, hint?: string) => describedBy(id, { hint, errors: errors[id] });
 
   return (
-    <ActionForm action={action} className="grid max-w-2xl gap-5">
+    <ActionForm action={action} className="grid gap-5">
       {author ? <input type="hidden" name="id" value={author.id} /> : null}
 
       <FormField id="name" label="Name" required errors={errors.name}>
@@ -133,7 +133,7 @@ export function AuthorAccountForm({
 }) {
   const [state, action] = useServerAction(saveAuthorAccount);
   return (
-    <ActionForm action={action} className="grid max-w-2xl gap-3">
+    <ActionForm action={action} className="grid gap-3">
       <input type="hidden" name="id" value={authorId} />
       <FormField
         id="profile_id"

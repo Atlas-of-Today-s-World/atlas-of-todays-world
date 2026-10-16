@@ -93,7 +93,7 @@ export function SiteSettingsForm({
   const errors = state.fieldErrors;
   return (
     <ReadOnly readOnly={!canEdit} reason="You can see the site settings but not change them.">
-      <ActionForm action={action} className="grid max-w-3xl gap-6">
+      <ActionForm action={action} className="grid gap-6">
         <Group title="Organisation">
           <div className="grid gap-4 sm:grid-cols-2">
             <Field

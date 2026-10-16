@@ -40,7 +40,7 @@ export function SocialLinkForm({
     <ActionForm
       ref={form}
       action={action}
-      className="grid max-w-3xl gap-4 rounded-2xl border border-[var(--color-line)] p-5"
+      className="grid gap-4 rounded-2xl border border-[var(--color-line)] p-5"
     >
       <h2 className="font-display text-[17px] font-bold">{title}</h2>
       <div className="grid gap-4 sm:grid-cols-[1fr_2fr_7rem]">

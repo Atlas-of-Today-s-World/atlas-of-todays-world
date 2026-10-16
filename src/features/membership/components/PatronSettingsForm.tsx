@@ -54,7 +54,7 @@ export function PatronSettingsForm({
   const otherHint = `Readers type their own whole amount within these bounds (${euros(AMOUNT.min)}–${euros(AMOUNT.max)}).`;
 
   return (
-    <ActionForm action={action} className="grid max-w-3xl gap-8">
+    <ActionForm action={action} className="grid gap-8">
       <fieldset className="grid gap-4 rounded-2xl border border-[var(--color-line)] p-5 sm:grid-cols-2">
         <legend className="font-display px-1 text-[17px] font-bold">Donation card</legend>
         <FormField

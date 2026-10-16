@@ -28,7 +28,7 @@ export default async function NewTopicTemplatePage() {
           </Link>
         }
       />
-      <div className="max-w-5xl">
+      <div>
         <TemplateForm
           template={
             base

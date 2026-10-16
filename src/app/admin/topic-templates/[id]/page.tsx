@@ -42,7 +42,7 @@ export default async function TopicTemplatePage({
           </span>
         }
       />
-      <div className="max-w-5xl">
+      <div>
         <TemplateForm template={template} />
       </div>
     </>

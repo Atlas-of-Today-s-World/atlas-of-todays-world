@@ -22,7 +22,7 @@ const COUNTS = Array.from(
 export function HomeCountForm({ count, canEdit }: { count: number; canEdit: boolean }) {
   const [state, action] = useServerAction(saveHomeSettings);
   return (
-    <ActionForm action={action} className="flex max-w-3xl flex-wrap items-end gap-3">
+    <ActionForm action={action} className="flex flex-wrap items-end gap-3">
       <FormField
         id="featured_count"
         label="Tiles on the home map"
@@ -57,7 +57,7 @@ export function AddPinForm({ options }: { options: SubtopicOption[] }) {
   const [state, action] = useServerAction(addHomePin);
   const topics = [...new Set(options.map((option) => option.topicTitle))];
   return (
-    <ActionForm action={action} className="flex max-w-3xl flex-wrap items-end gap-3">
+    <ActionForm action={action} className="flex flex-wrap items-end gap-3">
       <FormField
         id="chapter_id"
         label="Pin a subtopic"

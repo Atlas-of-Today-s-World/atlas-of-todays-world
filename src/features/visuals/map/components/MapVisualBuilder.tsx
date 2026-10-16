@@ -165,7 +165,7 @@ export function MapVisualBuilder({
 
   const panel = { spec, edit, generation };
   return (
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,26rem)] lg:items-start">
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,7fr)_minmax(20rem,3fr)] lg:items-start">
       <div className="grid gap-2 lg:sticky lg:top-4">
         <div role="toolbar" aria-label="Map tools" className="flex flex-wrap items-center gap-2">
           <Button

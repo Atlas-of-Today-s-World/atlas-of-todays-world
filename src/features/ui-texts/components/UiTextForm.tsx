@@ -54,7 +54,7 @@ export function UiTextForm({
     : "Plain text only, no HTML.";
 
   return (
-    <ActionForm action={action} className="grid max-w-3xl gap-4">
+    <ActionForm action={action} className="grid gap-4">
       <input type="hidden" name="key" value={textKey} />
 
       <section

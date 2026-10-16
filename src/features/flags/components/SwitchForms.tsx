@@ -23,7 +23,7 @@ export function MaintenanceMessageForm({
   const errors = state.fieldErrors ?? {};
   const hint = "Leave empty to use the built-in wording shown in grey.";
   return (
-    <ActionForm action={action} className="grid max-w-2xl gap-5">
+    <ActionForm action={action} className="grid gap-5">
       <FormField id="maintenance_title" label="Title" hint={hint} errors={errors.maintenance_title}>
         <Input
           id="maintenance_title"
@@ -59,7 +59,7 @@ export function FlagNoteForm({ flag }: { flag: FlagRow }) {
   const errors = state.fieldErrors ?? {};
   const hint = "Shown in the list of switches — what it does and when to turn it on or off.";
   return (
-    <ActionForm action={action} className="grid max-w-2xl gap-5">
+    <ActionForm action={action} className="grid gap-5">
       <input type="hidden" name="key" value={flag.key} />
       <FormField id="flag-note" label="Note" hint={hint} errors={errors.note}>
         <Textarea

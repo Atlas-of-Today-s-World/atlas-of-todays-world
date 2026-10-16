@@ -17,7 +17,7 @@ export function RedirectForm({ redirect }: { redirect?: RedirectRow }) {
   return (
     <ActionForm
       action={action}
-      className="grid max-w-2xl gap-4 rounded-2xl border border-[var(--color-line)] p-5"
+      className="grid gap-4 rounded-2xl border border-[var(--color-line)] p-5"
     >
       <h2 className="font-display text-[17px] font-bold">
         {redirect ? "Edit URL redirect" : "New URL redirect"}
