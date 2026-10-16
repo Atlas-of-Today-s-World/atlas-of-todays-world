@@ -124,6 +124,15 @@ Within a few minutes of the deploy run turning green:
 5. Watch [Vercel logs](https://vercel.com/atlas-of-today-s-world/atlas-of-todays-world/logs) and
    Supabase [logs](https://supabase.com/dashboard/project/ewbzkxialhtwuqlenjof/logs/explorer) for new errors.
 
+**Owner rule: follow every deploy until the change is live, then tell the owner.** After any push
+that ends in a production deploy, do not stop at "pushed": follow the CI run and the Deploy to
+Vercel run (`gh run list --commit <sha>`, `gh run watch <id>`), then check the live site
+https://atlas-of-todays-world.vercel.app (`/api/health` version = the commit, then the changed page
+itself) until the change actually shows there. (The domain www.atlasoftodaysworld.org still serves
+the old Webflow site; check it too once it points to this app.) As soon as it does, tell the owner it is live and
+where to see it. If CI, the migration or the deploy fails, or the change does not show, tell the
+owner straight away with what failed.
+
 ## Operations
 
 - **Uptime:** [Keep-alive](https://github.com/Atlas-of-Today-s-World/atlas-of-todays-world/actions/workflows/keepalive.yml)
@@ -146,6 +155,7 @@ Within a few minutes of the deploy run turning green:
 - [ ] PR title is a Conventional Commit; template filled in, Security impact where needed.
 - [ ] Both required checks green; migration applied to atlas-dev before e2e relies on it.
 - [ ] After merge: deploy run green, `/api/health` shows the new version, `X-Vercel-Cache: HIT`, smoke passes.
+- [ ] The change is visible on the live site and the owner has been told it is live.
 
 ## Anti-patterns
 
