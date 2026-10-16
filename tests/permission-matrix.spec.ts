@@ -59,25 +59,25 @@ test("one click saves a permission; admin and own role stay locked", async ({ pa
 
   const matrix = page.getByRole("table", { name: "Permissions of roles by section" });
   await expect(
-    matrix.getByRole("checkbox", { name: "View – Articles – Administrator" }),
+    matrix.getByRole("checkbox", { name: "View – Topics & news – Administrator" }),
   ).toBeDisabled();
   await expect(
-    matrix.getByRole("checkbox", { name: `View – Articles – ${managerName}` }),
+    matrix.getByRole("checkbox", { name: `View – Topics & news – ${managerName}` }),
   ).toBeDisabled();
 
   // Edit without view is not a thing: the click adds view too.
-  await matrix.getByRole("checkbox", { name: `Edit – Articles – ${targetName}` }).check();
+  await matrix.getByRole("checkbox", { name: `Edit – Topics & news – ${targetName}` }).check();
   await expect.poll(() => newsOf(targetRole)).toBe("ve");
 
   // The saved state stays on screen (no flicker back while the page refreshes).
   await expect(
-    matrix.getByRole("checkbox", { name: `View – Articles – ${targetName}` }),
+    matrix.getByRole("checkbox", { name: `View – Topics & news – ${targetName}` }),
   ).toBeChecked();
 
   // Removing view removes the section.
-  await matrix.getByRole("checkbox", { name: `View – Articles – ${targetName}` }).uncheck();
+  await matrix.getByRole("checkbox", { name: `View – Topics & news – ${targetName}` }).uncheck();
   await expect.poll(() => newsOf(targetRole)).toBe("");
   await expect(
-    matrix.getByRole("checkbox", { name: `Edit – Articles – ${targetName}` }),
+    matrix.getByRole("checkbox", { name: `Edit – Topics & news – ${targetName}` }),
   ).not.toBeChecked();
 });

@@ -76,7 +76,7 @@ Use these; do not write another version.
 
 **Data and actions**
 - `must`, `rowsOf` (`lib/db/result.ts`), `ilikeAny` (`lib/db/filters.ts`), `mapDbError`
-  (`lib/db/errors.ts`).
+  (`lib/db/errors.ts`), `staffNames` (`lib/db/staff-names.ts`: team names for "by" columns).
 - `formAction`, `idAction`, `affected`, `failed`, `signedIn`, `formObject`, `jsonField`,
   `listItemError` (`lib/actions.ts`); `ActionState` (`lib/action-state.ts`).
 - `tags`, `entryPageTags`, `entryChangedTags` (`lib/cache/tags.ts`); `refreshEntry`

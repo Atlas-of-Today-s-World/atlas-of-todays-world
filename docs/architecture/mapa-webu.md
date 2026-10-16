@@ -127,7 +127,7 @@ erDiagram
 ### 2.2 Témata a podtémata
 
 **Téma** je řádek `entries` s `kind = 'entry'` (stejná tabulka drží i novinky, `kind = 'news'`).
-Plní se v Admin → Articles, schvaluje v Admin → Article approvals.
+Plní se v Admin → Topics & news, schvaluje v Admin → Approvals.
 
 | Část tématu | Tabulka | Co to je |
 |---|---|---|
@@ -188,8 +188,8 @@ timeline nezobrazují. Obsah ze starého webu: `scripts/webflow/import-portraits
 | Oblast | Cesta | Co spravuje |
 |---|---|---|
 | Overview | `/admin` | přehled |
-| Articles | `/admin/content` | témata i novinky (`entries`), podtémata, Learn more, FAQ, SEO, jazykové verze, náhled |
-| Article approvals | `/admin/approvals` | schvalování `pending` → `published` |
+| Topics & news | `/admin/content` | témata i novinky (`entries`), podtémata, Learn more, FAQ, SEO, jazykové verze, náhled |
+| Approvals | `/admin/approvals` | schvalování `pending` → `published` |
 | Author profiles | `/admin/authors` | `authors` |
 | Topic templates | `/admin/topic-templates` | `topic_templates`, `topic_template_tiles` |
 | Home page | `/admin/home` | `home_featured` |

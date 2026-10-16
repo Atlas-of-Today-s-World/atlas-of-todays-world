@@ -11,7 +11,7 @@ import { can, sectionAccess } from "@/features/auth/access";
 import { approveEntry, sendBackEntry } from "@/features/entries/workflow-actions";
 import { approvalQueue } from "@/features/entries/editorial";
 
-export const metadata: Metadata = { title: "Article approvals" };
+export const metadata: Metadata = { title: "Approvals" };
 
 const WHO = [
   { value: "you", label: "You can approve", tone: "success" as const },
@@ -33,13 +33,13 @@ export default async function ApprovalsPage() {
     <>
       <PageHeader
         icon={navIcon(adminRoutes.approvals)}
-        title="Article approvals"
-        lead="Articles waiting for a second pair of eyes. Open an article, compare it with the published version, then approve it or return it with a note."
+        title="Approvals"
+        lead="Topics and news waiting for a second pair of eyes. Open one, compare it with the published version, then approve it or return it with a note."
       />
       <DataTable
         tableKey="admin-approvals"
-        caption="Articles waiting for approval"
-        emptyTitle="No articles are waiting for approval"
+        caption="Waiting for approval"
+        emptyTitle="Nothing is waiting for approval"
         initialSort={{ key: "submitted", dir: "asc" }}
         stats={optionStats("who", WHO, "All awaiting approval")}
         maxRowActions={canApprove ? 3 : 1}
@@ -83,7 +83,7 @@ export default async function ApprovalsPage() {
                 {
                   kind: "link",
                   icon: "view",
-                  label: "Review article",
+                  label: "Review",
                   href: adminRoutes.content(row.id),
                 },
                 ...(canApprove
@@ -94,7 +94,7 @@ export default async function ApprovalsPage() {
                         // The version listed here: refused if the article changed since.
                         approveEntry.bind(null, row.id, row.updated_at),
                         `Publish ${row.title}?`,
-                        "The article goes live on the site (or at its scheduled time). To ask for changes, send it back with a note instead.",
+                        "It goes live on the site (or at its scheduled time). To ask for changes, send it back with a note instead.",
                       ),
                       noteAction(
                         "return",
@@ -103,7 +103,7 @@ export default async function ApprovalsPage() {
                         { id: row.id },
                         {
                           title: `Send ${row.title} back to its author?`,
-                          body: "The article returns to a draft; the author sees your note on it.",
+                          body: "It returns to a draft; the author sees your note on it.",
                           noteLabel: "What should change",
                           noteMax: 2000,
                           confirmLabel: "Request changes",

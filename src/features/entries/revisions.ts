@@ -1,6 +1,7 @@
 import "server-only";
 import { createServerClient } from "@/lib/supabase/server";
 import { must } from "@/lib/db/result";
+import { staffNames } from "@/lib/db/staff-names";
 import type { Revision } from "./types";
 
 /**
@@ -13,13 +14,22 @@ export async function listRevisions(entryId: string): Promise<Revision[]> {
   const data = must(
     await supabase
       .from("entry_revisions")
-      .select("id, saved_at, title:snapshot->>title")
+      .select("id, saved_at, saved_by, title:snapshot->>title")
       .eq("entry_id", entryId)
       .order("saved_at", { ascending: false })
       .limit(30),
     "revisions",
   );
-  return data.map((row) => ({ id: row.id, saved_at: row.saved_at, title: row.title ?? "" }));
+  const names = await staffNames(
+    supabase,
+    data.map((row) => row.saved_by),
+  );
+  return data.map((row) => ({
+    id: row.id,
+    saved_at: row.saved_at,
+    saved_by: row.saved_by ? (names[row.saved_by] ?? null) : null,
+    title: row.title ?? "",
+  }));
 }
 
 /**

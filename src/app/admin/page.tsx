@@ -39,22 +39,30 @@ export default async function AdminHome() {
         lead={`Signed in as ${access.email} (${access.roleName}).`}
         actions={
           can(access.permissions, "news", "c") ? (
-            <Link href={adminRoutes.content.new} className={buttonVariants()}>
-              New article
-            </Link>
+            <span className="flex flex-wrap gap-2">
+              <Link href={adminRoutes.newTopic} className={buttonVariants()}>
+                New topic
+              </Link>
+              <Link
+                href={adminRoutes.content.new}
+                className={buttonVariants({ variant: "outline" })}
+              >
+                New news item
+              </Link>
+            </span>
           ) : null
         }
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
         {writes ? (
-          <Tile href={adminRoutes.myDrafts} value={drafts.length} label="my article drafts" />
+          <Tile href={adminRoutes.myDrafts} value={drafts.length} label="my drafts" />
         ) : null}
         {writes ? (
           <Tile
             href={adminRoutes.myDrafts}
             value={returned.length}
-            label="my articles returned for changes"
+            label="my drafts returned for changes"
             tone={returned.length ? "warn" : undefined}
           />
         ) : null}
@@ -62,7 +70,7 @@ export default async function AdminHome() {
           <Tile
             href={adminRoutes.approvals}
             value={forMe.length}
-            label="articles awaiting my approval"
+            label="topics and news awaiting my approval"
             tone={forMe.length ? "warn" : undefined}
           />
         ) : null}
@@ -71,7 +79,7 @@ export default async function AdminHome() {
       {returned.length ? (
         <section className="mt-10">
           <h2 className="font-display mb-3 text-[17px] font-bold">
-            Articles returned to you for changes
+            Drafts returned to you for changes
           </h2>
           <ul className="grid gap-2">
             {returned.map((entry) => (

@@ -1,5 +1,6 @@
 import "server-only";
 import { must } from "@/lib/db/result";
+import { staffNames } from "@/lib/db/staff-names";
 import { createServerClient } from "@/lib/supabase/server";
 import { DEFAULT_SITE_PAGES } from "./defaults";
 import { SITE_PAGE_SLUGS, type SitePageContent, type SitePageSlug } from "./pages";
@@ -66,19 +67,14 @@ export async function listPageRevisions(slug: SitePageSlug): Promise<PageRevisio
       .limit(50),
     "site-pages",
   );
-  const people = [...new Set(data.flatMap((row) => (row.saved_by ? [row.saved_by] : [])))];
-  const names = new Map(
-    await Promise.all(
-      people.map(
-        async (person) =>
-          [person, (await supabase.rpc("staff_name", { p_profile: person })).data] as const,
-      ),
-    ),
+  const names = await staffNames(
+    supabase,
+    data.map((row) => row.saved_by),
   );
   return data.map((row) => ({
     id: row.id,
     saved_at: row.saved_at,
-    saved_by: row.saved_by ? (names.get(row.saved_by) ?? null) : null,
+    saved_by: row.saved_by ? (names[row.saved_by] ?? null) : null,
     title: row.title,
     published: row.published,
   }));

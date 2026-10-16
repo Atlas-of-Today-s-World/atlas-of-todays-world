@@ -86,10 +86,10 @@ const forbidden = (page: Page) => expect(page.getByTestId("section-forbidden")).
 const MENU: Record<Exclude<(typeof ROLES)[number], "reader">, string[]> = {
   "content-editor": [
     "Overview",
-    "Articles",
+    "Topics & news",
     "Author profiles",
     "Topic templates",
-    "Article approvals",
+    "Approvals",
     "URL redirects",
     "Home page",
     "Site pages",
@@ -104,16 +104,16 @@ const MENU: Record<Exclude<(typeof ROLES)[number], "reader">, string[]> = {
   ],
   "content-approver": [
     "Overview",
-    "Articles",
+    "Topics & news",
     "Author profiles",
     "Topic templates",
-    "Article approvals",
+    "Approvals",
     "URL redirects",
     "Home page",
   ],
   publisher: [
     "Overview",
-    "Articles",
+    "Topics & news",
     "Author profiles",
     "Topic templates",
     "URL redirects",
@@ -136,7 +136,7 @@ const MENU: Record<Exclude<(typeof ROLES)[number], "reader">, string[]> = {
   ],
   observer: [
     "Overview",
-    "Articles",
+    "Topics & news",
     "Author profiles",
     "Topic templates",
     "URL redirects",

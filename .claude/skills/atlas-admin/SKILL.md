@@ -108,7 +108,9 @@ const canDelete = can(access.permissions, "news", "d");
   Show the time with its zone. Never raise the ISR revalidate interval; scheduled publishing
   relies on it.
 - Revisions: `RevisionList` (last 30 versions, restore) and `VersionDiff` (`lib/diff.ts`) for
-  articles; `PageRevisions` with the `restore_site_page` RPC for site pages.
+  articles; `PageRevisions` with the `restore_site_page` RPC for site pages. Both show who saved
+  each version: `staffNames()` (`lib/db/staff-names.ts`, DB `staff_name`, staff only) turns
+  `saved_by` into a name. Use it for any other "by" column; never read `profiles` for names.
 - Unsaved article edits are backed up in the browser only (`useDraftBackup`, every 5 s); saving
   to the server is always an explicit click.
 - Secret preview links: `PreviewShare` (`createPreviewLink`), opening `/preview/<token>` without
