@@ -3,14 +3,13 @@ import type { Metadata } from "next";
 import ContentRail from "@/components/ContentRail";
 import { JsonLd } from "@/components/JsonLd";
 import RegionFocus from "@/components/map/RegionFocus";
-import MapModeSetter from "@/components/map/MapModeSetter";
-import Portrait, { type PortraitSubject } from "@/components/portrait/Portrait";
+import Portrait from "@/components/portrait/Portrait";
 import { routes } from "@/config/routes";
 import { entriesOfIssue, entriesOfRegion, getEntries } from "@/features/entries/queries";
 import { countriesOf } from "@/features/geography/model";
 import { getAtlas, getIndicators } from "@/features/geography/queries";
 import type { Atlas, GlobalIssue, Region } from "@/features/geography/types";
-import { getRequestLocale, localeFrom } from "@/lib/i18n/request";
+import { getMessagesFor, getRequestLocale, localeFrom } from "@/lib/i18n/request";
 import { redirectOrNotFound } from "@/features/redirects/queries";
 import { relatedTopics } from "@/features/topics/related";
 import { CARD_INDICATORS, groupStats, population } from "@/features/geography/region-stats";
@@ -26,13 +25,15 @@ import {
 } from "@/features/seo/jsonld";
 import { pageMetadata, pageTitle } from "@/features/seo/metadata";
 import { getPortrait } from "./queries";
+import { IssueArticle } from "./components/IssueArticle";
 
 /**
  * The portrait page of a group of countries: an Atlas region (`/region/[slug]`)
  * or an editorial global issue / custom region (`/global-issue/[slug]`). Both
- * show the same `Portrait` (ARCHITEKTURA 15, "same data = same component"), so
- * the two routes share their static params, metadata and page here and stay
- * thin wrappers. Route segment config (`dynamicParams`) stays in each route
+ * show the same portrait sections (ARCHITEKTURA 15, "same data = same
+ * component") — a region in the side panel (`Portrait`), an issue on a
+ * full-width page (`IssueArticle`) — so the two routes share their static
+ * params, metadata, data and JSON-LD here and stay thin wrappers. Route segment config (`dynamicParams`) stays in each route
  * file, where Next reads it.
  */
 type GroupKind = "region" | "issue";
@@ -85,7 +86,11 @@ export function groupMetadata(kind: GroupKind) {
   };
 }
 
-/** The page: the globe turns to the group, the portrait opens in the wide rail. */
+/**
+ * The page. A region: the globe turns to it, the portrait opens in the wide
+ * rail. A global issue (or custom region): a full-width page like a topic,
+ * the globe waiting in its corner window (IssueArticle).
+ */
 export function groupPortraitPage(kind: GroupKind) {
   return async function GroupPortraitPage({ params }: { params: Params }) {
     const { slug } = await params;
@@ -107,44 +112,16 @@ export function groupPortraitPage(kind: GroupKind) {
         : entriesOfIssue(entries, group.slug, group.countries);
 
     const countries = countriesOf(atlas, group.countries);
-    // Topics only for a region: global issues have none of their own (2026-10-15).
-    const [entries, dossier, topics, indicators] = await Promise.all([
+    const [entries, dossier, topics, t, indicators] = await Promise.all([
       getEntries(),
       getPortrait(kind, group.slug),
-      kind === "region" ? relatedTopics(atlas, kind, group.slug) : undefined,
-      getIndicators(CARD_INDICATORS),
+      relatedTopics(atlas, kind, group.slug),
+      getMessagesFor(locale),
+      // Computed figures only for an issue: a region never shows averages (2026-10-07).
+      kind === "issue" ? getIndicators(CARD_INDICATORS) : [],
     ]);
     const newsItems = ofGroup(entries);
     const members = countries.map(({ slug, name }) => ({ slug, name }));
-
-    const subject: PortraitSubject =
-      located.kind === "region"
-        ? {
-            kind: "region",
-            name: group.name,
-            // Under the name, like a global issue's subtitle.
-            subtitle: located.group.tagline,
-            summary: group.summary,
-            hero: group.hero,
-            heroCredit: group.heroCredit,
-            countries: members,
-            population: population(countries),
-            showMetrics: located.group.showMetrics,
-            status: group.contentStatus,
-          }
-        : {
-            kind: "issue",
-            groupKind: located.group.kind,
-            status: group.contentStatus,
-            name: group.name,
-            subtitle: located.group.subtitle,
-            summary: group.summary,
-            accent: group.fill,
-            hero: group.hero,
-            heroCredit: group.heroCredit,
-            countries: members,
-            population: population(countries),
-          };
 
     const place = groupPlaceNode({
       kind,
@@ -158,19 +135,57 @@ export function groupPortraitPage(kind: GroupKind) {
       countries,
     });
 
+    // What the place is the subject of: a region's news; an issue's topics too
+    // (they are on its page as "Subtopics").
+    const subjectOf = [
+      ...newsItems.map((item) => ({
+        "@type": "NewsArticle",
+        headline: item.title,
+        url: pageUrl(routes.news(item.slug), locale),
+      })),
+      ...(kind === "issue"
+        ? topics.items.map((item) => ({
+            "@type": "Article",
+            headline: item.title,
+            url: pageUrl(routes.topic(item.slug), locale),
+          }))
+        : []),
+    ];
+
     return (
       <>
-        <RegionFocus region={group} />
-        {kind === "issue" ? <MapModeSetter mode="issue" /> : null}
-
-        <ContentRail wide>
-          <Portrait
-            topics={topics}
-            subject={subject}
+        {located.kind === "region" ? (
+          <>
+            <RegionFocus region={group} />
+            <ContentRail wide>
+              <Portrait
+                topics={topics}
+                subject={{
+                  name: group.name,
+                  // Under the name, like a global issue's subtitle.
+                  subtitle: located.group.tagline,
+                  summary: group.summary,
+                  hero: group.hero,
+                  heroCredit: group.heroCredit,
+                  countries: members,
+                  population: population(countries),
+                  status: group.contentStatus,
+                }}
+                dossier={dossier}
+              />
+            </ContentRail>
+          </>
+        ) : (
+          // A global issue is a full-width page like a topic (2026-10-16).
+          <IssueArticle
+            issue={located.group}
             dossier={dossier}
             stats={groupStats(countries, indicators, getRequestLocale())}
+            topics={topics}
+            countries={members}
+            population={population(countries)}
           />
-        </ContentRail>
+        )}
 
         <JsonLd
           data={graph(
@@ -182,19 +197,19 @@ export function groupPortraitPage(kind: GroupKind) {
               locale,
               about: kind === "region" ? ids.region(group.slug) : ids.issue(group.slug),
               image: group.hero,
-              breadcrumb: breadcrumbNode(site, [{ name: group.name, path }], locale),
+              breadcrumb: breadcrumbNode(
+                site,
+                [
+                  // An issue sits under the Global issues overview, as its page's trail shows.
+                  ...(kind === "issue"
+                    ? [{ name: t.globalIssues.title, path: routes.globalIssues }]
+                    : []),
+                  { name: group.name, path },
+                ],
+                locale,
+              ),
             }),
-            // A region lists its news as what the place is the subject of.
-            kind === "region"
-              ? {
-                  ...place,
-                  subjectOf: newsItems.map((item) => ({
-                    "@type": "NewsArticle",
-                    headline: item.title,
-                    url: pageUrl(routes.news(item.slug), locale),
-                  })),
-                }
-              : place,
+            subjectOf.length ? { ...place, subjectOf } : place,
             faqNode(pageUrl(path, locale), dossier.faq ?? []),
           )}
         />

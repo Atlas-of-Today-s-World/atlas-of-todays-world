@@ -53,8 +53,9 @@ export function GroupArticles({
         Articles in this group
       </h2>
       <p className="mt-1 text-[13px] text-[var(--color-ink-muted)]">
-        News and entries shown on this group&apos;s portrait. Published articles can only be moved
-        by someone allowed to approve them.
+        Topics added here are the &quot;Subtopics&quot; tiles on this group&apos;s page (published
+        ones only; news is listed for search engines). Published articles can only be moved by
+        someone allowed to approve them.
       </p>
 
       {members.length ? (

@@ -86,8 +86,12 @@ Pravidla:
   `src/config/navigation.ts`) pro všechna menu (desktop, mobil, stránky bez globusu, patička); kategorie
   (`lib/content-types.ts`, popisek `categoryLabel()`), sekce oprávnění, typy zdrojů — z DB typů nebo
   jednoho `const`, nikdy opsané do komponenty.
-- **Stejná data = stejná komponenta**: region a global issue mají stejné sekce → jedna `Portrait` s propsem
-  `subject: { kind: "region" | "issue", … }`.
+- **Stejná data = stejná komponenta**: region a global issue mají stejné sekce → jedny `ProfileSections`
+  (+ `IndicatorCards`, `PortraitCounts`, `PatronsCallout`); region je skládá v panelu (`Portrait`),
+  global issue na stránce na celou šířku (`features/portraits/components/IssueArticle`, ADR-028).
+  Stránky na celou šířku (téma, global issue) sdílí hlavičku `components/atlas/ArticleHero`
+  (`ArticleHero`, `ArticleEnd`, `ARTICLE_BODY`) a mřížku dlaždic podtémat (`components/topics/dossier-tiles.ts`,
+  `SubtopicTiles`).
 - **Formuláře administrace** z jednoho vzoru: `FormField` (label + control + chyba ze Zod) + `useServerAction`
   nad Server Action z `formAction()` (`lib/actions.ts`); tabulky z jednoho `DataTable` (`components/data-table`,
   ADR-019) s konfigurací sloupců a akcemi v řádku (`editAction`, `deleteAction`, `moveActions`…).

@@ -1,10 +1,14 @@
-import { ArrowLeft, ChevronDown, LayoutGrid } from "lucide-react";
+import { ChevronDown, LayoutGrid } from "lucide-react";
 import Link from "@/components/i18n/Link";
 import { kickerVariants } from "@/components/atlas/kicker";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
 import { ShareButton } from "@/components/atlas/ShareButton";
-import { PhotoCredit } from "@/components/atlas/ui";
-import { Breadcrumbs } from "@/components/atlas/Breadcrumbs";
+import {
+  ARTICLE_BODY,
+  ArticleEnd,
+  ArticleHero,
+  PANEL_SECTION_BLEED,
+} from "@/components/atlas/ArticleHero";
 import RegionFocus from "@/components/map/RegionFocus";
 import { FaqList } from "@/components/portrait/sections";
 import { Timeline } from "@/components/portrait/Timeline";
@@ -14,7 +18,7 @@ import { format } from "@/lib/i18n/messages";
 import { getRequestLocale, getT } from "@/lib/i18n/request";
 import { formatLongDate } from "@/lib/format";
 import { cssBackgroundImage, safeUrl } from "@/lib/security/urls";
-import { PHOTO_WIDTH, photoSrcSet, photoUrl } from "@/lib/images";
+import { PHOTO_WIDTH } from "@/lib/images";
 import type {
   Encyclopedia,
   EntryAuthor,
@@ -59,7 +63,6 @@ export async function EncyclopediaArticle({
 }) {
   const messages = await getT();
   const region = item.region ? atlas.regionBySlug.get(item.region) : undefined;
-  const hero = safeUrl(item.hero);
   return (
     <>
       {/* The corner window shows the whole globe turned to the region: no zoom. */}
@@ -69,72 +72,35 @@ export async function EncyclopediaArticle({
       {banner}
 
       <article lang={item.locale}>
-        <header
-          className="relative isolate overflow-hidden bg-[var(--color-space)] text-white"
-          style={item.heroBackground ? { backgroundColor: item.heroBackground } : undefined}
-        >
-          {hero ? (
-            // A real <img>: image search indexes it and the browser finds the LCP early.
-            // Resized by /_next/image (lib/images.ts) rather than next/image: a plain
-            // full-bleed background under the header text.
-            // eslint-disable-next-line @next/next/no-img-element -- see above
-            <img
-              src={photoUrl(hero, PHOTO_WIDTH.hero)}
-              srcSet={photoSrcSet(hero, [PHOTO_WIDTH.card, 1200, PHOTO_WIDTH.hero])}
-              sizes="100vw"
-              alt={item.title}
-              width={1600}
-              height={640}
-              fetchPriority="high"
-              decoding="async"
-              className="absolute inset-0 -z-10 h-full w-full object-cover"
-            />
-          ) : null}
-          <div
-            aria-hidden
-            className="absolute inset-0 -z-10 bg-gradient-to-t from-[var(--color-space-deep)] via-[var(--color-space-deep)]/65 to-[var(--color-space-deep)]/15"
-          />
-          <div className="mx-auto flex min-h-72 max-w-6xl flex-col justify-end px-4 pt-16 pb-10 sm:min-h-96 sm:px-8">
-            {/* The way back: Atlas › Topics › the topic's category (the title follows);
-                sharing at the right, above the title too. */}
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <Breadcrumbs
-                tone="dark"
-                label={messages.article.breadcrumb}
-                items={[
-                  { label: messages.article.breadcrumbAtlas, href: "/" },
-                  {
-                    label: messages.topics.title,
-                    href: routes.topics,
-                    pill: true,
-                    icon: <LayoutGrid aria-hidden className="size-3.5" />,
-                  },
-                  { label: categoryLabel(item.category, messages) },
-                ]}
-              />
-              {share ? (
-                <ShareButton title={item.title} tone="dark" className="ml-auto flex-row-reverse" />
-              ) : null}
-            </div>
-            <h1 className="font-display mt-3 text-[34px] leading-[1.08] font-bold text-balance sm:text-[52px]">
-              {item.title}
-            </h1>
-            {item.summary ? (
-              <p className="mt-4 text-[15px] leading-relaxed text-white/80 sm:text-[17px]">
-                {item.summary}
-              </p>
-            ) : null}
-          </div>
-          {item.heroCredit ? <PhotoCredit>{item.heroCredit}</PhotoCredit> : null}
-        </header>
+        <ArticleHero
+          image={item.hero}
+          alt={item.title}
+          background={item.heroBackground}
+          credit={item.heroCredit}
+          crumbLabel={messages.article.breadcrumb}
+          // The way back: Atlas › Topics › the topic's category (the title follows).
+          crumbs={[
+            { label: messages.article.breadcrumbAtlas, href: "/" },
+            {
+              label: messages.topics.title,
+              href: routes.topics,
+              pill: true,
+              icon: <LayoutGrid aria-hidden className="size-3.5" />,
+            },
+            { label: categoryLabel(item.category, messages) },
+          ]}
+          share={share ? item.title : undefined}
+          title={item.title}
+          summary={item.summary}
+        />
 
-        <div className="mx-auto max-w-6xl px-4 pt-6 pb-12 sm:px-8">
+        <div className={ARTICLE_BODY}>
           {/* Text runs the full width of the content, like the tile rows below. */}
           <EntryHeader item={item} atlas={atlas} />
           {item.html ? <SafeHtml className="prose-atlas mt-7" html={item.html} /> : null}
           {/* The topic's history right after its intro; without events nothing is shown. */}
           {item.timeline ? (
-            <div className="-mx-6 mt-10 sm:-mx-10">
+            <div className={`${PANEL_SECTION_BLEED} mt-10`}>
               <Timeline
                 items={item.timeline.items}
                 title={item.timeline.title}
@@ -147,7 +113,7 @@ export async function EncyclopediaArticle({
             <VisualsCarousel
               items={item.visuals}
               lead={messages.portrait.mapsTopicLead}
-              className={item.timeline ? "-mx-6 sm:-mx-10" : "-mx-6 mt-10 sm:-mx-10"}
+              className={item.timeline ? PANEL_SECTION_BLEED : `${PANEL_SECTION_BLEED} mt-10`}
             />
           ) : null}
 
@@ -183,23 +149,13 @@ export async function EncyclopediaArticle({
           />
 
           {item.faq.length ? (
-            <div className="-mx-6 mt-14 sm:-mx-10">
+            <div className={`${PANEL_SECTION_BLEED} mt-14`}>
               <FaqList items={item.faq} />
             </div>
           ) : null}
           {item.authorProfile ? <AuthorBio author={item.authorProfile} /> : null}
 
-          <div className="mt-14 flex flex-wrap items-center gap-3 border-t border-[var(--color-line)] pt-6">
-            <Link
-              href={routes.topics}
-              className="inline-flex min-h-(--touch-min) items-center gap-2 rounded-full bg-[var(--color-ink)] px-5 text-[14px] font-medium text-white transition hover:bg-[var(--color-accent)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 focus-visible:outline-none"
-            >
-              <ArrowLeft aria-hidden className="size-4" />
-              {messages.article.allTopics}
-            </Link>
-            {/* Finished reading: the moment to pass it on. */}
-            <ShareButton title={item.title} />
-          </div>
+          <ArticleEnd href={routes.topics} label={messages.article.allTopics} share={item.title} />
         </div>
       </article>
       <OpenOnHash />

@@ -3,25 +3,22 @@ import Link from "@/components/i18n/Link";
 import { RelatedTopics, TopicsLink } from "@/components/topics/RelatedTopics";
 import { NoTopicsCta } from "@/components/topics/NoTopicsCta";
 import type { EntrySummary } from "@/features/entries/types";
-import { PhotoCredit, SectionLabel } from "@/components/atlas/ui";
+import { PhotoCredit } from "@/components/atlas/ui";
 import type { RegionDossier } from "@/lib/content-types";
-import type { RegionStat } from "@/features/geography/region-stats";
 import { formatPopulation } from "@/lib/format";
 import { cssBackgroundImage } from "@/lib/security/urls";
 import { PHOTO_WIDTH } from "@/lib/images";
-import { format, type Messages } from "@/lib/i18n/messages";
+import { format } from "@/lib/i18n/messages";
 import { getRequestLocale, getT } from "@/lib/i18n/request";
 import type { ContentStatus } from "@/features/geography/content-status";
-import type { GroupKind, PortraitPlace } from "@/features/geography/kinds";
 import { ContentStatusBadge } from "./ContentStatusBadge";
 import { PortraitCounts } from "./PortraitCounts";
 import { FaqList, IndicatorCards, PatronsCallout, ResourceLibrary } from "./sections";
 import { Timeline } from "./Timeline";
 import { VisualsCarousel } from "@/components/visuals/VisualsCarousel";
 
-/** What the portrait shows — an Atlas region, or an editorial global issue. */
+/** What the portrait shows — an Atlas region. */
 export interface PortraitSubject {
-  kind: PortraitPlace;
   name: string;
   subtitle?: string;
   /** Summary from Atlas data; replaced by the editorial intro (`dossier.intro`). */
@@ -29,55 +26,36 @@ export interface PortraitSubject {
   hero?: string | null;
   /** Who took the header photo (shown in its corner). */
   heroCredit?: string;
-  /** Color of the group on the map (stripe under the heading for a global issue). */
-  accent?: string;
-  /** For a group of countries: a global topic, or a custom region (different label). */
-  groupKind?: GroupKind;
   countries: { slug: string; name: string }[];
   population: number;
-  /** Without country data (Antarctica): the indicator cards are left out. */
-  showMetrics?: boolean;
   /** How far the editors are; untouched places ask for support. Left out = no badge. */
   status?: ContentStatus;
 }
 
-/** Texts that differ for a region and for a group of countries (global issue). */
-function wordingFor(kind: PortraitPlace, t: Messages, groupKind?: GroupKind) {
-  const region = kind === "region";
-  return {
-    label: region
-      ? null
-      : groupKind === "region"
-        ? t.portrait.customRegion
-        : t.portrait.globalIssue,
-  };
-}
-
 /**
- * Portrait of a region or a global issue (ARCHITEKTURA 15.1, D3). Per the brief
- * there is only one – no short and long version – and it opens in full right away.
- * Topics belong to regions and countries only (owner's decision of 2026-10-15):
- * a global issue's page gets no `topics`. Its countries are listed under the
- * count in the header, not in a section of their own.
+ * Portrait of a region in the wide side panel (ARCHITEKTURA 15.1, D3). Per the
+ * brief there is only one – no short and long version – and it opens in full
+ * right away. A global issue has its own full-width page (IssueArticle, owner's
+ * request of 2026-10-16) built from the same sections (`ProfileSections`). The
+ * region's countries are listed under the count in the header, not in a
+ * section of their own.
  *
  * Sections the editors haven't written anything for yet are left out; the
- * call for support closes the page. Key indicators have data everywhere, because they're
- * computed from imported data, not editorial text.
+ * call for support closes the page. Key indicators are the editors' sourced
+ * cards only: regional averages confused readers (decision of 2026-10-07),
+ * national figures live on each country.
  */
 export default async function Portrait({
   subject,
   dossier,
-  stats,
   topics,
 }: {
   subject: PortraitSubject;
   /** Topics about the region and the filtered Topics list. */
   topics?: { items: EntrySummary[]; href: string };
   dossier: RegionDossier;
-  stats: RegionStat[];
 }) {
   const t = await getT();
-  const wording = wordingFor(subject.kind, t, subject.groupKind);
   const hero = cssBackgroundImage(subject.hero, PHOTO_WIDTH.card);
   const complete = profileComplete(dossier);
 
@@ -96,10 +74,9 @@ export default async function Portrait({
       ) : null}
 
       <header className="px-6 pt-7 pb-7 sm:px-10">
-        {/* Sharing sits above the heading, at the right of the label. Without a
-            photo the panel's close button (×) takes that corner, so it moves in. */}
+        {/* Sharing sits above the heading, at the right. Without a photo the
+            panel's close button (×) takes that corner, so it moves in. */}
         <div className={`flex flex-wrap items-center justify-between gap-2 ${hero ? "" : "pr-12"}`}>
-          {wording.label ? <SectionLabel>{wording.label}</SectionLabel> : <span aria-hidden />}
           <ShareButton title={subject.name} className="ml-auto flex-row-reverse" />
         </div>
         <h1 className="font-display mt-4 text-[30px] leading-tight font-bold text-[var(--color-ink)]">
@@ -114,13 +91,6 @@ export default async function Portrait({
           <div className="mt-3">
             <ContentStatusBadge status={subject.status} t={t} />
           </div>
-        ) : null}
-        {subject.accent ? (
-          <div
-            className="mt-4 h-2 w-full rounded-full"
-            style={{ background: subject.accent }}
-            aria-hidden
-          />
         ) : null}
         {/* The intro paragraph is written by the editors; without it the Atlas data summary stays. */}
         <p className="mt-3 text-[13.5px] leading-relaxed whitespace-pre-line text-[var(--color-ink-soft)]">
@@ -139,16 +109,7 @@ export default async function Portrait({
         />
       </header>
 
-      {/* The editors' key facts (sourced cards) everywhere; computed figures only for a
-          global issue — regional averages confused readers (decision of 2026-10-07),
-          national figures live on each country. */}
-      {subject.kind === "issue" ? (
-        subject.showMetrics !== false ? (
-          <IndicatorCards stats={stats} metrics={dossier.metrics} />
-        ) : null
-      ) : (
-        <IndicatorCards metrics={dossier.metrics} />
-      )}
+      <IndicatorCards metrics={dossier.metrics} />
 
       <ProfileSections dossier={dossier} />
 
@@ -174,11 +135,11 @@ export default async function Portrait({
 
 /**
  * The body of a regional profile, the same wherever it is shown: on the
- * region's or global issue's own page and under each of the region's
- * countries (RegionalProfile) — written once, shown in both places.
- * Timeline, maps & charts, further resources and FAQ — each only once the
- * editors have written it (empty parts are left out; the support call
- * follows below).
+ * region's own page, under each of the region's countries (RegionalProfile)
+ * and on a global issue's full-width page (IssueArticle) — written once,
+ * shown in every place. Timeline, maps & charts, further resources and FAQ —
+ * each only once the editors have written it (empty parts are left out; the
+ * support call follows below).
  */
 export async function ProfileSections({ dossier }: { dossier: RegionDossier }) {
   const t = await getT();

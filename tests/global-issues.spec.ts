@@ -43,6 +43,62 @@ test("the search narrows the cards and says when nothing matches", async ({ page
   await expect(page.getByText("No global issue matches your search.")).toHaveCount(0);
 });
 
+/**
+ * A global issue's own page (2026-10-16): a full-width page like a topic —
+ * photo header with the trail Atlas › Global issues › kind, the title, Share,
+ * its countries, "Subtopics" (its topics, or the invitation to write the
+ * first) and the globe in its corner window, which leads back to the map.
+ */
+test("a global issue opens as a full-width page like a topic", async ({ page, isMobile }) => {
+  await page.goto("/global-issue/russia-ukraine-war");
+
+  const trail = page.getByRole("navigation", { name: "Breadcrumb" });
+  await expect(trail.getByRole("link", { name: "Atlas", exact: true })).toHaveAttribute(
+    "href",
+    "/",
+  );
+  await expect(trail.getByRole("link", { name: "Global issues" })).toHaveAttribute(
+    "href",
+    "/global-issues",
+  );
+  await expect(page.getByRole("heading", { level: 1, name: "Russia–Ukraine War" })).toBeVisible();
+  await expect(
+    page.locator("#content header").getByRole("button", { name: "Share" }),
+  ).toBeVisible();
+
+  // Its topics as subtopic tiles, or — with none yet — the call to write one.
+  const subtopics = page.getByRole("region", { name: "Subtopics" });
+  await expect(subtopics).toBeVisible();
+  await expect(
+    subtopics.locator('a[href^="/topics/"], a[href^="/membership"]').first(),
+  ).toBeVisible();
+
+  // No side panel: the page is the full width and the map's controls are gone.
+  await expect(page.locator("[data-content-rail]")).toHaveCount(0);
+  await expect(page.getByRole("radio", { name: "Global issues" })).toHaveCount(0);
+
+  // The globe waits in its window bottom left (on phones out of the way; the
+  // header's "Back to Atlas" leads back there).
+  const globeWindow = page.locator("[data-globe-window]");
+  if (isMobile) await expect(globeWindow).toBeHidden();
+  else {
+    await expect(globeWindow).toBeVisible();
+    await expect(page.getByRole("link", { name: "Back to the Atlas globe" })).toBeVisible();
+  }
+  await page.getByRole("link", { name: "Back to Atlas", exact: true }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.locator("[data-globe-window]")).toHaveCount(0);
+});
+
+test("the issue page's trail is in its structured data", async ({ page }) => {
+  await page.goto("/global-issue/russia-ukraine-war");
+  const scripts = page.locator('script[type="application/ld+json"]');
+  const jsonLd = (await scripts.allTextContents()).join("");
+  expect(jsonLd).toContain('"BreadcrumbList"');
+  expect(jsonLd).toMatch(/"name":"Global issues","item":"[^"]*\/global-issues"/);
+  expect(jsonLd).toContain('"Place"');
+});
+
 test("the issue tiles over the map lead to the overview", async ({ page, isMobile }) => {
   test.skip(isMobile, "the mode switch is checked on desktop");
   await page.goto("/");
