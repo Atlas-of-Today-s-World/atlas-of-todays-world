@@ -56,7 +56,8 @@ async function as(user, fn) {
 /** The columns the public site reads (features/site/queries.ts). */
 const SETTINGS_COLUMNS = `name, alternate_names, legal_name, company_id, founding_date,
   street_address, postal_code, address_locality, address_country, description, wikidata_id,
-  contact_email, seo_title, title_suffix, seo_description, og_image_url, copyright`;
+  contact_email, seo_title, title_suffix, seo_description, og_image_url, copyright,
+  portrait_sections`;
 const LINK_COLUMNS = "label, url, icon";
 
 const links = () =>
@@ -188,6 +189,67 @@ test("site settings: one row — nobody inserts or deletes, not even the admin",
          '/x.png', 'x')`),
     /site_settings_id_check/,
   );
+});
+
+test("portrait layout: the agreed order by default; site 'e' reorders, nobody else", async () => {
+  assert.deepEqual((await one("select portrait_sections from site_settings")).portrait_sections, [
+    "timeline",
+    "topics",
+    "visuals",
+    "resources",
+    "faq",
+  ]);
+
+  const reordered = ["faq", "topics", "timeline", "visuals", "resources"];
+  await as(id.editor, () => q("update site_settings set portrait_sections = $1", [reordered]));
+  assert.deepEqual(
+    (await one("select portrait_sections from site_settings")).portrait_sections,
+    reordered,
+  );
+
+  for (const user of [id.observer, id.reader, id.viewer]) {
+    const rows = await as(user, () =>
+      q("update site_settings set portrait_sections = $1 returning id", [
+        ["timeline", "topics", "visuals", "resources", "faq"],
+      ]),
+    );
+    assert.equal(rows.length, 0, `user ${user}`);
+  }
+  await as(null, () =>
+    refused(
+      q("update site_settings set portrait_sections = $1", [
+        ["timeline", "topics", "visuals", "resources", "faq"],
+      ]),
+      /permission denied/,
+    ),
+  );
+  assert.deepEqual(
+    (await one("select portrait_sections from site_settings")).portrait_sections,
+    reordered,
+  );
+
+  await q("update site_settings set portrait_sections = $1", [
+    ["timeline", "topics", "visuals", "resources", "faq"],
+  ]);
+});
+
+test("portrait layout: only a full permutation of the five sections passes the CHECK", async () => {
+  const bad = [
+    [],
+    ["timeline", "topics", "visuals", "resources"],
+    ["timeline", "topics", "visuals", "resources", "faq", "faq"],
+    ["timeline", "timeline", "visuals", "resources", "faq"],
+    ["timeline", "topics", "visuals", "resources", "hero"],
+    ["timeline", "topics", "visuals", "resources", "FAQ"],
+  ];
+  await as(id.editor, async () => {
+    for (const value of bad) {
+      await refused(
+        q("update site_settings set portrait_sections = $1", [value]),
+        /check constraint/,
+      );
+    }
+  });
 });
 
 test("site settings: the CHECKs refuse malformed values", async () => {

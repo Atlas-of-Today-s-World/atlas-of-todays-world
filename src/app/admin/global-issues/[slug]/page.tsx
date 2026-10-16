@@ -56,7 +56,11 @@ export default async function IssueEditPage({
           <>
             {GROUP_KIND_LABEL[kind]}.{" "}
             <Link href={routes.issue(slug)} className="text-[var(--color-link)] underline">
-              View on site
+              Preview
+            </Link>
+            {" · "}
+            <Link href={routes.issueFull(slug)} className="text-[var(--color-link)] underline">
+              Full page
             </Link>
           </>
         }

@@ -126,7 +126,9 @@ async function main() {
   await check("breadcrumb to the region", async () => {
     const text = visible((await get("/country/ukraine")).body);
     assert(text.includes("Eastern Europe & Central Asia"), "missing region in breadcrumb");
-    assert(text.includes("Explore the region"), "missing region card");
+    // The region teaser card is gone (2026-10-16): the region's profile follows
+    // under the country instead.
+    assert(!text.includes("Explore the region"), "the region card is back");
     assert(!/\d+ news items? published/.test(text), "news counter is still there");
   });
 
@@ -209,7 +211,13 @@ async function main() {
     assert(body.includes("/region/middle-east-north-africa"), "missing region");
     assert(!body.includes("/cs/"), "sitemap still lists the removed Czech version");
     assert(body.includes("<lastmod>"), "missing lastmod");
-    assert(!body.includes("/full"), "sitemap still offers the removed /full");
+    // The removed short/long split: /region/x/full redirects. Not to be mixed up
+    // with /region/x/full-page, the full article this sitemap now lists.
+    assert(!/\/full</.test(body), "sitemap still offers the removed /full");
+    assert(
+      body.includes("/region/middle-east-north-africa/full-page"),
+      "sitemap misses the region's full page (its canonical URL)",
+    );
   });
 
   await check("robots.txt: AI crawlers allowed, private paths closed, sitemap", async () => {

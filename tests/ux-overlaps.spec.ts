@@ -88,13 +88,20 @@ test.describe("globe window beside full-width pages", () => {
   test.skip(({ isMobile }) => isMobile, "viewport set per test");
 
   for (const viewport of [LAPTOP, WIDE]) {
-    test(`no text under it on a topic and a global issue at ${viewport.width} × ${viewport.height}`, async ({
+    test(`no text under it on a topic, a global issue and a region at ${viewport.width} × ${viewport.height}`, async ({
       page,
     }) => {
       test.setTimeout(150_000);
       await page.setViewportSize(viewport);
       const topic = await firstTopic(page);
-      for (const path of [topic, "/global-issue/russia-ukraine-war", "/topics"]) {
+      // A global issue's and a region's full pages (2026-10-16); their own
+      // addresses are wide previews now, with no globe window.
+      for (const path of [
+        topic,
+        "/global-issue/russia-ukraine-war/full-page",
+        "/region/middle-east-north-africa/full-page",
+        "/topics",
+      ]) {
         await page.goto(path);
         const globeWindow = page.locator("[data-globe-window]");
         await expect(globeWindow).toBeVisible();

@@ -10,6 +10,7 @@ import {
   Languages,
   LayoutDashboard,
   LayoutGrid,
+  ListOrdered,
   Layers,
   type LucideIcon,
   Map as MapIcon,
@@ -70,6 +71,12 @@ export const ADMIN_NAV: readonly AdminNavItem[] = [
   },
   { href: adminRoutes.sitePages.list, label: "Site pages", section: "site", icon: FileText },
   { href: adminRoutes.siteSettings, label: "Site settings", section: "site", icon: Settings },
+  {
+    href: adminRoutes.portraitLayout,
+    label: "Portrait layout",
+    section: "site",
+    icon: ListOrdered,
+  },
   { href: adminRoutes.uiTexts, label: "UI texts", section: "site", icon: Languages },
   {
     href: adminRoutes.siteNavigation.list,

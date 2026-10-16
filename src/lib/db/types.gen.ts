@@ -2162,6 +2162,7 @@ export type Database = {
           legal_name: string
           name: string
           og_image_url: string
+          portrait_sections: string[]
           postal_code: string
           seo_description: string
           seo_title: string
@@ -2183,6 +2184,7 @@ export type Database = {
           legal_name: string
           name: string
           og_image_url: string
+          portrait_sections?: string[]
           postal_code: string
           seo_description: string
           seo_title: string
@@ -2204,6 +2206,7 @@ export type Database = {
           legal_name?: string
           name?: string
           og_image_url?: string
+          portrait_sections?: string[]
           postal_code?: string
           seo_description?: string
           seo_title?: string

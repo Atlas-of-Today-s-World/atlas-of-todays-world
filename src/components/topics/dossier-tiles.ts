@@ -1,7 +1,7 @@
 /**
- * Measures of the "Subtopics" tile grid, shared by a topic's subtopics
- * (DossierExplorer, tiles that open a panel) and a global issue's topics
- * (SubtopicTiles, tiles that link to the topic) — one look for both.
+ * Measures of the "Subtopics" tile grid of a topic's subtopics
+ * (DossierExplorer, tiles that open a panel). A place's topics are rows by
+ * theme now (ThemeTopics, 2026-10-16), no longer this grid.
  */
 
 /** Heading of a tile section ("Subtopics", "Learn more"). */

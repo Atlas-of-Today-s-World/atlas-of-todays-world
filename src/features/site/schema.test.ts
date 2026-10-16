@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SettingsInput, SocialInput } from "./schema";
+import { PortraitSectionsInput, SettingsInput, SocialInput } from "./schema";
 
 /** The form as the admin posts it (seeded values). */
 const form = {
@@ -97,5 +97,27 @@ describe("social link form", () => {
     expect(bad({ icon: "" })).toBe(false);
     expect(bad({ label: " " })).toBe(false);
     expect(bad({ label: "x".repeat(61) })).toBe(false);
+  });
+});
+
+describe("PortraitSectionsInput", () => {
+  it("accepts any order of the five sections", () => {
+    expect(
+      PortraitSectionsInput.safeParse(["faq", "resources", "visuals", "topics", "timeline"])
+        .success,
+    ).toBe(true);
+  });
+
+  it("refuses a missing, repeated or unknown section — like the DB CHECK", () => {
+    for (const order of [
+      ["faq", "resources", "visuals", "topics"],
+      ["faq", "faq", "visuals", "topics", "timeline"],
+      ["faq", "resources", "visuals", "topics", "hero"],
+      ["faq", "resources", "visuals", "topics", "timeline", "faq"],
+      "faq",
+      null,
+    ]) {
+      expect(PortraitSectionsInput.safeParse(order).success, JSON.stringify(order)).toBe(false);
+    }
   });
 });

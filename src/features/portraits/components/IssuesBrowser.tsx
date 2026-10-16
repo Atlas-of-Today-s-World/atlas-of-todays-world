@@ -124,7 +124,7 @@ export function IssuesBrowser({
             {shown.map((item, index) => (
               <li key={item.slug}>
                 <PhotoCard
-                  href={routes.issue(item.slug)}
+                  href={routes.issueFull(item.slug)}
                   image={item.hero}
                   background={item.fill}
                   width={PHOTO_WIDTH.card}

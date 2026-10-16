@@ -12,7 +12,6 @@ import { ContentStatusBadge } from "@/components/portrait/ContentStatusBadge";
 import { ProfileSections, profileComplete } from "@/components/portrait/Portrait";
 import { PortraitCounts } from "@/components/portrait/PortraitCounts";
 import { IndicatorCards, PatronsCallout } from "@/components/portrait/sections";
-import { SubtopicTiles } from "@/components/topics/SubtopicTiles";
 import type { EntrySummary } from "@/features/entries/types";
 import type { RegionStat } from "@/features/geography/region-stats";
 import type { GlobalIssue } from "@/features/geography/types";
@@ -99,10 +98,9 @@ export async function IssueArticle({
             <IndicatorCards stats={stats} metrics={dossier.metrics} />
           </div>
 
-          <SubtopicTiles items={topics.items} href={topics.href} place={issue.name} />
-
+          {/* Timeline, topics by theme, maps, sources, FAQ — in the admin's order. */}
           <div className={`${PANEL_SECTION_BLEED} mt-12`}>
-            <ProfileSections dossier={dossier} />
+            <ProfileSections dossier={dossier} topics={topics} place={issue.name} />
             <PatronsCallout complete={profileComplete(dossier)} />
           </div>
 

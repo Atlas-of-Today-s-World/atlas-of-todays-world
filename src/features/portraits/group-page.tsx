@@ -1,9 +1,6 @@
 import { getSiteSettings } from "@/features/site/queries";
 import type { Metadata } from "next";
-import ContentRail from "@/components/ContentRail";
 import { JsonLd } from "@/components/JsonLd";
-import RegionFocus from "@/components/map/RegionFocus";
-import Portrait from "@/components/portrait/Portrait";
 import { routes } from "@/config/routes";
 import { entriesOfIssue, entriesOfRegion, getEntries } from "@/features/entries/queries";
 import { countriesOf } from "@/features/geography/model";
@@ -25,18 +22,26 @@ import {
 } from "@/features/seo/jsonld";
 import { pageMetadata, pageTitle } from "@/features/seo/metadata";
 import { getPortrait } from "./queries";
+import ContentRail from "@/components/ContentRail";
+import MapModeSetter from "@/components/map/MapModeSetter";
+import RegionFocus from "@/components/map/RegionFocus";
+import Portrait from "@/components/portrait/Portrait";
 import { IssueArticle } from "./components/IssueArticle";
+import { RegionArticle } from "./components/RegionArticle";
 
 /**
  * The portrait page of a group of countries: an Atlas region (`/region/[slug]`)
  * or an editorial global issue / custom region (`/global-issue/[slug]`). Both
  * show the same portrait sections (ARCHITEKTURA 15, "same data = same
- * component") — a region in the side panel (`Portrait`), an issue on a
- * full-width page (`IssueArticle`) — so the two routes share their static
+ * component") — each on its own full-width page (`RegionArticle`,
+ * `IssueArticle`) — so the two routes share their static
  * params, metadata, data and JSON-LD here and stay thin wrappers. Route segment config (`dynamicParams`) stays in each route
  * file, where Next reads it.
  */
 type GroupKind = "region" | "issue";
+
+/** Side panel over the map, or the whole article at `…/full-page`. */
+type GroupView = "rail" | "full";
 
 /** The group with its kind, so a branch on `kind` narrows `group`. */
 type Located = { kind: "region"; group: Region } | { kind: "issue"; group: GlobalIssue };
@@ -48,6 +53,14 @@ type Placed = Parameters<typeof entriesOfIssue>[0][number];
 
 const pathOf = (kind: GroupKind, slug: string) =>
   kind === "region" ? routes.region(slug) : routes.issue(slug);
+
+/**
+ * The full article's address. It is the canonical one for both views: the rail
+ * preview shows the same portrait shortened, so search engines are pointed at
+ * the whole thing rather than asked to choose.
+ */
+const fullPathOf = (kind: GroupKind, slug: string) =>
+  kind === "region" ? routes.regionFull(slug) : routes.issueFull(slug);
 
 function locate(atlas: Atlas, kind: GroupKind, slug: string): Located | undefined {
   if (kind === "region") {
@@ -76,7 +89,8 @@ export function groupMetadata(kind: GroupKind) {
     const { group } = located;
     return pageMetadata({
       locale,
-      path: pathOf(kind, group.slug),
+      // Canonical: the full article, from the preview too (see fullPathOf).
+      path: fullPathOf(kind, group.slug),
       // An issue's subtitle only when it fits next to the name (≤ 60 characters with the brand).
       title: located.kind === "issue" ? pageTitle(group.name, located.group.subtitle) : group.name,
       description: group.summary,
@@ -87,11 +101,13 @@ export function groupMetadata(kind: GroupKind) {
 }
 
 /**
- * The page. A region: the globe turns to it, the portrait opens in the wide
- * rail. A global issue (or custom region): a full-width page like a topic,
- * the globe waiting in its corner window (IssueArticle).
+ * The page, in either of its two views (2026-10-16). `rail`: the globe turns
+ * to the place and the portrait opens in the wide side panel (`Portrait`),
+ * with "Full page view" at its top. `full`: the whole article at
+ * `/<kind>/<slug>/full-page` (`RegionArticle`, `IssueArticle`), the globe
+ * waiting in its corner window.
  */
-export function groupPortraitPage(kind: GroupKind) {
+export function groupPortraitPage(kind: GroupKind, view: GroupView = "rail") {
   return async function GroupPortraitPage({ params }: { params: Params }) {
     const { slug } = await params;
     const locale = await localeFrom(params);
@@ -100,9 +116,16 @@ export function groupPortraitPage(kind: GroupKind) {
     const located = locate(atlas, kind, slug);
     // Unknown URL: redirect (changed slug), otherwise 404. The route's layout
     // answers it first; this only narrows the type.
-    if (!located) return redirectOrNotFound(pathOf(kind, slug), locale);
+    // The address actually visited, so a renamed slug redirects to the same view.
+    if (!located) {
+      return redirectOrNotFound(
+        view === "full" ? fullPathOf(kind, slug) : pathOf(kind, slug),
+        locale,
+      );
+    }
     const { group } = located;
-    const path = pathOf(kind, group.slug);
+    const path = fullPathOf(kind, group.slug);
+    const fullPath = path;
 
     // A region's articles are those filed under it; an issue's also those
     // touching any of its countries.
@@ -154,16 +177,21 @@ export function groupPortraitPage(kind: GroupKind) {
 
     return (
       <>
-        {located.kind === "region" ? (
+        {view === "rail" ? (
+          // The preview: the globe turns to the place, the portrait opens beside it.
           <>
             <RegionFocus region={group} />
-            <ContentRail wide>
+            {/* An issue lights its countries and greys the rest, also when its
+                preview is opened from a link rather than from the switcher. */}
+            {located.kind === "issue" ? <MapModeSetter mode="issue" /> : null}
+            <ContentRail wide fullPage={fullPath}>
               <Portrait
                 topics={topics}
                 subject={{
                   name: group.name,
-                  // Under the name, like a global issue's subtitle.
-                  subtitle: located.group.tagline,
+                  // Under the name: a region's tagline, an issue's subtitle.
+                  subtitle:
+                    located.kind === "region" ? located.group.tagline : located.group.subtitle,
                   summary: group.summary,
                   hero: group.hero,
                   heroCredit: group.heroCredit,
@@ -175,8 +203,15 @@ export function groupPortraitPage(kind: GroupKind) {
               />
             </ContentRail>
           </>
+        ) : located.kind === "region" ? (
+          <RegionArticle
+            region={located.group}
+            dossier={dossier}
+            topics={topics}
+            countries={members}
+            population={population(countries)}
+          />
         ) : (
-          // A global issue is a full-width page like a topic (2026-10-16).
           <IssueArticle
             issue={located.group}
             dossier={dossier}

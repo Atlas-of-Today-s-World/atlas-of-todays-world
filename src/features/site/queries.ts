@@ -9,6 +9,7 @@ import {
   SOCIAL_DEFAULTS,
   settingsFromRow,
   socialsFromRows,
+  withSettingsDefaults,
   type SettingsRow,
   type SiteSettings,
   type SocialLink,
@@ -32,7 +33,10 @@ const readSettings = unstable_cache(
     if (error) throw new Error(error.message);
     return data ? settingsFromRow(data) : null;
   },
-  ["site-settings"],
+  // "v2": the entry gained `sectionOrder` (2026-10-16). A new key keeps the
+  // old-shaped entry from being served after the deploy; withSettingsDefaults
+  // below is the safety net for any shape the cache still hands back.
+  ["site-settings", "v2"],
   { tags: [tags.site], revalidate: PUBLIC_REVALIDATE_SECONDS },
 );
 
@@ -55,7 +59,8 @@ const readSocialLinks = unstable_cache(
 /** The publisher's facts, contact and SEO defaults; the defaults when the row is missing or unreadable. */
 export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
   try {
-    return (await readSettings()) ?? SITE_DEFAULTS;
+    const settings = await readSettings();
+    return settings ? withSettingsDefaults(settings) : SITE_DEFAULTS;
   } catch (error) {
     console.error("[site] settings:", error instanceof Error ? error.message : error);
     return SITE_DEFAULTS;

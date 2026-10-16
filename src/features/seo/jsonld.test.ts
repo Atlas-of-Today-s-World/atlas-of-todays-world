@@ -84,6 +84,7 @@ describe("JSON-LD builders", () => {
       seo_description: "Explore.",
       og_image_url: "/og.png",
       copyright: "© Atlas Org",
+      portrait_sections: ["timeline", "topics", "visuals", "resources", "faq"],
     });
     const socials = socialsFromRows([
       { label: "Mastodon", url: "https://mastodon.social/@atlas", icon: "M" },

@@ -1,7 +1,7 @@
+import { Fragment, type ReactNode } from "react";
 import { ShareButton } from "@/components/atlas/ShareButton";
 import Link from "@/components/i18n/Link";
-import { RelatedTopics, TopicsLink } from "@/components/topics/RelatedTopics";
-import { NoTopicsCta } from "@/components/topics/NoTopicsCta";
+import { TopicsLink } from "@/components/topics/RelatedTopics";
 import type { EntrySummary } from "@/features/entries/types";
 import { PhotoCredit } from "@/components/atlas/ui";
 import type { RegionDossier } from "@/lib/content-types";
@@ -18,6 +18,9 @@ import { PortraitCounts } from "./PortraitCounts";
 import { FaqList, IndicatorCards, PatronsCallout, ResourceLibrary } from "./sections";
 import { Timeline } from "./Timeline";
 import { VisualsCarousel } from "@/components/visuals/VisualsCarousel";
+import { ThemeTopics } from "@/components/topics/ThemeTopics";
+import type { SectionKey } from "@/features/portraits/section-order";
+import { getSiteSettings } from "@/features/site/queries";
 
 /** What the portrait shows — an Atlas region. */
 export interface PortraitSubject {
@@ -103,12 +106,10 @@ export default async function Portrait({
         <p className="mt-3 text-[13.5px] leading-relaxed whitespace-pre-line text-[var(--color-ink-soft)]">
           {dossier.intro?.trim() || subject.summary}
         </p>
-        {/* The way to the place's topics comes first, above the counts. */}
+        {/* A quick way to the place's topics, above the counts; the rows by theme
+            (and, with none written, the invitation) come in their slot below. */}
         {topics ? (
-          <>
-            <TopicsLink count={topics.items.length} href={topics.href} className="mt-5" />
-            <NoTopicsCta count={topics.items.length} place={subject.name} className="mt-4" />
-          </>
+          <TopicsLink count={topics.items.length} href={topics.href} className="mt-5" />
         ) : null}
         <PortraitCounts
           countries={subject.countries}
@@ -118,16 +119,7 @@ export default async function Portrait({
 
       <IndicatorCards metrics={dossier.metrics} />
 
-      <ProfileSections dossier={dossier} />
-
-      {topics ? (
-        <RelatedTopics
-          items={topics.items}
-          href={topics.href}
-          place={subject.name}
-          className="mt-2 px-6 pb-8 sm:px-10"
-        />
-      ) : null}
+      <ProfileSections dossier={dossier} topics={topics} place={subject.name} />
 
       <PatronsCallout complete={complete} />
 
@@ -141,32 +133,58 @@ export default async function Portrait({
 }
 
 /**
- * The body of a regional profile, the same wherever it is shown: on the
- * region's own page, under each of the region's countries (RegionalProfile)
- * and on a global issue's full-width page (IssueArticle) — written once,
- * shown in every place. Timeline, maps & charts, further resources and FAQ —
- * each only once the editors have written it (empty parts are left out; the
- * support call follows below).
+ * The run of sections every place shows — a country, a region and a global
+ * issue, in the side-panel preview and on the full page, and the region's
+ * profile under each of its countries — written once (owner's request of
+ * 2026-10-16). Their order is one for the whole site and comes from the admin
+ * (Portrait layout → `site_settings.portrait_sections`); a section the editors
+ * haven't written is left out wherever it stands. The intro and key facts sit
+ * above this run, the call for support below it.
+ *
+ * `topics` is optional: under a country the region's profile leaves the topics
+ * out, because the country's own list (which already holds its region's
+ * topics) follows right after it — showing them twice would repeat every tile.
  */
-export async function ProfileSections({ dossier }: { dossier: RegionDossier }) {
-  const t = await getT();
+export async function ProfileSections({
+  dossier,
+  topics,
+  place,
+  timelineId,
+}: {
+  dossier: RegionDossier;
+  /** The place's topics and the filtered Topics list; left out = no topic rows. */
+  topics?: { items: EntrySummary[]; href: string };
+  /** Name of the place, for the invitation under the topic rows. */
+  place?: string;
+  /** Element id of the timeline when two share a page (a country under its region). */
+  timelineId?: string;
+}) {
+  const [t, { sectionOrder }] = await Promise.all([getT(), getSiteSettings()]);
+
+  const sections: Record<SectionKey, ReactNode> = {
+    timeline: dossier.timeline?.length ? (
+      <Timeline
+        id={timelineId}
+        items={dossier.timeline}
+        title={dossier.timelineTitle}
+        subtitle={dossier.timelineSubtitle}
+      />
+    ) : null,
+    topics: topics ? (
+      <ThemeTopics items={topics.items} href={topics.href} place={place ?? ""} />
+    ) : null,
+    visuals: dossier.visuals?.length ? (
+      <VisualsCarousel items={dossier.visuals} lead={t.portrait.mapsLead} />
+    ) : null,
+    resources: dossier.resources?.length ? <ResourceLibrary resources={dossier.resources} /> : null,
+    faq: dossier.faq?.length ? <FaqList items={dossier.faq} /> : null,
+  };
+
   return (
     <>
-      {dossier.timeline?.length ? (
-        <Timeline
-          items={dossier.timeline}
-          title={dossier.timelineTitle}
-          subtitle={dossier.timelineSubtitle}
-        />
-      ) : null}
-
-      {dossier.visuals?.length ? (
-        <VisualsCarousel items={dossier.visuals} lead={t.portrait.mapsLead} />
-      ) : null}
-
-      {dossier.resources?.length ? <ResourceLibrary resources={dossier.resources} /> : null}
-
-      {dossier.faq?.length ? <FaqList items={dossier.faq} /> : null}
+      {sectionOrder.map((key) => (
+        <Fragment key={key}>{sections[key]}</Fragment>
+      ))}
     </>
   );
 }
