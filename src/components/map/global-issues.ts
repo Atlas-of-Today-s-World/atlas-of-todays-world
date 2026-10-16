@@ -88,8 +88,7 @@ export function statusMarkImage(id: string) {
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
   if (status === "missing") {
-    // Not created yet: a white disc with a dashed grey ring, readable on the
-    // white pill and on the red one of a country without topics.
+    // Not created yet: a white disc with a dashed grey ring on the white pill.
     const r = h / 2 - ratio;
     const [cx, cy] = [gap + (w - gap) / 2, h / 2];
     ctx.fillStyle = "#ffffff";

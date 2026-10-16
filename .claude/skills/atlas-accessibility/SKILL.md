@@ -88,7 +88,7 @@ a screen reader or a 320 px phone cannot use.
 - Text contrast at least 4.5:1 (3:1 for text of 24 px, or 18.7 px bold, and larger); UI parts, icons,
   chart marks and map strokes at least 3:1 against their neighbours. Token pairs:
   `atlas-visual-design` reference.
-- Never convey meaning by colour alone: the red zero carries the number "0", statuses carry a
+- Never convey meaning by colour alone: a zero carries the number "0", statuses carry a
   label, form errors carry text.
 - Pages reflow at 320 px with no sideways scroll (`tests/overflow.spec.ts` checks 320, 375, 1280);
   tables, carousels and maps may scroll in their own box.

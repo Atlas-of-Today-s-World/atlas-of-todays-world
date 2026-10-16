@@ -96,8 +96,8 @@ for every long-form type:
 ### Support, patrons and volunteers
 
 - Owner decisions, keep them: the gold coin animation (`DonateCoin`), the spark ring on "See all
-  N topics" (`spark-ring`), the "Support the Atlas" floating button and menu item, and the red
-  pulsing zero on the globe.
+  N topics" (`spark-ring`), the "Support the Atlas" floating button and menu item. The globe's
+  badges carry no red (owner, 2026-10-16): a 0 is the same white pill as any count.
 - `FloatingActions` (Newsletter + Support the Atlas) is the only floating call to action. It is on
   every public page except the admin and the donation pages. Do not add a second one.
 - Keep support separate from editorial text: `PatronsCallout` and donation cards sit after the
@@ -168,7 +168,7 @@ setUrlParams({ category: next || null });
 - Filters kept only in React state: the view cannot be shared and Back loses it.
 - A second floating donate button or a donation box inside the article text: it competes with the
   content and erodes trust.
-- Removing the coin, the spark or the red zero to "calm the page": these are owner decisions.
+- Removing the coin or the spark to "calm the page": these are owner decisions.
 
 ## Sources
 

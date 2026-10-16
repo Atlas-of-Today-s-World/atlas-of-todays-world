@@ -47,7 +47,7 @@
   --color-warning-soft: #fef3c7;
   --color-danger: #b91c1c;
   --color-danger-soft: #fee2e2;
-  /* A place without topics (red 0 on the globe, its call to write). */
+  /* A place without topics (its red call to write, NoTopicsCta). */
   --color-empty: #dc2626;
   --color-empty-strong: #b91c1c;
   --color-empty-soft: #fef2f2;
@@ -634,14 +634,14 @@ body {
 
 /*
  * Topic count pulse over the idle globe (AtlasGlobe): a copy of the badge pill
- * grows to almost twice its size with a soft red glow and settles back.
+ * grows to almost twice its size with a soft white glow and settles back.
  * Shown only while the globe spins, which never happens with reduced motion.
  */
 @keyframes topic-pulse {
   0% {
     opacity: 0;
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
   }
   15% {
     opacity: 1;
@@ -649,18 +649,18 @@ body {
   45% {
     transform: scale(1.8);
     box-shadow:
-      0 0 0 3px rgba(239, 68, 68, 0.35),
-      0 0 14px 4px rgba(239, 68, 68, 0.6);
+      0 0 0 3px rgba(255, 255, 255, 0.35),
+      0 0 14px 4px rgba(255, 255, 255, 0.6);
   }
   80% {
     opacity: 1;
     transform: scale(1);
-    box-shadow: 0 0 6px 1px rgba(239, 68, 68, 0.25);
+    box-shadow: 0 0 6px 1px rgba(255, 255, 255, 0.25);
   }
   100% {
     opacity: 0;
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
   }
 }
 
@@ -676,10 +676,4 @@ body {
     sans-serif;
   white-space: nowrap;
   animation: topic-pulse 1.6s ease-in-out both;
-}
-
-.topic-pulse-soft {
-  border-color: rgba(255, 255, 255, 0.75);
-  background: rgba(8, 14, 28, 0.8);
-  color: #ffffff;
 }

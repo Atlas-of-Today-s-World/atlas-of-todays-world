@@ -27,7 +27,7 @@ equivalent.**
 
 - `src/components/map/AtlasGlobe.tsx` draws it; props are built on the server in
   `src/app/[locale]/(map)/layout.tsx`. Style and layer ids: `src/components/map/mapStyle.ts`
-  (`buildStyle`, `LAYERS`, `TOPIC_LAYERS`, `ZERO_GLOW_LAYERS`, `GLOBE_DATA`).
+  (`buildStyle`, `LAYERS`, `TOPIC_LAYERS`, `GLOBE_DATA`).
 - **Modes** (`ModeSwitch`): countries, regions, global issues. Region and issue colours are set
   per region / issue in the admin (`fill`, `stroke`); global look (saturation, border width) in
   Map appearance.
@@ -36,9 +36,8 @@ equivalent.**
   the globe only draws them (`globe/topicBadges.ts`). Never count on the client.
   On the countries layer a country shows its **region's** count (`countryBadges`, ADR-030) —
   the only number under its name; per-country counts serve its panel and the Topics filter.
-- **Red pulsing zero**: a place with no topic gets a red pill (`GLOBE_COLORS.empty`) and a pulsing
-  glow (`globe/zeroPulse.ts`, `useZeroPulse`) — an invitation to write. It pauses in hidden tabs and
-  stays still with reduced motion. Keep both behaviours.
+- **No red on the globe badges** (owner, 2026-10-16): a place with no topic shows the same white
+  pill with "0" as any other; the red pill and its pulsing glow were removed.
 - **Status marks** on regions and issues come from `content_status` (none / preparing / ready,
   `src/features/geography/content-status.ts`, drawn by `components/map/global-issues.ts`). Colours:
   `THEME_COLORS.statusReady`, `statusPreparing` in `src/config/palette.ts`.

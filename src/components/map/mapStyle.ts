@@ -98,49 +98,12 @@ export const TOPIC_LAYERS = {
 } as const;
 
 /**
- * Pills behind a topic count (drawn in AtlasGlobe on `styleimagemissing`).
- * One look for countries, regions and special regions alike: the number is how
- * many topics are linked to the place — solid with topics, soft and faint at 0.
+ * The pill behind a topic count (drawn in AtlasGlobe on `styleimagemissing`).
+ * One look for countries, regions and special regions alike, 0 included.
  */
 export const TOPIC_BADGE_IMAGES = {
   some: "topic-badge",
-  none: "topic-badge-soft",
-  /** 0 on a country or region: red, the place is waiting for its first topic. */
-  zero: "topic-badge-zero",
 } as const;
-
-/**
- * Red glow under every 0 pill (countries and regions), pulsing while visible
- * (globe/zeroPulse.ts animates its radius and opacity; static with reduced motion).
- */
-export const ZERO_GLOW_LAYERS = {
-  countries: "topic-zero-glow-country",
-  regions: "topic-zero-glow-region",
-} as const;
-
-/** Pixels from the label point to the middle of the pill (badge offset in ems × 10 px + half a line). */
-const ZERO_GLOW_OFFSET = { countries: 19.5, regions: 36 } as const;
-
-function zeroGlowLayer(id: string, source: string, offset: number, minzoom = 0) {
-  return {
-    id,
-    type: "circle" as const,
-    source,
-    minzoom,
-    // Nothing until the counts are known (globe/topicBadges.ts sets the filter).
-    filter: ["boolean", false],
-    layout: { visibility: "none" as const },
-    paint: {
-      "circle-color": GLOBE_COLORS.empty,
-      "circle-radius": 9,
-      "circle-opacity": 0.35,
-      "circle-blur": 0.6,
-      "circle-translate": [0, offset],
-      "circle-translate-anchor": "viewport" as const,
-      "circle-pitch-alignment": "viewport" as const,
-    },
-  };
-}
 
 /** Same rule as country names: small countries appear only when zoomed in. */
 export const COUNTRY_RANK_FILTER = ["<=", ["get", "rank"], ["+", 0.5, ["*", 1.45, ["zoom"]]]];
@@ -384,8 +347,6 @@ export function buildStyle(regions: RegionLabel[], options: StyleOptions): Style
           "text-halo-width": 1.6,
         },
       },
-      zeroGlowLayer(ZERO_GLOW_LAYERS.countries, "country-labels", ZERO_GLOW_OFFSET.countries, 1.6),
-      zeroGlowLayer(ZERO_GLOW_LAYERS.regions, "region-labels", ZERO_GLOW_OFFSET.regions),
       topicBadgeLayer(TOPIC_LAYERS.countries, "country-labels", { minzoom: 1.6 }),
       topicBadgeLayer(TOPIC_LAYERS.regions, "region-labels", { below: 3 }),
       // Groups have no name on the globe: the count sits on their centre.
