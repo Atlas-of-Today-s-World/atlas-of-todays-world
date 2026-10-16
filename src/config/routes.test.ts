@@ -7,6 +7,7 @@ import {
   isAtOrUnder,
   routes,
   segmentAfter,
+  skillFiles,
 } from "./routes";
 
 describe("routes", () => {
@@ -22,6 +23,13 @@ describe("routes", () => {
     expect(routes.author("jana-novak")).toBe("/authors/jana-novak");
     expect(routes.view("hdi")).toBe("/view/hdi");
     expect(routes.view("hdi", "hun")).toBe("/view/hdi#hun");
+    expect(routes.skill("atlas-web")).toBe("/skills/atlas-web");
+  });
+
+  it("builds the addresses of the skills' files", () => {
+    expect(skillFiles.raw("atlas-web")).toBe("/skills/atlas-web/SKILL.md");
+    expect(skillFiles.zip("atlas-web")).toBe("/skills/atlas-web.zip");
+    expect(skillFiles.all).toBe("/skills/all.zip");
   });
 
   it("maps an article to its address by kind", () => {
@@ -60,6 +68,7 @@ describe("routes", () => {
       privacy: "/privacy",
       terms: "/terms",
       accessibility: "/accessibility",
+      skills: "/skills",
       login: "/login",
       loginConfirm: "/login/confirm",
       account: "/account",
@@ -126,6 +135,7 @@ describe("adminRoutes", () => {
       members: "/admin/members",
       patrons: "/admin/patrons",
       account: "/admin/account",
+      skills: "/admin/skills",
     });
     expect(adminRoutes.overview).toBe(routes.admin);
   });

@@ -22,6 +22,7 @@ import { createPublicClient } from "@/lib/supabase/public";
 import { categoryLabel, type ArticleKind } from "@/lib/content-types";
 import { articleDocument, articleUrl } from "./documents";
 import { routes } from "@/config/routes";
+import { SKILLS_PAGE } from "@/features/skills/model";
 import { getMessagesFor } from "@/lib/i18n/request";
 
 /**
@@ -126,8 +127,9 @@ export async function getSitemaps(now = Date.now()): Promise<Record<SitemapName,
       { path: routes.about, lastmod: dataChanged },
       { path: routes.newsletter },
       { path: routes.membership },
-      // The legal pages exist whatever the footer menu (Admin → Site menus) links to.
-      ...[routes.privacy, routes.terms, routes.accessibility].map((path) => ({
+      // The legal pages exist whatever the footer menu (Admin → Site menus) links to;
+      // the Claude skills (English only) are linked from no menu at all.
+      ...[routes.privacy, routes.terms, routes.accessibility, routes.skills].map((path) => ({
         path,
         languages: [DEFAULT_LOCALE],
       })),
@@ -297,6 +299,12 @@ function sections(
           note: t.globalIssues.description,
         },
         { name: t.patrons.title, url: url(locale, routes.membership), note: t.patrons.description },
+        // English only, like the skills (no UI text: not a page of the encyclopedia).
+        {
+          name: SKILLS_PAGE.title,
+          url: url(DEFAULT_LOCALE, routes.skills),
+          note: SKILLS_PAGE.description,
+        },
         { name: "RSS", url: url(locale, "/feed.xml") },
         { name: "Sitemap", url: absoluteUrl("/sitemap.xml") },
       ],

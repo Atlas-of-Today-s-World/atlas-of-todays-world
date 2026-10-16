@@ -6,7 +6,10 @@
 /test-results/
 /playwright-report/
 /supabase/
-/.claude/
+# Z .claude/ jen skills: build z nich dělá veřejné stránky /skills (src/features/skills),
+# zbytek (nastavení, worktrees) na Vercel nepatří.
+/.claude/*
+!/.claude/skills/
 /.github/
 /*.md
 /playwright*.config.ts

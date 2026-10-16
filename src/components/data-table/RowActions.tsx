@@ -8,9 +8,11 @@ import {
   Ban,
   CalendarPlus,
   CircleCheck,
+  Download,
   ExternalLink,
   Eye,
   EyeOff,
+  FileCode,
   type LucideIcon,
   Pencil,
   Power,
@@ -53,6 +55,8 @@ const ICONS: Record<RowActionIcon, LucideIcon> = {
   down: ArrowDown,
   on: Power,
   off: PowerOff,
+  source: FileCode,
+  download: Download,
 };
 
 /** An "instant" row action: runs without a dialog, refreshes the table, announces a failure. */
@@ -184,6 +188,21 @@ export function RowActions({ actions }: { actions: readonly RowAction[] }) {
       {actions.map((item) => {
         const Icon = ICONS[item.icon];
         const icon = <Icon aria-hidden className="size-3.5" />;
+        if (item.kind === "link" && item.download) {
+          // A file, not a page: a plain download link instead of the router's Link.
+          return (
+            <a
+              key={item.label}
+              href={item.href}
+              download
+              aria-label={item.label}
+              title={item.label}
+              className={buttonVariants({ variant: "quiet", size: "rowIcon" })}
+            >
+              {icon}
+            </a>
+          );
+        }
         if (item.kind === "link") {
           return (
             <Link

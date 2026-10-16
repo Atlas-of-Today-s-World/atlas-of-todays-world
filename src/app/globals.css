@@ -450,6 +450,73 @@ body {
   margin-bottom: 0.625rem;
 }
 
+/* A published Claude skill (/skills/<name>, features/skills): technical text with code and tables. */
+.prose-skill h4 {
+  color: var(--color-ink);
+  font-size: 15px;
+  font-weight: 700;
+  margin: 1.25rem 0 0.375rem;
+}
+
+.prose-skill li > :is(ul, ol) {
+  margin: 0.375rem 0 0 1.25rem;
+}
+
+.prose-skill code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.875em;
+  background: var(--color-surface-muted);
+  border-radius: 4px;
+  padding: 0.1em 0.3em;
+  overflow-wrap: anywhere;
+}
+
+.prose-skill pre {
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin: 0 0 1rem;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.prose-skill pre code {
+  background: none;
+  padding: 0;
+  font-size: inherit;
+  overflow-wrap: normal;
+}
+
+.prose-skill table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 0 0 1rem;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.prose-skill :is(th, td) {
+  border: 1px solid var(--color-line);
+  padding: 0.375rem 0.625rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.prose-skill th {
+  background: var(--color-surface-muted);
+  color: var(--color-ink);
+}
+
+.prose-skill hr {
+  border: 0;
+  border-top: 1px solid var(--color-line);
+  margin: 2rem 0;
+}
+
 /* Print (ARCHITEKTURA 16): only the panel content at full width, no globe or controls. */
 @media print {
   [data-print="hide"],

@@ -23,6 +23,8 @@ const REQUIRED = [
   "/[locale]/news",
   "/[locale]/news/[slug]",
   "/[locale]/view/[indicator]",
+  "/[locale]/skills",
+  "/[locale]/skills/[name]",
 ];
 
 const file = process.argv[2];

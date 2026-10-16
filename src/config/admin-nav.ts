@@ -19,6 +19,7 @@ import {
   Settings,
   ShieldCheck,
   SignpostBig,
+  Sparkles,
   ToggleRight,
   Shapes,
   UserRound,
@@ -117,6 +118,8 @@ export const ADMIN_NAV: readonly AdminNavItem[] = [
     section: ["site", "members"],
     icon: HandCoins,
   },
+  // The published Claude skills: read-only links, useful to every team member.
+  { href: adminRoutes.skills, label: "Claude skills", section: null, icon: Sparkles },
   // Last, like an account item in any app; every team member has it.
   { href: adminRoutes.account, label: "My account", section: null, icon: CircleUserRound },
 ];

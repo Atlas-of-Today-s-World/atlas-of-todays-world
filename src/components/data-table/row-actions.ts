@@ -24,10 +24,20 @@ export type RowActionIcon =
   | "up"
   | "down"
   | "on"
-  | "off";
+  | "off"
+  | "source"
+  | "download";
 
 export type RowAction =
-  | { kind: "link"; icon: RowActionIcon; label: string; href: string; newTab?: boolean }
+  | {
+      kind: "link";
+      icon: RowActionIcon;
+      label: string;
+      href: string;
+      newTab?: boolean;
+      /** A file to save (a plain `<a download>`, not a page the router opens). */
+      download?: boolean;
+    }
   | {
       kind: "action";
       icon: RowActionIcon;

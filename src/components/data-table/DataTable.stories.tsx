@@ -196,3 +196,25 @@ export const TwoActions: Story = {
     })),
   },
 };
+
+/** Read-only records with files (Admin → Skills): open, view the source, download. */
+export const FileLinks: Story = {
+  args: {
+    tableKey: "storybook-file-links",
+    stats: undefined,
+    selectable: false,
+    maxRowActions: 3,
+    rows: rows.slice(0, 5).map((row) => ({
+      ...row,
+      actions: (
+        <RowActions
+          actions={[
+            { kind: "link", icon: "view", label: "Read", href: "/", newTab: true },
+            { kind: "link", icon: "source", label: "Raw file", href: "/", newTab: true },
+            { kind: "link", icon: "download", label: "Download", href: "/", download: true },
+          ]}
+        />
+      ),
+    })),
+  },
+};
