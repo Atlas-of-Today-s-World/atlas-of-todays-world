@@ -70,7 +70,8 @@ describe("layout tokens", () => {
     expect(railKind("/region/sub-saharan-africa")).toBe("wide");
     expect(railKind("/news/sahel-coup-belt")).toBe("wide");
     // A global issue is a full-width page like a topic (2026-10-16).
-    expect(railKind("/global-issue/sahel")).toBe("none");
+    // A global issue opens as a wide preview like a region (2026-10-16).
+    expect(railKind("/global-issue/sahel")).toBe("wide");
     // The internal route English pages render under on the server.
     expect(railKind("/en")).toBe("none");
     expect(railKind("/en/region/sub-saharan-africa")).toBe("wide");
@@ -80,11 +81,11 @@ describe("layout tokens", () => {
     // Before config/routes.ts: wide = /^\/(news|region|global-issue)\//, full = /^\/topics(\/|$)/.
     // Since 2026-10-16 every place preview (country, region, issue) is wide.
     const wide = /^\/(news|region|country|global-issue)\//;
-    // Since then also the Global issues overview (/global-issues) and, since
-    // 2026-10-16, each global issue (/global-issue/x) — no longer a wide panel.
-    // And a place's full view (…/full-page) is a full page.
+    // Since then also the Global issues overview (/global-issues), and a
+    // place's full view (…/full-page). A single global issue (/global-issue/x)
+    // was a full page for a day and is a wide preview again (2026-10-16).
     const full =
-      /^\/(topics|global-issues?)(\/|$)|^\/(country|region|global-issue)\/[^/]+\/full-page$/;
+      /^\/(topics|global-issues)(\/|$)|^\/(country|region|global-issue)\/[^/]+\/full-page$/;
     const paths = [
       "/",
       "/news",
@@ -132,8 +133,9 @@ describe("layout tokens", () => {
     expect(isFullPage("/news/sahel-coup-belt")).toBe(false);
     expect(isFullPage("/topicsx")).toBe(false);
     expect(isFullPage("/global-issues")).toBe(true);
-    expect(isFullPage("/global-issue/sahel")).toBe(true);
-    expect(isFullPage("/en/global-issue/sahel")).toBe(true);
+    expect(isFullPage("/global-issue/sahel")).toBe(false);
+    expect(isFullPage("/global-issue/sahel/full-page")).toBe(true);
+    expect(isFullPage("/en/global-issue/sahel/full-page")).toBe(true);
     expect(isFullPage("/global-issuesx")).toBe(false);
     // No side panel there: the page itself is full width.
     expect(railKind("/topics/migrant-smuggling")).toBe("none");

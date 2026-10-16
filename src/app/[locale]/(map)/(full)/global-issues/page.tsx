@@ -72,7 +72,7 @@ export default async function GlobalIssuesPage({ params }: PageProps<"/[locale]/
           description: t.description,
           locale,
           site,
-          items: issues.map((issue) => ({ name: issue.name, path: routes.issue(issue.slug) })),
+          items: issues.map((issue) => ({ name: issue.name, path: routes.issueFull(issue.slug) })),
         })}
       />
     </>

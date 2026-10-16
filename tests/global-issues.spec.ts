@@ -44,13 +44,13 @@ test("the search narrows the cards and says when nothing matches", async ({ page
 });
 
 /**
- * A global issue's own page (2026-10-16): a full-width page like a topic —
+ * A global issue's full page (2026-10-16, at …/full-page): like a topic —
  * photo header with the trail Atlas › Global issues › kind, the title, Share,
  * its countries, "Subtopics" (its topics, or the invitation to write the
  * first) and the globe in its corner window, which leads back to the map.
  */
-test("a global issue opens as a full-width page like a topic", async ({ page, isMobile }) => {
-  await page.goto("/global-issue/russia-ukraine-war");
+test("a global issue's full page is a full-width page like a topic", async ({ page, isMobile }) => {
+  await page.goto("/global-issue/russia-ukraine-war/full-page");
 
   const trail = page.getByRole("navigation", { name: "Breadcrumb" });
   await expect(trail.getByRole("link", { name: "Atlas", exact: true })).toHaveAttribute(
@@ -90,8 +90,23 @@ test("a global issue opens as a full-width page like a topic", async ({ page, is
   await expect(page.locator("[data-globe-window]")).toHaveCount(0);
 });
 
-test("the issue page's trail is in its structured data", async ({ page }) => {
+test("a global issue opens as a wide preview with the way to its full page", async ({ page }) => {
   await page.goto("/global-issue/russia-ukraine-war");
+  await expect(page.locator("[data-content-rail]")).toHaveCount(1);
+  await expect(page.getByRole("heading", { level: 1, name: "Russia–Ukraine War" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Full page view" })).toHaveAttribute(
+    "href",
+    "/global-issue/russia-ukraine-war/full-page",
+  );
+  // The preview's canonical is the full page, so search engines index one of the two.
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    /\/global-issue\/russia-ukraine-war\/full-page$/,
+  );
+});
+
+test("the issue page's trail is in its structured data", async ({ page }) => {
+  await page.goto("/global-issue/russia-ukraine-war/full-page");
   const scripts = page.locator('script[type="application/ld+json"]');
   const jsonLd = (await scripts.allTextContents()).join("");
   expect(jsonLd).toContain('"BreadcrumbList"');

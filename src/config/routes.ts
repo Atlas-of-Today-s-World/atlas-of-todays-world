@@ -194,6 +194,8 @@ export const adminRoutes = {
   sitePages: records(`${ADMIN}/pages`),
   /** Site settings (name, contacts) and the list of social links. */
   siteSettings: `${ADMIN}/site`,
+  /** The order of the portrait sections, one for the whole site. */
+  portraitLayout: `${ADMIN}/portrait-layout`,
   /** A social link by id (new ones are added on the site settings page). */
   socialLink: (id: string) => `${ADMIN}/site/socials/${id}`,
   /** The main menu and the legal links; an item by id (new ones are added on the list). */

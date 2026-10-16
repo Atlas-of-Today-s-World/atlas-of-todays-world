@@ -45,9 +45,16 @@ export default async function RegionEditPage({
         title={region.name}
         lead={
           <>
-            Region portrait.{" "}
+            Region portrait. Readers see it twice: as a preview in the wide side panel when they
+            click the region on the globe, and as the region&rsquo;s own full page behind
+            &ldquo;Full page view&rdquo; — the same sections as a global issue, ending with
+            &ldquo;Back to Atlas&rdquo; bottom left.{" "}
             <Link href={routes.region(slug)} className="text-[var(--color-link)] underline">
-              View on site
+              Preview
+            </Link>
+            {" · "}
+            <Link href={routes.regionFull(slug)} className="text-[var(--color-link)] underline">
+              Full page
             </Link>
           </>
         }

@@ -54,7 +54,7 @@ export default async function CountriesPage({ params }: PageProps<"/[locale]/cou
           <section key={region.slug} aria-labelledby={`region-${region.slug}`} className="mt-10">
             <h2 id={`region-${region.slug}`} className="font-display text-[18px] font-bold">
               <Link
-                href={routes.region(region.slug)}
+                href={routes.regionFull(region.slug)}
                 className="inline-flex min-h-(--touch-min) items-center hover:text-[var(--color-accent)] hover:underline"
               >
                 {region.name}
@@ -90,7 +90,7 @@ export default async function CountriesPage({ params }: PageProps<"/[locale]/cou
           <ul className="mt-4 flex flex-wrap gap-1.5">
             {[...group.items].sort(byName).map((issue) => (
               <li key={issue.slug}>
-                <Link href={routes.issue(issue.slug)} className={CHIP}>
+                <Link href={routes.issueFull(issue.slug)} className={CHIP}>
                   {issue.name}
                 </Link>
               </li>
@@ -112,7 +112,7 @@ export default async function CountriesPage({ params }: PageProps<"/[locale]/cou
           itemListNode(t.heading, [
             ...atlas.regions.map((region) => ({
               name: region.name,
-              url: pageUrl(routes.region(region.slug), locale),
+              url: pageUrl(routes.regionFull(region.slug), locale),
             })),
             ...[...atlas.countries].sort(byName).map((country) => ({
               name: country.name,
@@ -120,7 +120,7 @@ export default async function CountriesPage({ params }: PageProps<"/[locale]/cou
             })),
             ...atlas.issues.map((issue) => ({
               name: issue.name,
-              url: pageUrl(routes.issue(issue.slug), locale),
+              url: pageUrl(routes.issueFull(issue.slug), locale),
             })),
           ]),
         )}

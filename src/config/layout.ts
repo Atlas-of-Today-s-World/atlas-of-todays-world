@@ -134,10 +134,12 @@ const isFullView = (path: string) =>
 const isWideRail = (path: string) => WIDE_RAIL.some((prefix) => path.startsWith(`${prefix}/`));
 /**
  * Full-width pages over the map (Topics, topic pages, the Global issues
- * overview and each global issue's page): the globe shrinks to a corner
- * window. Old /entry/ links redirect (next.config) before they render.
+ * overview) plus every place's `…/full-page` view (isFullView): the globe
+ * shrinks to a corner window. A global issue's own address is its rail
+ * preview now (2026-10-16), so it left this list. Old /entry/ links redirect
+ * (next.config) before they render.
  */
-const FULL_PAGES = [routes.topics, routes.globalIssues, ROUTE_PREFIX.issue];
+const FULL_PAGES = [routes.topics, routes.globalIssues];
 const isFullPagePath = (path: string) =>
   isFullView(path) || FULL_PAGES.some((page) => isAtOrUnder(path, page));
 

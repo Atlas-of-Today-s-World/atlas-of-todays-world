@@ -22,9 +22,8 @@ import {
 } from "@/features/seo/jsonld";
 import { JsonLd } from "@/components/JsonLd";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
-import { RelatedTopics } from "@/components/topics/RelatedTopics";
 import { RegionalProfile } from "@/components/portrait/RegionalProfile";
-import { Timeline } from "@/components/portrait/Timeline";
+import { ProfileSections } from "@/components/portrait/Portrait";
 import { getCountryTimeline } from "@/features/timelines/queries";
 import { getPortrait } from "@/features/portraits/queries";
 import { relatedTopics } from "@/features/topics/related";
@@ -157,29 +156,30 @@ export async function CountryPage({
         topics={topics}
       />
       {profileHtml ? <SafeHtml className="prose-atlas px-6 pb-10" html={profileHtml} /> : null}
-      {/* The country's own history, above its region's profile; none written = nothing shown. */}
-      {timeline ? (
-        <Timeline
-          id="country-timeline"
-          items={timeline.items}
-          title={timeline.title}
-          subtitle={timeline.subtitle}
-        />
-      ) : null}
-      {/* The country's topics (own, its region's, its groups') before its region's
-            profile. With none, the invitation at the top is enough — unless there is
-            no regional profile to follow. */}
-      {topics.items.length || !(regionData && dossier) ? (
-        <RelatedTopics
-          items={topics.items}
-          href={topics.href}
-          place={country.name}
-          className="mt-0 px-6 pb-10"
-        />
-      ) : null}
+      {/* Owner's request of 2026-10-16 (call with the Atlas team): after the
+          country's data straight to its region's profile — the country's
+          context — then the country's own run in the site-wide order (Admin →
+          Portrait layout): its timeline and its topics by theme. The topics
+          already hold the region's, which is why the region's profile above
+          leaves them out. With no topic, the invitation at the top of the card
+          is enough. */}
       {regionData && dossier ? (
         <RegionalProfile country={country.name} region={regionData} dossier={dossier} />
       ) : null}
+      <ProfileSections
+        dossier={
+          timeline
+            ? {
+                timeline: timeline.items,
+                timelineTitle: timeline.title,
+                timelineSubtitle: timeline.subtitle,
+              }
+            : {}
+        }
+        topics={topics.items.length ? topics : undefined}
+        place={country.name}
+        timelineId="country-timeline"
+      />
     </>
   );
 

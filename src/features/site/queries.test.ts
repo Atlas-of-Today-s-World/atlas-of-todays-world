@@ -50,6 +50,7 @@ const ROW = {
   seo_description: "Explore.",
   og_image_url: "https://cdn.example.org/og.png",
   copyright: "© Atlas Org",
+  portrait_sections: ["faq", "timeline", "topics", "visuals", "resources"],
 };
 
 describe("site settings (public read)", () => {
@@ -84,6 +85,8 @@ describe("site settings (public read)", () => {
       seoDescription: "Explore.",
       ogImage: "https://cdn.example.org/og.png",
       copyright: "© Atlas Org",
+      // The editors' order is kept as stored.
+      sectionOrder: ["faq", "timeline", "topics", "visuals", "resources"],
     });
   });
 

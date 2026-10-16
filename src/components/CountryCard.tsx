@@ -8,9 +8,6 @@ import type { EntrySummary } from "@/features/entries/types";
 import type { Country, CountryProfile, CountryStat } from "@/features/geography/types";
 import { getRequestLocale, getT } from "@/lib/i18n/request";
 import { formatPopulation } from "@/lib/format";
-import { Photo } from "@/components/atlas/Photo";
-import { PHOTO_SIZES } from "@/config/layout";
-import { PHOTO_WIDTH } from "@/lib/images";
 import { format } from "@/lib/i18n/messages";
 import { categoryLabel } from "@/lib/content-types";
 import { MetricCards, SourceLink, StatGrid, StatIcon, StatItem } from "./atlas/ui";
@@ -19,9 +16,13 @@ import { routes } from "@/config/routes";
 /**
  * Country card after clicking the globe (Figma: "Country View").
  *
- * At the top: breadcrumbs to the region, name, description and indicators. The region
- * isn't just a text link somewhere at the bottom – it has its own card with image and button,
- * because that's the most common next step from a country profile.
+ * At the top: breadcrumbs to the region, name, description and indicators.
+ *
+ * The region used to get a teaser card here (photo, name, "Explore the region").
+ * It was removed on 2026-10-16: the region's full profile now follows right
+ * below the country (RegionalProfile), with its own photo header and a link to
+ * the region's page, so the card only repeated what was a screen further down.
+ * The way to the region stays in the breadcrumbs and in Subregion.
  */
 /** How the status is named in the country profile (text key in messages → country). */
 const TERRITORY_STATUS_KEY = {
@@ -131,45 +132,6 @@ export default async function CountryCard({
           <h2 className={kickerVariants()}>{t.country.whereStands}</h2>
           <MetricCards metrics={metrics} className="mt-4" />
         </section>
-      ) : null}
-
-      {region ? (
-        <Link
-          href={routes.region(region.slug)}
-          className="group mt-7 block overflow-hidden rounded-xl border border-[var(--color-line)] transition hover:border-[var(--color-accent)]"
-        >
-          {/* Far down the panel: the photo loads lazily, as it nears the screen
-              (a CSS background was fetched with the page, competing with it). */}
-          <span className="relative block h-28 w-full overflow-hidden bg-[var(--color-space)]">
-            <Photo
-              src={region.hero}
-              alt={format(t.ui.fromOrbit, { name: region.name })}
-              widths={[PHOTO_WIDTH.tile, PHOTO_WIDTH.card]}
-              sizes={PHOTO_SIZES.rail}
-              width={PHOTO_WIDTH.card}
-              height={224}
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-            <span
-              aria-hidden
-              className="absolute inset-0 bg-gradient-to-b from-[rgba(10,16,32,0.15)] to-[rgba(10,16,32,0.55)]"
-            />
-          </span>
-          <span className="block p-4">
-            <span className="text-[10.5px] tracking-[0.1em] text-[var(--color-ink-muted)] uppercase">
-              {t.country.region}
-            </span>
-            <span className="font-display mt-1 block text-[16px] font-bold text-[var(--color-ink)] group-hover:text-[var(--color-accent)]">
-              {region.name}
-            </span>
-            <span className="mt-1.5 block text-[12px] leading-relaxed text-[var(--color-ink-muted)]">
-              {region.summary.split(". ")[0]}.
-            </span>
-            <span className="mt-3 inline-flex min-h-11 items-center text-[12.5px] font-medium text-[var(--color-link)]">
-              {t.country.exploreRegion}
-            </span>
-          </span>
-        </Link>
       ) : null}
 
       <div className="mt-7 grid grid-cols-2 gap-4 border-t border-[var(--color-line)] pt-5 text-[12.5px]">

@@ -111,7 +111,7 @@ export async function saveRegion(_prev: ActionState, formData: FormData): Promis
   if (!data.length) return { ok: false, error: "You can't edit this region." };
   updateTag(tags.atlas);
   updateTag(tags.portrait("region", slug));
-  notifyIndexNow([routes.region(slug)], { everyLanguage: true });
+  notifyIndexNow([routes.regionFull(slug)], { everyLanguage: true });
   return { ok: true, message: "Region saved." };
 }
 
@@ -185,7 +185,7 @@ export async function saveIssue(_prev: ActionState, formData: FormData): Promise
   updateTag(tags.entries);
   // A renamed slug cascades into the articles' `special_slug`, which their pages embed.
   if (original_slug && original_slug !== fields.slug) updateTag(tags.entryPages);
-  notifyIndexNow([routes.issue(fields.slug)], { everyLanguage: true });
+  notifyIndexNow([routes.issueFull(fields.slug)], { everyLanguage: true });
   if (!original_slug || original_slug !== fields.slug) {
     redirect(adminRoutes.globalIssues(fields.slug));
   }

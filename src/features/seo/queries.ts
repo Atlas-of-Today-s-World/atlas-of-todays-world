@@ -136,12 +136,12 @@ export async function getSitemaps(now = Date.now()): Promise<Record<SitemapName,
     ],
     regions: [
       ...atlas.regions.map((region) => ({
-        path: routes.region(region.slug),
+        path: routes.regionFull(region.slug),
         lastmod: latest([stamps.region[region.slug], dataChanged]),
         images: [region.hero],
       })),
       ...atlas.issues.map((issue) => ({
-        path: routes.issue(issue.slug),
+        path: routes.issueFull(issue.slug),
         lastmod: latest([stamps.issue[issue.slug], dataChanged]),
         images: [issue.hero],
       })),
@@ -263,7 +263,7 @@ function sections(
       title: s.sectionRegions,
       links: atlas.regions.map((region) => ({
         name: region.name,
-        url: url(locale, routes.region(region.slug)),
+        url: url(locale, routes.regionFull(region.slug)),
         note: clampText(region.summary, 300),
       })),
     },
@@ -271,7 +271,7 @@ function sections(
       title: s.sectionIssues,
       links: atlas.issues.map((issue) => ({
         name: issue.name,
-        url: url(locale, routes.issue(issue.slug)),
+        url: url(locale, routes.issueFull(issue.slug)),
         note: clampText(`${issue.subtitle}. ${issue.summary}`, 300),
       })),
     },
@@ -414,7 +414,7 @@ export async function getLlmsFullTxt(locale: Locale): Promise<string> {
     ...fullNews.flatMap((item) => document("news", item)),
     ...atlas.regions.map((region) => ({
       title: region.name,
-      url: url(locale, routes.region(region.slug)),
+      url: url(locale, routes.regionFull(region.slug)),
       facts: [],
       markdown: [
         region.summary,
@@ -426,7 +426,7 @@ export async function getLlmsFullTxt(locale: Locale): Promise<string> {
     })),
     ...atlas.issues.map((issue) => ({
       title: `${issue.name} — ${issue.subtitle}`,
-      url: url(locale, routes.issue(issue.slug)),
+      url: url(locale, routes.issueFull(issue.slug)),
       facts: [],
       markdown: [
         issue.summary,

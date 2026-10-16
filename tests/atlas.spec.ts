@@ -71,7 +71,10 @@ test.describe("panel s obsahem", () => {
       page.getByRole("link", { name: "Eastern Europe & Central Asia" }).first(),
     ).toBeVisible();
 
-    await page.getByRole("link", { name: "Explore the region" }).click();
+    // No region teaser card any more (2026-10-16): the region's profile follows
+    // under the country, and the breadcrumb is the way to the region itself.
+    await expect(page.getByRole("link", { name: "Explore the region" })).toHaveCount(0);
+    await page.getByRole("link", { name: "Eastern Europe & Central Asia" }).first().click();
     await expect(page).toHaveURL(/\/region\/eastern-europe-central-asia/);
     await expect(
       page.getByRole("heading", { name: "Eastern Europe & Central Asia" }),
@@ -176,9 +179,9 @@ test.describe("global issues", () => {
     await page.goto("/");
     await expect(page.getByRole("radio", { name: "Global issues" })).toBeVisible();
 
-    await page.goto("/global-issue/russia-ukraine-war");
+    // The full page (2026-10-16): its countries are listed open under the count.
+    await page.goto("/global-issue/russia-ukraine-war/full-page");
     await expect(page.getByRole("heading", { level: 1, name: "Russia–Ukraine War" })).toBeVisible();
-    // A full-width page (2026-10-16): its countries are listed open under the count.
     await expect(page.getByRole("button", { name: /^Countries: \d+$/ })).toHaveAttribute(
       "aria-expanded",
       "true",

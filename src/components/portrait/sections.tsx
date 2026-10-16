@@ -39,6 +39,7 @@ export function PortraitSection({
   lead,
   muted = false,
   tone = "light",
+  headingId,
   className,
   children,
 }: {
@@ -47,13 +48,19 @@ export function PortraitSection({
   /** Grey heading for parts not written yet. */
   muted?: boolean;
   tone?: "light" | "dark";
+  /** Names the section after its heading (a landmark screen readers can jump to). */
+  headingId?: string;
   className?: string;
   children?: ReactNode;
 }) {
   const dark = tone === "dark";
   return (
-    <section className={section({ tone, className })}>
+    <section
+      aria-labelledby={headingId}
+      className={section({ tone, className: cn("scroll-mt-24", className) })}
+    >
       <h2
+        id={headingId}
         className={`font-display text-[20px] font-bold ${
           dark ? "" : muted ? "text-[var(--color-ink-muted)]" : "text-[var(--color-ink)]"
         }`}

@@ -15,6 +15,7 @@ import {
 } from "@/lib/actions";
 import type { ActionState } from "@/lib/action-state";
 import { tags } from "@/lib/cache/tags";
+import { isCompleteSectionOrder } from "@/features/portraits/section-order";
 import { SettingsInput, SocialId, SocialInput } from "./schema";
 
 /**
@@ -98,4 +99,29 @@ export async function moveSocialLink(id: string, up: boolean): Promise<ActionSta
   const { error } = await session.supabase.rpc("move_site_social_link", { p_id: id, p_up: up });
   if (error) return failed(error);
   return refreshed("Moved.");
+}
+
+/**
+ * The order of the portrait sections on every country, region and global
+ * issue (Admin → Portrait layout; RLS: site "e"). Only a complete permutation
+ * of the five keys passes — the same rule as the column's CHECK — so a stale
+ * or forged list is refused here rather than by the database. The `site` tag
+ * refreshes every portrait, preview and full page alike.
+ */
+export async function savePortraitSections(order: unknown): Promise<ActionState> {
+  if (!isCompleteSectionOrder(order)) return { ok: false, error: "Invalid section order." };
+  const session = await signedIn();
+  if (!session) return NOT_SIGNED_IN;
+  const denied = affected(
+    await session.supabase
+      .from("site_settings")
+      .update({ portrait_sections: order })
+      .eq("id", 1)
+      .select("id"),
+    "You can't change the portrait layout.",
+  );
+  if (denied) return denied;
+  updateTag(tags.site);
+  revalidatePath(adminRoutes.portraitLayout);
+  return { ok: true, message: "Saved. Every portrait shows the new order within a moment." };
 }
