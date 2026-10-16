@@ -134,6 +134,10 @@ test.describe("map credits on phones", () => {
   test("the (i) stays above the open bottom sheet and can be tapped", async ({ page }) => {
     await page.setViewportSize(PHONE);
     await page.goto("/country/ukraine");
+    // On a phone with the sheet open the globe waits for the visitor (ADR-031,
+    // map/globe/startGate): until then a placeholder sphere shows no tiles, so no
+    // credits either. Wake it as a reader would.
+    await page.getByRole("button", { name: "Explore the globe" }).click();
     const credits = page.locator(".maplibregl-ctrl-attrib").first();
     await expect(credits).toBeVisible({ timeout: 30_000 });
     const sheet = page.locator("aside[data-content-rail]#content");

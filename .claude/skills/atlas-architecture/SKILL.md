@@ -79,7 +79,7 @@ These are errors, not warnings (`npm run lint` uses `--max-warnings=0`). Tests a
   use `adminRoutes.*` (a type such as `PageProps<"/admin/...">` is fine).
 - No `fetch` in `src/components/**` or `features/**/components/**`: use `apiFetch()`.
 - An exception goes through the `allowing()` helper with a comment that says why. Today there are
-  two: `lib/i18n/request.ts` imports `ui-texts/queries`, and `components/Header.tsx` renders
+  two: `lib/i18n/request.ts` imports `ui-texts/queries`, and `components/MenuDialog.tsx` (the header's mobile menu) renders
   `NewsletterForm`. Do not add a third without an ADR.
 
 ## Data flow

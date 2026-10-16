@@ -95,9 +95,14 @@ region pages, `maplibre-gl.mjs` 289 KB, `countries.geo.json` 163 KB transferred 
   how to comply: `atlas-frontend`).
 - MapLibre JS and CSS never enter a shared bundle: the loader rules are in `atlas-maps-data`
   (`loadMapLibre()`, CSS only in `src/app/[locale]/(map)/layout.tsx`).
-- Load rarely shown, heavy widgets on demand: `next/dynamic` (`LazyCountryQuiz`) or `lazy()`
-  (`MapVisual` → `MapCanvas`). Admin libraries (TipTap editor, `DataTable`) never reach a
-  public page.
+- Load rarely shown, heavy widgets on demand: `next/dynamic` (`LazyCountryQuiz`, the header's
+  `MenuDialog` with the newsletter form) or `lazy()` (`MapVisual` → `MapCanvas`). Admin
+  libraries (TipTap editor, `DataTable`) never reach a public page.
+- Next prefetches every link in view, including the target route's scripts, and Turbopack
+  gives each layout (map, full-width, pages, membership) its own copies of shared code. So
+  site-wide chrome (header and footer menus `MenuLink`, the floating Newsletter and Support
+  buttons, the cookie notice, "Full page view") uses `<Link prefetchOnIntent>`: prefetch on
+  hover, focus or touch. Lighthouse counts prefetched scripts in `resource-summary:script`.
 - Before adding a client dependency or a large client component, run `npx next analyze` and
   compare the route's first-load JS. Over about 20 KB compressed needs a reason in the PR.
 - Third-party scripts use `next/script` with `strategy="lazyOnload"` unless needed before

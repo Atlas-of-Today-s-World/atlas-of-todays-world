@@ -131,6 +131,33 @@ test.describe("panel s obsahem", () => {
   });
 });
 
+test.describe("Largest Contentful Paint on panel pages", () => {
+  // The carousels (Rail) used to snap 4 px on their first layout; Chrome takes that
+  // scroll for the reader's and stops recording LCP before the first candidate, so
+  // these pages reported none (Lighthouse NO_LCP, no LCP in the field either).
+  for (const path of ["/country/ukraine", "/region/eastern-europe-central-asia"]) {
+    test(`${path} reports an LCP and no carousel scrolls by itself`, async ({ page }) => {
+      await page.addInitScript(() => {
+        const entries: number[] = [];
+        Object.assign(window, { lcpEntries: entries });
+        new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) entries.push(entry.startTime);
+        }).observe({ type: "largest-contentful-paint", buffered: true });
+      });
+      await page.goto(path);
+      await expect(page.locator("#content")).toBeVisible();
+      await expect
+        .poll(() => page.evaluate(() => (window as unknown as { lcpEntries: number[] }).lcpEntries))
+        .not.toEqual([]);
+      const scrolled = await page
+        .locator("#content .snap-x")
+        .evaluateAll((tracks) => tracks.map((track) => track.scrollLeft));
+      expect(scrolled.length).toBeGreaterThan(0);
+      expect(scrolled.every((left) => left === 0)).toBe(true);
+    });
+  }
+});
+
 test.describe("regional profile under a country", () => {
   test("a country of a region shows the region's profile below its own data", async ({ page }) => {
     await page.goto("/country/turkey");
@@ -375,7 +402,10 @@ test.describe("sign-in", () => {
 test.describe("account menu", () => {
   test("signed out: opens by keyboard, offers sign-in back to the page, closes", async ({
     page,
+    isMobile,
   }) => {
+    // Phones reach it through the site menu: "works from the globe header and the mobile menu".
+    test.skip(isMobile, "the header's person icon shows from the lg breakpoint");
     await page.goto("/about");
     const button = page.getByRole("button", { name: "Sign in or open your account" });
     await expect(button).toHaveAttribute("aria-haspopup", "menu");
@@ -419,7 +449,9 @@ test.describe("account menu", () => {
     ]);
   });
 
-  test("works from the globe header and the mobile menu", async ({ page }) => {
+  test("works from the globe header and the mobile menu", async ({ page, isMobile }) => {
+    // Starts at a desktop width (the globe header) and sets the phone width itself.
+    test.skip(isMobile, "viewport set in the test");
     await page.goto("/");
     await page.getByRole("button", { name: "Sign in or open your account" }).click();
     await expect(page.getByRole("menuitem", { name: "Sign in" })).toBeVisible();

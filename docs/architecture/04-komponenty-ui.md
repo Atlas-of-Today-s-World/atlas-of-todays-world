@@ -111,7 +111,7 @@ Pravidla:
 |---|---|---|
 | `jscpd` (`.jscpd.json`) | copy-paste bloky v `src/` (TS, TSX, CSS; bez testů, `src/content`, `src/data`) | klon = ≥ 10 řádků a ≥ 70 tokenů; selže nad 1 % duplicit |
 | `knip` | nepoužité soubory, exporty, závislosti | 0 nálezů (výjimky v `knip.json` s komentářem) |
-| ESLint `no-restricted-imports` | `@supabase/supabase-js` mimo `lib/supabase` (typové importy smí); hranice vrstev (ARCHITEKTURA 4.1): `lib/**` a `config/**` neimportují `@/features/*`, `components/**` neimportuje `@/features/*/actions` (ani `*-actions`) ani `@/features/*/components/*`, `features/X` neimportuje `@/features/Y/components/*`; testy vyjmuté, výjimky jen `lib/i18n/request.ts` → `ui-texts/queries` a `Header.tsx` → `NewsletterForm` | chyba |
+| ESLint `no-restricted-imports` | `@supabase/supabase-js` mimo `lib/supabase` (typové importy smí); hranice vrstev (ARCHITEKTURA 4.1): `lib/**` a `config/**` neimportují `@/features/*`, `components/**` neimportuje `@/features/*/actions` (ani `*-actions`) ani `@/features/*/components/*`, `features/X` neimportuje `@/features/Y/components/*`; testy vyjmuté, výjimky jen `lib/i18n/request.ts` → `ui-texts/queries` a `MenuDialog.tsx` → `NewsletterForm` | chyba |
 | ESLint `no-restricted-syntax` | `dangerouslySetInnerHTML` mimo `SafeHtml`, `JsonLd`, `PrePaintScript`; ručně skládané veřejné URL (`` `/country/${…}` `` atd. → `routes.*`); ručně psané `/admin…` (→ `adminRoutes.*`) | chyba |
 | ESLint `no-restricted-globals` / `-properties` | `fetch` (i `window.fetch`…) v `src/components` a `features/*/components` (→ `apiFetch()`) | chyba |
 | `prettier-plugin-tailwindcss` | jednotné řazení tříd (snazší hledání duplicit) | formát |

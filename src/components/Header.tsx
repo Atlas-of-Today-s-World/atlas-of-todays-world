@@ -1,20 +1,27 @@
 "use client";
 
 import Link from "@/components/i18n/Link";
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Menu, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowLeft, Menu } from "lucide-react";
 import { RAIL_OFFSET, isFullPage, isHome, railKind } from "@/config/layout";
 import { activeItemId } from "@/features/navigation/active";
-import type { Navigation, NavLink } from "@/features/navigation/model";
+import type { Navigation } from "@/features/navigation/model";
 import type { SocialLink } from "@/features/site/model";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
-import { useFocusTrap } from "@/lib/use-focus-trap";
-import NewsletterForm from "@/features/newsletter/components/NewsletterForm";
 import { AccountMenu } from "./AccountMenu";
 import { BrandLogo } from "./atlas/BrandLogo";
 import { useMessages } from "./i18n/LocaleProvider";
+import { MenuLink, SocialLinks } from "./MenuLinks";
+
+// The full-screen menu (with the newsletter form and Turnstile) is its own chunk:
+// nothing shows it before the hamburger is pressed, so pages don't ship it up
+// front. Pointing at or focusing the hamburger starts the download early.
+const loadMenuDialog = () => import("./MenuDialog");
+const MenuDialog = dynamic(loadMenuDialog);
+const preloadMenuDialog = () => void loadMenuDialog();
 
 /**
  * The one site header, in two looks:
@@ -51,8 +58,6 @@ export default function Header({
   const [menuPath, setMenuPath] = useState<string | null>(null);
   const menuOpen = menuPath === pathname;
   const setMenuOpen = (open: boolean) => setMenuPath(open ? pathname : null);
-  const menu = useRef<HTMLDivElement>(null);
-  useFocusTrap(menu, menuOpen);
 
   const rail = railKind(pathname);
   const wideRail = rail === "wide";
@@ -81,7 +86,6 @@ export default function Header({
 
   const menuDialog = menuOpen ? (
     <MenuDialog
-      refObject={menu}
       nav={nav}
       active={active}
       newsletter={newsletter}
@@ -143,6 +147,8 @@ export default function Header({
           <button
             type="button"
             onClick={() => setMenuOpen(true)}
+            onPointerEnter={preloadMenuDialog}
+            onFocus={preloadMenuDialog}
             aria-label={t.header.openMenu}
             aria-expanded={menuOpen}
             className="grid size-(--touch-min) place-items-center justify-self-end rounded-full border border-white/25 text-white transition hover:border-white/60 lg:hidden"
@@ -207,6 +213,8 @@ export default function Header({
       <button
         type="button"
         onClick={() => setMenuOpen(true)}
+        onPointerEnter={preloadMenuDialog}
+        onFocus={preloadMenuDialog}
         aria-label={t.header.openMenu}
         aria-expanded={menuOpen}
         className={`glass glass-hover pointer-events-auto absolute top-3 right-4 grid size-(--touch-min) place-items-center rounded-full text-white ${
@@ -219,134 +227,4 @@ export default function Header({
       {menuDialog}
     </header>
   );
-}
-
-/** The full-screen menu on narrow screens (both header looks). */
-function MenuDialog({
-  refObject,
-  nav,
-  active,
-  newsletter,
-  captcha,
-  socials,
-  onClose,
-}: {
-  refObject: React.RefObject<HTMLDivElement | null>;
-  nav: Navigation;
-  /** Id of the current page's item, if any. */
-  active: string | null;
-  newsletter: boolean;
-  captcha: boolean;
-  socials: readonly SocialLink[];
-  onClose: () => void;
-}) {
-  const t = useMessages();
-  return (
-    <div
-      ref={refObject}
-      role="dialog"
-      aria-modal="true"
-      aria-label={t.header.menu}
-      className="z-overlay pointer-events-auto fixed inset-0 flex flex-col bg-[#0b101f]/97 px-6 py-5 text-white backdrop-blur"
-    >
-      <div className="flex items-center justify-between">
-        <BrandLogo tone="light" className="h-5" />
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label={t.header.closeMenu}
-          className="grid size-(--touch-min) place-items-center rounded-full border border-white/25 text-white transition hover:border-white/70"
-        >
-          <X size={18} strokeWidth={1.8} aria-hidden />
-        </button>
-      </div>
-
-      <nav aria-label={t.header.main} className="mt-10 grid gap-1 text-[22px]">
-        {nav.main.map((item) => (
-          <MenuLink
-            key={item.id}
-            item={item}
-            active={item.id === active}
-            className="font-display flex min-h-14 items-center font-bold"
-          />
-        ))}
-      </nav>
-
-      <div className="mt-auto space-y-6 pb-2">
-        {newsletter ? <NewsletterForm captcha={captcha} /> : null}
-
-        <nav aria-label={t.header.legal} className="flex gap-4 text-[12.5px] text-white/60">
-          {nav.legal.map((item) => (
-            <MenuLink
-              key={item.id}
-              item={item}
-              active={item.id === active}
-              className="flex min-h-(--touch-min) min-w-(--touch-min) items-center justify-center"
-            />
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-3">
-          <SocialLinks socials={socials} className="size-(--touch-min) text-[12px]" />
-          <span className="ml-auto">
-            <AccountMenu look="menu" />
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/**
- * One menu item (header, mobile menu and the footer of pages without the
- * globe). A path on this site goes through the i18n `Link`; an https://
- * address opens in a new tab. The current page gets `aria-current` (no visual change).
- */
-export function MenuLink({
-  item,
-  active = false,
-  className,
-}: {
-  item: NavLink;
-  active?: boolean;
-  className: string;
-}) {
-  return (
-    <Link
-      href={item.href}
-      className={className}
-      aria-current={active ? "page" : undefined}
-      {...(item.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-    >
-      {item.label}
-    </Link>
-  );
-}
-
-/**
- * Social network links as round badges: white with dark letters, so they stand
- * out on the photo behind the home header as well as on the dark bar.
- */
-function SocialLinks({
-  socials,
-  className,
-}: {
-  socials: readonly SocialLink[];
-  className: string;
-}) {
-  return socials.map((social) => (
-    <a
-      key={social.href}
-      href={social.href}
-      target="_blank"
-      rel="noreferrer"
-      aria-label={social.label}
-      className={cn(
-        "grid place-items-center rounded-full bg-white font-bold text-[var(--color-ink)] shadow-sm transition hover:bg-[var(--color-accent)] hover:text-white focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none",
-        className,
-      )}
-    >
-      {social.icon}
-    </a>
-  ));
 }

@@ -97,6 +97,7 @@ export function CookieNotice() {
             {t.text}{" "}
             <Link
               href={routes.privacy}
+              prefetchOnIntent
               className="font-medium text-white underline underline-offset-2 hover:text-[var(--color-gold-light)]"
             >
               {t.privacy}

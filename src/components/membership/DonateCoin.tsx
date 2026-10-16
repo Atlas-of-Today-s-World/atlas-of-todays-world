@@ -17,6 +17,8 @@ export function DonateCoin({ label, className }: { label: string; className?: st
   return (
     <Link
       href={routes.membership}
+      // Site-wide chrome (every page shows it): prefetch on intent, see MenuLink.
+      prefetchOnIntent
       data-print="hide"
       className={cn(
         glassVariants({ kind: "pill" }),
