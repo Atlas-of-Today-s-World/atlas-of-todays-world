@@ -121,19 +121,8 @@ export function MapLegend({ options }: { options: ViewOption[] }) {
   // On phones an open panel (bottom sheet) covers the bottom of the map.
   const hidden = rail !== "none" && "max-md:hidden";
 
-  if (!option.swatches.length) {
-    return (
-      <p
-        className={cn(
-          "z-panel pointer-events-none absolute bottom-3.5 left-[42px] max-w-[calc(100vw-120px)] text-[11px] text-white/75 sm:max-w-[70vw]",
-          LEGEND_MAX_WIDTH[rail],
-          hidden,
-        )}
-      >
-        {option.caption}
-      </p>
-    );
-  }
+  // The Atlas-regions view has no scale, so there is no legend to show.
+  if (!option.swatches.length) return null;
 
   return (
     // Scale large enough to read over the globe: 31 rem long, 40 px colour bar, 15 px labels.
