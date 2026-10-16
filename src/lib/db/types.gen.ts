@@ -2927,6 +2927,24 @@ export type Database = {
           tiles: Json
         }[]
       }
+      entry_preview_visuals: {
+        Args: { p_token: string }
+        Returns: {
+          caption: string
+          chapter_position: number | null
+          embed_url: string | null
+          height: number | null
+          id: string
+          image_url: string | null
+          kind: string
+          map_spec: Json | null
+          position: number
+          provider: string | null
+          source_label: string
+          source_url: string | null
+          title: string
+        }[]
+      }
       entry_published_or_own: { Args: { p_entry: string }; Returns: boolean }
       fold_text: { Args: { p_text: string }; Returns: string }
       has_perm: {

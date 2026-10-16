@@ -147,6 +147,23 @@ export function parseMapSpec(json: unknown): ParseMapSpecResult {
     return stored > MAP_LIMITS.bytes ? tooLarge(stored) : { ok: true, spec: result.data };
   }
   const issue = result.error.issues[0];
-  const where = issue?.path.length ? `${issue.path.join(".")}: ` : "";
-  return { ok: false, error: `${where}${issue?.message ?? "Invalid map."}` };
+  return { ok: false, error: `${where(issue?.path ?? [])}${issue?.message ?? "Invalid map."}` };
+}
+
+/** A point's fields as the builder labels them. */
+const POINT_FIELDS: Record<string, string> = {
+  label: "title",
+  lat: "latitude",
+  lon: "longitude",
+  color: "colour",
+};
+
+/** Where a problem is, as an editor reads it: "Point 4, title: …" rather than "points.3.label: …". */
+function where(path: readonly PropertyKey[]): string {
+  const [list, index, field, ...rest] = path.map(String);
+  if (list === "points" && index !== undefined && /^\d+$/.test(index)) {
+    const tail = [field && (POINT_FIELDS[field] ?? field), ...rest].filter(Boolean).join(".");
+    return `Point ${Number(index) + 1}${tail ? `, ${tail}` : ""}: `;
+  }
+  return path.length ? `${path.map(String).join(".")}: ` : "";
 }

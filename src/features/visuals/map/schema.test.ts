@@ -51,16 +51,26 @@ describe("parseMapSpec", () => {
   });
 
   it("names the field that is wrong", () => {
-    expect(errorOf(withPoints([point(1), point(2, { lat: 91 })]))).toMatch(/^points\.1\.lat: /);
-    expect(errorOf(withPoints([point(1, { color: "red" })]))).toMatch(/^points\.0\.color: /);
-    expect(errorOf(withPoints([point(1, { size: 49 })]))).toMatch(/^points\.0\.size: /);
-    expect(errorOf(withPoints([point(1, { size: 5 })]))).toMatch(/^points\.0\.size: /);
+    // Points as the builder names them: numbered from 1, the label is the "title".
+    expect(errorOf(withPoints([point(1), point(2, { lat: 91 })]))).toMatch(/^Point 2, latitude: /);
+    expect(errorOf(withPoints([point(1, { color: "red" })]))).toMatch(/^Point 1, colour: /);
+    expect(errorOf(withPoints([point(1, { size: 49 })]))).toMatch(/^Point 1, size: /);
+    expect(errorOf(withPoints([point(1, { size: 5 })]))).toMatch(/^Point 1, size: /);
     expect(errorOf(withPoints([point(1, { icon: "not-an-icon" as never })]))).toMatch(
-      /^points\.0\.icon: /,
+      /^Point 1, icon: /,
     );
-    expect(errorOf(withPoints([point(1, { label: "  " })]))).toMatch(/^points\.0\.label: /);
-    expect(errorOf(withPoints([point(1, { id: "Bad id" })]))).toMatch(/^points\.0\.id: /);
-    expect(errorOf(withPoints([point(1, { lon: Number.NaN })]))).toMatch(/^points\.0\.lon: /);
+    expect(errorOf(withPoints([point(1, { label: "  " })]))).toBe(
+      "Point 1, title: Please fill this in.",
+    );
+    expect(errorOf(withPoints([point(1, { id: "Bad id" })]))).toMatch(/^Point 1, id: /);
+    expect(errorOf(withPoints([point(1, { lon: Number.NaN })]))).toMatch(/^Point 1, longitude: /);
+    expect(errorOf(withPoints([point(1, { popup: { ...DEFAULT_POPUP, maxWidth: 5 } })]))).toMatch(
+      /^Point 1, popup\.maxWidth: /,
+    );
+    // Other paths stay as they are.
+    expect(errorOf({ ...emptyMapSpec(), legend: { ...emptyMapSpec().legend, title: 5 } })).toMatch(
+      /^legend\.title: /,
+    );
   });
 
   it("checks the view box", () => {
@@ -150,16 +160,14 @@ describe("parseMapSpec", () => {
 
   it("caps the popup HTML and its look", () => {
     const long = { ...DEFAULT_POPUP, html: "x".repeat(MAP_LIMITS.popupHtml + 1) };
-    expect(errorOf(withPoints([point(1, { popup: long })]))).toMatch(/^points\.0\.popup\.html: /);
+    expect(errorOf(withPoints([point(1, { popup: long })]))).toMatch(/^Point 1, popup\.html: /);
     for (const popup of [
       { ...DEFAULT_POPUP, maxWidth: 1000 },
       { ...DEFAULT_POPUP, font: "comic" },
       { ...DEFAULT_POPUP, background: "url(x)" },
       { ...DEFAULT_POPUP, extra: 1 },
     ]) {
-      expect(errorOf(withPoints([point(1, { popup: popup as never })]))).toMatch(
-        /^points\.0\.popup/,
-      );
+      expect(errorOf(withPoints([point(1, { popup: popup as never })]))).toMatch(/^Point 1, popup/);
     }
   });
 });

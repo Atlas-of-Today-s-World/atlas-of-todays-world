@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { Button } from "@/components/ui/button";
-import { Checkbox, FormField, Input, Select } from "@/components/ui/field";
+import { Checkbox, describedBy, FormField, Input, Select } from "@/components/ui/field";
 import { applyPopupStyleToAll, newPopup, updatePoint } from "../../builder-state";
 import {
   MAP_LIMITS,
@@ -26,6 +26,10 @@ const SIZES: { value: PopupSize; label: string }[] = [
   { value: "md", label: "Normal" },
   { value: "lg", label: "Large" },
 ];
+
+const TITLE_HINT =
+  "The point's name for screen readers, its popup heading and its label on the map.";
+const UNTITLED_ERROR = "Give the point a title: the map can't be saved without one.";
 
 /** A latitude or longitude field: half-typed values stay in the field, valid ones move the point. */
 function CoordinateField({
@@ -89,28 +93,29 @@ export function PointEditor({
       field && `${key}-popup-${field}`,
     );
   const popup = point.popup;
+  // Shown as soon as the title is empty, not only after a refused save.
+  const titleErrors = point.label.trim() ? undefined : [UNTITLED_ERROR];
 
   return (
     <div className="grid gap-5 rounded-xl border border-[var(--color-line)] p-3">
-      <Section title={`Point: ${point.label}`}>
+      <Section title={titleErrors ? "Point without a title" : `Point: ${point.label}`}>
         <FormField
           id={`${key}-label`}
-          label="Label"
+          label="Title"
           required
-          hint="The point's name for screen readers and its popup heading."
+          hint={TITLE_HINT}
+          errors={titleErrors}
         >
           <Input
             id={`${key}-label`}
             value={point.label}
             maxLength={MAP_LIMITS.label}
             onChange={(event) => set({ label: event.target.value }, "label")}
-            onBlur={(event) => {
-              if (!event.target.value.trim()) set({ label: "Point" });
-            }}
+            {...describedBy(`${key}-label`, { hint: TITLE_HINT, errors: titleErrors })}
           />
         </FormField>
         <Checkbox
-          label="Show the label on the map"
+          label="Show the title on the map"
           checked={point.showLabel}
           onChange={(event) => set({ showLabel: event.target.checked })}
         />

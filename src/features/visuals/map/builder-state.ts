@@ -1,11 +1,13 @@
 import {
   DEFAULT_POPUP,
   MAP_LIMITS,
+  type MapBounds,
   type MapCountryHighlight,
   type MapLegendItem,
   type MapPoint,
   type MapPopup,
   type MapSpec,
+  type MapView,
 } from "./types";
 import { storedBytes } from "./size";
 
@@ -194,6 +196,45 @@ export function legendFromPoints(points: readonly MapPoint[]): MapLegendItem[] {
   }
   return [...seen.values()].slice(0, MAP_LIMITS.legendItems);
 }
+
+/**
+ * Points without a title. The title is the point's accessible name and its
+ * popup heading, so the server refuses a map with one; the builder flags them
+ * before the editor saves.
+ */
+export const untitledPoints = (spec: MapSpec): MapPoint[] =>
+  spec.points.filter((point) => !point.label.trim());
+
+/** What the editor framed (not the look): the part "Reset to saved view" brings back. */
+type Framing = Pick<MapView, "mode" | "countries" | "region" | "bounds">;
+
+/** Do two views frame the same area the same way? */
+export function sameFraming(a: Framing, b: Framing): boolean {
+  return (
+    a.mode === b.mode &&
+    a.region?.slug === b.region?.slug &&
+    a.countries.join() === b.countries.join() &&
+    a.bounds.every((value, index) => value === b.bounds[index])
+  );
+}
+
+/** The spec framed the way `saved` was; projection, background and labels stay. */
+export function withFraming(spec: MapSpec, { mode, countries, region, bounds }: Framing): MapSpec {
+  return {
+    ...spec,
+    view: { ...spec.view, mode, countries: [...countries], region, bounds: [...bounds] },
+  };
+}
+
+/**
+ * A free view of exactly what the map shows now. `camera` is kept as it is
+ * (the same array), so the map knows the framing came from its own camera
+ * and doesn't fit itself to it again.
+ */
+export const frameCamera = (spec: MapSpec, camera: MapBounds): MapSpec => ({
+  ...spec,
+  view: { ...spec.view, mode: "bounds", bounds: camera },
+});
 
 /** Size of the spec as the database counts it (size.ts). */
 export const specBytes = (spec: MapSpec) => storedBytes(spec) ?? 0;

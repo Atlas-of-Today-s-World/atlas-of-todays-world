@@ -113,8 +113,11 @@ equivalent.**
   `map/types.ts`, validated by `parseMapSpec` (`map/schema.ts`, strict: unknown keys fail).
 - Limits (`MAP_LIMITS`): 500 points, 50 highlighted countries, 20 legend items, 200 kB, latitude
   ±85°. Projection `mercator` or `globe`; basemap `light` or `satellite`.
-- Every point has a **label**: it is the point's accessible name and the popup heading. Write it
-  as a place or event name, not "Point 1".
+- Every point has a **label** (the builder calls it the title): it is the point's accessible name
+  and the popup heading. Write it as a place or event name, not "Point 1".
+- The reader's map, the builder's "Preview as a reader" and the preview link all open on the
+  saved `view.bounds`. In the builder a free view takes the map's current view as the framing;
+  countries and regions keep theirs until "Use this view".
 - Popups accept simple rich text only (paragraphs, bold, italic, links, lists), max 5,000
   characters, sanitized by `sanitizePopupHtml`.
 - Show a legend whenever colour or icons carry meaning; one item per colour or icon used.

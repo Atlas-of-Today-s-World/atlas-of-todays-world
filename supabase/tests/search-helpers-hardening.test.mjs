@@ -492,6 +492,7 @@ const APP_RPCS = {
   portrait: ["anon"],
   entry_preview: ["anon"],
   entry_preview_parts: ["anon"],
+  entry_preview_visuals: ["anon"],
   planned_entries: ["anon"],
   patron_stats: ["anon"],
   can_approve_entry: ["authenticated"],

@@ -9,10 +9,10 @@ import { loadMapLibre } from "@/components/map/maplibre";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { cn } from "@/lib/cn";
 import { useLatest } from "@/lib/use-latest";
-import { toLngLatBounds } from "../geo";
+import { boundsFromView, toLngLatBounds } from "../geo";
 import { DOCK_BELOW_PX } from "../popup-placement";
 import { buildVisualStyle, VISUAL_LAYERS } from "../style";
-import type { MapCorner, MapSpec } from "../types";
+import type { MapBounds, MapCorner, MapSpec } from "../types";
 import { LegendOverlay, ZoomOverlay } from "./MapOverlays";
 import { PointMarker, type MapEngine } from "./PointMarker";
 import { PointPopup } from "./PointPopup";
@@ -24,10 +24,37 @@ export interface MapEditing {
   onMovePoint: (id: string, position: { lat: number; lon: number }) => void;
   /** A click on the map itself (not on a point), with the country under it. */
   onMapClick: (event: { lat: number; lon: number; iso3: string | null }) => void;
-  /** The map once it has loaded ("Use this view" reads its bounds). */
+  /** The map once it has loaded (adding a point at its centre reads it). */
   onReady: (map: MapLibre.Map) => void;
+  /**
+   * The editor moved the map (drag, wheel, keys, zoom buttons): what it shows
+   * now. Null once it shows the spec's framing again.
+   */
+  onCameraChange: (camera: MapBounds | null) => void;
+  /** Bumped to bring the map back to the spec's framing even when the framing is unchanged. */
+  fitRequest: number;
 }
 
+/** Marks the map's own fits to the framing, so they never count as the editor's move. */
+const FRAMING_FIT = { atlasFraming: true };
+
+/** Shows `bounds` (instantly, or with the usual animation); the map is no longer "moved". */
+function fitFraming(
+  map: MapLibre.Map,
+  bounds: MapBounds,
+  moved: { current: boolean },
+  animate = false,
+) {
+  moved.current = false;
+  map.fitBounds(
+    toLngLatBounds(bounds),
+    { padding: 0, ...(animate ? {} : { duration: 0 }) },
+    FRAMING_FIT,
+  );
+}
+
+/** A move starting this soon after a wheel event is the wheel's zoom. */
+const WHEEL_MOVE_MS = 400;
 /** Hovering off a point waits this long, so the pointer can move into its popup. */
 const HOVER_CLOSE_MS = 250;
 /** A sharp map on a retina screen without drawing 9× the pixels of a 3× phone. */
@@ -60,8 +87,11 @@ export default function MapCanvas({
   const [narrow, setNarrow] = useState(false);
   const [open, setOpen] = useState<{ id: string; pinned: boolean } | null>(null);
   const closeTimer = useRef<number | undefined>(undefined);
-  // The reader moved the map: a resize keeps their view instead of reframing.
-  const movedByReader = useRef(false);
+  // The reader (or editor) moved the map: a resize keeps their view instead of reframing.
+  const moved = useRef(false);
+  // The editor's camera last reported by onCameraChange: a framing that is
+  // this very array came from the map itself and needs no fit.
+  const reported = useRef<MapBounds | null>(null);
   const popupBase = useId();
   const latest = useLatest({ spec, editing, onFail });
   const editable = Boolean(editing);
@@ -131,28 +161,62 @@ export default function MapCanvas({
   // --- the framed view (again whenever the spec's view changes) ---
   useEffect(() => {
     if (!engine) return;
-    movedByReader.current = false;
-    engine.map.fitBounds(toLngLatBounds(bounds), { padding: 0, duration: 0 });
+    // The builder adopted the map's own camera as the framing: it shows it already.
+    if (bounds === reported.current) moved.current = false;
+    else fitFraming(engine.map, bounds, moved);
   }, [engine, bounds]);
 
-  // --- readers: scroll-friendly gestures, and the view kept framed as the box resizes ---
+  // --- back to the framing when the builder asks, and when it switches to the reader's view ---
+  const fitRequest = editing?.fitRequest ?? 0;
+  useEffect(() => {
+    if (!engine) return;
+    fitFraming(engine.map, latest.current.spec.view.bounds, moved);
+  }, [engine, editable, fitRequest, latest]);
+
+  // --- gestures, the editor's moves, and the view kept framed as the box resizes ---
   useEffect(() => {
     if (!engine) return;
     const { map } = engine;
+    // In an article the page scrolls on; in the builder the map takes every gesture.
     if (editable) map.cooperativeGestures.disable();
     else map.cooperativeGestures.enable();
-    if (editable) return;
+    // Wheel zoom starts its move without the input event, so the wheel is noted
+    // here; a wheel the cooperative gestures ignore starts no move at all.
+    let wheelAt = -Infinity;
+    const onWheel = () => {
+      wheelAt = performance.now();
+    };
     const onMoveStart = (event: { originalEvent?: unknown }) => {
-      if (event.originalEvent) movedByReader.current = true;
+      if (event.originalEvent || performance.now() - wheelAt < WHEEL_MOVE_MS) {
+        moved.current = true;
+      }
+    };
+    const onMoveEnd = (event: MapLibre.MapLibreEvent & { atlasFraming?: boolean }) => {
+      const report = latest.current.editing?.onCameraChange;
+      if (!report) return;
+      if (event.atlasFraming) return report(null);
+      if (!moved.current) return;
+      const view = map.getBounds();
+      const camera = boundsFromView(
+        view.getWest(),
+        view.getSouth(),
+        view.getEast(),
+        view.getNorth(),
+      );
+      reported.current = camera;
+      report(camera);
     };
     const onResize = () => {
-      if (movedByReader.current) return;
-      map.fitBounds(toLngLatBounds(latest.current.spec.view.bounds), { padding: 0, duration: 0 });
+      if (!moved.current) fitFraming(map, latest.current.spec.view.bounds, moved);
     };
+    map.on("wheel", onWheel);
     map.on("movestart", onMoveStart);
+    map.on("moveend", onMoveEnd);
     map.on("resize", onResize);
     return () => {
+      map.off("wheel", onWheel);
       map.off("movestart", onMoveStart);
+      map.off("moveend", onMoveEnd);
       map.off("resize", onResize);
     };
   }, [engine, editable, latest]);
@@ -253,12 +317,15 @@ export default function MapCanvas({
           <LegendOverlay legend={spec.legend} startFolded={narrow} />
           <ZoomOverlay
             corner={zoomCorner(spec)}
-            onZoomIn={() => engine.map.zoomIn()}
-            onZoomOut={() => engine.map.zoomOut()}
-            onReset={() => {
-              movedByReader.current = false;
-              engine.map.fitBounds(toLngLatBounds(bounds), { padding: 0 });
+            onZoomIn={() => {
+              moved.current = true;
+              engine.map.zoomIn();
             }}
+            onZoomOut={() => {
+              moved.current = true;
+              engine.map.zoomOut();
+            }}
+            onReset={() => fitFraming(engine.map, bounds, moved, true)}
           />
         </>
       ) : (

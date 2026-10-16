@@ -37,7 +37,7 @@ export interface ChapterRow {
   audio_url: string | null;
   tile_background?: string | null;
   updated_at?: string;
-  /** The subtopic's maps & charts (the public page; a preview has none). */
+  /** The subtopic's maps & charts. */
   visuals?: VisualRow[];
 }
 
@@ -102,7 +102,7 @@ interface EncyclopediaParts {
     head: { timeline_title: string | null; timeline_subtitle: string | null };
     events: EventRow[];
   };
-  /** The topic's own maps & charts (the preview has none). */
+  /** The topic's own maps & charts. */
   visuals?: VisualRow[];
 }
 

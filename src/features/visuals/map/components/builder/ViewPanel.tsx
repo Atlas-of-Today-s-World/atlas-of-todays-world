@@ -4,11 +4,12 @@ import { useState } from "react";
 import { CountryPicker, type CountryGroups } from "@/components/admin/CountryPicker";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Select } from "@/components/ui/field";
-import { addHighlights } from "../../builder-state";
+import { addHighlights, frameCamera } from "../../builder-state";
 import { COUNTRY_BOXES, COUNTRY_OPTIONS } from "../../country-data";
 import { boundsOfCountries } from "../../geo";
-import type { MapViewMode } from "../../types";
+import type { MapBounds, MapViewMode } from "../../types";
 import { Choice, Hint, Section, type PanelProps } from "./fields";
+import { formatBounds } from "./ViewStatus";
 
 const MODES: { value: MapViewMode; label: string }[] = [
   { value: "countries", label: "Countries" },
@@ -26,8 +27,12 @@ export function ViewPanel({
   edit,
   generation,
   groups,
-  onUseView,
-}: PanelProps & { groups?: CountryGroups[]; onUseView: () => void }) {
+  camera,
+}: PanelProps & {
+  groups?: CountryGroups[];
+  /** Where the editor moved the map, if away from the framing: a free view starts from it. */
+  camera: MapBounds | null;
+}) {
   const { view } = spec;
   const [note, setNote] = useState("");
   const options = groups?.flatMap((set) =>
@@ -75,7 +80,14 @@ export function ViewPanel({
           name="map-view-mode"
           value={view.mode}
           options={MODES}
-          onChange={(mode) => edit((current) => ({ ...current, view: { ...current.view, mode } }))}
+          onChange={(mode) =>
+            edit((current) =>
+              // A free view is what the map shows: the view the editor moved to, if any.
+              mode === "bounds" && camera
+                ? frameCamera(current, camera)
+                : { ...current, view: { ...current.view, mode } },
+            )
+          }
         />
         {view.mode === "countries" ? (
           <div className="grid gap-1.5">
@@ -151,20 +163,12 @@ export function ViewPanel({
           )
         ) : null}
         {view.mode === "bounds" ? (
-          <div className="grid gap-2">
-            <Hint>
-              Pan and zoom the map on the left, then press <strong>Use this view</strong>. Readers
-              see at least this area, whatever their screen.
-            </Hint>
-            <Button variant="outline" size="sm" onClick={onUseView} className="justify-self-start">
-              Use this view
-            </Button>
-          </div>
+          <Hint>
+            Pan and zoom the map: it opens on the view you leave it at, saved with the map. Readers
+            see at least this area, whatever their screen.
+          </Hint>
         ) : null}
-        <Hint>
-          Framed: {view.bounds.map((value) => value.toFixed(1)).join(", ")} (west, south, east,
-          north)
-        </Hint>
+        <Hint>Framed: {formatBounds(view.bounds)} (west, south, east, north)</Hint>
       </Section>
       <Section title="Look">
         <Choice

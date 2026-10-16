@@ -124,9 +124,15 @@ const canDelete = can(access.permissions, "news", "d");
   `VisualForm` below; `?visual=<id>` opens one in the form.
 - The page passes the Server Actions in (`VISUAL_ACTIONS` from `features/visuals/admin`), plus
   `canEdit` / `canRemove` / `readOnlyReason`. The database (`can_edit_visual`) has the final word.
-- The custom map builder (`MapVisualBuilder`) loads lazily through `features/visuals/map-slot.ts`
-  and keeps its own undo history; from `lg` up the map takes 7/10 of the width and the panel 3/10
-  (at least 20 rem). Add new builder controls inside its panel, not as separate admin screens.
+- The custom map builder (`MapVisualBuilder`) loads lazily through
+  `features/visuals/map-builder-slot.ts` (admin only) and keeps its own undo history; when the
+  form is at least 56 rem wide (a container query, not the window) the map takes 7/10 of the
+  width and the panel 3/10 (at least 20 rem), otherwise the panel goes under the map. Add new
+  builder controls inside its panel, not as separate admin screens.
+- The view above the builder's map (`ViewStatus`) says what readers will see and whether it is
+  saved. A free view follows the map (pan, zoom, save); a countries or region framing stays until
+  "Use this view". "Reset to saved view" brings back the framing of the stored visual. Points
+  without a title are flagged at once and block the save with a message, never silently.
 - Visual kinds, embed providers, limits and what makes a good map or chart: `atlas-maps-data`.
 
 ## Checklist
