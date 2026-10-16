@@ -6,18 +6,22 @@ import {
   applyPopupStyleToAll,
   duplicatePoint,
   emptyHistory,
+  frameCamera,
   legendFromPoints,
   moveLegendItem,
   newPointId,
   recordEdit,
   removeLegendItem,
   removePoint,
+  sameFraming,
   specBytes,
   toggleHighlight,
   undo,
+  untitledPoints,
   updateHighlight,
   updateLegendItem,
   updatePoint,
+  withFraming,
 } from "./builder-state";
 import { parseMapSpec } from "./schema";
 import { IRAN_STRIKES_SAMPLE, PALESTINIANS_SAMPLE } from "./samples";
@@ -183,4 +187,61 @@ it("measures the spec as stored (jsonb text: a space after each : and ,)", () =>
   expect(specBytes(PALESTINIANS_SAMPLE)).toBeGreaterThan(
     JSON.stringify(PALESTINIANS_SAMPLE).length,
   );
+});
+
+describe("points without a title", () => {
+  it("are the ones whose title is empty or blank", () => {
+    const one = addPoint(emptyMapSpec(), { lat: 1, lon: 2 }, null, sequence(0.11)).spec;
+    const two = addPoint(one, { lat: 3, lon: 4 }, null, sequence(0.22)).spec;
+    expect(untitledPoints(two)).toEqual([]);
+    const [first, second] = two.points;
+    const blank = updatePoint(updatePoint(two, first!.id, { label: "  " }), second!.id, {
+      label: "",
+    });
+    expect(untitledPoints(blank).map((point) => point.id)).toEqual([first!.id, second!.id]);
+    // The server refuses the same map, naming the first one as the builder does.
+    const parsed = parseMapSpec(blank);
+    expect(parsed.ok ? "" : parsed.error).toBe("Point 1, title: Please fill this in.");
+  });
+});
+
+describe("the framing", () => {
+  const countries: MapSpec = {
+    ...emptyMapSpec(),
+    view: {
+      ...emptyMapSpec().view,
+      mode: "countries",
+      countries: ["CZE", "AUT"],
+      bounds: [9, 45, 20, 52],
+    },
+  };
+
+  it("is the same only with the same mode, area, countries and region", () => {
+    const view = countries.view;
+    expect(sameFraming(view, structuredClone(view))).toBe(true);
+    expect(sameFraming(view, { ...view, mode: "bounds" })).toBe(false);
+    expect(sameFraming(view, { ...view, bounds: [9, 45, 20, 52.1] })).toBe(false);
+    expect(sameFraming(view, { ...view, countries: ["CZE"] })).toBe(false);
+    expect(sameFraming(view, { ...view, region: { slug: "europe", name: "Europe" } })).toBe(false);
+    // The look is not part of it.
+    const globe: MapSpec["view"] = { ...view, projection: "globe", basemap: "satellite" };
+    expect(sameFraming(view, globe)).toBe(true);
+  });
+
+  it("comes back from the saved view, keeping the look", () => {
+    const satellite = { ...countries, view: { ...countries.view, basemap: "satellite" as const } };
+    const reset = withFraming(frameCamera(satellite, [0, 0, 5, 5]), countries.view);
+    expect(sameFraming(reset.view, countries.view)).toBe(true);
+    expect(reset.view.basemap).toBe("satellite");
+    expect(reset.view.bounds).not.toBe(countries.view.bounds);
+  });
+
+  it("follows the map in a free view, keeping the camera's own array", () => {
+    const camera: MapSpec["view"]["bounds"] = [13.9, 49.6, 14.9, 50.5];
+    const framed = frameCamera(countries, camera);
+    expect(framed.view.mode).toBe("bounds");
+    expect(framed.view.bounds).toBe(camera);
+    expect(framed.view.countries).toEqual(["CZE", "AUT"]);
+    expect(parseMapSpec(framed).ok).toBe(true);
+  });
 });

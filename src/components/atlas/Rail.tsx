@@ -127,11 +127,12 @@ export function Rail({
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     const el = ref.current;
     if (!el || event.target !== el) return;
+    // One item at a time: Home and End go to the first and last item like the dots do.
     const moves: Record<string, () => void> = {
       ArrowRight: () => page(1),
       ArrowLeft: () => page(-1),
-      Home: () => el.scrollTo({ left: 0 }),
-      End: () => el.scrollTo({ left: el.scrollWidth }),
+      Home: () => (pages ? show(0) : el.scrollTo({ left: 0 })),
+      End: () => (pages ? show(count - 1) : el.scrollTo({ left: el.scrollWidth })),
     };
     const move = moves[event.key];
     if (move) {

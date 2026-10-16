@@ -16,7 +16,7 @@ import {
   type VisualKind,
 } from "@/features/visuals/constants";
 import { emptyMapSpec, type MapSpec } from "@/features/visuals/map-slot";
-import { MapVisualBuilder } from "@/features/visuals/map-builder-slot";
+import { MapVisualBuilder, untitledPoints } from "@/features/visuals/map-builder-slot";
 import type { CountryGroups } from "./CountryPicker";
 import type { EditableVisual, VisualOwner } from "@/features/visuals/types";
 
@@ -62,6 +62,15 @@ export function VisualForm({
   // A new, empty form after each added visual (an edited one keeps its values).
   const [round, setRound] = useState(0);
   const [state, submit] = useActionState<ActionState, FormData>(async (previous, formData) => {
+    // Said here, next to the button, rather than as the server's "points.3.label".
+    const untitled = kind === "map" ? untitledPoints(spec ?? emptyMapSpec()).length : 0;
+    if (untitled) {
+      const message =
+        untitled === 1
+          ? "A point on the map has no title. Give it one (above the map: “Give it a title”), then save."
+          : `${untitled} points on the map have no title. Give each one a title, then save.`;
+      return { ok: false, error: message, fieldErrors: { map_spec: [message] } };
+    }
     const result = await action(previous, formData);
     if (result.ok && !visual) {
       setKind("embed");
@@ -176,7 +185,12 @@ export function VisualForm({
         <div className="grid gap-2 sm:col-span-2">
           {/* A map nobody has touched yet is saved as the builder shows it (the whole world). */}
           <input type="hidden" name="map_spec" value={JSON.stringify(spec ?? emptyMapSpec())} />
-          <MapVisualBuilder value={spec} onChange={setSpec} groups={mapGroups} />
+          <MapVisualBuilder
+            value={spec}
+            onChange={setSpec}
+            groups={mapGroups}
+            saved={visual?.map_spec?.view ?? null}
+          />
           {errors("map_spec")?.length ? (
             <p className="text-[12px] text-[var(--color-danger)]">{errors("map_spec")![0]}</p>
           ) : null}

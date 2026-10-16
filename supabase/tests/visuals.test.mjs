@@ -570,6 +570,40 @@ test("visuals: anon reads public columns only", async () => {
   });
 });
 
+test("visuals: a preview link shows a draft topic's and its subtopics' visuals, nothing else", async () => {
+  const { token } = await as(id.pubA, () =>
+    one("select create_preview_link($1, 24) as token", [draftA]),
+  );
+  const rows = await as(null, () =>
+    q(
+      "select chapter_position, title, kind, map_spec from entry_preview_visuals($1) order by title",
+      [token],
+    ),
+  );
+  assert.deepEqual(
+    rows.map((row) => [row.chapter_position, row.title]),
+    [
+      [0, "Sub chart"],
+      [null, "Topic chart"],
+    ],
+  );
+  // Another topic's visuals never come along; a wrong or malformed token returns nothing.
+  assert.equal(
+    (await as(null, () => q("select 1 from entry_preview_visuals($1)", ["0".repeat(64)]))).length,
+    0,
+  );
+  assert.equal((await as(null, () => q("select 1 from entry_preview_visuals('x')"))).length, 0);
+  // An expired link shows nothing.
+  await q(
+    "update preview_links set created_at = now() - interval '2 days', expires_at = now() - interval '1 second' where entry_id = $1",
+    [draftA],
+  );
+  assert.equal(
+    (await as(null, () => q("select 1 from entry_preview_visuals($1)", [token]))).length,
+    0,
+  );
+});
+
 // ---------------------------------------------------------------------------
 // Order
 // ---------------------------------------------------------------------------

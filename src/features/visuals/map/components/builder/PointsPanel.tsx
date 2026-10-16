@@ -110,6 +110,7 @@ export function PointsPanel({
           <ul className="grid max-h-72 gap-0.5 overflow-auto" aria-label="Points on the map">
             {shown.map((point) => {
               const active = point.id === selectedId;
+              const name = point.label.trim() || "the point without a title";
               return (
                 <li
                   key={point.id}
@@ -133,7 +134,13 @@ export function PointsPanel({
                         icon={point.icon}
                       />
                     </span>
-                    <span className="min-w-0 flex-1 truncate">{point.label}</span>
+                    {point.label.trim() ? (
+                      <span className="min-w-0 flex-1 truncate">{point.label}</span>
+                    ) : (
+                      <span className="min-w-0 flex-1 truncate font-medium text-[var(--color-danger)]">
+                        No title yet
+                      </span>
+                    )}
                     <span className="shrink-0 text-[11px] text-[var(--color-ink-muted)] tabular-nums">
                       {point.lat.toFixed(2)}, {point.lon.toFixed(2)}
                     </span>
@@ -141,8 +148,8 @@ export function PointsPanel({
                   <Button
                     variant="quiet"
                     size="denseIcon"
-                    title={`Duplicate ${point.label}`}
-                    aria-label={`Duplicate ${point.label}`}
+                    title={`Duplicate ${name}`}
+                    aria-label={`Duplicate ${name}`}
                     disabled={full}
                     onClick={() => {
                       let copyId: string | null = null;
@@ -159,8 +166,8 @@ export function PointsPanel({
                   <Button
                     variant="quietDanger"
                     size="denseIcon"
-                    title={`Delete ${point.label}`}
-                    aria-label={`Delete ${point.label}`}
+                    title={`Delete ${name}`}
+                    aria-label={`Delete ${name}`}
                     onClick={() => {
                       edit((current) => removePoint(current, point.id));
                       if (active) onSelect(null);
