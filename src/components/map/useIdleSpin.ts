@@ -25,7 +25,7 @@ const FRAME_MS_TOUCH = 80;
  * visitor starts reading: it turns after their first input anywhere on the
  * page, or after this long without any.
  */
-const TOUCH_FIRST_START_MS = 10_000;
+export const TOUCH_FIRST_START_MS = 10_000;
 /** On touch screens a scroll (the page, a list) pauses it; it turns again this much later. */
 const SCROLL_SETTLE_MS = 1500;
 

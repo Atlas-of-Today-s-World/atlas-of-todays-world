@@ -8,8 +8,9 @@ import type { EntrySummary } from "@/features/entries/types";
 import type { Country, CountryProfile, CountryStat } from "@/features/geography/types";
 import { getRequestLocale, getT } from "@/lib/i18n/request";
 import { formatPopulation } from "@/lib/format";
+import { Photo } from "@/components/atlas/Photo";
+import { PHOTO_SIZES } from "@/config/layout";
 import { PHOTO_WIDTH } from "@/lib/images";
-import { cssBackgroundImage } from "@/lib/security/urls";
 import { format } from "@/lib/i18n/messages";
 import { categoryLabel } from "@/lib/content-types";
 import { MetricCards, SourceLink, StatGrid, StatIcon, StatItem } from "./atlas/ui";
@@ -137,22 +138,23 @@ export default async function CountryCard({
           href={routes.region(region.slug)}
           className="group mt-7 block overflow-hidden rounded-xl border border-[var(--color-line)] transition hover:border-[var(--color-accent)]"
         >
-          <span
-            className="block h-28 w-full bg-cover bg-center"
-            style={{
-              // Through cssBackgroundImage: an escaped, resized URL — and none at all
-              // when the region has no photo (it used to request "url(null)").
-              backgroundImage: [
-                "linear-gradient(180deg, rgba(10,16,32,0.15), rgba(10,16,32,0.55))",
-                cssBackgroundImage(region.hero, PHOTO_WIDTH.card),
-              ]
-                .filter(Boolean)
-                .join(", "),
-              backgroundColor: "var(--color-space)",
-            }}
-            role="img"
-            aria-label={format(t.ui.fromOrbit, { name: region.name })}
-          />
+          {/* Far down the panel: the photo loads lazily, as it nears the screen
+              (a CSS background was fetched with the page, competing with it). */}
+          <span className="relative block h-28 w-full overflow-hidden bg-[var(--color-space)]">
+            <Photo
+              src={region.hero}
+              alt={format(t.ui.fromOrbit, { name: region.name })}
+              widths={[PHOTO_WIDTH.tile, PHOTO_WIDTH.card]}
+              sizes={PHOTO_SIZES.rail}
+              width={PHOTO_WIDTH.card}
+              height={224}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+            <span
+              aria-hidden
+              className="absolute inset-0 bg-gradient-to-b from-[rgba(10,16,32,0.15)] to-[rgba(10,16,32,0.55)]"
+            />
+          </span>
           <span className="block p-4">
             <span className="text-[10.5px] tracking-[0.1em] text-[var(--color-ink-muted)] uppercase">
               {t.country.region}

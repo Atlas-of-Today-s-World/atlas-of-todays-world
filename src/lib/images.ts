@@ -86,12 +86,32 @@ export function isTrustedPhoto(src: string): boolean {
 const optimized = (source: string, width: number) =>
   `/_next/image?url=${encodeURIComponent(source)}&w=${width}&q=${QUALITY}`;
 
+/**
+ * Unsplash photos (region heroes, resource previews) are resized by Unsplash's
+ * own image CDN (imgix): the width asked for, AVIF/WebP for browsers that take
+ * them. They used to arrive at the 800–1600 px JPEG written in the database —
+ * 100–200 kB for a 384 px tile. Not through /_next/image: no quota spent, no proxy.
+ */
+const UNSPLASH = "images.unsplash.com";
+const UNSPLASH_QUALITY = 60;
+
+function unsplashUrl(url: URL, width: number): string {
+  const sized = new URL(url.href);
+  // A fixed height would crop to a different shape at the new width.
+  sized.searchParams.delete("h");
+  sized.searchParams.set("w", String(width));
+  sized.searchParams.set("q", String(UNSPLASH_QUALITY));
+  sized.searchParams.set("auto", "format");
+  return sized.href;
+}
+
 /** The optimizer's address for `src` at `width`, or `src` itself when it isn't ours to resize. */
 export function photoUrl(src: string, width: number): string {
   if (src.startsWith(LOCAL_PHOTOS)) return optimized(src, width);
   const url = parseUrl(src);
   if (!url) return src;
   if (isOwnPhoto(url)) return optimized(url.pathname, width);
+  if (url.protocol === "https:" && url.hostname === UNSPLASH) return unsplashUrl(url, width);
   if (!isPhotoOrigin(url)) return src;
   return optimized(url.href, width);
 }

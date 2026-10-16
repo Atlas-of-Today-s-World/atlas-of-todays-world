@@ -58,6 +58,7 @@ export function buildCsp({
       "'self'",
       "https://server.arcgisonline.com",
       "https://*.arcgisonline.com",
+      // Label glyphs come from /data/glyphs; a range we don't host from here (map/glyphs.ts).
       "https://fonts.openmaptiles.org",
       "https://api.maptiler.com",
       supabaseHttp,

@@ -1,7 +1,4 @@
 import { getSiteSettings } from "@/features/site/queries";
-import { preload } from "react-dom";
-import { PHOTO_WIDTH, photoUrl } from "@/lib/images";
-import { safeUrl } from "@/lib/security/urls";
 import { JsonLd } from "@/components/JsonLd";
 import { getAtlas } from "@/features/geography/queries";
 import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
@@ -27,11 +24,6 @@ export default async function TopicsPage({ params }: PageProps<"/[locale]/topics
     hero: item.hero,
     place: item.region ? (atlas.regionBySlug.get(item.region)?.name ?? null) : null,
   }));
-  // The first card's photo is the page's largest element, but as a CSS background
-  // the browser finds it late: announce it in <head> (Largest Contentful Paint).
-  const firstPhoto = safeUrl(cards[0]?.hero);
-  if (firstPhoto)
-    preload(photoUrl(firstPhoto, PHOTO_WIDTH.card), { as: "image", fetchPriority: "high" });
   const filters = { country: counts.countries, region: counts.regions, issue: counts.issues };
   const pick = (keys: string[], name: (key: string) => string | undefined) =>
     Object.fromEntries(keys.flatMap((key) => (name(key) ? [[key, name(key) as string]] : [])));

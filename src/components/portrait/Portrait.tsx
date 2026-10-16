@@ -6,7 +6,9 @@ import type { EntrySummary } from "@/features/entries/types";
 import { PhotoCredit } from "@/components/atlas/ui";
 import type { RegionDossier } from "@/lib/content-types";
 import { formatPopulation } from "@/lib/format";
-import { cssBackgroundImage } from "@/lib/security/urls";
+import { Photo } from "@/components/atlas/Photo";
+import { PHOTO_SIZES } from "@/config/layout";
+import { safeUrl } from "@/lib/security/urls";
 import { PHOTO_WIDTH } from "@/lib/images";
 import { format } from "@/lib/i18n/messages";
 import { getRequestLocale, getT } from "@/lib/i18n/request";
@@ -56,18 +58,23 @@ export default async function Portrait({
   dossier: RegionDossier;
 }) {
   const t = await getT();
-  const hero = cssBackgroundImage(subject.hero, PHOTO_WIDTH.card);
+  const hero = safeUrl(subject.hero);
   const complete = profileComplete(dossier);
 
   return (
     <article>
       {hero ? (
         <div className="relative">
-          <div
-            className="h-52 w-full bg-cover bg-center"
-            style={{ backgroundImage: hero }}
-            role="img"
-            aria-label={format(t.ui.fromOrbit, { name: subject.name })}
+          {/* The panel's LCP: a real <img> in the width the panel shows, preloaded. */}
+          <Photo
+            priority
+            src={hero}
+            alt={format(t.ui.fromOrbit, { name: subject.name })}
+            widths={[PHOTO_WIDTH.tile, PHOTO_WIDTH.card, 1200]}
+            sizes={PHOTO_SIZES.wideRail}
+            width={1200}
+            height={416}
+            className="h-52 w-full object-cover"
           />
           {subject.heroCredit ? <PhotoCredit onPhoto>{subject.heroCredit}</PhotoCredit> : null}
         </div>

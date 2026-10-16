@@ -2,6 +2,7 @@ import { ChevronDown, LayoutGrid } from "lucide-react";
 import Link from "@/components/i18n/Link";
 import { kickerVariants } from "@/components/atlas/kicker";
 import { SafeHtml } from "@/components/atlas/SafeHtml";
+import { TilePhoto } from "@/components/atlas/PhotoTile";
 import { ShareButton } from "@/components/atlas/ShareButton";
 import {
   ARTICLE_BODY,
@@ -344,7 +345,7 @@ function TilePanel({ tile }: { tile: LearnMoreTile }) {
       {resources.length ? (
         <ul className="mt-5 grid gap-3 sm:grid-cols-2">
           {resources.map((resource, index) => {
-            const image = cssBackgroundImage(resource.image, PHOTO_WIDTH.thumb);
+            const image = safeUrl(resource.image);
             return (
               // The same link may sit in a tile twice (under two sub-headings).
               <li key={`${index}-${resource.url}`}>
@@ -358,9 +359,10 @@ function TilePanel({ tile }: { tile: LearnMoreTile }) {
                   {image ? (
                     <span
                       aria-hidden
-                      className="h-20 w-32 shrink-0 rounded-lg bg-[var(--color-line)] bg-cover bg-center"
-                      style={{ backgroundImage: image }}
-                    />
+                      className="relative h-20 w-32 shrink-0 overflow-hidden rounded-lg bg-[var(--color-line)]"
+                    >
+                      <TilePhoto image={image} width={PHOTO_WIDTH.thumb} />
+                    </span>
                   ) : null}
                   <span className="min-w-0">
                     <span className="font-display block text-[13.5px] leading-snug font-bold text-[var(--color-ink)]">

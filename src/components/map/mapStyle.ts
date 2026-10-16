@@ -1,6 +1,7 @@
 import type { GeoJSONSourceSpecification, StyleSpecification } from "maplibre-gl";
 import { GLOBE_COLORS, THEME_COLORS } from "@/config/palette";
 import { publicEnv } from "@/lib/env";
+import { glyphsUrl } from "./glyphs";
 
 /** Plocha z administrace (map_areas) — GeoJSON Polygon s barvami. */
 interface AreaShape {
@@ -46,7 +47,7 @@ export const GLOBE_DATA = {
     publicEnv.NEXT_PUBLIC_MAPTILER_KEY
       ? "https://api.maptiler.com"
       : "https://server.arcgisonline.com",
-    "https://fonts.openmaptiles.org",
+    // Label glyphs come with the site (glyphs.ts): no connection to warm up for them.
   ],
   countries: "/data/countries.geo.json",
 } as const;
@@ -201,7 +202,7 @@ export function buildStyle(regions: RegionLabel[], options: StyleOptions): Style
   return {
     version: 8,
     projection: { type: "globe" },
-    glyphs: "https://fonts.openmaptiles.org/{fontstack}/{range}.pbf",
+    glyphs: glyphsUrl(),
     sources: {
       satellite: { type: "raster", tileSize: 256, ...satellite },
       countries: {

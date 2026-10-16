@@ -176,12 +176,14 @@ export function TopicsBrowser({
             </h2>
           ) : null}
           <ul className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {shown.map((item) => (
+            {shown.map((item, index) => (
               <li key={item.slug}>
                 <PhotoCard
                   href={routes.topic(item.slug)}
                   image={item.hero}
                   width={PHOTO_WIDTH.card}
+                  // The first card's photo is the page's largest element (LCP).
+                  priority={index === 0}
                   shade
                   kicker={item.place}
                   title={item.title}

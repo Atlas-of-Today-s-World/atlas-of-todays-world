@@ -1,6 +1,7 @@
 import Link from "@/components/i18n/Link";
 import type { RegionDossier } from "@/lib/content-types";
-import { cssBackgroundImage } from "@/lib/security/urls";
+import { Photo } from "@/components/atlas/Photo";
+import { PHOTO_SIZES } from "@/config/layout";
 import { PHOTO_WIDTH } from "@/lib/images";
 import { format } from "@/lib/i18n/messages";
 import { getT } from "@/lib/i18n/request";
@@ -27,14 +28,20 @@ export async function RegionalProfile({
   dossier: RegionDossier;
 }) {
   const t = await getT();
-  const photo = cssBackgroundImage(region.hero, PHOTO_WIDTH.card);
   const titleId = "regional-profile-title";
   return (
     <section aria-labelledby={titleId} className="mt-8 bg-[var(--color-paper)]">
-      <header
-        className="relative isolate overflow-hidden bg-[var(--color-band)] bg-cover bg-center px-6 pt-24 pb-7 text-white sm:px-10"
-        style={photo ? { backgroundImage: photo } : undefined}
-      >
+      <header className="relative isolate overflow-hidden bg-[var(--color-band)] px-6 pt-24 pb-7 text-white sm:px-10">
+        {/* Below the country's own profile: loaded lazily, as it nears the screen. */}
+        <Photo
+          src={region.hero}
+          alt=""
+          widths={[PHOTO_WIDTH.tile, PHOTO_WIDTH.card]}
+          sizes={PHOTO_SIZES.rail}
+          width={PHOTO_WIDTH.card}
+          height={460}
+          className="absolute inset-0 -z-20 h-full w-full object-cover"
+        />
         <div
           aria-hidden
           className="absolute inset-0 -z-10 bg-gradient-to-t from-[var(--color-band)] via-[var(--color-band)]/65 to-[var(--color-band)]/15"

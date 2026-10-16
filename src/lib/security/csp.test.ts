@@ -30,6 +30,14 @@ describe("buildCsp", () => {
     expect(directive(prod, "form-action")).toContain("https://abc.supabase.co");
   });
 
+  // Web Analytics and Speed Insights load /_vercel/…/script.js and report to
+  // /_vercel/… on our own origin: no Vercel host needs to be listed.
+  it("Vercel's analytics and Speed Insights need nothing beyond our own origin", () => {
+    expect(directive(prod, "script-src").split(" ")).toContain("'self'");
+    expect(directive(prod, "connect-src").split(" ")).toContain("'self'");
+    expect(prod).not.toContain("vercel");
+  });
+
   it("the Google sign-in form may end on Google's consent screen, and nowhere else", () => {
     expect(directive(prod, "form-action")).toBe(
       "form-action 'self' https://abc.supabase.co https://accounts.google.com",

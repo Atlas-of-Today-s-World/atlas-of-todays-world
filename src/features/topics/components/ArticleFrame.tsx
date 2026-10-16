@@ -5,7 +5,9 @@ import { Lead } from "@/components/atlas/Note";
 import { SectionLabel } from "@/components/atlas/ui";
 import type { Atlas } from "@/features/geography/types";
 import { getT } from "@/lib/i18n/request";
-import { PHOTO_WIDTH, photoSrcSet, photoUrl } from "@/lib/images";
+import { Photo } from "@/components/atlas/Photo";
+import { PHOTO_SIZES } from "@/config/layout";
+import { PHOTO_WIDTH } from "@/lib/images";
 import { categoryLabel } from "@/lib/content-types";
 import { safeUrl } from "@/lib/security/urls";
 import type { EntrySummary } from "@/features/entries/types";
@@ -47,18 +49,15 @@ export async function ArticleFrame({
         <article lang={lang}>
           {hero ? (
             <figure className="m-0">
-              {/* A real <img>: image search indexes it and the browser finds the LCP early. */}
-              {/* eslint-disable-next-line @next/next/no-img-element -- resized by /_next/image (lib/images.ts) */}
-              <img
-                src={photoUrl(hero, 1200)}
-                srcSet={photoSrcSet(hero, [PHOTO_WIDTH.card, 1200])}
-                // The wide side panel (--rail-width-wide) is at most 46 rem.
-                sizes="(min-width: 768px) 46rem, 100vw"
+              {/* A real <img>: image search indexes it; the panel's LCP, so preloaded. */}
+              <Photo
+                priority
+                src={hero}
                 alt={item.title}
+                widths={[PHOTO_WIDTH.tile, PHOTO_WIDTH.card, 1200]}
+                sizes={PHOTO_SIZES.wideRail}
                 width={1200}
                 height={416}
-                fetchPriority="high"
-                decoding="async"
                 className="h-52 w-full object-cover"
               />
               {heroCaption ? (

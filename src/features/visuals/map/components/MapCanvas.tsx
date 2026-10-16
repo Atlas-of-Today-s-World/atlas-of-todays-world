@@ -4,6 +4,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import type * as MapLibre from "maplibre-gl";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { foldAttribution } from "@/components/map/attribution";
+import { transformGlyphRequest } from "@/components/map/glyphs";
 import { loadMapLibre } from "@/components/map/maplibre";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { cn } from "@/lib/cn";
@@ -78,6 +79,8 @@ export default function MapCanvas({
         const map = new lib.Map({
           container,
           style: buildVisualStyle(first.view, first.countries),
+          // Label glyphs we don't host come from their original source (map/glyphs.ts).
+          transformRequest: transformGlyphRequest,
           bounds: toLngLatBounds(first.view.bounds),
           attributionControl: false,
           // In an article the page scrolls on: zoom takes Ctrl/⌘ + wheel or two fingers.
