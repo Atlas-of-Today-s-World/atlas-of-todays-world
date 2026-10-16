@@ -31,4 +31,6 @@ export const GLOBE_COLORS = {
   badgeText: "#0b1220",
   /** A place without topics: red pill and its pulsing glow (an invitation to write). */
   empty: "#dc2626",
+  /** The dashed ring of a country whose own content isn't created yet. */
+  statusMissing: "#6b7280",
 } as const;

@@ -1,5 +1,5 @@
 import type { ExpressionSpecification } from "maplibre-gl";
-import { THEME_COLORS } from "@/config/palette";
+import { GLOBE_COLORS, THEME_COLORS } from "@/config/palette";
 import { ROUTE_PREFIX, segmentAfter } from "@/config/routes";
 import { splitLocale, withoutDefaultPrefix } from "@/lib/i18n/config";
 import type { ContentStatus } from "@/features/geography/content-status";
@@ -21,10 +21,15 @@ export const STATUS_IMAGES = {
   preparing: "topic-status-preparing",
   // An empty pixel: a format section needs some image, even where there's no mark.
   none: "topic-status-none",
-} as const satisfies Record<ContentStatus, string>;
+  // A country whose own content isn't written yet: an empty dashed ring.
+  missing: "topic-status-missing",
+} as const satisfies Record<StatusMarkKind, string>;
 
-const STATUS_BY_IMAGE = new Map<string, ContentStatus>(
-  Object.entries(STATUS_IMAGES).map(([status, image]) => [image, status as ContentStatus]),
+/** The content statuses plus a country's "not created yet" ring. */
+type StatusMarkKind = ContentStatus | "missing";
+
+const STATUS_BY_IMAGE = new Map<string, StatusMarkKind>(
+  Object.entries(STATUS_IMAGES).map(([status, image]) => [image, status as StatusMarkKind]),
 );
 
 /** Group slug → its status (`bySlug` of a globe lookup). */
@@ -35,28 +40,32 @@ export function statusesOf(groups: Record<string, { status: ContentStatus }>) {
 }
 
 /**
- * The pill's text with the group's status mark after the number: a check mark
- * for ready content, an hourglass for content in preparation. Without any
- * started group the plain text stays (no format sections to lay out).
+ * The pill's text with the place's status mark after the number: a check mark
+ * for ready content, an hourglass for content in preparation, and `otherwise`
+ * for the rest (an empty pixel for groups, the dashed ring for countries).
+ * Without any mark to show the plain text stays (no format sections to lay out).
  */
 export function withStatusMark(
   text: ExpressionSpecification,
   statuses: Record<string, ContentStatus>,
   property: "iso3" | "slug" = "slug",
+  otherwise: string = STATUS_IMAGES.none,
 ): ExpressionSpecification {
   const ready = Object.keys(statuses).filter((key) => statuses[key] === "ready");
   const preparing = Object.keys(statuses).filter((key) => statuses[key] === "preparing");
-  if (!ready.length && !preparing.length) return text;
+  if (!ready.length && !preparing.length && otherwise === STATUS_IMAGES.none) return text;
   const branches = [
     ...(ready.length ? [ready, STATUS_IMAGES.ready] : []),
     ...(preparing.length ? [preparing, STATUS_IMAGES.preparing] : []),
   ];
+  // MapLibre refuses a "match" without branches: then every place gets `otherwise`.
+  const image = branches.length ? ["match", ["get", property], ...branches, otherwise] : otherwise;
   // MapLibre types can't express a variable number of branches in "match" or an image section.
   return [
     "format",
     text,
     {},
-    ["image", ["match", ["get", property], ...branches, STATUS_IMAGES.none]],
+    ["image", image],
     { "vertical-align": "center" },
   ] as unknown as ExpressionSpecification;
 }
@@ -78,7 +87,20 @@ export function statusMarkImage(id: string) {
   canvas.height = h;
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
-  if (status !== "none") {
+  if (status === "missing") {
+    // Not created yet: a white disc with a dashed grey ring, readable on the
+    // white pill and on the red one of a country without topics.
+    const r = h / 2 - ratio;
+    const [cx, cy] = [gap + (w - gap) / 2, h / 2];
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = GLOBE_COLORS.statusMissing;
+    ctx.lineWidth = 1.4 * ratio;
+    ctx.setLineDash([2.2 * ratio, 1.6 * ratio]);
+    ctx.stroke();
+  } else if (status !== "none") {
     const r = h / 2 - ratio / 2;
     const [cx, cy] = [gap + (w - gap) / 2, h / 2];
     ctx.fillStyle = status === "ready" ? THEME_COLORS.statusReady : THEME_COLORS.statusPreparing;

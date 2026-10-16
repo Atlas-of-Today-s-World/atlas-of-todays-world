@@ -30,7 +30,7 @@ import { cn } from "@/lib/cn";
 import { useIdleSpin } from "./useIdleSpin";
 import { useZeroPulse } from "./globe/zeroPulse";
 import { Starfield } from "./Starfield";
-import { unprocessedCountries } from "@/features/geography/content-status";
+import { type ContentStatus, unprocessedCountries } from "@/features/geography/content-status";
 import { openIssueSlug, STATUS_IMAGES, statusesOf, statusMarkImage } from "./global-issues";
 import { applyFeatureState } from "./globe/featureState";
 import { paintLayer, paintSelectionMode } from "./globe/layerPaint";
@@ -68,6 +68,8 @@ interface Props {
   styleOptions: StyleOptions;
   /** Number of topics per place, for each selection mode (ISO3 or group slug → count). */
   topicCounts: Record<SelectionModeKey, Record<string, number>>;
+  /** ISO3 → "ready" for countries whose own content (a timeline) is created; the rest aren't yet. */
+  countryStatuses: Record<string, ContentStatus>;
 }
 
 /** Upper bound for the globe canvas pixel ratio (see the Map options). */
@@ -87,6 +89,7 @@ export default function AtlasGlobe({
   regionLabels,
   styleOptions,
   topicCounts,
+  countryStatuses,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const surfaceRef = useRef<HTMLDivElement>(null);
@@ -130,8 +133,12 @@ export default function AtlasGlobe({
   // nobody has started on (grey in Regions mode). Issues keep their colours: one
   // spanning the whole world (Migration) would otherwise grey the entire globe.
   const statuses = useMemo(
-    () => ({ regions: statusesOf(regions.bySlug), issue: statusesOf(issue.bySlug) }),
-    [regions, issue],
+    () => ({
+      countries: countryStatuses,
+      regions: statusesOf(regions.bySlug),
+      issue: statusesOf(issue.bySlug),
+    }),
+    [countryStatuses, regions, issue],
   );
   const unprocessed = useMemo(() => unprocessedCountries(Object.values(regions.bySlug)), [regions]);
 
@@ -142,6 +149,7 @@ export default function AtlasGlobe({
       issue,
       slugs,
       topicCounts,
+      countryStatuses,
       layers,
       view,
       openIssue,

@@ -10,6 +10,8 @@ export const tags = {
   indicator: (id: string) => `indicator:${id}`,
   /** One country's profile text, kept out of the atlas snapshot (Next skips items over 2 MB). */
   country: (iso3: string) => `country:${iso3}`,
+  /** Which countries have a timeline of their own (the status mark on the globe's country pills). */
+  countryTimelines: "country-timelines",
   /** Article lists and indexes: news, topics, authors, home, search, map counts. */
   entries: "entries",
   /** One article's page — every language version of the slug. */

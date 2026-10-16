@@ -45,6 +45,7 @@ export function useGlobeInteractions({
   issue,
   slugs,
   topicCounts,
+  countryStatuses,
   layers,
   view,
   openIssue,
@@ -55,6 +56,7 @@ export function useGlobeInteractions({
   issue: RegionLookup;
   slugs: Record<string, string>;
   topicCounts: Record<SelectionModeKey, Record<string, number>>;
+  countryStatuses: Record<string, ContentStatus>;
   layers: Record<string, GlobeLayer>;
   view: string;
   openIssue: string | undefined;
@@ -82,6 +84,7 @@ export function useGlobeInteractions({
   const issueRef = useLatest(issue);
   const slugsRef = useLatest(slugs);
   const topicCountsRef = useLatest(topicCounts);
+  const countryStatusesRef = useLatest(countryStatuses);
   const layersRef = useLatest(layers);
   const viewRef = useLatest(view);
   const openIssueRef = useLatest(openIssue);
@@ -182,6 +185,10 @@ export function useGlobeInteractions({
           name,
           metric: metricFor(iso3),
           topics: topics ? topicLabelRef.current(topics) : undefined,
+          status:
+            countryStatusesRef.current[iso3] === "ready"
+              ? t.map.countryStatusReady
+              : t.map.countryStatusNone,
         },
         href: routes.country(slug),
         countries: [iso3],

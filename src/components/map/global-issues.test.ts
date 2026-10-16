@@ -66,4 +66,17 @@ describe("withStatusMark", () => {
       ["match", ["get", "iso3"], ["eeca"], STATUS_IMAGES.preparing, STATUS_IMAGES.none],
     ]);
   });
+
+  it("gives the other places a fallback mark (countries: the dashed ring)", () => {
+    const mark = withStatusMark(text, { CZE: "ready" }, "iso3", STATUS_IMAGES.missing) as unknown[];
+    expect(mark[3]).toEqual([
+      "image",
+      ["match", ["get", "iso3"], ["CZE"], STATUS_IMAGES.ready, STATUS_IMAGES.missing],
+    ]);
+  });
+
+  it("marks every place with the fallback while none is ready", () => {
+    const mark = withStatusMark(text, {}, "iso3", STATUS_IMAGES.missing) as unknown[];
+    expect(mark[3]).toEqual(["image", STATUS_IMAGES.missing]);
+  });
 });

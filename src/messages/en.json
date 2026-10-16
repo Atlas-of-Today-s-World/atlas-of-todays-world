@@ -138,6 +138,8 @@
     "statusReady": "ready",
     "statusPreparing": "in preparation",
     "statusNone": "not started yet",
+    "countryStatusReady": "completed",
+    "countryStatusNone": "not created yet",
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out",
     "spinStart": "Rotate the globe",

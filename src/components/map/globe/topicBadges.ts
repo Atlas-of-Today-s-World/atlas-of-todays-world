@@ -6,7 +6,7 @@ import {
   TOPIC_LAYERS,
   ZERO_GLOW_LAYERS,
 } from "../mapStyle";
-import { withStatusMark } from "../global-issues";
+import { STATUS_IMAGES, withStatusMark } from "../global-issues";
 import type { ContentStatus } from "@/features/geography/content-status";
 import { GLOBE_COLORS } from "@/config/palette";
 
@@ -60,8 +60,8 @@ function topicExpressions(counts: Record<string, number>, property: "iso3" | "sl
   return { has, text };
 }
 
-/** Content status per group slug, for the group modes' pills. */
-type GroupStatuses = Record<"regions" | "issue", Record<string, ContentStatus>>;
+/** Content status per country ISO3 and per group slug, for each mode's pills. */
+type PlaceStatuses = Record<SelectionModeKey, Record<string, ContentStatus>>;
 
 /**
  * Topic counts: one badge layer per mode, numbers from the server. Only the
@@ -77,7 +77,7 @@ export function applyTopicBadges(
     mini,
   }: {
     topicCounts: Record<SelectionModeKey, Record<string, number>>;
-    statuses: GroupStatuses;
+    statuses: PlaceStatuses;
     mode: SelectionModeKey;
     openIssue: string | undefined;
     mini: boolean;
@@ -106,11 +106,14 @@ export function applyTopicBadges(
               ["all", has, ["==", ["get", "slug"], openIssue]]
             : has,
     );
-    // Group pills carry the content status: a check mark when ready, an hourglass in preparation.
+    // Pills carry the content status: a check mark when ready, an hourglass in
+    // preparation; a country without its own content yet gets a dashed ring.
     map.setLayoutProperty(
       layer,
       "text-field",
-      key === "countries" ? text : withStatusMark(text, statuses[key], property),
+      key === "countries"
+        ? withStatusMark(text, statuses.countries, property, STATUS_IMAGES.missing)
+        : withStatusMark(text, statuses[key], property),
     );
     // The small globe window on full-width pages shows no counts.
     map.setLayoutProperty(layer, "visibility", key === mode && !mini ? "visible" : "none");
