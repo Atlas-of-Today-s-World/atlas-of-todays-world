@@ -18,14 +18,7 @@ import { apiFetch } from "@/lib/api-fetch";
 import { EUROPE_CENTER, globeFillZoom } from "@/lib/home-location";
 import { useMapState } from "./MapContext";
 import { useLatest } from "@/lib/use-latest";
-import {
-  DESKTOP_MIN_PX,
-  GLOBE,
-  GLOBE_LABEL_MOBILE,
-  isFullPage,
-  isHome,
-  railKind,
-} from "@/config/layout";
+import { DESKTOP_MIN_PX, GLOBE, isFullPage, isHome, railKind } from "@/config/layout";
 import { cn } from "@/lib/cn";
 import { useIdleSpin } from "./useIdleSpin";
 import { useZeroPulse } from "./globe/zeroPulse";
@@ -45,7 +38,6 @@ import { initialCamera, useGlobeCamera } from "./globe/useGlobeCamera";
 import { scheduleGlobeStart, type GlobeStartGate } from "./globe/startGate";
 import { GlobeWake } from "./globe/GlobeWake";
 import { useGlobeInteractions } from "./globe/useGlobeInteractions";
-import { GlobeHoverLabel } from "./globe/GlobeHoverLabel";
 import { GlobePlaceholder } from "./globe/GlobePlaceholder";
 import { GlobeUnavailable } from "./globe/GlobeUnavailable";
 import { GlobeZoomControls } from "./globe/GlobeZoomControls";
@@ -142,19 +134,14 @@ export default function AtlasGlobe({
   );
   const unprocessed = useMemo(() => unprocessedCountries(Object.values(regions.bySlug)), [regions]);
 
-  const { hoverLabel, previewHref, openPreview, pendingIso3, bind, clearHover } =
-    useGlobeInteractions({
-      mode,
-      regions,
-      issue,
-      slugs,
-      topicCounts,
-      countryStatuses,
-      layers,
-      view,
-      openIssue,
-      activeIso3: focus.activeIso3,
-    });
+  const { pendingIso3, bind, clearHover } = useGlobeInteractions({
+    mode,
+    regions,
+    issue,
+    slugs,
+    openIssue,
+    activeIso3: focus.activeIso3,
+  });
 
   // On the home map (and in the corner window) the globe turns slowly until the user grabs it,
   // and now and then two topic counts pulse to invite a click.
@@ -390,14 +377,6 @@ export default function AtlasGlobe({
         onZoomOut={() => mapRef.current?.zoomOut({ duration: GLOBE.zoomStepMs })}
         spin={spin}
       />
-      {hoverLabel && !mini ? (
-        <GlobeHoverLabel
-          label={hoverLabel}
-          href={previewHref}
-          onOpen={openPreview}
-          className={noPanel ? GLOBE_LABEL_MOBILE.map : GLOBE_LABEL_MOBILE.sheet}
-        />
-      ) : null}
     </div>
   );
 }

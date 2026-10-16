@@ -4,15 +4,15 @@ import { colorMapFor, formatValue } from "@/features/geography/indicators";
 import type { IndicatorData } from "./types";
 
 /**
- * One data layer of the globe (a metric): each country's colour and its value
- * as the hover label shows it. Loaded by the globe only when the layer is
+ * One data layer of the globe (a metric): each country's colour and its
+ * formatted value. Loaded by the globe only when the layer is
  * switched on (/api/globe-layer/[id]) — sending every layer with every map page
  * made up most of its HTML.
  */
 export interface GlobeLayer {
   /** ISO3 → fill colour (already saturated like the rest of the map). */
   colors: Record<string, string>;
-  /** Short name for the hover label ("GDP per capita"). */
+  /** Short name of the metric ("GDP per capita"). */
   label: string;
   /** ISO3 → [formatted value, year]. */
   values: Record<string, [value: string, year: number]>;

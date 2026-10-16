@@ -45,7 +45,7 @@ manual values (`is_manual = true`) are never overwritten. Deploys run `supabase 
 4. Choose the type and scale; set the domain to cover the real spread; pick a ramp (section 4).
 5. Enter values with their year; mark estimates in `note`; leave missing countries empty.
 6. Write the description: what, unit, coverage, caveats, open-ended ends.
-7. Check the globe legend, the hover label, `/view/<id>` and the About data-sources list.
+7. Check the globe legend, `/view/<id>` and the About data-sources list.
 8. Check the ramp in greyscale and in a colour-blindness simulator.
 
 ## 4. Ramp patterns

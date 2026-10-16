@@ -64,7 +64,7 @@ equivalent.**
 - A manually entered value needs a `source_note` (the database refuses it otherwise); use `note`
   (≤ 120) for "estimate", "excl. Crimea" and similar caveats.
 - Missing data stays missing: never enter 0 for "no data". Countries without a value keep the
-  neutral land colour (`GLOBE_COLORS.land`) and the hover label says "no data".
+  neutral land colour (`GLOBE_COLORS.land`).
 - Set `higher_is_better` correctly: it orders the ranking on `/view/<id>`.
 - The 9 imported indicators live in `supabase/seed.sql`, which upserts their label, unit, source,
   range and colours on the next seed run. Change those fields in the seed by PR, not only in the
