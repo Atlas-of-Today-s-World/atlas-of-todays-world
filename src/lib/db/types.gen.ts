@@ -2938,6 +2938,15 @@ export type Database = {
         Returns: boolean
       }
       html_plain_text: { Args: { p_html: string }; Returns: string }
+      import_indicator_values: {
+        Args: {
+          p_indicator: string
+          p_replace: boolean
+          p_rows: Json
+          p_source: string
+        }
+        Returns: Json
+      }
       is_active: { Args: never; Returns: boolean }
       is_admin: { Args: never; Returns: boolean }
       is_polygon: { Args: { g: Json }; Returns: boolean }

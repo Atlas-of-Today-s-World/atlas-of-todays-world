@@ -8,8 +8,9 @@ import { RowActions } from "@/components/data-table/RowActions";
 import { deleteAction } from "@/components/data-table/row-actions";
 import { optionStats } from "@/components/data-table/stats";
 import { can, sectionAccess } from "@/features/auth/access";
-import { getPickerOptions } from "@/features/geography/queries";
+import { getAtlas, getPickerOptions } from "@/features/geography/queries";
 import { deleteValue } from "@/features/indicators/actions";
+import { CsvImport } from "@/features/indicators/components/CsvImport";
 import {
   CategoriesForm,
   IndicatorForm,
@@ -30,11 +31,24 @@ export default async function IndicatorPage({ params }: PageProps<"/admin/data/[
   const access = await sectionAccess("layers");
   if (!access) return <NoAccess />;
   const { id } = await params;
-  const [data, { countries }] = await Promise.all([indicatorForEdit(id), getPickerOptions()]);
+  const [data, { countries }, atlas] = await Promise.all([
+    indicatorForEdit(id),
+    getPickerOptions(),
+    getAtlas(),
+  ]);
   if (!data) notFound();
   const { indicator, categories, values } = data;
   const name = new Map(countries.map((c) => [c.iso3, c.name]));
   const canDelete = can(access.permissions, "layers", "d");
+  const canEdit = can(access.permissions, "layers", "e");
+  // Codes and formal names the CSV import matches country cells against.
+  const facts = new Map(atlas.countries.map((c) => [c.iso3, c]));
+  const matchCountries = countries.map(({ iso3, name: countryName }) => ({
+    iso3,
+    name: countryName,
+    nameFormal: facts.get(iso3)?.nameFormal ?? null,
+    iso2: facts.get(iso3)?.iso2 ?? null,
+  }));
 
   return (
     <>
@@ -70,6 +84,34 @@ export default async function IndicatorPage({ params }: PageProps<"/admin/data/[
         </p>
         <ValueForm indicatorId={indicator.id} countries={countries} />
       </section>
+
+      {canEdit ? (
+        <section className="mt-12">
+          <h2 className="font-display mb-1 text-[18px] font-bold">Import CSV</h2>
+          <p className="mb-4 text-[13px] text-[var(--color-ink-muted)]">
+            Overwrites this layer&apos;s values from a file — for example a World Bank or Our World
+            in Data download. You choose the columns and check every country before anything is
+            saved.
+          </p>
+          <CsvImport
+            indicator={{
+              id: indicator.id,
+              label: indicator.label,
+              source: indicator.source,
+              categorical: indicator.type === "categorical",
+            }}
+            categories={categories.map(({ value, label }) => ({ value, label }))}
+            countries={matchCountries}
+            current={values.map((row) => ({
+              country_iso3: row.country_iso3,
+              value: Number(row.value),
+              year: row.year,
+              note: row.note,
+            }))}
+            canRemove={canDelete}
+          />
+        </section>
+      ) : null}
 
       <section className="mt-12">
         <h2 className="font-display mb-4 text-[18px] font-bold">Values ({values.length})</h2>

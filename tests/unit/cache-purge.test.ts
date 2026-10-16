@@ -317,6 +317,31 @@ describe("a confirmed write refreshes exactly its tags", { timeout: 30_000 }, ()
     expect(updatedTags()).toHaveLength(2);
   });
 
+  it("importValues: that layer's values — and nothing when the import changed nothing", async () => {
+    const { importValues } = await import("@/features/indicators/actions");
+    const input = {
+      indicator_id: "hdi",
+      replace: false,
+      source_note: "UNDP",
+      rows: [{ country_iso3: "CZE", value: 0.9, year: 2023, note: null }],
+    };
+    const answering = (data: object) => ({
+      ...fakeSupabase(() => ({ data: { latest_year: 2023 }, error: null })),
+      rpc: async () => ({ data, error: null }),
+    });
+
+    client.current = answering({ added: 0, changed: 0, unchanged: 1, removed: 0 });
+    expect(await importValues(input)).toMatchObject({ ok: true });
+    expect(updateTag).not.toHaveBeenCalled();
+
+    client.current = answering({ added: 1, changed: 0, unchanged: 0, removed: 0 });
+    expect(await importValues(input)).toMatchObject({
+      ok: true,
+      message: expect.stringMatching(/1 value added/),
+    });
+    expect(updatedTags()).toEqual(["indicator:hdi"]);
+  });
+
   it("deleteValue: only that indicator's values", async () => {
     client.current = written({ indicator_values: [{ country_iso3: "CZE" }] });
     const { deleteValue } = await import("@/features/indicators/actions");

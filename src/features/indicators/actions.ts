@@ -17,7 +17,7 @@ import type { ActionState } from "@/lib/action-state";
 import { adminRoutes } from "@/config/routes";
 import { tags } from "@/lib/cache/tags";
 import { iso3, slug } from "@/lib/validation/common";
-import { CategoryInput, IndicatorInput, ValueInput } from "./schema";
+import { CategoryInput, ImportInput, IndicatorInput, ValueInput } from "./schema";
 
 /**
  * An indicator's definition (label, scale, categories) is part of the map
@@ -117,11 +117,11 @@ async function latestYear(supabase: Client, id: string) {
 async function writeValue(
   supabase: Client,
   id: string,
-  write: () => PromiseLike<{ error: DbError | null }>,
+  write: () => PromiseLike<{ error: DbError | null; unchanged?: boolean }>,
 ): Promise<{ error: DbError | null }> {
   const before = await latestYear(supabase, id);
-  const { error } = await write();
-  if (error) return { error };
+  const { error, unchanged } = await write();
+  if (error || unchanged) return { error };
   refreshValues(id);
   if ((await latestYear(supabase, id)) !== before) refreshDefinitions();
   return { error: null };
@@ -163,6 +163,53 @@ export async function deleteValue(indicatorId: string, country: string): Promise
   if (error) return failed(error);
   if (!removed) return { ok: false, error: "You can't delete this value." };
   return { ok: true, message: "Value deleted." };
+}
+
+/** What import_indicator_values() did (its jsonb result). */
+interface ImportCounts {
+  added: number;
+  changed: number;
+  unchanged: number;
+  removed: number;
+}
+
+const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? "" : "s"}`;
+
+/**
+ * CSV import of a layer's values (the browser parsed the file and matched
+ * the countries). One call to import_indicator_values(): under the caller's
+ * session it upserts every row and — with `replace` — removes the countries
+ * the file lacks, in one transaction. The stored rows are manual values with
+ * the import's source (the DB stamps `is_manual` for every write by a team
+ * member), so the seed never overwrites them.
+ */
+export async function importValues(input: unknown): Promise<ActionState> {
+  const parsed = ImportInput.safeParse(input);
+  if (!parsed.success) return { ok: false, error: firstIssue(parsed.error) };
+  const session = await signedIn();
+  if (!session) return NOT_SIGNED_IN;
+  const { supabase } = session;
+  const { indicator_id, rows, replace, source_note } = parsed.data;
+  let counts: ImportCounts | null = null;
+  const { error } = await writeValue(supabase, indicator_id, async () => {
+    const result = await supabase.rpc("import_indicator_values", {
+      p_indicator: indicator_id,
+      p_rows: rows,
+      p_replace: replace,
+      p_source: source_note,
+    });
+    counts = result.data as ImportCounts | null;
+    const changes = counts ? counts.added + counts.changed + counts.removed : 0;
+    return { error: result.error, unchanged: !result.error && changes === 0 };
+  });
+  if (error) return failed(error);
+  const done: ImportCounts = counts ?? { added: 0, changed: 0, unchanged: 0, removed: 0 };
+  return {
+    ok: true,
+    message: `Import finished: ${plural(done.added, "value")} added, ${done.changed} changed, ${
+      done.removed
+    } removed, ${done.unchanged} already the same.`,
+  };
 }
 
 /** Code list of a categorical indicator (value → label and colour). */

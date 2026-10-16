@@ -10,7 +10,7 @@ import {
   slug,
   text,
 } from "@/lib/validation/common";
-import { INDICATOR_SCALES, INDICATOR_TYPES, INT4 } from "./constants";
+import { IMPORT_LIMITS, INDICATOR_SCALES, INDICATOR_TYPES, INT4 } from "./constants";
 
 /** Indicator description and scale — limits per the `indicators` table. */
 export const IndicatorInput = z
@@ -58,14 +58,44 @@ export const IndicatorInput = z
     }
   });
 
+/** A data year — the range of the `indicator_values` CHECK. */
+const year = z.number().int().min(IMPORT_LIMITS.yearMin).max(IMPORT_LIMITS.yearMax);
+
 /** Manually entered value — the DB rejects it without a source (every number has an origin). */
 export const ValueInput = z.object({
   indicator_id: slug(60),
   country_iso3: iso3,
   value: z.coerce.number({ message: "Enter a number." }).finite(),
-  year: optionalNumber(z.number().int().min(1800).max(2100)),
-  note: z.preprocess(blankToUndefined, text(120).optional()),
-  source_note: requiredText(300),
+  year: optionalNumber(year),
+  note: z.preprocess(blankToUndefined, text(IMPORT_LIMITS.note).optional()),
+  source_note: requiredText(IMPORT_LIMITS.source),
+});
+
+/**
+ * A CSV import (import_indicator_values): one row per country, at most
+ * IMPORT_LIMITS.rows, with the limits of a value entered by hand. The browser
+ * matched the countries and read the numbers; the server checks them again.
+ */
+export const ImportInput = z.object({
+  indicator_id: slug(60),
+  replace: z.boolean(),
+  source_note: requiredText(IMPORT_LIMITS.source),
+  rows: z
+    .array(
+      z.object({
+        country_iso3: iso3,
+        value: z.number().finite(),
+        year: year.nullable(),
+        note: text(IMPORT_LIMITS.note)
+          .nullable()
+          .transform((note) => note || null),
+      }),
+    )
+    .min(1, "The file has no values to import.")
+    .max(IMPORT_LIMITS.rows, `At most ${IMPORT_LIMITS.rows} countries in one import.`)
+    .refine((rows) => new Set(rows.map((row) => row.country_iso3)).size === rows.length, {
+      message: "Each country may appear only once.",
+    }),
 });
 
 export const CategoryInput = z.object({

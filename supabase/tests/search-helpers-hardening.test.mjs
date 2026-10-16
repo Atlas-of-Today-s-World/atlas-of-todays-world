@@ -525,6 +525,7 @@ const APP_RPCS = {
   move_region: ["authenticated"],
   move_visual: ["authenticated"],
   move_indicator: ["authenticated"],
+  import_indicator_values: ["authenticated"],
   move_role: ["authenticated"],
   set_author_account: ["authenticated"],
   author_account: ["authenticated"],

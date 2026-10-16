@@ -23,3 +23,19 @@ export const INDICATOR_SCALE_LABEL: Record<IndicatorScale, string> = {
 
 /** Bounds of a Postgres `integer` (`indicator_categories.value`). */
 export const INT4 = { min: -2_147_483_648, max: 2_147_483_647 } as const;
+
+/**
+ * Limits of the CSV import. `rows` (one per country) and the value limits are
+ * the ones import_indicator_values() and the `indicator_values` CHECKs hold;
+ * `bytes` and `records` only keep the browser from reading a huge file (a
+ * long-format file with every year of every country fits easily).
+ */
+export const IMPORT_LIMITS = {
+  bytes: 1_000_000,
+  records: 20_000,
+  rows: 1000,
+  note: 120,
+  source: 300,
+  yearMin: 1800,
+  yearMax: 2100,
+} as const;
