@@ -45,13 +45,3 @@ export function normalizeSectionOrder(input: unknown): SectionKey[] {
   for (const key of DEFAULT_SECTION_ORDER) seen.add(key);
   return [...seen];
 }
-
-/** True when `input` is exactly a permutation of the section keys (what the DB CHECK accepts). */
-export function isCompleteSectionOrder(input: unknown): input is SectionKey[] {
-  return (
-    Array.isArray(input) &&
-    input.length === SECTION_KEYS.length &&
-    new Set(input).size === SECTION_KEYS.length &&
-    input.every(isKey)
-  );
-}

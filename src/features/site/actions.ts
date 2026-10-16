@@ -15,8 +15,7 @@ import {
 } from "@/lib/actions";
 import type { ActionState } from "@/lib/action-state";
 import { tags } from "@/lib/cache/tags";
-import { isCompleteSectionOrder } from "@/features/portraits/section-order";
-import { SettingsInput, SocialId, SocialInput } from "./schema";
+import { PortraitSectionsInput, SettingsInput, SocialId, SocialInput } from "./schema";
 
 /**
  * Site settings and social links (Admin → Site settings). Every write goes
@@ -108,8 +107,10 @@ export async function moveSocialLink(id: string, up: boolean): Promise<ActionSta
  * or forged list is refused here rather than by the database. The `site` tag
  * refreshes every portrait, preview and full page alike.
  */
-export async function savePortraitSections(order: unknown): Promise<ActionState> {
-  if (!isCompleteSectionOrder(order)) return { ok: false, error: "Invalid section order." };
+export async function savePortraitSections(input: unknown): Promise<ActionState> {
+  const parsed = PortraitSectionsInput.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Invalid section order." };
+  const order = parsed.data;
   const session = await signedIn();
   if (!session) return NOT_SIGNED_IN;
   const denied = affected(

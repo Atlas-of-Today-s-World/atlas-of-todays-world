@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { SECTION_KEYS } from "@/features/portraits/section-order";
 import {
   checkbox,
   emailAddress,
@@ -91,3 +92,12 @@ export const SocialInput = z.object({
 });
 
 export const SocialId = uuid;
+
+/**
+ * The portrait section order (Admin → Portrait layout): exactly the five keys,
+ * each once — the same rule as the CHECK on `site_settings.portrait_sections`.
+ */
+export const PortraitSectionsInput = z
+  .array(z.enum(SECTION_KEYS))
+  .length(SECTION_KEYS.length)
+  .refine((order) => new Set(order).size === order.length, "Each section exactly once.");
