@@ -76,7 +76,7 @@ export function EntryForm({
   };
 
   return (
-    <ActionForm key={generation} ref={formRef} action={action} className="grid max-w-3xl gap-5">
+    <ActionForm key={generation} ref={formRef} action={action} className="grid gap-5">
       {backup.offer ? (
         <div
           role="status"

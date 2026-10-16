@@ -62,7 +62,7 @@ export function IndicatorForm({ indicator }: { indicator: IndicatorValues | null
   const errors = state.fieldErrors ?? {};
 
   return (
-    <ActionForm action={action} className="grid max-w-3xl gap-5">
+    <ActionForm action={action} className="grid gap-5">
       <input type="hidden" name="is_new" value={indicator ? "false" : "true"} />
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField id="label" label="Name" required errors={errors.label}>
@@ -271,7 +271,7 @@ export function CategoriesForm({ id, initial }: { id: string; initial: Category[
   const [items, setItems] = useState(initial);
   const [state, action] = useServerAction(saveCategories);
   return (
-    <ActionForm action={action} className="grid max-w-2xl gap-3">
+    <ActionForm action={action} className="grid gap-3">
       <input type="hidden" name="indicator_id" value={id} />
       <input type="hidden" name="items" value={JSON.stringify(items)} />
       {items.map((item, index) => (
@@ -362,7 +362,7 @@ export function ValueForm({
   );
   const errors = state.fieldErrors ?? {};
   return (
-    <ActionForm action={action} className="grid max-w-3xl gap-4 sm:grid-cols-2">
+    <ActionForm action={action} className="grid gap-4 sm:grid-cols-2">
       <input type="hidden" name="indicator_id" value={indicatorId} />
       <FormField id="country_iso3" label="Country" required errors={errors.country_iso3}>
         <Select id="country_iso3" name="country_iso3" required defaultValue="">

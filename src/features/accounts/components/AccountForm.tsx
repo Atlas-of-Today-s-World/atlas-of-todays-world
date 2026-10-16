@@ -49,7 +49,7 @@ export function AccountForm({
   const role = roles.find((r) => r.id === roleId);
 
   return (
-    <ActionForm action={action} className="grid max-w-3xl gap-5">
+    <ActionForm action={action} className="grid gap-5">
       <input type="hidden" name="id" value={account.id} />
       {isSelf ? (
         <p className="rounded-lg bg-amber-50 px-3 py-2 text-[13px]">

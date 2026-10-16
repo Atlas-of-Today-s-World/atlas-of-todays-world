@@ -195,7 +195,7 @@ export function RegionForm({
   const [state, action] = useServerAction(saveRegion);
   const errors = state.fieldErrors ?? {};
   return (
-    <ActionForm action={action} className="grid max-w-3xl gap-5">
+    <ActionForm action={action} className="grid gap-5">
       <input type="hidden" name="slug" value={region.slug} />
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField id="name" label="Name" required errors={errors.name}>
@@ -275,7 +275,7 @@ export function IssueForm({
   };
 
   return (
-    <ActionForm action={action} className="grid max-w-3xl gap-5">
+    <ActionForm action={action} className="grid gap-5">
       {issue ? <input type="hidden" name="original_slug" value={issue.slug} /> : null}
       <fieldset className="grid gap-2">
         <legend className="text-[12.5px] font-medium text-[var(--color-ink-soft)]">Type</legend>
@@ -474,7 +474,7 @@ export function CountryForm({
   const [state, action] = useServerAction(saveCountry);
   const errors = state.fieldErrors ?? {};
   return (
-    <ActionForm action={action} className="grid max-w-3xl gap-5">
+    <ActionForm action={action} className="grid gap-5">
       <input type="hidden" name="iso3" value={country.iso3} />
       <CountryFacts
         country={country}

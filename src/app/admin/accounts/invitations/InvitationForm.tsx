@@ -36,7 +36,7 @@ export default function InvitationForm({
   return (
     <ActionForm
       action={action}
-      className="grid max-w-xl gap-4 rounded-2xl border border-[var(--color-line)] p-5"
+      className="grid gap-4 rounded-2xl border border-[var(--color-line)] p-5"
     >
       <h2 className="font-display text-[17px] font-bold">Invite to the team</h2>
       {!isAdmin ? <AdminOnlyRolesNote /> : null}

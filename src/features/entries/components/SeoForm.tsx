@@ -46,7 +46,7 @@ export function SeoForm({
   const shownDescription = description || defaults.description;
 
   return (
-    <ActionForm action={action} className="grid max-w-3xl gap-5">
+    <ActionForm action={action} className="grid gap-5">
       <input type="hidden" name="entry_id" value={entryId} />
 
       <section aria-labelledby="seo-preview" className="rounded-xl bg-[var(--color-line)]/25 p-4">

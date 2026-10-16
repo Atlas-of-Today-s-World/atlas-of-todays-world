@@ -11,10 +11,7 @@ export function GrantForm({ accounts }: { accounts: { id: string; label: string 
   const [state, action] = useServerAction(grantMembership);
   const errors = state.fieldErrors ?? {};
   return (
-    <ActionForm
-      action={action}
-      className="grid max-w-2xl gap-4 sm:grid-cols-[1fr_12rem_auto] sm:items-end"
-    >
+    <ActionForm action={action} className="grid gap-4 sm:grid-cols-[1fr_12rem_auto] sm:items-end">
       <FormField id="user_id" label="Account" errors={errors.user_id}>
         <Select id="user_id" name="user_id" required defaultValue="">
           <option value="" disabled>

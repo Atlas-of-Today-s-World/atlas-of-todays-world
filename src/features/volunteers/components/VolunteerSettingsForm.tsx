@@ -17,10 +17,7 @@ export function VolunteerSettingsForm({
   const [state, action] = useServerAction(saveVolunteerSettings);
   const errors = state.fieldErrors ?? {};
   return (
-    <ActionForm
-      action={action}
-      className="grid max-w-2xl gap-4 sm:grid-cols-[1fr_auto] sm:items-end"
-    >
+    <ActionForm action={action} className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
       <FormField
         id="notify_email"
         label="Send new applications to"

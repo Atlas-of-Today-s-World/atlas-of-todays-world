@@ -48,7 +48,7 @@ function Range({
 export function ThemeForm({ saturation, border }: { saturation: number; border: number }) {
   const [state, action] = useServerAction(saveTheme);
   return (
-    <ActionForm action={action} className="grid max-w-xl gap-6">
+    <ActionForm action={action} className="grid gap-6">
       <Range
         id="saturation"
         label="Layer color saturation"
@@ -95,7 +95,7 @@ export function AreaForm({
   const slug = useSlug(area?.slug);
   const errors = state.fieldErrors ?? {};
   return (
-    <ActionForm action={action} className="grid max-w-3xl gap-5">
+    <ActionForm action={action} className="grid gap-5">
       {area ? <input type="hidden" name="original_slug" value={area.slug} /> : null}
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField id="name" label="Name" required errors={errors.name}>

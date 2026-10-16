@@ -19,7 +19,7 @@ export function SitePageForm({ page, published }: { page: SitePageContent; publi
   const field = (id: string, hint?: string) => describedBy(id, { hint, errors: errors[id] });
 
   return (
-    <ActionForm action={action} className="grid max-w-3xl gap-5">
+    <ActionForm action={action} className="grid gap-5">
       <input type="hidden" name="slug" value={page.slug} />
 
       <FormField id="title" label="Title" required errors={errors.title}>

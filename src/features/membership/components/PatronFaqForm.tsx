@@ -20,7 +20,7 @@ export function PatronFaqForm({ item }: { item: PatronFaqRow | null }) {
   const errors = state.fieldErrors ?? {};
 
   return (
-    <ActionForm action={action} className="grid max-w-3xl gap-5">
+    <ActionForm action={action} className="grid gap-5">
       {item ? <input type="hidden" name="id" value={item.id} /> : null}
 
       <FormField id="question" label="Question" required errors={errors.question}>

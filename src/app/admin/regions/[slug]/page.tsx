@@ -58,7 +58,7 @@ export default async function RegionEditPage({
       >
         <RegionForm region={region} />
       </ReadOnly>
-      <div className="mt-12 grid max-w-4xl gap-6">
+      <div className="mt-12 grid gap-6">
         <ReadOnly
           readOnly={!rights.text}
           reason={

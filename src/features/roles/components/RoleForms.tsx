@@ -108,7 +108,7 @@ export function SecurityForm({
   const [state, action] = useServerAction(saveSecurity);
   const errors = state.fieldErrors ?? {};
   return (
-    <ActionForm action={action} className="grid max-w-2xl gap-4">
+    <ActionForm action={action} className="grid gap-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField id="session_hours" label="Session length (hours)" errors={errors.session_hours}>
           <Input
