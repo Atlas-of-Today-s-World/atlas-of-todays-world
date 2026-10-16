@@ -14,7 +14,9 @@ import { zip, type ZipEntry } from "./zip";
  * admin list renders per request — next.config `outputFileTracingIncludes`
  * ships .claude/skills with those functions (and .vercelignore uploads it).
  */
-const ROOT = join(process.cwd(), ...SKILLS_FOLDER.split("/"));
+// Literal segments (SKILLS_FOLDER spelled out): a computed path makes Turbopack
+// trace the whole project into every function that imports this module.
+const ROOT = join(process.cwd(), ".claude", "skills");
 
 /** Claude's own rule for a skill name: lowercase letters, digits and hyphens. */
 const NAME = /^[a-z0-9][a-z0-9-]{0,63}$/;
