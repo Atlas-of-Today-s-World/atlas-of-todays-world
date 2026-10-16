@@ -38,20 +38,25 @@ export const generateMetadata = staticPageMetadata("patrons", routes.membership,
   ownImage: true,
 });
 
-/** The original site's faint world map, self-hosted (public/brand). */
-function WorldMap({ className }: { className?: string }) {
+const WORLD_MAP = "/brand/world-map.svg";
+
+/**
+ * The original site's faint world map, self-hosted (public/brand). In the hero
+ * (`lead`) it is the largest thing on the first screen, so the page's Largest
+ * Contentful Paint: fetched at once at high priority, not lazily once laid out.
+ */
+function WorldMap({ className, lead = false }: { className?: string; lead?: boolean }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element -- decorative static SVG
     <img
-      src="/brand/world-map.svg"
+      src={WORLD_MAP}
       alt=""
       aria-hidden
       width={1280}
       height={770}
-      // Decoration: never competes with the page (or a prefetch) for bandwidth.
-      loading="lazy"
+      loading={lead ? undefined : "lazy"}
       decoding="async"
-      fetchPriority="low"
+      fetchPriority={lead ? "high" : "low"}
       className={cn(
         "pointer-events-none absolute left-1/2 w-[80rem] max-w-none -translate-x-1/2 select-none",
         className,
@@ -244,7 +249,7 @@ export default async function MembershipPage({ params }: PageProps<"/[locale]/me
   return (
     <main>
       <div className="relative overflow-hidden">
-        <WorldMap className="top-0" />
+        <WorldMap lead className="top-0" />
         <div className="relative mx-auto max-w-6xl px-6 pt-12 pb-20 sm:pt-16">
           {/* Hero */}
           <section className="grid items-center gap-10 lg:grid-cols-[1fr_minmax(0,28rem)]">

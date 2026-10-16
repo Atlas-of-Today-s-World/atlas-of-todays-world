@@ -1,4 +1,5 @@
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata, Viewport } from "next";
 import { BUILDER } from "@/config/organization";
 import { Inter, Manrope } from "next/font/google";
@@ -116,6 +117,9 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         {children}
         {/* Analytics without cookies or personal data (F3); Vercel only. */}
         <Analytics />
+        {/* Real visitors' Core Web Vitals (LCP, INP, CLS), same origin and cookie-less
+            like the analytics; collected once enabled in the Vercel dashboard. */}
+        <SpeedInsights />
       </body>
     </html>
   );

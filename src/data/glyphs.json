@@ -1,0 +1,4 @@
+{
+  "fonts": ["Open Sans Regular", "Open Sans Semibold"],
+  "ranges": ["0-255", "256-511", "512-767", "8192-8447"]
+}

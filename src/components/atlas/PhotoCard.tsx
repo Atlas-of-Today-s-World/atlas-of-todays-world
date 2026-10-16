@@ -3,8 +3,9 @@ import type { ReactNode } from "react";
 import Link from "@/components/i18n/Link";
 import { cn } from "@/lib/cn";
 import { PHOTO_WIDTH } from "@/lib/images";
+import { safeUrl } from "@/lib/security/urls";
 import { kickerVariants } from "./kicker";
-import { tileStyle } from "./PhotoTile";
+import { TilePhoto, tileStyle } from "./PhotoTile";
 
 const card = cva(
   "group overflow-hidden bg-white text-[var(--color-ink)] transition focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none",
@@ -24,7 +25,7 @@ const card = cva(
   },
 );
 
-const header = cva("relative block w-full bg-[var(--color-ink)] bg-cover bg-center", {
+const header = cva("relative block w-full overflow-hidden bg-[var(--color-ink)]", {
   variants: { size: { sm: "h-24", md: "h-28", lg: "aspect-[16/10]" } },
   defaultVariants: { size: "lg" },
 });
@@ -66,6 +67,8 @@ export interface PhotoCardProps extends VariantProps<typeof card> {
   background?: string | null;
   /** Width the photo is requested at (PHOTO_WIDTH). */
   width?: number;
+  /** The page's first card, its photo the Largest Contentful Paint: loaded at once (Photo). */
+  priority?: boolean;
   /** Shown in a calm accent header when there is no photo (a source's category). */
   placeholder?: ReactNode;
   /** A soft shade over the photo, lighter on hover. */
@@ -90,6 +93,7 @@ export function PhotoCard({
   image,
   background,
   width = PHOTO_WIDTH.tile,
+  priority = false,
   placeholder,
   shade = false,
   kicker,
@@ -99,11 +103,13 @@ export function PhotoCard({
   size,
   className,
 }: PhotoCardProps) {
-  const style = tileStyle(image, background, width);
+  const style = tileStyle(background);
+  const photo = safeUrl(image);
   const content = (
     <>
-      {style || !placeholder ? (
+      {photo || style || !placeholder ? (
         <span aria-hidden className={header({ size })} style={style}>
+          <TilePhoto image={photo} width={width} priority={priority} />
           {shade ? (
             <span className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-80 transition group-hover:opacity-100" />
           ) : null}

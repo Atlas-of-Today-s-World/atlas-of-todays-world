@@ -36,6 +36,14 @@ export function miniGlobeSize(viewportWidth: number): { width: number; height: n
 /** From this width up the panel is on the right; below it, a bottom sheet (Tailwind `md`). */
 export const DESKTOP_MIN_PX = 768;
 /**
+ * `sizes` of a photo as wide as a side panel (the bottom sheet on phones), for
+ * the browser's pick from its srcset (components/atlas/Photo).
+ */
+export const PHOTO_SIZES = {
+  rail: `(min-width: ${DESKTOP_MIN_PX}px) min(${RAIL.vw}vw, ${RAIL.rem}rem), 100vw`,
+  wideRail: `(min-width: ${DESKTOP_MIN_PX}px) min(${RAIL_WIDE.vw}vw, ${RAIL_WIDE.rem}rem), 100vw`,
+} as const;
+/**
  * Mobile bottom sheet (ContentRail): the share of the window it takes when it
  * opens, so the place stays visible on the strip of globe above it (the camera
  * pads by the same share). Tapped or swiped up, it grows to nearly full height.
@@ -57,6 +65,12 @@ export const GLOBE_LABEL_MOBILE = {
   map: "max-md:bottom-24",
   sheet: "max-md:bottom-[calc(58dvh+0.75rem)]",
 } as const;
+/**
+ * The "Explore the globe" button (GlobeWake) on phones while the globe waits
+ * under an open panel: at the foot of the strip of map, just above the bottom
+ * sheet (MOBILE_SHEET.ratio of the window) — the cookie notice takes the top.
+ */
+export const GLOBE_WAKE_MOBILE = "bottom-[calc(58dvh+1.25rem)]";
 /**
  * Sticky offset right under the dark header bar of full-width pages (Header
  * `bar`, `h-16`): the reading progress and the chapters bar of a topic.

@@ -1,7 +1,4 @@
 import { getSiteSettings } from "@/features/site/queries";
-import { preload } from "react-dom";
-import { PHOTO_WIDTH, photoUrl } from "@/lib/images";
-import { safeUrl } from "@/lib/security/urls";
 import { JsonLd } from "@/components/JsonLd";
 import { getAtlas } from "@/features/geography/queries";
 import { getMessagesFor, localeFrom } from "@/lib/i18n/request";
@@ -40,10 +37,6 @@ export default async function GlobalIssuesPage({ params }: PageProps<"/[locale]/
     status: issue.contentStatus,
     places: issue.countries.map(countryName).filter(Boolean).join(", "),
   }));
-  // As on Topics: the first photo is the largest element, announce it early (LCP).
-  const firstPhoto = safeUrl(cards.find((card) => card.hero)?.hero);
-  if (firstPhoto)
-    preload(photoUrl(firstPhoto, PHOTO_WIDTH.card), { as: "image", fetchPriority: "high" });
 
   const filters = issueFilters(issues, {
     regionOf: Object.fromEntries(atlas.countries.map((c) => [c.iso3, c.region?.slug])),

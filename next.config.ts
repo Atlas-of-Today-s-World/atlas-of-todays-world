@@ -57,6 +57,11 @@ const nextConfig: NextConfig = {
           { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" },
         ],
       },
+      // Map label glyphs (scripts/fetch-glyphs.mjs): their type, as their original host sends it.
+      {
+        source: "/data/glyphs/:path*",
+        headers: [{ key: "Content-Type", value: "application/x-protobuf" }],
+      },
       // Static files the proxy no longer touches (its matcher): no MIME sniffing.
       ...["/maplibre/:path*", "/brand/:path*", "/images/:path*", "/data/:path*"].map((source) => ({
         source,

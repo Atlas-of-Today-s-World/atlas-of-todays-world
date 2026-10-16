@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import type { Map as MapLibreMap, ErrorEvent, MapSourceDataEvent } from "maplibre-gl";
 import { foldAttribution } from "./attribution";
 import { loadMapLibre } from "./maplibre";
+import { transformGlyphRequest } from "./glyphs";
 import {
   buildStyle,
   LAYERS,
@@ -17,7 +18,14 @@ import { apiFetch } from "@/lib/api-fetch";
 import { EUROPE_CENTER, globeFillZoom } from "@/lib/home-location";
 import { useMapState } from "./MapContext";
 import { useLatest } from "@/lib/use-latest";
-import { GLOBE, GLOBE_LABEL_MOBILE, isFullPage, isHome, railKind } from "@/config/layout";
+import {
+  DESKTOP_MIN_PX,
+  GLOBE,
+  GLOBE_LABEL_MOBILE,
+  isFullPage,
+  isHome,
+  railKind,
+} from "@/config/layout";
 import { cn } from "@/lib/cn";
 import { useIdleSpin } from "./useIdleSpin";
 import { useZeroPulse } from "./globe/zeroPulse";
@@ -33,7 +41,9 @@ import {
   type SelectionModeKey,
 } from "./globe/topicBadges";
 import type { GlobeColorSets, RegionLookup } from "./globe/types";
-import { useGlobeCamera } from "./globe/useGlobeCamera";
+import { initialCamera, useGlobeCamera } from "./globe/useGlobeCamera";
+import { scheduleGlobeStart, type GlobeStartGate } from "./globe/startGate";
+import { GlobeWake } from "./globe/GlobeWake";
 import { useGlobeInteractions } from "./globe/useGlobeInteractions";
 import { GlobeHoverLabel } from "./globe/GlobeHoverLabel";
 import { GlobePlaceholder } from "./globe/GlobePlaceholder";
@@ -60,8 +70,6 @@ interface Props {
   topicCounts: Record<SelectionModeKey, Record<string, number>>;
 }
 
-/** Longest wait for an idle moment before the globe starts anyway. */
-const GLOBE_START_TIMEOUT_MS = 1500;
 /** Upper bound for the globe canvas pixel ratio (see the Map options). */
 const MAX_PIXEL_RATIO = 1.5;
 
@@ -90,6 +98,13 @@ export default function AtlasGlobe({
   const [painted, setPainted] = useState(false);
   // MapLibre failed to load or the browser has no WebGL: a message replaces the globe.
   const [failed, setFailed] = useState(false);
+  // A phone with a panel open: the globe waits for the visitor (globe/startGate).
+  const [waiting, setWaiting] = useState(false);
+  // It did wait: the placeholder sphere held its place meanwhile and fades out once painted.
+  const [waited, setWaited] = useState(false);
+  // The map opened straight at the page's place (initialCamera), not over Europe.
+  const [openedAtPlace, setOpenedAtPlace] = useState(false);
+  const gateRef = useRef<GlobeStartGate | null>(null);
   // Metric layers (colours + hover values) fetched the first time each is switched on.
   const [layers, setLayers] = useState<Record<string, GlobeLayer>>({});
   // Read by the idle spin's pulse, which is created once.
@@ -102,6 +117,13 @@ export default function AtlasGlobe({
   const pathname = usePathname();
   /** Full-width page (Topics, entry): the globe waits in a small window bottom left. */
   const mini = isFullPage(pathname);
+  /** A content panel is open (on phones the bottom sheet covers most of the globe). */
+  const panelOpen = railKind(pathname) !== "none";
+  // Read when the map is created and by the start gate, both outside React's render.
+  const panelOpenRef = useLatest(panelOpen);
+  const focusRef = useLatest(focus);
+  const homeRef = useLatest(isHome(pathname));
+  const miniRef = useLatest(mini);
   /** The global issue whose panel is open: its countries are lit, the rest of the world greys out. */
   const openIssue = openIssueSlug(pathname);
   // Content status per group (marks in the pills) and the countries of regions
@@ -128,7 +150,7 @@ export default function AtlasGlobe({
 
   // On the home map (and in the corner window) the globe turns slowly until the user grabs it,
   // and now and then two topic counts pulse to invite a click.
-  const noPanel = railKind(pathname) === "none";
+  const noPanel = !panelOpen;
   const spin = useIdleSpin(mapRef, surfaceRef, ready, noPanel, () => {
     const map = mapRef.current;
     if (!map || document.hidden) return;
@@ -145,19 +167,28 @@ export default function AtlasGlobe({
     let cleanup: (() => void) | undefined;
     // MapLibre and its worker from public/ (loadMapLibre, ADR-017).
     const init = () =>
-      loadMapLibre().then(({ Map: MapLibreMap, AttributionControl }) => {
+      loadMapLibre().then(async ({ Map: MapLibreMap, AttributionControl }) => {
+        // Evaluating the library is one long task; creating the map is another.
+        // A turn of the event loop between them lets a tap or a frame through.
+        await new Promise((resolve) => setTimeout(resolve, 0));
         if (cancelled || !containerRef.current) return;
         const touch = isTouchScreen();
         const style = buildStyle(regionLabels, styleOptions);
+        // A country or region page: open right at its place (the home flies to the visitor's).
+        const atPlace = homeRef.current || miniRef.current ? {} : initialCamera(focusRef.current);
+        setOpenedAtPlace(Object.keys(atPlace).length > 0);
         const map = new MapLibreMap({
           container: containerRef.current,
           style: touch ? touchStyle(style) : style,
+          // Label glyphs we don't host come from their original source (glyphs.ts).
+          transformRequest: transformGlyphRequest,
           // Phones and tablets: no fades, a smaller tile cache (globe/touch.ts).
           ...(touch ? TOUCH_MAP_OPTIONS : {}),
           // First frame straight at the default distance, so the map doesn't first
           // appear as a tiny ball and only then fly in.
           center: EUROPE_CENTER,
           zoom: globeFillZoom(),
+          ...atPlace,
           minZoom: GLOBE.minZoom,
           maxZoom: GLOBE.maxZoom,
           // Added below in the bottom-left corner (the right one holds the donate button).
@@ -223,36 +254,33 @@ export default function AtlasGlobe({
         setFailed(true);
       });
 
-    // The globe waits for its turn: once the browser is idle (the page's text is
-    // painted first — on phones its ~300 kB library and first frames would push
-    // the Largest Contentful Paint back by seconds), and never while it is hidden
-    // (the corner window is left out on phones): it starts once it has a size.
-    let observer: ResizeObserver | undefined;
-    const whenVisible = () => {
-      if (cancelled) return;
-      const sized = () => container.clientWidth > 0 && container.clientHeight > 0;
-      if (sized()) return start();
-      observer = new ResizeObserver(() => {
-        if (!sized()) return;
-        observer?.disconnect();
-        start();
-      });
-      observer.observe(container);
-    };
-    const idle =
-      typeof window.requestIdleCallback === "function"
-        ? window.requestIdleCallback(whenVisible, { timeout: GLOBE_START_TIMEOUT_MS })
-        : window.setTimeout(whenVisible, 1);
+    // The globe waits for its turn (globe/startGate): the page loaded, an idle
+    // moment, on a phone with a panel open the visitor's first tap on the map, a size.
+    const gate = scheduleGlobeStart({
+      container,
+      deferred: () => panelOpenRef.current && window.innerWidth < DESKTOP_MIN_PX,
+      onWaiting: (value) => {
+        if (cancelled) return;
+        setWaiting(value);
+        if (value) setWaited(true);
+      },
+      start,
+    });
+    gateRef.current = gate;
     return () => {
       cancelled = true;
-      if (typeof window.cancelIdleCallback === "function") window.cancelIdleCallback(idle);
-      else window.clearTimeout(idle);
-      observer?.disconnect();
+      gate.cancel();
+      gateRef.current = null;
       cleanup?.();
     };
     // The map is deliberately not recreated – dependencies are read via refs (also in bind).
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // The panel closed (or a page without one opened): a waiting globe starts.
+  useEffect(() => {
+    if (!panelOpen) gateRef.current?.release();
+  }, [panelOpen]);
 
   // --- a metric layer, loaded when it is first switched on ---
   useEffect(() => {
@@ -319,7 +347,7 @@ export default function AtlasGlobe({
   }, [focus.activeIso3, focus.regionCountries, focus.regionStroke, pendingIso3, ready]);
 
   // --- camera flight ---
-  useGlobeCamera(mapRef, ready, focus, mini);
+  useGlobeCamera(mapRef, ready, focus, mini, openedAtPlace);
 
   return (
     <div
@@ -342,7 +370,10 @@ export default function AtlasGlobe({
     >
       <Starfield />
       <div ref={containerRef} className="h-full w-full" />
-      {isHome(pathname) && !mini && !failed ? <GlobePlaceholder faded={painted || ready} /> : null}
+      {(isHome(pathname) || waited) && !mini && !failed ? (
+        <GlobePlaceholder faded={painted || ready} />
+      ) : null}
+      {waiting ? <GlobeWake onWake={() => gateRef.current?.release()} /> : null}
       <GlobeUnavailable show={failed && !mini} />
       {mini ? <MiniGlobeLink /> : null}
       <GlobeZoomControls

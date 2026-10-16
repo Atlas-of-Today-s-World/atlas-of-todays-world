@@ -37,6 +37,27 @@ describe("photo URLs", () => {
     }
   });
 
+  it("asks Unsplash's own resizer for the width, in AVIF/WebP", () => {
+    const sized = new URL(
+      photoUrl("https://images.unsplash.com/photo-1?w=1600&h=900&q=70&fit=crop", 384),
+    );
+    expect(sized.origin).toBe("https://images.unsplash.com");
+    expect(sized.pathname).toBe("/photo-1");
+    expect(Object.fromEntries(sized.searchParams)).toEqual({
+      w: "384",
+      q: "60",
+      fit: "crop",
+      auto: "format",
+    });
+    // Only https, only Unsplash's image host.
+    expect(photoUrl("http://images.unsplash.com/photo-1?w=800", 384)).toBe(
+      "http://images.unsplash.com/photo-1?w=800",
+    );
+    expect(photoUrl("https://unsplash.com/photos/abc", 384)).toBe(
+      "https://unsplash.com/photos/abc",
+    );
+  });
+
   it("builds a srcset only for photos it can resize", () => {
     expect(photoSrcSet(WEBFLOW, [828, 1200])).toBe(
       `${photoUrl(WEBFLOW, 828)} 828w, ${photoUrl(WEBFLOW, 1200)} 1200w`,

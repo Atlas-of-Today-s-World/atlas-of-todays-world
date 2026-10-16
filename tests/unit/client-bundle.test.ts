@@ -22,6 +22,8 @@ const SRC = join(ROOT, "src");
 const EXTENSIONS = [".ts", ".tsx", ".js", ".mjs"];
 /** Packages that must never reach a client bundle. */
 const FORBIDDEN = /^(zod|@supabase\/ssr)(\/|$)/;
+/** Packages only the admin needs in the browser: the rich-text editor, uploads to Storage. */
+const ADMIN_ONLY = /^(@tiptap|@supabase\/supabase-js)(\/|$)/;
 
 /** `import … from "x"` and `export … from "x"` (clause: names, braces, `* as`, `type`). */
 const STATIC_IMPORT = /\b(?:import|export)([\w\s{},*$]*?)\bfrom\s*["']([^"']+)["']/g;
@@ -89,24 +91,33 @@ function resolveLocal(from: string, specifier: string): string | undefined {
 
 const isPackage = (specifier: string) => !specifier.startsWith(".") && !specifier.startsWith("@/");
 
-/** Every forbidden import reachable from a client module, with the path that leads to it. */
-function forbiddenChains(): { chains: string[]; reached: number } {
+/**
+ * Every package import matching `forbidden` that reaches the browser from
+ * `roots`, with the path that leads to it. Imports count once the walk has
+ * passed a "use client" module (or started at one): what server modules import
+ * stays on the server.
+ */
+function forbiddenChains(
+  roots: string[],
+  forbidden: RegExp,
+  { rootsAreClient }: { rootsAreClient: boolean },
+): { chains: string[]; reached: number } {
   const files = sourceFiles(SRC);
   const code = new Map(files.map((file) => [file, readFileSync(file, "utf8")]));
   const read = (file: string) => code.get(file) ?? readFileSync(file, "utf8");
   const chains: string[] = [];
   const seen = new Set<string>();
-  const queue = files
-    .filter((file) => hasDirective(read(file), "client"))
-    .map((file) => ({ file, path: [file] }));
+  const queue = roots.map((file) => ({ file, path: [file], client: rootsAreClient }));
 
   for (let next = queue.shift(); next; next = queue.shift()) {
     const { file, path } = next;
-    if (seen.has(file)) continue;
-    seen.add(file);
+    const client = next.client || hasDirective(read(file), "client");
+    const key = `${client}:${file}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
     for (const specifier of valueImports(read(file))) {
       if (isPackage(specifier)) {
-        if (FORBIDDEN.test(specifier)) {
+        if (client && forbidden.test(specifier)) {
           const steps = path.map((step) => relative(ROOT, step).split(sep).join("/"));
           chains.push([...steps, specifier].join(" → "));
         }
@@ -116,11 +127,17 @@ function forbiddenChains(): { chains: string[]; reached: number } {
       // JSON, CSS and other assets have no imports of their own.
       if (!target || !/\.(ts|tsx|js|mjs)$/.test(target)) continue;
       if (hasDirective(read(target), "server")) continue;
-      queue.push({ file: target, path: [...path, target] });
+      queue.push({ file: target, path: [...path, target], client });
     }
   }
   return { chains, reached: seen.size };
 }
+
+const clientModules = () =>
+  sourceFiles(SRC).filter((file) => hasDirective(readFileSync(file, "utf8"), "client"));
+
+/** The public site's routes: everything under app/[locale] (the admin lives in app/admin). */
+const publicRoutes = () => sourceFiles(join(SRC, "app", "[locale]"));
 
 describe("client bundle", () => {
   it("parses the import forms the guard relies on", () => {
@@ -140,8 +157,22 @@ describe("client bundle", () => {
   });
 
   it("no module a client component reaches imports zod or @supabase/ssr", () => {
-    const { chains, reached } = forbiddenChains();
+    const { chains, reached } = forbiddenChains(clientModules(), FORBIDDEN, {
+      rootsAreClient: true,
+    });
     // The walk really follows imports (a broken parser would pass vacuously).
+    expect(reached).toBeGreaterThan(100);
+    expect(chains).toEqual([]);
+  });
+
+  // A server component that imports a barrel ships every client component the
+  // barrel names: the admin's map builder in features/visuals/map-slot once put
+  // the rich-text editor and the Supabase client (~190 kB gzipped) on every
+  // country, region and topic page.
+  it("no public page ships the admin's editor or the Supabase client", () => {
+    const { chains, reached } = forbiddenChains(publicRoutes(), ADMIN_ONLY, {
+      rootsAreClient: false,
+    });
     expect(reached).toBeGreaterThan(100);
     expect(chains).toEqual([]);
   });

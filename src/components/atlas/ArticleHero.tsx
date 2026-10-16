@@ -4,7 +4,8 @@ import Link from "@/components/i18n/Link";
 import { Breadcrumbs, type Crumb } from "@/components/atlas/Breadcrumbs";
 import { ShareButton } from "@/components/atlas/ShareButton";
 import { PhotoCredit } from "@/components/atlas/ui";
-import { PHOTO_WIDTH, photoSrcSet, photoUrl } from "@/lib/images";
+import { Photo } from "@/components/atlas/Photo";
+import { PHOTO_WIDTH } from "@/lib/images";
 import { safeUrl } from "@/lib/security/urls";
 import { cn } from "@/lib/cn";
 import { HEX_COLOR } from "@/lib/validation/hex-color";
@@ -90,23 +91,18 @@ export function ArticleHero({
       className="relative isolate overflow-hidden bg-[var(--color-space)] text-white"
       style={heroStyle({ photo: Boolean(hero), background, wash })}
     >
-      {hero ? (
-        // A real <img>: image search indexes it and the browser finds the LCP early.
-        // Resized by /_next/image (lib/images.ts) rather than next/image: a plain
-        // full-bleed background under the header text.
-        // eslint-disable-next-line @next/next/no-img-element -- see above
-        <img
-          src={photoUrl(hero, PHOTO_WIDTH.hero)}
-          srcSet={photoSrcSet(hero, [PHOTO_WIDTH.card, 1200, PHOTO_WIDTH.hero])}
-          sizes="100vw"
-          alt={alt}
-          width={1600}
-          height={640}
-          fetchPriority="high"
-          decoding="async"
-          className="absolute inset-0 -z-10 h-full w-full object-cover"
-        />
-      ) : null}
+      {/* A real <img>: image search indexes it, and as the page's LCP it is
+          preloaded (Photo `priority`). A plain full-bleed background under the text. */}
+      <Photo
+        priority
+        src={hero}
+        alt={alt}
+        widths={[PHOTO_WIDTH.card, 1200, PHOTO_WIDTH.hero]}
+        sizes="100vw"
+        width={1600}
+        height={640}
+        className="absolute inset-0 -z-10 h-full w-full object-cover"
+      />
       <div
         aria-hidden
         className="absolute inset-0 -z-10 bg-gradient-to-t from-[var(--color-space-deep)] via-[var(--color-space-deep)]/65 to-[var(--color-space-deep)]/15"

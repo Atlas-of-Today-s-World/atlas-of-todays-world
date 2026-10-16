@@ -4,6 +4,7 @@ import type {
   LayerSpecification,
   StyleSpecification,
 } from "maplibre-gl";
+import { glyphsUrl } from "@/components/map/glyphs";
 import { COUNTRY_RANK_FILTER, GLOBE_DATA, satelliteSource } from "@/components/map/mapStyle";
 import { GLOBE_COLORS, PLAIN_MAP_COLORS, THEME_COLORS } from "@/config/palette";
 import type { MapCountryHighlight, MapView } from "./types";
@@ -141,7 +142,7 @@ export function buildVisualStyle(
   return {
     version: 8,
     projection: { type: view.projection },
-    glyphs: "https://fonts.openmaptiles.org/{fontstack}/{range}.pbf",
+    glyphs: glyphsUrl(),
     sources: {
       ...(satellite ? { satellite: { type: "raster", tileSize: 256, ...satelliteSource() } } : {}),
       countries: { type: "geojson", data: GLOBE_DATA.countries, promoteId: "iso3" },

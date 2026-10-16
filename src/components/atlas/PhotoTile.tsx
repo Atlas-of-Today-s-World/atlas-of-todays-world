@@ -3,30 +3,55 @@ import type { ComponentProps, CSSProperties, ReactNode } from "react";
 import Link from "@/components/i18n/Link";
 import { cn } from "@/lib/cn";
 import { PHOTO_WIDTH } from "@/lib/images";
-import { cssBackgroundImage } from "@/lib/security/urls";
 import { HEX_COLOR } from "@/lib/validation/hex-color";
+import { Photo } from "./Photo";
 
 /**
- * Inline background of a photo tile: the photo wins, otherwise the admin's
- * colour; nothing when neither is usable (the tile's ink colour shows). The
- * URL goes through the CSS escaping of cssBackgroundImage (resized to `width`
- * for our own photos), the colour must be a plain `#rrggbb`.
+ * Inline background of a photo tile under its photo (TilePhoto): the admin's
+ * colour, a plain `#rrggbb` only; nothing otherwise (the tile's ink colour shows).
  */
-export function tileStyle(
-  image: string | null | undefined,
-  background: string | null | undefined,
-  width: number = PHOTO_WIDTH.tile,
-): CSSProperties | undefined {
-  const photo = cssBackgroundImage(image, width);
-  const style: CSSProperties = {};
-  if (photo) style.backgroundImage = photo;
-  if (background && HEX_COLOR.test(background)) style.backgroundColor = background;
-  return photo || style.backgroundColor ? style : undefined;
+export function tileStyle(background: string | null | undefined): CSSProperties | undefined {
+  return background && HEX_COLOR.test(background) ? { backgroundColor: background } : undefined;
 }
+
+/**
+ * The photo of a tile or card: a lazy `<img>` filling its box (`relative`/`isolate`
+ * parent), resized to `width` (lib/images.ts). It was a CSS background, which the
+ * browser fetches with the page even far below the screen — a panel's dozen tiles
+ * competed with what the visitor was reading. Decorative: the title says it all.
+ */
+export function TilePhoto({
+  image,
+  width = PHOTO_WIDTH.tile,
+  priority = false,
+  className,
+}: {
+  image: string | null | undefined;
+  width?: number;
+  /** The first card of a page whose photo is its Largest Contentful Paint (Photo `priority`). */
+  priority?: boolean;
+  className?: string;
+}) {
+  return (
+    <Photo
+      src={image}
+      alt=""
+      widths={[width]}
+      sizes={`${width}px`}
+      width={width}
+      height={Math.round(width * TILE_PHOTO_RATIO)}
+      priority={priority}
+      className={cn("absolute inset-0 h-full w-full object-cover", className)}
+    />
+  );
+}
+
+/** Intrinsic aspect of a tile photo (16:10); the box crops it (`object-cover`). */
+const TILE_PHOTO_RATIO = 10 / 16;
 
 const tile = cva(
   // `isolate` keeps the shade (z -1) above the photo and below the text, so content needs no `relative`.
-  "group relative isolate flex w-full flex-col justify-end overflow-hidden rounded-xl bg-[var(--color-ink)] bg-cover bg-center text-left text-white transition focus-visible:outline-none",
+  "group relative isolate flex w-full flex-col justify-end overflow-hidden rounded-xl bg-[var(--color-ink)] text-left text-white transition focus-visible:outline-none",
   {
     variants: {
       /** Padding; the title's type scale follows it (`title` below). */
@@ -157,9 +182,11 @@ export function PhotoTile(props: PhotoTileProps) {
     ...rest
   } = props;
   const classes = cn(tile({ size, align, layout, tone, effect, active, disabled }), className);
-  const style = tileStyle(image, background, width);
+  const style = tileStyle(background);
   const content = (
     <>
+      {/* Under the shade (z -1), above the tile's colour. */}
+      <TilePhoto image={image} width={width} className="-z-20" />
       <span aria-hidden className={SHADE} />
       {badge}
       {kickerText ? <span className={kicker({ size })}>{kickerText}</span> : null}

@@ -15,7 +15,8 @@ import {
   VISUAL_LIMITS,
   type VisualKind,
 } from "@/features/visuals/constants";
-import { emptyMapSpec, MapVisualBuilder, type MapSpec } from "@/features/visuals/map-slot";
+import { emptyMapSpec, type MapSpec } from "@/features/visuals/map-slot";
+import { MapVisualBuilder } from "@/features/visuals/map-builder-slot";
 import type { CountryGroups } from "./CountryPicker";
 import type { EditableVisual, VisualOwner } from "@/features/visuals/types";
 
