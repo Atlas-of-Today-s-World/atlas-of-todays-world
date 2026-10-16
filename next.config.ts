@@ -18,6 +18,19 @@ const nextConfig: NextConfig = {
   // Usage: NEXT_DIST_DIR=.next-build npx next build
   distDir: process.env.NEXT_DIST_DIR || ".next",
   env: { MAPLIBRE_VERSION },
+  // The published Claude skills are read from .claude/skills (features/skills/queries.ts).
+  // Their pages and files are prerendered, but a page can re-render later (ISR of the
+  // shared layout's data) and the admin list renders per request: ship the files with
+  // those functions. Keys are route globs (picomatch), hence the escaped brackets.
+  outputFileTracingIncludes: Object.fromEntries(
+    [
+      "/\\[locale\\]/skills",
+      "/\\[locale\\]/skills/\\[name\\]",
+      "/skills/\\[name\\]",
+      "/skills/\\[name\\]/SKILL.md",
+      "/admin/skills",
+    ].map((route) => [route, ["./.claude/skills/**/*"]]),
+  ),
   // Old URL shapes (renamed sections, the former Czech version, old admin
   // bookmarks) — one list in src/config/redirects.ts, also shown read-only in
   // the admin next to the redirects editors manage.

@@ -25,6 +25,7 @@ export const ROUTE_PREFIX = {
 
 const P = ROUTE_PREFIX;
 const SEARCH = "/search";
+const SKILLS = "/skills";
 const ADMIN = "/admin";
 const withAnchor = (path: string, anchor?: string | null) => (anchor ? `${path}#${anchor}` : path);
 
@@ -57,6 +58,8 @@ export const routes = {
   privacy: "/privacy",
   terms: "/terms",
   accessibility: "/accessibility",
+  /** The project's Claude skills, published to read, download and load (features/skills). */
+  skills: SKILLS,
   login: "/login",
   /** The page an e-mail link leads to; its button posts the token to /auth/confirm. */
   loginConfirm: "/login/confirm",
@@ -81,6 +84,8 @@ export const routes = {
   /** An encyclopedia entry; `anchor` opens one of its subtopics. */
   topic: (slug: string, anchor?: string | null) => withAnchor(`${P.topics}/${slug}`, anchor),
   author: (slug: string) => `${P.author}/${slug}`,
+  /** One Claude skill as a page (its raw file and ZIPs: `skillFiles`). */
+  skill: (name: string) => `${SKILLS}/${name}`,
   /** A data layer's ranking; `anchor` picks one country (`/view/hdi#hun`). */
   view: (id: string, anchor?: string | null) => withAnchor(`${P.view}/${id}`, anchor),
   /**
@@ -99,6 +104,18 @@ export const apiRoutes = {
   me: "/api/me",
   /** Download of one's own data (GDPR Art. 15 and 20). */
   accountExport: "/api/account/export",
+} as const;
+
+/**
+ * Files of the published skills, served by the route handlers in app/skills
+ * (unlocalized, like every path the proxy sees as a file by its extension).
+ * A ZIP holds `<name>/SKILL.md` and the skill's other files, the layout
+ * claude.ai expects; `all` therefore can't be a skill's name.
+ */
+export const skillFiles = {
+  raw: (name: string) => `${SKILLS}/${name}/SKILL.md`,
+  zip: (name: string) => `${SKILLS}/${name}.zip`,
+  all: `${SKILLS}/all.zip`,
 } as const;
 
 /** Anchor of the volunteer editors section on the membership page. */
@@ -197,6 +214,8 @@ export const adminRoutes = {
   patrons: `${ADMIN}/patrons`,
   /** Questions of the membership FAQ by id. */
   patronFaq: editable(`${ADMIN}/patrons/faq`),
+  /** The published Claude skills and their links (read-only: skills are edited on GitHub). */
+  skills: `${ADMIN}/skills`,
 } as const;
 
 /** Is `path` the page `prefix` or anything under it (`/topics`, `/topics/x`)? */
