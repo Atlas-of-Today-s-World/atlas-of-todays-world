@@ -1,4 +1,6 @@
+import { Plus } from "lucide-react";
 import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
 import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
 import {
@@ -34,6 +36,8 @@ export interface VisualsActions {
  * subtopic — in the admin, the same everywhere: the visuals in their order
  * (DataTable: move up / down, edit, delete) and a form below to add one, or
  * to change the one picked with "Edit" (`editing`, the page's `?visual=`).
+ * Readers page through them as one carousel, so "Add map or chart" stays in
+ * reach next to the heading and while another one is open in the form.
  * Who may change what is decided by the database (can_edit_visual); `canEdit`
  * / `canRemove` only show the controls accordingly.
  */
@@ -72,19 +76,36 @@ export function VisualsEditor({
   const hrefFor = (id: string | null) => `${pageHref(id)}#${id ? `${anchor}-form` : anchor}`;
   const current = visuals.find((visual) => visual.id === editing);
   const Heading = headingLevel === 2 ? "h2" : "h3";
+  const slide = current ? visuals.indexOf(current) + 1 : visuals.length + 1;
+  const addLink = (
+    <Link
+      href={hrefFor(null)}
+      className={buttonVariants({ variant: current ? "primary" : "outline", size: "sm" })}
+    >
+      <Plus aria-hidden className="size-4" />
+      {visuals.length ? "Add another map or chart" : "Add map or chart"}
+    </Link>
+  );
   return (
     <section
       id={anchor}
       aria-labelledby={`${anchor}-title`}
       className="scroll-mt-4 rounded-2xl border border-[var(--color-line)] p-5"
     >
-      <Heading id={`${anchor}-title`} className="font-display text-[18px] font-bold">
-        {title}
-      </Heading>
-      <p className="mt-1 text-[13px] text-[var(--color-ink-muted)]">
-        {lead ??
-          "Interactive charts and maps shown as a carousel, one at a time, in this order. Paste a chart's embed code or link from Datawrapper, Flourish, Our World in Data or the World Bank data site; only the chart's address is kept."}
-      </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <Heading id={`${anchor}-title`} className="font-display text-[18px] font-bold">
+            {title}
+          </Heading>
+          <p className="mt-1 text-[13px] text-[var(--color-ink-muted)]">
+            {lead ??
+              "Interactive charts and maps shown as a carousel, one at a time, in this order. Paste a chart's embed code or link from Datawrapper, Flourish, Our World in Data or the World Bank data site; only the chart's address is kept."}{" "}
+            Add as many as you like — each one is a slide readers page through with arrows and dots.
+          </p>
+        </div>
+        {/* Only when the form isn't already the add form (it is right below then). */}
+        {canEdit && current ? addLink : null}
+      </div>
 
       <div className="mt-4">
         <DataTable
@@ -96,7 +117,7 @@ export function VisualsEditor({
           stats={optionStats("kind", KIND_OPTIONS)}
           maxRowActions={(canEdit ? 3 : 0) + (canRemove ? 1 : 0)}
           columns={[
-            { key: "order", label: "#", kind: "number", sortable: true, width: "56px" },
+            { key: "order", label: "Slide", kind: "number", sortable: true, width: "72px" },
             {
               key: "title",
               label: "Title",
@@ -160,16 +181,13 @@ export function VisualsEditor({
         >
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <Heading className="text-[14px] font-semibold">
-              {current ? `Edit “${current.title}”` : "Add a map or chart"}
+              {current
+                ? `Edit “${current.title}” — slide ${slide} of ${visuals.length}`
+                : visuals.length
+                  ? `Add another map or chart — slide ${slide}`
+                  : "Add a map or chart"}
             </Heading>
-            {current ? (
-              <Link
-                href={hrefFor(null)}
-                className="inline-flex min-h-(--touch-min) items-center text-[13px] text-[var(--color-link)] underline"
-              >
-                Done — add another instead
-              </Link>
-            ) : null}
+            {current ? addLink : null}
           </div>
           <VisualForm
             // A new form for each visual (and back to an empty one).
