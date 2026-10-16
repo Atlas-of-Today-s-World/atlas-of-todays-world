@@ -7,9 +7,10 @@
 /playwright-report/
 /supabase/
 # Z .claude/ jen skills: build z nich dělá veřejné stránky /skills (src/features/skills),
-# zbytek (nastavení, worktrees) na Vercel nepatří.
+# zbytek (nastavení, worktrees) na Vercel nepatří. Výjimka bez koncového lomítka:
+# Vercel CLI testuje složky bez něj a "!/.claude/skills/" by je nechal venku.
 /.claude/*
-!/.claude/skills/
+!/.claude/skills
 /.github/
 /*.md
 /playwright*.config.ts
