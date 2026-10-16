@@ -39,9 +39,6 @@
   --color-gold-light: #ffe8a8;
   --color-gold-deep: #a8740f;
   --color-gold-edge: #7c520a;
-  /* Red of the "Support the Atlas" button (DonateCoin); white text stays >= 4.5:1. */
-  --color-support: #dc2626;
-  --color-support-strong: #b91c1c;
   --color-live: #22c55e;
   /* Status tones (badges, KPIs, errors) — single source instead of amber/green/red classes. */
   --color-success: #166534;
@@ -213,17 +210,6 @@ body {
 .glass-hover:hover {
   background: rgba(30, 39, 64, 0.82);
   border-color: rgba(255, 255, 255, 0.28);
-}
-
-/* The red "Support the Atlas" pill (DonateCoin) over the glass look. */
-.glass.support-pill {
-  background: var(--color-support);
-  border-color: rgba(255, 255, 255, 0.24);
-}
-
-.glass.support-pill:hover {
-  background: var(--color-support-strong);
-  border-color: rgba(255, 255, 255, 0.4);
 }
 
 /*
