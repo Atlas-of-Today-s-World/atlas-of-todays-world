@@ -9,8 +9,11 @@ import { safeUrl } from "@/lib/security/urls";
 import { cn } from "@/lib/cn";
 import { HEX_COLOR } from "@/lib/validation/hex-color";
 
-/** Content column of a full-width page (FullPage) under its photo header. */
-export const ARTICLE_BODY = "mx-auto max-w-6xl px-4 pt-6 pb-12 sm:px-8";
+/**
+ * Content column of a full-width page (FullPage) under its photo header; its
+ * left padding keeps the text clear of the globe window (pl-clear-globe-*).
+ */
+export const ARTICLE_BODY = "mx-auto max-w-6xl px-4 pt-6 pb-12 pl-clear-globe-6xl sm:pr-8";
 
 /**
  * Sections drawn for the side panel (Portrait sections, Timeline, FAQ) bring
@@ -108,7 +111,7 @@ export function ArticleHero({
         aria-hidden
         className="absolute inset-0 -z-10 bg-gradient-to-t from-[var(--color-space-deep)] via-[var(--color-space-deep)]/65 to-[var(--color-space-deep)]/15"
       />
-      <div className="mx-auto flex min-h-72 max-w-6xl flex-col justify-end px-4 pt-16 pb-10 sm:min-h-96 sm:px-8">
+      <div className="pl-clear-globe-6xl mx-auto flex min-h-72 max-w-6xl flex-col justify-end px-4 pt-16 pb-10 sm:min-h-96 sm:pr-8">
         {/* The way back up (the title follows); sharing at the right, above the title too. */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Breadcrumbs tone="dark" label={crumbLabel} items={crumbs} />

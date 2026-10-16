@@ -93,7 +93,7 @@ export function TopicsBrowser({
       .sort(([, a], [, b]) => a.localeCompare(b));
 
   return (
-    <div className="mx-auto max-w-7xl px-4 pt-12 pb-6 sm:px-8 sm:pt-16">
+    <div className="pl-clear-globe-7xl mx-auto max-w-7xl px-4 pt-12 pb-6 sm:pt-16 sm:pr-8">
       <FilterHeader
         id="topics"
         title={title}

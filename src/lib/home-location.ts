@@ -10,7 +10,7 @@
  *   4. if nothing matches, the center of Europe.
  */
 
-import { MINI_GLOBE } from "@/config/layout";
+import { miniGlobeSize } from "@/config/layout";
 import { apiFetch } from "./api-fetch";
 
 /** Center of Europe – the default view when the location can't be determined. */
@@ -54,7 +54,7 @@ export const GLOBE_FILL_SIZE_CSS = `clamp(${diameterAt(FILL_ZOOM.min)}px, min(${
  * is lowered while the window is shown.
  */
 export function miniGlobeZoom(viewportWidth: number): number {
-  const size = viewportWidth >= MINI_GLOBE.desktopMinPx ? MINI_GLOBE.desktop : MINI_GLOBE.mobile;
+  const size = miniGlobeSize(viewportWidth);
   return zoomForDiameter(Math.min(size.width, size.height) * 0.9);
 }
 

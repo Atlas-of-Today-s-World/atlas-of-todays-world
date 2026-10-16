@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { CookieNotice } from "@/components/CookieNotice";
 import { TabReminder } from "@/components/TabReminder";
+import { ConversionTracker } from "@/features/conversions/components/ConversionTracker";
 import { LocaleProvider } from "@/components/i18n/LocaleProvider";
 import { JsonLd } from "@/components/JsonLd";
 import { isLocale, LOCALES, localePath } from "@/lib/i18n/config";
@@ -56,6 +57,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
         {children}
         <CookieNotice />
         <TabReminder />
+        <ConversionTracker />
       </div>
     </LocaleProvider>
   );

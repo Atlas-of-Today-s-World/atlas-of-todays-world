@@ -532,6 +532,7 @@ const APP_RPCS = {
   replace_timeline: ["authenticated"],
   submit_volunteer_application: ["service_role"],
   hit_rate_limit: ["service_role"],
+  record_event: ["service_role"],
   my_personal_data: ["authenticated"],
   delete_my_personal_data: ["authenticated"],
   unreferenced_uploads: ["service_role"],

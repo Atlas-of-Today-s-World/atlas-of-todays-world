@@ -12,6 +12,7 @@ import { cn } from "@/lib/cn";
 import { TurningCoin } from "./DonateCoin";
 import { formatEuro } from "@/lib/format";
 import { routes } from "@/config/routes";
+import { track } from "@/features/conversions/track";
 
 /** Tab order as on the original page: One-time | Monthly. */
 const PERIOD_ORDER: readonly Period[] = ["one-time", "monthly"];
@@ -124,13 +125,16 @@ export function DonationCard({
       noValidate
       onSubmit={(event) => {
         const field = event.currentTarget.elements.namedItem("other");
-        if (amount !== OTHER || !(field instanceof HTMLInputElement)) return;
-        const invalid = otherInvalid(field.value);
-        setOtherError(invalid);
+        const invalid =
+          amount === OTHER && field instanceof HTMLInputElement && otherInvalid(field.value);
+        if (amount === OTHER) setOtherError(invalid);
         if (invalid) {
           event.preventDefault();
           field.focus();
+          return;
         }
+        // Counted only when the form really goes to the checkout.
+        track("donate_click");
       }}
       aria-labelledby={`${id}-intro`}
       className={cn(

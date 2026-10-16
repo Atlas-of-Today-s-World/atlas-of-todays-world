@@ -25,6 +25,10 @@ describe("layout tokens", () => {
     expect(css).toContain(`--mini-globe-width: ${MINI_GLOBE.mobile.width}px;`);
     expect(css).toContain(`--mini-globe-height: ${MINI_GLOBE.mobile.height}px;`);
     expect(css).toContain(`@media (min-width: ${MINI_GLOBE.desktopMinPx}px)`);
+    expect(css).toContain(`--mini-globe-width: ${MINI_GLOBE.compact.width}px;`);
+    expect(css).toContain(`--mini-globe-height: ${MINI_GLOBE.compact.height}px;`);
+    expect(css).toContain(`@media (min-width: ${MINI_GLOBE.windowMinPx}px)`);
+    expect(css).toContain(`--breakpoint-3xl: ${MINI_GLOBE.windowMinPx / 16}rem;`);
     expect(css).toContain(`--mini-globe-width: ${MINI_GLOBE.desktop.width}px;`);
     expect(css).toContain(`--mini-globe-height: ${MINI_GLOBE.desktop.height}px;`);
   });
@@ -36,6 +40,8 @@ describe("layout tokens", () => {
     expect(GLOBE_LABEL_MOBILE.sheet).toContain(`bottom-[calc(${sheet}+`);
     // The cookie notice leaves the sheet below the same width as Tailwind `md`.
     expect(css).toContain(`@media (width < ${DESKTOP_MIN_PX / 16}rem)`);
+    // So do the map credits (i), which ride just above the sheet.
+    expect(css).toContain(`.maplibregl-ctrl-bottom-left {\n    bottom: calc(${sheet} + 0.25rem);`);
   });
 
   it("the cookie notice never covers the bottom sheet's handle and close button", () => {

@@ -209,6 +209,33 @@ export type Database = {
           },
         ]
       }
+      conversion_events_daily: {
+        Row: {
+          count: number
+          day: string
+          event: string
+          path_group: string
+          referrer_group: string
+          updated_at: string
+        }
+        Insert: {
+          count?: number
+          day?: string
+          event: string
+          path_group: string
+          referrer_group: string
+          updated_at?: string
+        }
+        Update: {
+          count?: number
+          day?: string
+          event?: string
+          path_group?: string
+          referrer_group?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       countries: {
         Row: {
           bbox: number[] | null
@@ -2985,6 +3012,10 @@ export type Database = {
       prune_entry_revisions: { Args: never; Returns: number }
       publish_due_entries: { Args: never; Returns: number }
       purge_audit_log: { Args: never; Returns: number }
+      record_event: {
+        Args: { event: string; path: string; ref: string }
+        Returns: undefined
+      }
       apply_topic_template: {
         Args: { p_entry: string; p_remove_missing?: boolean; p_template: string }
         Returns: undefined

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
+import { track } from "@/features/conversions/track";
 
 /** How long the "Link copied" note stays next to the button. */
 const FEEDBACK_MS = 2_000;
@@ -54,6 +55,7 @@ export function ShareButton({
   };
 
   const share = async () => {
+    track("share_click");
     const url = pageUrl(hash);
     if (typeof navigator.share === "function") {
       try {

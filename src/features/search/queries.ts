@@ -5,6 +5,7 @@ import { getEntries } from "@/features/entries/queries";
 import { getAtlas } from "@/features/geography/queries";
 import { rowsOf } from "@/lib/db/result";
 import { isSearchable } from "@/lib/search-query";
+import { groupSearchHits } from "@/lib/search-kind";
 import { createPublicClient } from "@/lib/supabase/public";
 import type { SearchHit, SearchKind } from "./types";
 
@@ -17,6 +18,9 @@ import type { SearchHit, SearchKind } from "./types";
 /** How often one address may search; the /search page and /api/search share the limit. */
 export const SEARCH_LIMIT = { limit: 60, windowSeconds: 60 };
 
+/** Most hits the database ranks for one search (its own cap in search()). */
+const RANKED_HITS = 40;
+
 /**
  * Full-text search across the whole Atlas via the Postgres RPC `search()` (ADR-005):
  * the index is always current and shared by all instances. The snippet and map
@@ -28,11 +32,14 @@ export async function search(query: string, limit = 12): Promise<SearchHit[]> {
   if (!isSearchable(trimmed)) return [];
 
   const [result, atlas, entries] = await Promise.all([
-    createPublicClient().rpc("search", { p_text: trimmed, p_limit: limit }),
+    // Always the database's full ranked list: the places among it are moved to
+    // the top before the cut, so a short list (the header search) never drops
+    // the countries that a longer one (the /search page) shows.
+    createPublicClient().rpc("search", { p_text: trimmed, p_limit: RANKED_HITS }),
     getAtlas(),
     getEntries(),
   ]);
-  const hits = rowsOf(result, "search");
+  const hits = groupSearchHits(rowsOf(result, "search")).slice(0, limit);
   const entryBySlug = new Map(entries.map((entry) => [entry.slug, entry]));
 
   return hits.map((row) => {
