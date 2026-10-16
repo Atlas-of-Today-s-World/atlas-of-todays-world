@@ -59,7 +59,14 @@ describe("layout tokens", () => {
 
   it("detects the panel kind from the path", () => {
     expect(railKind("/")).toBe("none");
-    expect(railKind("/country/ukraine")).toBe("normal");
+    // Every place preview is a wide panel (2026-10-16), its full view a full page.
+    expect(railKind("/country/ukraine")).toBe("wide");
+    expect(railKind("/country/ukraine/full-page")).toBe("none");
+    expect(isFullPage("/country/ukraine/full-page")).toBe(true);
+    expect(isFullPage("/en/region/x/full-page")).toBe(true);
+    // The old /region/x/full is a cached redirect to the region, never the full view.
+    expect(isFullPage("/region/x/full")).toBe(false);
+    expect(isFullPage("/countries/full-page")).toBe(false);
     expect(railKind("/region/sub-saharan-africa")).toBe("wide");
     expect(railKind("/news/sahel-coup-belt")).toBe("wide");
     // A global issue is a full-width page like a topic (2026-10-16).
@@ -71,10 +78,13 @@ describe("layout tokens", () => {
 
   it("classifies the same paths as the former route regexes", () => {
     // Before config/routes.ts: wide = /^\/(news|region|global-issue)\//, full = /^\/topics(\/|$)/.
-    const wide = /^\/(news|region)\//;
+    // Since 2026-10-16 every place preview (country, region, issue) is wide.
+    const wide = /^\/(news|region|country|global-issue)\//;
     // Since then also the Global issues overview (/global-issues) and, since
     // 2026-10-16, each global issue (/global-issue/x) — no longer a wide panel.
-    const full = /^\/(topics|global-issues?)(\/|$)/;
+    // And a place's full view (…/full-page) is a full page.
+    const full =
+      /^\/(topics|global-issues?)(\/|$)|^\/(country|region|global-issue)\/[^/]+\/full-page$/;
     const paths = [
       "/",
       "/news",
@@ -84,6 +94,9 @@ describe("layout tokens", () => {
       "/region",
       "/region/x",
       "/region/x/full",
+      "/region/x/full-page",
+      "/country/ukraine/full-page",
+      "/global-issue/sahel/full-page",
       "/regions/x",
       "/global-issue",
       "/global-issue/sahel",

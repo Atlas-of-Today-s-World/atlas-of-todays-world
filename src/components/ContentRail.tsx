@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocalizedRouter } from "@/components/i18n/useLocalizedRouter";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Maximize2, X } from "lucide-react";
 import { MOBILE_SHEET } from "@/config/layout";
 import { cn } from "@/lib/cn";
 import { belongsToField } from "@/lib/keyboard";
@@ -31,11 +31,17 @@ export default function ContentRail({
    */
   closeHref = "/",
   wide = false,
+  fullPage,
   placeholder = false,
 }: {
   children: ReactNode;
   closeHref?: string;
   wide?: boolean;
+  /**
+   * The same place full width (`routes.countryFull`…): a preview in the panel
+   * gets a "Full page view" button at its top.
+   */
+  fullPage?: string;
   /**
    * Skeleton from loading.tsx: no `id="content"` and `data-print`. While streaming,
    * the skeleton briefly sits in the DOM next to the real panel (hidden until revealed) —
@@ -157,6 +163,19 @@ export default function ContentRail({
           expanded ? MOBILE_SHEET.expandedScrollClassName : MOBILE_SHEET.scrollClassName,
         )}
       >
+        {fullPage ? (
+          // Its own row at the top (not floating): it must never cover a
+          // breadcrumb or a title. The close button keeps the right corner.
+          <div data-print="hide" className="flex px-5 pt-3 pr-16 md:pt-3">
+            <Link
+              href={fullPage}
+              className="inline-flex min-h-(--touch-min) items-center gap-2 rounded-full border border-[var(--color-line)] bg-white px-4 text-[13px] font-medium text-[var(--color-ink)] transition hover:border-[var(--color-ink-muted)] hover:bg-[var(--color-paper)] focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none active:scale-95"
+            >
+              <Maximize2 size={15} strokeWidth={1.8} aria-hidden />
+              {t.panel.fullPage}
+            </Link>
+          </div>
+        ) : null}
         {children}
       </div>
     </aside>

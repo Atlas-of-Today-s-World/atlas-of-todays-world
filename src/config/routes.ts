@@ -28,6 +28,13 @@ const SEARCH = "/search";
 const SKILLS = "/skills";
 const ADMIN = "/admin";
 const withAnchor = (path: string, anchor?: string | null) => (anchor ? `${path}#${anchor}` : path);
+/**
+ * Last segment of a place's full-width page: a globe click opens the wide
+ * preview in the side panel (`/country/<slug>`), its "Full page view" button
+ * leads here (`/country/<slug>/full-page`). Not `/full`: `/region/<slug>/full` is a cached 308 to the region (redirects.ts).
+ */
+export const FULL_VIEW_SEGMENT = "full-page";
+const fullView = (path: string) => `${path}/${FULL_VIEW_SEGMENT}`;
 
 export const routes = {
   home: "/",
@@ -77,9 +84,15 @@ export const routes = {
   admin: ADMIN,
 
   country: (slug: string) => `${P.country}/${slug}`,
+  /** A country's page full width (its panel's "Full page view"). */
+  countryFull: (slug: string) => fullView(`${P.country}/${slug}`),
   region: (slug: string) => `${P.region}/${slug}`,
+  /** A region's page full width. */
+  regionFull: (slug: string) => fullView(`${P.region}/${slug}`),
   /** A global issue's portrait. */
   issue: (slug: string) => `${P.issue}/${slug}`,
+  /** A global issue's page full width. */
+  issueFull: (slug: string) => fullView(`${P.issue}/${slug}`),
   news: (slug: string) => `${P.news}/${slug}`,
   /** An encyclopedia entry; `anchor` opens one of its subtopics. */
   topic: (slug: string, anchor?: string | null) => withAnchor(`${P.topics}/${slug}`, anchor),

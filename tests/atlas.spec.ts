@@ -94,6 +94,25 @@ test.describe("panel s obsahem", () => {
     await hasTouchTarget(page, '#content button:has-text("Share")');
   });
 
+  test("country preview is wide and opens its full page view", async ({ page, isMobile }) => {
+    await page.goto("/country/ukraine");
+    const panel = page.locator("#content");
+    if (!isMobile) {
+      // The wide panel of every place preview (--rail-width-wide), not the narrow one.
+      const width = await panel.evaluate((node) => node.getBoundingClientRect().width);
+      const wide = await page.evaluate(() =>
+        getComputedStyle(document.documentElement).getPropertyValue("--rail-width-wide"),
+      );
+      expect(wide).not.toBe("");
+      expect(width).toBeGreaterThan(500);
+    }
+    await hasTouchTarget(page, '#content a:has-text("Full page view")');
+
+    await panel.getByRole("link", { name: "Full page view" }).click();
+    await expect(page).toHaveURL(/\/country\/ukraine\/full-page$/);
+    await expect(page.getByRole("heading", { level: 1, name: "Ukraine" })).toBeVisible();
+  });
+
   test("panel closes with the Esc key", async ({ page }) => {
     await page.goto("/country/ukraine");
     // Only hydrated React handles the key, so wait for the panel to come alive
