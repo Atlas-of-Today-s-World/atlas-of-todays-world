@@ -1774,7 +1774,6 @@ export type Database = {
           center_lat: number
           center_lon: number
           content_progress: string
-          content_status: string
           fill: string
           hero_credit: string
           hero_url: string | null
@@ -1796,7 +1795,6 @@ export type Database = {
           center_lat: number
           center_lon: number
           content_progress?: string
-          content_status?: string
           fill: string
           hero_credit?: string
           hero_url?: string | null
@@ -1818,7 +1816,6 @@ export type Database = {
           center_lat?: number
           center_lon?: number
           content_progress?: string
-          content_status?: string
           fill?: string
           hero_credit?: string
           hero_url?: string | null

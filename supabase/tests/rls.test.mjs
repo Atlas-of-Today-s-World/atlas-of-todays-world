@@ -2385,34 +2385,9 @@ test("staff names: not for a blocked team member", async () => {
   assert.equal((await as(id.blocked, () => one("select staff_name($1) as n", [id.admin]))).n, null);
 });
 
-test("content status: everyone reads it, only the region / issue editors change it", async () => {
-  // The migration's starting statuses touch only existing slugs; other regions start untouched.
-  assert.equal(
-    (await as(null, () => one("select content_status from regions where slug = 'east-asia'")))
-      .content_status,
-    "none",
-  );
-
-  // Atlas regions: the `regions` e right (data editor), not a publisher with view only.
-  const changed = await as(id.dataEditor, () =>
-    q(`update regions set content_status = 'ready' where slug = 'east-asia' returning slug`),
-  );
-  assert.equal(changed.length, 1);
-  const blocked = await as(id.pubA, () =>
-    q(`update regions set content_status = 'none' where slug = 'east-asia' returning slug`),
-  );
-  assert.equal(blocked.length, 0);
-  await as(id.dataEditor, () =>
-    refused(
-      q(`update regions set content_status = 'done' where slug = 'east-asia'`),
-      /content_status/,
-    ),
-  );
-  assert.equal(
-    (await as(null, () => one("select content_status from regions where slug = 'east-asia'")))
-      .content_status,
-    "ready",
-  );
+test("global issue content status: everyone reads it, only the issue editors change it", async () => {
+  // Regions use content_progress instead (20261017000100); their content_status is gone.
+  await refused(q("select content_status from regions limit 1"), /content_status/);
 
   // Global issues: the `specials` e right; a new one starts untouched.
   await as(id.dataEditor, () =>
@@ -2457,6 +2432,14 @@ test("region content progress: planned until the region editors mark it complete
     q(`update regions set content_progress = 'completed' where slug = 'east-asia' returning slug`),
   );
   assert.equal(changed.length, 1);
+  // The audit trigger watches content_progress (20261017000200).
+  const audit = await one(
+    "select actor, target, detail from audit_log where action = 'regions.update' order by id desc limit 1",
+  );
+  assert.equal(audit.actor, id.dataEditor);
+  assert.equal(audit.target, "east-asia");
+  assert.equal(audit.detail.new.content_progress, "completed");
+  assert.equal("content_status" in audit.detail.new, false);
   const blocked = await as(id.pubA, () =>
     q(`update regions set content_progress = 'planned' where slug = 'east-asia' returning slug`),
   );
