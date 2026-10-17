@@ -60,7 +60,7 @@ test.describe("accounts and invitations", () => {
     const nav = page.getByRole("navigation", { name: "Administration" });
     await expect(page.getByText(`${email} · Article writer`)).toBeVisible();
     // The menu lists only sections the role has the "v" (view) right for.
-    await expect(nav.getByRole("link", { name: "Topics & news" })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "Entries" })).toBeVisible();
     await expect(nav.getByRole("link", { name: "Accounts & invitations" })).toHaveCount(0);
     await expect(nav.getByRole("link", { name: "Roles & permissions" })).toHaveCount(0);
 

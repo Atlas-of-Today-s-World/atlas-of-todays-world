@@ -20,8 +20,6 @@ const REQUIRED = [
   "/[locale]/country/[slug]",
   "/[locale]/region/[slug]",
   "/[locale]/global-issue/[slug]",
-  "/[locale]/news",
-  "/[locale]/news/[slug]",
   "/[locale]/view/[indicator]",
   "/[locale]/skills",
   "/[locale]/skills/[name]",

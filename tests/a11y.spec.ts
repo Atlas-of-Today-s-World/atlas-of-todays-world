@@ -14,19 +14,19 @@ const PAGES = [
   "/global-issue/russia-ukraine-war",
   "/global-issues",
   "/view/hdi",
-  "/news",
+  "/entries",
   "/about",
   "/privacy",
   "/accessibility",
   "/login",
-  "/news/nordic-model-under-strain",
+  "/entries/migrant-smuggling",
   "/search?q=Japan",
   "/membership",
   "/membership/checkout?period=monthly&amount=10",
   "/membership/thank-you?period=one-time&amount=50",
   "/membership/manage",
   // The 404 page both inside and outside the map.
-  "/news/this-does-not-exist",
+  "/country/this-does-not-exist",
   "/this-page-does-not-exist",
 ];
 
@@ -48,7 +48,7 @@ async function seriousViolations(page: Page) {
 }
 
 test("accessibility: quiz on the 404 page during a game", async ({ page }) => {
-  await page.goto("/news/this-does-not-exist");
+  await page.goto("/country/this-does-not-exist");
   await page.getByRole("button", { name: "Play the outline quiz" }).click();
   await expect(page.getByRole("heading", { name: "Which country is this?" })).toBeVisible();
   await page.getByRole("group", { name: "Choices" }).getByRole("button").first().click();

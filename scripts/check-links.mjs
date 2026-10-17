@@ -111,7 +111,7 @@ async function sitemapLocs(path) {
 }
 
 async function main() {
-  // /sitemap.xml is an index of child sitemaps (pages, regions, countries, news…).
+  // /sitemap.xml is an index of child sitemaps (pages, regions, countries, entries…).
   const root = await sitemapLocs("/sitemap.xml");
   const children = root.index
     ? await Promise.all(root.locs.map((loc) => sitemapLocs(new URL(loc).pathname)))

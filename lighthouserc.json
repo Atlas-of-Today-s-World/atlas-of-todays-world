@@ -5,7 +5,7 @@
         "http://localhost:3000/",
         "http://localhost:3000/country/ukraine",
         "http://localhost:3000/region/eastern-europe-central-asia",
-        "http://localhost:3000/news"
+        "http://localhost:3000/entries"
       ],
       "numberOfRuns": 2,
       "settings": {

@@ -67,7 +67,7 @@ async function main() {
   process.stdout.write(`Checks against ${BASE}\n\n`);
 
   process.stdout.write("Map and hub pages\n");
-  for (const path of ["/", "/news", "/about", "/membership", "/search"]) {
+  for (const path of ["/", "/entries", "/about", "/membership", "/search"]) {
     await check(`${path} responds`, async () => {
       const { status } = await get(path);
       assert(status === 200, `expected 200, got ${status}`);
@@ -169,14 +169,20 @@ async function main() {
   });
 
   process.stdout.write("\nContent and relations\n");
-  await check("news item links country, region and global issue", async () => {
-    const text = visible((await get("/news/sahel-coup-belt")).body);
-    assert(text.includes("Sub-Saharan Africa"), "missing region");
-    assert(text.includes("Food Insecurity"), "missing global issue");
+  await check("entry links its global issue", async () => {
+    const text = visible((await get("/entries/migrant-smuggling")).body);
+    assert(text.includes("Migrant Smuggling"), "missing title");
+    assert(/Migration Routes/i.test(text), "missing global issue");
+  });
+
+  await check("removed news redirects to entries", async () => {
+    const { status, headers } = await get("/news/sahel-coup-belt");
+    assert(status === 308, `/news/… returned ${status}`);
+    assert(headers.get("location")?.endsWith("/entries"), `wrong target: ${headers.get("location")}`);
   });
 
   await check("content contains no dangerous HTML", async () => {
-    const { body } = await get("/news/putins-regime");
+    const { body } = await get("/entries/migrant-smuggling");
     // Markdown goes through sanitize-html; this guards that it still holds after
     // future rendering changes.
     for (const pattern of ["onerror=", "onclick=", "javascript:", "<iframe"]) {
@@ -199,7 +205,7 @@ async function main() {
     const { status, body } = await get("/sitemap.xml");
     assert(status === 200, `status ${status}`);
     assert(body.includes("<sitemapindex"), "not a sitemap index");
-    for (const name of ["pages", "regions", "countries", "data", "news"]) {
+    for (const name of ["pages", "regions", "countries", "data", "entries"]) {
       assert(body.includes(`/sitemaps/${name}.xml`), `missing ${name} sitemap`);
     }
   });
@@ -248,7 +254,7 @@ async function main() {
     ["/atom.xml", "application/atom+xml", "<feed xmlns"],
     ["/llms.txt", "text/plain", "# Atlas of Today's World"],
     ["/llms-full.txt", "text/plain", "# Country data"],
-    ["/news/sahel-coup-belt.md", "text/markdown", "# The Sahel"],
+    ["/entries/migrant-smuggling.md", "text/markdown", "# Migrant Smuggling"],
   ]) {
     await check(`${path} is ${type}`, async () => {
       const { status, headers, body } = await get(path);
@@ -273,10 +279,10 @@ async function main() {
     );
   });
 
-  await check("news article is a NewsArticle with breadcrumbs", async () => {
-    const nodes = jsonLd((await get("/news/sahel-coup-belt")).body);
-    const article = nodes.find((node) => node["@type"] === "NewsArticle");
-    assert(article?.datePublished && article?.publisher, "incomplete NewsArticle");
+  await check("entry is an Article with breadcrumbs", async () => {
+    const nodes = jsonLd((await get("/entries/migrant-smuggling")).body);
+    const article = nodes.find((node) => node["@type"] === "Article");
+    assert(article?.datePublished && article?.publisher, "incomplete Article");
     assert(
       nodes.some((node) => node["@type"] === "BreadcrumbList"),
       "missing BreadcrumbList",

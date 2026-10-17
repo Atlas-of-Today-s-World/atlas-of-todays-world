@@ -123,7 +123,7 @@ test("dossier page: chapter and learn-more tiles open their panels", async ({ pa
 
 test("Topics: from the list to a dossier and back to the Atlas", async ({ page, isMobile }) => {
   await page.goto("/entries");
-  await expect(page.getByRole("heading", { level: 1, name: "Topics" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Entries" })).toBeVisible();
   // The globe waits in its window bottom left and leads back to the map; on
   // phones the window stays out of the way (the header has "Back to Atlas").
   const globeWindow = page.locator("[data-globe-window]");
@@ -215,7 +215,7 @@ test("Previous / Next keep the keyboard focus in the new subtopic", async ({ pag
 
 test("admin: topic tabs, SEO and a new tile with its own icon", async ({ page }) => {
   await signIn(page, editor, `/admin/content/${entryId}`);
-  const tabs = page.getByRole("navigation", { name: "Topic sections" });
+  const tabs = page.getByRole("navigation", { name: "Entry sections" });
   await expect(tabs.getByRole("link", { name: "Article" })).toHaveAttribute("aria-current", "page");
 
   await tabs.getByRole("link", { name: "SEO & GEO" }).click();

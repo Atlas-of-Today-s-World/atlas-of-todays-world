@@ -165,7 +165,7 @@ test.describe("regional profile under a country", () => {
     const profile = page.getByRole("region", { name: "Middle East & North Africa" });
     await expect(profile.getByText("Regional profile")).toBeVisible();
     // No themed topic rows or news strip in a profile (owner's decision of 2026-10-15).
-    await expect(profile.getByRole("heading", { name: "Topics", exact: true })).toHaveCount(0);
+    await expect(profile.getByRole("heading", { name: "Entries", exact: true })).toHaveCount(0);
     await expect(profile.getByRole("heading", { name: "Our News" })).toHaveCount(0);
     await expect(profile.getByRole("link", { name: /View the whole region/ })).toHaveAttribute(
       "href",
@@ -184,7 +184,7 @@ test.describe("region portrait", () => {
     // Share sits above the heading; the countries are only in the header's list.
     await expect(page.locator("#content").getByRole("button", { name: "Share" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Countries in this region" })).toHaveCount(0);
-    await expect(page.getByRole("heading", { name: "Topics", exact: true })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Entries", exact: true })).toHaveCount(0);
     // No computed regional averages (decision of 2026-10-07): national data live on each
     // country. The editors' sourced key-fact cards may show; computed figures never.
     await expect(page.getByText(/Population-weighted across the countries/)).toHaveCount(0);
