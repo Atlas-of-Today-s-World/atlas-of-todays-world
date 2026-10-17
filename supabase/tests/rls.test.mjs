@@ -2447,6 +2447,30 @@ test("content status: everyone reads it, only the region / issue editors change 
   await as(null, () => refused(q(`update special_regions set content_status = 'ready'`)));
 });
 
+test("region content progress: planned until the region editors mark it completed", async () => {
+  const progress = async () =>
+    (await as(null, () => one("select content_progress from regions where slug = 'east-asia'")))
+      .content_progress;
+  assert.equal(await progress(), "planned");
+
+  const changed = await as(id.dataEditor, () =>
+    q(`update regions set content_progress = 'completed' where slug = 'east-asia' returning slug`),
+  );
+  assert.equal(changed.length, 1);
+  const blocked = await as(id.pubA, () =>
+    q(`update regions set content_progress = 'planned' where slug = 'east-asia' returning slug`),
+  );
+  assert.equal(blocked.length, 0);
+  await as(id.dataEditor, () =>
+    refused(
+      q(`update regions set content_progress = 'ready' where slug = 'east-asia'`),
+      /content_progress/,
+    ),
+  );
+  await as(null, () => refused(q(`update regions set content_progress = 'planned'`)));
+  assert.equal(await progress(), "completed");
+});
+
 test("readers: team metadata of published entries and author accounts stay with the team", async () => {
   const entry = await newEntry(id.pubA, "team-metadata", [], "published");
   const internal =
