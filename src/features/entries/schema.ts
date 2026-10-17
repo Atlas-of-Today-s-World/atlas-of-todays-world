@@ -59,7 +59,7 @@ const summaryPoints = z.preprocess(
 export const EntryInput = z.object({
   id: z.preprocess(blankToUndefined, uuid.optional()),
   slug: slug(120),
-  kind: z.enum(ARTICLE_KINDS).default("news"),
+  kind: z.enum(ARTICLE_KINDS).default("entry"),
   title: requiredText(200),
   summary: text(600),
   category: z.enum(NEWS_CATEGORIES as [string, ...string[]], {
@@ -232,5 +232,5 @@ export const LearnMoreInput = z
   .max(MAX_TILES)
   .refine(
     (tiles) => tiles.reduce((sum, tile) => sum + tile.links.length, 0) <= MAX_LINKS,
-    `A topic holds at most ${MAX_LINKS} links.`,
+    `An entry holds at most ${MAX_LINKS} links.`,
   );

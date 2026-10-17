@@ -1,9 +1,0 @@
-import { routes } from "@/config/routes";
-import { getEntry } from "@/features/entries/queries";
-import { guardedLayout } from "@/features/redirects/guard";
-
-/** Unknown news item → redirect or a real 404 before streaming (see guardedLayout). */
-export default guardedLayout(
-  async (slug, locale) => Boolean(await getEntry(slug, locale)),
-  routes.news,
-);

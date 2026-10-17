@@ -55,13 +55,6 @@ export interface AuthorArticle {
   published?: string;
 }
 
-/** Where an article belongs — shared by news, entries and planned entries. */
-export interface Placed {
-  region: string | null;
-  issue: string | null;
-  countries: string[];
-}
-
 export interface EntryChapter {
   title: string;
   /** 3–5 bullet points that open the chapter. */

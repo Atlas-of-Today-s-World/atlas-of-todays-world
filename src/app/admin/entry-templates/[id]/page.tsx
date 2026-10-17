@@ -10,13 +10,13 @@ import { TemplateForm } from "@/features/entries/components/TopicTileForms";
 import { getTemplate } from "@/features/entries/editorial";
 import { uuid } from "@/lib/validation/common";
 
-export const metadata: Metadata = { title: "Topic template" };
+export const metadata: Metadata = { title: "Entry template" };
 
 /** One template: name, headings and tiles. */
 export default async function TopicTemplatePage({
   params,
   searchParams,
-}: PageProps<"/admin/topic-templates/[id]">) {
+}: PageProps<"/admin/entry-templates/[id]">) {
   const access = await sectionAccess("news");
   if (!access) return <NoAccess />;
   const { id } = await params;
@@ -31,9 +31,9 @@ export default async function TopicTemplatePage({
         title={template.name}
         lead={
           <span className="flex flex-wrap items-center gap-3">
-            {template.is_default ? <Badge tone="accent">Default for new topics</Badge> : null}
+            {template.is_default ? <Badge tone="accent">Default for new entries</Badge> : null}
             <Link
-              href={adminRoutes.topicTemplates.list}
+              href={adminRoutes.entryTemplates.list}
               className="text-[var(--color-link)] underline"
             >
               All templates

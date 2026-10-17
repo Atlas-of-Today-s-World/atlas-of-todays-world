@@ -8,10 +8,10 @@ import { staticPageMetadata } from "@/features/seo/metadata";
 import { collectionPageGraph } from "@/features/seo/jsonld";
 import { routes } from "@/config/routes";
 
-export const generateMetadata = staticPageMetadata("topics", routes.topics);
+export const generateMetadata = staticPageMetadata("topics", routes.entries);
 
 /** Topics: every encyclopedia dossier as a photo card, full width over the map. */
-export default async function TopicsPage({ params }: PageProps<"/[locale]/topics">) {
+export default async function TopicsPage({ params }: PageProps<"/[locale]/entries">) {
   const locale = await localeFrom(params);
   const t = (await getMessagesFor(locale)).topics;
   const atlas = await getAtlas(locale);
@@ -52,12 +52,12 @@ export default async function TopicsPage({ params }: PageProps<"/[locale]/topics
 
       <JsonLd
         data={collectionPageGraph({
-          path: routes.topics,
+          path: routes.entries,
           name: t.title,
           description: t.description,
           locale,
           site,
-          items: entries.map((item) => ({ name: item.title, path: routes.topic(item.slug) })),
+          items: entries.map((item) => ({ name: item.title, path: routes.entry(item.slug) })),
         })}
       />
     </>

@@ -10,13 +10,12 @@
  * not encode them (the produced URLs stay exactly as before).
  */
 
-/** First path segment of each kind of public page (also the index pages of news and topics). */
+/** First path segment of each kind of public page (also the index page of entries). */
 export const ROUTE_PREFIX = {
   country: "/country",
   region: "/region",
   issue: "/global-issue",
-  news: "/news",
-  topics: "/topics",
+  entries: "/entries",
   author: "/authors",
   view: "/view",
   preview: "/preview",
@@ -39,7 +38,7 @@ const fullView = (path: string) => `${path}/${FULL_VIEW_SEGMENT}`;
 export const routes = {
   home: "/",
   /** Overview of all encyclopedia entries (full-width page, the globe in a corner window). */
-  topics: P.topics,
+  entries: P.entries,
   /**
    * Overview of every global issue (full-width page like Topics). Not under
    * ROUTE_PREFIX.issue: an issue's own portrait is `/global-issue/<slug>`.
@@ -50,8 +49,6 @@ export const routes = {
    * the globe (keyboard, screen readers, browsers without WebGL).
    */
   countries: "/countries",
-  /** News index. */
-  newsIndex: P.news,
   about: "/about",
   /** Full search results page (`?q=`, see `searchFor`). */
   search: SEARCH,
@@ -93,20 +90,19 @@ export const routes = {
   issue: (slug: string) => `${P.issue}/${slug}`,
   /** A global issue's page full width. */
   issueFull: (slug: string) => fullView(`${P.issue}/${slug}`),
-  news: (slug: string) => `${P.news}/${slug}`,
   /** An encyclopedia entry; `anchor` opens one of its subtopics. */
-  topic: (slug: string, anchor?: string | null) => withAnchor(`${P.topics}/${slug}`, anchor),
+  entry: (slug: string, anchor?: string | null) => withAnchor(`${P.entries}/${slug}`, anchor),
   author: (slug: string) => `${P.author}/${slug}`,
   /** One Claude skill as a page (its raw file and ZIPs: `skillFiles`). */
   skill: (name: string) => `${SKILLS}/${name}`,
   /** A data layer's ranking; `anchor` picks one country (`/view/hdi#hun`). */
   view: (id: string, anchor?: string | null) => withAnchor(`${P.view}/${id}`, anchor),
   /**
-   * Public address of an article: a news item under /news, an encyclopedia
-   * entry (a topic) under /topics (old /entry/… addresses redirect, next.config).
+   * Public address of an article: an encyclopedia entry under /entries (old
+   * /entry/… and /topics/… addresses redirect, next.config). News is no longer
+   * published (2026-10-17), so every kind leads there.
    */
-  article: (kind: string, slug: string) =>
-    kind === "entry" ? `${P.topics}/${slug}` : `${P.news}/${slug}`,
+  article: (_kind: string, slug: string) => `${P.entries}/${slug}`,
   /** Search results for a query; Enter in the search over the map goes there. */
   searchFor: (query: string) => `${SEARCH}?q=${encodeURIComponent(query)}`,
 } as const;
@@ -184,7 +180,7 @@ export const adminRoutes = {
   /** The new-article form preset to a topic (encyclopedia entry). */
   newTopic: `${ADMIN}/content/new?kind=entry`,
   authors: editable(`${ADMIN}/authors`),
-  topicTemplates: editable(`${ADMIN}/topic-templates`),
+  entryTemplates: editable(`${ADMIN}/entry-templates`),
   approvals: `${ADMIN}/approvals`,
   /** URL redirects by id. */
   redirects: records(`${ADMIN}/redirects`),
@@ -235,7 +231,7 @@ export const adminRoutes = {
   skills: `${ADMIN}/skills`,
 } as const;
 
-/** Is `path` the page `prefix` or anything under it (`/topics`, `/topics/x`)? */
+/** Is `path` the page `prefix` or anything under it (`/entries`, `/entries/x`)? */
 export const isAtOrUnder = (path: string, prefix: string) =>
   path === prefix || path.startsWith(`${prefix}/`);
 

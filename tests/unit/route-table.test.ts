@@ -58,8 +58,8 @@ describe("build route table", () => {
     expect(dynamicRouteProblems(parseRouteTable("Compiled successfully"), REQUIRED)).toHaveLength(
       1,
     );
-    expect(dynamicRouteProblems(parseRouteTable(STATIC), ["/[locale]/topics"])).toEqual([
-      "/[locale]/topics: not in the route table.",
+    expect(dynamicRouteProblems(parseRouteTable(STATIC), ["/[locale]/entries"])).toEqual([
+      "/[locale]/entries: not in the route table.",
     ]);
   });
 });

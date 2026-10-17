@@ -191,7 +191,7 @@ function plan(topic) {
     })),
     links: links.slice(0, 200),
     skipped,
-    redirect: { from_path: topic.oldPath, to_path: `/topics/${topic.slug}`, permanent: true },
+    redirect: { from_path: topic.oldPath, to_path: `/entries/${topic.slug}`, permanent: true },
   };
 }
 

@@ -78,8 +78,8 @@ async function overlapsWhileScrolling(page: Page) {
 
 /** The first topic the Topics list shows (atlas-dev has imported ones). */
 async function firstTopic(page: Page) {
-  await page.goto("/topics");
-  const href = await page.locator('a[href^="/topics/"]').first().getAttribute("href");
+  await page.goto("/entries");
+  const href = await page.locator('a[href^="/entries/"]').first().getAttribute("href");
   expect(href).toMatch(/^\/topics\/[a-z0-9-]+$/);
   return href!;
 }
@@ -100,7 +100,7 @@ test.describe("globe window beside full-width pages", () => {
         topic,
         "/global-issue/russia-ukraine-war/full-page",
         "/region/middle-east-north-africa/full-page",
-        "/topics",
+        "/entries",
       ]) {
         await page.goto(path);
         const globeWindow = page.locator("[data-globe-window]");

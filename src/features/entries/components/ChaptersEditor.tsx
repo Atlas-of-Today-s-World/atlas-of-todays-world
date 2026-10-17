@@ -198,7 +198,7 @@ export function ChaptersEditor({
 
         {!chapters.length ? (
           <p className="text-[13px] text-[var(--color-ink-muted)]">
-            This topic has no subtopics yet — only the introduction will appear on the website.
+            This entry has no subtopics yet — only the introduction will appear on the website.
           </p>
         ) : null}
 

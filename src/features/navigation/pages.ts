@@ -21,10 +21,9 @@ export const FLAG_LABELS: Record<NavFlag, string> = {
 /** Common pages, offered as suggestions in the address field. */
 export const NAV_PAGE_CHOICES: readonly { label: string; href: string }[] = [
   { label: "Home (the globe)", href: routes.home },
-  { label: "Topics", href: routes.topics },
+  { label: "Entries", href: routes.entries },
   { label: "Global issues", href: routes.globalIssues },
   { label: "Countries", href: routes.countries },
-  { label: "News", href: routes.newsIndex },
   { label: "About", href: routes.about },
   { label: "Atlas Patrons (membership)", href: routes.membership },
   { label: "Newsletter", href: routes.newsletter },

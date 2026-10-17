@@ -36,6 +36,6 @@ export async function relatedTopics(
   const slugs = new Set(listOf(counts, kind)[key] ?? []);
   return {
     items: entries.filter((entry) => slugs.has(entry.slug)),
-    href: `${routes.topics}?${TOPIC_FILTER[kind]}=${encodeURIComponent(key.toLowerCase())}`,
+    href: `${routes.entries}?${TOPIC_FILTER[kind]}=${encodeURIComponent(key.toLowerCase())}`,
   };
 }

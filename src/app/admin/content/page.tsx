@@ -23,7 +23,7 @@ import { listEntries } from "@/features/entries/editorial";
 import { ENTRY_STATUSES, type EntryStatus } from "@/features/entries/constants";
 import { adminRoutes, routes } from "@/config/routes";
 
-export const metadata: Metadata = { title: "Topics & news" };
+export const metadata: Metadata = { title: "Entries" };
 
 export default async function EntriesPage({
   searchParams,
@@ -52,32 +52,24 @@ export default async function EntriesPage({
     <>
       <PageHeader
         icon={navIcon(adminRoutes.content.list)}
-        title="Topics & news"
-        lead="Topics (encyclopedia entries with subtopics) and news — drafts, pending approval and published. Publishing always goes through Approvals."
+        title="Entries"
+        lead="Entries (encyclopedia articles with subtopics) — drafts, pending approval and published. Publishing always goes through Approvals."
         actions={
           can(access.permissions, "news", "c") ? (
-            <span className="flex flex-wrap gap-2">
-              <Link href={adminRoutes.newTopic} className={buttonVariants({ size: "sm" })}>
-                New topic
-              </Link>
-              <Link
-                href={adminRoutes.content.new}
-                className={buttonVariants({ size: "sm", variant: "outline" })}
-              >
-                New news item
-              </Link>
-            </span>
+            <Link href={adminRoutes.newTopic} className={buttonVariants({ size: "sm" })}>
+              New entry
+            </Link>
           ) : null
         }
       />
       <DataTable
         tableKey="admin-entries"
-        caption="Topics & news"
+        caption="Entries"
         searchParam="q"
-        searchPlaceholder="Search topics and news…"
+        searchPlaceholder="Search entries…"
         seedFilters={status ? { status: [status] } : undefined}
         initialSort={{ key: "updated", dir: "desc" }}
-        emptyTitle="No topics or news yet"
+        emptyTitle="No entries yet"
         stats={optionStats("status", STATUS_OPTIONS)}
         toolbar={
           <ToolbarLink href={mineHref} active={mine}>
@@ -145,7 +137,7 @@ export default async function EntriesPage({
                   ? [
                       deleteAction(
                         deleteEntry.bind(null, row.id),
-                        `${row.kind === "entry" ? "the topic" : "the news item"} ${row.title}`,
+                        `${row.kind === "entry" ? "the entry" : "the news item"} ${row.title}`,
                         "It is deleted with its subtopics, sources and history. This cannot be undone.",
                       ),
                     ]

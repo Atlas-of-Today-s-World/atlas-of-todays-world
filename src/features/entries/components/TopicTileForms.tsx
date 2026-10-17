@@ -119,7 +119,7 @@ export function TemplateTools({
         <p className="mt-1 text-[13px] text-[var(--color-ink-muted)]">
           {used
             ? `Made from “${used.name}”.`
-            : "Not linked to a template (an older topic or a deleted template)."}{" "}
+            : "Not linked to a template (an older entry or a deleted template)."}{" "}
           Applying a template updates tiles with the same name and keeps their links.
         </p>
       </div>
@@ -140,7 +140,7 @@ export function TemplateTools({
         </SubmitButton>
         <Checkbox
           name="remove_missing"
-          label="Also remove this topic’s tiles the template doesn’t have (with their links)"
+          label="Also remove this entry’s tiles the template doesn’t have (with their links)"
           className="sm:col-span-2"
         />
         <div className="sm:col-span-2">
@@ -206,7 +206,7 @@ export function TemplateForm({ template }: { template: TemplateSummary | null })
       />
       <TilesEditor
         initial={template?.tiles ?? []}
-        note="Topics made from this template get a copy of these tiles; changing the template later doesn’t change them until someone applies it again."
+        note="Entries made from this template get a copy of these tiles; changing the template later doesn’t change them until someone applies it again."
       />
       <ActionStatus state={state} />
       <div>

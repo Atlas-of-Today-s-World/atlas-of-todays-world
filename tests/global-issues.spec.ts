@@ -70,7 +70,7 @@ test("a global issue's full page is a full-width page like a topic", async ({ pa
   const subtopics = page.getByRole("region", { name: "Subtopics" });
   await expect(subtopics).toBeVisible();
   await expect(
-    subtopics.locator('a[href^="/topics/"], a[href^="/membership"]').first(),
+    subtopics.locator('a[href^="/entries/"], a[href^="/membership"]').first(),
   ).toBeVisible();
 
   // No side panel: the page is the full width and the map's controls are gone.

@@ -15,11 +15,10 @@ describe("routes", () => {
     expect(routes.country("ukraine")).toBe("/country/ukraine");
     expect(routes.region("sub-saharan-africa")).toBe("/region/sub-saharan-africa");
     expect(routes.issue("sahel")).toBe("/global-issue/sahel");
-    expect(routes.news("sahel-coup-belt")).toBe("/news/sahel-coup-belt");
-    expect(routes.topic("migrant-smuggling")).toBe("/topics/migrant-smuggling");
-    expect(routes.topic("migrant-smuggling", "topic-2")).toBe("/topics/migrant-smuggling#topic-2");
-    expect(routes.topic("migrant-smuggling", "")).toBe("/topics/migrant-smuggling");
-    expect(routes.topic("migrant-smuggling", null)).toBe("/topics/migrant-smuggling");
+    expect(routes.entry("migrant-smuggling")).toBe("/entries/migrant-smuggling");
+    expect(routes.entry("migrant-smuggling", "topic-2")).toBe("/entries/migrant-smuggling#topic-2");
+    expect(routes.entry("migrant-smuggling", "")).toBe("/entries/migrant-smuggling");
+    expect(routes.entry("migrant-smuggling", null)).toBe("/entries/migrant-smuggling");
     expect(routes.author("jana-novak")).toBe("/authors/jana-novak");
     expect(routes.view("hdi")).toBe("/view/hdi");
     expect(routes.view("hdi", "hun")).toBe("/view/hdi#hun");
@@ -33,14 +32,14 @@ describe("routes", () => {
   });
 
   it("maps an article to its address by kind", () => {
-    expect(routes.article("entry", "migrant-smuggling")).toBe("/topics/migrant-smuggling");
-    expect(routes.article("news", "sahel-coup-belt")).toBe("/news/sahel-coup-belt");
+    expect(routes.article("entry", "migrant-smuggling")).toBe("/entries/migrant-smuggling");
+    expect(routes.article("news", "sahel-coup-belt")).toBe("/entries/sahel-coup-belt");
   });
 
   it("inserts slugs as they are (the database allows only [a-z0-9-])", () => {
     // Same output as the hand-built template literals it replaced.
     expect(routes.country("a b/č")).toBe("/country/a b/č");
-    expect(routes.news("x?y#z")).toBe("/news/x?y#z");
+    expect(routes.entry("x?y#z")).toBe("/entries/x?y#z");
     expect(routes.issue("")).toBe("/global-issue/");
   });
 
@@ -54,10 +53,9 @@ describe("routes", () => {
   it("keeps the static addresses", () => {
     expect(routes).toMatchObject({
       home: "/",
-      topics: "/topics",
+      entries: "/entries",
       globalIssues: "/global-issues",
       countries: "/countries",
-      newsIndex: "/news",
       about: "/about",
       search: "/search",
       newsletter: "/newsletter",
@@ -100,10 +98,10 @@ describe("routes", () => {
   });
 
   it("matches a page and the pages under it", () => {
-    expect(isAtOrUnder("/topics", "/topics")).toBe(true);
-    expect(isAtOrUnder("/topics/x", "/topics")).toBe(true);
-    expect(isAtOrUnder("/topicsx", "/topics")).toBe(false);
-    expect(isAtOrUnder("/", "/topics")).toBe(false);
+    expect(isAtOrUnder("/entries", "/entries")).toBe(true);
+    expect(isAtOrUnder("/entries/x", "/entries")).toBe(true);
+    expect(isAtOrUnder("/entriesx", "/entries")).toBe(false);
+    expect(isAtOrUnder("/", "/entries")).toBe(false);
   });
 
   it("reads the segment after a prefix", () => {
@@ -145,7 +143,7 @@ describe("adminRoutes", () => {
     expect(adminRoutes.content.new).toBe("/admin/content/new");
     expect(adminRoutes.content("abc")).toBe("/admin/content/abc");
     expect(adminRoutes.authors.new).toBe("/admin/authors/new");
-    expect(adminRoutes.topicTemplates("t1")).toBe("/admin/topic-templates/t1");
+    expect(adminRoutes.entryTemplates("t1")).toBe("/admin/entry-templates/t1");
     expect(adminRoutes.regions.list).toBe("/admin/regions");
     expect(adminRoutes.regions("africa")).toBe("/admin/regions/africa");
     expect(adminRoutes.country("chad")).toBe("/admin/regions/countries/chad");

@@ -68,11 +68,8 @@ const UNLOCALIZED = [routes.admin, "/api", "/auth", "/_next", "/.well-known"];
 const isFile = (pathname: string) => /\.[a-z0-9]+$/i.test(pathname);
 /** Files that do have language versions (feeds, llms.txt) — routed like pages. */
 const LOCALIZED_FILES = new Set(["/feed.xml", "/atom.xml", "/llms.txt", "/llms-full.txt"]);
-/** Markdown version of an article: /news/<slug>.md → /[locale]/md/news/<slug>, /topics/<slug>.md → …/md/entry/<slug>. */
-const MARKDOWN_KINDS = [
-  [ROUTE_PREFIX.news, "news"],
-  [ROUTE_PREFIX.topics, "entry"],
-] as const;
+/** Markdown version of an entry: /entries/<slug>.md → /[locale]/md/entry/<slug>. */
+const MARKDOWN_KINDS = [[ROUTE_PREFIX.entries, "entry"]] as const;
 const MARKDOWN_FILE = /^([a-z0-9-]+)\.md$/;
 function markdownArticle(path: string) {
   for (const [prefix, kind] of MARKDOWN_KINDS) {

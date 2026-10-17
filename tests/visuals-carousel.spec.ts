@@ -204,7 +204,7 @@ async function expectWorkingCarousel(page: Page) {
 }
 
 test("the topic page shows its maps & charts as a carousel", async ({ page }) => {
-  await page.goto(`/topics/${publishedSlug}`);
+  await page.goto(`/entries/${publishedSlug}`);
   await expectWorkingCarousel(page);
 });
 
@@ -223,7 +223,7 @@ test("on a phone a swipe moves to the next visual", async ({ browser }) => {
   const context = await browser.newContext({ ...devices["Pixel 7"] });
   const page = await context.newPage();
   try {
-    await page.goto(`/topics/${publishedSlug}`);
+    await page.goto(`/entries/${publishedSlug}`);
     const carousel = carouselOf(page);
     await carousel.scrollIntoViewIfNeeded();
     await expectShown(carousel, IMAGE_TITLE, 1);

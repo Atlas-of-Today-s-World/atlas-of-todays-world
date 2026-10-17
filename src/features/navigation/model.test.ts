@@ -14,15 +14,14 @@ const row = (overrides: Partial<NavRow> & Pick<NavRow, "id" | "label" | "href">)
 });
 
 describe("built-in menus (fallback)", () => {
-  it("are today's items with today's labels, styles and the News switch", () => {
+  it("are today's items with today's labels and styles", () => {
     const nav = navigationFrom(NAV_DEFAULT_ROWS, ON);
     expect(
       nav.main.map((item) => [item.label, item.href, item.primary, item.compactHidden]),
     ).toEqual([
-      ["Topics", "/topics", false, false],
+      ["Entries", "/entries", false, false],
       ["Global issues", "/global-issues", false, false],
       ["Countries", "/countries", false, true],
-      ["News", "/news", false, true],
       ["About", "/about", false, false],
       ["Atlas Patrons", "/membership", true, false],
     ]);
@@ -37,9 +36,10 @@ describe("built-in menus (fallback)", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it("leave News out while news_menu is off, as the header did before", () => {
+  it("have no News item, whatever the news_menu switch (News was removed, 2026-10-17)", () => {
     const labels = navigationFrom(NAV_DEFAULT_ROWS, OFF).main.map((item) => item.label);
-    expect(labels).toEqual(["Topics", "Global issues", "Countries", "About", "Atlas Patrons"]);
+    expect(labels).toEqual(["Entries", "Global issues", "Countries", "About", "Atlas Patrons"]);
+    expect(navigationFrom(NAV_DEFAULT_ROWS, ON).main.map((item) => item.label)).toEqual(labels);
   });
 });
 

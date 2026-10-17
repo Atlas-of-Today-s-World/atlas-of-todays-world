@@ -25,6 +25,8 @@ const permanent = (source: string, destination: string, reason: string): BuiltIn
 });
 
 const TOPICS_MOVED = "Topics moved from /entry/<slug> (2026-10-06)";
+const ENTRIES_RENAMED = "Topics were renamed to Entries (2026-10-17)";
+const NEWS_REMOVED = "News was removed from the site (2026-10-17)";
 const ISSUES_RENAMED = "Custom units were renamed to Global Issues";
 const ENGLISH_ONLY = "The site is English only (2026-10-05); the former Czech version";
 const MEMBERSHIP = "Atlas Patrons live at /membership, the address of the original site";
@@ -33,8 +35,13 @@ const ACCOUNT_ENGLISH =
   "Account pages moved to English URLs (2026-10-15); old links, bookmarks and shared invitations";
 
 export const BUILT_IN_REDIRECTS: readonly BuiltInRedirect[] = [
-  permanent("/entry/:slug.md", "/topics/:slug.md", TOPICS_MOVED),
-  permanent("/entry/:slug", "/topics/:slug", TOPICS_MOVED),
+  permanent("/entry/:slug.md", "/entries/:slug.md", TOPICS_MOVED),
+  permanent("/entry/:slug", "/entries/:slug", TOPICS_MOVED),
+  permanent("/topics", "/entries", ENTRIES_RENAMED),
+  permanent("/topics/:slug.md", "/entries/:slug.md", ENTRIES_RENAMED),
+  permanent("/topics/:slug", "/entries/:slug", ENTRIES_RENAMED),
+  permanent("/news", "/entries", NEWS_REMOVED),
+  permanent("/news/:path*", "/entries", NEWS_REMOVED),
   permanent("/special/:slug", "/global-issue/:slug", ISSUES_RENAMED),
   permanent("/cs/:old(support|patrons)", "/membership", ENGLISH_ONLY),
   permanent("/cs", "/", ENGLISH_ONLY),
@@ -68,7 +75,8 @@ export const BUILT_IN_REDIRECTS: readonly BuiltInRedirect[] = [
   permanent("/admin/clenove", "/admin/members", ADMIN_ENGLISH),
   permanent(
     "/admin/learn-more-tiles/:path*",
-    "/admin/topic-templates",
-    "Default learn-more tiles became topic templates (ADR-024)",
+    "/admin/entry-templates",
+    "Default learn-more tiles became entry templates (ADR-024)",
   ),
+  permanent("/admin/topic-templates/:path*", "/admin/entry-templates/:path*", ENTRIES_RENAMED),
 ];

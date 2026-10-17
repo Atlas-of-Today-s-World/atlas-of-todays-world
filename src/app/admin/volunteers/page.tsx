@@ -36,7 +36,7 @@ export default async function VolunteersPage() {
       <PageHeader
         icon={navIcon(adminRoutes.volunteers)}
         title="Volunteer editors"
-        lead="People who applied on the Atlas Patrons page to write or review topics as volunteers."
+        lead="People who applied on the Atlas Patrons page to write or review entries as volunteers."
       />
       <section className="mb-10">
         <h2 className="font-display mb-3 text-[17px] font-bold">Where applications go</h2>

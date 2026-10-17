@@ -44,7 +44,7 @@ export const EVENT_LABEL: Record<ConversionEvent, string> = {
   volunteer_submit: "Volunteer applications",
   newsletter_signup: "Newsletter sign-ups",
   share_click: "Share clicks",
-  topic_write_click: "“Write a topic” clicks",
+  topic_write_click: "“Write an entry” clicks",
   ai_referral: "Visits from AI assistants",
 };
 

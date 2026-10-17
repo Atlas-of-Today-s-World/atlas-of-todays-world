@@ -36,7 +36,7 @@ import { VisualsEditor } from "@/components/admin/VisualsEditor";
 import { VISUAL_ACTIONS } from "@/features/visuals/admin";
 import { topicVisualsForEdit } from "@/features/visuals/editorial";
 
-export const metadata: Metadata = { title: "Edit topic or news" };
+export const metadata: Metadata = { title: "Edit entry" };
 
 /** Sections of a dossier's editor, one per tab (`?tab=`). */
 const TABS = [
@@ -51,7 +51,7 @@ type Tab = (typeof TABS)[number]["key"];
 
 function DossierTabs({ id, current }: { id: string; current: Tab }) {
   return (
-    <nav aria-label="Topic sections" className="border-b border-[var(--color-line)]">
+    <nav aria-label="Entry sections" className="border-b border-[var(--color-line)]">
       <ul className="-mb-px flex flex-wrap gap-1">
         {TABS.map((tab) => (
           <li key={tab.key}>
@@ -163,7 +163,7 @@ export default async function EditEntryPage({
                   kind="topic"
                   ownerKey={entry.id}
                   initial={timeline}
-                  lead="The topic's history as a row of events right after its introduction — oldest first. Without events nothing is shown."
+                  lead="The entry's history as a row of events right after its introduction — oldest first. Without events nothing is shown."
                 />
               ) : null}
               {visuals ? (
@@ -176,8 +176,8 @@ export default async function EditEntryPage({
                     mapGroups={mapGroups}
                     editing={typeof visual === "string" ? visual : undefined}
                     canEdit
-                    title="Maps & charts of the topic"
-                    lead="A carousel after the topic's introduction and timeline, before its subtopics — one chart or map at a time, in this order. Paste a chart's embed code or link from Datawrapper, Flourish, Our World in Data or the World Bank data site."
+                    title="Maps & charts of the entry"
+                    lead="A carousel after the entry's introduction and timeline, before its subtopics — one chart or map at a time, in this order. Paste a chart's embed code or link from Datawrapper, Flourish, Our World in Data or the World Bank data site."
                   />
                   {visuals.chapters.map((chapter, index) => (
                     <VisualsEditor
@@ -203,10 +203,10 @@ export default async function EditEntryPage({
               {parts && tab === "learn-more" ? (
                 <>
                   <p className="text-[13.5px] text-[var(--color-ink-soft)]">
-                    Resource tiles on the right half of the topic. Change their look and order here,
+                    Resource tiles on the right half of the entry. Change their look and order here,
                     fill them with links and text below. Templates are managed in{" "}
                     <Link
-                      href={adminRoutes.topicTemplates.list}
+                      href={adminRoutes.entryTemplates.list}
                       className="text-[var(--color-link)] underline"
                     >
                       Topic templates

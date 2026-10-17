@@ -16,7 +16,7 @@ export type ArticleKind = (typeof ARTICLE_KINDS)[number];
 
 export const ARTICLE_KIND_LABEL: Record<ArticleKind, string> = {
   news: "News article",
-  entry: "Topic (encyclopedia entry)",
+  entry: "Entry (encyclopedia article)",
 };
 
 /**

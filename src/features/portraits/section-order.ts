@@ -22,7 +22,7 @@ export const DEFAULT_SECTION_ORDER: readonly SectionKey[] = [...SECTION_KEYS];
 /** How each section is named in the admin. */
 export const SECTION_LABEL: Record<SectionKey, string> = {
   timeline: "Timeline",
-  topics: "Topics by theme (four rows)",
+  topics: "Entries by theme (four rows)",
   visuals: "Maps & charts",
   resources: "Learn more (sources)",
   faq: "Questions and answers (FAQ)",

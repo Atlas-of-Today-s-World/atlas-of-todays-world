@@ -2,7 +2,6 @@ import { getSiteSettings } from "@/features/site/queries";
 import type { Metadata } from "next";
 import { JsonLd } from "@/components/JsonLd";
 import { routes } from "@/config/routes";
-import { entriesOfIssue, entriesOfRegion, getEntries } from "@/features/entries/queries";
 import { countriesOf } from "@/features/geography/model";
 import { getAtlas, getIndicators } from "@/features/geography/queries";
 import type { Atlas, GlobalIssue, Region } from "@/features/geography/types";
@@ -49,7 +48,6 @@ type Located = { kind: "region"; group: Region } | { kind: "issue"; group: Globa
 type Params = Promise<{ locale: string; slug: string }>;
 
 /** Where an article belongs (the shape the entry filters take). */
-type Placed = Parameters<typeof entriesOfIssue>[0][number];
 
 const pathOf = (kind: GroupKind, slug: string) =>
   kind === "region" ? routes.region(slug) : routes.issue(slug);
@@ -127,23 +125,14 @@ export function groupPortraitPage(kind: GroupKind, view: GroupView = "rail") {
     const path = fullPathOf(kind, group.slug);
     const fullPath = path;
 
-    // A region's articles are those filed under it; an issue's also those
-    // touching any of its countries.
-    const ofGroup = <T extends Placed>(entries: T[]) =>
-      kind === "region"
-        ? entriesOfRegion(entries, group.slug)
-        : entriesOfIssue(entries, group.slug, group.countries);
-
     const countries = countriesOf(atlas, group.countries);
-    const [entries, dossier, topics, t, indicators] = await Promise.all([
-      getEntries(),
+    const [dossier, topics, t, indicators] = await Promise.all([
       getPortrait(kind, group.slug),
       relatedTopics(atlas, kind, group.slug),
       getMessagesFor(locale),
       // Computed figures only for an issue: a region never shows averages (2026-10-07).
       kind === "issue" ? getIndicators(CARD_INDICATORS) : [],
     ]);
-    const newsItems = ofGroup(entries);
     const members = countries.map(({ slug, name }) => ({ slug, name }));
 
     const place = groupPlaceNode({
@@ -158,22 +147,15 @@ export function groupPortraitPage(kind: GroupKind, view: GroupView = "rail") {
       countries,
     });
 
-    // What the place is the subject of: a region's news; an issue's topics too
-    // (they are on its page as "Subtopics").
-    const subjectOf = [
-      ...newsItems.map((item) => ({
-        "@type": "NewsArticle",
-        headline: item.title,
-        url: pageUrl(routes.news(item.slug), locale),
-      })),
-      ...(kind === "issue"
+    // What an issue is the subject of: its entries (on its page as "Subtopics").
+    const subjectOf =
+      kind === "issue"
         ? topics.items.map((item) => ({
             "@type": "Article",
             headline: item.title,
-            url: pageUrl(routes.topic(item.slug), locale),
+            url: pageUrl(routes.entry(item.slug), locale),
           }))
-        : []),
-    ];
+        : [];
 
     return (
       <>

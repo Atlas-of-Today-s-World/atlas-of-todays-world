@@ -7,7 +7,7 @@ import { can, sectionAccess } from "@/features/auth/access";
 import { TemplateForm } from "@/features/entries/components/TopicTileForms";
 import { listTemplates } from "@/features/entries/editorial";
 
-export const metadata: Metadata = { title: "New topic template" };
+export const metadata: Metadata = { title: "New entry template" };
 
 /** A new template starts as a copy of the default one. */
 export default async function NewTopicTemplatePage() {
@@ -18,10 +18,10 @@ export default async function NewTopicTemplatePage() {
   return (
     <>
       <PageHeader
-        title="New topic template"
+        title="New entry template"
         lead={
           <Link
-            href={adminRoutes.topicTemplates.list}
+            href={adminRoutes.entryTemplates.list}
             className="text-[var(--color-link)] underline"
           >
             All templates

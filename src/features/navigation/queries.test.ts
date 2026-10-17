@@ -33,7 +33,7 @@ const ROWS = [
     id: "00000000-0000-4000-8000-000000000001",
     menu: "main",
     label: "Explore",
-    href: "/topics",
+    href: "/entries",
     is_primary: false,
     compact_hidden: false,
     requires_flag: null,
@@ -87,16 +87,15 @@ describe("getNavigation (public read)", () => {
   it("falls back to the built-in menus when the read fails", async () => {
     answer.items.mockResolvedValue({ data: null, error: { message: "relation does not exist" } });
     expect(labels(await getNavigation())).toEqual({
-      main: ["Topics", "Global issues", "Countries", "About", "Atlas Patrons"],
+      main: ["Entries", "Global issues", "Countries", "About", "Atlas Patrons"],
       legal: ["Privacy", "Terms", "Accessibility"],
     });
     expect(console.error).toHaveBeenCalledWith("[navigation]", "relation does not exist");
   });
 
-  it("falls back when the client throws (no env, network), still following the switches", async () => {
+  it("falls back when the client throws (no env, network)", async () => {
     answer.items.mockRejectedValue(new Error("fetch failed"));
-    answer.flags.mockResolvedValue({ ...FLAGS, newsMenu: true });
-    expect(labels(await getNavigation()).main).toContain("News");
+    expect(labels(await getNavigation()).main).toContain("Entries");
   });
 
   it("an empty table is the team's choice, not a failure", async () => {

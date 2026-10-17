@@ -5,7 +5,7 @@ type SectionKey = (typeof SECTIONS)[number];
 
 /** Labels of permission sections (role_permissions.section) for the matrix. */
 export const SECTION_LABEL: Record<SectionKey, string> = {
-  news: "Topics & news",
+  news: "Entries",
   approvals: "Approvals",
   regions: "Regions & countries",
   specials: "Global issues",
@@ -20,8 +20,8 @@ export const SECTION_LABEL: Record<SectionKey, string> = {
 
 /** One-line explanation of a section, shown as a tooltip in the matrix. */
 export const SECTION_DESCRIPTION: Record<SectionKey, string> = {
-  news: "Topics (encyclopedia entries with subtopics), news and the editorial pages listed under them.",
-  approvals: "Reviewing and approving submitted topics and news.",
+  news: "Entries (encyclopedia articles with subtopics) and the editorial pages listed under them.",
+  approvals: "Reviewing and approving submitted entries.",
   regions: "Region and country pages and their data.",
   specials: "Global issue pages.",
   layers: "Indicators and their values on the map.",

@@ -116,7 +116,7 @@ export function SeoForm({
       <FormField
         id="geo_summary"
         label="In short (GEO)"
-        hint="2–4 self-contained sentences that answer the topic's main question with facts and a source. AI search engines quote passages like this; it is shown at the top of the dossier."
+        hint="2–4 self-contained sentences that answer the entry's main question with facts and a source. AI search engines quote passages like this; it is shown at the top of the dossier."
         errors={errors.geo_summary}
       >
         <Textarea

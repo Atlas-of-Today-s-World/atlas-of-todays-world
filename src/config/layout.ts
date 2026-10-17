@@ -106,16 +106,8 @@ export const GLOBE = {
 export const TOUCH_MIN_PX = 44;
 
 const REM_PX = 16;
-/**
- * Pages with the wide panel: a news item and every place preview — a country,
- * a region, a global issue (not the /news index).
- */
-const WIDE_RAIL = [
-  ROUTE_PREFIX.news,
-  ROUTE_PREFIX.country,
-  ROUTE_PREFIX.region,
-  ROUTE_PREFIX.issue,
-];
+/** Pages with the wide panel: every place preview — a country, a region, a global issue. */
+const WIDE_RAIL = [ROUTE_PREFIX.country, ROUTE_PREFIX.region, ROUTE_PREFIX.issue];
 /** Places with a full-width view at `<place>/full-page` (routes.countryFull…). */
 const FULL_VIEW_PREFIXES = [ROUTE_PREFIX.country, ROUTE_PREFIX.region, ROUTE_PREFIX.issue];
 const isFullView = (path: string) =>
@@ -123,13 +115,13 @@ const isFullView = (path: string) =>
   FULL_VIEW_PREFIXES.some((prefix) => path.startsWith(`${prefix}/`));
 const isWideRail = (path: string) => WIDE_RAIL.some((prefix) => path.startsWith(`${prefix}/`));
 /**
- * Full-width pages over the map (Topics, topic pages, the Global issues
+ * Full-width pages over the map (Entries, entry pages, the Global issues
  * overview) plus every place's `…/full-page` view (isFullView): the globe
  * shrinks to a corner window. A global issue's own address is its rail
- * preview now (2026-10-16), so it left this list. Old /entry/ links redirect
+ * preview now (2026-10-16), so it left this list. Old /entry/ and /topics/ links redirect
  * (next.config) before they render.
  */
-const FULL_PAGES = [routes.topics, routes.globalIssues];
+const FULL_PAGES = [routes.entries, routes.globalIssues];
 const isFullPagePath = (path: string) =>
   isFullView(path) || FULL_PAGES.some((page) => isAtOrUnder(path, page));
 

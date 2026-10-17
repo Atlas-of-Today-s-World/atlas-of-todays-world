@@ -3,7 +3,7 @@ import { groupSearchHits, searchKindKey } from "./search-kind";
 
 describe("search hit labels", () => {
   it("tells topics from news items, though both are the database's news kind", () => {
-    expect(searchKindKey({ kind: "news", url: "/topics/migrant-smuggling" })).toBe("kindTopic");
+    expect(searchKindKey({ kind: "news", url: "/entries/migrant-smuggling" })).toBe("kindTopic");
     expect(searchKindKey({ kind: "news", url: "/news/elections-2026" })).toBe("kindNews");
   });
 

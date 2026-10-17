@@ -100,7 +100,7 @@ export function DossierExplorer({
     }
   };
 
-  // A link to a panel (`#topic-3`) — shared, from the search on /topics, or in
+  // A link to a panel (`#topic-3`) — shared, from the search on /entries, or in
   // the text — names a panel the server rendered hidden, so the browser had
   // nothing to scroll to: open it and bring it into view, on load and whenever
   // the hash changes later (also after a tile was chosen).

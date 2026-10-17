@@ -35,7 +35,7 @@ describe("article Markdown", () => {
       [
         "# The Sahel's Coup Belt",
         [
-          `- URL: ${SITE}/news/sahel-coup-belt`,
+          `- URL: ${SITE}/entries/sahel-coup-belt`,
           "- Published: 2026-09-02",
           "- Last updated: 2026-09-30",
           `- Author: Jana Dvořáková (${SITE}/authors/jana-dvorakova)`,
@@ -73,7 +73,7 @@ describe("article Markdown", () => {
       },
     } as unknown as Encyclopedia;
     const markdown = articleMarkdown("entry", entry, atlas, en);
-    expect(markdown).toContain(`- URL: ${SITE}/topics/smuggling`);
+    expect(markdown).toContain(`- URL: ${SITE}/entries/smuggling`);
     expect(markdown).toContain("- Author: Atlas editorial team");
     expect(markdown).toContain(
       "## In short\n\nMigrant smuggling is the paid facilitation of irregular border crossing.",

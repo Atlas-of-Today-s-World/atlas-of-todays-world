@@ -41,7 +41,7 @@ export default async function PreviewPage({ params }: PageProps<"/[locale]/previ
     </p>
   );
 
-  // Entries are full-width pages (like /topics/…); news stays in the panel over the map.
+  // Entries are full-width pages (like /entries/…); news stays in the panel over the map.
   return preview.kind === "entry" ? (
     <FullPage t={messages} newsletter={flags.newsletter}>
       <EncyclopediaArticle item={preview.item} atlas={atlas} banner={banner} />

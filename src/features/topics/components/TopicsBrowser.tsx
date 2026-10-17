@@ -71,7 +71,7 @@ export function TopicsBrowser({
   const allowed = new Set(shown.map((topic) => topic.slug));
 
   const { loading, failed, results, retry } = useDebouncedSearch<TopicHit>(
-    "/api/topics/search",
+    "/api/entries/search",
     normalizeSearchQuery(query),
     { delay: 250, enabled: searching },
   );
@@ -137,7 +137,7 @@ export function TopicsBrowser({
               {hits.map((hit) => (
                 <li key={`${hit.slug}#${hit.anchor ?? ""}`}>
                   <Link
-                    href={routes.topic(hit.slug, hit.anchor)}
+                    href={routes.entry(hit.slug, hit.anchor)}
                     className="group block rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/5 transition hover:shadow-md focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none sm:p-5"
                   >
                     <span className={kickerVariants()}>
@@ -179,7 +179,7 @@ export function TopicsBrowser({
             {shown.map((item, index) => (
               <li key={item.slug}>
                 <PhotoCard
-                  href={routes.topic(item.slug)}
+                  href={routes.entry(item.slug)}
                   image={item.hero}
                   width={PHOTO_WIDTH.card}
                   // The first card's photo is the page's largest element (LCP).

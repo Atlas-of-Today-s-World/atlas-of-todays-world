@@ -39,17 +39,9 @@ export default async function AdminHome() {
         lead={`Signed in as ${access.email} (${access.roleName}).`}
         actions={
           can(access.permissions, "news", "c") ? (
-            <span className="flex flex-wrap gap-2">
-              <Link href={adminRoutes.newTopic} className={buttonVariants()}>
-                New topic
-              </Link>
-              <Link
-                href={adminRoutes.content.new}
-                className={buttonVariants({ variant: "outline" })}
-              >
-                New news item
-              </Link>
-            </span>
+            <Link href={adminRoutes.newTopic} className={buttonVariants()}>
+              New entry
+            </Link>
           ) : null
         }
       />
@@ -70,7 +62,7 @@ export default async function AdminHome() {
           <Tile
             href={adminRoutes.approvals}
             value={forMe.length}
-            label="topics and news awaiting my approval"
+            label="entries awaiting my approval"
             tone={forMe.length ? "warn" : undefined}
           />
         ) : null}

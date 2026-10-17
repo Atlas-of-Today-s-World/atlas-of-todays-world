@@ -59,7 +59,7 @@ export async function ThemeTopics({
                 {group.map((item) => (
                   <div key={item.slug} className="w-48 shrink-0 snap-start">
                     <PhotoTile
-                      href={routes.topic(item.slug)}
+                      href={routes.entry(item.slug)}
                       className="min-h-32"
                       image={item.hero}
                       title={item.title}

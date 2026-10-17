@@ -1,7 +1,7 @@
 import "server-only";
 import { GLOBE } from "@/config/layout";
 import { routes } from "@/config/routes";
-import { getEntries } from "@/features/entries/queries";
+import { getEncyclopediaEntries } from "@/features/entries/queries";
 import { getAtlas } from "@/features/geography/queries";
 import { rowsOf } from "@/lib/db/result";
 import { isSearchable } from "@/lib/search-query";
@@ -37,7 +37,7 @@ export async function search(query: string, limit = 12): Promise<SearchHit[]> {
     // the countries that a longer one (the /search page) shows.
     createPublicClient().rpc("search", { p_text: trimmed, p_limit: RANKED_HITS }),
     getAtlas(),
-    getEntries(),
+    getEncyclopediaEntries(),
   ]);
   const hits = groupSearchHits(rowsOf(result, "search")).slice(0, limit);
   const entryBySlug = new Map(entries.map((entry) => [entry.slug, entry]));
@@ -50,8 +50,8 @@ export async function search(query: string, limit = 12): Promise<SearchHit[]> {
       title: row.title,
       subtitle: row.subtitle,
       body: "",
-      // Topics moved from /entry/ to /topics/ (the old path only redirects).
-      url: row.url.replace(/^\/entry\//, `${routes.topics}/`),
+      // Topics moved from /entry/ to /entries/ (the old path only redirects).
+      url: row.url.replace(/^\/entry\//, `${routes.entries}/`),
       score: row.rank,
     };
     if (row.kind === "region") {

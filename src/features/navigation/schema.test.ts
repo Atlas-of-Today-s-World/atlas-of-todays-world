@@ -17,7 +17,7 @@ describe("navHref", () => {
     for (const href of [
       "/",
       "/about",
-      "/news",
+      "/entries",
       "/country/ukraine",
       "/view/hdi#hun",
       "/search?q=water",

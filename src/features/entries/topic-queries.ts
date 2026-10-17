@@ -212,7 +212,7 @@ const ENCYCLOPEDIA_COLUMNS = `${BASE_COLUMNS}, body_html, summary_points,
 /**
  * A single published entry with everything the page shows — in the page
  * language, otherwise the original; null if it doesn't exist. Cached per slug
- * (`entryPageTags`), like `getEntry`.
+ * (`entryPageTags`).
  */
 export async function getEncyclopediaEntry(
   slug: string,

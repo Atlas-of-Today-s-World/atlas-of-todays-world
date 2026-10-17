@@ -8,7 +8,7 @@ const meta = {
   title: "atlas/PhotoCard",
   component: PhotoCard,
   args: {
-    href: routes.topic("migrant-smuggling"),
+    href: routes.entry("migrant-smuggling"),
     image: PHOTO,
     title: "Migrant smuggling explained",
     description:
@@ -19,7 +19,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** A topic on /topics: the grid card with its place and a soft shade. */
+/** A topic on /entries: the grid card with its place and a soft shade. */
 export const Topic: Story = {
   args: { size: "lg", shade: true, kicker: "North Africa" },
   decorators: [
@@ -33,7 +33,7 @@ export const Topic: Story = {
 
 /** A news item in the dark "Our News" rail. */
 export const News: Story = {
-  args: { size: "md", titleAs: "h3", href: routes.news("sample-news") },
+  args: { size: "md", titleAs: "h3", href: routes.entry("sample-entry") },
   decorators: [
     (Story) => (
       <div className="bg-[var(--color-band)] p-6">

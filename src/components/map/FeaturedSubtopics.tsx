@@ -24,7 +24,7 @@ export function FeaturedSubtopics({ items }: { items: SubtopicTile[] }) {
   if (!items.length) return null;
   const tile = (item: SubtopicTile) => (
     <PhotoTile
-      href={routes.topic(item.topicSlug, item.anchor)}
+      href={routes.entry(item.topicSlug, item.anchor)}
       // A topic page is a heavy route: fetched once pointed at, not on arrival.
       prefetchOnIntent
       size="sm"

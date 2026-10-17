@@ -96,7 +96,7 @@ export default async function HomeAdminPage() {
             },
             {
               key: "topic",
-              label: "Topic",
+              label: "Entry",
               sortable: true,
               filter: "select",
               width: "minmax(160px, 1fr)",
@@ -127,7 +127,7 @@ export default async function HomeAdminPage() {
               actions: (
                 <RowActions
                   actions={[
-                    ...(tile ? [openAction(routes.topic(tile.topicSlug, tile.anchor))] : []),
+                    ...(tile ? [openAction(routes.entry(tile.topicSlug, tile.anchor))] : []),
                     ...(canEdit
                       ? [
                           ...moveActions(

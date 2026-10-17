@@ -143,17 +143,15 @@ describe("staticPageMetadata", () => {
   const params = Promise.resolve({ locale: "en" });
 
   it("is the page metadata from the section's metaTitle, else its title", async () => {
-    const topics = await staticPageMetadata("topics", "/topics")({ params });
+    const topics = await staticPageMetadata("topics", "/entries")({ params });
     expect(topics).toEqual(
       await pageMetadata({
         locale: "en",
-        path: "/topics",
+        path: "/entries",
         title: en.topics.metaTitle,
         description: en.topics.description,
       }),
     );
-    const news = await staticPageMetadata("newsIndex", "/news")({ params });
-    expect(news.title).toBe(en.newsIndex.title);
   });
 
   it("passes noindex and ownImage on", async () => {

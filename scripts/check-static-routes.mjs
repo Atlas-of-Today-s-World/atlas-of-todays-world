@@ -14,8 +14,8 @@ import { dynamicRouteProblems, parseRouteTable } from "./lib/route-table.mjs";
 const REQUIRED = [
   "/[locale]",
   "/[locale]/about",
-  "/[locale]/topics",
-  "/[locale]/topics/[slug]",
+  "/[locale]/entries",
+  "/[locale]/entries/[slug]",
   "/[locale]/countries",
   "/[locale]/country/[slug]",
   "/[locale]/region/[slug]",

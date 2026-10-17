@@ -34,7 +34,7 @@ export default async function ApprovalsPage() {
       <PageHeader
         icon={navIcon(adminRoutes.approvals)}
         title="Approvals"
-        lead="Topics and news waiting for a second pair of eyes. Open one, compare it with the published version, then approve it or return it with a note."
+        lead="Entries waiting for a second pair of eyes. Open one, compare it with the published version, then approve it or return it with a note."
       />
       <DataTable
         tableKey="admin-approvals"

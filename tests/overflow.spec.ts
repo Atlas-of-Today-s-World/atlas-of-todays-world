@@ -13,7 +13,7 @@ const PAGES = [
   "/country/ukraine",
   "/global-issue/russia-ukraine-war",
   "/global-issues",
-  "/topics",
+  "/entries",
   "/news",
   "/view/hdi",
   "/about",

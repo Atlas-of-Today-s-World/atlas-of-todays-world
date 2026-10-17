@@ -2,7 +2,7 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { BUILDER } from "@/config/organization";
 import { getAuthors } from "@/features/authors/queries";
-import { getEncyclopediaEntries, getEntries, getEntry } from "@/features/entries/queries";
+import { getEncyclopediaEntries } from "@/features/entries/queries";
 import type { Entry, EntrySummary } from "@/features/entries/types";
 import { getEncyclopediaEntry } from "@/features/entries/topic-queries";
 import { getAtlas, getIndicators } from "@/features/geography/queries";
@@ -19,7 +19,7 @@ import { llmsFullTxt, llmsTxt, type LlmsDocument, type LlmsLink } from "@/lib/se
 import { clampText } from "@/features/seo/metadata";
 import { latest, type FeedItem, type SitemapUrl } from "@/lib/seo/xml";
 import { createPublicClient } from "@/lib/supabase/public";
-import { categoryLabel, type ArticleKind } from "@/lib/content-types";
+import { categoryLabel } from "@/lib/content-types";
 import { articleDocument, articleUrl } from "./documents";
 import { routes } from "@/config/routes";
 import { SKILLS_PAGE } from "@/features/skills/model";
@@ -66,42 +66,28 @@ const articleDate = (item: EntrySummary) => item.updated ?? item.published;
 // Sitemaps
 // ---------------------------------------------------------------------------
 
-export const SITEMAPS = [
-  "pages",
-  "regions",
-  "countries",
-  "data",
-  "news",
-  "entries",
-  "authors",
-  "google-news",
-] as const;
+export const SITEMAPS = ["pages", "regions", "countries", "data", "entries", "authors"] as const;
 export type SitemapName = (typeof SITEMAPS)[number];
 
-/** Google News takes only articles from the last two days. */
-const NEWS_WINDOW_MS = 2 * 24 * 60 * 60 * 1000;
-
 /** All URLs of the site, grouped into the child sitemaps of /sitemap.xml. */
-export async function getSitemaps(now = Date.now()): Promise<Record<SitemapName, SitemapUrl[]>> {
-  const [atlas, news, entries, authors, stamps] = await Promise.all([
+export async function getSitemaps(): Promise<Record<SitemapName, SitemapUrl[]>> {
+  const [atlas, entries, authors, stamps] = await Promise.all([
     getAtlas(),
-    getEntries(),
     getEncyclopediaEntries(),
     getAuthors(),
     getLastModified(),
   ]);
   const dataChanged = latest(Object.values(stamps.indicator));
-  const articles = [...news, ...entries];
   const byAuthor = new Map<string, string[]>();
-  for (const item of articles) {
+  for (const item of entries) {
     if (!item.authorSlug) continue;
     byAuthor.set(item.authorSlug, [
       ...(byAuthor.get(item.authorSlug) ?? []),
       articleDate(item) ?? "",
     ]);
   }
-  const article = (kind: ArticleKind) => (item: EntrySummary) => ({
-    path: routes.article(kind, item.slug),
+  const article = (item: EntrySummary) => ({
+    path: routes.article("entry", item.slug),
     languages: item.languages,
     lastmod: articleDate(item),
     images: [item.hero],
@@ -109,9 +95,8 @@ export async function getSitemaps(now = Date.now()): Promise<Record<SitemapName,
 
   return {
     pages: [
-      { path: "/", lastmod: latest([dataChanged, ...articles.map(articleDate)]) },
-      { path: routes.newsIndex, lastmod: latest(news.map(articleDate)) },
-      { path: routes.topics, lastmod: latest(entries.map(articleDate)) },
+      { path: "/", lastmod: latest([dataChanged, ...entries.map(articleDate)]) },
+      { path: routes.entries, lastmod: latest(entries.map(articleDate)) },
       // The overview changes with the issues themselves (and with their topic counts).
       {
         path: routes.globalIssues,
@@ -154,24 +139,12 @@ export async function getSitemaps(now = Date.now()): Promise<Record<SitemapName,
       path: routes.view(indicator.id),
       lastmod: stamps.indicator[indicator.id],
     })),
-    news: news.map(article("news")),
-    entries: entries.map(article("entry")),
+    entries: entries.map(article),
     authors: authors
       .filter((author) => byAuthor.has(author.slug))
       .map((author) => ({
         path: routes.author(author.slug),
         lastmod: latest(byAuthor.get(author.slug) ?? []),
-      })),
-    "google-news": news
-      .filter((item) => item.published && now - Date.parse(item.published) < NEWS_WINDOW_MS)
-      .map((item) => ({
-        path: routes.news(item.slug),
-        languages: [item.languages[0] ?? DEFAULT_LOCALE],
-        news: {
-          title: item.title,
-          published: item.published ?? "",
-          language: item.languages[0] ?? DEFAULT_LOCALE,
-        },
       })),
   };
 }
@@ -180,30 +153,22 @@ export async function getSitemaps(now = Date.now()): Promise<Record<SitemapName,
 // Feeds
 // ---------------------------------------------------------------------------
 
-/** Latest news and entries (full text) for the RSS and Atom feeds of a language. */
+/** Latest entries (full text) for the RSS and Atom feeds of a language. */
 export async function getFeedItems(locale: Locale, limit = 30): Promise<FeedItem[]> {
-  const [news, entries] = await Promise.all([getEntries(), getEncyclopediaEntries()]);
+  const entries = await getEncyclopediaEntries();
   const t = await getMessagesFor(locale);
-  const recent = [
-    ...news.map((item) => ({ kind: "news" as const, item })),
-    ...entries.map((item) => ({ kind: "entry" as const, item })),
-  ]
-    .filter(({ item }) => item.published)
-    .sort((a, b) => Date.parse(b.item.published ?? "") - Date.parse(a.item.published ?? ""))
+  const recent = entries
+    .filter((item) => item.published)
+    .sort((a, b) => Date.parse(b.published ?? "") - Date.parse(a.published ?? ""))
     .slice(0, limit);
 
-  const full = await Promise.all(
-    recent.map(({ kind, item }) =>
-      kind === "news" ? getEntry(item.slug, locale) : getEncyclopediaEntry(item.slug, locale),
-    ),
-  );
-  return recent.flatMap(({ kind }, index) => {
-    const item = full[index];
+  const full = await Promise.all(recent.map((item) => getEncyclopediaEntry(item.slug, locale)));
+  return full.flatMap((item) => {
     if (!item?.published) return [];
     return [
       {
         title: item.title,
-        url: articleUrl(kind, item),
+        url: articleUrl("entry", item),
         summary: item.summary,
         html: item.html,
         published: item.published,
@@ -235,7 +200,6 @@ const getAtlasData = async (): Promise<AtlasData> => {
 
 function sections(
   { atlas, indicators }: AtlasData,
-  news: EntrySummary[],
   entries: EntrySummary[],
   locale: Locale,
   t: Messages,
@@ -248,14 +212,6 @@ function sections(
       links: entries.map((item) => ({
         name: item.title,
         url: url(locale, routes.article("entry", item.slug)),
-        note: `${date(item)}${clampText(item.summary, 300)}`,
-      })),
-    },
-    {
-      title: s.sectionNews,
-      links: news.slice(0, 50).map((item) => ({
-        name: item.title,
-        url: url(locale, routes.news(item.slug)),
         note: `${date(item)}${clampText(item.summary, 300)}`,
       })),
     },
@@ -292,7 +248,7 @@ function sections(
       title: s.sectionAbout,
       links: [
         { name: t.about.title, url: url(locale, routes.about), note: t.about.description },
-        { name: t.topics.title, url: url(locale, routes.topics), note: t.topics.description },
+        { name: t.topics.title, url: url(locale, routes.entries), note: t.topics.description },
         {
           name: t.globalIssues.title,
           url: url(locale, routes.globalIssues),
@@ -322,7 +278,6 @@ const countryLinks = (atlas: Atlas, locale: Locale): LlmsLink[] =>
 
 function head(
   data: AtlasData,
-  news: EntrySummary[],
   entries: EntrySummary[],
   locale: Locale,
   site: SiteSettings,
@@ -344,21 +299,20 @@ function head(
         sitemap: absoluteUrl("/sitemap.xml"),
       }),
     ],
-    sections: sections(data, news, entries, locale, t),
+    sections: sections(data, entries, locale, t),
     optional: countryLinks(data.atlas, locale),
   });
 }
 
 /** /llms.txt — the map of the site for language models. */
 export async function getLlmsTxt(locale: Locale): Promise<string> {
-  const [data, news, entries, site, t] = await Promise.all([
+  const [data, entries, site, t] = await Promise.all([
     getAtlasData(),
-    getEntries(),
     getEncyclopediaEntries(),
     getSiteSettings(),
     getMessagesFor(locale),
   ]);
-  return head(data, news, entries, locale, site, t);
+  return head(data, entries, locale, site, t);
 }
 
 /** One table of the latest value of every indicator for every country, with sources. */
@@ -392,9 +346,8 @@ function countryData(
 
 /** /llms-full.txt — llms.txt plus the full text of every article and the country data. */
 export async function getLlmsFullTxt(locale: Locale): Promise<string> {
-  const [data, news, entries, site, t, textsByLocale] = await Promise.all([
+  const [data, entries, site, t, textsByLocale] = await Promise.all([
     getAtlasData(),
-    getEntries(),
     getEncyclopediaEntries(),
     getSiteSettings(),
     getMessagesFor(locale),
@@ -403,15 +356,13 @@ export async function getLlmsFullTxt(locale: Locale): Promise<string> {
   const { atlas } = data;
   // Article labels follow the language of each article's text (articleDocument).
   const textsOf = (language: Locale) => textsByLocale[LOCALES.indexOf(language)] ?? t;
-  const [fullEntries, fullNews] = await Promise.all([
-    Promise.all(entries.map((item) => getEncyclopediaEntry(item.slug, locale))),
-    Promise.all(news.map((item) => getEntry(item.slug, locale))),
-  ]);
-  const document = (kind: ArticleKind, item: Entry | null) =>
-    item ? [articleDocument(kind, item, atlas, textsOf(item.locale), site.name)] : [];
+  const fullEntries = await Promise.all(
+    entries.map((item) => getEncyclopediaEntry(item.slug, locale)),
+  );
+  const document = (item: Entry | null) =>
+    item ? [articleDocument("entry", item, atlas, textsOf(item.locale), site.name)] : [];
   const documents = [
-    ...fullEntries.flatMap((item) => document("entry", item)),
-    ...fullNews.flatMap((item) => document("news", item)),
+    ...fullEntries.flatMap(document),
     ...atlas.regions.map((region) => ({
       title: region.name,
       url: url(locale, routes.regionFull(region.slug)),
@@ -438,7 +389,7 @@ export async function getLlmsFullTxt(locale: Locale): Promise<string> {
     })),
     countryData(data, locale, t.seo),
   ];
-  return llmsFullTxt(head(data, news, entries, locale, site, t), documents);
+  return llmsFullTxt(head(data, entries, locale, site, t), documents);
 }
 
 // ---------------------------------------------------------------------------
@@ -446,9 +397,9 @@ export async function getLlmsFullTxt(locale: Locale): Promise<string> {
 // ---------------------------------------------------------------------------
 
 /** An article (in the page language, else the original) with the atlas it is placed in. */
-export async function getArticle(kind: ArticleKind, slug: string, locale: Locale) {
+export async function getArticle(slug: string, locale: Locale) {
   const [item, atlas, site] = await Promise.all([
-    kind === "news" ? getEntry(slug, locale) : getEncyclopediaEntry(slug, locale),
+    getEncyclopediaEntry(slug, locale),
     getAtlas(locale),
     getSiteSettings(),
   ]);

@@ -16,7 +16,7 @@ import { HomeSettingsInput, PinInput } from "./schema";
  */
 
 const NO_RIGHT = "You can't change the home page.";
-const NOT_PUBLISHED = "Pick a subtopic of a published topic.";
+const NOT_PUBLISHED = "Pick a subtopic of a published entry.";
 
 function changed(): ActionState {
   updateTag(tags.home);

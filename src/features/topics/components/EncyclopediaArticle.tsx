@@ -84,7 +84,7 @@ export async function EncyclopediaArticle({
             { label: messages.article.breadcrumbAtlas, href: "/" },
             {
               label: messages.topics.title,
-              href: routes.topics,
+              href: routes.entries,
               pill: true,
               icon: <LayoutGrid aria-hidden className="size-3.5" />,
             },
@@ -156,7 +156,7 @@ export async function EncyclopediaArticle({
           ) : null}
           {item.authorProfile ? <AuthorBio author={item.authorProfile} /> : null}
 
-          <ArticleEnd href={routes.topics} label={messages.article.allTopics} share={item.title} />
+          <ArticleEnd href={routes.entries} label={messages.article.allTopics} share={item.title} />
         </div>
       </article>
       <OpenOnHash />

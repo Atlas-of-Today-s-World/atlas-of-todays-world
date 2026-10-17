@@ -8,7 +8,6 @@ import type { Country, CountryProfile, CountryStat } from "@/features/geography/
 import { getRequestLocale, getT } from "@/lib/i18n/request";
 import { formatPopulation } from "@/lib/format";
 import { format } from "@/lib/i18n/messages";
-import { categoryLabel } from "@/lib/content-types";
 import { MetricCards, SourceLink, StatGrid, StatIcon, StatItem } from "./atlas/ui";
 import { routes } from "@/config/routes";
 
@@ -33,7 +32,6 @@ const TERRITORY_STATUS_KEY = {
 export default async function CountryCard({
   country,
   stats,
-  newsItems,
   description,
   profile,
   topics,
@@ -41,7 +39,6 @@ export default async function CountryCard({
   country: Country;
   /** The country's value in every data layer (`getCountryStats`). */
   stats: CountryStat[];
-  newsItems: EntrySummary[];
   description: string;
   profile?: CountryProfile | null;
   /** Topics about the country (own, its region's, its groups') and the filtered list. */
@@ -176,34 +173,6 @@ export default async function CountryCard({
             </>
           ) : null}
         </p>
-      ) : null}
-
-      {newsItems.length ? (
-        <div className="mt-7">
-          <h2 className="font-display text-[15px] font-bold text-[var(--color-ink)]">
-            {format(t.countryCard.newsAbout, { name: country.name })}
-          </h2>
-          <ul className="mt-3 space-y-2">
-            {newsItems.map((item) => (
-              <li key={item.slug}>
-                <Link
-                  href={routes.news(item.slug)}
-                  className="group block rounded-xl border border-[var(--color-line)] p-3 transition hover:border-[var(--color-accent)]"
-                >
-                  <span className="text-[10.5px] tracking-wide text-[var(--color-ink-muted)] uppercase">
-                    {categoryLabel(item.category, t)}
-                  </span>
-                  <span className="mt-0.5 block text-[13.5px] font-medium text-[var(--color-ink)] group-hover:text-[var(--color-accent)]">
-                    {item.title}
-                  </span>
-                  <span className="mt-1 block text-[12px] leading-snug text-[var(--color-ink-muted)]">
-                    {item.summary}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
       ) : null}
     </article>
   );

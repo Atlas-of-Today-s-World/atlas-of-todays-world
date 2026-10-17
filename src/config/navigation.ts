@@ -33,13 +33,12 @@ export interface NavItem {
   flag?: NavFlag;
 }
 
-/** Built-in main menu (fallback): News only while it is switched on (flag news_menu). */
+/** Built-in main menu (fallback). */
 export const MAIN_NAV: readonly NavItem[] = [
-  { href: routes.topics, key: "topics" },
+  { href: routes.entries, key: "topics" },
   { href: routes.globalIssues, key: "globalIssues" },
   // Over the globe the map itself leads to a country; the list waits in the full menu.
   { href: routes.countries, key: "countries", compactHidden: true },
-  { href: routes.newsIndex, key: "news", compactHidden: true, flag: "news_menu" },
   { href: routes.about, key: "about" },
   { href: routes.membership, key: "patrons", primary: true },
 ];

@@ -12,7 +12,7 @@ const meta = {
       { label: "Atlas", href: "/" },
       {
         label: "Topics",
-        href: "/topics",
+        href: "/entries",
         pill: true,
         icon: <LayoutGrid aria-hidden className="size-3.5" />,
       },

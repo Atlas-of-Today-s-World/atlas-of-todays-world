@@ -97,8 +97,9 @@ describe("shared building blocks", () => {
     expect(SeoInput.parse({ entry_id: id, noindex: "true" }).noindex).toBe(true);
   });
 
-  it("an article is a news item or a topic", () => {
-    expect(EntryInput.parse(entry).kind).toBe("news");
+  it("an article is an entry unless it says news", () => {
+    expect(EntryInput.parse(entry).kind).toBe("entry");
+    expect(EntryInput.parse({ ...entry, kind: "news" }).kind).toBe("news");
     expect(EntryInput.safeParse({ ...entry, kind: "page" }).success).toBe(false);
   });
 

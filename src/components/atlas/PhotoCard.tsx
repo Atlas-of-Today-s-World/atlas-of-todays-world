@@ -13,7 +13,7 @@ const card = cva(
     variants: {
       /**
        * sm — a source in a rail (outlined on hover), md — a news item in a rail
-       * (lifted on hover), lg — a topic in the /topics grid (full cell height).
+       * (lifted on hover), lg — a topic in the /entries grid (full cell height).
        */
       size: {
         sm: "block w-52 shrink-0 snap-start rounded-xl hover:ring-2 hover:ring-[var(--color-accent)]",
@@ -84,7 +84,7 @@ export interface PhotoCardProps extends VariantProps<typeof card> {
 
 /**
  * The one white photo card: a photo header over a white body with the title
- * and a short text. Topics on /topics, news in a portrait, sources in "Learn
+ * and a short text. Topics on /entries, news in a portrait, sources in "Learn
  * more". (Text over the photo itself is PhotoTile.)
  */
 export function PhotoCard({

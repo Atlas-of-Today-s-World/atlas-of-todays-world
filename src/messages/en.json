@@ -1,6 +1,6 @@
 {
   "nav": {
-    "topics": "Topics",
+    "topics": "Entries",
     "globalIssues": "Global issues",
     "countries": "Countries",
     "news": "News",
@@ -92,7 +92,7 @@
     "mapsLead": "Selected visualisations from organisations that track this part of the world.",
     "mapsKicker": "Maps & charts",
     "mapsTitle": "Seen through maps and data",
-    "mapsTopicLead": "Interactive charts and maps behind this topic.",
+    "mapsTopicLead": "Interactive charts and maps behind this entry.",
     "mapsOpen": "Open the chart",
     "learnMore": "Learn more elsewhere",
     "learnMoreLead": "Documentaries, lectures, reports and databases picked by the Atlas team.",
@@ -110,7 +110,7 @@
     "timelineSources": "Sources",
     "inPreparation": "In preparation",
     "regionalProfile": "Regional profile",
-    "regionalProfileLead": "{country} is part of {region}. Our editors write about the region as a whole — its story, topics and sources below cover all its countries.",
+    "regionalProfileLead": "{country} is part of {region}. Our editors write about the region as a whole — its story, entries and sources below cover all its countries.",
     "regionalProfileOpen": "View the whole region",
     "statusReady": "Ready",
     "statusCompleted": "Completed",
@@ -129,8 +129,8 @@
   "map": {
     "encyclopediaView": "World metrics",
     "noMetric": "No metric",
-    "topicsOne": "1 topic",
-    "topicsCount": "{count} topics",
+    "topicsOne": "1 entry",
+    "topicsCount": "{count} entries",
     "layerView": "{label} view",
     "modes": "Map selection mode",
     "modeCountries": "Countries",
@@ -184,7 +184,7 @@
     "fullPage": "Full page view"
   },
   "search": {
-    "placeholder": "Search places, regions, news…",
+    "placeholder": "Search places, regions, entries…",
     "searching": "Searching…",
     "tooShort": "Type a word of at least three letters.",
     "nothing": "Nothing found in the Atlas yet.",
@@ -195,7 +195,7 @@
     "kindRegion": "Region",
     "kindCountry": "Country",
     "kindNews": "News",
-    "kindTopic": "Topic",
+    "kindTopic": "Entry",
     "kindIssue": "Global issue"
   },
   "country": {
@@ -356,14 +356,14 @@
     "newsletter": {
       "eyebrow": "Newsletter",
       "title": "Stay with the Atlas — free, about once a month",
-      "text": "Not ready to give? Get the new topics, data updates on the globe and a look behind the scenes straight to your inbox.",
+      "text": "Not ready to give? Get the new entries, data updates on the globe and a look behind the scenes straight to your inbox.",
       "cta": "Sign up for the newsletter"
     },
     "volunteer": {
       "title": "Write for the Atlas as a volunteer",
-      "lead": "Not every way to help is a donation. If you know a country, a region or an issue well, you can join our editors and write or review topics — as a volunteer, alongside your studies or work. Tell us a little about yourself and we will get in touch.",
+      "lead": "Not every way to help is a donation. If you know a country, a region or an issue well, you can join our editors and write or review entries — as a volunteer, alongside your studies or work. Tell us a little about yourself and we will get in touch.",
       "points": [
-        "Write or update a topic in your field",
+        "Write or update an entry in your field",
         "Review drafts and check sources",
         "Work remotely, at your own pace"
       ],
@@ -387,14 +387,6 @@
         "failed": "Something went wrong. Try again later."
       }
     }
-  },
-  "newsIndex": {
-    "title": "All news",
-    "heading": "News",
-    "description": "News from Atlas of Today’s World: short, sourced updates on politics, conflict, climate and society around the world, sorted by region and theme.",
-    "intro": "Each news item opens inside the world map, so you never lose the geographic context.",
-    "count": "{count} published so far.",
-    "byRegion": "Browse by region"
   },
   "countriesIndex": {
     "title": "All countries and regions",
@@ -457,15 +449,14 @@
     "editorialTeam": "Atlas editorial team",
     "breadcrumb": "Breadcrumb",
     "breadcrumbAtlas": "Atlas",
-    "allTopics": "All topics"
+    "allTopics": "All entries"
   },
   "og": {
     "site": "Atlas of Today's World",
     "country": "Country profile",
     "region": "World region",
     "issue": "Global issue",
-    "news": "News",
-    "entry": "Topic",
+    "entry": "Entry",
     "patrons": "Atlas Patrons",
     "defaultKicker": "Non-profit encyclopedia of the present",
     "defaultTitle": "Every country, region and global issue on one globe"
@@ -480,7 +471,7 @@
   },
   "home": {
     "title": "Atlas of Today's World — interactive atlas of every country",
-    "description": "Spin the satellite globe, click any country and read its profile: human development, political regime, living conditions and the news behind them.",
+    "description": "Spin the satellite globe, click any country and read its profile: human development, political regime, living conditions and the stories behind them.",
     "intro": "An interactive encyclopedia of the present. Explore the world on a 3D satellite globe, switch between data layers such as the Human Development Index, political regime or corruption perceptions, and open the profile of any region or country.",
     "regions": "World regions",
     "browseAll": "Browse all countries and regions",
@@ -538,8 +529,7 @@
     "ranked": "Ranked {rank} of {of} · ",
     "allCountries": "All countries · ",
     "population": "Population",
-    "subregion": "Subregion",
-    "newsAbout": "News about {name}"
+    "subregion": "Subregion"
   },
   "encyclopedia": {
     "heading": "Global Encyclopedia",
@@ -550,7 +540,7 @@
     "placeholder": "you@example.org",
     "interestsLabel": "What would you like to receive?",
     "interests": {
-      "topics": "New topics and subtopics",
+      "topics": "New entries and subtopics",
       "organisation": "News about the Atlas (fundraising, team)"
     },
     "consent": "Send me the emails I picked above. I can unsubscribe at any time. See our",
@@ -574,15 +564,14 @@
     "none": "No published articles yet."
   },
   "seo": {
-    "feedTitle": "Atlas of Today’s World — news and encyclopedia",
-    "feedDescription": "New articles from Atlas of Today’s World, the non-profit encyclopedia of the present: news analysis and encyclopedia dossiers on every world region.",
+    "feedTitle": "Atlas of Today’s World — encyclopedia",
+    "feedDescription": "New entries from Atlas of Today’s World, the non-profit encyclopedia of the present, on every world region and global issue.",
     "llmsIntro": "Atlas of Today’s World is published by {legalName}, a non-profit registered association in Prague, Czech Republic, founded in 2016. Everything is free to read without an account.",
     "llmsUse": "Country, region and global-issue pages combine editorial text with indicators from international sources (UNDP, World Bank, V-Dem, Transparency International and others via Our World in Data); every value states its source and year. Articles show their author, publication date and last update.",
     "llmsCite": "Cite as: Atlas of Today’s World, “<page title>”, <URL> (accessed <date>).",
     "llmsBuilder": "Website: designed and built by {builder} ({url}), a Czech software development company.",
     "llmsFormats": "Language: English. Markdown version of any article: add .md to its URL. Full text of all articles: {full}. Feeds: {rss} (RSS) and {atom} (Atom). Sitemap: {sitemap}.",
     "sectionEntries": "Encyclopedia dossiers",
-    "sectionNews": "News and analysis",
     "sectionRegions": "World regions",
     "sectionIssues": "Global issues",
     "sectionData": "Data layers (datasets by country)",
@@ -599,48 +588,48 @@
     "publisher": "Publisher"
   },
   "topics": {
-    "title": "Topics",
-    "metaTitle": "Topics — encyclopedia dossiers on today’s world",
+    "title": "Entries",
+    "metaTitle": "Entries — encyclopedia dossiers on today’s world",
     "description": "Every encyclopedia dossier of the Atlas in one place: migrant smuggling, conflicts, development and more, each told in subtopics with sources.",
     "intro": "In-depth dossiers on the issues shaping today’s world. Each one is told in subtopics, with sources and further reading.",
-    "empty": "No topics have been published yet.",
-    "seeAll": "See all {count} topics",
-    "seeOne": "See the topic",
-    "related": "Related topics",
-    "relatedWith": "Topics related to {name}",
-    "relatedWithRegion": "Topics related to {name} or {region}",
+    "empty": "No entries have been published yet.",
+    "seeAll": "See all {count} entries",
+    "seeOne": "See the entry",
+    "related": "Related entries",
+    "relatedWith": "Entries related to {name}",
+    "relatedWithRegion": "Entries related to {name} or {region}",
     "allCountries": "All countries",
     "allRegions": "All regions",
     "allSpecial": "All global issues",
-    "filterNone": "No topic about {name} yet.",
-    "inviteTitle": "No topics about {place} yet",
-    "inviteText": "Do you know {place} well? Write a topic for the Atlas as an editor, or help us commission one with a donation.",
-    "inviteMore": "Missing a topic about {place}?",
-    "inviteWrite": "Write a topic",
+    "filterNone": "No entry about {name} yet.",
+    "inviteTitle": "No entries about {place} yet",
+    "inviteText": "Do you know {place} well? Write an entry for the Atlas as an editor, or help us commission one with a donation.",
+    "inviteMore": "Missing an entry about {place}?",
+    "inviteWrite": "Write an entry",
     "inviteSupport": "Support the Atlas",
-    "clearFilter": "Show all topics",
+    "clearFilter": "Show all entries",
     "backToAtlas": "Back to Atlas",
     "backToAtlasShort": "Atlas",
     "globeWindow": "Back to the Atlas globe",
-    "filters": "Filter topics",
+    "filters": "Filter entries",
     "filterCountry": "Country",
     "filterRegion": "Region",
     "filterSpecial": "Global issue",
     "filterHint": "One filter at a time — choosing one clears the others.",
-    "search": "Search in topics",
-    "searchPlaceholder": "Search the text of all topics…",
+    "search": "Search in entries",
+    "searchPlaceholder": "Search the text of all entries…",
     "searching": "Searching…",
     "resultsCount": "{count} matches in the text",
     "resultsOne": "1 match in the text",
-    "noResults": "Nothing found in the text of these topics.",
+    "noResults": "Nothing found in the text of these entries.",
     "introPart": "Introduction",
     "inTopic": "in {topic}"
   },
   "globalIssues": {
     "title": "Global issues",
     "metaTitle": "Global issues across borders",
-    "description": "Every global issue of the Atlas in one place: wars, forced displacement, climate and more, each followed across the countries it touches, with its topics, timeline and sources.",
-    "intro": "Issues that cross the borders of regions. Each one follows the countries it touches, with its own topics, timeline and sources.",
+    "description": "Every global issue of the Atlas in one place: wars, forced displacement, climate and more, each followed across the countries it touches, with its entries, timeline and sources.",
+    "intro": "Issues that cross the borders of regions. Each one follows the countries it touches, with its own entries, timeline and sources.",
     "empty": "No global issues have been published yet.",
     "relatedWith": "Global issues related to {name}",
     "filterNone": "No global issue covers {name} yet.",
@@ -677,10 +666,10 @@
     "button": "Newsletter",
     "title": "The Atlas newsletter",
     "metaTitle": "Newsletter",
-    "description": "Sign up for the Atlas of Today’s World newsletter: new topics, data updates and what our editors are working on — about once a month.",
-    "lead": "About once a month we send what is new in the Atlas: fresh topics and subtopics, updated data on the map and a look at what our editors are working on.",
+    "description": "Sign up for the Atlas of Today’s World newsletter: new entries, data updates and what our editors are working on — about once a month.",
+    "lead": "About once a month we send what is new in the Atlas: fresh entries and subtopics, updated data on the map and a look at what our editors are working on.",
     "points": [
-      "New topics and subtopics as they are published",
+      "New entries and subtopics as they are published",
       "Data updates and new layers on the globe",
       "Behind the scenes of an independent encyclopedia"
     ],
@@ -691,7 +680,7 @@
     "donateText": "An open encyclopedia of today’s world is paid for by its readers. A monthly gift of any size keeps it free for everyone.",
     "donateCta": "Become an Atlas Patron",
     "editorTitle": "Write with us",
-    "editorText": "Know a country, a region or an issue well? Join our volunteer editors and help write and review topics.",
+    "editorText": "Know a country, a region or an issue well? Join our volunteer editors and help write and review entries.",
     "editorCta": "Apply as a volunteer editor"
   },
   "tab": {

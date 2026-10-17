@@ -42,7 +42,7 @@ export const PHOTO_WIDTH = {
   thumb: 384,
   /** Subtopic and topic tiles. */
   tile: 640,
-  /** Topic cards on /topics, region and country heroes in the side panel. */
+  /** Topic cards on /entries, region and country heroes in the side panel. */
   card: 828,
   /** Full-width topic hero. */
   hero: 1920,

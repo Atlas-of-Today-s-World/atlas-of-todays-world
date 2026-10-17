@@ -4,7 +4,7 @@ import { routes } from "@/config/routes";
 import { PhotoTile } from "./PhotoTile";
 
 const PHOTO = "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&q=60";
-const HREF = routes.topic("migrant-smuggling");
+const HREF = routes.entry("migrant-smuggling");
 const TITLE = "Smuggling routes across the central Mediterranean";
 
 // PhotoTile's props are a union (link / button / box), so the stories render it directly.

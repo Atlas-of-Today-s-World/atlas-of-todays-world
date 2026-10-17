@@ -35,7 +35,7 @@ const seoDescription = (item: { summary: string; summaryPoints: string[] }) =>
 
 export async function generateMetadata({
   params,
-}: PageProps<"/[locale]/topics/[slug]">): Promise<Metadata> {
+}: PageProps<"/[locale]/entries/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const locale = await localeFrom(params);
   const item = await getEncyclopediaEntry(slug, locale);
@@ -43,7 +43,7 @@ export async function generateMetadata({
   // The writer's SEO fields win; otherwise defaults derived from the article.
   return pageMetadata({
     locale,
-    path: routes.topic(item.slug),
+    path: routes.entry(item.slug),
     title: pageTitle(item.seo.title ?? item.title),
     description: item.seo.description ?? seoDescription(item),
     authoredDescription: Boolean(item.seo.description),
@@ -64,17 +64,17 @@ export async function generateMetadata({
   });
 }
 
-export default async function EntryPage({ params }: PageProps<"/[locale]/topics/[slug]">) {
+export default async function EntryPage({ params }: PageProps<"/[locale]/entries/[slug]">) {
   const { slug } = await params;
   const locale = await localeFrom(params);
   const [item, atlas] = await Promise.all([getEncyclopediaEntry(slug, locale), getAtlas(locale)]);
   const site = await getSiteSettings();
   // Unknown URL: redirect (changed slug), otherwise 404.
-  if (!item) return redirectOrNotFound(routes.topic(slug), locale);
+  if (!item) return redirectOrNotFound(routes.entry(slug), locale);
 
   const region = item.region ? atlas.regionBySlug.get(item.region) : undefined;
   // Canonical URL: the language the text is in (an untranslated original points to it).
-  const url = pageUrl(routes.topic(item.slug), item.locale);
+  const url = pageUrl(routes.entry(item.slug), item.locale);
   const meta = await articleMetaOf(item);
   const words = wordCount([item.html, ...item.chapters.map((chapter) => chapter.html)].join(" "));
 
@@ -98,7 +98,7 @@ export default async function EntryPage({ params }: PageProps<"/[locale]/topics/
               site,
               [
                 ...(region ? [{ name: region.name, path: routes.region(region.slug) }] : []),
-                { name: item.title, path: routes.topic(item.slug) },
+                { name: item.title, path: routes.entry(item.slug) },
               ],
               locale,
             ),

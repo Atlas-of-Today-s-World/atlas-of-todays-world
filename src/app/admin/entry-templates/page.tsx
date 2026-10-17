@@ -12,7 +12,7 @@ import { can, sectionAccess } from "@/features/auth/access";
 import { listTemplates } from "@/features/entries/editorial";
 import { deleteTemplate, setDefaultTemplate } from "@/features/entries/template-actions";
 
-export const metadata: Metadata = { title: "Topic templates" };
+export const metadata: Metadata = { title: "Entry templates" };
 
 /**
  * Topic templates: named sets of "Learn more" tiles and section headings. A new
@@ -29,12 +29,12 @@ export default async function TopicTemplatesPage() {
   return (
     <>
       <PageHeader
-        icon={navIcon(adminRoutes.topicTemplates.list)}
-        title="Topic templates"
-        lead="Resource tiles a topic starts with (Videos & Documentaries, Stats…) with their icons, backgrounds and section headings. A new topic copies the default template; a topic’s Learn more tab can apply another one."
+        icon={navIcon(adminRoutes.entryTemplates.list)}
+        title="Entry templates"
+        lead="Resource tiles an entry starts with (Videos & Documentaries, Stats…) with their icons, backgrounds and section headings. A new entry copies the default template; an entry’s Learn more tab can apply another one."
         actions={
           can(access.permissions, "news", "c") ? (
-            <Link href={adminRoutes.topicTemplates.new} className={buttonVariants({ size: "sm" })}>
+            <Link href={adminRoutes.entryTemplates.new} className={buttonVariants({ size: "sm" })}>
               New template
             </Link>
           ) : null
@@ -42,7 +42,7 @@ export default async function TopicTemplatesPage() {
       />
       <DataTable
         tableKey="admin-topic-templates"
-        caption="Topic templates"
+        caption="Entry templates"
         emptyTitle="No templates"
         initialSort={{ key: "name", dir: "asc" }}
         maxRowActions={1 + (canEdit ? 1 : 0) + (canDelete ? 1 : 0)}
@@ -61,7 +61,7 @@ export default async function TopicTemplatesPage() {
         ]}
         rows={templates.map((template) => ({
           id: template.id,
-          href: adminRoutes.topicTemplates(template.id),
+          href: adminRoutes.entryTemplates(template.id),
           values: {
             name: template.name,
             tiles: template.tiles.map((tile) => tile.label).join(" · "),
@@ -71,7 +71,7 @@ export default async function TopicTemplatesPage() {
           actions: (
             <RowActions
               actions={[
-                editAction(adminRoutes.topicTemplates(template.id)),
+                editAction(adminRoutes.entryTemplates(template.id)),
                 ...(canEdit && !template.is_default
                   ? [
                       confirmAction(
@@ -79,7 +79,7 @@ export default async function TopicTemplatesPage() {
                         "Make default",
                         setDefaultTemplate.bind(null, template.id),
                         `Make “${template.name}” the default?`,
-                        "New topics will start from this template. Existing topics don’t change.",
+                        "New entries will start from this template. Existing entries don’t change.",
                       ),
                     ]
                   : []),
@@ -88,7 +88,7 @@ export default async function TopicTemplatesPage() {
                       deleteAction(
                         deleteTemplate.bind(null, template.id),
                         `template ${template.name}`,
-                        "Topics made from it keep their tiles.",
+                        "Entries made from it keep their tiles.",
                       ),
                     ]
                   : []),

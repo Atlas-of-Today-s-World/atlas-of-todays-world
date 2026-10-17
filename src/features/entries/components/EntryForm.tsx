@@ -35,7 +35,7 @@ export function EntryForm({
   issues,
   countries,
   authors,
-  defaultKind = "news",
+  defaultKind = "entry",
 }: {
   entry: EditableEntry | null;
   /** Type of a new item ("entry" = a topic, from the New topic button). */
@@ -145,7 +145,8 @@ export function EntryForm({
             disabled={translation}
             onChange={(event) => setKind(event.target.value as ArticleKind)}
           >
-            {ARTICLE_KINDS.map((value) => (
+            {/* News is no longer published (2026-10-17): only an old news item keeps the choice. */}
+            {(entry?.kind === "news" ? ARTICLE_KINDS : (["entry"] as const)).map((value) => (
               <option key={value} value={value}>
                 {ARTICLE_KIND_LABEL[value]}
               </option>
@@ -189,7 +190,7 @@ export function EntryForm({
             Count on the map
           </legend>
           <p className="text-[12.5px] text-[var(--color-ink-muted)]">
-            On which globe layers this topic adds to the number shown over its region, global issue
+            On which globe layers this entry adds to the number shown over its region, global issue
             or countries. A topic of a region also counts for each of its countries.
           </p>
           <input type="hidden" name="map_layers_shown" value="1" />
@@ -212,7 +213,7 @@ export function EntryForm({
         label={isEntry ? "Header – lead text" : "Summary"}
         hint={
           isEntry
-            ? "The paragraph under the title in the header; also on the Topics list and in search engines."
+            ? "The paragraph under the title in the header; also on the Entries list and in search engines."
             : "One or two sentences; shown in listings and search engines."
         }
         errors={errors.summary}
@@ -337,7 +338,7 @@ export function EntryForm({
         <Checkbox
           name="planned"
           defaultChecked={values?.status === "planned"}
-          label="Planned topic only (gray tile on the portrait, not being written yet)"
+          label="Planned entry only (gray tile on the portrait, not being written yet)"
         />
       ) : null}
 

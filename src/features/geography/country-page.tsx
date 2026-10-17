@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import ContentRail from "@/components/ContentRail";
 import CountryCard from "@/components/CountryCard";
 import RegionFocus from "@/components/map/RegionFocus";
-import { entriesOfCountry, getEntries } from "@/features/entries/queries";
 import { getAtlas, getCountryProfileHtml, getCountryStats } from "@/features/geography/queries";
 import { format, type Messages } from "@/lib/i18n/messages";
 import { getRequestLocale, getT, localeFrom } from "@/lib/i18n/request";
@@ -132,15 +131,13 @@ export async function CountryPage({
   const region = country.region;
   // The region's own record (photo, summary) for its profile under the country.
   const regionData = region ? atlas.regionBySlug.get(region.slug) : undefined;
-  const [topics, entries, dossier, profileHtml, stats, timeline] = await Promise.all([
+  const [topics, dossier, profileHtml, stats, timeline] = await Promise.all([
     relatedTopics(atlas, "country", country.iso3),
-    getEntries(),
     regionData ? getPortrait("region", regionData.slug) : null,
     getCountryProfileHtml(country.iso3),
     getCountryStats(country.iso3, locale),
     getCountryTimeline(country.iso3),
   ]);
-  const newsItems = entriesOfCountry(entries, country.iso3);
   const profile = country.profile;
   const t = await getT();
   const description = profile.summary || fallbackDescription(country, stats, t.countryText);
@@ -150,7 +147,6 @@ export async function CountryPage({
       <CountryCard
         country={country}
         stats={stats}
-        newsItems={newsItems}
         description={description}
         profile={profile}
         topics={topics}
@@ -223,27 +219,20 @@ export async function CountryPage({
               locale,
             ),
           }),
-          {
-            ...countryNode({
-              slug: country.slug,
-              iso3: country.iso3,
-              iso2: country.iso2,
-              name: country.name,
-              nameFormal: country.nameFormal,
-              description,
-              lat: country.labelLat,
-              lon: country.labelLon,
-              locale,
-              region,
-              population: country.population,
-              stats,
-            }),
-            subjectOf: newsItems.map((item) => ({
-              "@type": "NewsArticle",
-              headline: item.title,
-              url: pageUrl(routes.news(item.slug), locale),
-            })),
-          },
+          countryNode({
+            slug: country.slug,
+            iso3: country.iso3,
+            iso2: country.iso2,
+            name: country.name,
+            nameFormal: country.nameFormal,
+            description,
+            lat: country.labelLat,
+            lon: country.labelLon,
+            locale,
+            region,
+            population: country.population,
+            stats,
+          }),
         )}
       />
     </>

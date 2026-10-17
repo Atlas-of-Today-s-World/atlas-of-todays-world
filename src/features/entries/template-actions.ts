@@ -19,7 +19,7 @@ import { entryChangedTags } from "@/lib/cache/tags";
 import { checkbox, requiredText, uuid } from "@/lib/validation/common";
 import { TemplateInput, TILE_FIELD_LABEL, TilesInput } from "./schema";
 
-const TEMPLATES = adminRoutes.topicTemplates.list;
+const TEMPLATES = adminRoutes.entryTemplates.list;
 
 /**
  * A topic template: its name, section labels and tiles, saved at once. A new
@@ -62,7 +62,7 @@ export async function setDefaultTemplate(id: string): Promise<ActionState> {
   const { error } = await session.supabase.rpc("set_default_topic_template", { p_template: id });
   if (error) return failed(error);
   revalidatePath(TEMPLATES);
-  return { ok: true, message: "New topics now start from this template." };
+  return { ok: true, message: "New entries now start from this template." };
 }
 
 /** Deletes a template (never the default); topics made from it keep their tiles. */
