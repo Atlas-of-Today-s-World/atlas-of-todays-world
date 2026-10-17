@@ -86,9 +86,7 @@ export async function saveTimeline(_prev: ActionState, formData: FormData): Prom
   // A region's timeline is also part of the regional profile under its countries
   // (same cached portrait); a topic's page is refreshed when it is live.
   if (kind === "region" || kind === "issue") updateTag(tags.portrait(kind, key));
-  else if (kind === "country") {
-    updateTag(tags.country(key));
-    updateTag(tags.countryTimelines);
-  } else await refreshEntry(session.supabase, key, true);
+  else if (kind === "country") updateTag(tags.country(key));
+  else await refreshEntry(session.supabase, key, true);
   return { ok: true, message: "Timeline saved." };
 }

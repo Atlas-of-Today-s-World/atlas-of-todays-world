@@ -47,7 +47,7 @@
   --color-warning-soft: #fef3c7;
   --color-danger: #b91c1c;
   --color-danger-soft: #fee2e2;
-  /* A place without topics (its red call to write, NoTopicsCta). */
+  /* A place without topics (its red call to write, ContentStatusBadge). */
   --color-empty: #dc2626;
   --color-empty-strong: #b91c1c;
   --color-empty-soft: #fef2f2;

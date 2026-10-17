@@ -1,4 +1,4 @@
-import type { ContentStatus } from "@/features/geography/content-status";
+import type { GroupStatus } from "@/features/geography/content-status";
 
 /** ISO3 -> color for each layer, precomputed on the server. */
 export interface GlobeColorSets {
@@ -11,6 +11,6 @@ export interface RegionLookup {
   /** region slug -> its countries, name, map fill and content status. */
   bySlug: Record<
     string,
-    { name: string; countries: string[]; fill: string; status: ContentStatus }
+    { name: string; countries: string[]; fill: string; status: GroupStatus }
   >;
 }

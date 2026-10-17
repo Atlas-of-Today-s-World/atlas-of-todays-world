@@ -3,7 +3,6 @@ import { kickerVariants } from "@/components/atlas/kicker";
 import { ShareButton } from "@/components/atlas/ShareButton";
 import Link from "@/components/i18n/Link";
 import { TopicsLink } from "@/components/topics/RelatedTopics";
-import { NoTopicsCta } from "@/components/topics/NoTopicsCta";
 import type { EntrySummary } from "@/features/entries/types";
 import type { Country, CountryProfile, CountryStat } from "@/features/geography/types";
 import { getRequestLocale, getT } from "@/lib/i18n/request";
@@ -97,10 +96,7 @@ export default async function CountryCard({
 
       <p className="mt-3 text-[13px] leading-relaxed text-[var(--color-ink-soft)]">{description}</p>
       {topics ? (
-        <>
-          <TopicsLink count={topics.items.length} href={topics.href} className="mt-4" />
-          <NoTopicsCta count={topics.items.length} place={country.name} className="mt-4" />
-        </>
+        <TopicsLink count={topics.items.length} href={topics.href} className="mt-4" />
       ) : null}
 
       <StatGrid className="mt-5">

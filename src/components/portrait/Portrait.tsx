@@ -12,7 +12,7 @@ import { safeUrl } from "@/lib/security/urls";
 import { PHOTO_WIDTH } from "@/lib/images";
 import { format } from "@/lib/i18n/messages";
 import { getRequestLocale, getT } from "@/lib/i18n/request";
-import type { ContentStatus } from "@/features/geography/content-status";
+import type { GroupStatus } from "@/features/geography/content-status";
 import { ContentStatusBadge } from "./ContentStatusBadge";
 import { PortraitCounts } from "./PortraitCounts";
 import { FaqList, IndicatorCards, PatronsCallout, ResourceLibrary } from "./sections";
@@ -34,7 +34,7 @@ export interface PortraitSubject {
   countries: { slug: string; name: string }[];
   population: number;
   /** How far the editors are; untouched places ask for support. Left out = no badge. */
-  status?: ContentStatus;
+  status?: GroupStatus;
 }
 
 /**

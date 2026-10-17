@@ -33,22 +33,3 @@ export function getCountryTimeline(iso3: string): Promise<Timeline | null> {
     { tags: [tags.country(iso3)], revalidate: PUBLIC_REVALIDATE_SECONDS },
   )();
 }
-
-/**
- * ISO3 codes of the countries with at least one timeline event: their own
- * content counts as created (the check mark on the globe's country pills).
- */
-export const getCountriesWithTimeline = unstable_cache(
-  async (): Promise<string[]> => {
-    const rows = must(
-      await createPublicClient()
-        .from("timeline_events")
-        .select("country_iso3")
-        .not("country_iso3", "is", null),
-      "timeline: countries",
-    );
-    return [...new Set(rows.flatMap((row) => (row.country_iso3 ? [row.country_iso3] : [])))].sort();
-  },
-  ["countries-with-timeline"],
-  { tags: [tags.countryTimelines], revalidate: PUBLIC_REVALIDATE_SECONDS },
-);

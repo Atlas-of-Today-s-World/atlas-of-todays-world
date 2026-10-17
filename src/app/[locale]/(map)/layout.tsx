@@ -16,7 +16,6 @@ import { getSocialLinks } from "@/features/site/queries";
 import { regionColorMap } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
 import { getTopicPlaces } from "@/features/entries/queries";
-import { getCountriesWithTimeline } from "@/features/timelines/queries";
 import { badgeNumbers, countryBadges, countTopics } from "@/features/topics/map-counts";
 import { format, type Messages } from "@/lib/i18n/messages";
 import { getRequestLocale, getT, localeFrom } from "@/lib/i18n/request";
@@ -86,14 +85,13 @@ function lookup(groups: (Region | GlobalIssue)[]): RegionLookup {
 }
 
 export default async function MapLayout({ children, params }: LayoutProps<"/[locale]">) {
-  const [atlas, flags, places, featured, socials, nav, withTimeline] = await Promise.all([
+  const [atlas, flags, places, featured, socials, nav] = await Promise.all([
     getAtlas(await localeFrom(params)),
     getFlags(),
     getTopicPlaces(),
     featuredSubtopics(),
     getSocialLinks(),
     getNavigation(),
-    getCountriesWithTimeline(),
   ]);
   const slugs = Object.fromEntries(atlas.countries.map((country) => [country.iso3, country.slug]));
 
@@ -123,8 +121,6 @@ export default async function MapLayout({ children, params }: LayoutProps<"/[loc
     regions: badgeNumbers(counts.regions),
     issue: badgeNumbers(counts.issues),
   };
-  // A country's own content counts as created once it has a timeline.
-  const countryStatuses = Object.fromEntries(withTimeline.map((iso3) => [iso3, "ready" as const]));
 
   return (
     <MapProvider>
@@ -144,7 +140,6 @@ export default async function MapLayout({ children, params }: LayoutProps<"/[loc
             issue={issue}
             regionLabels={regionLabels}
             topicCounts={topicCounts}
-            countryStatuses={countryStatuses}
             styleOptions={{
               border: atlas.theme.border,
               issueLabels: atlas.issues.map(({ slug, name, center }) => ({ slug, name, center })),

@@ -22,7 +22,7 @@ import { DESKTOP_MIN_PX, GLOBE, isFullPage, isHome, railKind } from "@/config/la
 import { cn } from "@/lib/cn";
 import { useIdleSpin } from "./useIdleSpin";
 import { Starfield } from "./Starfield";
-import { type ContentStatus, unprocessedCountries } from "@/features/geography/content-status";
+import { type RegionProgress, unprocessedCountries } from "@/features/geography/content-status";
 import { openIssueSlug, STATUS_IMAGES, statusesOf, statusMarkImage } from "./global-issues";
 import { applyFeatureState } from "./globe/featureState";
 import { paintLayer, paintSelectionMode } from "./globe/layerPaint";
@@ -59,8 +59,6 @@ interface Props {
   styleOptions: StyleOptions;
   /** Number of topics per place, for each selection mode (ISO3 or group slug → count). */
   topicCounts: Record<SelectionModeKey, Record<string, number>>;
-  /** ISO3 → "ready" for countries whose own content (a timeline) is created; the rest aren't yet. */
-  countryStatuses: Record<string, ContentStatus>;
 }
 
 /** Upper bound for the globe canvas pixel ratio (see the Map options). */
@@ -80,7 +78,6 @@ export default function AtlasGlobe({
   regionLabels,
   styleOptions,
   topicCounts,
-  countryStatuses,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const surfaceRef = useRef<HTMLDivElement>(null);
@@ -120,17 +117,24 @@ export default function AtlasGlobe({
   const miniRef = useLatest(mini);
   /** The global issue whose panel is open: its countries are lit, the rest of the world greys out. */
   const openIssue = openIssueSlug(pathname);
-  // Content status per group (marks in the pills) and the countries of regions
-  // nobody has started on (grey in Regions mode). Issues keep their colours: one
-  // spanning the whole world (Migration) would otherwise grey the entire globe.
+  // Content status per place (marks and colours of the pills: a country carries
+  // its region's progress) and the countries of planned regions (grey in Regions
+  // mode). Issues keep their colours: one spanning the whole world (Migration)
+  // would otherwise grey the entire globe.
   const statuses = useMemo(
     () => ({
-      countries: countryStatuses,
+      countries: Object.fromEntries(
+        Object.entries(regions.slugByCountry).map(([iso3, slug]) => [
+          iso3,
+          regions.bySlug[slug]?.status ?? "planned",
+        ]),
+      ),
       regions: statusesOf(regions.bySlug),
       issue: statusesOf(issue.bySlug),
     }),
-    [countryStatuses, regions, issue],
+    [regions, issue],
   );
+  const statusesRef = useLatest(statuses);
   const unprocessed = useMemo(() => unprocessedCountries(Object.values(regions.bySlug)), [regions]);
 
   const { pendingIso3, bind, clearHover } = useGlobeInteractions({
@@ -149,7 +153,13 @@ export default function AtlasGlobe({
     const map = mapRef.current;
     if (!map || document.hidden) return;
     const key = modeRef.current;
-    pulseTopicBadges(map, key, (place) => topicCountsRef.current[key][place] ?? 0);
+    pulseTopicBadges(
+      map,
+      key,
+      (place) => topicCountsRef.current[key][place] ?? 0,
+      (place) =>
+        key === "issue" ? undefined : (statusesRef.current[key][place] as RegionProgress),
+    );
   });
 
   // --- map initialization (only once for the app's whole lifetime) ---
@@ -203,7 +213,7 @@ export default function AtlasGlobe({
         });
 
         map.on("load", () => {
-          // Status marks inside the topic pills (check mark, hourglass) go in before any
+          // Status marks inside the topic pills (check mark, hourglass, calendar) go in before any
           // pill names them: an image inside text isn't laid out again once it arrives.
           for (const id of Object.values(STATUS_IMAGES)) {
             const mark = statusMarkImage(id);
@@ -213,8 +223,9 @@ export default function AtlasGlobe({
         });
 
         map.on("styleimagemissing", (event: { id: string }) => {
-          if (event.id !== TOPIC_BADGE_IMAGES.some || map.hasImage(event.id)) return;
-          const badge = topicBadgeImage();
+          const known = Object.values(TOPIC_BADGE_IMAGES) as string[];
+          if (!known.includes(event.id) || map.hasImage(event.id)) return;
+          const badge = topicBadgeImage(event.id);
           if (badge) map.addImage(event.id, badge.image, badge.options);
         });
 
