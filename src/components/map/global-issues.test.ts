@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 import type { ExpressionSpecification } from "maplibre-gl";
-import { STATUS_IMAGES, openIssueSlug, statusesOf, withStatusMark } from "./global-issues";
+import {
+  STATUS_IMAGES,
+  isCompleted,
+  openIssueSlug,
+  statusesOf,
+  withProgressMark,
+  withStatusMark,
+} from "./global-issues";
 
 const text = ["match", ["get", "slug"], "mena", "12", "0"] as unknown as ExpressionSpecification;
 
@@ -66,17 +73,27 @@ describe("withStatusMark", () => {
       ["match", ["get", "iso3"], ["eeca"], STATUS_IMAGES.preparing, STATUS_IMAGES.none],
     ]);
   });
+});
 
-  it("gives the other places a fallback mark (countries: the dashed ring)", () => {
-    const mark = withStatusMark(text, { CZE: "ready" }, "iso3", STATUS_IMAGES.missing) as unknown[];
-    expect(mark[3]).toEqual([
-      "image",
-      ["match", ["get", "iso3"], ["CZE"], STATUS_IMAGES.ready, STATUS_IMAGES.missing],
+describe("withProgressMark", () => {
+  it("leads the number with a check mark for completed places, a calendar for planned ones", () => {
+    const completed = isCompleted({ mena: "completed", eeca: "planned" }, "slug");
+    expect(completed).toEqual(["in", ["get", "slug"], ["literal", ["mena"]]]);
+    expect(withProgressMark(text, completed)).toEqual([
+      "format",
+      ["image", ["case", completed, STATUS_IMAGES.completed, STATUS_IMAGES.planned]],
+      { "vertical-align": "center" },
+      text,
+      {},
     ]);
   });
 
-  it("marks every place with the fallback while none is ready", () => {
-    const mark = withStatusMark(text, {}, "iso3", STATUS_IMAGES.missing) as unknown[];
-    expect(mark[3]).toEqual(["image", STATUS_IMAGES.missing]);
+  it("tests countries by ISO3, and nothing is completed without completed places", () => {
+    expect(isCompleted({ EGY: "completed", UKR: "planned" }, "iso3")).toEqual([
+      "in",
+      ["get", "iso3"],
+      ["literal", ["EGY"]],
+    ]);
+    expect(isCompleted({}, "iso3")).toEqual(["in", ["get", "iso3"], ["literal", []]]);
   });
 });

@@ -4,7 +4,7 @@
  * client component may import them too.
  */
 import type { MetricCard } from "@/lib/content-types";
-import type { ContentStatus } from "./content-status";
+import type { ContentStatus, RegionProgress } from "./content-status";
 import type { GroupKind } from "./kinds";
 
 export interface Region {
@@ -25,8 +25,8 @@ export interface Region {
   heroCredit: string;
   /** False for a region no country data describe (Antarctica): no indicator cards. */
   showMetrics: boolean;
-  /** How far the editors are with the region's content (grey on the globe until started). */
-  contentStatus: ContentStatus;
+  /** Planned for the future or completed (grey on the globe while planned). */
+  contentStatus: RegionProgress;
   /** Lead – shown in the map panel and as the meta description. */
   summary: string;
   /** ISO3 codes of the region's countries, most populous first. */

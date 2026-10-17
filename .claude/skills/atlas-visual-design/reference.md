@@ -21,8 +21,8 @@ itself (4.5:1 text, 3:1 large text and UI parts) is defined in `atlas-accessibil
 | `line` #c3c8d3 | white | 1.7 | Decorative dividers only; never the only outline of a control |
 | `empty` #dc2626 | white | 4.8 | The red zero and its border |
 | `empty-strong` #b91c1c | `empty-soft` #fef2f2 | 5.9 | Text of the zero-topics invitation |
-| `status-ready-text` #16794a | white | 5.4 | "Ready" label |
-| `status-preparing-text` #9a6200 | white | 5.1 | "In preparation" label |
+| `status-ready-text` #16794a | white | 5.4 | "Ready" label; fill of a completed region's pills (white number) |
+| `status-preparing-text` #9a6200 | white | 5.1 | "In preparation" label; fill of a planned region's pills (white number) |
 | `status-ready` #1e9e5a | white | 3.5 | Icon only (with a text label) |
 | `status-preparing` #d98a00 | white | 2.8 | Icon only, always next to a text label; never text |
 | `success` / `warning` / `danger` | their `-soft` | 6.5 / 6.4 / 5.3 | Badges and result messages |

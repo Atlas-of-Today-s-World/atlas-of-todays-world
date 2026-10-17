@@ -3,6 +3,7 @@
 import {
   CONTENT_STATUS_LABEL,
   FEATURED_MAX,
+  REGION_PROGRESS_LABEL,
   GROUP_KIND_LABEL,
   GROUP_KIND_OPTION,
 } from "../constants";
@@ -20,7 +21,12 @@ import { UploadField } from "@/components/admin/UploadField";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { SlugField, useSlug } from "@/components/admin/SlugField";
 import { saveCountry, saveIssue, saveRegion } from "../actions";
-import { CONTENT_STATUSES, type ContentStatus } from "@/features/geography/content-status";
+import {
+  CONTENT_STATUSES,
+  REGION_PROGRESS,
+  regionProgress,
+  type ContentStatus,
+} from "@/features/geography/content-status";
 import type { GroupKind } from "@/features/geography/kinds";
 import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { routes } from "@/config/routes";
@@ -104,8 +110,40 @@ function MapViewFields({
 }
 
 /**
- * How far the content is: drives the mark next to the topic count on the
- * globe, the grey fill of untouched places and the badge in the portrait.
+ * A region's content: planned for the future or completed. Drives the colour
+ * and mark of the topic pills of the region and its countries on the globe,
+ * the grey fill of planned regions and the badge in the portrait. The list of
+ * regions has the same switch in one click.
+ */
+function RegionProgressField({ value }: { value: string }) {
+  const current = regionProgress(value);
+  return (
+    <fieldset className="grid gap-2">
+      <legend className="text-[12.5px] font-medium text-[var(--color-ink-soft)]">Content</legend>
+      <div className="flex flex-wrap gap-x-6 gap-y-2 text-[14px]">
+        {REGION_PROGRESS.map((progress) => (
+          <label key={progress} className="flex min-h-(--touch-min) items-center gap-2">
+            <input
+              type="radio"
+              name="content_progress"
+              value={progress}
+              defaultChecked={current === progress}
+            />
+            {REGION_PROGRESS_LABEL[progress]}
+          </label>
+        ))}
+      </div>
+      <p className="text-[12px] text-[var(--color-ink-muted)]">
+        Shown on the globe (the pills of the region and its countries) and in the portrait header,
+        so visitors see what is done and what needs support.
+      </p>
+    </fieldset>
+  );
+}
+
+/**
+ * How far a global issue's content is: drives the mark next to its topic count
+ * on the globe and the badge in the portrait.
  */
 function ContentStatusField({ value, errors }: { value: string; errors: Errors }) {
   return (
@@ -199,7 +237,7 @@ export function RegionForm({
     center_lon: number;
     center_lat: number;
     zoom: number;
-    content_status: string;
+    content_progress: string;
   };
 }) {
   const [state, action] = useServerAction(saveRegion);
@@ -222,7 +260,7 @@ export function RegionForm({
       </div>
       <ColorFields fill={region.fill} stroke={region.stroke} errors={errors} />
       <MapViewFields values={region} errors={errors} />
-      <ContentStatusField value={region.content_status} errors={errors} />
+      <RegionProgressField value={region.content_progress} />
       <PortraitHead values={region} errors={errors} />
       <ActionStatus state={state} />
       <div>

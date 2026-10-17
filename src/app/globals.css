@@ -677,3 +677,18 @@ body {
   white-space: nowrap;
   animation: topic-pulse 1.6s ease-in-out both;
 }
+
+/* A region's and its countries' pills: the region's progress (topicBadges.ts). */
+.topic-pulse-completed,
+.topic-pulse-planned {
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+.topic-pulse-completed {
+  background: var(--color-status-ready-text);
+}
+
+.topic-pulse-planned {
+  background: var(--color-status-preparing-text);
+}

@@ -46,9 +46,10 @@ and for AI agents drafting text for them.
 - **Timeline**: max 60 events, each with a date, rich text and up to 20 sources (https links).
 - **Categories** (`NEWS_CATEGORIES`): Living Conditions, Political System, Society,
   International Relations, Historical Roots. They group into four portrait groups.
-- **Content status** of a region or global issue: not started (grey on the globe, asks for
-  support), in preparation (hourglass), ready (check mark). Keep it honest — readers fund
-  regions based on it.
+- **Content status**: a region is planned for the future (amber pill with a calendar, grey on the
+  globe, asks for support) or completed (green pill with a check mark) — on its pill and on the
+  pills of all its countries. A global issue is not started, in preparation (hourglass) or ready
+  (check mark). Keep it honest — readers fund regions based on it.
 - **"Planned topic only"** (status `planned`) shows a grey "Coming soon" tile on the portrait. It is
   not a scheduled publication (see below). The admin list currently labels it "Scheduled".
 

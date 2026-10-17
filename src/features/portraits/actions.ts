@@ -12,6 +12,7 @@ import { previewNote, storePreviewImages } from "@/lib/previews/store";
 import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { htmlTooLong, iso3 as iso3Schema, SLUG, slug as slugSchema } from "@/lib/validation/common";
 import { GROUP_KIND_LABEL } from "./constants";
+import { REGION_PROGRESS, type RegionProgress } from "@/features/geography/content-status";
 import {
   COLLECTIONS,
   CountryInput,
@@ -113,6 +114,32 @@ export async function saveRegion(_prev: ActionState, formData: FormData): Promis
   updateTag(tags.portrait("region", slug));
   notifyIndexNow([routes.regionFull(slug)], { everyLanguage: true });
   return { ok: true, message: "Region saved." };
+}
+
+/**
+ * Marks a region's content as planned for the future or completed (the switch
+ * in the list of regions; RLS regions "e" applies). The progress is part of the
+ * map snapshot and of the region's portrait.
+ */
+export async function setRegionProgress(
+  slug: string,
+  progress: RegionProgress,
+): Promise<ActionState> {
+  if (!slugSchema(120).safeParse(slug).success || !REGION_PROGRESS.includes(progress)) {
+    return { ok: false, error: "Invalid region." };
+  }
+  const session = await signedIn();
+  if (!session) return NOT_SIGNED_IN;
+  const { data, error } = await session.supabase
+    .from("regions")
+    .update({ content_progress: progress })
+    .eq("slug", slug)
+    .select("slug");
+  if (error) return failed(error);
+  if (!data.length) return { ok: false, error: "You can't edit this region." };
+  updateTag(tags.atlas);
+  updateTag(tags.portrait("region", slug));
+  return { ok: true, message: progress === "completed" ? "Marked completed." : "Marked planned." };
 }
 
 /**

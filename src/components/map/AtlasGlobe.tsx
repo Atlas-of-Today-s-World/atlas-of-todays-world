@@ -219,6 +219,11 @@ export default function AtlasGlobe({
             const mark = statusMarkImage(id);
             if (mark && !map.hasImage(id)) map.addImage(id, mark.image, mark.options);
           }
+          // So do the pills: one requested later by a feature already laid out stays missing.
+          for (const id of Object.values(TOPIC_BADGE_IMAGES)) {
+            const badge = topicBadgeImage(id);
+            if (badge && !map.hasImage(id)) map.addImage(id, badge.image, badge.options);
+          }
           setReady(true);
         });
 

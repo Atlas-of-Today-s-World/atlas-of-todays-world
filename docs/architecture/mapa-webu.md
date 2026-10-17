@@ -213,9 +213,12 @@ timeline nezobrazují. Obsah ze starého webu: `scripts/webflow/import-portraits
 - **Global issues** místo „Special regions" ve veřejném webu i v administraci (popisky; tabulky,
   URL a klíč sekce `specials` zůstaly); výběr tématu rozsvítí jeho
   země, ostatní zešednou.
-- **Stav zpracování** (`content_status`: none / preparing / ready) u regionů i globálních
-  témat — v adminu, na glóbu fajfka nebo přesýpací hodiny, nezpracované regiony šedé,
-  v portrétu štítek s výzvou k podpoře.
+- **Stav zpracování**: region je *planned for the future* nebo *completed*
+  (`regions.content_progress`, přepínač jedním kliknutím v seznamu regionů v adminu, 2026-10-17).
+  Na glóbu ho nesou pilulky regionu i všech jeho zemí — zelená s fajfkou, nebo jantarová
+  s kalendářem — s počtem topics regionu; plánované regiony šedé, v portrétu štítek s výzvou
+  k podpoře. Globální témata mají dál `content_status` (none / preparing / ready): fajfka nebo
+  přesýpací hodiny v bílé pilulce.
 - **Maps & charts** u regionů, globálních témat, témat i podtémat (ADR-027): v adminu se vloží
   embed kód nebo odkaz (Datawrapper, Flourish, Our World in Data, World Bank), uloží se jen
   ověřená adresa grafu; na webu karusel po jednom se šipkami a tečkami.

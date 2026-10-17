@@ -54,7 +54,7 @@ tokens below. A new look is a new token or a new variant, never a hand-picked va
 | Gold | `gold`, `gold-light`, `gold-deep`, `gold-edge` | Coin, spark ring and other warm "support / invite" highlights |
 | Status | `success`, `warning`, `danger` (+ `-soft`) | Badges, results, errors |
 | Empty | `empty`, `empty-strong`, `empty-soft` | Only "this place has no topics yet" (red zero, `NoTopicsCta`, `ContentStatusBadge`) |
-| Content progress | `status-ready(-text)`, `status-preparing(-text)` | Ready (green check) and in preparation (amber hourglass) marks |
+| Content progress | `status-ready(-text)`, `status-preparing(-text)` | Ready / completed (green check), in preparation (amber hourglass), planned region (amber calendar); the `-text` tones fill the region and country pills on the globe |
 
 - Red has two meanings and they never mix: `danger` = something went wrong or is destructive;
   `empty` = an invitation to write the first topic.

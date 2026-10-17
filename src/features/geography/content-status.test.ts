@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { contentStatus, unprocessedCountries } from "./content-status";
+import { contentStatus, regionProgress, unprocessedCountries } from "./content-status";
 
 describe("contentStatus", () => {
   it("keeps a known status and reads anything else as not started", () => {
@@ -9,6 +9,15 @@ describe("contentStatus", () => {
     expect(contentStatus("done")).toBe("none");
     expect(contentStatus(undefined)).toBe("none");
     expect(contentStatus(null)).toBe("none");
+  });
+});
+
+describe("regionProgress", () => {
+  it("is completed only when the database says so, planned otherwise", () => {
+    expect(regionProgress("completed")).toBe("completed");
+    expect(regionProgress("planned")).toBe("planned");
+    expect(regionProgress("ready")).toBe("planned");
+    expect(regionProgress(undefined)).toBe("planned");
   });
 });
 
@@ -31,6 +40,15 @@ describe("unprocessedCountries", () => {
         { countries: ["UKR", "RUS"], status: "preparing" },
       ]),
     ).toEqual(["BRA", "USA"]);
+  });
+
+  it("greys the countries of planned regions, not of completed ones", () => {
+    expect(
+      unprocessedCountries([
+        { countries: ["EGY", "IRN"], status: "completed" },
+        { countries: ["UKR", "KAZ"], status: "planned" },
+      ]),
+    ).toEqual(["KAZ", "UKR"]);
   });
 
   it("nothing to grey without groups", () => {

@@ -8,12 +8,20 @@ import { optionStats } from "@/components/data-table/stats";
 import { navIcon } from "@/config/admin-nav";
 import { can, sectionAccess } from "@/features/auth/access";
 import { getAtlas } from "@/features/geography/queries";
-import { moveRegion } from "@/features/portraits/actions";
+import { moveRegion, setRegionProgress } from "@/features/portraits/actions";
+import { RegionProgressSwitch } from "@/features/portraits/components/RegionProgressSwitch";
+import { REGION_PROGRESS_LABEL } from "@/features/portraits/constants";
 import { countriesWithProfileText } from "@/features/portraits/editorial";
 import { formatPopulation } from "@/lib/format";
 import { adminRoutes, routes } from "@/config/routes";
 
 export const metadata: Metadata = { title: "Regions & countries" };
+
+/** A region's content (regions.content_progress): the column's badge, filter and chips. */
+const PROGRESS = [
+  { value: "completed", label: REGION_PROGRESS_LABEL.completed, tone: "success" as const },
+  { value: "planned", label: REGION_PROGRESS_LABEL.planned, tone: "warning" as const },
+];
 
 const PROFILE = [
   { value: "yes", label: "With editorial profile", tone: "success" as const },
@@ -25,6 +33,7 @@ export default async function RegionsPage() {
   if (!access) return <NoAccess />;
   const [atlas, withText] = await Promise.all([getAtlas(), countriesWithProfileText()]);
   // The globe's pills, the Countries page and the admin list follow this order.
+  // Moving a region and switching its content need the same right.
   const canMove = can(access.permissions, "regions", "e");
 
   return (
@@ -39,6 +48,7 @@ export default async function RegionsPage() {
         tableKey="admin-regions"
         caption="Regions"
         initialSort={{ key: "position", dir: "asc" }}
+        stats={optionStats("progress", PROGRESS)}
         maxRowActions={canMove ? 4 : 2}
         columns={[
           {
@@ -51,6 +61,15 @@ export default async function RegionsPage() {
           },
           { key: "name", label: "Region", link: true, sortable: true, width: "minmax(200px, 2fr)" },
           {
+            key: "progress",
+            label: "Content",
+            kind: "badge",
+            options: PROGRESS,
+            sortable: true,
+            filter: "select",
+            width: "200px",
+          },
+          {
             key: "countries",
             label: "Countries",
             kind: "number",
@@ -62,7 +81,25 @@ export default async function RegionsPage() {
         rows={atlas.regions.map((region, index) => ({
           id: region.slug,
           href: adminRoutes.regions(region.slug),
-          values: { position: index + 1, name: region.name, countries: region.countries.length },
+          values: {
+            position: index + 1,
+            name: region.name,
+            progress: region.contentStatus,
+            countries: region.countries.length,
+          },
+          cells: {
+            progress: (
+              <RegionProgressSwitch
+                region={region.name}
+                progress={region.contentStatus}
+                disabled={!canMove}
+                actions={{
+                  planned: setRegionProgress.bind(null, region.slug, "planned"),
+                  completed: setRegionProgress.bind(null, region.slug, "completed"),
+                }}
+              />
+            ),
+          },
           actions: (
             <RowActions
               actions={[

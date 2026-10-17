@@ -64,7 +64,7 @@ export async function regionForEdit(slug: string) {
     await supabase
       .from("regions")
       .select(
-        "slug, name, tagline, summary, intro, hero_url, hero_credit, fill, stroke, center_lon, center_lat, zoom, content_status",
+        "slug, name, tagline, summary, intro, hero_url, hero_credit, fill, stroke, center_lon, center_lat, zoom, content_progress",
       )
       .eq("slug", slug)
       .maybeSingle(),

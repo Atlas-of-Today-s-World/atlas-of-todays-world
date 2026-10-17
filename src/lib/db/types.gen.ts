@@ -1773,6 +1773,7 @@ export type Database = {
           show_metrics: boolean
           center_lat: number
           center_lon: number
+          content_progress: string
           content_status: string
           fill: string
           hero_credit: string
@@ -1794,6 +1795,7 @@ export type Database = {
           show_metrics?: boolean
           center_lat: number
           center_lon: number
+          content_progress?: string
           content_status?: string
           fill: string
           hero_credit?: string
@@ -1815,6 +1817,7 @@ export type Database = {
           show_metrics?: boolean
           center_lat?: number
           center_lon?: number
+          content_progress?: string
           content_status?: string
           fill?: string
           hero_credit?: string

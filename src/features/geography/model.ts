@@ -1,6 +1,6 @@
 import type { Locale } from "@/lib/i18n/config";
 import { formatValue } from "@/features/geography/indicators";
-import { contentStatus } from "./content-status";
+import { contentStatus, regionProgress } from "./content-status";
 import type {
   Atlas,
   Country,
@@ -32,7 +32,7 @@ export interface AtlasSnapshot {
     hero_url: string | null;
     hero_credit: string;
     show_metrics?: boolean;
-    content_status?: string;
+    content_progress?: string;
   }[];
   countries: {
     iso3: string;
@@ -272,7 +272,7 @@ export function buildAtlas(snapshot: AtlasSnapshot, geo: GeoFacts[]): Atlas {
     hero: row.hero_url,
     heroCredit: row.hero_credit,
     showMetrics: row.show_metrics ?? true,
-    contentStatus: contentStatus(row.content_status),
+    contentStatus: regionProgress(row.content_progress),
     summary: row.summary,
     countries: sortedCountries
       .filter((country) => country.region_slug === row.slug)

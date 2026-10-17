@@ -1,14 +1,23 @@
 import type { ExpressionSpecification, Map as MapLibreMap } from "maplibre-gl";
 import { loadMapLibre } from "../maplibre";
 import { COUNTRY_RANK_FILTER, TOPIC_BADGE_IMAGES, TOPIC_LAYERS } from "../mapStyle";
-import { STATUS_IMAGES, withStatusMark } from "../global-issues";
-import type { ContentStatus } from "@/features/geography/content-status";
-import { GLOBE_COLORS } from "@/config/palette";
+import { isCompleted, withProgressMark, withStatusMark } from "../global-issues";
+import type { GroupStatus, RegionProgress } from "@/features/geography/content-status";
+import { GLOBE_COLORS, THEME_COLORS } from "@/config/palette";
 
 export type SelectionModeKey = keyof typeof TOPIC_LAYERS;
 
-/** The pill behind a topic count: white, rounded, stretchable around the number. */
-export function topicBadgeImage() {
+/** Fill and outline of each topic pill (TOPIC_BADGE_IMAGES). */
+const BADGE_LOOK: Record<string, { fill: string; stroke: string }> = {
+  [TOPIC_BADGE_IMAGES.some]: { fill: "#ffffff", stroke: "rgba(11,18,32,0.35)" },
+  [TOPIC_BADGE_IMAGES.completed]: { fill: THEME_COLORS.statusReadyText, stroke: "#ffffff" },
+  [TOPIC_BADGE_IMAGES.planned]: { fill: THEME_COLORS.statusPreparingText, stroke: "#ffffff" },
+};
+
+/** A pill behind a topic count, or null for an unknown id: rounded, stretchable around the number. */
+export function topicBadgeImage(id: string) {
+  const look = BADGE_LOOK[id];
+  if (!look) return null;
   const ratio = 2;
   const [w, h, r] = [16 * ratio, 12 * ratio, 6 * ratio];
   const canvas = document.createElement("canvas");
@@ -16,8 +25,8 @@ export function topicBadgeImage() {
   canvas.height = h;
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
-  ctx.fillStyle = "#ffffff";
-  ctx.strokeStyle = "rgba(11,18,32,0.35)";
+  ctx.fillStyle = look.fill;
+  ctx.strokeStyle = look.stroke;
   ctx.lineWidth = ratio;
   ctx.beginPath();
   ctx.roundRect(ratio / 2, ratio / 2, w - ratio, h - ratio, r);
@@ -49,8 +58,8 @@ function topicExpressions(counts: Record<string, number>, property: "iso3" | "sl
   return { has, text };
 }
 
-/** Content status per country ISO3 and per group slug, for each mode's pills. */
-type PlaceStatuses = Record<SelectionModeKey, Record<string, ContentStatus>>;
+/** Status per country ISO3 (its region's progress) and per group slug, for each mode's pills. */
+type PlaceStatuses = Record<SelectionModeKey, Record<string, GroupStatus>>;
 
 /**
  * Topic counts: one badge layer per mode, numbers from the server. Only the
@@ -95,21 +104,27 @@ export function applyTopicBadges(
               ["all", has, ["==", ["get", "slug"], openIssue]]
             : has,
     );
-    // Pills carry the content status: a check mark when ready, an hourglass in
-    // preparation; a country without its own content yet gets a dashed ring.
-    map.setLayoutProperty(
-      layer,
-      "text-field",
-      key === "countries"
-        ? withStatusMark(text, statuses.countries, property, STATUS_IMAGES.missing)
-        : withStatusMark(text, statuses[key], property),
-    );
     // The small globe window on full-width pages shows no counts.
     map.setLayoutProperty(layer, "visibility", key === mode && !mini ? "visible" : "none");
-    // The same white pill with or without topics.
-    map.setLayoutProperty(layer, "icon-image", TOPIC_BADGE_IMAGES.some);
-    map.setPaintProperty(layer, "text-color", GLOBE_COLORS.badgeText);
-    map.setPaintProperty(layer, "icon-opacity", 0.95);
+    if (key === "issue") {
+      // A global issue: the white pill, a check mark when ready, an hourglass in preparation.
+      map.setLayoutProperty(layer, "text-field", withStatusMark(text, statuses.issue, property));
+      map.setLayoutProperty(layer, "icon-image", TOPIC_BADGE_IMAGES.some);
+      map.setPaintProperty(layer, "text-color", GLOBE_COLORS.badgeText);
+    } else {
+      // A region and its countries carry the region's progress: a green pill with
+      // a check mark once completed, an amber one with a calendar while planned.
+      const completed = isCompleted(statuses[key], property);
+      map.setLayoutProperty(layer, "text-field", withProgressMark(text, completed));
+      map.setLayoutProperty(layer, "icon-image", [
+        "case",
+        completed,
+        TOPIC_BADGE_IMAGES.completed,
+        TOPIC_BADGE_IMAGES.planned,
+      ]);
+      map.setPaintProperty(layer, "text-color", "#ffffff");
+    }
+    map.setPaintProperty(layer, "icon-opacity", key === "issue" ? 0.95 : 1);
     map.setPaintProperty(layer, "text-opacity", 1);
   }
 }
@@ -131,6 +146,7 @@ export function pulseTopicBadges(
   map: MapLibreMap,
   mode: SelectionModeKey,
   numberOf: (key: string) => number,
+  progressOf: (key: string) => RegionProgress | undefined,
 ) {
   const canvas = map.getCanvas();
   const [w, h] = [canvas.clientWidth, canvas.clientHeight];
@@ -159,7 +175,9 @@ export function pulseTopicBadges(
       element.setAttribute("aria-hidden", "true");
       element.style.pointerEvents = "none";
       const pill = document.createElement("span");
-      pill.className = "topic-pulse";
+      // A region's or country's pill is in its region's progress colour.
+      const progress = progressOf(key);
+      pill.className = progress ? `topic-pulse topic-pulse-${progress}` : "topic-pulse";
       pill.textContent = String(count);
       element.append(pill);
       const marker = new Marker({

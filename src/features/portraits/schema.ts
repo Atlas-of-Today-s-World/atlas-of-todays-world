@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { FEATURED_MAX, RESOURCE_KINDS } from "./constants";
-import { CONTENT_STATUSES } from "@/features/geography/content-status";
+import { CONTENT_STATUSES, REGION_PROGRESS } from "@/features/geography/content-status";
 import { GROUP_KINDS, PLACE_KINDS, type PlaceKind } from "@/features/geography/kinds";
 import {
   blankToUndefined,
@@ -73,8 +73,8 @@ export const RegionInput = z.object({
   fill: hexColor,
   stroke: hexColor,
   ...MAP_VIEW,
-  // Left out by a form without the field: the stored status stays as it is.
-  content_status: z.enum(CONTENT_STATUSES).optional(),
+  // Left out by a form without the field: the stored progress stays as it is.
+  content_progress: z.enum(REGION_PROGRESS).optional(),
 });
 
 /** Global issue (special_regions + its countries). */

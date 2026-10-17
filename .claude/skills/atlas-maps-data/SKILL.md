@@ -36,11 +36,18 @@ equivalent.**
   the globe only draws them (`globe/topicBadges.ts`). Never count on the client.
   On the countries layer a country shows its **region's** count (`countryBadges`, ADR-030) —
   the only number under its name; per-country counts serve its panel and the Topics filter.
-- **No red on the globe badges** (owner, 2026-10-16): a place with no topic shows the same white
-  pill with "0" as any other; the red pill and its pulsing glow were removed.
-- **Status marks** on regions and issues come from `content_status` (none / preparing / ready,
-  `src/features/geography/content-status.ts`, drawn by `components/map/global-issues.ts`). Colours:
-  `THEME_COLORS.statusReady`, `statusPreparing` in `src/config/palette.ts`.
+- **No red on the globe badges** (owner, 2026-10-16): a place with no topic shows "0" in the same
+  pill as any other count; the red pill and its pulsing glow were removed.
+- **Region progress** (owner, 2026-10-17): a region is *planned for the future* or *completed*
+  (`regions.content_progress`, switched in one click in /admin/regions). The pills of the region
+  and of all its countries show it: green pill + check mark when completed, amber pill + calendar
+  while planned, the region's topic count in white. Planned regions are grey in Regions mode and
+  their portrait asks for support. A country has no status of its own (the old timeline-based
+  check mark / dashed ring is gone).
+- **Global issues** keep `content_status` (none / preparing / ready): white pill with a check mark
+  or an hourglass after the number. Both in `src/features/geography/content-status.ts`, drawn by
+  `components/map/global-issues.ts` and `globe/topicBadges.ts`. Colours: `THEME_COLORS.statusReady`,
+  `statusPreparing` and their `-Text` tones (the pill fills) in `src/config/palette.ts`.
 - **Borders** are Natural Earth 50 m, rebuilt with `npm run data:geo` then `npm run data:optimise`
   into `public/data/`. The Atlas follows **UN practice**: `src/data/territories.json` transfers,
   merges or flags territories (Crimea → Ukraine, Golan → Syria, Northern Cyprus and Somaliland

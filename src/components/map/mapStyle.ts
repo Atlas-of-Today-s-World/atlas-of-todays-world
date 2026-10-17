@@ -98,11 +98,14 @@ export const TOPIC_LAYERS = {
 } as const;
 
 /**
- * The pill behind a topic count (drawn in AtlasGlobe on `styleimagemissing`).
- * One look for countries, regions and special regions alike, 0 included.
+ * The pills behind a topic count (drawn in AtlasGlobe on `styleimagemissing`):
+ * white for global issues; for regions and countries the region's progress —
+ * green once completed, amber while planned. 0 included.
  */
 export const TOPIC_BADGE_IMAGES = {
   some: "topic-badge",
+  completed: "topic-badge-completed",
+  planned: "topic-badge-planned",
 } as const;
 
 /** Same rule as country names: small countries appear only when zoomed in. */

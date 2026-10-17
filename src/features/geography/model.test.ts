@@ -42,7 +42,7 @@ const snapshot: AtlasSnapshot = {
       summary: "",
       hero_url: null,
       hero_credit: "",
-      content_status: "ready",
+      content_progress: "completed",
     },
   ],
   countries: [
@@ -165,8 +165,8 @@ describe("buildAtlas", () => {
     expect(atlas.theme).toEqual({ saturation: 0.8, border: 1.5 });
   });
 
-  it("reads the content status, a group without one is not started", () => {
-    expect(atlas.regionBySlug.get("europe")?.contentStatus).toBe("ready");
+  it("reads the content status: a region's progress, an issue without one is not started", () => {
+    expect(atlas.regionBySlug.get("europe")?.contentStatus).toBe("completed");
     expect(atlas.issueBySlug.get("central")?.contentStatus).toBe("none");
   });
 });

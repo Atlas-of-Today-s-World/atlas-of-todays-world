@@ -10,7 +10,9 @@ export const THEME_COLORS = {
   accent: "#3b4ce0",
   patron: "#2563eb",
   statusReady: "#1e9e5a",
+  statusReadyText: "#16794a",
   statusPreparing: "#d98a00",
+  statusPreparingText: "#9a6200",
 } as const;
 
 /** The plain light map of map visuals (features/visuals/map): sea, land, borders, names. */
@@ -29,6 +31,4 @@ export const GLOBE_COLORS = {
   land: "#7d8aa8",
   /** Text of a topic count on its white pill (also `.topic-pulse` in globals.css). */
   badgeText: "#0b1220",
-  /** The dashed ring of a country whose own content isn't created yet. */
-  statusMissing: "#6b7280",
 } as const;

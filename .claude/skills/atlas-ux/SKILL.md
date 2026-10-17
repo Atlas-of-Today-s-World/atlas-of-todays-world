@@ -97,7 +97,9 @@ for every long-form type:
 
 - Owner decisions, keep them: the gold coin animation (`DonateCoin`), the spark ring on "See all
   N topics" (`spark-ring`), the "Support the Atlas" floating button and menu item. The globe's
-  badges carry no red (owner, 2026-10-16): a 0 is the same white pill as any count.
+  badges carry no red (owner, 2026-10-16): a 0 looks like any count. A region's and its
+  countries' pills say whether the region is completed (green, check) or planned (amber,
+  calendar) — owner, 2026-10-17.
 - `FloatingActions` (Newsletter + Support the Atlas) is the only floating call to action. It is on
   every public page except the admin and the donation pages. Do not add a second one.
 - Keep support separate from editorial text: `PatronsCallout` and donation cards sit after the

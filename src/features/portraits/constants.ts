@@ -1,4 +1,5 @@
 /** Portrait code lists without Zod — the client section editor may import them. */
+import type { RegionProgress } from "@/features/geography/content-status";
 import type { GroupKind } from "@/features/geography/kinds";
 
 /** Source kinds — matching the CHECK in the resources table. */
@@ -22,12 +23,18 @@ export const GROUP_KIND_OPTION = {
   issue: "Global issue",
 } as const satisfies Record<GroupKind, string>;
 
-/** Content status of a region / global issue (DB `content_status`) — labels in the admin form. */
+/** Content status of a global issue (DB `special_regions.content_status`) — labels in the admin form. */
 export const CONTENT_STATUS_LABEL = {
   none: "Not started (grey on the globe, asks for support)",
   preparing: "In preparation (hourglass)",
   ready: "Ready (check mark)",
 } as const;
+
+/** A region's progress (DB `regions.content_progress`) — labels in the admin. */
+export const REGION_PROGRESS_LABEL = {
+  planned: "Planned for the future",
+  completed: "Completed",
+} as const satisfies Record<RegionProgress, string>;
 
 /** How many automatic indicators a country card shows (CountryCard) — and the editor may pick. */
 export const FEATURED_MAX = 6;
