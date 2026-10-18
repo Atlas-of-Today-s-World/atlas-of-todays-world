@@ -44,8 +44,8 @@ instead of inventing new ones.
 - Navigation is a real link (`Link` from `@/components/i18n/Link` on public pages), so
   Cmd/Ctrl-click, middle-click and "copy link" work. Never navigate with `onClick` + `router.push`
   when a link would do.
-- On touch the first tap on a place previews it and the second opens it
-  (`components/map/globe/tapPreview.ts`). Keep that contract for anything new on the globe.
+- On touch a single tap on a place opens it, like a mouse click; nothing on the globe needs a
+  second tap or hover (`components/map/globe/useGlobeInteractions.ts`). Keep that for anything new.
 
 ### Long-form reading: topics, global issues, portraits
 

@@ -9,7 +9,7 @@ import type { SelectionMode } from "../MapContext";
 import { LAYERS } from "../mapStyle";
 import { isSpinEvent } from "../useIdleSpin";
 import { setHoverState } from "./featureState";
-import { doubleClickZooms, isTouchPointer, tapStep } from "./tapPreview";
+import { doubleClickZooms, isTouchPointer } from "./touch";
 import type { RegionLookup } from "./types";
 
 /** A place on the globe: where a click leads. */
@@ -27,9 +27,9 @@ interface Target {
  * Returns the place just clicked (`pendingIso3`, highlighted until the page for
  * it takes over the active country).
  *
- * A finger has no hover: on touch the first tap previews a place (highlight),
- * a second tap on it opens it (globe/tapPreview) — so on touch a double tap
- * doesn't zoom the globe as well. Mouse and keyboard are unchanged.
+ * A finger has no hover: on touch a tap opens the place at once, like a click,
+ * and a double tap doesn't zoom the globe (it would throw off the flight to the
+ * place just opened). Mouse and keyboard are unchanged.
  */
 export function useGlobeInteractions({
   mode,
@@ -53,9 +53,7 @@ export function useGlobeInteractions({
   const pendingIso3 = pending && pending.since === activeIso3 ? pending.iso3 : null;
 
   const hoveredRef = useRef<string | null>(null);
-  /** The place picked by a first tap. */
-  const previewRef = useRef<Target | null>(null);
-  /** The pointer last used on the globe ("touch", "mouse", "pen"): a finger previews first. */
+  /** The pointer last used on the globe ("touch", "mouse", "pen"): a finger has no hover. */
   const pointerRef = useRef<string | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   // Mouse handling changes with the mode, but we don't recreate the map for that.
@@ -72,10 +70,9 @@ export function useGlobeInteractions({
   // The countries lit under the cursor, so changes only touch the difference.
   const hoveredIsoRef = useRef<string[]>([]);
 
-  /** Turns off the highlight under the cursor (and a touch preview). */
+  /** Turns off the highlight under the cursor. */
   const clearHover = useCallback((map: MapLibreMap) => {
     hoveredRef.current = null;
-    previewRef.current = null;
     setHoverState(map, hoveredIsoRef, []);
   }, []);
 
@@ -144,21 +141,12 @@ export function useGlobeInteractions({
       if (target) prefetch(target.href);
     };
 
-    /** Touch: lights the tapped place (null clears it). */
-    const showPreview = (target: Target | null) => {
-      previewRef.current = target;
-      // A mouse used later recomputes its hover from scratch.
-      hoveredRef.current = null;
-      setHoverState(map, hoveredIsoRef, target ? target.countries : []);
-      if (target) prefetch(target.href);
-    };
-
     // Which pointer is in use. Pointer events carry their type; the mouse events a
     // browser fakes after a tap (mousemove, mouseout, click) can't be trusted to, so
     // they are judged by the pointer that came before them. Captured on the
     // container, so nothing inside the map can swallow it.
-    // A finger's double tap previews and then opens a place, so it must not also
-    // zoom the globe; the switch is made on the first tap's pointerdown, long before
+    // A finger's tap opens a place and the globe flies to it, so a double tap must
+    // not also zoom the globe; the switch is made on the first tap's pointerdown, long before
     // the second tap ends (MapLibre zooms on that touchend, or on the dblclick after it).
     const notePointer = (event: PointerEvent) => {
       pointerRef.current = event.pointerType;
@@ -176,19 +164,14 @@ export function useGlobeInteractions({
     const onMove = (event: MapMouseEvent) => {
       // A tap's fake mousemove would light the place before the tap itself decides.
       if (touch()) return;
-      // The mouse is back after a touch preview: plain hover takes over.
-      if (previewRef.current) clearHover(map);
       cursorRef.current = event.point;
       applyHover(event.point);
     };
 
     const onClick = (event: MapMouseEvent) => {
       const target = targetAt(event.point);
-      if (touch()) {
-        const step = tapStep(previewRef.current?.href ?? null, target?.href ?? null);
-        if (step !== "open") return showPreview(step === "preview" ? target : null);
-        showPreview(null);
-      }
+      // A finger leaves no hover behind; the pending highlight marks the place being opened.
+      if (touch()) clearHover(map);
       if (!target) return;
       markPending(target);
       router.push(target.href);
@@ -198,7 +181,7 @@ export function useGlobeInteractions({
     // So we turn the highlight off when movement starts and recompute it when it ends,
     // otherwise a random country from mid-animation would stay highlighted.
     // The idle spin moves the camera every frame; the highlight stays on until the cursor moves.
-    // On touch there is no cursor to come back to: a drag or a flight drops the preview.
+    // On touch there is no cursor to come back to.
     const onMoveStart = (event: object) => {
       if (!isSpinEvent(event)) clearHover(map);
     };

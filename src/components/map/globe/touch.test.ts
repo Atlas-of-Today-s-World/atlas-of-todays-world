@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { StyleSpecification } from "maplibre-gl";
-import { TOUCH_MAP_OPTIONS, touchStyle } from "./touch";
+import { TOUCH_MAP_OPTIONS, doubleClickZooms, isTouchPointer, touchStyle } from "./touch";
 
 describe("globe on touch screens", () => {
   it("drops the label fades and keeps a smaller tile cache", () => {
@@ -30,5 +30,29 @@ describe("globe on touch screens", () => {
     });
     // The desktop style object stays as it was.
     expect(style.layers[1]).toMatchObject({ paint: { "raster-fade-duration": 200 } });
+  });
+});
+
+describe("isTouchPointer", () => {
+  it("is true only for a finger", () => {
+    expect(isTouchPointer("touch")).toBe(true);
+    expect(isTouchPointer("mouse")).toBe(false);
+    expect(isTouchPointer("pen")).toBe(false);
+    expect(isTouchPointer(null)).toBe(false);
+  });
+});
+
+describe("doubleClickZooms", () => {
+  it("turns double-tap zoom off for a finger, whose tap opens the place", () => {
+    expect(doubleClickZooms("touch")).toBe(false);
+  });
+
+  it("keeps double-click zoom for a mouse and a pen", () => {
+    expect(doubleClickZooms("mouse")).toBe(true);
+    expect(doubleClickZooms("pen")).toBe(true);
+  });
+
+  it("keeps it before any pointer is known", () => {
+    expect(doubleClickZooms(null)).toBe(true);
   });
 });

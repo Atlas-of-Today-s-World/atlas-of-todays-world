@@ -37,3 +37,15 @@ export function touchStyle(style: StyleSpecification): StyleSpecification {
     ),
   };
 }
+
+/** A finger, the one pointer without hover (mouse and pen hover first). */
+export const isTouchPointer = (pointerType: string | null): boolean => pointerType === "touch";
+
+/**
+ * Whether MapLibre's double-click zoom stays on for the pointer in use. A
+ * finger's tap opens a place and the globe flies to it, so a double tap zooming
+ * too would throw it off the place being opened; a mouse or pen double-click
+ * still zooms. Pinch zoom and the + / − buttons are other handlers.
+ */
+export const doubleClickZooms = (pointerType: string | null): boolean =>
+  !isTouchPointer(pointerType);

@@ -36,8 +36,8 @@ Those need the manual script below. Adding `wcag22aa` to the tag list is welcome
    a filter: each is announced once.
 3. **Zoom and reflow.** 200 % browser zoom, then a 320 px wide window. Nothing is cut off; only
    tables, carousels and maps scroll sideways in their own box.
-4. **Touch.** On a phone: tap targets are easy to hit, the bottom sheet opens and closes, the globe
-   tap-preview works, nothing needs hover.
+4. **Touch.** On a phone: tap targets are easy to hit, the bottom sheet opens and closes, one tap on
+   the globe opens a place, nothing needs hover.
 5. **Motion.** Turn on "reduce motion" in the OS: the coin, spark, pulse, stars and globe spin stop.
 6. **Colour.** Check new colour pairs against the table in `atlas-visual-design`. Turn on forced
    colours (Windows high contrast): controls still have visible borders.
