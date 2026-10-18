@@ -108,7 +108,10 @@ export const TOPIC_BADGE_IMAGES = {
   planned: "topic-badge-planned",
 } as const;
 
-/** Same rule as country names: small countries appear only when zoomed in. */
+/**
+ * Same rule as country names: small countries appear only when zoomed in.
+ * MapLibre evaluates `zoom` in a filter at the tile's whole zoom (1.96 counts as 1).
+ */
 export const COUNTRY_RANK_FILTER = ["<=", ["get", "rank"], ["+", 0.5, ["*", 1.45, ["zoom"]]]];
 
 /**

@@ -36,8 +36,12 @@ export function globeFillZoom(fill = GLOBE_FILL): number {
  * fills the screen and the rim slips just past the edges.
  */
 const GLOBE_FILL = 1.25;
-/** Bounds of the home zoom (scaled with the fill): legible names, a sphere still recognisable. */
-const FILL_ZOOM = { min: 1.96, max: 3.66 } as const;
+/**
+ * Bounds of the home zoom (scaled with the fill): legible names, a sphere still recognisable.
+ * At least 2: label tiles are cut at whole zooms and COUNTRY_RANK_FILTER reads the tile's
+ * zoom, so below 2 (every phone) only the very largest countries had a name and a pill.
+ */
+const FILL_ZOOM = { min: 2, max: 3.66 } as const;
 
 const zoomForDiameter = (diameterPx: number) => Math.log2((diameterPx * Math.PI) / 512);
 const diameterAt = (zoom: number) => Math.round((512 * 2 ** zoom) / Math.PI);
