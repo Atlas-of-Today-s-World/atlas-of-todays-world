@@ -32,12 +32,12 @@ test("unsaved draft is offered for restore on reopen and the preview shows it to
   await expect(page).toHaveURL(/\/admin\/content\/[0-9a-f-]{36}/);
 
   // Unsaved change → backup (5 s interval) → restore offer after reload.
-  await page.getByLabel(/^Summary( \*)?$/).fill("Neuložený perex z e2e.");
+  await page.getByLabel(/^Header – lead text( \*)?$/).fill("Neuložený perex z e2e.");
   await page.waitForTimeout(6_000);
   await page.reload();
   await expect(page.getByText(/You have an unsaved draft/)).toBeVisible();
   await page.getByRole("button", { name: "Restore" }).click();
-  await expect(page.getByLabel(/^Summary( \*)?$/)).toHaveValue("Neuložený perex z e2e.");
+  await expect(page.getByLabel(/^Header – lead text( \*)?$/)).toHaveValue("Neuložený perex z e2e.");
   await page.getByRole("button", { name: "Save changes" }).click();
   await expect(page.getByText(/You have an unsaved draft/)).toHaveCount(0);
 
@@ -54,7 +54,7 @@ test("unsaved draft is offered for restore on reopen and the preview shows it to
 
   // The public URL does not show the draft and a mangled token reveals nothing. (Pages
   // with loading.tsx stream, so "not found" is 200 + not-found content, not 404.)
-  for (const path of [`/news/${slug}`, url.replace(/.$/, (c) => (c === "0" ? "1" : "0"))]) {
+  for (const path of [`/entries/${slug}`, url.replace(/.$/, (c) => (c === "0" ? "1" : "0"))]) {
     await anonymous.goto(path);
     await expect(anonymous.getByRole("heading", { name: title })).toHaveCount(0);
     await expect(anonymous.getByRole("note")).toHaveCount(0);

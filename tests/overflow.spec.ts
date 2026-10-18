@@ -14,7 +14,6 @@ const PAGES = [
   "/global-issue/russia-ukraine-war",
   "/global-issues",
   "/entries",
-  "/news",
   "/view/hdi",
   "/about",
   "/membership",

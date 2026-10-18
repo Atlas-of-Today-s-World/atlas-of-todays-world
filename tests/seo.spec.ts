@@ -28,12 +28,12 @@ for (const [path, type, marker] of [
   ["/sitemap.xml", "application/xml", "<sitemapindex"],
   ["/sitemaps/countries.xml", "application/xml", "/country/czechia</loc>"],
   ["/sitemaps/pages.xml", "application/xml", "/global-issues</loc>"],
-  ["/sitemaps/news.xml", "application/xml", "<image:image>"],
+  ["/sitemaps/entries.xml", "application/xml", "/entries/migrant-smuggling</loc>"],
   ["/feed.xml", "application/rss+xml", "<item>"],
   ["/atom.xml", "application/atom+xml", "<feed"],
   ["/llms.txt", "text/plain", "## World regions"],
   ["/llms-full.txt", "text/plain", "| [Czechia]("],
-  ["/news/sahel-coup-belt.md", "text/markdown", "- Published: "],
+  ["/entries/migrant-smuggling.md", "text/markdown", "- Published: "],
   ["/robots.txt", "text/plain", "User-Agent: GPTBot"],
   ["/logo.png", "image/png", ""],
 ] as const) {
@@ -53,8 +53,7 @@ for (const path of [
   "/country/czechia",
   "/view/hdi",
   "/countries",
-  "/news",
-  "/news/sahel-coup-belt",
+  "/entries/migrant-smuggling",
   "/about",
   "/membership",
 ]) {
@@ -77,13 +76,13 @@ for (const path of [
   });
 }
 
-test("a news item is a NewsArticle with dates, publisher and a Markdown alternate", async ({
+test("an entry is an Article with dates, publisher and a Markdown alternate", async ({
   request,
 }) => {
-  const body = await html(request, "/news/sahel-coup-belt");
+  const body = await html(request, "/entries/migrant-smuggling");
   const article = structuredData(body)
     .flatMap(jsonLdNodes)
-    .find((node) => node["@type"] === "NewsArticle");
+    .find((node) => node["@type"] === "Article");
   expect(article).toMatchObject({ isAccessibleForFree: true, inLanguage: "en" });
   expect(article?.datePublished).toBeTruthy();
   expect(body).toContain('<meta property="article:published_time"');
@@ -110,7 +109,7 @@ test("URL hygiene: /en and uppercase spellings redirect once to the canonical UR
 }) => {
   for (const [from, to] of [
     ["/en/llms.txt", /\/llms\.txt$/],
-    ["/News", /\/news$/],
+    ["/Entries", /\/entries$/],
   ] as const) {
     const response = await request.get(from, { maxRedirects: 0 });
     expect(response.status(), from).toBe(308);

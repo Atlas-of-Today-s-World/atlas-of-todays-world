@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
 
 /**
- * Topics list: one place filter at a time (country, region or special region)
- * and the full-text search inside the topics with excerpts linking to chapters.
- * Works on whatever topics atlas-dev has published.
+ * Entries list: one place filter at a time (country, region or special region)
+ * and the full-text search inside the entries with excerpts linking to chapters.
+ * Works on whatever entries atlas-dev has published.
  */
 test("one place filter at a time, kept in the URL", async ({ page }) => {
   await page.goto("/entries");
@@ -21,7 +21,7 @@ test("one place filter at a time, kept in the URL", async ({ page }) => {
     await expect(page).not.toHaveURL(/region=/);
   }
 
-  await page.getByRole("button", { name: "Show all topics" }).click();
+  await page.getByRole("button", { name: "Show all entries" }).click();
   await expect(page).not.toHaveURL(/country=|region=|issue=/);
 });
 
@@ -29,11 +29,11 @@ test("full-text search shows excerpts that link into the topic", async ({ page }
   await page.goto("/entries");
   test.skip((await page.locator('a[href^="/entries/"]').count()) === 0, "no published topics");
 
-  await page.getByLabel("Search in topics").fill("the");
+  await page.getByLabel("Search in entries").fill("the");
   await expect(page.getByText(/match(es)? in the text/)).toBeVisible();
   const first = page.locator('a[href^="/entries/"]').first();
   await expect(first.locator("mark").first()).toBeVisible();
-  await expect(first).toHaveAttribute("href", /^\/topics\/[a-z0-9-]+(?:$|#topic-\d+$)/);
+  await expect(first).toHaveAttribute("href", /^\/entries\/[a-z0-9-]+(?:$|#topic-\d+$)/);
 });
 
 test("a failed search shows an error and can be tried again", async ({ page }) => {
@@ -41,7 +41,7 @@ test("a failed search shows an error and can be tried again", async ({ page }) =
     route.fulfill({ status: 429, json: { error: "Too many requests." } }),
   );
   await page.goto("/entries");
-  await page.getByLabel("Search in topics").fill("the");
+  await page.getByLabel("Search in entries").fill("the");
   await expect(page.getByText(/Search is unavailable right now/)).toBeVisible();
   await expect(page.getByText("Searching…")).toHaveCount(0);
 
@@ -90,12 +90,12 @@ test("Back from a topic returns to the same place in the list", async ({ page })
   await expect.poll(() => frame.evaluate((el) => el.scrollTop)).toBeLessThan(50);
 
   await page.goBack();
-  await expect(page).toHaveURL(/\/topics$/);
+  await expect(page).toHaveURL(/\/entries$/);
   await expect.poll(() => frame.evaluate((el) => el.scrollTop)).toBeGreaterThan(before - 60);
   expect(await frame.evaluate((el) => el.scrollTop)).toBeLessThan(before + 60);
 });
 
-test("“Write a topic” opens the volunteer form with the place filled in", async ({ page }) => {
+test("“Write an entry” opens the volunteer form with the place filled in", async ({ page }) => {
   // East Asia has no topics yet, so its portrait shows the full invitation.
   await page.goto("/region/east-asia");
   const write = page.getByRole("link", { name: "Write a topic" }).first();

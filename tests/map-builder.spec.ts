@@ -66,7 +66,7 @@ async function drag(page: Page, map: Locator, dx: number, dy: number) {
 
 test("a free view is saved as left, a point needs a title before the save", async ({ page }) => {
   await signIn(page, publisher, `/admin/content/${entryId}?tab=visuals`);
-  const visuals = page.getByRole("region", { name: "Maps & charts of the topic", exact: true });
+  const visuals = page.getByRole("region", { name: "Maps & charts of the entry", exact: true });
   await visuals.locator("select[name=kind]").selectOption("map");
   await visuals.locator("input[name=title]").fill(MAP_TITLE);
 
@@ -120,7 +120,7 @@ test("a free view is saved as left, a point needs a title before the save", asyn
 
 test("the saved view is shown, a moved one can be reset to it", async ({ page }) => {
   await signIn(page, publisher, `/admin/content/${entryId}?tab=visuals`);
-  const visuals = page.getByRole("region", { name: "Maps & charts of the topic", exact: true });
+  const visuals = page.getByRole("region", { name: "Maps & charts of the entry", exact: true });
   await visuals.getByRole("link", { name: MAP_TITLE }).click();
   await expect(visuals.getByText(`Edit “${MAP_TITLE}”`)).toBeVisible();
 

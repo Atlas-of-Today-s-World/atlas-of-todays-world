@@ -80,7 +80,7 @@ async function overlapsWhileScrolling(page: Page) {
 async function firstTopic(page: Page) {
   await page.goto("/entries");
   const href = await page.locator('a[href^="/entries/"]').first().getAttribute("href");
-  expect(href).toMatch(/^\/topics\/[a-z0-9-]+$/);
+  expect(href).toMatch(/^\/entries\/[a-z0-9-]+$/);
   return href!;
 }
 

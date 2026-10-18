@@ -121,7 +121,7 @@ test("dossier page: chapter and learn-more tiles open their panels", async ({ pa
   expect(jsonLd.join("")).toContain('"FAQPage"');
 });
 
-test("Topics: from the list to a dossier and back to the Atlas", async ({ page, isMobile }) => {
+test("Entries: from the list to a dossier and back to the Atlas", async ({ page, isMobile }) => {
   await page.goto("/entries");
   await expect(page.getByRole("heading", { level: 1, name: "Entries" })).toBeVisible();
   // The globe waits in its window bottom left and leads back to the map; on
@@ -137,7 +137,7 @@ test("Topics: from the list to a dossier and back to the Atlas", async ({ page, 
   // be in it yet: open the first topic it shows (atlas-dev has imported ones).
   const first = page.locator('a[href^="/entries/"]').first();
   const href = (await first.getAttribute("href")) ?? "";
-  expect(href).toMatch(/^\/topics\/[a-z0-9-]+$/);
+  expect(href).toMatch(/^\/entries\/[a-z0-9-]+$/);
   await first.click();
   await expect(page).toHaveURL((url) => url.pathname === href);
   await expect(page.getByRole("region", { name: "Subtopics" })).toBeVisible();

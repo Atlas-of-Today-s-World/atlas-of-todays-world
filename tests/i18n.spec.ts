@@ -11,7 +11,7 @@ test.describe("English only", () => {
       ["/cs", /\/$/],
       ["/cs/about", /\/about$/],
       ["/cs/country/ukraine", /\/country\/ukraine$/],
-      ["/cs/news/nordic-model-under-strain?x=1", /\/news\/nordic-model-under-strain\?x=1$/],
+      ["/cs/entries/migrant-smuggling?x=1", /\/entries\/migrant-smuggling\?x=1$/],
     ] as const) {
       const response = await request.get(from, { maxRedirects: 0 });
       expect(response.status(), from).toBe(308);

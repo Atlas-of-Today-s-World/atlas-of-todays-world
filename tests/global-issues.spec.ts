@@ -11,7 +11,7 @@ test("lists the global issues as cards leading to their portraits", async ({ pag
   await expect(page.getByRole("heading", { level: 1, name: "Global issues" })).toBeVisible();
   const cards = page.locator('#content a[href^="/global-issue/"]');
   test.skip((await cards.count()) === 0, "no global issues on atlas-dev");
-  await expect(cards.first()).toContainText(/\d+ topics?/i);
+  await expect(cards.first()).toContainText(/\d+ (?:entry|entries)/i);
 });
 
 test("one place filter at a time, kept in the URL", async ({ page }) => {

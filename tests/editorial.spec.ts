@@ -40,7 +40,7 @@ test("publisher writes a draft and submits it for approval", async ({ page }) =>
   await page.getByLabel("Title").fill(title);
   await page.getByLabel("URL (slug)").fill(slug);
   await page.getByLabel("Category").selectOption("Society");
-  await page.getByLabel(/^Summary( \*)?$/).fill("Krátký perex pro e2e test.");
+  await page.getByLabel(/^Header – lead text( \*)?$/).fill("Krátký perex pro e2e test.");
   await page.getByRole("textbox", { name: "Article text" }).click();
   await page.keyboard.type("První odstavec napsaný v e2e testu.");
   await page.getByRole("button", { name: "Create draft" }).click();
@@ -81,7 +81,7 @@ test("publisher cannot approve own article, editor can and it goes live", async 
   await confirm(approver, "Approve and publish", "Publish");
   await expect(approver.getByText("Published", { exact: true }).first()).toBeVisible();
 
-  await approver.goto(`/news/${slug}`);
+  await approver.goto(`/entries/${slug}`);
   await expect(approver.getByRole("heading", { name: title })).toBeVisible();
   await expect(approver.getByText("První odstavec napsaný v e2e testu.")).toBeVisible();
 });
@@ -99,6 +99,6 @@ test("row icons in Entries: editor unpublishes, then deletes the draft", async (
   await page.getByRole("dialog").getByRole("button", { name: "Delete" }).click();
   await expect(page.getByRole("row", { name: title })).toHaveCount(0);
 
-  const gone = await page.goto(`/news/${slug}`);
+  const gone = await page.goto(`/entries/${slug}`);
   expect(gone?.status()).toBe(404);
 });
