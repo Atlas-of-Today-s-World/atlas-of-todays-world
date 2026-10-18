@@ -48,7 +48,8 @@ test.describe("World metrics", () => {
     await page.goto("/");
     const button = page.getByRole("button", { name: "World metrics" });
     await expect(button).toBeVisible();
-    await expect(page.getByText(/World regions of the Atlas/)).toBeVisible();
+    // With an indicator active the switcher reads "{label} view"; by default it does not.
+    await expect(page.getByRole("button", { name: /view$/ })).toHaveCount(0);
 
     await button.click();
     const noMetric = page.getByRole("button", { name: "No metric" });

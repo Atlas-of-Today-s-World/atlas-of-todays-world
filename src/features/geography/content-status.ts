@@ -30,7 +30,7 @@ export function regionProgress(value: unknown): RegionProgress {
 }
 
 /** Nobody has written the place's content yet: grey on the globe, a call for support. */
-export function notStarted(status: GroupStatus): boolean {
+function notStarted(status: GroupStatus): boolean {
   return status === "none" || status === "planned";
 }
 
