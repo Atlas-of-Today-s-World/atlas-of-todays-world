@@ -4,16 +4,16 @@ import { usePathname } from "next/navigation";
 import EncyclopediaDock from "@/components/EncyclopediaDock";
 import { MAP_CONTROLS_LEFT, RAIL_OFFSET, isFullPage, isHome, railKind } from "@/config/layout";
 import { cn } from "@/lib/cn";
-import type { SubtopicTile } from "@/features/topics/types";
-import { FeaturedSubtopics } from "./FeaturedSubtopics";
+import type { EntryTile } from "@/features/topics/types";
 import { IssueMenu, type IssueMenuItem } from "./IssueMenu";
+import { LatestEntries } from "./LatestEntries";
 import { useMapState } from "./MapContext";
 import ModeSwitch from "./ModeSwitch";
 import ViewSwitcher, { type ViewOption } from "./ViewSwitcher";
 
 /**
  * Bar over the map, top right: countries/regions/global issues switcher, data
- * layer switcher and search; under them the latest subtopics (home), or the
+ * layer switcher and search; under them the latest entries (home, desktop only), or the
  * global issues as tiles while that mode is on. When a
  * region or country profile is open, it moves left so the white panel doesn't cover it. On phones the bar
  * spans the width (switches on one row, search under them) and steps aside
@@ -28,8 +28,8 @@ export default function MapControls({
   options: ViewOption[];
   /** Global issues on the map (tiles under the search in that mode). */
   issues: IssueMenuItem[];
-  /** Subtopic tiles under the search field (home map only). */
-  featured: SubtopicTile[];
+  /** Entry tiles under the search field (home map only). */
+  featured: EntryTile[];
 }) {
   const pathname = usePathname();
   const { mode } = useMapState();
@@ -59,11 +59,11 @@ export default function MapControls({
         <ViewSwitcher options={options} />
       </div>
       <EncyclopediaDock />
-      {/* Global issues mode: the issues as tiles in the place of the latest subtopics. */}
+      {/* Global issues mode: the issues as tiles in the place of the latest entries. */}
       {mode === "issue" && issues.length ? (
         <IssueMenu items={issues} />
       ) : isHome(pathname) ? (
-        <FeaturedSubtopics items={featured} />
+        <LatestEntries items={featured} />
       ) : null}
     </div>
   );

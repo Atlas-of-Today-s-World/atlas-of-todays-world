@@ -38,7 +38,7 @@ export const PHOTO_ORIGINS: readonly { hostname: string; pathname: string }[] = 
 export const PHOTO_WIDTH = {
   /** Author portraits. */
   avatar: 256,
-  /** Small tiles: home "Latest subtopics", resource thumbnails. */
+  /** Small tiles: home "Latest entries", resource thumbnails. */
   thumb: 384,
   /** Subtopic and topic tiles. */
   tile: 640,

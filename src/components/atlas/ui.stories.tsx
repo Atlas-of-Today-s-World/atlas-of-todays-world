@@ -27,7 +27,7 @@ export const Kickers: Story = {
       <span className={kickerVariants({ tone: "pill" })}>Pill</span>
       <span className={kickerVariants()}>In short</span>
       <span className={cn("glass rounded-xl p-3", kickerVariants({ tone: "glass" }))}>
-        Latest subtopics
+        Latest entries
       </span>
     </div>
   ),

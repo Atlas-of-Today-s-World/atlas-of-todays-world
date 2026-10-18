@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 
 /**
  * Glass surfaces over the map (the `.glass` look in globals.css):
- * - panel — a block in the controls column (search, "Latest subtopics", the
+ * - panel — a block in the controls column (search, "Latest entries", the
  *   global issues menu): full width on phones, 22 rem from `sm` up;
  * - pill — a 35 px floating button ("Newsletter", "Support the Atlas") whose
  *   invisible `before:` margin keeps the 44 px touch target.

@@ -28,7 +28,7 @@ export interface IssueMenuItem {
 
 /**
  * The global issues on the map, in the Global issues mode, in the place and
- * the look of "Latest subtopics" (a group of countries has no name on the
+ * the look of "Latest entries" (a group of countries has no name on the
  * globe, so without this nobody would know what is there): a photo tile per
  * issue with its topic count and how far the editors are. A click opens the
  * issue's panel; the open one is outlined. On phones a lower tile. "All global

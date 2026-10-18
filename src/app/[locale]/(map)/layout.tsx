@@ -4,7 +4,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import Header from "@/components/Header";
 import AtlasGlobe, { type RegionLookup } from "@/components/map/AtlasGlobe";
 import MapControls from "@/components/map/MapControls";
-import { featuredSubtopics } from "@/features/topics/featured";
+import { latestEntries } from "@/features/topics/featured";
 import { MapStage } from "@/components/map/MapStage";
 import { MapProvider } from "@/components/map/MapContext";
 import { MapLegend, type ViewOption } from "@/components/map/ViewSwitcher";
@@ -89,7 +89,7 @@ export default async function MapLayout({ children, params }: LayoutProps<"/[loc
     getAtlas(await localeFrom(params)),
     getFlags(),
     getTopicPlaces(),
-    featuredSubtopics(),
+    latestEntries(),
     getSocialLinks(),
     getNavigation(),
   ]);
@@ -162,7 +162,12 @@ export default async function MapLayout({ children, params }: LayoutProps<"/[loc
               hero,
               fill,
             }))}
-            featured={featured}
+            featured={featured.map(({ region, issue, ...entry }) => ({
+              ...entry,
+              kicker:
+                atlas.regionBySlug.get(region ?? "")?.name ??
+                atlas.issueBySlug.get(issue ?? "")?.name,
+            }))}
           />
           <MapLegend options={viewOptions} />
           <MaintenanceGate inRail>{children}</MaintenanceGate>
