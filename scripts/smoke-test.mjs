@@ -178,7 +178,10 @@ async function main() {
   await check("removed news redirects to entries", async () => {
     const { status, headers } = await get("/news/sahel-coup-belt");
     assert(status === 308, `/news/… returned ${status}`);
-    assert(headers.get("location")?.endsWith("/entries"), `wrong target: ${headers.get("location")}`);
+    assert(
+      headers.get("location")?.endsWith("/entries"),
+      `wrong target: ${headers.get("location")}`,
+    );
   });
 
   await check("content contains no dangerous HTML", async () => {
