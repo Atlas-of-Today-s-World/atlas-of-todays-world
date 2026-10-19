@@ -49,7 +49,6 @@ export function DemoCheckout({ donation }: { donation: Donation }) {
   const [cvc, setCvc] = useState("");
 
   const amount = formatEuro(donation.amount, locale);
-  const monthly = donation.period === "monthly";
   const regions = new Intl.DisplayNames([locale], { type: "region" });
 
   useEffect(() => {
@@ -108,10 +107,10 @@ export function DemoCheckout({ donation }: { donation: Donation }) {
             {t.back}
           </Link>
           <h1 id={`${id}-summary`} className="mt-8 text-[15px] text-[var(--color-ink-soft)]">
-            {t.product} – {monthly ? t.monthly : t.oneTime}
+            {t.product} – {t.monthly}
           </h1>
           <p className="font-display mt-2 text-[40px] font-bold">
-            {monthly ? format(t.perMonth, { amount }) : amount}
+            {format(t.perMonth, { amount })}
           </p>
           <dl className="mt-8 flex justify-between border-t border-[var(--color-line)] pt-4 text-[15px]">
             <dt>{t.total}</dt>
@@ -199,7 +198,7 @@ export function DemoCheckout({ donation }: { donation: Donation }) {
           </fieldset>
 
           <Button type="submit" variant="patron" block disabled={processing} aria-busy={processing}>
-            {processing ? t.processing : monthly ? t.subscribe : format(t.pay, { amount })}
+            {processing ? t.processing : t.subscribe}
           </Button>
           <p className="flex items-start gap-2 text-[12.5px] text-[var(--color-ink-muted)]">
             <Lock size={14} aria-hidden className="mt-0.5 shrink-0" />

@@ -19,13 +19,13 @@ type Story = StoryObj<typeof meta>;
 
 export const Monthly: Story = {};
 
-/** Eight presets and "Other amount" for both periods (the most the settings allow). */
+/** Eight presets and "Other amount" (the most the settings allow). */
 export const ManyAmounts: Story = {
   args: {
     donation: {
       ...FALLBACK_PATRON_SETTINGS.donation,
-      amounts: { monthly: [3, 5, 10, 15, 25, 50, 100, 250], "one-time": [20, 30, 50, 100] },
-      otherAmountPeriods: ["monthly", "one-time"],
+      amounts: { monthly: [3, 5, 10, 15, 25, 50, 100, 250] },
+      otherAmountPeriods: ["monthly"],
     },
   },
 };

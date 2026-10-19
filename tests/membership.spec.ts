@@ -22,26 +22,28 @@ test.describe("Atlas Patrons", () => {
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Help Us Build");
   });
 
-  test("one-time €100 → demo checkout with test card → thank-you", async ({ page }) => {
+  test("monthly only: €10 is preselected and recommended; €25 → demo checkout → thank-you", async ({
+    page,
+  }) => {
     await page.goto("/membership");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Help Us Build");
 
     // The card is rendered twice (hero and closing band); use the first one.
     const card = page.locator("main form").first();
-    await card.getByText("One-time", { exact: true }).click();
-    await expect(card.getByRole("radio", { name: "One-time" })).toBeChecked();
-    await card.getByText("€100", { exact: true }).click();
-    await expect(card.getByRole("radio", { name: "€100" })).toBeChecked();
+    await expect(card.getByText("One-time", { exact: true })).toHaveCount(0);
+    await expect(card.getByRole("radio", { name: /€10\s*,?\s*Recommended/i })).toBeChecked();
+    await card.getByText("€25", { exact: true }).click();
+    await expect(card.getByRole("radio", { name: "€25" })).toBeChecked();
     await card.getByRole("button", { name: "Donate & Join" }).click();
 
-    await expect(page).toHaveURL(/\/membership\/checkout\?period=one-time&amount=100$/);
+    await expect(page).toHaveURL(/\/membership\/checkout\?period=monthly&amount=25$/);
     await expect(page.getByText(/Demo mode — no payment will be taken/)).toBeVisible();
     await fillCard(page, "4242 4242 4242 4242");
-    await page.getByRole("button", { name: "Pay €100" }).click();
+    await page.getByRole("button", { name: "Subscribe" }).click();
 
-    await expect(page).toHaveURL(/\/membership\/thank-you\?period=one-time&amount=100$/);
+    await expect(page).toHaveURL(/\/membership\/thank-you\?period=monthly&amount=25$/);
     await expect(page.getByRole("heading", { name: "Welcome to Atlas Patrons!" })).toBeVisible();
-    await expect(page.getByText("Thank you for your donation of €100.")).toBeVisible();
+    await expect(page.getByText("Thank you for your monthly donation of €25.")).toBeVisible();
   });
 
   test("the declined test card shows an error and stays on checkout", async ({ page }) => {
@@ -64,15 +66,8 @@ test.describe("Atlas Patrons", () => {
     await expect(page.getByLabel("Email")).toBeFocused();
   });
 
-  test("an own amount out of range is explained under the field", async ({ page }) => {
-    await page.goto("/membership");
-    const card = page.locator("main form").first();
-    await card.getByText("One-time", { exact: true }).click();
-    await card.getByText("Other amount", { exact: true }).click();
-    await card.getByRole("button", { name: "Donate & Join" }).click();
-    const field = card.getByLabel("Your amount in euros");
-    await expect(field).toHaveAttribute("aria-invalid", "true");
-    await expect(field).toBeFocused();
+  test("an old one-time link goes back to /membership", async ({ page }) => {
+    await page.goto("/membership/checkout?period=one-time&amount=50");
     await expect(page).toHaveURL(/\/membership$/);
   });
 

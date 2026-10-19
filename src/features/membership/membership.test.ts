@@ -17,33 +17,34 @@ const { amounts: AMOUNTS, defaultAmount: DEFAULT_AMOUNT, otherAmount: OTHER_AMOU
 const parseDonation = (input: Record<string, unknown>) => parseWith(input, OPTIONS);
 
 describe("parseDonation", () => {
-  it("accepts every preset amount of each period", () => {
+  it("accepts every monthly preset amount", () => {
     for (const amount of AMOUNTS.monthly) {
       expect(parseDonation({ period: "monthly", amount: String(amount) })).toEqual({
         period: "monthly",
         amount,
       });
     }
-    for (const amount of AMOUNTS["one-time"]) {
-      expect(parseDonation({ period: "one-time", amount })).toEqual({ period: "one-time", amount });
-    }
   });
 
-  it("defaults are presets", () => {
+  it("the recommended (preselected) amount is a preset", () => {
     expect(AMOUNTS.monthly).toContain(DEFAULT_AMOUNT.monthly);
-    expect(AMOUNTS["one-time"]).toContain(DEFAULT_AMOUNT["one-time"]);
   });
 
-  it("allows a free amount only for one-time donations, within bounds", () => {
-    expect(parseDonation({ period: "one-time", amount: "42" })).toEqual({
-      period: "one-time",
+  it("refuses one-time donations, which no longer exist", () => {
+    expect(parseDonation({ period: "one-time", amount: "50" })).toBeNull();
+    expect(parseDonation({ period: "one-time", amount: "42" })).toBeNull();
+  });
+
+  it("allows a free monthly amount only where the settings offer it, within bounds", () => {
+    expect(parseDonation({ period: "monthly", amount: 42 })).toBeNull();
+    const withOther = { ...OPTIONS, otherAmountPeriods: ["monthly" as const] };
+    expect(parseWith({ period: "monthly", amount: "42" }, withOther)).toEqual({
+      period: "monthly",
       amount: 42,
     });
-    expect(parseDonation({ period: "one-time", amount: OTHER_AMOUNT.max })).not.toBeNull();
-    expect(parseDonation({ period: "one-time", amount: OTHER_AMOUNT.min })).not.toBeNull();
-    expect(parseDonation({ period: "one-time", amount: OTHER_AMOUNT.max + 1 })).toBeNull();
-    expect(parseDonation({ period: "one-time", amount: 0 })).toBeNull();
-    expect(parseDonation({ period: "monthly", amount: 42 })).toBeNull();
+    expect(parseWith({ period: "monthly", amount: OTHER_AMOUNT.max }, withOther)).not.toBeNull();
+    expect(parseWith({ period: "monthly", amount: OTHER_AMOUNT.max + 1 }, withOther)).toBeNull();
+    expect(parseWith({ period: "monthly", amount: 0 }, withOther)).toBeNull();
   });
 
   it("rejects bad input", () => {
@@ -51,7 +52,7 @@ describe("parseDonation", () => {
     expect(parseDonation({ period: "weekly", amount: 10 })).toBeNull();
     expect(parseDonation({ period: "monthly", amount: "10.5" })).toBeNull();
     expect(parseDonation({ period: "monthly", amount: "abc" })).toBeNull();
-    expect(parseDonation({ period: "one-time", amount: "-5" })).toBeNull();
+    expect(parseDonation({ period: "monthly", amount: "-5" })).toBeNull();
   });
 
   it("takes the first value of repeated query parameters", () => {
@@ -64,14 +65,16 @@ describe("parseDonation", () => {
 
 describe("donationFromForm", () => {
   it("uses the free field when 'Other amount' is chosen", () => {
-    expect(donationFromForm({ period: "one-time", amount: "other", other: "75" }, OPTIONS)).toEqual(
-      {
-        period: "one-time",
-        amount: 75,
-      },
-    );
+    const withOther = { ...OPTIONS, otherAmountPeriods: ["monthly" as const] };
     expect(
-      donationFromForm({ period: "one-time", amount: "other", other: "" }, OPTIONS),
+      donationFromForm({ period: "monthly", amount: "other", other: "75" }, withOther),
+    ).toEqual({ period: "monthly", amount: 75 });
+    expect(
+      donationFromForm({ period: "monthly", amount: "other", other: "" }, withOther),
+    ).toBeNull();
+    // Not offered by default.
+    expect(
+      donationFromForm({ period: "monthly", amount: "other", other: "75" }, OPTIONS),
     ).toBeNull();
     expect(donationFromForm({ period: "monthly", amount: "25", other: "75" }, OPTIONS)).toEqual({
       period: "monthly",

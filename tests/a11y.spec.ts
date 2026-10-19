@@ -23,7 +23,7 @@ const PAGES = [
   "/search?q=Japan",
   "/membership",
   "/membership/checkout?period=monthly&amount=10",
-  "/membership/thank-you?period=one-time&amount=50",
+  "/membership/thank-you?period=monthly&amount=25",
   "/membership/manage",
   // The 404 page both inside and outside the map.
   "/country/this-does-not-exist",

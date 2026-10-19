@@ -231,11 +231,8 @@
     "card": {
       "label": "Make a donation",
       "introMonthly": "Make a monthly donation of your choice. You can cancel it anytime.",
-      "introOneTime": "Make a one-time donation of your choice. You can make it monthly anytime.",
-      "frequency": "Donation frequency",
-      "monthly": "Monthly",
-      "oneTime": "One-time",
       "amount": "Amount",
+      "recommended": "Recommended",
       "other": "Other amount",
       "otherLabel": "Your amount in euros",
       "otherHint": "From {min} to {max}",
@@ -292,7 +289,6 @@
       "back": "Back to Atlas Patrons",
       "product": "Atlas Patrons",
       "monthly": "Monthly donation",
-      "oneTime": "One-time donation",
       "perMonth": "{amount} / month",
       "total": "Total due today",
       "contact": "Contact information",
@@ -304,7 +300,6 @@
       "name": "Name on card",
       "country": "Country or region",
       "subscribe": "Subscribe",
-      "pay": "Pay {amount}",
       "processing": "Processing…",
       "requiredNote": "Required field",
       "privacy": "In this demo, card details stay in your browser — nothing is sent or stored.",
@@ -319,7 +314,6 @@
       "stripe": {
         "title": "We couldn't open the payment page",
         "monthly": "Your monthly donation of {amount} hasn't been made yet.",
-        "oneTime": "Your donation of {amount} hasn't been made yet.",
         "failed": "The secure Stripe payment page didn't open. Nothing was charged. Please try again in a moment.",
         "busy": "There were too many attempts from your connection. Nothing was charged. Please wait a few minutes and try again.",
         "retry": "Try again"
@@ -329,17 +323,12 @@
       "title": "Thank you",
       "heading": "Welcome to Atlas Patrons!",
       "leadMonthly": "Thank you for your monthly donation of {amount}.",
-      "leadOneTime": "Thank you for your donation of {amount}.",
       "demoNote": "This was a demo — no payment was taken.",
       "nextTitle": "What happens next",
       "nextMonthly": [
         "You will receive a confirmation email with your receipt.",
         "The patron-only monthly newsletter will bring you internal news about our development, polls and invitations to online meetings.",
         "You can cancel or change your donation anytime — the link is at the bottom of every newsletter."
-      ],
-      "nextOneTime": [
-        "You will receive a confirmation email with your receipt.",
-        "Want to keep supporting the Atlas? You can turn your gift into a monthly donation anytime on the Atlas Patrons page."
       ],
       "backToAtlas": "Back to the Atlas"
     },

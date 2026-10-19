@@ -100,14 +100,15 @@ before(async () => {
   }
 });
 
-test("patron settings: seeded with the values the site showed before", async () => {
+test("patron settings: seeded with the values the site showed before, monthly only since 20261019000200", async () => {
   const row = await settings();
   assert.deepEqual(row.monthly_amounts, [5, 10, 15, 25, 50, 100]);
   assert.deepEqual(row.one_time_amounts, [30, 50, 100]);
   assert.equal(row.default_period, "monthly");
   assert.equal(row.default_monthly, 10);
   assert.equal(row.default_one_time, 50);
-  assert.deepEqual(row.other_amount_periods, ["one-time"]);
+  // One-time donations were removed: no "Other amount" for them any more.
+  assert.deepEqual(row.other_amount_periods, []);
   assert.equal(row.other_amount_min, 1);
   assert.equal(row.other_amount_max, 10000);
   assert.equal(row.goal_patrons, 1000);
@@ -233,6 +234,8 @@ test("patron FAQ: seeded with today's questions, the legal name fixed", async ()
   assert.ok(answers.some((html) => html.includes("Atlas of Today's World, z. s.")));
   assert.ok(answers.every((html) => !html.includes("Encyklopedie")));
   assert.ok(answers.some((html) => html.includes("{email}")));
+  // Monthly donations only (20261019000200).
+  assert.ok(answers.every((html) => !html.includes("one-time")));
 });
 
 test("patron FAQ: anon reads visible questions and only the public columns", async () => {

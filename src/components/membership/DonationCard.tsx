@@ -2,43 +2,43 @@
 
 import { useId, useState, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
-import { Heart } from "lucide-react";
 import Link from "@/components/i18n/Link";
 import { useLocale, useMessages } from "@/components/i18n/LocaleProvider";
 import { buttonVariants } from "@/components/ui/button";
 import { format } from "@/lib/i18n/messages";
-import type { DonationOptions, Period } from "@/features/membership/config";
+import type { DonationOptions } from "@/features/membership/config";
 import { cn } from "@/lib/cn";
 import { TurningCoin } from "./DonateCoin";
 import { formatEuro } from "@/lib/format";
 import { routes } from "@/config/routes";
 import { track } from "@/features/conversions/track";
 
-/** Tab order as on the original page: One-time | Monthly. */
-const PERIOD_ORDER: readonly Period[] = ["one-time", "monthly"];
 const OTHER = "other";
 
 /**
  * A choice tile: a native radio (keyboard arrows, form value) styled as a
  * button. White when selected, darker blue otherwise (white text >= 4.5:1).
+ * `badge` sits on the top edge and is part of the label, so it is read out too.
  */
 function Choice({
   name,
   value,
   checked,
   onSelect,
+  badge,
   children,
 }: {
   name: string;
   value: string;
   checked: boolean;
   onSelect: () => void;
+  badge?: string;
   children: ReactNode;
 }) {
   return (
     <label
       className={cn(
-        "flex min-h-(--touch-min) cursor-pointer items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-[15px] font-semibold transition",
+        "relative flex min-h-(--touch-min) cursor-pointer items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-[15px] font-semibold transition",
         "has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-white",
         checked
           ? "bg-white text-[var(--color-ink)] shadow-sm"
@@ -54,6 +54,12 @@ function Choice({
         className="sr-only"
       />
       {children}
+      {badge ? (
+        <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-[var(--color-gold)] px-2 py-0.5 text-[10.5px] leading-tight font-bold tracking-wide whitespace-nowrap text-[var(--color-ink)] uppercase shadow-sm">
+          <span className="sr-only">, </span>
+          {badge}
+        </span>
+      ) : null}
     </label>
   );
 }
@@ -78,7 +84,9 @@ function SubmitButton({ children }: { children: ReactNode }) {
 }
 
 /**
- * The Atlas Patrons donation card (one-time / monthly, preset or own amount).
+ * The Atlas Patrons donation card: a monthly donation, preset or own amount;
+ * the preselected preset (patron_settings.default_monthly) is marked
+ * "Recommended".
  * Rendered twice on /membership — every id comes from useId, and each card is
  * its own form, so the radio groups never mix. `action` is the startCheckout
  * Server Action (passed in, so the card stays a plain UI block); `donation` are
@@ -97,15 +105,10 @@ export function DonationCard({
   const locale = useLocale();
   const id = useId();
   const { amounts, defaultAmount, otherAmount } = donation;
-  const [period, setPeriod] = useState<Period>(donation.defaultPeriod);
-  const [amount, setAmount] = useState(String(defaultAmount[donation.defaultPeriod]));
-
-  const choosePeriod = (next: Period) => {
-    setPeriod(next);
-    setAmount(String(defaultAmount[next]));
-  };
-  const hasOther = donation.otherAmountPeriods.includes(period);
-  const options = [...amounts[period].map(String), ...(hasOther ? [OTHER] : [])];
+  const recommended = String(defaultAmount.monthly);
+  const [amount, setAmount] = useState(recommended);
+  const hasOther = donation.otherAmountPeriods.includes("monthly");
+  const options = [...amounts.monthly.map(String), ...(hasOther ? [OTHER] : [])];
   // Own amount checked here, in the Atlas style (no browser bubble): the server
   // would only send an invalid amount silently back to this page.
   const [otherError, setOtherError] = useState(false);
@@ -143,45 +146,28 @@ export function DonationCard({
       )}
     >
       <input type="hidden" name="locale" value={locale} />
+      <input type="hidden" name="period" value="monthly" />
       <p id={`${id}-intro`} className="mx-auto max-w-xs text-center text-[15px] leading-snug">
-        {period === "monthly" ? t.introMonthly : t.introOneTime}
+        {t.introMonthly}
       </p>
 
-      <fieldset className="mt-5">
-        <legend className="sr-only">{t.frequency}</legend>
-        <div className="grid grid-cols-2 gap-2">
-          {PERIOD_ORDER.map((item) => (
-            <Choice
-              key={item}
-              name="period"
-              value={item}
-              checked={period === item}
-              onSelect={() => choosePeriod(item)}
-            >
-              {item === "monthly" ? (
-                <Heart
-                  size={15}
-                  aria-hidden
-                  fill="currentColor"
-                  className={period === item ? "text-[var(--color-patron)]" : undefined}
-                />
-              ) : null}
-              {item === "monthly" ? t.monthly : t.oneTime}
-            </Choice>
-          ))}
-        </div>
-      </fieldset>
-
-      <fieldset className="mt-3">
+      <fieldset className="mt-6">
         <legend className="sr-only">{t.amount}</legend>
-        <div className={cn("grid gap-2", options.length === 4 ? "grid-cols-2" : "grid-cols-3")}>
+        {/* Row gap leaves room for the "Recommended" badge on a tile's top edge. */}
+        <div
+          className={cn(
+            "grid gap-x-2 gap-y-4",
+            options.length === 4 ? "grid-cols-2" : "grid-cols-3",
+          )}
+        >
           {options.map((option) => (
             <Choice
-              key={`${period}-${option}`}
+              key={option}
               name="amount"
               value={option}
               checked={amount === option}
               onSelect={() => setAmount(option)}
+              badge={option === recommended ? t.recommended : undefined}
             >
               {option === OTHER ? t.other : formatEuro(Number(option), locale)}
             </Choice>

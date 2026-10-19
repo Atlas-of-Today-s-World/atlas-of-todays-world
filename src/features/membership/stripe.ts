@@ -27,40 +27,33 @@ import {
  */
 
 /**
- * A hosted Checkout page for one validated donation. Monthly = a subscription
- * (becomes a membership through the webhook), one-time = a single payment.
- * `account` is the signed-in reader, if any: Checkout then knows their e-mail
- * and the webhook links the subscription to that account.
+ * A hosted Checkout page for one validated monthly donation: a subscription
+ * that becomes a membership through the webhook. `account` is the signed-in
+ * reader, if any: Checkout then knows their e-mail and the webhook links the
+ * subscription to that account.
  */
 export async function createCheckoutUrl(
   donation: Donation,
   locale: Locale,
   account: { id: string; email?: string } | null,
 ): Promise<string> {
-  const monthly = donation.period === "monthly";
   const metadata = { ...ATLAS_PATRON, period: donation.period };
   const session = await stripe().checkout.sessions.create({
-    mode: monthly ? "subscription" : "payment",
+    mode: "subscription",
     line_items: [
       {
         quantity: 1,
         price_data: {
           currency: "eur",
           unit_amount: donation.amount * 100,
-          product_data: {
-            name: monthly ? "Atlas Patron — monthly donation" : "Donation to the Atlas",
-          },
-          ...(monthly ? { recurring: { interval: "month" as const } } : {}),
+          product_data: { name: "Atlas Patron — monthly donation" },
+          recurring: { interval: "month" },
         },
       },
     ],
-    ...(monthly
-      ? {
-          subscription_data: {
-            metadata: { ...metadata, ...(account ? { user_id: account.id } : {}) },
-          },
-        }
-      : { submit_type: "donate" as const, payment_intent_data: { metadata } }),
+    subscription_data: {
+      metadata: { ...metadata, ...(account ? { user_id: account.id } : {}) },
+    },
     metadata,
     ...(account ? { client_reference_id: account.id } : {}),
     ...(account?.email ? { customer_email: account.email } : {}),

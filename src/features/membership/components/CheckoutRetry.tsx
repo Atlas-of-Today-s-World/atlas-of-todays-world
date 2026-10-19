@@ -29,7 +29,7 @@ export function CheckoutRetry({
     <div className="mx-auto max-w-xl px-6 py-16">
       <h1 className="font-display text-[30px] leading-tight font-bold">{t.stripe.title}</h1>
       <p className="mt-4 text-[16px] text-[var(--color-ink-soft)]">
-        {format(donation.period === "monthly" ? t.stripe.monthly : t.stripe.oneTime, { amount })}
+        {format(t.stripe.monthly, { amount })}
       </p>
       <p
         role="alert"

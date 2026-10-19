@@ -38,7 +38,7 @@ export default async function ThankYouPage({
       <h1 className="font-display mt-4 text-[34px] leading-tight font-bold">{t.heading}</h1>
       {donation ? (
         <p className="mt-4 text-[17px] text-[var(--color-ink-soft)]">
-          {format(donation.period === "monthly" ? t.leadMonthly : t.leadOneTime, {
+          {format(t.leadMonthly, {
             amount: formatEuro(donation.amount, locale),
           })}
         </p>
@@ -49,8 +49,7 @@ export default async function ThankYouPage({
 
       <h2 className="font-display mt-10 text-[20px] font-bold">{t.nextTitle}</h2>
       <ul className="mt-4 list-disc space-y-2 pl-5 text-[15px] leading-relaxed text-[var(--color-ink-soft)]">
-        {/* Without a valid donation in the address, the general (monthly) list. */}
-        {(donation?.period === "one-time" ? t.nextOneTime : t.nextMonthly).map((item) => (
+        {t.nextMonthly.map((item) => (
           <li key={item}>{item}</li>
         ))}
       </ul>

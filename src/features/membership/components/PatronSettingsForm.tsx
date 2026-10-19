@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { ActionForm } from "@/components/ui/action-form";
-import { Checkbox, FormField, Input, Select, describedBy } from "@/components/ui/field";
+import { Checkbox, FormField, Input, describedBy } from "@/components/ui/field";
 import type { ActionState } from "@/lib/action-state";
 import { savePatronSettings } from "../admin-actions";
 import { PATRON_LIMITS } from "../config";
@@ -13,8 +13,8 @@ import type { PatronSettingsRow } from "../settings";
 const { amount: AMOUNT, presets: PRESETS } = PATRON_LIMITS;
 const euros = (value: number) => `${value.toLocaleString("en")} €`;
 const HINT = {
-  defaultMonthly: "Must be one of the monthly amounts.",
-  defaultOneTime: "Must be one of the one-time amounts.",
+  defaultMonthly:
+    "Must be one of the monthly amounts. The card preselects it and marks it “Recommended”.",
   countsFrom:
     "Below this many patrons the page shows only the goal and an invitation, not “0 / 1,000”.",
 };
@@ -75,57 +75,13 @@ export function PatronSettingsForm({
           />
         </FormField>
         <FormField
-          id="one_time_amounts"
-          label="One-time amounts"
-          hint={amountsHint}
-          required
-          errors={errors.one_time_amounts}
-        >
-          <Input
-            id="one_time_amounts"
-            name="one_time_amounts"
-            required
-            maxLength={80}
-            defaultValue={settings.one_time_amounts.join(", ")}
-            disabled={!canEdit}
-            {...field("one_time_amounts", amountsHint)}
-          />
-        </FormField>
-        <FormField
           id="default_monthly"
-          label="Preselected monthly amount"
+          label="Recommended monthly amount"
           hint={HINT.defaultMonthly}
           required
           errors={errors.default_monthly}
         >
           {number("default_monthly", AMOUNT.min, AMOUNT.max, HINT.defaultMonthly)}
-        </FormField>
-        <FormField
-          id="default_one_time"
-          label="Preselected one-time amount"
-          hint={HINT.defaultOneTime}
-          required
-          errors={errors.default_one_time}
-        >
-          {number("default_one_time", AMOUNT.min, AMOUNT.max, HINT.defaultOneTime)}
-        </FormField>
-        <FormField
-          id="default_period"
-          label="Card opens on"
-          required
-          errors={errors.default_period}
-          className="sm:col-span-2"
-        >
-          <Select
-            id="default_period"
-            name="default_period"
-            defaultValue={settings.default_period}
-            disabled={!canEdit}
-            {...field("default_period")}
-          >
-            <option value="monthly">Monthly</option>
-            <option value="one-time">One-time</option>
-          </Select>
         </FormField>
         <div className="grid gap-1 sm:col-span-2">
           <p className="text-[12.5px] font-medium text-[var(--color-ink-soft)]">
@@ -136,12 +92,6 @@ export function PatronSettingsForm({
               name="other_monthly"
               label="Offer it for monthly donations"
               defaultChecked={settings.other_amount_periods.includes("monthly")}
-              disabled={!canEdit}
-            />
-            <Checkbox
-              name="other_one_time"
-              label="Offer it for one-time donations"
-              defaultChecked={settings.other_amount_periods.includes("one-time")}
               disabled={!canEdit}
             />
           </div>

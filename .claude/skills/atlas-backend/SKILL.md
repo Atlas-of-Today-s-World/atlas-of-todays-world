@@ -175,7 +175,7 @@ export const saveSiteSettings = formAction(SettingsInput, async ({ data, supabas
   (`stripeEnabled()` in `lib/stripe.ts`); otherwise "Donate & Join" stays on the demo checkout.
   Local work and tests use test keys (`sk_test_`) only; live keys live only in GitHub secrets.
 - Checkout: `startCheckout` → `createCheckoutUrl` (`features/membership/stripe.ts`), hosted page,
-  monthly = subscription marked `metadata.atlas = "patron"`, one-time = payment (no membership).
+  monthly subscriptions only, marked `metadata.atlas = "patron"` (one-time donations were removed 2026-10-19).
 - Webhook: `app/api/stripe/webhook/route.ts` reads the raw body, verifies the signature, stores
   `event.id` (`stripe_event_seen`, forgotten on failure so the retry runs), re-fetches the
   subscription and writes through `apply_stripe_subscription()` (service role). Membership state

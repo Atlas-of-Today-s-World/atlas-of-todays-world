@@ -143,13 +143,16 @@ describe("createCheckoutUrl", () => {
     expect(params.cancel_url).toMatch(/\/membership$/);
   });
 
-  it("one-time: a single donation payment, no account needed", async () => {
-    await createCheckoutUrl({ period: "one-time", amount: 50 }, "en", null);
+  it("without an account: still a subscription, linked later by e-mail", async () => {
+    await createCheckoutUrl({ period: "monthly", amount: 25 }, "en", null);
     const params = createSession.mock.calls[0]![0];
-    expect(params).toMatchObject({ mode: "payment", submit_type: "donate" });
+    expect(params).toMatchObject({
+      mode: "subscription",
+      subscription_data: { metadata: { atlas: "patron" } },
+    });
     expect(params).not.toHaveProperty("client_reference_id");
-    expect(params).not.toHaveProperty("subscription_data");
-    expect(params.line_items[0].price_data).not.toHaveProperty("recurring");
+    expect(params).not.toHaveProperty("customer_email");
+    expect(params.subscription_data.metadata).not.toHaveProperty("user_id");
   });
 });
 

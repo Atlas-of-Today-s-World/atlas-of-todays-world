@@ -61,9 +61,8 @@ describe("settingsFromRow", () => {
   });
 
   it("refuses a row that breaks the rules (the caller falls back)", () => {
-    expect(settingsFromRow({ ...FALLBACK_ROW, default_period: "weekly" })).toBeNull();
     expect(settingsFromRow({ ...FALLBACK_ROW, default_monthly: 12 })).toBeNull();
-    expect(settingsFromRow({ ...FALLBACK_ROW, one_time_amounts: [] })).toBeNull();
+    expect(settingsFromRow({ ...FALLBACK_ROW, monthly_amounts: [] })).toBeNull();
   });
 });
 
@@ -79,7 +78,7 @@ describe("getPatronSettings", () => {
     expect(await getPatronSettings()).toEqual(FALLBACK_PATRON_SETTINGS);
     db.patron_settings = { data: null, error: null };
     expect(await getPatronSettings()).toEqual(FALLBACK_PATRON_SETTINGS);
-    db.patron_settings = { data: { ...FALLBACK_ROW, default_period: "x" }, error: null };
+    db.patron_settings = { data: { ...FALLBACK_ROW, monthly_amounts: [] }, error: null };
     expect(await getPatronSettings()).toEqual(FALLBACK_PATRON_SETTINGS);
   });
 });
@@ -109,13 +108,18 @@ describe("checkout validation against the settings", () => {
     });
   });
 
-  it("takes the 'Other amount' bounds from the settings", () => {
-    expect(parseDonation({ period: "one-time", amount: "4" }, options)).toBeNull();
-    expect(parseDonation({ period: "one-time", amount: "5" }, options)).not.toBeNull();
-    expect(parseDonation({ period: "one-time", amount: "500" }, options)).not.toBeNull();
-    expect(parseDonation({ period: "one-time", amount: "501" }, options)).toBeNull();
+  it("takes the 'Other amount' bounds from the settings, where it is offered", () => {
+    const withOther = settingsFromRow({
+      ...EDITED_ROW,
+      other_amount_periods: ["monthly"],
+    })!.donation;
+    expect(parseDonation({ period: "monthly", amount: "7" }, options)).toBeNull();
+    expect(parseDonation({ period: "monthly", amount: "4" }, withOther)).toBeNull();
+    expect(parseDonation({ period: "monthly", amount: "7" }, withOther)).not.toBeNull();
+    expect(parseDonation({ period: "monthly", amount: "500" }, withOther)).not.toBeNull();
+    expect(parseDonation({ period: "monthly", amount: "501" }, withOther)).toBeNull();
     // A preset above the free bounds is still a preset.
-    expect(parseDonation({ period: "monthly", amount: "100" }, options)).not.toBeNull();
+    expect(parseDonation({ period: "monthly", amount: "100" }, withOther)).not.toBeNull();
   });
 
   it("startCheckout sends a removed amount back to the membership page", async () => {
@@ -127,7 +131,11 @@ describe("checkout validation against the settings", () => {
       startCheckout(form({ period: "monthly", amount: "25", locale: "en" })),
     ).rejects.toThrow("REDIRECT /membership/checkout?period=monthly&amount=25");
     await expect(
-      startCheckout(form({ period: "one-time", amount: "other", other: "501", locale: "en" })),
+      startCheckout(form({ period: "monthly", amount: "other", other: "501", locale: "en" })),
+    ).rejects.toThrow(/REDIRECT \/membership$/);
+    // One-time donations no longer exist.
+    await expect(
+      startCheckout(form({ period: "one-time", amount: "50", locale: "en" })),
     ).rejects.toThrow(/REDIRECT \/membership$/);
   });
 
@@ -140,12 +148,8 @@ describe("checkout validation against the settings", () => {
 
 describe("PatronSettingsInput (admin form)", () => {
   const valid = {
-    monthly_amounts: "5, 10, 15, 25, 50, 100",
-    one_time_amounts: "100 30 50 30",
-    default_period: "monthly",
+    monthly_amounts: "100 10 5 15 25 50 10",
     default_monthly: "10",
-    default_one_time: "50",
-    other_one_time: "on",
     other_amount_min: "1",
     other_amount_max: "10000",
     goal_patrons: "1000",
@@ -164,22 +168,27 @@ describe("PatronSettingsInput (admin form)", () => {
     expect(errors({ monthly_amounts: "1,2,3,4,5,6,7,8,10" })).toHaveProperty("monthly_amounts");
     expect(errors({ monthly_amounts: "5, 10.5" })).toHaveProperty("monthly_amounts");
     expect(errors({ monthly_amounts: "0, 10" })).toHaveProperty("monthly_amounts");
-    expect(errors({ one_time_amounts: "50, 10001" })).toHaveProperty("one_time_amounts");
+    expect(errors({ monthly_amounts: "50, 10001" })).toHaveProperty("monthly_amounts");
     expect(errors({ default_monthly: "12" })).toHaveProperty("default_monthly");
-    expect(errors({ default_one_time: "20" })).toHaveProperty("default_one_time");
     expect(errors({ other_amount_min: "60", other_amount_max: "50" })).toHaveProperty(
       "other_amount_max",
     );
     expect(errors({ goal_patrons: "0" })).toHaveProperty("goal_patrons");
-    expect(errors({ default_period: "weekly" })).toHaveProperty("default_period");
   });
 
-  it("turns the two checkboxes into the periods with 'Other amount'", () => {
-    const { other_one_time: _, ...none } = valid;
-    expect(PatronSettingsInput.parse(none).other_amount_periods).toEqual([]);
+  it("turns the checkbox into the periods with 'Other amount'; one-time is never saved", () => {
+    expect(PatronSettingsInput.parse(valid).other_amount_periods).toEqual([]);
     expect(
       PatronSettingsInput.parse({ ...valid, other_monthly: "on" }).other_amount_periods,
-    ).toEqual(["monthly", "one-time"]);
+    ).toEqual(["monthly"]);
+    // A stale form posting the removed fields changes nothing about one-time donations.
+    const parsed = PatronSettingsInput.parse({
+      ...valid,
+      other_one_time: "on",
+      one_time_amounts: "5",
+    });
+    expect(parsed).not.toHaveProperty("one_time_amounts");
+    expect(parsed.other_amount_periods).toEqual([]);
   });
 });
 
