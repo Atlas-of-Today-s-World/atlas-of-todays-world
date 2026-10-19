@@ -29,6 +29,7 @@ import { paintLayer, paintSelectionMode } from "./globe/layerPaint";
 import {
   applyTopicBadges,
   pulseTopicBadges,
+  syncLabelZoom,
   topicBadgeImage,
   type SelectionModeKey,
 } from "./globe/topicBadges";
@@ -224,6 +225,9 @@ export default function AtlasGlobe({
             const badge = topicBadgeImage(id);
             if (badge && !map.hasImage(id)) map.addImage(id, badge.image, badge.options);
           }
+          // Names and pills by the zoom the view would have over Europe (mapStyle LABEL_ZOOM_STATE).
+          syncLabelZoom(map);
+          map.on("move", () => syncLabelZoom(map));
           setReady(true);
         });
 

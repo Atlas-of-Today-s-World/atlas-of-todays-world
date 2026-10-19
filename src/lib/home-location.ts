@@ -38,8 +38,8 @@ export function globeFillZoom(fill = GLOBE_FILL): number {
 const GLOBE_FILL = 1.25;
 /**
  * Bounds of the home zoom (scaled with the fill): legible names, a sphere still recognisable.
- * At least 2: label tiles are cut at whole zooms and COUNTRY_RANK_FILTER reads the tile's
- * zoom, so below 2 (every phone) only the very largest countries had a name and a pill.
+ * At least 2: names and pills follow the whole zoom (mapStyle LABEL_ZOOM_STATE), and
+ * below 2 (every phone) only the very largest countries had a name and a pill.
  */
 const FILL_ZOOM = { min: 2, max: 3.66 } as const;
 

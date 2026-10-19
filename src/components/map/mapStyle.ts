@@ -1,6 +1,7 @@
 import type { GeoJSONSourceSpecification, StyleSpecification } from "maplibre-gl";
 import { GLOBE } from "@/config/layout";
 import { GLOBE_COLORS, THEME_COLORS } from "@/config/palette";
+import { EUROPE_CENTER } from "@/lib/home-location";
 import { publicEnv } from "@/lib/env";
 import { glyphsUrl } from "./glyphs";
 
@@ -138,16 +139,53 @@ export const COUNTRY_RANK_FILTER = [
   ["+", RANK_LIMIT.base, ["*", RANK_LIMIT.perZoom, ["zoom"]]],
 ];
 
+/**
+ * The globe's names and pills follow a whole "label zoom" kept in this global
+ * state (AtlasGlobe updates it as the camera moves, labelZoomAt).
+ *
+ * MapLibre's own zoom won't do on the globe: turning it toward a pole lowers
+ * the zoom so the sphere keeps its size (60° north is a whole zoom less than
+ * the equator, the pole about three), so past Europe toward the north — the
+ * Nordics, Russia, on to East Asia — names and pills dropped out though the
+ * view was as close as before. North of the latitude the rules were tuned at
+ * the label zoom adds that back; south of it it is MapLibre's zoom, as tuned.
+ */
+export const LABEL_ZOOM_STATE = "labelZoom";
+/** Latitude the label rules were tuned at: the home view over Europe. */
+const LABEL_TUNED_LAT = EUROPE_CENTER[1];
+/** MapLibre's latitude limit (its globe zoom adjustment stops there). */
+const MAX_LAT = 85.051129;
+
+/** The whole label zoom at a camera's zoom and centre latitude (LABEL_ZOOM_STATE). */
+export function labelZoomAt(zoom: number, lat: number): number {
+  const cos = (deg: number) => Math.cos((Math.min(Math.abs(deg), MAX_LAT) * Math.PI) / 180);
+  const poleward = Math.max(0, Math.log2(cos(LABEL_TUNED_LAT) / cos(lat)));
+  // Rounded first, so float noise at a whole zoom doesn't drop it a level.
+  return Math.floor(Number((zoom + poleward).toFixed(6)));
+}
+
+const labelZoom = ["global-state", LABEL_ZOOM_STATE];
+
+/** COUNTRY_RANK_FILTER by the label zoom, for the globe's names. */
+const GLOBE_RANK_FILTER = [
+  "<=",
+  ["get", "rank"],
+  ["+", RANK_LIMIT.base, ["*", RANK_LIMIT.perZoom, labelZoom]],
+];
+
+/** Opacity `full` from the label zoom `from` on, 0 below it. */
+export const fromLabelZoom = (from: number, full: number) => ["step", labelZoom, 0, from, full];
+
 /** Whole zooms the country pills are banded by, up to the globe's closest zoom. */
 const BAND_ZOOMS = Array.from({ length: GLOBE.maxZoom }, (_, i) => i + 1);
 
 /**
- * Country pills follow COUNTRY_RANK_FILTER without filtering by zoom: one layer
- * per whole zoom holds the countries named from that zoom on, and the camera's
- * zoom shows it (AtlasGlobe sets the opacity). A zoom filter is read when
+ * Country pills follow the names' rank rule without a filter: one layer per
+ * whole zoom holds the countries named from that zoom on, and the label zoom
+ * shows it (AtlasGlobe sets the opacity, fromLabelZoom). A filter is read when
  * the worker lays out a tile, so past every whole zoom the smaller countries'
- * pills waited for new tiles, seconds on a busy phone; every band is in every
- * tile, so a pill shows the moment its zoom is reached.
+ * pills waited for the tile again, seconds on a busy phone; every band is in
+ * every tile, so a pill shows the moment its zoom is reached.
  */
 export const COUNTRY_BADGE_BANDS = BAND_ZOOMS.map((zoom) => {
   const rank = ["get", "rank"];
@@ -163,12 +201,11 @@ export const COUNTRY_BADGE_BANDS = BAND_ZOOMS.map((zoom) => {
  * A topic count under a label: a small pill that never hides a place name
  * (placed regardless of collisions and ignored by them).
  */
-function topicBadgeLayer(id: string, source: string, { minzoom = 0, below = 1.35 } = {}) {
+function topicBadgeLayer(id: string, source: string, { below = 1.35 } = {}) {
   return {
     id,
     type: "symbol" as const,
     source,
-    minzoom,
     // Nothing until AtlasGlobe knows the counts.
     filter: ["boolean", false],
     layout: {
@@ -216,6 +253,7 @@ export function buildStyle(regions: RegionLabel[], options: StyleOptions): Style
   return {
     version: 8,
     projection: { type: "globe" },
+    state: { [LABEL_ZOOM_STATE]: { default: labelZoomAt(2, LABEL_TUNED_LAT) } },
     glyphs: glyphsUrl(),
     sources: {
       satellite: { type: "raster", tileSize: 256, ...satellite },
@@ -361,11 +399,8 @@ export function buildStyle(regions: RegionLabel[], options: StyleOptions): Style
         id: LAYERS.label,
         type: "symbol",
         source: "country-labels",
-        // Low, so country names are legible even in a small window where the sphere
-        // fills the area at a lower zoom.
-        minzoom: 1.6,
         // LABELRANK: 1 = large countries, 8 = tiny territories. Smaller ones appear only when zoomed in.
-        filter: COUNTRY_RANK_FILTER,
+        filter: GLOBE_RANK_FILTER,
         layout: {
           "text-field": ["get", "name"],
           "text-font": ["Open Sans Regular"],
@@ -399,9 +434,7 @@ export function buildStyle(regions: RegionLabel[], options: StyleOptions): Style
           "text-halo-width": 1.6,
         },
       },
-      ...COUNTRY_BADGE_BANDS.map((band) =>
-        topicBadgeLayer(band.id, "country-labels", { minzoom: 1.6 }),
-      ),
+      ...COUNTRY_BADGE_BANDS.map((band) => topicBadgeLayer(band.id, "country-labels")),
       topicBadgeLayer(TOPIC_LAYERS.regions, "region-labels", { below: 3 }),
       // Groups have no name on the globe: the count sits on their centre.
       topicBadgeLayer(TOPIC_LAYERS.issue, "issue-labels", { below: -0.6 }),

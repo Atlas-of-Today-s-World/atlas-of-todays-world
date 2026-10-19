@@ -1,6 +1,13 @@
 import type { ExpressionSpecification, Map as MapLibreMap } from "maplibre-gl";
 import { loadMapLibre } from "../maplibre";
-import { COUNTRY_BADGE_BANDS, TOPIC_BADGE_IMAGES, TOPIC_LAYERS } from "../mapStyle";
+import {
+  COUNTRY_BADGE_BANDS,
+  LABEL_ZOOM_STATE,
+  TOPIC_BADGE_IMAGES,
+  TOPIC_LAYERS,
+  fromLabelZoom,
+  labelZoomAt,
+} from "../mapStyle";
 import { isCompleted, withProgressMark, withStatusMark } from "../global-issues";
 import type { GroupStatus, RegionProgress } from "@/features/geography/content-status";
 import { GLOBE_COLORS, THEME_COLORS } from "@/config/palette";
@@ -144,14 +151,23 @@ export function applyTopicBadges(
         ]);
         map.setPaintProperty(layer.id, "text-color", "#ffffff");
       }
-      // Opacity by the camera's zoom only (no feature data): changing it never
+      // Opacity by the label zoom only (no feature data): changing it never
       // has the tiles laid out again.
-      const opacity = (full: number): number | ExpressionSpecification =>
-        !shown ? 0 : layer.zoom ? ["step", ["zoom"], 0, layer.zoom, full] : full;
+      const opacity = (full: number) =>
+        (!shown ? 0 : layer.zoom ? fromLabelZoom(layer.zoom, full) : full) as
+          number | ExpressionSpecification;
       map.setPaintProperty(layer.id, "icon-opacity", opacity(key === "issue" ? 0.95 : 1));
       map.setPaintProperty(layer.id, "text-opacity", opacity(1));
     }
   }
+}
+
+/**
+ * Keeps the label zoom (LABEL_ZOOM_STATE) in step with the camera. It changes
+ * only at whole zooms, so names are laid out again only then.
+ */
+export function syncLabelZoom(map: MapLibreMap) {
+  map.setGlobalStateProperty(LABEL_ZOOM_STATE, labelZoomAt(map.getZoom(), map.getCenter().lat));
 }
 
 /** Topic badges that pulse per beat of the idle spin. */
@@ -183,7 +199,9 @@ export function pulseTopicBadges(
     ],
     // Only the pills shown at this zoom (the others are there, transparent).
     {
-      layers: badgeLayers(mode).flatMap((layer) => (layer.zoom <= map.getZoom() ? [layer.id] : [])),
+      layers: badgeLayers(mode).flatMap((layer) =>
+        layer.zoom <= (map.getGlobalState()[LABEL_ZOOM_STATE] as number) ? [layer.id] : [],
+      ),
     },
   );
   const property = mode === "countries" ? "iso3" : "slug";
