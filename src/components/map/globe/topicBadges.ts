@@ -200,7 +200,9 @@ export function pulseTopicBadges(
     // Only the pills shown at this zoom (the others are there, transparent).
     {
       layers: badgeLayers(mode).flatMap((layer) =>
-        layer.zoom <= (map.getGlobalState()[LABEL_ZOOM_STATE] as number) ? [layer.id] : [],
+        !layer.zoom || layer.zoom <= (map.getGlobalState()[LABEL_ZOOM_STATE] as number)
+          ? [layer.id]
+          : [],
       ),
     },
   );

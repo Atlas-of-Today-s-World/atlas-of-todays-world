@@ -180,19 +180,27 @@ export const fromLabelZoom = (from: number, full: number) => ["step", labelZoom,
 const BAND_ZOOMS = Array.from({ length: GLOBE.maxZoom }, (_, i) => i + 1);
 
 /**
+ * The home view's zoom on phones (home-location FILL_ZOOM.min): the pills shown
+ * there stay however far the globe is zoomed out, so a zoomed-out globe still
+ * shows where the topics are; smaller countries' pills come with zooming in.
+ */
+const PILLS_ZOOMED_OUT = 2;
+
+/**
  * Country pills follow the names' rank rule without a filter: one layer per
  * whole zoom holds the countries named from that zoom on, and the label zoom
- * shows it (AtlasGlobe sets the opacity, fromLabelZoom). A filter is read when
- * the worker lays out a tile, so past every whole zoom the smaller countries'
- * pills waited for the tile again, seconds on a busy phone; every band is in
- * every tile, so a pill shows the moment its zoom is reached.
+ * shows it (AtlasGlobe sets the opacity, fromLabelZoom; `zoom` 0: at any zoom,
+ * PILLS_ZOOMED_OUT). A filter is read when the worker lays out a tile, so past
+ * every whole zoom the smaller countries' pills waited for the tile again,
+ * seconds on a busy phone; every band is in every tile, so a pill shows the
+ * moment its zoom is reached.
  */
 export const COUNTRY_BADGE_BANDS = BAND_ZOOMS.map((zoom) => {
   const rank = ["get", "rank"];
   const upTo = ["<=", rank, rankLimit(zoom)];
   return {
     id: `${TOPIC_LAYERS.countries}-${zoom}`,
-    zoom,
+    zoom: zoom <= PILLS_ZOOMED_OUT ? 0 : zoom,
     filter: zoom === 1 ? upTo : ["all", [">", rank, rankLimit(zoom - 1)], upTo],
   };
 });
