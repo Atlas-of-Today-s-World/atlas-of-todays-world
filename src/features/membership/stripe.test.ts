@@ -7,6 +7,9 @@ const createSession = vi.hoisted(() => vi.fn());
 
 vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({ revalidateTag: vi.fn() }));
+vi.mock("@/lib/env.server", () => ({
+  serverEnv: { STRIPE_LEGACY_PRODUCT_IDS: "prod_webflow5, not-an-id" },
+}));
 vi.mock("@/lib/supabase/service", () => ({ createServiceClient: () => ({ rpc }) }));
 vi.mock("@/lib/stripe", () => ({
   stripe: () => ({
@@ -16,7 +19,8 @@ vi.mock("@/lib/stripe", () => ({
 }));
 
 const { createCheckoutUrl, handleStripeEvent } = await import("./stripe");
-const { membershipStatus, monthlyCents } = await import("./subscription");
+const { isPatronSubscription, membershipStatus, monthlyCents, productIds } =
+  await import("./subscription");
 
 const USER = "11111111-2222-4333-8444-555555555555";
 const PERIOD_END = 1_790_000_000;
@@ -92,6 +96,24 @@ describe("handleStripeEvent", () => {
     expect(rpc).not.toHaveBeenCalled();
   });
 
+  it("follows an old Webflow donation by its product, without Atlas metadata", async () => {
+    const legacy = subscription({
+      metadata: {},
+      customer: { id: "cus_2", email: "Bo@Example.org" } as Stripe.Customer,
+    });
+    legacy.items.data[0]!.price.product = "prod_webflow5";
+    retrieve.mockResolvedValue(legacy);
+    await handleStripeEvent(event("customer.subscription.updated", { id: "sub_1" }));
+    expect(rpc).toHaveBeenCalledWith(
+      "apply_stripe_subscription",
+      expect.objectContaining({
+        p_customer: "cus_2",
+        p_email: "Bo@Example.org",
+        p_user: undefined,
+      }),
+    );
+  });
+
   it("throws when the database refuses, so the webhook asks Stripe to retry", async () => {
     rpc.mockResolvedValue({ data: null, error: { message: "boom" } });
     await expect(
@@ -137,6 +159,22 @@ describe("subscription mapping", () => {
     expect(membershipStatus("unpaid")).toBe("past_due");
     expect(membershipStatus("incomplete_expired")).toBe("canceled");
     expect(membershipStatus("something_new")).toBe("incomplete");
+  });
+
+  it("knows a patron by the site's metadata or a legacy donation product", () => {
+    const legacy = productIds(" prod_a ,prod_b,price_x,,");
+    expect([...legacy]).toEqual(["prod_a", "prod_b"]);
+    const on = (product: unknown, metadata = {}) => {
+      const sub = subscription({ metadata });
+      sub.items.data[0]!.price.product = product as string;
+      return isPatronSubscription(sub, legacy);
+    };
+    expect(on("prod_other", { atlas: "patron" })).toBe(true);
+    expect(on("prod_b")).toBe(true);
+    expect(on({ id: "prod_a" })).toBe(true);
+    expect(on("prod_other")).toBe(false);
+    expect(on(undefined)).toBe(false);
+    expect(on("prod_other", { atlas: "other" })).toBe(false);
   });
 
   it("brings yearly prices and quantities to a monthly amount", () => {

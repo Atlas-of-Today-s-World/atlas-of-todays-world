@@ -4,15 +4,19 @@ import type Stripe from "stripe";
 import { tags } from "@/lib/cache/tags";
 import { localePath, type Locale } from "@/lib/i18n/config";
 import { absoluteUrl } from "@/lib/seo";
+import { serverEnv } from "@/lib/env.server";
 import { stripe } from "@/lib/stripe";
 import { createServiceClient } from "@/lib/supabase/service";
 import { routes } from "@/config/routes";
 import { thankYouHref, type Donation } from "./links";
 import {
   accountId,
+  ATLAS_PATRON,
+  isPatronSubscription,
   membershipStatus,
   monthlyCents,
   periodEnd,
+  productIds,
   refId,
   startedAt,
 } from "./subscription";
@@ -21,9 +25,6 @@ import {
  * Stripe Checkout and the webhook's side of memberships (ADR G6). Card data
  * stays on Stripe's page; Atlas keeps only what the membership needs.
  */
-
-/** Marks the subscriptions this site created, so other products in the Stripe account are ignored. */
-const ATLAS_PATRON = { atlas: "patron" } as const;
 
 /**
  * A hosted Checkout page for one validated donation. Monthly = a subscription
@@ -80,7 +81,8 @@ type Outcome = "member" | "pending" | "removed" | "ignored";
  */
 async function syncSubscription(id: string, emailHint?: string | null): Promise<Outcome> {
   const subscription = await stripe().subscriptions.retrieve(id, { expand: ["customer"] });
-  if (subscription.metadata?.atlas !== ATLAS_PATRON.atlas) return "ignored";
+  const legacyProducts = productIds(serverEnv.STRIPE_LEGACY_PRODUCT_IDS);
+  if (!isPatronSubscription(subscription, legacyProducts)) return "ignored";
   const customer = subscription.customer;
   const email =
     (typeof customer === "object" && !customer.deleted ? customer.email : null) ?? emailHint ?? "";

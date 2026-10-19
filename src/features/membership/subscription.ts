@@ -51,6 +51,31 @@ export function periodEnd(subscription: Stripe.Subscription): string | null {
 export const startedAt = (subscription: Stripe.Subscription) =>
   isoFromUnix(subscription.start_date);
 
+/** Marks the subscriptions this site's Checkout created. */
+export const ATLAS_PATRON = { atlas: "patron" } as const;
+
+/** "prod_a, prod_b" → the product ids; anything else in the list is ignored. */
+export const productIds = (list: string | undefined): ReadonlySet<string> =>
+  new Set(
+    (list ?? "").split(",").flatMap((id) => (/^prod_\w+$/.test(id.trim()) ? [id.trim()] : [])),
+  );
+
+/**
+ * A patron's monthly donation: created by this site's Checkout, or by the old
+ * Webflow site on one of its donation products (`legacyProducts`), which
+ * carries no Atlas metadata. Other products in the Stripe account are not.
+ */
+export function isPatronSubscription(
+  subscription: Stripe.Subscription,
+  legacyProducts: ReadonlySet<string>,
+): boolean {
+  if (subscription.metadata?.atlas === ATLAS_PATRON.atlas) return true;
+  return subscription.items.data.some((item) => {
+    const product = refId(item.price.product);
+    return product !== null && legacyProducts.has(product);
+  });
+}
+
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** The account Checkout was opened with (subscription metadata), when it is a uuid. */

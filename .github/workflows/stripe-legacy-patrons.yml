@@ -1,0 +1,81 @@
+# One-off: monthly donations from the old Webflow site become memberships
+# (scripts/stripe-legacy-patrons.mjs, ADR G6). The live restricted Stripe key
+# only reads; the import goes to production through apply_stripe_subscription()
+# with psql and the database password, as in backfill-resource-previews.yml.
+#
+# Without "apply" it is a dry run: counts and sums per product only (this log
+# is public). "products" tries other product ids in a dry run; an import
+# always uses the STRIPE_LEGACY_PRODUCT_IDS variable, the same list the
+# deployed webhook follows, so imported donations keep being updated.
+name: Import legacy Stripe patrons
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "Import into production (otherwise a dry run)"
+        type: boolean
+        default: false
+      products:
+        description: "Dry run only: product ids to try (prod_a,prod_b)"
+        type: string
+        default: ""
+
+concurrency:
+  group: stripe-legacy-patrons
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  import:
+    # Live keys only from the reviewed code on main.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+
+      - name: Read Stripe
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          VAR_PRODUCTS: ${{ vars.STRIPE_LEGACY_PRODUCT_IDS }}
+          INPUT_PRODUCTS: ${{ inputs.products }}
+          APPLY: ${{ inputs.apply }}
+        run: |
+          if [ "$APPLY" = "true" ]; then
+            # The file holds e-mails: runner temp only, never printed or uploaded.
+            node scripts/stripe-legacy-patrons.mjs --live --env /dev/null \
+              --products "$VAR_PRODUCTS" --sql "$RUNNER_TEMP/legacy-import.sql"
+          else
+            node scripts/stripe-legacy-patrons.mjs --live --env /dev/null \
+              --products "${INPUT_PRODUCTS:-$VAR_PRODUCTS}"
+          fi
+
+      - uses: supabase/setup-cli@45a513f8c64c0bc8e0e3dfe572b5c95be85f6359 # v3 (pinned: runs next to production credentials)
+        if: inputs.apply
+        with:
+          version: 2.120.0
+      - name: Import into production
+        if: inputs.apply
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          PROD_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+        run: |
+          supabase link --project-ref "$PROD_REF" --password "$SUPABASE_DB_PASSWORD"
+          # Session mode (5432); the password goes through PGPASSWORD, never into
+          # the URL or the command line. One transaction: an error rolls it all back.
+          # Prints only the outcome counts and patron_stats().
+          url=$(sed -E "s#:6543/#:5432/#" supabase/.temp/pooler-url)
+          PGPASSWORD="$SUPABASE_DB_PASSWORD" psql "$url" -v ON_ERROR_STOP=1 -qAt \
+            -f "$RUNNER_TEMP/legacy-import.sql"
+          rm -f "$RUNNER_TEMP/legacy-import.sql"

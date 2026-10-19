@@ -28,6 +28,10 @@ const schema = z.object({
   STRIPE_WEBHOOK_SECRET: optional(
     z.string().regex(/^whsec_\w{10,}$/, "Podpisový klíč webhooku začíná whsec_"),
   ),
+  // Donation products of the old Webflow site ("prod_a,prod_b", not secret): their
+  // subscriptions count as memberships too (features/membership/subscription.ts).
+  // Lenient: an id that doesn't look like prod_… is skipped, never a startup error.
+  STRIPE_LEGACY_PRODUCT_IDS: optional(z.string()),
   // IndexNow (ADR-021): public by design (served at /indexnow-key.txt); empty = pings off.
   // Search console ownership tokens (public, rendered as <meta>); empty = verify by DNS instead.
   GOOGLE_SITE_VERIFICATION: optional(z.string().regex(/^[\w-]{10,100}$/)),

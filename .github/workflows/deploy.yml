@@ -124,6 +124,7 @@ jobs:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
           STRIPE_PORTAL_URL: ${{ vars.NEXT_PUBLIC_STRIPE_PORTAL_URL }}
+          STRIPE_LEGACY_PRODUCT_IDS: ${{ vars.STRIPE_LEGACY_PRODUCT_IDS }}
         run: |
           args=()
           if [ -n "$TURNSTILE_SITE_KEY" ]; then
@@ -145,6 +146,11 @@ jobs:
           if [ -n "$STRIPE_SECRET_KEY" ] && [ -n "$STRIPE_WEBHOOK_SECRET" ]; then
             args+=(--env "STRIPE_SECRET_KEY=$STRIPE_SECRET_KEY")
             args+=(--env "STRIPE_WEBHOOK_SECRET=$STRIPE_WEBHOOK_SECRET")
+          fi
+          # Donation products of the old Webflow site, whose subscriptions the
+          # webhook follows as memberships too (scripts/stripe-legacy-patrons.mjs).
+          if [ -n "$STRIPE_LEGACY_PRODUCT_IDS" ]; then
+            args+=(--env "STRIPE_LEGACY_PRODUCT_IDS=$STRIPE_LEGACY_PRODUCT_IDS")
           fi
           if [ -n "$STRIPE_PORTAL_URL" ]; then
             args+=(--build-env "NEXT_PUBLIC_STRIPE_PORTAL_URL=$STRIPE_PORTAL_URL")
