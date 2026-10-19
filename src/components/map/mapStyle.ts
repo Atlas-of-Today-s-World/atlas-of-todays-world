@@ -1,4 +1,5 @@
 import type { GeoJSONSourceSpecification, StyleSpecification } from "maplibre-gl";
+import { GLOBE } from "@/config/layout";
 import { GLOBE_COLORS, THEME_COLORS } from "@/config/palette";
 import { publicEnv } from "@/lib/env";
 import { glyphsUrl } from "./glyphs";
@@ -102,7 +103,10 @@ export const LAYERS = {
   regionLabel: "region-label",
 } as const;
 
-/** Topic count badges, one layer per globe mode (filters and numbers are set at runtime). */
+/**
+ * Topic count badges per globe mode (filters and numbers are set at runtime);
+ * the countries' are split into COUNTRY_BADGE_BANDS, named after this id.
+ */
 export const TOPIC_LAYERS = {
   countries: "topic-count-country",
   regions: "topic-count-region",
@@ -120,11 +124,40 @@ export const TOPIC_BADGE_IMAGES = {
   planned: "topic-badge-planned",
 } as const;
 
+/** The largest LABELRANK (1 = large countries, 8 = tiny territories) named at a zoom. */
+const RANK_LIMIT = { base: 0.5, perZoom: 1.45 } as const;
+const rankLimit = (zoom: number) => RANK_LIMIT.base + RANK_LIMIT.perZoom * zoom;
+
 /**
  * Same rule as country names: small countries appear only when zoomed in.
  * MapLibre evaluates `zoom` in a filter at the tile's whole zoom (1.96 counts as 1).
  */
-export const COUNTRY_RANK_FILTER = ["<=", ["get", "rank"], ["+", 0.5, ["*", 1.45, ["zoom"]]]];
+export const COUNTRY_RANK_FILTER = [
+  "<=",
+  ["get", "rank"],
+  ["+", RANK_LIMIT.base, ["*", RANK_LIMIT.perZoom, ["zoom"]]],
+];
+
+/** Whole zooms the country pills are banded by, up to the globe's closest zoom. */
+const BAND_ZOOMS = Array.from({ length: GLOBE.maxZoom }, (_, i) => i + 1);
+
+/**
+ * Country pills follow COUNTRY_RANK_FILTER without filtering by zoom: one layer
+ * per whole zoom holds the countries named from that zoom on, and the camera's
+ * zoom shows it (AtlasGlobe sets the opacity). A zoom filter is read when
+ * the worker lays out a tile, so past every whole zoom the smaller countries'
+ * pills waited for new tiles, seconds on a busy phone; every band is in every
+ * tile, so a pill shows the moment its zoom is reached.
+ */
+export const COUNTRY_BADGE_BANDS = BAND_ZOOMS.map((zoom) => {
+  const rank = ["get", "rank"];
+  const upTo = ["<=", rank, rankLimit(zoom)];
+  return {
+    id: `${TOPIC_LAYERS.countries}-${zoom}`,
+    zoom,
+    filter: zoom === 1 ? upTo : ["all", [">", rank, rankLimit(zoom - 1)], upTo],
+  };
+});
 
 /**
  * A topic count under a label: a small pill that never hides a place name
@@ -366,7 +399,9 @@ export function buildStyle(regions: RegionLabel[], options: StyleOptions): Style
           "text-halo-width": 1.6,
         },
       },
-      topicBadgeLayer(TOPIC_LAYERS.countries, "country-labels", { minzoom: 1.6 }),
+      ...COUNTRY_BADGE_BANDS.map((band) =>
+        topicBadgeLayer(band.id, "country-labels", { minzoom: 1.6 }),
+      ),
       topicBadgeLayer(TOPIC_LAYERS.regions, "region-labels", { below: 3 }),
       // Groups have no name on the globe: the count sits on their centre.
       topicBadgeLayer(TOPIC_LAYERS.issue, "issue-labels", { below: -0.6 }),

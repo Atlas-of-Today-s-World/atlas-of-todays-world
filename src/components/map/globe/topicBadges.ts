@@ -1,6 +1,6 @@
 import type { ExpressionSpecification, Map as MapLibreMap } from "maplibre-gl";
 import { loadMapLibre } from "../maplibre";
-import { COUNTRY_RANK_FILTER, TOPIC_BADGE_IMAGES, TOPIC_LAYERS } from "../mapStyle";
+import { COUNTRY_BADGE_BANDS, TOPIC_BADGE_IMAGES, TOPIC_LAYERS } from "../mapStyle";
 import { isCompleted, withProgressMark, withStatusMark } from "../global-issues";
 import type { GroupStatus, RegionProgress } from "@/features/geography/content-status";
 import { GLOBE_COLORS, THEME_COLORS } from "@/config/palette";
@@ -62,8 +62,25 @@ function topicExpressions(counts: Record<string, number>, property: "iso3" | "sl
 type PlaceStatuses = Record<SelectionModeKey, Record<string, GroupStatus>>;
 
 /**
- * Topic counts: one badge layer per mode, numbers from the server. Only the
- * active mode's layer shows, and none in the corner window (`mini`).
+ * A mode's pill layers, each with the zoom it shows from (0: any) and its own
+ * filter (null: set from the counts). The countries' come in COUNTRY_BADGE_BANDS.
+ */
+function badgeLayers(key: SelectionModeKey) {
+  return key === "countries"
+    ? COUNTRY_BADGE_BANDS.map((band) => ({
+        ...band,
+        filter: band.filter as ExpressionSpecification,
+      }))
+    : [{ id: TOPIC_LAYERS[key], zoom: 0, filter: null }];
+}
+
+/**
+ * Topic counts: badge layers per mode, numbers from the server. Only the
+ * active mode's pills show, and none in the corner window (`mini`).
+ *
+ * The hidden ones are only made transparent: a change of a layer's visibility
+ * (or filter) has MapLibre's worker lay its tiles out again, and the pills
+ * waited for that after every switch of mode or return from the corner window.
  */
 export function applyTopicBadges(
   map: MapLibreMap,
@@ -91,41 +108,49 @@ export function applyTopicBadges(
     // a special region exists on the map only through its topics.
     const zero = key === "issue" ? "" : "0";
     const { has, text } = topicExpressions(topicCounts[key], property, zero);
-    const layer = TOPIC_LAYERS[key];
-    map.setFilter(
-      layer,
-      key === "countries"
-        ? (COUNTRY_RANK_FILTER as ExpressionSpecification)
-        : key === "regions"
-          ? null
-          : openIssue
-            ? // On a group's page only its own count: another group's pill over one of
-              // its countries reads as its count (Russia–Ukraine War over Belarus).
-              ["all", has, ["==", ["get", "slug"], openIssue]]
-            : has,
-    );
     // The small globe window on full-width pages shows no counts.
-    map.setLayoutProperty(layer, "visibility", key === mode && !mini ? "visible" : "none");
-    if (key === "issue") {
-      // A global issue: the white pill, a check mark when ready, an hourglass in preparation.
-      map.setLayoutProperty(layer, "text-field", withStatusMark(text, statuses.issue, property));
-      map.setLayoutProperty(layer, "icon-image", TOPIC_BADGE_IMAGES.some);
-      map.setPaintProperty(layer, "text-color", GLOBE_COLORS.badgeText);
-    } else {
-      // A region and its countries carry the region's progress: a green pill with
-      // a check mark once completed, an amber one with a calendar while planned.
-      const completed = isCompleted(statuses[key], property);
-      map.setLayoutProperty(layer, "text-field", withProgressMark(text, completed));
-      map.setLayoutProperty(layer, "icon-image", [
-        "case",
-        completed,
-        TOPIC_BADGE_IMAGES.completed,
-        TOPIC_BADGE_IMAGES.planned,
-      ]);
-      map.setPaintProperty(layer, "text-color", "#ffffff");
+    const shown = key === mode && !mini;
+    for (const layer of badgeLayers(key)) {
+      map.setFilter(
+        layer.id,
+        layer.filter ??
+          (key === "regions"
+            ? null
+            : openIssue
+              ? // On a group's page only its own count: another group's pill over one of
+                // its countries reads as its count (Russia–Ukraine War over Belarus).
+                ["all", has, ["==", ["get", "slug"], openIssue]]
+              : has),
+      );
+      if (key === "issue") {
+        // A global issue: the white pill, a check mark when ready, an hourglass in preparation.
+        map.setLayoutProperty(
+          layer.id,
+          "text-field",
+          withStatusMark(text, statuses.issue, property),
+        );
+        map.setLayoutProperty(layer.id, "icon-image", TOPIC_BADGE_IMAGES.some);
+        map.setPaintProperty(layer.id, "text-color", GLOBE_COLORS.badgeText);
+      } else {
+        // A region and its countries carry the region's progress: a green pill with
+        // a check mark once completed, an amber one with a calendar while planned.
+        const completed = isCompleted(statuses[key], property);
+        map.setLayoutProperty(layer.id, "text-field", withProgressMark(text, completed));
+        map.setLayoutProperty(layer.id, "icon-image", [
+          "case",
+          completed,
+          TOPIC_BADGE_IMAGES.completed,
+          TOPIC_BADGE_IMAGES.planned,
+        ]);
+        map.setPaintProperty(layer.id, "text-color", "#ffffff");
+      }
+      // Opacity by the camera's zoom only (no feature data): changing it never
+      // has the tiles laid out again.
+      const opacity = (full: number): number | ExpressionSpecification =>
+        !shown ? 0 : layer.zoom ? ["step", ["zoom"], 0, layer.zoom, full] : full;
+      map.setPaintProperty(layer.id, "icon-opacity", opacity(key === "issue" ? 0.95 : 1));
+      map.setPaintProperty(layer.id, "text-opacity", opacity(1));
     }
-    map.setPaintProperty(layer, "icon-opacity", key === "issue" ? 0.95 : 1);
-    map.setPaintProperty(layer, "text-opacity", 1);
   }
 }
 
@@ -156,7 +181,10 @@ export function pulseTopicBadges(
       [w * 0.2, h * 0.2],
       [w * 0.8, h * 0.8],
     ],
-    { layers: [TOPIC_LAYERS[mode]] },
+    // Only the pills shown at this zoom (the others are there, transparent).
+    {
+      layers: badgeLayers(mode).flatMap((layer) => (layer.zoom <= map.getZoom() ? [layer.id] : [])),
+    },
   );
   const property = mode === "countries" ? "iso3" : "slug";
   const points = new Map<string, [number, number]>();
