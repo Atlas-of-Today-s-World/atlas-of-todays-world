@@ -121,6 +121,9 @@ jobs:
           TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
           RATE_LIMIT_SECRET: ${{ secrets.RATE_LIMIT_SECRET }}
           TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          STRIPE_PORTAL_URL: ${{ vars.NEXT_PUBLIC_STRIPE_PORTAL_URL }}
         run: |
           args=()
           if [ -n "$TURNSTILE_SITE_KEY" ]; then
@@ -136,5 +139,15 @@ jobs:
           if [ -n "$TURNSTILE_SECRET_KEY" ]; then
             args+=(--build-env "TURNSTILE_SECRET_KEY=$TURNSTILE_SECRET_KEY")
             args+=(--env "TURNSTILE_SECRET_KEY=$TURNSTILE_SECRET_KEY")
+          fi
+          # Stripe (ADR G6, lib/stripe.ts): payments are on only with both secrets;
+          # without them "Donate & Join" stays on the demo checkout.
+          if [ -n "$STRIPE_SECRET_KEY" ] && [ -n "$STRIPE_WEBHOOK_SECRET" ]; then
+            args+=(--env "STRIPE_SECRET_KEY=$STRIPE_SECRET_KEY")
+            args+=(--env "STRIPE_WEBHOOK_SECRET=$STRIPE_WEBHOOK_SECRET")
+          fi
+          if [ -n "$STRIPE_PORTAL_URL" ]; then
+            args+=(--build-env "NEXT_PUBLIC_STRIPE_PORTAL_URL=$STRIPE_PORTAL_URL")
+            args+=(--env "NEXT_PUBLIC_STRIPE_PORTAL_URL=$STRIPE_PORTAL_URL")
           fi
           vercel deploy $PROD_FLAG --yes --token "$VERCEL_TOKEN" "${args[@]}"
