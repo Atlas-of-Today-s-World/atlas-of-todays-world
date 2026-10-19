@@ -33,8 +33,8 @@ export const tags = {
   /** Atlas Patrons progress (patron_stats) — payment webhook and admin grants. */
   patrons: "patrons",
   /**
-   * The home map's subtopic pins and tile count (home_featured_items,
-   * home_settings). The subtopics themselves stay under `entries`.
+   * The home map's tile count (home_settings). The entries themselves stay
+   * under `entries`.
    */
   home: "home",
   /** One editable site page (site_pages: about, privacy, terms, accessibility). */

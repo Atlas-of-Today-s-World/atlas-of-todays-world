@@ -20,7 +20,7 @@ flowchart TD
   Home --> M2["Režim Regions"]
   Home --> M3["Režim Global issues<br/>(nabídka témat pod přepínačem)"]
   Home --> Metrics["World metrics<br/>/view/[indicator]"]
-  Home --> Featured["Doporučená podtémata<br/>(pod vyhledáváním)"]
+  Home --> Featured["Nejnovější hesla<br/>(pod vyhledáváním, jen desktop)"]
   Home --> Search["Vyhledávání /search"]
 
   M1 --> Country["Panel země /country/[slug]<br/>údaje země + profil<br/>+ regionální profil pod zemí"]
@@ -93,7 +93,6 @@ erDiagram
   authors ||--o{ entries : "author_id"
   topic_templates ||--o{ topic_template_tiles : "vzor dlaždic"
   topic_templates ||--o{ entries : "template_id"
-  entry_chapters ||--o| home_featured : "doporučené na glóbu"
 
   regions ||--o{ timeline_events : "Timeline"
   special_regions ||--o{ timeline_events : "Timeline"
@@ -137,7 +136,7 @@ Plní se v Admin → Topics & news, schvaluje v Admin → Approvals.
 | Learn more | `learn_more_tiles` → `resources`, `entry_tile_notes` | Dlaždice se zdroji (videa, přednášky, články, vzdělávací zdroje, statistiky…); každé téma má vlastní sadu zkopírovanou ze **šablony** (`topic_templates`, Admin → Topic templates). Dlaždice nese odkazy (`resources.tile_id`) a/nebo vlastní text. |
 | FAQ tématu | `entry_faq` | Otázky a odpovědi na konci tématu (i pro vyhledávače). |
 | Autor | `authors` | Profil s fotkou, bio a positionality; stránka `/authors/[slug]`. Admin → Author profiles. |
-| Doporučená podtémata | `home_featured` | Dva sloty na glóbu pod vyhledáváním (Admin → Home page); prázdný slot = nejnovější podtéma. |
+| Nejnovější hesla | `home_settings` | Dlaždice nejnovějších publikovaných hesel na glóbu pod vyhledáváním, jen na počítači a tabletu; počet 1–6 nastavuje Admin → Home page. |
 
 **Kde se téma ukáže** (stejné pravidlo počítá i čísla na glóbu, `features/topics/map-counts.ts`):
 
@@ -192,7 +191,7 @@ timeline nezobrazují. Obsah ze starého webu: `scripts/webflow/import-portraits
 | Approvals | `/admin/approvals` | schvalování `pending` → `published` |
 | Author profiles | `/admin/authors` | `authors` |
 | Topic templates | `/admin/topic-templates` | `topic_templates`, `topic_template_tiles` |
-| Home page | `/admin/home` | `home_featured` |
+| Home page | `/admin/home` | `home_settings` |
 | URL redirects | `/admin/redirects` | `redirects` |
 | Regions & countries | `/admin/regions` | `regions`, `countries`, portrét regionu (timeline, infografiky, FAQ, zdroje, metriky) |
 | Global issues | `/admin/global-issues` | `special_regions` (global issues i vlastní regiony — skupiny zemí) a jejich portrét |

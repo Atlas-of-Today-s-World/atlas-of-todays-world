@@ -4,7 +4,6 @@ import { clampFeaturedCount, FEATURED_COUNT } from "@/features/home/config";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import { must } from "@/lib/db/result";
 import { createPublicClient } from "@/lib/supabase/public";
-import type { SubtopicTile } from "./types";
 
 /** A published entry for the home map, newest first; its place as slugs (named by the caller). */
 export interface LatestEntry {
@@ -16,121 +15,21 @@ export interface LatestEntry {
   issue: string | null;
 }
 
-interface Row {
-  slug: string;
-  title: string;
-  entry_chapters:
-    | {
-        id: string;
-        position: number;
-        title: string;
-        illustration_url: string | null;
-        tile_background: string | null;
-        created_at: string;
-      }[]
-    | null;
-}
-
-/** Every subtopic of the published topics, newest first. */
-export const getSubtopicTiles = unstable_cache(
-  async (): Promise<SubtopicTile[]> => {
-    const data = must(
-      await createPublicClient()
-        .from("entries")
-        // Anon may read only listed columns (DB-08).
-        .select(
-          "slug, title, entry_chapters(id, position, title, illustration_url, tile_background, created_at)",
-        )
-        .eq("status", "published")
-        .eq("kind", "entry")
-        .is("translation_of", null)
-        .limit(1000),
-      "subtopics",
-    );
-    return (data as Row[])
-      .flatMap((topic) =>
-        [...(topic.entry_chapters ?? [])]
-          .sort((a, b) => a.position - b.position)
-          .map((chapter, index) => ({
-            id: chapter.id,
-            topicSlug: topic.slug,
-            topicTitle: topic.title,
-            title: chapter.title,
-            image: chapter.illustration_url ?? undefined,
-            background: chapter.tile_background ?? undefined,
-            anchor: `topic-${index + 1}`,
-            createdAt: chapter.created_at,
-          })),
-      )
-      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  },
-  ["subtopic-tiles"],
-  { tags: [tags.entries], revalidate: PUBLIC_REVALIDATE_SECONDS },
-);
-
-/** The home map as set in the admin: pinned subtopic ids in order, how many tiles. */
-interface HomeFeatured {
-  pins: string[];
-  count: number;
-}
-
-const getHomeFeatured = unstable_cache(
-  async (): Promise<HomeFeatured> => {
-    const client = createPublicClient();
-    const [items, settings] = await Promise.all([
-      client
-        .from("home_featured_items")
-        .select("chapter_id")
-        .order("position")
-        .order("id")
-        .limit(100),
-      client.from("home_settings").select("featured_count").eq("id", 1).maybeSingle(),
-    ]);
-    // The pins are a nicety: without them (e.g. before the migration) the newest show.
-    const error = items.error ?? settings.error;
+/** How many entry tiles the home map shows (set in the admin, Home page). */
+const getFeaturedCount = unstable_cache(
+  async (): Promise<number> => {
+    const { data, error } = await createPublicClient()
+      .from("home_settings")
+      .select("featured_count")
+      .eq("id", 1)
+      .maybeSingle();
+    // The count is a nicety: without it the default number of tiles shows.
     if (error) console.error(`[home featured] ${error.message}`);
-    return {
-      pins: (items.data ?? []).map((row) => row.chapter_id),
-      count: clampFeaturedCount(settings.data?.featured_count),
-    };
+    return clampFeaturedCount(data?.featured_count);
   },
-  ["home-featured-items"],
+  ["home-featured-count"],
   { tags: [tags.home], revalidate: PUBLIC_REVALIDATE_SECONDS },
 );
-
-/**
- * The subtopics on the home map: the ones pinned in the admin first, in their
- * order (an unpublished pin is skipped), then the newest subtopics not shown
- * yet — each from a topic not shown yet when there is one, so the tiles aren't
- * one topic twice — until there are `count` tiles (or no subtopics left).
- */
-export function pickFeatured(
-  tiles: readonly SubtopicTile[],
-  pins: readonly string[],
-  count: number,
-): SubtopicTile[] {
-  const byId = new Map(tiles.map((tile) => [tile.id, tile]));
-  const shown: SubtopicTile[] = [];
-  const ids = new Set<string>();
-  const topics = new Set<string>();
-  const add = (tile: SubtopicTile) => {
-    shown.push(tile);
-    ids.add(tile.id);
-    topics.add(tile.topicSlug);
-  };
-  for (const id of pins) {
-    if (shown.length >= count) return shown;
-    const tile = byId.get(id);
-    if (tile && !ids.has(tile.id)) add(tile);
-  }
-  while (shown.length < count) {
-    const fresh = tiles.filter((tile) => !ids.has(tile.id));
-    const pick = fresh.find((tile) => !topics.has(tile.topicSlug)) ?? fresh[0];
-    if (!pick) break;
-    add(pick);
-  }
-  return shown;
-}
 
 /** Published entries (originals), the most recently published first. */
 const getLatestEntries = unstable_cache(
@@ -164,6 +63,6 @@ const getLatestEntries = unstable_cache(
 
 /** The entry tiles on the home map: the newest published, as many as set in the admin. */
 export async function latestEntries(): Promise<LatestEntry[]> {
-  const [entries, { count }] = await Promise.all([getLatestEntries(), getHomeFeatured()]);
+  const [entries, count] = await Promise.all([getLatestEntries(), getFeaturedCount()]);
   return entries.slice(0, count);
 }

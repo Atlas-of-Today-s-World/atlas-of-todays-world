@@ -1,5 +1,5 @@
 /**
- * How many subtopic tiles the home map shows (home_settings.featured_count,
+ * How many entry tiles the home map shows (home_settings.featured_count,
  * DB CHECK 1–6). Shared by the admin form, its Zod schema and the public read.
  */
 export const FEATURED_COUNT = { min: 1, max: 6, default: 2 } as const;
