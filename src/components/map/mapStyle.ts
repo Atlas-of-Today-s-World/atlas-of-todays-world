@@ -26,10 +26,22 @@ export interface RegionLabel {
   center: [number, number];
 }
 
+/**
+ * Label points (country names, groups, their topic pills) are a few hundred
+ * points, so they stay in a single tile of the whole world, scaled up at every
+ * zoom: turning the globe needs no new tiles, and a zoom step only one. With
+ * the default tiling, every newly turned-in part of the globe waited for its
+ * tiles behind the heavy border tiles in MapLibre's worker, and phones showed
+ * no pills there for seconds. A world tile holds positions to 1/8192 of the
+ * world: under 3 px off up to zoom 6, which a label point can afford.
+ */
+const LABEL_SOURCE_MAXZOOM = 0;
+
 /** Group labels – one point per region or global issue, at its hand-picked center. */
 function regionLabelSource(regions: RegionLabel[]): GeoJSONSourceSpecification {
   return {
     type: "geojson",
+    maxzoom: LABEL_SOURCE_MAXZOOM,
     data: {
       type: "FeatureCollection",
       features: regions.map((region) => ({
@@ -183,6 +195,7 @@ export function buildStyle(regions: RegionLabel[], options: StyleOptions): Style
       "country-labels": {
         type: "geojson",
         data: "/data/country-labels.geo.json",
+        maxzoom: LABEL_SOURCE_MAXZOOM,
       },
       "region-labels": regionLabelSource(regions),
       "issue-labels": regionLabelSource(options.issueLabels),
