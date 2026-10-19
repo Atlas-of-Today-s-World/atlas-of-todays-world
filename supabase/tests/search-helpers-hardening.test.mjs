@@ -520,7 +520,6 @@ const APP_RPCS = {
   role_holder_counts: ["authenticated"],
   restore_site_page: ["authenticated"],
   move_patron_faq: ["authenticated"],
-  move_home_featured_item: ["authenticated"],
   move_site_social_link: ["authenticated"],
   move_nav_item: ["authenticated"],
   move_region: ["authenticated"],

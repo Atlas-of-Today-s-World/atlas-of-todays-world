@@ -820,59 +820,6 @@ export type Database = {
           },
         ]
       }
-      home_featured: {
-        Row: {
-          first_chapter: string | null
-          id: number
-          second_chapter: string | null
-          updated_at: string
-        }
-        Insert: {
-          first_chapter?: string | null
-          id?: number
-          second_chapter?: string | null
-          updated_at?: string
-        }
-        Update: {
-          first_chapter?: string | null
-          id?: number
-          second_chapter?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      home_featured_items: {
-        Row: {
-          chapter_id: string
-          created_at: string
-          id: string
-          position: number
-          updated_at: string
-        }
-        Insert: {
-          chapter_id: string
-          created_at?: string
-          id?: string
-          position: number
-          updated_at?: string
-        }
-        Update: {
-          chapter_id?: string
-          created_at?: string
-          id?: string
-          position?: number
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "home_featured_items_chapter_id_fkey"
-            columns: ["chapter_id"]
-            isOneToOne: true
-            referencedRelation: "entry_chapters"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       home_settings: {
         Row: {
           featured_count: number
@@ -2977,10 +2924,6 @@ export type Database = {
         Returns: boolean
       }
       mfa_ok: { Args: never; Returns: boolean }
-      move_home_featured_item: {
-        Args: { p_id: string; p_up: boolean }
-        Returns: undefined
-      }
       move_nav_item: { Args: { p_id: string; p_up: boolean }; Returns: undefined }
       move_indicator: { Args: { p_id: string; p_up: boolean }; Returns: undefined }
       move_patron_faq: { Args: { p_id: string; p_up: boolean }; Returns: undefined }
