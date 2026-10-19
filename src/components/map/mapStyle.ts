@@ -166,43 +166,50 @@ export function labelZoomAt(zoom: number, lat: number): number {
 
 const labelZoom = ["global-state", LABEL_ZOOM_STATE];
 
-/** COUNTRY_RANK_FILTER by the label zoom, for the globe's names. */
+/**
+ * The largest countries (LABELRANK 2: Russia, Canada, China, Brazil, India,
+ * Germany, France…) keep their name and pill however far the globe is zoomed
+ * out; below the home view's zoom the rank rule would leave none.
+ */
+const ZOOMED_OUT_RANK = 2;
+
+/** The largest LABELRANK the globe names at a label zoom (rankLimit, ZOOMED_OUT_RANK). */
+const globeRankLimit = (zoom: number) => Math.max(ZOOMED_OUT_RANK, rankLimit(zoom));
+
+/** COUNTRY_RANK_FILTER by the label zoom, for the globe's names (globeRankLimit). */
 const GLOBE_RANK_FILTER = [
   "<=",
   ["get", "rank"],
-  ["+", RANK_LIMIT.base, ["*", RANK_LIMIT.perZoom, labelZoom]],
+  ["max", ZOOMED_OUT_RANK, ["+", RANK_LIMIT.base, ["*", RANK_LIMIT.perZoom, labelZoom]]],
 ];
 
 /** Opacity `full` from the label zoom `from` on, 0 below it. */
 export const fromLabelZoom = (from: number, full: number) => ["step", labelZoom, 0, from, full];
 
 /** Whole zooms the country pills are banded by, up to the globe's closest zoom. */
-const BAND_ZOOMS = Array.from({ length: GLOBE.maxZoom }, (_, i) => i + 1);
+const BAND_ZOOMS = Array.from({ length: GLOBE.maxZoom + 1 }, (_, i) => i);
 
 /**
- * The home view's zoom on phones (home-location FILL_ZOOM.min): the pills shown
- * there stay however far the globe is zoomed out, so a zoomed-out globe still
- * shows where the topics are; smaller countries' pills come with zooming in.
- */
-const PILLS_ZOOMED_OUT = 2;
-
-/**
- * Country pills follow the names' rank rule without a filter: one layer per
- * whole zoom holds the countries named from that zoom on, and the label zoom
- * shows it (AtlasGlobe sets the opacity, fromLabelZoom; `zoom` 0: at any zoom,
- * PILLS_ZOOMED_OUT). A filter is read when the worker lays out a tile, so past
+ * Country pills follow the names' rank rule (globeRankLimit) without a filter:
+ * one layer per whole zoom holds the countries named from that zoom on, and
+ * the label zoom shows it (AtlasGlobe sets the opacity, fromLabelZoom; `zoom`
+ * 0: at any zoom). A filter is read when the worker lays out a tile, so past
  * every whole zoom the smaller countries' pills waited for the tile again,
  * seconds on a busy phone; every band is in every tile, so a pill shows the
  * moment its zoom is reached.
  */
-export const COUNTRY_BADGE_BANDS = BAND_ZOOMS.map((zoom) => {
+export const COUNTRY_BADGE_BANDS = BAND_ZOOMS.flatMap((zoom) => {
   const rank = ["get", "rank"];
-  const upTo = ["<=", rank, rankLimit(zoom)];
-  return {
-    id: `${TOPIC_LAYERS.countries}-${zoom}`,
-    zoom: zoom <= PILLS_ZOOMED_OUT ? 0 : zoom,
-    filter: zoom === 1 ? upTo : ["all", [">", rank, rankLimit(zoom - 1)], upTo],
-  };
+  const upTo = ["<=", rank, globeRankLimit(zoom)];
+  // A zoom that names no more countries than the one before has no band.
+  if (zoom > 0 && globeRankLimit(zoom) === globeRankLimit(zoom - 1)) return [];
+  return [
+    {
+      id: `${TOPIC_LAYERS.countries}-${zoom}`,
+      zoom,
+      filter: zoom === 0 ? upTo : ["all", [">", rank, globeRankLimit(zoom - 1)], upTo],
+    },
+  ];
 });
 
 /**
