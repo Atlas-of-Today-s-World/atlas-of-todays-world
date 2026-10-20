@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { toEditableVisuals, toVisualItems, type VisualRow } from "./rows";
-import { EMBED_HINT, VisualInput } from "./schema";
+import { EMBED_HINT, HTML_TOO_LONG, VisualInput } from "./schema";
 import { emptyMapSpec } from "./map/types";
 
 const CHART = "https://datawrapper.dwcdn.net/aB3dE/2/";
@@ -30,6 +30,7 @@ describe("VisualInput", () => {
         image_url: null,
         height: null,
         map_spec: null,
+        html: null,
       },
     });
   });
@@ -90,6 +91,25 @@ describe("VisualInput", () => {
       parse({ kind: "map", map_spec: JSON.stringify({ x: "x".repeat(210_000) }) }).error?.issues[0]
         ?.message,
     ).toBe("The map is too large.");
+  });
+
+  it("custom code is stored as pasted, and only for its own kind", () => {
+    const code = "<div id=x></div>\n<script>draw('x')</script>";
+    expect(parse({ kind: "html", html: code, embed: EMBED }).data?.visual).toMatchObject({
+      kind: "html",
+      html: code,
+      provider: null,
+      embed_url: null,
+      image_url: null,
+      map_spec: null,
+    });
+    expect(parse({ embed: EMBED, html: code }).data?.visual.html).toBeNull();
+    expect(issueAt(parse({ kind: "html", html: "  \n " }))).toEqual(["html"]);
+    // The limit is in bytes: 300 000 two-byte characters are over 512 kB.
+    const tooLong = parse({ kind: "html", html: "é".repeat(300_000) });
+    expect(issueAt(tooLong)).toEqual(["html"]);
+    expect(tooLong.error?.issues[0]?.message).toBe(HTML_TOO_LONG);
+    expect(parse({ kind: "html", html: "x".repeat(524_288) }).success).toBe(true);
   });
 
   it("checks the owner, the limits and the source link", () => {
@@ -159,6 +179,7 @@ describe("toVisualItems", () => {
         embed_url: null,
         map_spec: emptyMapSpec(),
       }),
+      row({ id: "d", position: 40, kind: "html", provider: null, embed_url: null }),
     ]);
     expect(items).toEqual([
       {
@@ -184,6 +205,15 @@ describe("toVisualItems", () => {
         id: "c",
         kind: "map",
         spec: emptyMapSpec(),
+        title: "Chart",
+        caption: undefined,
+        source: undefined,
+        height: undefined,
+      },
+      // Custom code: only the id — its frame loads the code.
+      {
+        id: "d",
+        kind: "html",
         title: "Chart",
         caption: undefined,
         source: undefined,
@@ -257,8 +287,14 @@ describe("toEditableVisuals", () => {
       image_url: "",
       height: 500,
       map_spec: null,
+      html: "",
       updated_at: "2026-10-15",
     });
+    expect(
+      toEditableVisuals([
+        row({ kind: "html", provider: null, embed_url: null, html: "<p>x</p>" }),
+      ])[0]?.html,
+    ).toBe("<p>x</p>");
     expect(toEditableVisuals([row({ provider: "youtube" })])[0]?.provider).toBeNull();
   });
 });

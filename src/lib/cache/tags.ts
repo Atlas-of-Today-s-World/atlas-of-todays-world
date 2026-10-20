@@ -20,6 +20,8 @@ export const tags = {
    */
   entryPages: "entry-pages",
   portrait: (kind: "region" | "issue", slug: string) => `portrait:${kind}:${slug}`,
+  /** One visual's custom code, served on its own by /api/visual-html/<id> (ADR-032). */
+  visualHtml: (id: string) => `visual-html:${id}`,
   /** Feature flags and maintenance mode. */
   flags: "flags",
   /**

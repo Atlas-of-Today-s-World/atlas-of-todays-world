@@ -6,6 +6,7 @@ import { cn } from "@/lib/cn";
 import { getT } from "@/lib/i18n/request";
 import { MapVisual, type MapSpec } from "@/features/visuals/map-slot";
 import { EmbedFrame } from "./EmbedFrame";
+import { HtmlFrame } from "./HtmlFrame";
 
 /**
  * "Maps & charts" — the carousel of visuals of a region, a global issue, a
@@ -13,7 +14,7 @@ import { EmbedFrame } from "./EmbedFrame";
  * previous / next arrows and dots (Rail `pages`: swipe on touch, ←/→ on the
  * keyboard), its title, caption and source under it. Embedded charts load
  * only when they come near the viewport (EmbedFrame); so do custom maps,
- * drawn by the map slot's MapVisual.
+ * drawn by the map slot's MapVisual, and custom code (HtmlFrame, sandboxed).
  *
  * `variant="section"`: a page section (portrait, topic page) — a "Maps &
  * charts" pill, a centred heading and lead, like the timeline. `"inline"`: a
@@ -134,5 +135,14 @@ function Visual({ item, openLabel }: { item: VisualItem; openLabel: string }) {
     case "map":
       // The spec passed parseMapSpec when it was read (features/visuals/rows.ts).
       return <MapVisual spec={item.spec as MapSpec} title={item.title} height={item.height} />;
+    case "html":
+      return (
+        <HtmlFrame
+          id={item.id}
+          title={item.title}
+          height={item.height}
+          className="border border-[var(--color-line)]"
+        />
+      );
   }
 }

@@ -81,6 +81,8 @@ export const saveVisual = formAction(VisualInput, async ({ data, supabase }) => 
       "You can't edit this map or chart.",
     );
     if (denied) return denied;
+    // Its custom code is served and cached on its own (/api/visual-html).
+    updateTag(tags.visualHtml(id));
   } else {
     const { data: last, error: readError } = await supabase
       .from("visuals")
@@ -116,6 +118,7 @@ export const deleteVisual = idAction(
     const result = await supabase.from("visuals").delete().eq("id", id).select(OWNER_COLUMNS);
     const denied = affected(result, "You can't remove this map or chart.");
     if (denied) return denied;
+    updateTag(tags.visualHtml(id));
     await refreshOwner(supabase, ownerOf(result.data![0]!));
     return { ok: true, message: "Removed." };
   },

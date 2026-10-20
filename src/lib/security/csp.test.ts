@@ -70,9 +70,9 @@ describe("buildCsp", () => {
     for (const origin of EMBED_ORIGINS) expect(frames).toContain(origin);
   });
 
-  it("frames nothing but the allowed chart providers and the Turnstile challenge", () => {
+  it("frames nothing but the allowed chart providers, our custom-code page and the Turnstile challenge", () => {
     expect(directive(prod, "frame-src")).toBe(
-      "frame-src https://datawrapper.dwcdn.net https://flo.uri.sh https://ourworldindata.org https://data.worldbank.org https://challenges.cloudflare.com",
+      "frame-src https://datawrapper.dwcdn.net https://flo.uri.sh https://ourworldindata.org https://data.worldbank.org 'self' https://challenges.cloudflare.com",
     );
   });
 

@@ -18,7 +18,7 @@ export const OWNER_COLUMN = {
   chapter: "chapter_id",
 } as const satisfies Record<VisualOwnerKind, string>;
 
-const EDIT_COLUMNS = `${VISUAL_COLUMNS}, chapter_id, updated_at`;
+const EDIT_COLUMNS = `${VISUAL_COLUMNS}, html, chapter_id, updated_at`;
 
 export async function visualsForEdit(
   kind: VisualOwnerKind,

@@ -21,5 +21,7 @@ export interface EditableVisual {
   image_url: string;
   height: number | null;
   map_spec: MapSpec | null;
+  /** Custom code (kind 'html'); "" for the other kinds. */
+  html: string;
   updated_at: string;
 }

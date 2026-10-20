@@ -162,4 +162,6 @@ export type VisualItem = {
   | { kind: "embed"; provider: EmbedProvider; url: string }
   | { kind: "image"; url: string }
   | { kind: "map"; spec: Record<string, unknown> }
+  // Custom code (ADR-032): framed sandboxed from /api/visual-html/<id>.
+  | { kind: "html" }
 );

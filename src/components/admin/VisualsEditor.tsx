@@ -165,7 +165,9 @@ export function VisualsEditor({
                   ? EMBED_PROVIDER_INFO[visual.provider].label
                   : visual.kind === "image"
                     ? "Image"
-                    : "Atlas",
+                    : visual.kind === "html"
+                      ? "Custom code"
+                      : "Atlas",
                 updated: visual.updated_at,
               },
               actions: <RowActions actions={rowActions} />,

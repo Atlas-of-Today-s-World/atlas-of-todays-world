@@ -11,7 +11,11 @@ import type { EditableVisual } from "./types";
  * shared by the public reads (portrait(), the topic page) and the editor.
  */
 
-/** Columns of a visual for the site — the ones anon may read. */
+/**
+ * Columns of a visual for the site — the ones anon may read. Not `html`: a
+ * custom code's frame loads it by the visual's id (/api/visual-html), so the
+ * pages and the cached portrait never carry it.
+ */
 export const VISUAL_COLUMNS =
   "id, position, kind, title, caption, source_label, source_url, provider, embed_url, image_url, height, map_spec";
 
@@ -29,6 +33,7 @@ export interface VisualRow {
   image_url?: string | null;
   height?: number | null;
   map_spec?: unknown;
+  html?: string | null;
   updated_at?: string;
 }
 
@@ -59,7 +64,8 @@ function storedMapSpec(value: unknown): MapSpec | null {
  * Rows → the carousel's items, in order. Each is checked again here (the DB
  * checks them on write, this is the safety net of what the page frames): an
  * embed only in its provider's canonical shape, an image and a source link
- * only over https, a map only with a spec object. Anything else is left out.
+ * only over https, a map only with a spec object. Custom code needs only its
+ * id here: its sandboxed frame loads it. Anything else is left out.
  */
 export function toVisualItems(rows: readonly VisualRow[] | null | undefined): VisualItem[] {
   return [...(rows ?? [])].sort(byPosition).flatMap((row): VisualItem[] => {
@@ -89,6 +95,8 @@ export function toVisualItems(rows: readonly VisualRow[] | null | undefined): Vi
         const spec = storedMapSpec(row.map_spec);
         return spec ? [{ ...base, kind: "map", spec }] : [];
       }
+      case "html":
+        return [{ ...base, kind: "html" }];
     }
   });
 }
@@ -110,6 +118,7 @@ export function toEditableVisuals(rows: readonly VisualRow[]): EditableVisual[] 
             image_url: row.image_url ?? "",
             height: row.height ?? null,
             map_spec: storedMapSpec(row.map_spec),
+            html: row.html ?? "",
             updated_at: row.updated_at ?? "",
           },
         ]

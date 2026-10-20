@@ -7,6 +7,7 @@ import { UploadField } from "@/components/admin/UploadField";
 import { ActionForm } from "@/components/ui/action-form";
 import { FormField, Input, Select, Textarea, describedBy } from "@/components/ui/field";
 import { EmbedFrame } from "@/components/visuals/EmbedFrame";
+import { HtmlFrame } from "@/components/visuals/HtmlFrame";
 import type { ActionState } from "@/lib/action-state";
 import { EMBED_HEIGHT, EMBED_PROVIDER_INFO, MAX_EMBED_LENGTH, parseEmbed } from "@/lib/embeds";
 import {
@@ -25,13 +26,18 @@ const IDLE: ActionState = { ok: false };
 const EMBED_FIELD_HINT =
   "Datawrapper: Publish → embed code (iframe or script). Flourish: Export & publish → embed code or the public link. Our World in Data: Share → Embed. World Bank: a chart's Share → Embed, or the indicator page's link.";
 
-const HEIGHT_HINT = `Empty = the chart's own (Datawrapper and Flourish size themselves). ${EMBED_HEIGHT.min}–${EMBED_HEIGHT.max}.`;
+const HEIGHT_HINT = `Empty = the chart's own (Datawrapper, Flourish and custom code size themselves). ${EMBED_HEIGHT.min}–${EMBED_HEIGHT.max}.`;
+
+const HTML_FIELD_HINT = `The whole block as you have it (styles, markup and scripts), or load an .html file. At most ${VISUAL_LIMITS.html / 1024} kB.`;
+
+const kilobytes = (bytes: number) => `${(bytes / 1024).toFixed(bytes < 10_240 ? 1 : 0)} kB`;
 
 const KIND_HINT: Record<VisualKind, string> = {
   embed:
     "An interactive chart or map from Datawrapper, Flourish, Our World in Data or the World Bank.",
   image: "A static picture: a map or an infographic as an image file.",
   map: "A map drawn in the Atlas itself, on its own data.",
+  html: "Your own infographic as HTML code. It runs in a closed, sandboxed frame: it can't reach the site, its visitors' sign-ins or cookies.",
 };
 
 /**
@@ -40,7 +46,9 @@ const KIND_HINT: Record<VisualKind, string> = {
  * (the same lib/embeds.ts the server validates with) and the chart previews
  * in the same sandboxed frame the site uses. Nothing pasted is kept but the
  * chart's address. A custom map is edited in the map builder of the map slot
- * (`mapGroups`: regions to frame or add at once).
+ * (`mapGroups`: regions to frame or add at once). Custom code is kept as
+ * pasted (or loaded from a file) and previewed, once saved, in the same
+ * sandboxed frame as on the site (ADR-032).
  */
 export function VisualForm({
   idPrefix,
@@ -59,6 +67,8 @@ export function VisualForm({
   const [kind, setKind] = useState<VisualKind>(visual?.kind ?? "embed");
   const [embed, setEmbed] = useState(visual?.embed_url ?? "");
   const [spec, setSpec] = useState<MapSpec | null>(visual?.map_spec ?? null);
+  const [html, setHtml] = useState(visual?.html ?? "");
+  const [fileError, setFileError] = useState<string | null>(null);
   // A new, empty form after each added visual (an edited one keeps its values).
   const [round, setRound] = useState(0);
   const [state, submit] = useActionState<ActionState, FormData>(async (previous, formData) => {
@@ -76,6 +86,7 @@ export function VisualForm({
       setKind("embed");
       setEmbed("");
       setSpec(null);
+      setHtml("");
       setRound((value) => value + 1);
     }
     return result;
@@ -84,6 +95,20 @@ export function VisualForm({
   const id = (field: string) => `${idPrefix}-${field}`;
   const errors = (field: string) => state.fieldErrors?.[field];
   const detected = kind === "embed" ? parseEmbed(embed) : null;
+  const htmlBytes = kind === "html" ? new TextEncoder().encode(html).length : 0;
+  const savedHtml = visual?.kind === "html" ? visual : null;
+
+  async function loadFile(file: File | undefined) {
+    setFileError(null);
+    if (!file) return;
+    if (file.size > VISUAL_LIMITS.html) {
+      setFileError(
+        `The file has ${kilobytes(file.size)}; at most ${kilobytes(VISUAL_LIMITS.html)}.`,
+      );
+      return;
+    }
+    setHtml(await file.text());
+  }
 
   return (
     <ActionForm key={round} action={submit} className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -160,6 +185,74 @@ export function VisualForm({
               className="border border-[var(--color-line)]"
             />
           ) : null}
+        </div>
+      ) : null}
+
+      {kind === "html" ? (
+        <div className="grid gap-3 sm:col-span-2">
+          <FormField
+            id={id("html")}
+            label="HTML code"
+            hint={HTML_FIELD_HINT}
+            errors={errors("html")}
+            required
+          >
+            <Textarea
+              id={id("html")}
+              name="html"
+              rows={10}
+              maxLength={VISUAL_LIMITS.html}
+              value={html}
+              onChange={(event) => setHtml(event.target.value)}
+              spellCheck={false}
+              className="font-mono text-[12px]"
+              {...describedBy(id("html"), { hint: HTML_FIELD_HINT, errors: errors("html") })}
+            />
+          </FormField>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[12.5px] text-[var(--color-ink-soft)]">
+            <label className="cursor-pointer text-[var(--color-link)] hover:underline">
+              Load from an .html file
+              <input
+                type="file"
+                accept=".html,.htm,text/html"
+                className="sr-only"
+                onChange={(event) => {
+                  void loadFile(event.target.files?.[0]);
+                  event.target.value = "";
+                }}
+              />
+            </label>
+            <span
+              role="status"
+              data-testid="visual-html-size"
+              className={htmlBytes > VISUAL_LIMITS.html ? "text-[var(--color-danger)]" : undefined}
+            >
+              {html ? `${kilobytes(htmlBytes)} of ${kilobytes(VISUAL_LIMITS.html)}` : null}
+            </span>
+            {fileError ? (
+              <span role="alert" className="text-[var(--color-danger)]">
+                {fileError}
+              </span>
+            ) : null}
+          </div>
+          {savedHtml ? (
+            <>
+              <p className="text-[12.5px] text-[var(--color-ink-soft)]">
+                Preview of the saved code — save to see changes.
+              </p>
+              <HtmlFrame
+                id={savedHtml.id}
+                title="Preview"
+                height={savedHtml.height ?? undefined}
+                version={savedHtml.updated_at}
+                className="border border-[var(--color-line)]"
+              />
+            </>
+          ) : (
+            <p className="text-[12.5px] text-[var(--color-ink-soft)]">
+              The preview appears once the code is saved.
+            </p>
+          )}
         </div>
       ) : null}
 

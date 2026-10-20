@@ -2608,6 +2608,7 @@ export type Database = {
           embed_url: string | null
           entry_id: string | null
           height: number | null
+          html: string | null
           id: string
           image_url: string | null
           kind: string
@@ -2629,6 +2630,7 @@ export type Database = {
           embed_url?: string | null
           entry_id?: string | null
           height?: number | null
+          html?: string | null
           id?: string
           image_url?: string | null
           kind: string
@@ -2650,6 +2652,7 @@ export type Database = {
           embed_url?: string | null
           entry_id?: string | null
           height?: number | null
+          html?: string | null
           id?: string
           image_url?: string | null
           kind?: string

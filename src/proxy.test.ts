@@ -82,3 +82,24 @@ describe("proxy: script policy", () => {
     }
   });
 });
+
+describe("proxy: custom code of Maps & charts (ADR-032)", () => {
+  const path = "https://atlas.example/api/visual-html/00000000-0000-4000-8000-000000000001";
+
+  it("serves it sandboxed and frameable by our pages only, without the site's policy", async () => {
+    const response = await proxy(new NextRequest(path));
+    const policy = response.headers.get("content-security-policy") ?? "";
+    expect(policy).toMatch(/^sandbox allow-scripts allow-popups allow-popups-to-escape-sandbox;/);
+    expect(policy).not.toContain("allow-same-origin");
+    // The origin the request came to, and the configured site's (a domain in front of it).
+    expect(policy).toMatch(/frame-ancestors https:\/\/atlas\.example( |;)/);
+    expect(response.headers.get("x-frame-options")).toBeNull();
+    expect(response.headers.get("x-robots-tag")).toBe("noindex, nofollow");
+  });
+
+  it("every other page still forbids framing", async () => {
+    const response = await proxy(new NextRequest("https://atlas.example/api/visual-htmlx/1"));
+    expect(response.headers.get("x-frame-options")).toBe("DENY");
+    expect(response.headers.get("content-security-policy")).toContain("frame-ancestors 'none'");
+  });
+});

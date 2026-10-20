@@ -220,7 +220,9 @@ timeline nezobrazují. Obsah ze starého webu: `scripts/webflow/import-portraits
   přesýpací hodiny v bílé pilulce.
 - **Maps & charts** u regionů, globálních témat, témat i podtémat (ADR-027): v adminu se vloží
   embed kód nebo odkaz (Datawrapper, Flourish, Our World in Data, World Bank), uloží se jen
-  ověřená adresa grafu; na webu karusel po jednom se šipkami a tečkami.
+  ověřená adresa grafu; na webu karusel po jednom se šipkami a tečkami. Vlastní infografika
+  jako HTML kód (do 512 kB, vložit nebo načíst ze souboru) běží izolovaně v sandboxovaném
+  rámu z `/api/visual-html/<id>` (ADR-032).
 - **Write a topic** vede na formulář dobrovolných editorů s předvyplněným místem.
 - **Globální téma na celou šířku (16. 10. 2026, ADR-028):** stránka jako téma — fotka s drobečky
   Atlas › Global issues, titulek, shrnutí, Share, země, Key indicators, „Subtopics" (témata přiřazená

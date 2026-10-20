@@ -16,7 +16,9 @@ import { parseMapSpec } from "./map-spec";
  * A visual as the admin form posts it and the `visuals` table stores it
  * (migration 20261015000100). Limits match the DB CHECKs. The form posts the
  * embed as the editor pasted it (code or link); only the provider and the
- * canonical URL parsed out of it are stored — never the HTML.
+ * canonical URL parsed out of it are stored — never the HTML. Custom code
+ * (kind 'html', ADR-032) is the one exception: it is stored as pasted, and
+ * the site only ever serves it sandboxed, on its own (lib/visual-html.ts).
  */
 
 /** The owner's key: a region / issue slug, a topic's or subtopic's id. */
@@ -34,6 +36,8 @@ const VisualOwnerInput = z
 export const EMBED_HINT =
   "Paste the embed code or the chart's link from Datawrapper, Flourish, Our World in Data or the World Bank data site.";
 
+export const HTML_TOO_LONG = `The code is too long: at most ${VISUAL_LIMITS.html / 1024} kB.`;
+
 /** Columns a save writes, besides the owner (the same for insert and update). */
 interface StoredVisual {
   kind: (typeof VISUAL_KINDS)[number];
@@ -46,6 +50,7 @@ interface StoredVisual {
   image_url: string | null;
   height: number | null;
   map_spec: Record<string, unknown> | null;
+  html: string | null;
 }
 
 /** JSON text of the map builder → its value; a bad or oversized text → an issue. */
@@ -90,6 +95,8 @@ export const VisualInput = VisualOwnerInput.and(
     ),
     // The map builder's spec as JSON text (kind 'map').
     map_spec: z.string().default(""),
+    // Custom code (kind 'html'); the byte limit is checked below.
+    html: z.string().max(VISUAL_LIMITS.html, HTML_TOO_LONG).default(""),
   }),
 ).transform((input, ctx) => {
   const stored: StoredVisual = {
@@ -103,6 +110,7 @@ export const VisualInput = VisualOwnerInput.and(
     image_url: null,
     height: input.height ?? null,
     map_spec: null,
+    html: null,
   };
   if (input.kind === "embed") {
     const embed = parseEmbed(input.embed);
@@ -112,6 +120,12 @@ export const VisualInput = VisualOwnerInput.and(
     if (!input.image_url) {
       ctx.addIssue({ code: "custom", path: ["image_url"], message: "Add the image." });
     } else stored.image_url = input.image_url;
+  } else if (input.kind === "html") {
+    if (!input.html.trim()) {
+      ctx.addIssue({ code: "custom", path: ["html"], message: "Paste the code." });
+    } else if (new TextEncoder().encode(input.html).length > VISUAL_LIMITS.html) {
+      ctx.addIssue({ code: "custom", path: ["html"], message: HTML_TOO_LONG });
+    } else stored.html = input.html;
   } else {
     stored.map_spec = mapSpecOf(input.map_spec, ctx);
   }

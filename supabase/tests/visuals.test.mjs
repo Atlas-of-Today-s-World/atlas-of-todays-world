@@ -314,6 +314,7 @@ test("visuals: each kind carries its own content and nothing else", async () => 
     { kind: "embed", provider: "datawrapper", embed_url: CHART },
     { kind: "image", image_url: "https://example.org/map.png" },
     { kind: "map", map_spec: JSON.stringify({ version: 1, layers: [] }) },
+    { kind: "html", html: "<div>Chart</div><script>draw()</script>" },
   ];
   for (const fields of ok) assert.equal((await insert(fields)).length, 1, fields.kind);
   const bad = [
@@ -325,6 +326,10 @@ test("visuals: each kind carries its own content and nothing else", async () => 
     { kind: "map" },
     { kind: "map", map_spec: "{}", image_url: "https://x.org/a" },
     { kind: "chart", image_url: "https://x.org/a" },
+    { kind: "html" },
+    { kind: "html", html: "  " },
+    { kind: "html", html: "<p>x</p>", image_url: "https://x.org/a" },
+    { kind: "image", image_url: "https://x.org/a", html: "<p>x</p>" },
   ];
   for (const fields of bad) {
     await refused(insert(fields), /visuals_kind_fields|visuals_kind_check|visuals_embed_url_check/);
@@ -336,6 +341,9 @@ test("visuals: each kind carries its own content and nothing else", async () => 
     insert({ kind: "map", map_spec: JSON.stringify({ blob: "x".repeat(204800) }) }),
     /visuals_map_spec_check/,
   );
+  // Custom code (20261020000100): at most 512 kB.
+  assert.equal((await insert({ kind: "html", html: "x".repeat(524288) })).length, 1);
+  await refused(insert({ kind: "html", html: "x".repeat(524289) }), /visuals_html_len/);
 });
 
 test("visuals: embed URLs only in each provider's canonical shape", async () => {
@@ -566,7 +574,7 @@ test("visuals: signed in, a draft topic's visuals are its editors' and the edito
 test("visuals: anon reads public columns only", async () => {
   await as(null, async () => {
     await refused(q("select created_at from visuals limit 1"), /permission denied/);
-    assert.ok(await one("select id, title, map_spec, updated_at from visuals limit 1"));
+    assert.ok(await one("select id, title, map_spec, html, updated_at from visuals limit 1"));
   });
 });
 
@@ -731,4 +739,21 @@ test("visuals: every change is in the audit log, without the map spec", async ()
   );
   assert.ok(row, "insert logged");
   assert.equal(JSON.stringify(row.detail).includes("secret"), false);
+});
+
+test("visuals: custom code stays out of the audit log too", async () => {
+  const visual = await as(id.dataEditor, () =>
+    addEmbed("region", "east-asia", "Audited code", {
+      kind: "html",
+      provider: null,
+      embed_url: null,
+      html: "<script>secretCode()</script>",
+    }),
+  );
+  await as(id.dataEditor, () =>
+    q("update visuals set html = '<script>otherCode()</script>' where id = $1", [visual]),
+  );
+  const rows = await q("select detail from audit_log where target = $1", [visual]);
+  assert.equal(rows.length, 2, "insert and update logged");
+  assert.equal(JSON.stringify(rows).includes("Code()"), false);
 });

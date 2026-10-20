@@ -76,6 +76,9 @@ export function buildCsp({
       // Our World in Data and the World Bank — the one allowlist in lib/embeds.ts,
       // which also decides which URLs are stored and framed.
       ...EMBED_ORIGINS,
+      // Custom code (ADR-032): /api/visual-html/<id>, the one page of ours that
+      // may be framed (every other answers with frame-ancestors 'none').
+      "'self'",
       TURNSTILE,
     ],
     "frame-ancestors": ["'none'"],

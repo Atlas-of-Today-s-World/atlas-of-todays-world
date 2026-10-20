@@ -3,9 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { EMBED_PROVIDER_INFO, embedHeight, embedSrc, type EmbedProvider } from "@/lib/embeds";
 import { cn } from "@/lib/cn";
-
-/** How far below (or beside) the viewport a frame starts loading. */
-const NEAR_VIEWPORT = "300px";
+import { useNearViewport } from "./use-near-viewport";
 
 /**
  * One embedded chart or map (Datawrapper, Flourish, Our World in Data, World
@@ -43,23 +41,9 @@ export function EmbedFrame({
 }) {
   const info = EMBED_PROVIDER_INFO[provider];
   const src = embedSrc(provider, url);
-  const box = useRef<HTMLDivElement>(null);
+  const [box, near] = useNearViewport<HTMLDivElement>();
   const frame = useRef<HTMLIFrameElement>(null);
-  const [near, setNear] = useState(false);
   const [height, setHeight] = useState(hint ?? info.height);
-
-  useEffect(() => {
-    const el = box.current;
-    if (!el || near) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) setNear(true);
-      },
-      { rootMargin: NEAR_VIEWPORT },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [near]);
 
   useEffect(() => {
     if (!info.resizes || !near) return;

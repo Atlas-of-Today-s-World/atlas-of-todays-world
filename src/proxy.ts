@@ -2,7 +2,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import { publicEnv } from "@/lib/env";
 import { buildCsp, newNonce, securityHeaderEntries } from "@/lib/security/csp";
 import { DEFAULT_LOCALE, localePath, splitLocale, withoutDefaultPrefix } from "@/lib/i18n/config";
+import { SITE_URL } from "@/lib/site";
 import { refreshSession } from "@/lib/supabase/middleware";
+import { VISUAL_HTML_PATH, visualHtmlHeaderEntries } from "@/lib/visual-html";
 import { ROUTE_PREFIX, isAtOrUnder, routes } from "@/config/routes";
 
 /**
@@ -82,6 +84,17 @@ const METADATA_IMAGE = /\/(opengraph|twitter)-image[a-z0-9-]*$/;
 
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
+
+  // An editor's code of Maps & charts, served sandboxed and framed by our pages
+  // only (ADR-032): none of the site's headers, which forbid framing.
+  if (isAtOrUnder(pathname, VISUAL_HTML_PATH)) {
+    const response = NextResponse.next();
+    const origins = [request.nextUrl.origin, new URL(SITE_URL).origin];
+    for (const [name, value] of visualHtmlHeaderEntries({ dev, origins })) {
+      response.headers.set(name, value);
+    }
+    return response;
+  }
 
   // Public URLs are lowercase (slugs are checked by the DB); /News → /news, once.
   // The target is built on a clone of the request URL, so the host can't change
