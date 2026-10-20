@@ -1438,14 +1438,11 @@ export type Database = {
       patron_settings: {
         Row: {
           default_monthly: number
-          default_one_time: number
-          default_period: string
           goal_counts_from: number
           goal_monthly_eur: number
           goal_patrons: number
           id: number
           monthly_amounts: number[]
-          one_time_amounts: number[]
           other_amount_max: number
           other_amount_min: number
           other_amount_periods: string[]
@@ -1453,14 +1450,11 @@ export type Database = {
         }
         Insert: {
           default_monthly: number
-          default_one_time: number
-          default_period?: string
           goal_counts_from?: number
           goal_monthly_eur: number
           goal_patrons: number
           id?: number
           monthly_amounts: number[]
-          one_time_amounts: number[]
           other_amount_max?: number
           other_amount_min?: number
           other_amount_periods?: string[]
@@ -1468,14 +1462,11 @@ export type Database = {
         }
         Update: {
           default_monthly?: number
-          default_one_time?: number
-          default_period?: string
           goal_counts_from?: number
           goal_monthly_eur?: number
           goal_patrons?: number
           id?: number
           monthly_amounts?: number[]
-          one_time_amounts?: number[]
           other_amount_max?: number
           other_amount_min?: number
           other_amount_periods?: string[]

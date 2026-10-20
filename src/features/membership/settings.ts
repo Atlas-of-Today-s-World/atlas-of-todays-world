@@ -31,8 +31,7 @@ const isPeriod = (value: string): value is Period => (PERIODS as readonly string
 /**
  * The row as the site uses it; null when it breaks a rule the database should
  * already have enforced (the caller then falls back to the previous values).
- * The one-time columns (one_time_amounts, default_one_time, default_period)
- * are no longer read: donations are monthly only.
+ * Donations are monthly only (the one-time columns were dropped in 20261019000300).
  */
 export function settingsFromRow(row: PatronSettingsRow): PatronSettings | null {
   if (!row.monthly_amounts.length || !row.monthly_amounts.includes(row.default_monthly)) {

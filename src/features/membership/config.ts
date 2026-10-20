@@ -1,7 +1,7 @@
 /**
  * Atlas Patrons — the shape of the donation options and the public goal.
- * Donations are monthly only (one-time donations were removed 2026-10-19;
- * the database still has their columns until a contract migration drops them).
+ * Donations are monthly only (one-time donations were removed 2026-10-19,
+ * their database columns in migration 20261019000300).
  * The values live in the database (`patron_settings`, edited in
  * /admin/patrons); `FALLBACK_PATRON_SETTINGS` below is what the site showed
  * before they became editable and what it shows when the database doesn't

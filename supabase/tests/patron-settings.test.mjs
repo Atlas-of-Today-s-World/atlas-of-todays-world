@@ -103,10 +103,7 @@ before(async () => {
 test("patron settings: seeded with the values the site showed before, monthly only since 20261019000200", async () => {
   const row = await settings();
   assert.deepEqual(row.monthly_amounts, [5, 10, 15, 25, 50, 100]);
-  assert.deepEqual(row.one_time_amounts, [30, 50, 100]);
-  assert.equal(row.default_period, "monthly");
   assert.equal(row.default_monthly, 10);
-  assert.equal(row.default_one_time, 50);
   // One-time donations were removed: no "Other amount" for them any more.
   assert.deepEqual(row.other_amount_periods, []);
   assert.equal(row.other_amount_min, 1);
@@ -114,6 +111,10 @@ test("patron settings: seeded with the values the site showed before, monthly on
   assert.equal(row.goal_patrons, 1000);
   assert.equal(row.goal_monthly_eur, 10000);
   assert.equal(row.goal_counts_from, 10);
+  // The one-time columns are gone (contract, 20261019000300).
+  for (const column of ["one_time_amounts", "default_one_time", "default_period"]) {
+    assert.ok(!(column in row), column);
+  }
 });
 
 test("patron settings: amounts are 1–8 ascending whole euros without repeats", async () => {
@@ -136,9 +137,6 @@ test("patron settings: amounts are 1–8 ascending whole euros without repeats",
     );
   }
   await withSettings("monthly_amounts = '{10,5}'", (p) => refused(p, check));
-  await withSettings("one_time_amounts = '{50,50}'", (p) =>
-    refused(p, /patron_settings_one_time_amounts_check/),
-  );
   await withSettings("monthly_amounts = '{1,2,3,4,5,6,7,10000}', default_monthly = 10000", (p) =>
     p.then(() => undefined),
   );
@@ -148,13 +146,14 @@ test("patron settings: defaults must be offered, other-amount bounds and goal in
   await withSettings("default_monthly = 12", (p) =>
     refused(p, /patron_settings_default_monthly_check/),
   );
-  await withSettings("one_time_amounts = '{20,40}'", (p) =>
-    refused(p, /patron_settings_default_one_time_check/),
-  );
-  await withSettings("default_period = 'weekly'", (p) => refused(p, /default_period_check/));
   await withSettings("other_amount_periods = '{weekly}'", (p) =>
     refused(p, /other_amount_periods_check/),
   );
+  // One-time donations no longer exist (20261019000300).
+  await withSettings("other_amount_periods = '{one-time}'", (p) =>
+    refused(p, /other_amount_periods_check/),
+  );
+  await withSettings("other_amount_periods = '{monthly}'", (p) => p.then(() => undefined));
   await withSettings("other_amount_min = 0", (p) => refused(p, /other_amount_check/));
   await withSettings("other_amount_min = 50, other_amount_max = 40", (p) =>
     refused(p, /other_amount_check/),
@@ -164,7 +163,7 @@ test("patron settings: defaults must be offered, other-amount bounds and goal in
   await withSettings("goal_monthly_eur = -1", (p) => refused(p, /goal_monthly_eur_check/));
   await refused(
     q(
-      "insert into patron_settings (id, monthly_amounts, one_time_amounts, default_monthly, default_one_time, goal_patrons, goal_monthly_eur) values (2, '{5}', '{5}', 5, 5, 1, 1)",
+      "insert into patron_settings (id, monthly_amounts, default_monthly, goal_patrons, goal_monthly_eur) values (2, '{5}', 5, 1, 1)",
     ),
     /patron_settings_id_check/,
   );
