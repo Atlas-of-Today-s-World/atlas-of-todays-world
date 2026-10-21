@@ -33,6 +33,7 @@ export default function ContentRail({
   wide = false,
   fullPage,
   placeholder = false,
+  collapsible = true,
 }: {
   children: ReactNode;
   closeHref?: string;
@@ -48,6 +49,8 @@ export default function ContentRail({
    * with the same id the page would have two `#content` and print two panels.
    */
   placeholder?: boolean;
+  /** Desktop tab on the panel's left edge that slides the panel away. */
+  collapsible?: boolean;
 }) {
   const t = useMessages();
   const [collapsed, setCollapsed] = useState(false);
@@ -132,15 +135,21 @@ export default function ContentRail({
         above the floating buttons: the controls over the map (mode switch, global
         issues list, search) grow down from the top and covered it mid-height.
       */}
-      <button
-        type="button"
-        aria-label={collapsed ? t.panel.show : t.panel.hide}
-        aria-expanded={!collapsed}
-        onClick={() => setCollapsed((value) => !value)}
-        className="absolute bottom-32 -left-(--touch-min) hidden h-14 w-(--touch-min) items-center justify-center rounded-l-xl bg-[var(--color-space-raised)] text-white/80 shadow-[-4px_0_16px_rgba(0,0,0,0.35)] transition hover:bg-[var(--color-space-raised-hover)] hover:text-white focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none md:flex"
-      >
-        {collapsed ? <ChevronLeft size={16} aria-hidden /> : <ChevronRight size={16} aria-hidden />}
-      </button>
+      {collapsible ? (
+        <button
+          type="button"
+          aria-label={collapsed ? t.panel.show : t.panel.hide}
+          aria-expanded={!collapsed}
+          onClick={() => setCollapsed((value) => !value)}
+          className="absolute bottom-32 -left-(--touch-min) hidden h-14 w-(--touch-min) items-center justify-center rounded-l-xl bg-[var(--color-space-raised)] text-white/80 shadow-[-4px_0_16px_rgba(0,0,0,0.35)] transition hover:bg-[var(--color-space-raised-hover)] hover:text-white focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none md:flex"
+        >
+          {collapsed ? (
+            <ChevronLeft size={16} aria-hidden />
+          ) : (
+            <ChevronRight size={16} aria-hidden />
+          )}
+        </button>
+      ) : null}
 
       {/* A link, not a button: closes the panel even before React hydrates. */}
       <Link
