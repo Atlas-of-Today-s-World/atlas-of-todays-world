@@ -16,6 +16,7 @@ import {
   ARTICLE_KIND_LABEL,
   ARTICLE_KINDS,
   NEWS_CATEGORIES,
+  NEWS_CATEGORY_ADMIN_LABEL,
   type ArticleKind,
 } from "@/lib/content-types";
 import { SlugField, useSlug } from "@/components/admin/SlugField";
@@ -146,7 +147,9 @@ export function EntryForm({
               Choose…
             </option>
             {NEWS_CATEGORIES.map((category) => (
-              <option key={category}>{category}</option>
+              <option key={category} value={category}>
+                {NEWS_CATEGORY_ADMIN_LABEL[category]}
+              </option>
             ))}
           </Select>
         </FormField>

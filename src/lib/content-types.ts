@@ -51,6 +51,22 @@ export type NewsCategory = keyof typeof CATEGORY_GROUP;
 
 export const NEWS_CATEGORIES = Object.keys(CATEGORY_GROUP) as NewsCategory[];
 
+/** Category labels in the admin (editor select, content tables). */
+export const NEWS_CATEGORY_ADMIN_LABEL: Record<NewsCategory, string> = {
+  "Living Conditions": "Living Conditions",
+  "Political System": "Politics & International Relations",
+  Society: "Society",
+  "International Relations": "International Relations",
+  "Historical Roots": "Historical Roots",
+};
+
+/** Admin label of a category; an unknown key shows as itself. */
+export function adminCategoryLabel(category: string): string {
+  return Object.hasOwn(NEWS_CATEGORY_ADMIN_LABEL, category)
+    ? NEWS_CATEGORY_ADMIN_LABEL[category as NewsCategory]
+    : category;
+}
+
 /**
  * Label of a category or a portrait topic group in the UI texts
  * (`messages.categories`); an unknown key shows as itself.

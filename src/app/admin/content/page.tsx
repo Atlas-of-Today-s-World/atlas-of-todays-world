@@ -14,6 +14,7 @@ import {
 import { optionStats } from "@/components/data-table/stats";
 import { ToolbarLink } from "@/components/data-table/ToolbarLink";
 import { buttonVariants } from "@/components/ui/button";
+import { adminCategoryLabel } from "@/lib/content-types";
 import { navIcon } from "@/config/admin-nav";
 import { can, sectionAccess } from "@/features/auth/access";
 import { STATUS_OPTIONS } from "@/features/entries/components/StatusBadge";
@@ -111,7 +112,7 @@ export default async function EntriesPage({
           values: {
             title: row.title,
             status: row.status,
-            category: row.category,
+            category: adminCategoryLabel(row.category),
             author: row.author_name,
             updated: row.updated_at,
           },

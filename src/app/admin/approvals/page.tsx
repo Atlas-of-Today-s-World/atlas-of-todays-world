@@ -5,6 +5,7 @@ import { DataTable } from "@/components/data-table/DataTable";
 import { RowActions } from "@/components/data-table/RowActions";
 import { confirmAction, noteAction } from "@/components/data-table/row-actions";
 import { optionStats } from "@/components/data-table/stats";
+import { adminCategoryLabel } from "@/lib/content-types";
 import { navIcon } from "@/config/admin-nav";
 import { adminRoutes } from "@/config/routes";
 import { can, sectionAccess } from "@/features/auth/access";
@@ -72,7 +73,7 @@ export default async function ApprovalsPage() {
           values: {
             title: row.title,
             who: row.canApprove ? "you" : "others",
-            category: row.category,
+            category: adminCategoryLabel(row.category),
             author: row.author_name,
             scheduled: row.publish_at,
             submitted: row.updated_at,
