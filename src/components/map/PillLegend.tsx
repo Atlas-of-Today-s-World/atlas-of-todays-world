@@ -67,7 +67,7 @@ export function PillLegend({ options }: { options: ViewOption[] }) {
         <Icon paths={PILL_ICONS.calendar} size={10} />
       </dt>
       <dd>{t.map.legendRegionPlanned}</dd>
-      <dt className={cn(PILL, "bg-white font-semibold text-ink-deep")}>
+      <dt className={cn(PILL, "text-ink-deep bg-white font-semibold")}>
         <span className="sr-only">{t.map.legendEntriesLabel}</span>
         <Icon paths={PILL_ICONS.book} size={11} />
         7/10
