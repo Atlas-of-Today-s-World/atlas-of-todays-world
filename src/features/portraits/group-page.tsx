@@ -180,6 +180,7 @@ export function groupPortraitPage(kind: GroupKind, view: GroupView = "rail") {
                   countries: members,
                   population: population(countries),
                   status: group.contentStatus,
+                  issue: located.kind === "issue" && located.group.kind === "issue",
                 }}
                 dossier={dossier}
               />

@@ -35,6 +35,8 @@ export interface PortraitSubject {
   population: number;
   /** How far the editors are; untouched places ask for support. Left out = no badge. */
   status?: GroupStatus;
+  /** A global issue: no "See all" link, no countries and people, topics without themes. */
+  issue?: boolean;
 }
 
 /**
@@ -108,18 +110,25 @@ export default async function Portrait({
         </p>
         {/* A quick way to the place's topics, above the counts; the rows by theme
             (and, with none written, the invitation) come in their slot below. */}
-        {topics ? (
+        {topics && !subject.issue ? (
           <TopicsLink count={topics.items.length} href={topics.href} className="mt-5" />
         ) : null}
-        <PortraitCounts
-          countries={subject.countries}
-          population={formatPopulation(subject.population, getRequestLocale())}
-        />
+        {subject.issue ? null : (
+          <PortraitCounts
+            countries={subject.countries}
+            population={formatPopulation(subject.population, getRequestLocale())}
+          />
+        )}
       </header>
 
       <IndicatorCards metrics={dossier.metrics} />
 
-      <ProfileSections dossier={dossier} topics={topics} place={subject.name} />
+      <ProfileSections
+        dossier={dossier}
+        topics={topics}
+        place={subject.name}
+        flatTopics={subject.issue}
+      />
 
       <PatronsCallout complete={complete} />
 
@@ -150,6 +159,7 @@ export async function ProfileSections({
   topics,
   place,
   timelineId,
+  flatTopics,
 }: {
   dossier: RegionDossier;
   /** The place's topics and the filtered Topics list; left out = no topic rows. */
@@ -158,6 +168,8 @@ export async function ProfileSections({
   place?: string;
   /** Element id of the timeline when two share a page (a country under its region). */
   timelineId?: string;
+  /** Topics in one row without themes, "See all" or the invitation (a global issue). */
+  flatTopics?: boolean;
 }) {
   const [t, { sectionOrder }] = await Promise.all([getT(), getSiteSettings()]);
 
@@ -176,6 +188,7 @@ export async function ProfileSections({
         planned={topics.planned}
         href={topics.href}
         place={place ?? ""}
+        flat={flatTopics}
       />
     ) : null,
     visuals: dossier.visuals?.length ? (

@@ -31,6 +31,7 @@ export async function ThemeTopics({
   planned,
   href,
   place,
+  flat = false,
 }: {
   items: EntrySummary[];
   /** Planned topics of the place: greyed tiles after the written ones. */
@@ -39,6 +40,8 @@ export async function ThemeTopics({
   href: string;
   /** Name of the place, for the invitation. */
   place: string;
+  /** One row without themes, "See all" or the invitation (a global issue). */
+  flat?: boolean;
 }) {
   const t = await getT();
   if (!items.length && !planned.length) {
@@ -47,6 +50,46 @@ export async function ThemeTopics({
         <div className="mt-4">
           <TopicsInvite t={t.topics} place={place} full />
         </div>
+      </PortraitSection>
+    );
+  }
+  const tiles = (
+    label: string,
+    group: EntrySummary[],
+    upcoming: PlannedTopic[],
+    className: string,
+  ) => (
+    <Rail label={label} gap="sm" className={className}>
+      {group.map((item) => (
+        <div key={item.slug} className="w-48 shrink-0 snap-start">
+          <PhotoTile
+            href={routes.entry(item.slug)}
+            className="min-h-32"
+            image={item.hero}
+            title={item.title}
+          />
+        </div>
+      ))}
+      {upcoming.map((topic) => (
+        <div key={topic.title} className="w-48 shrink-0 snap-start">
+          <PhotoTile
+            disabled
+            className="min-h-32"
+            kicker={
+              topic.stage === "seeking_authors"
+                ? t.portrait.seekingAuthors
+                : t.portrait.inPreparation
+            }
+            title={topic.title}
+          />
+        </div>
+      ))}
+    </Rail>
+  );
+  if (flat) {
+    return (
+      <PortraitSection title={t.article.chapters} headingId={HEADING_ID}>
+        {tiles(t.article.chapters, items, planned, "mt-5")}
       </PortraitSection>
     );
   }
@@ -62,32 +105,7 @@ export async function ThemeTopics({
               {label}
             </h3>
             {group.length || upcoming.length ? (
-              <Rail label={label} gap="sm" className="mt-2.5">
-                {group.map((item) => (
-                  <div key={item.slug} className="w-48 shrink-0 snap-start">
-                    <PhotoTile
-                      href={routes.entry(item.slug)}
-                      className="min-h-32"
-                      image={item.hero}
-                      title={item.title}
-                    />
-                  </div>
-                ))}
-                {upcoming.map((topic) => (
-                  <div key={topic.title} className="w-48 shrink-0 snap-start">
-                    <PhotoTile
-                      disabled
-                      className="min-h-32"
-                      kicker={
-                        topic.stage === "seeking_authors"
-                          ? t.portrait.seekingAuthors
-                          : t.portrait.inPreparation
-                      }
-                      title={topic.title}
-                    />
-                  </div>
-                ))}
-              </Rail>
+              tiles(label, group, upcoming, "mt-2.5")
             ) : (
               <p className="mt-2.5 text-[12px] text-[var(--color-ink-muted)]">
                 {t.portrait.inPreparation}

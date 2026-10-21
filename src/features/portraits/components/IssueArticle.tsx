@@ -88,11 +88,14 @@ export async function IssueArticle({
               {intro}
             </p>
           ) : null}
-          <PortraitCounts
-            countries={countries}
-            population={formatPopulation(population, getRequestLocale())}
-            initiallyOpen
-          />
+          {/* A global issue leaves out its countries and people (owner's request of 2026-10-21). */}
+          {issue.kind === "issue" ? null : (
+            <PortraitCounts
+              countries={countries}
+              population={formatPopulation(population, getRequestLocale())}
+              initiallyOpen
+            />
+          )}
 
           <div className={`${PANEL_SECTION_BLEED} mt-8`}>
             <IndicatorCards stats={stats} metrics={dossier.metrics} />
@@ -100,7 +103,12 @@ export async function IssueArticle({
 
           {/* Timeline, topics by theme, maps, sources, FAQ — in the admin's order. */}
           <div className={`${PANEL_SECTION_BLEED} mt-12`}>
-            <ProfileSections dossier={dossier} topics={topics} place={issue.name} />
+            <ProfileSections
+              dossier={dossier}
+              topics={topics}
+              place={issue.name}
+              flatTopics={issue.kind === "issue"}
+            />
             <PatronsCallout complete={profileComplete(dossier)} />
           </div>
 

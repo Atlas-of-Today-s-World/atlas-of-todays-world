@@ -214,20 +214,18 @@ test.describe("global issues", () => {
     await page.goto("/");
     await expect(page.getByRole("radio", { name: "Global issues" })).toBeVisible();
 
-    // The full page (2026-10-16): its countries are listed open under the count.
+    // The full page (2026-10-16). No countries and people (2026-10-21): not relevant to an issue.
     await page.goto("/global-issue/russia-ukraine-war/full-page");
     await expect(page.getByRole("heading", { level: 1, name: "Russia–Ukraine War" })).toBeVisible();
-    await expect(page.getByRole("button", { name: /^Countries: \d+$/ })).toHaveAttribute(
-      "aria-expanded",
-      "true",
-    );
-    await expect(
-      page.locator("#content").getByRole("link", { name: "Ukraine", exact: true }).first(),
-    ).toBeVisible();
+    await expect(page.getByRole("button", { name: /^Countries: \d+$/ })).toHaveCount(0);
     // Its topics are its "Entries" (2026-10-16; "Subtopics" until 2026-10-21), not the panel's "Related topics".
     await expect(
       page.getByRole("heading", { level: 2, name: "Entries", exact: true }),
     ).toBeVisible();
+    // One row without the themes, the "See all" link or the invitation (2026-10-21).
+    await expect(page.getByText("Living Conditions", { exact: true })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: /^See all \d+ entries/ })).toHaveCount(0);
+    await expect(page.getByText(/help us create these entries/)).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "Related topics" })).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "Countries in this group" })).toHaveCount(0);
     // No "N news items published" line either (2026-10-15).
