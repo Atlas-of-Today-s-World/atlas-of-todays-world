@@ -2173,7 +2173,6 @@ insert into public.resources (id, region_slug, kind, position, title, source, ur
 on conflict (id) do nothing;
 
 insert into public.visual_embeds (id, region_slug, provider, position, title, caption, url) values
-  (md5('visual:eastern-europe-central-asia:0')::uuid, 'eastern-europe-central-asia', 'image', 0, 'Territorial control in Ukraine', 'Data analysis and visualization: Atlas editorial team, based on data published by the Institute for the Study of War.', 'https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1200&q=70'),
   (md5('visual:eastern-europe-central-asia:1')::uuid, 'eastern-europe-central-asia', 'image', 1, 'Energy dependence on Russian gas, 2013 vs 2024', 'Data analysis and visualization: Atlas editorial team, based on Eurostat and IEA data.', 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=1200&q=70')
 on conflict (id) do nothing;
 
