@@ -120,6 +120,16 @@ export default function AtlasGlobe({
   const pathname = usePathname();
   /** Full-width page (Topics, entry): the globe waits in a small window bottom left. */
   const mini = isFullPage(pathname);
+  // A phone-sized window: the smaller countries' pills come a zoom later (topicBadges).
+  const [phone, setPhone] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia(`(max-width: ${DESKTOP_MIN_PX - 0.02}px)`);
+    const sync = () => setPhone(query.matches);
+    sync();
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
+  const phoneRef = useLatest(phone);
   /** A content panel is open (on phones the bottom sheet covers most of the globe). */
   const panelOpen = railKind(pathname) !== "none";
   // Read when the map is created and by the start gate, both outside React's render.
@@ -175,6 +185,7 @@ export default function AtlasGlobe({
       },
       (place) =>
         key === "issue" ? undefined : (statusesRef.current[key][place] as RegionProgress),
+      phoneRef.current,
     );
   });
 
@@ -355,8 +366,8 @@ export default function AtlasGlobe({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
-    applyTopicBadges(map, { topicCounts, topicTotals, statuses, mode, openIssue, mini });
-  }, [topicCounts, topicTotals, statuses, mode, openIssue, mini, ready]);
+    applyTopicBadges(map, { topicCounts, topicTotals, statuses, mode, openIssue, mini, phone });
+  }, [topicCounts, topicTotals, statuses, mode, openIssue, mini, phone, ready]);
 
   // --- highlight of the active country / region ---
   useEffect(() => {

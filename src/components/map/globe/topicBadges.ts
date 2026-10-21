@@ -97,16 +97,25 @@ type PlaceStatuses = Record<SelectionModeKey, Record<string, GroupStatus>>;
 
 /**
  * A mode's pill layers, each with the zoom it shows from (0: any) and its own
- * filter (null: set from the counts). The countries' come in COUNTRY_BADGE_BANDS.
+ * filter (null: set from the counts). The countries' come in COUNTRY_BADGE_BANDS;
+ * on a phone each band past the largest countries comes a zoom later (PHONE_PILL_DELAY).
  */
-function badgeLayers(key: SelectionModeKey) {
+function badgeLayers(key: SelectionModeKey, phone: boolean) {
   return key === "countries"
     ? COUNTRY_BADGE_BANDS.map((band) => ({
         ...band,
+        zoom: band.zoom && phone ? band.zoom + PHONE_PILL_DELAY : band.zoom,
         filter: band.filter as ExpressionSpecification,
       }))
     : [{ id: TOPIC_LAYERS[key], zoom: 0, filter: null }];
 }
+
+/**
+ * Zooms a phone waits longer for the smaller countries' pills: its home view
+ * (zoom 2) shows only the largest countries' pairs of pills, which already
+ * fill a phone's screen; the rest come with zooming in. Names are unchanged.
+ */
+const PHONE_PILL_DELAY = 1;
 
 /**
  * Topic counts: badge layers per mode, numbers from the server. Only the
@@ -130,6 +139,7 @@ export function applyTopicBadges(
     mode,
     openIssue,
     mini,
+    phone,
   }: {
     topicCounts: Record<SelectionModeKey, Record<string, number>>;
     /** A region's whole entry plan, published and planned (the "/ 10"). */
@@ -138,6 +148,8 @@ export function applyTopicBadges(
     mode: SelectionModeKey;
     openIssue: string | undefined;
     mini: boolean;
+    /** A phone-sized window (PHONE_PILL_DELAY). */
+    phone: boolean;
   },
 ) {
   const layers: [SelectionModeKey, "iso3" | "slug"][] = [
@@ -152,7 +164,7 @@ export function applyTopicBadges(
     const { has, text } = topicExpressions(topicCounts[key], property, zero);
     // The small globe window on full-width pages shows no counts.
     const shown = key === mode && !mini;
-    for (const layer of badgeLayers(key)) {
+    for (const layer of badgeLayers(key, phone)) {
       map.setFilter(
         layer.id,
         layer.filter ??
@@ -252,6 +264,7 @@ export function pulseTopicBadges(
   mode: SelectionModeKey,
   textOf: (key: string) => string,
   progressOf: (key: string) => RegionProgress | undefined,
+  phone: boolean,
 ) {
   const canvas = map.getCanvas();
   const [w, h] = [canvas.clientWidth, canvas.clientHeight];
@@ -263,7 +276,7 @@ export function pulseTopicBadges(
     ],
     // Only the pills shown at this zoom (the others are there, transparent).
     {
-      layers: badgeLayers(mode).flatMap((layer) =>
+      layers: badgeLayers(mode, phone).flatMap((layer) =>
         !layer.zoom || layer.zoom <= (map.getGlobalState()[LABEL_ZOOM_STATE] as number)
           ? [layer.id]
           : [],
