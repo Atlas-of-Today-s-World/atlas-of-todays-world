@@ -22,7 +22,7 @@ import { DESKTOP_MIN_PX, GLOBE, isFullPage, isHome, railKind } from "@/config/la
 import { cn } from "@/lib/cn";
 import { useIdleSpin } from "./useIdleSpin";
 import { Starfield } from "./Starfield";
-import { type RegionProgress, unprocessedCountries } from "@/features/geography/content-status";
+import type { RegionProgress } from "@/features/geography/content-status";
 import {
   openIssueSlug,
   PILL_MARKS,
@@ -157,7 +157,6 @@ export default function AtlasGlobe({
     [regions, issue],
   );
   const statusesRef = useLatest(statuses);
-  const unprocessed = useMemo(() => unprocessedCountries(Object.values(regions.bySlug)), [regions]);
 
   const { pendingIso3, bind, clearHover } = useGlobeInteractions({
     mode,
@@ -349,9 +348,8 @@ export default function AtlasGlobe({
       mode,
       openIssue,
       issue,
-      unprocessed,
     });
-  }, [colorSets, layers, view, mode, openIssue, issue, unprocessed, ready]);
+  }, [colorSets, layers, view, mode, openIssue, issue, ready]);
 
   // --- selection mode: countries vs. regions ---
   useEffect(() => {

@@ -7,8 +7,6 @@ import type { GlobeColorSets, RegionLookup } from "./types";
 const NEUTRAL = GLOBE_COLORS.land;
 /** Countries outside the open global issue: grey and faint, so its members stand out. */
 const DIMMED = "#5b6273";
-/** Places whose content nobody has started yet: a light grey wash instead of the region colour. */
-const UNPROCESSED = "#c9ced8";
 
 /** Turns an ISO3->color map into a MapLibre `match` expression. */
 function matchExpression(colors: Record<string, string>): ExpressionSpecification {
@@ -32,7 +30,6 @@ export function paintLayer(
     mode,
     openIssue,
     issue,
-    unprocessed,
   }: {
     colorSets: GlobeColorSets;
     /** Colours of the loaded metric layer for `view`, if any. */
@@ -41,8 +38,6 @@ export function paintLayer(
     mode: SelectionMode;
     openIssue: string | undefined;
     issue: RegionLookup;
-    /** Countries of the regions nobody has started on. */
-    unprocessed: string[];
   },
 ) {
   const isData = view !== "encyclopedia";
@@ -63,11 +58,6 @@ export function paintLayer(
     const member: ExpressionSpecification = ["in", ["get", "iso3"], ["literal", focused.countries]];
     fillColor = ["case", member, isData ? fillColor : focused.fill, DIMMED];
     fillOpacity = ["case", member, isData ? 0.9 : 0.72, 0.55];
-  } else if (mode === "regions" && !isData && unprocessed.length) {
-    // Regions nobody has started on yet: a light grey wash, "not processed yet".
-    const unstarted: ExpressionSpecification = ["in", ["get", "iso3"], ["literal", unprocessed]];
-    fillColor = ["case", unstarted, UNPROCESSED, fillColor];
-    fillOpacity = ["case", unstarted, 0.32, fillOpacity];
   }
   map.setPaintProperty(LAYERS.fill, "fill-color", fillColor);
   map.setPaintProperty(LAYERS.fill, "fill-opacity", fillOpacity);

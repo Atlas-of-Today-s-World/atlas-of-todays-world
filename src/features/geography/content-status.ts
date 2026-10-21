@@ -28,27 +28,3 @@ export function contentStatus(value: unknown): ContentStatus {
 export function regionProgress(value: unknown): RegionProgress {
   return value === "completed" ? "completed" : "planned";
 }
-
-/** Nobody has written the place's content yet: grey on the globe, a call for support. */
-function notStarted(status: GroupStatus): boolean {
-  return status === "none" || status === "planned";
-}
-
-/**
- * Countries nobody has started on: every group they belong to is still not
- * started. A country in a done group stays lit even when another of its groups
- * is untouched (Ukraine in a finished war issue and an empty climate one).
- */
-export function unprocessedCountries(
-  groups: readonly { countries: readonly string[]; status: GroupStatus }[],
-): string[] {
-  const started = new Set<string>();
-  const all = new Set<string>();
-  for (const group of groups) {
-    for (const iso3 of group.countries) {
-      all.add(iso3);
-      if (!notStarted(group.status)) started.add(iso3);
-    }
-  }
-  return [...all].filter((iso3) => !started.has(iso3)).sort();
-}
