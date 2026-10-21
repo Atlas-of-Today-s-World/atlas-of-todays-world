@@ -172,7 +172,7 @@ export async function CountryPage({
               }
             : {}
         }
-        topics={topics.items.length ? topics : undefined}
+        topics={topics.items.length || topics.planned.length ? topics : undefined}
         place={country.name}
         timelineId="country-timeline"
       />

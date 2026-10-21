@@ -54,6 +54,7 @@ export async function saveEntry(_prev: ActionState, formData: FormData): Promise
 
   let entryId = id;
   let status: string;
+  let wasPlanned = false;
   if (entryId) {
     const { data: current, error: readError } = await supabase
       .from("entries")
@@ -84,6 +85,7 @@ export async function saveEntry(_prev: ActionState, formData: FormData): Promise
     // Readable but not editable: RLS filtered the update without an error.
     if (!updated.length) return { ok: false, error: "You can't edit this article." };
     status = nextStatus;
+    wasPlanned = current.status === "planned";
   } else {
     const { data, error } = await supabase
       .from("entries")
@@ -92,13 +94,15 @@ export async function saveEntry(_prev: ActionState, formData: FormData): Promise
       .single();
     if (error) return failed(error);
     entryId = data.id;
-    status = "draft";
+    status = planned ? "planned" : "draft";
   }
 
   const countryError = await syncCountries(supabase, entryId, countries);
   if (countryError) return countryError;
 
   if (status === "published") await refreshEntry(supabase, entryId, true);
+  // A planned topic is a greyed tile on the portraits (getPlannedTopics).
+  else if (status === "planned" || wasPlanned) updateTag(tags.entries);
   if (!id) redirect(adminRoutes.content(entryId, { saved: "1" }));
   return { ok: true, message: "Saved.", id: entryId };
 }
@@ -193,7 +197,7 @@ export async function deleteEntry(id: string): Promise<ActionState> {
   if (removed?.status === "published") {
     refresh(removed.slug, removed.region_slug, removed.special_slug);
     pingSearchEngines(removed);
-  }
+  } else if (removed?.status === "planned") updateTag(tags.entries);
   return { ok: true, message: "Deleted." };
 }
 

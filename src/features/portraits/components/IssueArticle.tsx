@@ -12,7 +12,7 @@ import { ContentStatusBadge } from "@/components/portrait/ContentStatusBadge";
 import { ProfileSections, profileComplete } from "@/components/portrait/Portrait";
 import { PortraitCounts } from "@/components/portrait/PortraitCounts";
 import { IndicatorCards, PatronsCallout } from "@/components/portrait/sections";
-import type { EntrySummary } from "@/features/entries/types";
+import type { PlaceTopics } from "@/features/entries/types";
 import type { RegionStat } from "@/features/geography/region-stats";
 import type { GlobalIssue } from "@/features/geography/types";
 import type { RegionDossier } from "@/lib/content-types";
@@ -43,7 +43,7 @@ export async function IssueArticle({
   /** Figures computed from imported data (shown when the editors wrote no key facts). */
   stats: RegionStat[];
   /** Topics written about the issue and the Topics list filtered to it. */
-  topics: { items: EntrySummary[]; href: string };
+  topics: PlaceTopics;
   countries: { slug: string; name: string }[];
   population: number;
 }) {

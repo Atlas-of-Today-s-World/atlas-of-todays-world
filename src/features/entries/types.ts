@@ -228,6 +228,25 @@ export interface Revision {
   title: string;
 }
 
+/**
+ * A planned topic (status `planned`, DB `planned_entries()`): only its title,
+ * theme and place — a greyed tile in its theme's row, with no page behind it.
+ */
+export interface PlannedTopic {
+  title: string;
+  category: NewsCategory;
+  region: string | null;
+  issue: string | null;
+  countries: string[];
+}
+
+/** A place's topics for its portrait: the published ones, the planned ones and the filtered Topics list. */
+export interface PlaceTopics {
+  items: EntrySummary[];
+  planned: PlannedTopic[];
+  href: string;
+}
+
 /** A published topic and where it sits on the globe (`getTopicPlaces`; counted by topics/map-counts.ts). */
 export interface TopicPlace {
   slug: string;

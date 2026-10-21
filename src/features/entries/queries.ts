@@ -6,7 +6,7 @@ import { must } from "@/lib/db/result";
 import { createPublicClient } from "@/lib/supabase/public";
 import { MAP_LAYERS, type MapLayer } from "./constants";
 import { COLUMNS, type Row, toLocale, toSummary } from "./rows";
-import type { AuthorArticle, EntrySummary, TopicPlace } from "./types";
+import type { AuthorArticle, EntrySummary, PlannedTopic, TopicPlace } from "./types";
 
 /**
  * Public reads of published articles: the lists (entries, an author's
@@ -94,5 +94,24 @@ export const getTopicPlaces = unstable_cache(
     }));
   },
   ["topic-places"],
+  { tags: [tags.entries], revalidate: PUBLIC_REVALIDATE_SECONDS },
+);
+
+/**
+ * Planned topics (originals): title, theme and place only — the DB function
+ * `planned_entries()` gives anonymous readers nothing of their text.
+ */
+export const getPlannedTopics = unstable_cache(
+  async (): Promise<PlannedTopic[]> => {
+    const data = must(await createPublicClient().rpc("planned_entries"), "planned_entries");
+    return data.map((row) => ({
+      title: row.title,
+      category: row.category as NewsCategory,
+      region: row.region_slug,
+      issue: row.special_slug,
+      countries: row.countries,
+    }));
+  },
+  ["planned-topics"],
   { tags: [tags.entries], revalidate: PUBLIC_REVALIDATE_SECONDS },
 );

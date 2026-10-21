@@ -2,7 +2,7 @@ import { Fragment, type ReactNode } from "react";
 import { ShareButton } from "@/components/atlas/ShareButton";
 import Link from "@/components/i18n/Link";
 import { TopicsLink } from "@/components/topics/RelatedTopics";
-import type { EntrySummary } from "@/features/entries/types";
+import type { PlaceTopics } from "@/features/entries/types";
 import { PhotoCredit } from "@/components/atlas/ui";
 import type { RegionDossier } from "@/lib/content-types";
 import { formatPopulation } from "@/lib/format";
@@ -57,7 +57,7 @@ export default async function Portrait({
 }: {
   subject: PortraitSubject;
   /** Topics about the region and the filtered Topics list. */
-  topics?: { items: EntrySummary[]; href: string };
+  topics?: PlaceTopics;
   dossier: RegionDossier;
 }) {
   const t = await getT();
@@ -153,7 +153,7 @@ export async function ProfileSections({
 }: {
   dossier: RegionDossier;
   /** The place's topics and the filtered Topics list; left out = no topic rows. */
-  topics?: { items: EntrySummary[]; href: string };
+  topics?: PlaceTopics;
   /** Name of the place, for the invitation under the topic rows. */
   place?: string;
   /** Element id of the timeline when two share a page (a country under its region). */
@@ -171,7 +171,12 @@ export async function ProfileSections({
       />
     ) : null,
     topics: topics ? (
-      <ThemeTopics items={topics.items} href={topics.href} place={place ?? ""} />
+      <ThemeTopics
+        items={topics.items}
+        planned={topics.planned}
+        href={topics.href}
+        place={place ?? ""}
+      />
     ) : null,
     visuals: dossier.visuals?.length ? (
       <VisualsCarousel items={dossier.visuals} lead={t.portrait.mapsLead} />
