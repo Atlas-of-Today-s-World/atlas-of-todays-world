@@ -95,7 +95,7 @@ describe("the entry plan on the globe", () => {
     const planned = plannedPlaces([
       {
         title: "Alps",
-        category: "politics",
+        category: "Society",
         stage: "in_preparation",
         region: "europe",
         issue: null,
@@ -103,13 +103,13 @@ describe("the entry plan on the globe", () => {
       },
       {
         title: "Damascus",
-        category: "politics",
+        category: "Society",
         stage: "seeking_authors",
         region: null,
         issue: null,
         countries: ["SYR"],
       },
-    ] as Parameters<typeof plannedPlaces>[0]);
+    ]);
     const plan = countTopics([topic("europe-energy", { region: "europe" }), ...planned], groups);
     expect(badgeNumbers(plan.regions)).toEqual({ europe: 2, mena: 1 });
     expect(countryBadges(plan.regions, groups.regionOf)).toEqual({ CZE: 2, DEU: 2, SYR: 1 });
