@@ -17,6 +17,9 @@ export interface CountryGroups {
   options: CountryGroupOption[];
 }
 
+/** Above this many selected countries the chips fold into "N countries selected". */
+const CHIPS_COLLAPSED = 30;
+
 /**
  * "Add / remove all countries of …": one select over every group (regions,
  * custom regions) and two buttons. Says what it did, since the chips above
@@ -197,30 +200,52 @@ export function CountryPicker({
     setQuery("");
   };
 
+  const chips = (
+    <ul className="flex flex-wrap gap-1.5" aria-label="Selected countries">
+      {selected.map((iso3) => (
+        <li
+          key={iso3}
+          className="flex items-center gap-1 rounded-full bg-[var(--color-accent-soft)] py-0.5 pr-0.5 pl-3 text-[12.5px]"
+        >
+          {byIso.get(iso3) ?? iso3}
+          <button
+            type="button"
+            aria-label={`Remove ${byIso.get(iso3) ?? iso3}`}
+            onClick={() => setSelected((current) => current.filter((c) => c !== iso3))}
+            className="grid size-7 place-items-center rounded-full hover:bg-white/70"
+          >
+            <X size={13} aria-hidden />
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+
   return (
     <div className="grid gap-2">
       {name
         ? selected.map((iso3) => <input key={iso3} type="hidden" name={name} value={iso3} />)
         : null}
-      {selected.length ? (
-        <ul className="flex flex-wrap gap-1.5" aria-label="Selected countries">
-          {selected.map((iso3) => (
-            <li
-              key={iso3}
-              className="flex items-center gap-1 rounded-full bg-[var(--color-accent-soft)] py-0.5 pr-0.5 pl-3 text-[12.5px]"
-            >
-              {byIso.get(iso3) ?? iso3}
-              <button
-                type="button"
-                aria-label={`Remove ${byIso.get(iso3) ?? iso3}`}
-                onClick={() => setSelected((current) => current.filter((c) => c !== iso3))}
-                className="grid size-7 place-items-center rounded-full hover:bg-white/70"
-              >
-                <X size={13} aria-hidden />
-              </button>
-            </li>
-          ))}
-        </ul>
+      {selected.length > CHIPS_COLLAPSED ? (
+        // A whole continent or the world: the chips fold away instead of filling the screen.
+        <details className="group">
+          <summary className="flex min-h-(--touch-min) cursor-pointer items-center gap-3 text-[13px]">
+            <span className="font-medium">{selected.length} countries selected</span>
+            <span className="text-[12px] text-[var(--color-ink-muted)] group-open:hidden">
+              Show the list
+            </span>
+          </summary>
+          {chips}
+        </details>
+      ) : selected.length ? (
+        chips
+      ) : null}
+      {selected.length > 1 ? (
+        <div>
+          <Button type="button" variant="quiet" size="sm" onClick={() => setSelected([])}>
+            Remove all {selected.length} countries
+          </Button>
+        </div>
       ) : null}
       <Input
         id={id}

@@ -373,7 +373,7 @@ export function IssueForm({
       <FormField
         id="countries"
         label="Countries in this group"
-        hint="Pick any countries — a group can freely cross Atlas region boundaries. To assign it to a whole region or custom region, add all of its countries at once below."
+        hint="Pick any countries — a group can freely cross Atlas region boundaries. To assign it to the whole world, a whole region or a custom region, add all of its countries at once below."
         errors={errors.countries}
       >
         <CountryPicker
@@ -382,6 +382,8 @@ export function IssueForm({
           options={countries}
           defaultSelected={values.countries}
           groups={groups}
+          // A worldwide issue (migration, climate change…) has every country as a member.
+          shortcut={{ key: "world", name: "the world", countries: countries.map((c) => c.iso3) }}
         />
       </FormField>
       <ColorFields fill={values.fill} stroke={values.stroke} errors={errors} />
