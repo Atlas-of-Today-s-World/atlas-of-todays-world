@@ -7,8 +7,9 @@ import { format } from "@/lib/i18n/messages";
 import { formatLongDate } from "@/lib/format";
 import { xmlEscape } from "@/lib/seo/xml";
 import { PAGE_TOKENS, type SitePageContent } from "../pages";
-import { fillInline, linkHtml, splitAtBlock } from "../render";
+import { fillInline, linkHtml, splitAtBlock, splitTimeline } from "../render";
 import { getMessagesFor } from "@/lib/i18n/request";
+import { StoryTimeline } from "./StoryTimeline";
 
 /**
  * An editable site page (About, Privacy, Terms, Accessibility): heading,
@@ -16,16 +17,20 @@ import { getMessagesFor } from "@/lib/i18n/request";
  * filled in. `dataSources` is rendered by code where the body has the
  * {{data-sources}} paragraph (below the body if it has none); `children`
  * follow the body (parts that stay in code, e.g. the publisher line).
+ * `timeline` is the id of a section whose `<h3>` milestones are drawn as a
+ * vertical timeline (About → Our story).
  */
 export async function SitePageView({
   page,
   locale,
   dataSources,
+  timeline,
   children,
 }: {
   page: SitePageContent;
   locale: Locale;
   dataSources?: ReactNode;
+  timeline?: string;
   children?: ReactNode;
 }) {
   // {{contact}} and {{email}}: the one contact address of the site settings.
@@ -47,10 +52,23 @@ export async function SitePageView({
         </p>
       ) : null}
       {page.lead ? <p className="mt-4">{page.lead}</p> : null}
-      <SafeHtml html={before} />
+      <Body html={before} timeline={timeline} />
       {dataSources}
-      {after ? <SafeHtml html={after} /> : null}
+      {after ? <Body html={after} timeline={timeline} /> : null}
       {children}
     </main>
+  );
+}
+
+/** A part of the body, with the timeline section's milestones drawn as one. */
+function Body({ html, timeline }: { html: string; timeline?: string }) {
+  const split = timeline ? splitTimeline(html, timeline) : null;
+  if (!split) return <SafeHtml html={html} />;
+  return (
+    <>
+      <SafeHtml html={split.before} />
+      <StoryTimeline milestones={split.milestones} />
+      {split.after ? <SafeHtml html={split.after} /> : null}
+    </>
   );
 }

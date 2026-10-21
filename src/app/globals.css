@@ -512,6 +512,24 @@ body {
   margin-bottom: 0.625rem;
 }
 
+/* The milestones of a site page section (site-pages/StoryTimeline.tsx): no list markers or heading margins. */
+.prose-atlas .story-timeline {
+  list-style: none;
+  margin: 1.75rem 0 2.25rem;
+}
+
+.prose-atlas .story-timeline > li {
+  margin: 0;
+}
+
+.prose-atlas .story-timeline h3 {
+  margin: 0 0 0.375rem;
+}
+
+.prose-atlas .story-timeline-date {
+  margin: 0 0 0.25rem;
+}
+
 /* A published Claude skill (/skills/<name>, features/skills): technical text with code and tables. */
 .prose-skill h4 {
   color: var(--color-ink);

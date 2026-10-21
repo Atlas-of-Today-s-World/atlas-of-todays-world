@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { PAGE_TOKENS } from "./pages";
-import { fillInline, linkHtml, replaceInText, splitAtBlock } from "./render";
+import { fillInline, linkHtml, replaceInText, splitAtBlock, splitTimeline } from "./render";
 
 const CONTACT = linkHtml("mailto:hello@example.org", "hello@example.org");
 
@@ -85,5 +85,41 @@ describe("splitAtBlock", () => {
       before: "<p>a<br />b</p><hr />",
       after: "<p></p>",
     });
+  });
+});
+
+describe("splitTimeline", () => {
+  const story =
+    '<h2 id="intro">Intro</h2><p>a</p><h2 id="our-story">Our story</h2><p>Lead.</p>' +
+    "<h3>2015–2019: Refugee <em>crisis</em></h3><p>One.</p><p>Two.</p>" +
+    "<h3>Next: regular content</h3><p>Three.</p>" +
+    '<h2 id="team">Team</h2><h3>Not a milestone</h3>';
+
+  it("splits the section into its intro, milestones and the rest", () => {
+    expect(splitTimeline(story, "our-story")).toEqual({
+      before: '<h2 id="intro">Intro</h2><p>a</p><h2 id="our-story">Our story</h2><p>Lead.</p>',
+      milestones: [
+        { date: "2015–2019", title: "Refugee crisis", html: "<p>One.</p><p>Two.</p>" },
+        { date: "Next", title: "Regular content", html: "<p>Three.</p>" },
+      ],
+      after: '<h2 id="team">Team</h2><h3>Not a milestone</h3>',
+    });
+  });
+
+  it("keeps a heading without a colon as the title, and runs to the end without a next section", () => {
+    expect(splitTimeline('<h2 id="our-story">S</h2><h3>Founded</h3><p>x</p>', "our-story")).toEqual(
+      {
+        before: '<h2 id="our-story">S</h2>',
+        milestones: [{ date: "", title: "Founded", html: "<p>x</p>" }],
+        after: "",
+      },
+    );
+  });
+
+  it("is null without the section or without milestones in it", () => {
+    expect(splitTimeline("<h2>Other</h2><h3>a</h3>", "our-story")).toBeNull();
+    expect(
+      splitTimeline('<h2 id="our-story">S</h2><p>x</p><h2>Next</h2><h3>a</h3>', "our-story"),
+    ).toBeNull();
   });
 });

@@ -18,7 +18,8 @@ export function generateMetadata({ params }: PageProps<"/[locale]/about">) {
 /**
  * About the Atlas. The text is edited in the admin (Site pages); the live
  * list of data sources (at the body's {{data-sources}} paragraph) and the
- * publisher line stay in code.
+ * publisher line stay in code. The milestones of "Our story" (its `<h3>`
+ * headings, "2015–2019: Title") are drawn as a vertical timeline.
  */
 export default async function AboutPage({ params }: PageProps<"/[locale]/about">) {
   const locale = await localeFrom(params);
@@ -33,6 +34,7 @@ export default async function AboutPage({ params }: PageProps<"/[locale]/about">
     <SitePageView
       page={page}
       locale={locale}
+      timeline="our-story"
       dataSources={
         <ul>
           {indicators.map((indicator) => (
