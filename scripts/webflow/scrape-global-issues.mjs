@@ -43,10 +43,14 @@ function readLenses() {
 /** Runs in the page: one topic page → plain data. */
 function readTopic() {
   const text = (el) => (el ? el.textContent.replace(/\s+/g, " ").trim() : "");
+  // A quoted url may contain parentheses ("Main picture (4).jpg").
   const bgUrl = (el) => {
-    const match = (el?.getAttribute("style") ?? "").match(/url\(["']?([^"')]+)["']?\)/);
-    return match ? match[1] : null;
+    const match = (el?.getAttribute("style") ?? "").match(/url\((["']?)(.+?)\1\)/);
+    return match ? match[2] : null;
   };
+  // The cookie banner keeps every image's address in data-cookieblock-src until consent.
+  const imgSrc = (el) =>
+    el?.getAttribute("src") ?? el?.getAttribute("data-cookieblock-src") ?? null;
   let citation = 0;
 
   /** Chapter body: Webflow keeps source popovers as escaped markup inside the rich text. */
@@ -74,6 +78,10 @@ function readTopic() {
     // Any other escaped helper markup is dropped as text.
     root.innerHTML = html.replace(/&lt;\/?(span|div|br)[^&]*?&gt;/g, "");
     for (const junk of root.querySelectorAll("script, style, .w-embed")) junk.remove();
+    for (const img of root.querySelectorAll("img[data-cookieblock-src]")) {
+      img.setAttribute("src", imgSrc(img));
+      img.removeAttribute("data-cookieblock-src");
+    }
     return root.innerHTML
       .replace(/\s+/g, " ")
       .replace(/<p>[\s‍]*<\/p>/g, "")
@@ -91,8 +99,8 @@ function readTopic() {
       const body = section.querySelector(".rich-text-core-entry");
       return {
         title: text(section.querySelector("h2")) || text(tabs[index]),
-        tileImage: bgUrl(tabs[index]) ?? image?.getAttribute("src") ?? null,
-        image: image?.getAttribute("src") ?? null,
+        tileImage: bgUrl(tabs[index]) ?? imgSrc(image),
+        image: imgSrc(image),
         imageCredit: text(section.querySelector(".source-of-photo")).replace(/^Photo:\s*/, ""),
         teaser: text(teaser),
         bodyHtml: body ? cleanBody(body) : "",
@@ -156,13 +164,13 @@ function readTopic() {
       .map((p) => text(p).replace(/^•\s*/, ""))
       .filter(Boolean),
     author: text(head?.querySelector(".page-info-white")),
-    authorPhoto: head?.querySelector(".author-s-photo-in-header")?.getAttribute("src") ?? null,
+    authorPhoto: imgSrc(head?.querySelector(".author-s-photo-in-header")),
     authorBio: text(card?.querySelector(".author-s-bio")),
     positionality: text(card?.querySelector(".positionality-text")),
     worksHtml: works ? works.innerHTML.replace(/\s+/g, " ").trim() : "",
     updated: text(head?.querySelector(".update .page-info-white")),
     hero:
-      document.querySelector("img.article-picture[src]")?.getAttribute("src") ??
+      imgSrc(document.querySelector("img.article-picture")) ??
       bgUrl(document.querySelector(".main-screen-article-section")) ??
       null,
     heroCredit: text(head?.querySelector(".picture-caprtion-text-head")).replace(/^Photo:\s*/, ""),
