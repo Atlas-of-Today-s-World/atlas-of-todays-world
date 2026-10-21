@@ -665,7 +665,9 @@ body {
 }
 
 .topic-pulse {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 2px;
   border: 1px solid rgba(11, 18, 32, 0.35);
   border-radius: 999px;
   background: #ffffff;
@@ -678,7 +680,25 @@ body {
   animation: topic-pulse 1.6s ease-in-out both;
 }
 
-/* A region's and its countries' pills: the region's progress (topicBadges.ts). */
+/* A region's or country's pair of pills, each on its side of the label's centre (topicBadges.ts). */
+.topic-pulse-pair {
+  position: relative;
+}
+
+.topic-pulse-pair > .topic-pulse {
+  position: absolute;
+  top: 0;
+}
+
+.topic-pulse-pair > .topic-pulse:first-child {
+  right: 1.5px;
+}
+
+.topic-pulse-pair > .topic-pulse:last-child {
+  left: 1.5px;
+}
+
+/* A region's and its countries' region pill: the region's progress (topicBadges.ts). */
 .topic-pulse-completed,
 .topic-pulse-planned {
   border-color: #ffffff;

@@ -23,7 +23,14 @@ import { cn } from "@/lib/cn";
 import { useIdleSpin } from "./useIdleSpin";
 import { Starfield } from "./Starfield";
 import { type RegionProgress, unprocessedCountries } from "@/features/geography/content-status";
-import { openIssueSlug, STATUS_IMAGES, statusesOf, statusMarkImage } from "./global-issues";
+import {
+  openIssueSlug,
+  PILL_MARKS,
+  pillMarkImage,
+  STATUS_IMAGES,
+  statusesOf,
+  statusMarkImage,
+} from "./global-issues";
 import { applyFeatureState } from "./globe/featureState";
 import { paintLayer, paintSelectionMode } from "./globe/layerPaint";
 import {
@@ -60,6 +67,8 @@ interface Props {
   styleOptions: StyleOptions;
   /** Number of topics per place, for each selection mode (ISO3 or group slug → count). */
   topicCounts: Record<SelectionModeKey, Record<string, number>>;
+  /** A region's whole entry plan (published and planned topics), per region and per country. */
+  topicTotals: Record<Exclude<SelectionModeKey, "issue">, Record<string, number>>;
 }
 
 /** Upper bound for the globe canvas pixel ratio (see the Map options). */
@@ -79,6 +88,7 @@ export default function AtlasGlobe({
   regionLabels,
   styleOptions,
   topicCounts,
+  topicTotals,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const surfaceRef = useRef<HTMLDivElement>(null);
@@ -102,6 +112,7 @@ export default function AtlasGlobe({
   // Read by the idle spin's pulse, which is created once.
   const modeRef = useLatest(mode);
   const topicCountsRef = useLatest(topicCounts);
+  const topicTotalsRef = useLatest(topicTotals);
   // What's currently lit in feature-state, so changes only touch the difference.
   const regionIsoRef = useRef<string[]>([]);
   const activeIsoRef = useRef<string[]>([]);
@@ -157,7 +168,11 @@ export default function AtlasGlobe({
     pulseTopicBadges(
       map,
       key,
-      (place) => topicCountsRef.current[key][place] ?? 0,
+      (place) => {
+        const done = topicCountsRef.current[key][place] ?? 0;
+        if (key === "issue") return String(done);
+        return `${done}/${Math.max(topicTotalsRef.current[key][place] ?? 0, done)}`;
+      },
       (place) =>
         key === "issue" ? undefined : (statusesRef.current[key][place] as RegionProgress),
     );
@@ -218,6 +233,10 @@ export default function AtlasGlobe({
           // pill names them: an image inside text isn't laid out again once it arrives.
           for (const id of Object.values(STATUS_IMAGES)) {
             const mark = statusMarkImage(id);
+            if (mark && !map.hasImage(id)) map.addImage(id, mark.image, mark.options);
+          }
+          for (const id of Object.values(PILL_MARKS)) {
+            const mark = pillMarkImage(id);
             if (mark && !map.hasImage(id)) map.addImage(id, mark.image, mark.options);
           }
           // So do the pills: one requested later by a feature already laid out stays missing.
@@ -336,8 +355,8 @@ export default function AtlasGlobe({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
-    applyTopicBadges(map, { topicCounts, statuses, mode, openIssue, mini });
-  }, [topicCounts, statuses, mode, openIssue, mini, ready]);
+    applyTopicBadges(map, { topicCounts, topicTotals, statuses, mode, openIssue, mini });
+  }, [topicCounts, topicTotals, statuses, mode, openIssue, mini, ready]);
 
   // --- highlight of the active country / region ---
   useEffect(() => {

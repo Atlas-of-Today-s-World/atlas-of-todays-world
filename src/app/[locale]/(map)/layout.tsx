@@ -8,6 +8,7 @@ import { latestEntries } from "@/features/topics/featured";
 import { MapStage } from "@/components/map/MapStage";
 import { MapProvider } from "@/components/map/MapContext";
 import { MapLegend, type ViewOption } from "@/components/map/ViewSwitcher";
+import { PillLegend } from "@/components/map/PillLegend";
 import { FloatingActions } from "@/components/membership/FloatingActions";
 import { MaintenanceGate } from "@/components/MaintenanceGate";
 import { getFlags } from "@/features/flags/queries";
@@ -15,8 +16,13 @@ import { getNavigation } from "@/features/navigation/queries";
 import { getSocialLinks } from "@/features/site/queries";
 import { regionColorMap } from "@/features/geography/model";
 import { getAtlas } from "@/features/geography/queries";
-import { getTopicPlaces } from "@/features/entries/queries";
-import { badgeNumbers, countryBadges, countTopics } from "@/features/topics/map-counts";
+import { getPlannedTopics, getTopicPlaces } from "@/features/entries/queries";
+import {
+  badgeNumbers,
+  countryBadges,
+  countTopics,
+  plannedPlaces,
+} from "@/features/topics/map-counts";
 import { format, type Messages } from "@/lib/i18n/messages";
 import { getRequestLocale, getT, localeFrom } from "@/lib/i18n/request";
 import type { GlobalIssue, Indicator, Region } from "@/features/geography/types";
@@ -85,10 +91,12 @@ function lookup(groups: (Region | GlobalIssue)[]): RegionLookup {
 }
 
 export default async function MapLayout({ children, params }: LayoutProps<"/[locale]">) {
-  const [atlas, flags, places, featured, socials, nav] = await Promise.all([
+  const [atlas, flags, places, planned, featured, socials, nav] = await Promise.all([
     getAtlas(await localeFrom(params)),
     getFlags(),
     getTopicPlaces(),
+    // Best effort: without the plan the pills read published / published.
+    getPlannedTopics().catch(() => []),
     latestEntries(),
     getSocialLinks(),
     getNavigation(),
@@ -121,6 +129,16 @@ export default async function MapLayout({ children, params }: LayoutProps<"/[loc
     regions: badgeNumbers(counts.regions),
     issue: badgeNumbers(counts.issues),
   };
+  // The region's whole entry plan (published and planned topics), the "/ 10" of
+  // the region and country pills: counted by the same rules as the published ones.
+  const plan = countTopics([...places, ...plannedPlaces(planned)], {
+    regionOf,
+    issues: atlas.issues,
+  });
+  const topicTotals = {
+    countries: countryBadges(plan.regions, regionOf),
+    regions: badgeNumbers(plan.regions),
+  };
 
   return (
     <MapProvider>
@@ -140,6 +158,7 @@ export default async function MapLayout({ children, params }: LayoutProps<"/[loc
             issue={issue}
             regionLabels={regionLabels}
             topicCounts={topicCounts}
+            topicTotals={topicTotals}
             styleOptions={{
               border: atlas.theme.border,
               issueLabels: atlas.issues.map(({ slug, name, center }) => ({ slug, name, center })),
@@ -170,6 +189,7 @@ export default async function MapLayout({ children, params }: LayoutProps<"/[loc
             }))}
           />
           <MapLegend options={viewOptions} />
+          <PillLegend options={viewOptions} />
           <MaintenanceGate inRail>{children}</MaintenanceGate>
         </MapStage>
       </main>

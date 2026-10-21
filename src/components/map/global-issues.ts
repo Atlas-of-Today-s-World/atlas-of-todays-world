@@ -1,5 +1,5 @@
 import type { ExpressionSpecification } from "maplibre-gl";
-import { THEME_COLORS } from "@/config/palette";
+import { GLOBE_COLORS, THEME_COLORS } from "@/config/palette";
 import { ROUTE_PREFIX, segmentAfter } from "@/config/routes";
 import { splitLocale, withoutDefaultPrefix } from "@/lib/i18n/config";
 import type { GroupStatus } from "@/features/geography/content-status";
@@ -65,21 +65,107 @@ export function withStatusMark(
 }
 
 /**
- * A region's or a country's pill: the progress mark before the number — a
- * check mark when the region is completed, a calendar while it is planned.
+ * The marks of a region's and a country's pair of pills (added on the globe's
+ * `load`): a globe with a check mark or a calendar on the region pill (its
+ * progress), an open book before the entries' "published / planned".
+ */
+export const PILL_MARKS = {
+  regionCompleted: "topic-region-completed",
+  regionPlanned: "topic-region-planned",
+  entries: "topic-entries",
+} as const;
+
+/**
+ * The region pill's content: the globe with the region's progress mark.
  * `completed` tests the feature (its ISO3 or slug among the completed ones).
  */
-export function withProgressMark(
-  text: ExpressionSpecification,
-  completed: ExpressionSpecification,
-): ExpressionSpecification {
+export function regionPillText(completed: ExpressionSpecification): ExpressionSpecification {
   return [
     "format",
-    ["image", ["case", completed, STATUS_IMAGES.completed, STATUS_IMAGES.planned]],
+    ["image", ["case", completed, PILL_MARKS.regionCompleted, PILL_MARKS.regionPlanned]],
+    { "vertical-align": "center" },
+  ] as unknown as ExpressionSpecification;
+}
+
+/** The entries pill's content: the book, then the text ("7/10"). */
+export function entriesPillText(text: ExpressionSpecification): ExpressionSpecification {
+  return [
+    "format",
+    ["image", PILL_MARKS.entries],
     { "vertical-align": "center" },
     text,
     {},
   ] as unknown as ExpressionSpecification;
+}
+
+/** Icon outlines (Tabler Icons, MIT; 24-unit grid, 2-unit stroke): drawn into the pill marks and the pulse. */
+export const PILL_ICONS = {
+  globe: [
+    "M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0",
+    "M3.6 9h16.8",
+    "M3.6 15h16.8",
+    "M11.5 3a17 17 0 0 0 0 18",
+    "M12.5 3a17 17 0 0 1 0 18",
+  ],
+  check: ["M5 12l5 5l10 -10"],
+  calendar: [
+    "M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z",
+    "M16 3v4",
+    "M8 3v4",
+    "M4 11h16",
+  ],
+  book: [
+    "M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0",
+    "M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0",
+    "M3 6v13",
+    "M12 6v13",
+    "M21 6v13",
+  ],
+} as const;
+
+/**
+ * A pill mark (PILL_MARKS) as a MapLibre image, or null for an unknown id.
+ * Drawn at 4× and laid out at its logical size, like the status marks.
+ */
+export function pillMarkImage(id: string) {
+  const ratio = 4;
+  const region = id === PILL_MARKS.regionCompleted || id === PILL_MARKS.regionPlanned;
+  if (!region && id !== PILL_MARKS.entries) return null;
+  // Region: globe and mark side by side (white on the coloured pill). Entries:
+  // the book in the pill's text colour, a gap before the number.
+  const [w, h] = region ? [23, 12] : [14, 11];
+  const canvas = document.createElement("canvas");
+  canvas.width = w * ratio;
+  canvas.height = h * ratio;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  const icon = (paths: readonly string[], x: number, y: number, size: number, color: string) => {
+    ctx.save();
+    ctx.translate(x * ratio, y * ratio);
+    ctx.scale((size * ratio) / 24, (size * ratio) / 24);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.2;
+    for (const path of paths) ctx.stroke(new Path2D(path));
+    ctx.restore();
+  };
+  if (region) {
+    icon(PILL_ICONS.globe, 0, 0, 12, "#ffffff");
+    icon(
+      id === PILL_MARKS.regionCompleted ? PILL_ICONS.check : PILL_ICONS.calendar,
+      13.5,
+      1.5,
+      9.5,
+      "#ffffff",
+    );
+  } else {
+    icon(PILL_ICONS.book, 0, 0, 11, GLOBE_COLORS.badgeText);
+  }
+  return {
+    image: ctx.getImageData(0, 0, canvas.width, canvas.height),
+    options: { pixelRatio: ratio },
+  };
 }
 
 /** ISO3 / slug among the completed places, as a MapLibre test. */

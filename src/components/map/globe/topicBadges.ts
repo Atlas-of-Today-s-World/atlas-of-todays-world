@@ -3,12 +3,19 @@ import { loadMapLibre } from "../maplibre";
 import {
   COUNTRY_BADGE_BANDS,
   LABEL_ZOOM_STATE,
+  REGION_PILL_SUFFIX,
   TOPIC_BADGE_IMAGES,
   TOPIC_LAYERS,
   fromLabelZoom,
   labelZoomAt,
 } from "../mapStyle";
-import { isCompleted, withProgressMark, withStatusMark } from "../global-issues";
+import {
+  PILL_ICONS,
+  entriesPillText,
+  isCompleted,
+  regionPillText,
+  withStatusMark,
+} from "../global-issues";
 import type { GroupStatus, RegionProgress } from "@/features/geography/content-status";
 import { GLOBE_COLORS, THEME_COLORS } from "@/config/palette";
 
@@ -65,6 +72,26 @@ function topicExpressions(counts: Record<string, number>, property: "iso3" | "sl
   return { has, text };
 }
 
+/**
+ * ISO3 / slug → "published/planned" (the region's whole entry plan, `totals`)
+ * as a MapLibre label expression; a place with neither reads "0/0".
+ */
+export function fractionText(
+  published: Record<string, number>,
+  totals: Record<string, number>,
+  property: "iso3" | "slug",
+) {
+  const keys = [...new Set([...Object.keys(published), ...Object.keys(totals)])];
+  const pairs = keys.flatMap((key) => {
+    const done = published[key] ?? 0;
+    return [key, `${done}/${Math.max(totals[key] ?? 0, done)}`];
+  });
+  // MapLibre types can't express a variable number of pairs in "match".
+  return (keys.length
+    ? ["match", ["get", property], ...pairs, "0/0"]
+    : ["literal", "0/0"]) as unknown as ExpressionSpecification;
+}
+
 /** Status per country ISO3 (its region's progress) and per group slug, for each mode's pills. */
 type PlaceStatuses = Record<SelectionModeKey, Record<string, GroupStatus>>;
 
@@ -85,6 +112,11 @@ function badgeLayers(key: SelectionModeKey) {
  * Topic counts: badge layers per mode, numbers from the server. Only the
  * active mode's pills show, and none in the corner window (`mini`).
  *
+ * A region and its countries get a pair of pills: the region pill (a globe in
+ * the region's progress colour, a check mark once completed, a calendar while
+ * planned) and the entries pill ("published / planned" topics of the region).
+ * A global issue keeps its one pill: the count and its status mark.
+ *
  * The hidden ones are only made transparent: a change of a layer's visibility
  * (or filter) has MapLibre's worker lay its tiles out again, and the pills
  * waited for that after every switch of mode or return from the corner window.
@@ -93,12 +125,15 @@ export function applyTopicBadges(
   map: MapLibreMap,
   {
     topicCounts,
+    topicTotals,
     statuses,
     mode,
     openIssue,
     mini,
   }: {
     topicCounts: Record<SelectionModeKey, Record<string, number>>;
+    /** A region's whole entry plan, published and planned (the "/ 10"). */
+    topicTotals: Record<Exclude<SelectionModeKey, "issue">, Record<string, number>>;
     statuses: PlaceStatuses;
     mode: SelectionModeKey;
     openIssue: string | undefined;
@@ -136,28 +171,38 @@ export function applyTopicBadges(
           "text-field",
           withStatusMark(text, statuses.issue, property),
         );
-        map.setLayoutProperty(layer.id, "icon-image", TOPIC_BADGE_IMAGES.some);
-        map.setPaintProperty(layer.id, "text-color", GLOBE_COLORS.badgeText);
       } else {
-        // A region and its countries carry the region's progress: a green pill with
-        // a check mark once completed, an amber one with a calendar while planned.
+        map.setLayoutProperty(
+          layer.id,
+          "text-field",
+          entriesPillText(fractionText(topicCounts[key], topicTotals[key], property)),
+        );
+        // The region pill beside it: the region's progress, green once completed,
+        // amber while planned.
         const completed = isCompleted(statuses[key], property);
-        map.setLayoutProperty(layer.id, "text-field", withProgressMark(text, completed));
-        map.setLayoutProperty(layer.id, "icon-image", [
+        const region = layer.id + REGION_PILL_SUFFIX;
+        map.setFilter(region, layer.filter ?? null);
+        map.setLayoutProperty(region, "text-field", regionPillText(completed));
+        map.setLayoutProperty(region, "icon-image", [
           "case",
           completed,
           TOPIC_BADGE_IMAGES.completed,
           TOPIC_BADGE_IMAGES.planned,
         ]);
-        map.setPaintProperty(layer.id, "text-color", "#ffffff");
+        map.setPaintProperty(region, "text-color", "#ffffff");
       }
+      map.setLayoutProperty(layer.id, "icon-image", TOPIC_BADGE_IMAGES.some);
+      map.setPaintProperty(layer.id, "text-color", GLOBE_COLORS.badgeText);
       // Opacity by the label zoom only (no feature data): changing it never
       // has the tiles laid out again.
       const opacity = (full: number) =>
         (!shown ? 0 : layer.zoom ? fromLabelZoom(layer.zoom, full) : full) as
           number | ExpressionSpecification;
-      map.setPaintProperty(layer.id, "icon-opacity", opacity(key === "issue" ? 0.95 : 1));
-      map.setPaintProperty(layer.id, "text-opacity", opacity(1));
+      const ids = key === "issue" ? [layer.id] : [layer.id, layer.id + REGION_PILL_SUFFIX];
+      for (const id of ids) {
+        map.setPaintProperty(id, "icon-opacity", opacity(key === "issue" ? 0.95 : 1));
+        map.setPaintProperty(id, "text-opacity", opacity(1));
+      }
     }
   }
 }
@@ -177,16 +222,35 @@ const PULSE_MS = 1600;
 /** Ems from the label point to the badge, per mode (as in mapStyle's badge layers). */
 const BADGE_BELOW: Record<SelectionModeKey, number> = { countries: 1.35, regions: 3, issue: -0.6 };
 
+/** An icon (PILL_ICONS) as inline SVG for the pulse's copy of a pill. */
+function iconSvg(paths: readonly string[], size: number) {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("width", String(size));
+  svg.setAttribute("height", String(size));
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("stroke", "currentColor");
+  svg.setAttribute("stroke-width", "2.2");
+  svg.setAttribute("stroke-linecap", "round");
+  svg.setAttribute("stroke-linejoin", "round");
+  for (const d of paths) {
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", d);
+    svg.append(path);
+  }
+  return svg;
+}
+
 /**
  * Two random badges near the middle of the globe briefly grow and settle back,
- * a hint that places can be clicked. A copy of the pill rides as a marker over
- * the badge: MapLibre can't scale one symbol of a layer without laying out the
- * whole source again.
+ * a hint that places can be clicked. A copy of the pill (a region's or
+ * country's pair of pills) rides as a marker over the badge: MapLibre can't
+ * scale one symbol of a layer without laying out the whole source again.
  */
 export function pulseTopicBadges(
   map: MapLibreMap,
   mode: SelectionModeKey,
-  numberOf: (key: string) => number,
+  textOf: (key: string) => string,
   progressOf: (key: string) => RegionProgress | undefined,
 ) {
   const canvas = map.getCanvas();
@@ -218,16 +282,29 @@ export function pulseTopicBadges(
   if (!picked.length) return;
   void loadMapLibre().then(({ Marker }) => {
     for (const [key, lngLat] of picked) {
-      const count = numberOf(key);
       const element = document.createElement("div");
       element.setAttribute("aria-hidden", "true");
       element.style.pointerEvents = "none";
-      const pill = document.createElement("span");
-      // A region's or country's pill is in its region's progress colour.
       const progress = progressOf(key);
-      pill.className = progress ? `topic-pulse topic-pulse-${progress}` : "topic-pulse";
-      pill.textContent = String(count);
-      element.append(pill);
+      if (mode === "issue" || !progress) {
+        const pill = document.createElement("span");
+        pill.className = "topic-pulse";
+        pill.textContent = textOf(key);
+        element.append(pill);
+      } else {
+        // The pair, each pill on its side of the label's centre (as on the globe).
+        element.className = "topic-pulse-pair";
+        const region = document.createElement("span");
+        region.className = `topic-pulse topic-pulse-${progress}`;
+        region.append(
+          iconSvg(PILL_ICONS.globe, 12),
+          iconSvg(progress === "completed" ? PILL_ICONS.check : PILL_ICONS.calendar, 9.5),
+        );
+        const entries = document.createElement("span");
+        entries.className = "topic-pulse";
+        entries.append(iconSvg(PILL_ICONS.book, 11), textOf(key));
+        element.append(region, entries);
+      }
       const marker = new Marker({
         element,
         anchor: "top",

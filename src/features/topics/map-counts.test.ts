@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { badgeNumbers, countryBadges, countTopics } from "./map-counts";
+import { badgeNumbers, countryBadges, countTopics, plannedPlaces } from "./map-counts";
 import type { TopicPlace } from "@/features/entries/types";
 
 const ALL = ["countries", "regions", "issues"] as const;
@@ -87,5 +87,31 @@ describe("country badges on the globe", () => {
     expect(countryBadges(counts.regions, { ...groups.regionOf, ATA: undefined })).toEqual({
       SYR: 1,
     });
+  });
+});
+
+describe("the entry plan on the globe", () => {
+  it("counts planned topics by the same rules as published ones", () => {
+    const planned = plannedPlaces([
+      {
+        title: "Alps",
+        category: "politics",
+        stage: "in_preparation",
+        region: "europe",
+        issue: null,
+        countries: [],
+      },
+      {
+        title: "Damascus",
+        category: "politics",
+        stage: "seeking_authors",
+        region: null,
+        issue: null,
+        countries: ["SYR"],
+      },
+    ] as Parameters<typeof plannedPlaces>[0]);
+    const plan = countTopics([topic("europe-energy", { region: "europe" }), ...planned], groups);
+    expect(badgeNumbers(plan.regions)).toEqual({ europe: 2, mena: 1 });
+    expect(countryBadges(plan.regions, groups.regionOf)).toEqual({ CZE: 2, DEU: 2, SYR: 1 });
   });
 });

@@ -213,10 +213,25 @@ export const COUNTRY_BADGE_BANDS = BAND_ZOOMS.flatMap((zoom) => {
 });
 
 /**
- * A topic count under a label: a small pill that never hides a place name
- * (placed regardless of collisions and ignored by them).
+ * The region pill beside a region's or country's entries pill: the same layer
+ * id with this suffix. Under the name the two sit side by side, the region's
+ * (a globe in its progress colour) left of the centre, the entries' right.
  */
-function topicBadgeLayer(id: string, source: string, { below = 1.35 } = {}) {
+export const REGION_PILL_SUFFIX = "-region";
+
+/** Ems each of the two pills keeps from the label's centre line (past their padding). */
+const PILL_PAIR_GAP = 0.6;
+
+/**
+ * A topic count under a label: a small pill that never hides a place name
+ * (placed regardless of collisions and ignored by them). `side` puts it left
+ * or right of the label's centre (a region or country's pair of pills).
+ */
+function topicBadgeLayer(
+  id: string,
+  source: string,
+  { below = 1.35, side }: { below?: number; side?: "left" | "right" } = {},
+) {
   return {
     id,
     type: "symbol" as const,
@@ -227,9 +242,10 @@ function topicBadgeLayer(id: string, source: string, { below = 1.35 } = {}) {
       "text-field": "",
       "text-font": ["Open Sans Semibold"],
       "text-size": 10,
-      "text-anchor": "top" as const,
+      "text-anchor":
+        side === "left" ? ("top-right" as const) : side ? ("top-left" as const) : ("top" as const),
       // Ems below the label point: past a one-line country name, a two-line region name.
-      "text-offset": [0, below],
+      "text-offset": [side === "left" ? -PILL_PAIR_GAP : side ? PILL_PAIR_GAP : 0, below],
       "icon-image": TOPIC_BADGE_IMAGES.some,
       "icon-text-fit": "both" as const,
       "icon-text-fit-padding": [1.5, 4.5, 1.5, 4.5],
@@ -449,8 +465,15 @@ export function buildStyle(regions: RegionLabel[], options: StyleOptions): Style
           "text-halo-width": 1.6,
         },
       },
-      ...COUNTRY_BADGE_BANDS.map((band) => topicBadgeLayer(band.id, "country-labels")),
-      topicBadgeLayer(TOPIC_LAYERS.regions, "region-labels", { below: 3 }),
+      ...COUNTRY_BADGE_BANDS.flatMap((band) => [
+        topicBadgeLayer(band.id + REGION_PILL_SUFFIX, "country-labels", { side: "left" }),
+        topicBadgeLayer(band.id, "country-labels", { side: "right" }),
+      ]),
+      topicBadgeLayer(TOPIC_LAYERS.regions + REGION_PILL_SUFFIX, "region-labels", {
+        below: 3,
+        side: "left",
+      }),
+      topicBadgeLayer(TOPIC_LAYERS.regions, "region-labels", { below: 3, side: "right" }),
       // Groups have no name on the globe: the count sits on their centre.
       topicBadgeLayer(TOPIC_LAYERS.issue, "issue-labels", { below: -0.6 }),
     ],

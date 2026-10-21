@@ -12,7 +12,8 @@
  *   on any of its countries;
  * - a topic counts only on the layers it is shown on (`map_layers`).
  */
-import type { TopicPlace } from "@/features/entries/types";
+import { MAP_LAYERS } from "@/features/entries/constants";
+import type { PlannedTopic, TopicPlace } from "@/features/entries/types";
 
 interface Groups {
   /** ISO3 → region slug. */
@@ -95,4 +96,20 @@ export function countryBadges(
 /** Counts only (what the globe draws). */
 export function badgeNumbers(counts: Record<string, string[]>): Record<string, number> {
   return Object.fromEntries(Object.entries(counts).map(([key, list]) => [key, list.length]));
+}
+
+/**
+ * Planned topics as places, to count a place's whole entry plan with the same
+ * rules (`countTopics`). They have no slug or layers in public: each gets a
+ * key of its own and every globe layer.
+ */
+export function plannedPlaces(planned: readonly PlannedTopic[]): TopicPlace[] {
+  return planned.map((topic, index) => ({
+    slug: `planned:${index}`,
+    title: topic.title,
+    region: topic.region,
+    issue: topic.issue,
+    countries: topic.countries,
+    layers: MAP_LAYERS,
+  }));
 }

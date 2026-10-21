@@ -5,7 +5,9 @@ import {
   isCompleted,
   openIssueSlug,
   statusesOf,
-  withProgressMark,
+  PILL_MARKS,
+  entriesPillText,
+  regionPillText,
   withStatusMark,
 } from "./global-issues";
 
@@ -75,13 +77,21 @@ describe("withStatusMark", () => {
   });
 });
 
-describe("withProgressMark", () => {
-  it("leads the number with a check mark for completed places, a calendar for planned ones", () => {
+describe("a region's and a country's pair of pills", () => {
+  it("the region pill: a globe with a check mark once completed, a calendar while planned", () => {
     const completed = isCompleted({ mena: "completed", eeca: "planned" }, "slug");
     expect(completed).toEqual(["in", ["get", "slug"], ["literal", ["mena"]]]);
-    expect(withProgressMark(text, completed)).toEqual([
+    expect(regionPillText(completed)).toEqual([
       "format",
-      ["image", ["case", completed, STATUS_IMAGES.completed, STATUS_IMAGES.planned]],
+      ["image", ["case", completed, PILL_MARKS.regionCompleted, PILL_MARKS.regionPlanned]],
+      { "vertical-align": "center" },
+    ]);
+  });
+
+  it("the entries pill: the book before the text", () => {
+    expect(entriesPillText(text)).toEqual([
+      "format",
+      ["image", PILL_MARKS.entries],
       { "vertical-align": "center" },
       text,
       {},
