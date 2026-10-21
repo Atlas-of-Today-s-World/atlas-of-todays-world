@@ -141,9 +141,9 @@ export default async function Portrait({
  * haven't written is left out wherever it stands. The intro and key facts sit
  * above this run, the call for support below it.
  *
- * `topics` is optional: under a country the region's profile leaves the topics
- * out, because the country's own list (which already holds its region's
- * topics) follows right after it — showing them twice would repeat every tile.
+ * `topics` is optional: under a country the region's profile shows the
+ * country's topics (which already hold its region's) and the country's own
+ * run leaves them out — showing them twice would repeat every tile.
  */
 export async function ProfileSections({
   dossier,

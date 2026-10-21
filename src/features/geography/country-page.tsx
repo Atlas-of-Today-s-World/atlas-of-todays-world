@@ -141,6 +141,7 @@ export async function CountryPage({
   const profile = country.profile;
   const t = await getT();
   const description = profile.summary || fallbackDescription(country, stats, t.countryText);
+  const hasTopics = topics.items.length > 0 || topics.planned.length > 0;
 
   const content = (
     <>
@@ -155,12 +156,18 @@ export async function CountryPage({
       {/* Owner's request of 2026-10-16 (call with the Atlas team): after the
           country's data straight to its region's profile — the country's
           context — then the country's own run in the site-wide order (Admin →
-          Portrait layout): its timeline and its topics by theme. The topics
-          already hold the region's, which is why the region's profile above
-          leaves them out. With no topic, the invitation at the top of the card
-          is enough. */}
+          Portrait layout). The country's topics (they already hold the
+          region's) stand in the region's run, right under its timeline and
+          above its maps (owner, 2026-10-21); only a country without a regional
+          profile shows them in its own run. With no topic, the invitation at
+          the top of the card is enough. */}
       {regionData && dossier ? (
-        <RegionalProfile country={country.name} region={regionData} dossier={dossier} />
+        <RegionalProfile
+          country={country.name}
+          region={regionData}
+          dossier={dossier}
+          topics={hasTopics ? topics : undefined}
+        />
       ) : null}
       <ProfileSections
         dossier={
@@ -172,7 +179,7 @@ export async function CountryPage({
               }
             : {}
         }
-        topics={topics.items.length || topics.planned.length ? topics : undefined}
+        topics={hasTopics && !(regionData && dossier) ? topics : undefined}
         place={country.name}
         timelineId="country-timeline"
       />

@@ -1,4 +1,5 @@
 import Link from "@/components/i18n/Link";
+import type { PlaceTopics } from "@/features/entries/types";
 import type { RegionDossier } from "@/lib/content-types";
 import { Photo } from "@/components/atlas/Photo";
 import { PHOTO_SIZES } from "@/config/layout";
@@ -16,16 +17,21 @@ import { routes } from "@/config/routes";
  * dark header with the region's photo and a paper-grey background, so it's
  * clear where the country ends and the region begins. No computed regional
  * figures — the country's own data are above; the region's key facts (the
- * editors' sourced cards) are part of its story.
+ * editors' sourced cards) are part of its story. The country's topics
+ * (`topics`) take the topics' place in the region's run, so they read right
+ * under the region's timeline (owner, 2026-10-21).
  */
 export async function RegionalProfile({
   country,
   region,
   dossier,
+  topics,
 }: {
   country: string;
   region: { slug: string; name: string; summary: string; hero?: string | null };
   dossier: RegionDossier;
+  /** The country's topics (its own and its region's); left out = no topic rows. */
+  topics?: PlaceTopics;
 }) {
   const t = await getT();
   const titleId = "regional-profile-title";
@@ -70,7 +76,7 @@ export async function RegionalProfile({
 
       <IndicatorCards metrics={dossier.metrics} />
 
-      <ProfileSections dossier={dossier} />
+      <ProfileSections dossier={dossier} topics={topics} place={country} />
       <PatronsCallout complete={profileComplete(dossier)} />
     </section>
   );

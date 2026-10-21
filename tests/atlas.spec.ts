@@ -165,8 +165,16 @@ test.describe("regional profile under a country", () => {
 
     const profile = page.getByRole("region", { name: "Middle East & North Africa" });
     await expect(profile.getByText("Regional profile")).toBeVisible();
-    // No themed topic rows or news strip in a profile (owner's decision of 2026-10-15).
-    await expect(profile.getByRole("heading", { name: "Entries", exact: true })).toHaveCount(0);
+    // The country's entries stand in the profile, under its timeline and above its
+    // maps (2026-10-21) — once on the page. No news strip (2026-10-15).
+    const entries = profile.getByRole("heading", { name: "Entries", exact: true });
+    await expect(entries).toHaveCount(1);
+    await expect(page.getByRole("heading", { name: "Entries", exact: true })).toHaveCount(1);
+    const maps = profile.getByRole("heading", { name: "Seen through maps and data" });
+    if (await maps.count()) {
+      const [entriesBox, mapsBox] = [await entries.boundingBox(), await maps.boundingBox()];
+      expect(entriesBox!.y).toBeLessThan(mapsBox!.y);
+    }
     await expect(profile.getByRole("heading", { name: "Our News" })).toHaveCount(0);
     await expect(profile.getByRole("link", { name: /View the whole region/ })).toHaveAttribute(
       "href",
