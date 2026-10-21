@@ -39,7 +39,7 @@ describe("article Markdown", () => {
           "- Published: 2026-09-02",
           "- Last updated: 2026-09-30",
           `- Author: Jana Dvořáková (${SITE}/authors/jana-dvorakova)`,
-          "- Category: Political System",
+          "- Category: Politics & International Relations",
           "- Region: Sub-Saharan Africa",
           "- Countries: Chad",
           `- Publisher: Atlas of Today's World (${SITE}/)`,
