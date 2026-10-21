@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocalizedRouter } from "@/components/i18n/useLocalizedRouter";
-import { ChevronLeft, ChevronRight, Maximize2, X } from "lucide-react";
+import { Maximize2, X } from "lucide-react";
 import { MOBILE_SHEET } from "@/config/layout";
 import { cn } from "@/lib/cn";
 import { belongsToField } from "@/lib/keyboard";
@@ -33,7 +33,6 @@ export default function ContentRail({
   wide = false,
   fullPage,
   placeholder = false,
-  collapsible = true,
 }: {
   children: ReactNode;
   closeHref?: string;
@@ -49,11 +48,8 @@ export default function ContentRail({
    * with the same id the page would have two `#content` and print two panels.
    */
   placeholder?: boolean;
-  /** Desktop tab on the panel's left edge that slides the panel away. */
-  collapsible?: boolean;
 }) {
   const t = useMessages();
-  const [collapsed, setCollapsed] = useState(false);
   const [expanded, setExpanded] = useState(false);
   // Where a swipe on the handle started; a swipe also ends in a click, which it swallows.
   const swipeFrom = useRef<number | null>(null);
@@ -98,7 +94,6 @@ export default function ContentRail({
         "z-panel pointer-events-auto absolute inset-x-0 bottom-0 rounded-t-3xl bg-white text-[var(--color-ink)] shadow-[0_-8px_40px_rgba(0,0,0,0.45)] transition-[transform,max-height] duration-300 outline-none md:inset-x-auto md:inset-y-0 md:right-0 md:left-auto md:max-h-none md:rounded-none md:shadow-[0_0_60px_rgba(0,0,0,0.45)]",
         expanded ? MOBILE_SHEET.expandedClassName : MOBILE_SHEET.className,
         wide ? "md:w-(--rail-width-wide)" : "md:w-(--rail-width)",
-        collapsed ? "md:translate-x-full" : "md:translate-x-0",
       )}
     >
       {/* Sheet handle on mobile: tap or swipe to expand / shrink the sheet. */}
@@ -128,29 +123,6 @@ export default function ContentRail({
         <span aria-hidden className="h-1.5 w-12 rounded-full bg-[var(--color-line)]" />
       </button>
 
-      {/*
-        Panel collapse on desktop: a tab on the panel's left edge. The aside doesn't
-        clip (no overflow-hidden), so the tab stays visible next to the panel — and,
-        once collapsed, at the window's right edge to bring the panel back. It sits low,
-        above the floating buttons: the controls over the map (mode switch, global
-        issues list, search) grow down from the top and covered it mid-height.
-      */}
-      {collapsible ? (
-        <button
-          type="button"
-          aria-label={collapsed ? t.panel.show : t.panel.hide}
-          aria-expanded={!collapsed}
-          onClick={() => setCollapsed((value) => !value)}
-          className="absolute bottom-32 -left-(--touch-min) hidden h-14 w-(--touch-min) items-center justify-center rounded-l-xl bg-[var(--color-space-raised)] text-white/80 shadow-[-4px_0_16px_rgba(0,0,0,0.35)] transition hover:bg-[var(--color-space-raised-hover)] hover:text-white focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:outline-none md:flex"
-        >
-          {collapsed ? (
-            <ChevronLeft size={16} aria-hidden />
-          ) : (
-            <ChevronRight size={16} aria-hidden />
-          )}
-        </button>
-      ) : null}
-
       {/* A link, not a button: closes the panel even before React hydrates. */}
       <Link
         href={closeHref}
@@ -163,11 +135,8 @@ export default function ContentRail({
 
       <div
         ref={scroller}
-        // Collapsed off-screen on desktop: out of the Tab and reading order.
-        inert={collapsed || undefined}
         className={cn(
-          // The aside doesn't clip (that hid the collapse tab), so this does:
-          // a too-wide child never scrolls the panel sideways.
+          // A too-wide child never scrolls the panel sideways.
           "panel-scroll overflow-x-hidden overflow-y-auto overscroll-contain pb-6 md:h-full md:max-h-none md:pb-0",
           expanded ? MOBILE_SHEET.expandedScrollClassName : MOBILE_SHEET.scrollClassName,
         )}

@@ -327,18 +327,6 @@ test.describe("search shortcut", () => {
     await expect(page.getByText("Democratic Republic of the Congo").first()).toBeVisible();
     await expect(page.getByText("Dem. Rep. Congo")).toHaveCount(0);
   });
-
-  test("the panel can be hidden and shown again", async ({ page }) => {
-    await page.goto("/country/ukraine");
-    const panelLeft = () =>
-      page.locator("aside#content").evaluate((aside) => aside.getBoundingClientRect().left);
-    const width = page.viewportSize()?.width ?? 1280;
-    // The tab must be clickable (it used to be clipped by the panel itself).
-    await page.getByRole("button", { name: "Hide panel" }).click();
-    await expect.poll(panelLeft).toBeGreaterThanOrEqual(width - 1);
-    await page.getByRole("button", { name: "Show panel" }).click();
-    await expect.poll(panelLeft).toBeLessThan(width - 100);
-  });
 });
 
 test.describe("mobil", () => {

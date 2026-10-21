@@ -166,8 +166,7 @@ export function groupPortraitPage(kind: GroupKind, view: GroupView = "rail") {
             {/* An issue lights its countries and greys the rest, also when its
                 preview is opened from a link rather than from the switcher. */}
             {located.kind === "issue" ? <MapModeSetter mode="issue" /> : null}
-            {/* A region's panel has no collapse tab. */}
-            <ContentRail wide fullPage={fullPath} collapsible={located.kind !== "region"}>
+            <ContentRail wide fullPage={fullPath}>
               <Portrait
                 topics={topics}
                 subject={{

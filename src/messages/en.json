@@ -178,8 +178,6 @@
   "panel": {
     "content": "Content panel",
     "loading": "Loading…",
-    "show": "Show panel",
-    "hide": "Hide panel",
     "expand": "Expand panel",
     "shrink": "Shrink panel",
     "error": "Error",
