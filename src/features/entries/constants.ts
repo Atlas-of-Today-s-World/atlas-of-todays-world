@@ -326,6 +326,15 @@ export const SEO_TITLE_MAX = 70;
 export const SEO_DESCRIPTION_MAX = 170;
 export const GEO_SUMMARY_MAX = 800;
 
+/** What a planned topic's greyed tile says over its title (DB `entries.planned_stage`). */
+export const PLANNED_STAGES = ["in_preparation", "seeking_authors"] as const;
+export type PlannedStage = (typeof PLANNED_STAGES)[number];
+
+export const PLANNED_STAGE_LABEL: Record<PlannedStage, string> = {
+  in_preparation: "In preparation",
+  seeking_authors: "Seeking authors",
+};
+
 /** Workflow states of an entry (DB `entries.status`). */
 export const ENTRY_STATUSES = ["draft", "pending", "published", "planned"] as const;
 export type EntryStatus = (typeof ENTRY_STATUSES)[number];

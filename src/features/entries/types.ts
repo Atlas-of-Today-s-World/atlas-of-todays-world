@@ -7,7 +7,7 @@ import type {
   Timeline,
   VisualItem,
 } from "@/lib/content-types";
-import type { EntryStatus, MapLayer, TileIcon } from "./constants";
+import type { EntryStatus, MapLayer, PlannedStage, TileIcon } from "./constants";
 
 /**
  * Article shapes shared by the server reads (`queries.ts`, `topic-queries.ts`,
@@ -161,6 +161,7 @@ export interface EditableEntry extends EditorialRow {
   author_id: string | null;
   map_layers: string[];
   hero_background: string | null;
+  planned_stage: string;
 }
 
 /** A chapter in the editor (order = position). */
@@ -235,6 +236,7 @@ export interface Revision {
 export interface PlannedTopic {
   title: string;
   category: NewsCategory;
+  stage: PlannedStage;
   region: string | null;
   issue: string | null;
   countries: string[];

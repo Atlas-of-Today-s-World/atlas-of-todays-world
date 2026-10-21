@@ -51,7 +51,10 @@ function snapshot(form: HTMLFormElement): Partial<EditableEntry> {
     reading_minutes: minutes > 0 ? minutes : null,
     body_html: text("body_html"),
     ...(form.elements.namedItem("planned")
-      ? { status: data.get("planned") ? ("planned" as const) : ("draft" as const) }
+      ? {
+          status: data.get("planned") ? ("planned" as const) : ("draft" as const),
+          planned_stage: text("planned_stage") || "in_preparation",
+        }
       : {}),
   };
 }

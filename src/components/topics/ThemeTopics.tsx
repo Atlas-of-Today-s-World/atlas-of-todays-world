@@ -21,7 +21,8 @@ const HEADING_ID = "theme-topics";
  * All four rows are drawn even when one is empty: the reader sees what the
  * Atlas covers and what is still in preparation. A planned topic (admin:
  * "Planned entry only") follows the written ones in its row as a greyed tile
- * with its title and no link. With no topic at all there
+ * with its title and no link, under "In preparation" or "Seeking authors" as
+ * the admin chose. With no topic at all there
  * is nothing to sort, so under the heading only the invitation to write or
  * support the first. The section is a named landmark ("Subtopics").
  */
@@ -77,7 +78,11 @@ export async function ThemeTopics({
                     <PhotoTile
                       disabled
                       className="min-h-32"
-                      kicker={t.portrait.inPreparation}
+                      kicker={
+                        topic.stage === "seeking_authors"
+                          ? t.portrait.seekingAuthors
+                          : t.portrait.inPreparation
+                      }
                       title={topic.title}
                     />
                   </div>

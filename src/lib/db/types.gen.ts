@@ -309,6 +309,7 @@ export type Database = {
       }
       entries: {
         Row: {
+          planned_stage: string
           hero_background: string | null
           timeline_subtitle: string | null
           timeline_title: string | null
@@ -354,6 +355,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          planned_stage?: string
           hero_background?: string | null
           timeline_subtitle?: string | null
           timeline_title?: string | null
@@ -399,6 +401,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          planned_stage?: string
           hero_background?: string | null
           timeline_subtitle?: string | null
           timeline_title?: string | null
@@ -2969,6 +2972,7 @@ export type Database = {
         Returns: {
           category: string
           countries: string[]
+          planned_stage: string
           region_slug: string
           special_slug: string
           title: string

@@ -21,7 +21,7 @@ import { UploadField } from "@/components/admin/UploadField";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { useDraftBackup } from "./useDraftBackup";
 import { ActionForm, useServerAction } from "@/components/ui/action-form";
-import { MAP_LAYER_LABEL, MAP_LAYERS } from "../constants";
+import { MAP_LAYER_LABEL, MAP_LAYERS, PLANNED_STAGE_LABEL, PLANNED_STAGES } from "../constants";
 import { routes } from "@/config/routes";
 
 /**
@@ -53,6 +53,8 @@ export function EntryForm({
   const [generation, setGeneration] = useState(0);
   const slug = useSlug(entry?.slug);
   const [kind, setKind] = useState(entry?.kind ?? defaultKind);
+  // "Planned entry only" ticked: the tile label is offered.
+  const [planned, setPlanned] = useState(entry?.status === "planned");
   const isEntry = kind === "entry";
   const errors = state.fieldErrors ?? {};
   const published = entry?.status === "published";
@@ -71,6 +73,7 @@ export function EntryForm({
     setValues(restored);
     slug.restore(published ? undefined : (restored.slug ?? ""));
     if (restored.kind) setKind(restored.kind);
+    setPlanned(restored.status === "planned");
     setGeneration((n) => n + 1);
     backup.accept();
   };
@@ -335,11 +338,33 @@ export function EntryForm({
       </div>
 
       {!entry || entry.status === "draft" || entry.status === "planned" ? (
-        <Checkbox
-          name="planned"
-          defaultChecked={values?.status === "planned"}
-          label="Planned entry only (gray tile on the portrait, not being written yet)"
-        />
+        <div className="grid gap-2">
+          <Checkbox
+            name="planned"
+            checked={planned}
+            onChange={(event) => setPlanned(event.target.checked)}
+            label="Planned entry only (gray tile on the portrait, not being written yet)"
+          />
+          {/* Kept (hidden) while unticked, so a draft remembers the choice. */}
+          <FormField
+            id="planned_stage"
+            label="Tile label while planned"
+            errors={errors.planned_stage}
+            className={planned ? "max-w-xs" : "hidden"}
+          >
+            <Select
+              id="planned_stage"
+              name="planned_stage"
+              defaultValue={values?.planned_stage ?? "in_preparation"}
+            >
+              {PLANNED_STAGES.map((stage) => (
+                <option key={stage} value={stage}>
+                  {PLANNED_STAGE_LABEL[stage]}
+                </option>
+              ))}
+            </Select>
+          </FormField>
+        </div>
       ) : null}
 
       <ActionStatus state={state} />

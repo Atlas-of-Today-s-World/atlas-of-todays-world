@@ -46,7 +46,7 @@ test("the search narrows the cards and says when nothing matches", async ({ page
 /**
  * A global issue's full page (2026-10-16, at …/full-page): like a topic —
  * photo header with the trail Atlas › Global issues › kind, the title, Share,
- * its countries, "Subtopics" (its topics, or the invitation to write the
+ * its countries, "Entries" (its topics, or the invitation to write the
  * first) and the globe in its corner window, which leads back to the map.
  */
 test("a global issue's full page is a full-width page like a topic", async ({ page, isMobile }) => {
@@ -67,7 +67,7 @@ test("a global issue's full page is a full-width page like a topic", async ({ pa
   ).toBeVisible();
 
   // Its topics as subtopic tiles, or — with none yet — the call to write one.
-  const subtopics = page.getByRole("region", { name: "Subtopics" });
+  const subtopics = page.getByRole("region", { name: "Entries", exact: true });
   await expect(subtopics).toBeVisible();
   await expect(
     subtopics.locator('a[href^="/entries/"], a[href^="/membership"]').first(),

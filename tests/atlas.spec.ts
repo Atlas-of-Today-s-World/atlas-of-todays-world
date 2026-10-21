@@ -185,7 +185,6 @@ test.describe("region portrait", () => {
     // Share sits above the heading; the countries are only in the header's list.
     await expect(page.locator("#content").getByRole("button", { name: "Share" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Countries in this region" })).toHaveCount(0);
-    await expect(page.getByRole("heading", { name: "Entries", exact: true })).toHaveCount(0);
     // No computed regional averages (decision of 2026-10-07): national data live on each
     // country. The editors' sourced key-fact cards may show; computed figures never.
     await expect(page.getByText(/Population-weighted across the countries/)).toHaveCount(0);
@@ -217,8 +216,10 @@ test.describe("global issues", () => {
     await expect(
       page.locator("#content").getByRole("link", { name: "Ukraine", exact: true }).first(),
     ).toBeVisible();
-    // Its topics are its "Subtopics" (2026-10-16), not the panel's "Related topics".
-    await expect(page.getByRole("heading", { level: 2, name: "Subtopics" })).toBeVisible();
+    // Its topics are its "Entries" (2026-10-16; "Subtopics" until 2026-10-21), not the panel's "Related topics".
+    await expect(
+      page.getByRole("heading", { level: 2, name: "Entries", exact: true }),
+    ).toBeVisible();
     await expect(page.getByRole("heading", { name: "Related topics" })).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "Countries in this group" })).toHaveCount(0);
     // No "N news items published" line either (2026-10-15).

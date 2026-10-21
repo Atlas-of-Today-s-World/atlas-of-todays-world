@@ -101,7 +101,7 @@ test("dossier page: chapter and learn-more tiles open their panels", async ({ pa
   await expect(page.getByText("Migrant smuggling is the paid facilitation")).toBeVisible();
 
   // Full-width page: the row of chapter cards, the open chapter right below it.
-  const topics = page.getByRole("region", { name: "Subtopics" });
+  const topics = page.getByRole("region", { name: "Entries", exact: true });
   await expect(topics.getByRole("list").getByRole("button")).toHaveCount(2);
   // The first chapter is open by default.
   await expect(page.getByRole("heading", { level: 2, name: "Brief overview" })).toBeVisible();
@@ -140,7 +140,7 @@ test("Entries: from the list to a dossier and back to the Atlas", async ({ page,
   expect(href).toMatch(/^\/entries\/[a-z0-9-]+$/);
   await first.click();
   await expect(page).toHaveURL((url) => url.pathname === href);
-  await expect(page.getByRole("region", { name: "Subtopics" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Entries", exact: true })).toBeVisible();
 
   await page.getByRole("link", { name: "Back to Atlas", exact: true }).click();
   await expect(page).toHaveURL(/\/$/);

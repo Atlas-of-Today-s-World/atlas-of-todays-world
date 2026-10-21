@@ -45,7 +45,7 @@ test("a region's full page is an article that ends with Back to Atlas", async ({
   );
 
   // Its topics in the four theme rows, or the invitation to write the first.
-  const subtopics = page.getByRole("region", { name: "Subtopics" });
+  const subtopics = page.getByRole("region", { name: "Entries", exact: true });
   await expect(subtopics).toBeVisible();
 
   // Bottom left: the way back to the globe, after the article.
@@ -69,7 +69,7 @@ test("the country panel has no region teaser card; its topics follow the region'
   const regional = page.getByRole("region", { name: "Middle East & North Africa" });
   await expect(regional).toBeVisible();
   // The country's topics (or their invitation) come after the region's profile.
-  const subtopics = page.getByRole("region", { name: "Subtopics" });
+  const subtopics = page.getByRole("region", { name: "Entries", exact: true });
   if ((await subtopics.count()) > 0) {
     const regionBox = await regional.boundingBox();
     const topicsBox = await subtopics.boundingBox();

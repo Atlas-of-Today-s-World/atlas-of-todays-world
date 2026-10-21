@@ -50,7 +50,7 @@ export async function getEditableEntry(id: string): Promise<EditableEntry | null
   const result = await supabase
     .from("entries")
     .select(
-      `${LIST_COLUMNS}, summary, special_slug, cover_url, cover_credit, reading_minutes, body_html, published_on, summary_points, author_id, map_layers, hero_background, entry_countries(country_iso3)`,
+      `${LIST_COLUMNS}, summary, special_slug, cover_url, cover_credit, reading_minutes, body_html, published_on, summary_points, author_id, map_layers, hero_background, planned_stage, entry_countries(country_iso3)`,
     )
     .eq("id", id)
     .maybeSingle();

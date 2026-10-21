@@ -324,16 +324,26 @@ test("publishers still plan topics, with their countries, and turn them into dra
     await q("insert into entry_countries (entry_id, country_iso3) values ($1, 'BRA')", [
       planned.id,
     ]);
-    await q("update entries set title = 'Planned topic' where id = $1", [planned.id]);
+    await q(
+      "update entries set title = 'Planned topic', planned_stage = 'seeking_authors' where id = $1",
+      [planned.id],
+    );
     await q("select replace_entry_parts($1, 'faq', $2::jsonb)", [
       planned.id,
       JSON.stringify([{ question: "Why?", answer: "Because." }]),
     ]);
   });
-  const shown = await as(null, () => q("select title, countries from planned_entries()"));
+  const shown = await as(null, () =>
+    q("select title, countries, planned_stage from planned_entries()"),
+  );
   assert.deepEqual(
     shown.map((row) => ({ ...row })),
-    [{ title: "Planned topic", countries: ["BRA"] }],
+    [{ title: "Planned topic", countries: ["BRA"], planned_stage: "seeking_authors" }],
+  );
+  // The tile says one of two things only (20261021000100).
+  await refused(
+    as(id.pubA, () => q("update entries set planned_stage = 'soon' where id = $1", [planned.id])),
+    /entries_planned_stage_check/,
   );
   await as(id.pubA, () => q("update entries set status = 'draft' where id = $1", [planned.id]));
   assert.equal(await statusOf(planned.id), "draft");

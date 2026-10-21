@@ -18,6 +18,7 @@ import {
   MAP_LAYERS,
   MAX_LINKS,
   MAX_TILES,
+  PLANNED_STAGES,
   SEO_DESCRIPTION_MAX,
   SEO_TITLE_MAX,
   TILE_ICONS,
@@ -74,6 +75,8 @@ export const EntryInput = z.object({
   body_html: z.string().max(BODY_HTML_MAX, BODY_TOO_LONG),
   countries: z.array(iso3).max(60, "At most 60 countries."),
   planned: checkbox,
+  // What the planned topic's tile says (kept when the topic leaves `planned`).
+  planned_stage: z.enum(PLANNED_STAGES).default("in_preparation"),
   // Encyclopedia entries only (P9); left empty for news.
   summary_points: summaryPoints.default([]),
   author_id: z.preprocess(blankToUndefined, uuid.optional()),

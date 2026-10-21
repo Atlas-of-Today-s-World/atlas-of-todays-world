@@ -4,7 +4,7 @@ import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import type { ArticleKind, NewsCategory } from "@/lib/content-types";
 import { must } from "@/lib/db/result";
 import { createPublicClient } from "@/lib/supabase/public";
-import { MAP_LAYERS, type MapLayer } from "./constants";
+import { MAP_LAYERS, PLANNED_STAGES, type MapLayer, type PlannedStage } from "./constants";
 import { COLUMNS, type Row, toLocale, toSummary } from "./rows";
 import type { AuthorArticle, EntrySummary, PlannedTopic, TopicPlace } from "./types";
 
@@ -107,6 +107,9 @@ export const getPlannedTopics = unstable_cache(
     return data.map((row) => ({
       title: row.title,
       category: row.category as NewsCategory,
+      stage: (PLANNED_STAGES as readonly string[]).includes(row.planned_stage)
+        ? (row.planned_stage as PlannedStage)
+        : "in_preparation",
       region: row.region_slug,
       issue: row.special_slug,
       countries: row.countries,
