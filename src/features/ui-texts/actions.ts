@@ -8,7 +8,7 @@ import type { ActionState } from "@/lib/action-state";
 import { tags } from "@/lib/cache/tags";
 import type { ServerClient } from "@/lib/supabase/server";
 import { editableText } from "./model";
-import { UiTextInput, UiTextKey } from "./schema";
+import { UiTextInput, UiTextKey, UiTextsInput } from "./schema";
 
 /**
  * UI texts (Admin → UI texts). Every write goes through the session client,
@@ -20,6 +20,8 @@ import { UiTextInput, UiTextKey } from "./schema";
 function refreshed(message: string): ActionState {
   updateTag(tags.uiTexts);
   revalidatePath(adminRoutes.uiTexts, "layout");
+  // Pages whose texts are edited in Site pages (Atlas Patrons).
+  revalidatePath(adminRoutes.sitePages.list, "layout");
   return { ok: true, message };
 }
 
@@ -81,3 +83,58 @@ export async function resetUiText(key: string): Promise<ActionState> {
   const denied = await removeOverride(session.supabase, key);
   return denied ?? refreshed(RESET);
 }
+
+/**
+ * Saves several texts from one form (a page's texts in Admin → Site pages):
+ * a text equal to its default is reset, a new change inserted (RLS: site
+ * "c"), a changed one updated ("e"); unchanged texts are left alone.
+ */
+export const saveUiTexts = formAction(UiTextsInput, async ({ data, supabase }) => {
+  const keys = Object.keys(data);
+  const current = await supabase.from("ui_text_overrides").select("key, value").in("key", keys);
+  if (current.error) return failed(current.error);
+  const stored = new Map(current.data.map((row) => [row.key, row.value]));
+
+  const resets: string[] = [];
+  const inserts: { key: string; value: string }[] = [];
+  const updates: { key: string; value: string }[] = [];
+  for (const [key, value] of Object.entries(data)) {
+    const saved = stored.get(key);
+    if (value === editableText(key)?.defaultText) {
+      if (saved !== undefined) resets.push(key);
+    } else if (saved === undefined) inserts.push({ key, value });
+    else if (saved !== value) updates.push({ key, value });
+  }
+  const count = resets.length + inserts.length + updates.length;
+  if (count === 0) return { ok: true, message: "No change." };
+
+  let written = 0;
+  // Whatever went through before a refusal is live — refresh the pages for it too.
+  const stop = (denied: ActionState) => {
+    if (written > 0) updateTag(tags.uiTexts);
+    return denied;
+  };
+  if (inserts.length) {
+    const { error } = await supabase.from("ui_text_overrides").insert(inserts);
+    if (error) return stop(failed(error));
+    written += inserts.length;
+  }
+  for (const { key, value } of updates) {
+    const denied = affected(
+      await supabase.from("ui_text_overrides").update({ value }).eq("key", key).select("key"),
+      "You can't change these texts.",
+    );
+    if (denied) return stop(denied);
+    written += 1;
+  }
+  if (resets.length) {
+    const denied = affected(
+      await supabase.from("ui_text_overrides").delete().in("key", resets).select("key"),
+      "The texts can't be reset to their defaults (no permission).",
+    );
+    if (denied) return stop(denied);
+  }
+  return refreshed(
+    `Saved ${count} ${count === 1 ? "change" : "changes"}. The site shows ${count === 1 ? "it" : "them"} within a minute — pages update on their next visit.`,
+  );
+});

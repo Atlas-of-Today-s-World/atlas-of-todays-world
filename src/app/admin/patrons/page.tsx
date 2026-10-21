@@ -45,7 +45,20 @@ export default async function PatronSettingsPage() {
       <PageHeader
         icon={navIcon(adminRoutes.patrons)}
         title="Patron settings"
-        lead="What the Atlas Patrons page offers: the donation amounts (in euros), the current goal and the questions people ask. The checkout accepts exactly the amounts saved here."
+        lead={
+          <>
+            What the Atlas Patrons page offers: the donation amounts (in euros), the current goal
+            and the questions people ask. The checkout accepts exactly the amounts saved here. The
+            page&apos;s texts are in{" "}
+            <Link
+              href={adminRoutes.sitePages("patrons")}
+              className="text-[var(--color-link)] underline"
+            >
+              Site pages → Atlas Patrons
+            </Link>
+            .
+          </>
+        }
       />
 
       <PatronSettingsForm settings={settings} canEdit={canEdit} />

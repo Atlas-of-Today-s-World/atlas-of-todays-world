@@ -26,3 +26,26 @@ export const UiTextInput = z
     const problem = overrideProblem(key, value);
     if (problem) ctx.addIssue({ code: "custom", path: [problem.field], message: problem.message });
   });
+
+/** Most texts one form saves at once (a page's texts in Admin → Site pages). */
+const MAX_TEXTS = 400;
+
+/**
+ * Several UI texts saved together (posted as `key → text`), each checked like
+ * `UiTextInput`; an error sits under its key.
+ */
+export const UiTextsInput = z
+  .record(
+    z.string().max(200),
+    z
+      .string()
+      .max(MAX_TEXT_LENGTH * 2, `At most ${MAX_TEXT_LENGTH} characters.`)
+      .transform(normalizeText),
+  )
+  .refine((texts) => Object.keys(texts).length <= MAX_TEXTS, "Too many texts at once.")
+  .superRefine((texts, ctx) => {
+    for (const [key, value] of Object.entries(texts)) {
+      const problem = overrideProblem(key, value);
+      if (problem) ctx.addIssue({ code: "custom", path: [key], message: problem.message });
+    }
+  });
