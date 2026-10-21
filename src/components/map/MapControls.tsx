@@ -5,6 +5,7 @@ import EncyclopediaDock from "@/components/EncyclopediaDock";
 import { MAP_CONTROLS_LEFT, RAIL_OFFSET, isFullPage, isHome, railKind } from "@/config/layout";
 import { cn } from "@/lib/cn";
 import type { EntryTile } from "@/features/topics/types";
+import { openIssueSlug } from "./global-issues";
 import { IssueMenu, type IssueMenuItem } from "./IssueMenu";
 import { LatestEntries } from "./LatestEntries";
 import { useMapState } from "./MapContext";
@@ -14,7 +15,8 @@ import ViewSwitcher, { type ViewOption } from "./ViewSwitcher";
 /**
  * Bar over the map, top right: countries/regions/global issues switcher, data
  * layer switcher and search; under them the latest entries (home, desktop only), or the
- * global issues as tiles while that mode is on. When a
+ * global issues as tiles while that mode is on and no issue is open (an open
+ * issue, like a country or region profile, has its panel instead). When a
  * region or country profile is open, it moves left so the white panel doesn't cover it. On phones the bar
  * spans the width (switches on one row, search under them) and steps aside
  * while a panel is open: the bottom sheet needs the room, the globe above it
@@ -60,7 +62,7 @@ export default function MapControls({
       </div>
       <EncyclopediaDock />
       {/* Global issues mode: the issues as tiles in the place of the latest entries. */}
-      {mode === "issue" && issues.length ? (
+      {mode === "issue" && issues.length && !openIssueSlug(pathname) ? (
         <IssueMenu items={issues} />
       ) : isHome(pathname) ? (
         <LatestEntries items={featured} />

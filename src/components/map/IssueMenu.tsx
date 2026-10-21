@@ -1,7 +1,6 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-import { usePathname } from "next/navigation";
 import { glassVariants } from "@/components/atlas/glass";
 import { kickerVariants } from "@/components/atlas/kicker";
 import { PhotoTile } from "@/components/atlas/PhotoTile";
@@ -12,7 +11,6 @@ import { StatusMark } from "@/components/portrait/ContentStatusBadge";
 import { format } from "@/lib/i18n/messages";
 import { cn } from "@/lib/cn";
 import { PHOTO_WIDTH } from "@/lib/images";
-import { openIssueSlug } from "./global-issues";
 import { routes } from "@/config/routes";
 
 export interface IssueMenuItem {
@@ -31,12 +29,11 @@ export interface IssueMenuItem {
  * the look of "Latest entries" (a group of countries has no name on the
  * globe, so without this nobody would know what is there): a photo tile per
  * issue with its topic count and how far the editors are. A click opens the
- * issue's panel; the open one is outlined. On phones a lower tile. "All global
- * issues" leads to the overview page with the cards and filters.
+ * issue's panel, which takes the menu's place (MapControls). On phones a lower
+ * tile. "All global issues" leads to the overview page with the cards and filters.
  */
 export function IssueMenu({ items }: { items: IssueMenuItem[] }) {
   const t = useMessages();
-  const open = openIssueSlug(usePathname());
   if (!items.length) return null;
 
   const status = { ready: t.map.statusReady, preparing: t.map.statusPreparing, none: "" };
@@ -58,37 +55,32 @@ export function IssueMenu({ items }: { items: IssueMenuItem[] }) {
         </Link>
       </div>
       <ul className="grid max-h-[min(50dvh,24rem)] [scrollbar-width:thin] grid-cols-2 gap-2 overflow-y-auto sm:mt-2">
-        {items.map((item) => {
-          const current = item.slug === open;
-          return (
-            <li key={item.slug}>
-              <PhotoTile
-                href={routes.issue(item.slug)}
-                aria-current={current ? "page" : undefined}
-                size="sm"
-                tone="dark"
-                effect="lift"
-                active={current}
-                className="h-20 sm:h-24"
-                image={item.hero}
-                background={item.fill}
-                width={PHOTO_WIDTH.thumb}
-                kicker={
-                  <span className="flex items-center gap-1">
-                    {item.topics === 1
-                      ? t.map.topicsOne
-                      : format(t.map.topicsCount, { count: String(item.topics) })}
-                    <StatusMark status={item.status} />
-                    {status[item.status] ? (
-                      <span className="sr-only">({status[item.status]})</span>
-                    ) : null}
-                  </span>
-                }
-                title={item.name}
-              />
-            </li>
-          );
-        })}
+        {items.map((item) => (
+          <li key={item.slug}>
+            <PhotoTile
+              href={routes.issue(item.slug)}
+              size="sm"
+              tone="dark"
+              effect="lift"
+              className="h-20 sm:h-24"
+              image={item.hero}
+              background={item.fill}
+              width={PHOTO_WIDTH.thumb}
+              kicker={
+                <span className="flex items-center gap-1">
+                  {item.topics === 1
+                    ? t.map.topicsOne
+                    : format(t.map.topicsCount, { count: String(item.topics) })}
+                  <StatusMark status={item.status} />
+                  {status[item.status] ? (
+                    <span className="sr-only">({status[item.status]})</span>
+                  ) : null}
+                </span>
+              }
+              title={item.name}
+            />
+          </li>
+        ))}
       </ul>
     </section>
   );
