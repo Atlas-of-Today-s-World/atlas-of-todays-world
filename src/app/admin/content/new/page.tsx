@@ -4,20 +4,24 @@ import { PageHeader } from "@/components/admin/PageHeader";
 import { sectionAccess } from "@/features/auth/access";
 import { listAuthors } from "@/features/authors/editorial";
 import { EntryForm } from "@/features/entries/components/EntryForm";
-import { getPickerOptions } from "@/features/geography/queries";
+import { getCountryGroups, getPickerOptions } from "@/features/geography/queries";
 
 export const metadata: Metadata = { title: "New entry" };
 
 export default async function NewEntryPage() {
   if (!(await sectionAccess("news", "c"))) return <NoAccess />;
-  const [options, authors] = await Promise.all([getPickerOptions(), listAuthors()]);
+  const [options, authors, groups] = await Promise.all([
+    getPickerOptions(),
+    listAuthors(),
+    getCountryGroups(),
+  ]);
   return (
     <>
       <PageHeader
         title="New entry"
         lead="The entry is created as your draft with the default template's resource tiles; add subtopics and links after saving. It goes live only after approval."
       />
-      <EntryForm entry={null} authors={authors} {...options} />
+      <EntryForm entry={null} authors={authors} groups={groups} {...options} />
     </>
   );
 }

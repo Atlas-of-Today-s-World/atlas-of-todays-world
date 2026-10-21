@@ -2,7 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ActionStatus } from "@/components/admin/ActionStatus";
-import { CountryPicker, type CountryOption } from "@/components/admin/CountryPicker";
+import {
+  CountryPicker,
+  type CountryGroups,
+  type CountryOption,
+} from "@/components/admin/CountryPicker";
 import { RegionSelect, type PlaceOption } from "@/components/admin/RegionSelect";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { Button } from "@/components/ui/button";
@@ -34,6 +38,7 @@ export function EntryForm({
   regions,
   issues,
   countries,
+  groups,
   authors,
   defaultKind = "entry",
 }: {
@@ -43,6 +48,8 @@ export function EntryForm({
   regions: PlaceOption[];
   issues: PlaceOption[];
   countries: CountryOption[];
+  /** Regions and custom regions whose countries can be added at once. */
+  groups: CountryGroups[];
   authors: { id: string; name: string }[];
 }) {
   const [state, action] = useServerAction(saveEntry);
@@ -53,6 +60,8 @@ export function EntryForm({
   const [generation, setGeneration] = useState(0);
   const slug = useSlug(entry?.slug);
   const [kind, setKind] = useState(entry?.kind ?? defaultKind);
+  // The chosen region: its countries can be added with one button.
+  const [region, setRegion] = useState(entry?.region_slug ?? "");
   // "Planned entry only" ticked: the tile label is offered.
   const [planned, setPlanned] = useState(entry?.status === "planned");
   const isEntry = kind === "entry";
@@ -73,6 +82,7 @@ export function EntryForm({
     setValues(restored);
     slug.restore(published ? undefined : (restored.slug ?? ""));
     if (restored.kind) setKind(restored.kind);
+    setRegion(restored.region_slug ?? "");
     setPlanned(restored.status === "planned");
     setGeneration((n) => n + 1);
     backup.accept();
@@ -157,7 +167,7 @@ export function EntryForm({
           </Select>
         </FormField>
         <FormField id="region_slug" label="Region" errors={errors.region_slug}>
-          <RegionSelect options={regions} defaultValue={values?.region_slug} />
+          <RegionSelect options={regions} defaultValue={values?.region_slug} onChange={setRegion} />
         </FormField>
         <FormField
           id="special_slug"
@@ -184,6 +194,10 @@ export function EntryForm({
           name="countries"
           options={countries}
           defaultSelected={values?.countries ?? []}
+          groups={groups}
+          shortcut={
+            groups.flatMap((set) => set.options).find((option) => option.key === region) ?? null
+          }
         />
       </FormField>
 

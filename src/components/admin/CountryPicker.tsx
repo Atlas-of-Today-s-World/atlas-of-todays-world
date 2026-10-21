@@ -104,10 +104,56 @@ function GroupActions({
 }
 
 /**
+ * One button for the group the form already names (an article's region):
+ * "Add all N countries of …". Says what it did, like GroupActions.
+ */
+function GroupShortcut({
+  group,
+  selected,
+  known,
+  onChange,
+}: {
+  group: CountryGroupOption;
+  selected: string[];
+  known: ReadonlySet<string>;
+  onChange: (next: string[]) => void;
+}) {
+  const [note, setNote] = useState("");
+  const missing = group.countries.filter((iso3) => known.has(iso3) && !selected.includes(iso3));
+  return (
+    <div className="grid gap-1.5">
+      <div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={!missing.length}
+          onClick={() => {
+            const result = addGroup(selected, group.countries, known);
+            onChange(result.selected);
+            setNote(
+              `Added ${result.changed} ${result.changed === 1 ? "country" : "countries"} of ${group.name}.`,
+            );
+          }}
+        >
+          {missing.length
+            ? `Add all ${missing.length} ${missing.length === 1 ? "country" : "countries"} of ${group.name}`
+            : `All countries of ${group.name} added`}
+        </Button>
+      </div>
+      <p aria-live="polite" className="text-[12px] text-[var(--color-ink-muted)]">
+        {note}
+      </p>
+    </div>
+  );
+}
+
+/**
  * Multi-country picker (article, global issue, approver assignment, map
  * visual). Searches by name and ISO code; selected countries go into the form
  * as a repeated field (`name`) and/or to `onChange`.
- * With `groups`, whole regions or custom regions can be added or removed at once.
+ * With `groups`, whole regions or custom regions can be added or removed at once;
+ * `shortcut` puts one of them (the article's region) on a button of its own.
  */
 export function CountryPicker({
   id,
@@ -115,6 +161,7 @@ export function CountryPicker({
   options,
   defaultSelected,
   groups,
+  shortcut,
   onChange,
 }: {
   id: string;
@@ -122,6 +169,7 @@ export function CountryPicker({
   options: CountryOption[];
   defaultSelected: string[];
   groups?: CountryGroups[];
+  shortcut?: CountryGroupOption | null;
   onChange?: (selected: string[]) => void;
 }) {
   const [selected, setSelectedState] = useState<string[]>(defaultSelected);
@@ -209,6 +257,15 @@ export function CountryPicker({
             </li>
           ))}
         </ul>
+      ) : null}
+      {shortcut?.countries.length ? (
+        <GroupShortcut
+          key={shortcut.key}
+          group={shortcut}
+          selected={selected}
+          known={new Set(byIso.keys())}
+          onChange={setSelected}
+        />
       ) : null}
       {groups?.some((set) => set.options.length) ? (
         <GroupActions

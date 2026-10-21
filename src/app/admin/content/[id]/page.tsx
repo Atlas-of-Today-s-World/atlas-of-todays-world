@@ -99,6 +99,7 @@ export default async function EditEntryPage({
     authors,
     parts,
     templates,
+    groups,
   ] = await Promise.all([
     getPickerOptions(),
     listRevisions(id),
@@ -107,6 +108,7 @@ export default async function EditEntryPage({
     listAuthors(),
     isEntry ? getEntryParts(id) : Promise.resolve(null),
     isEntry ? listTemplates() : Promise.resolve([]),
+    getCountryGroups(),
   ]);
   const { saved, tab: tabParam, visual } = await searchParams;
   const tab: Tab =
@@ -149,7 +151,7 @@ export default async function EditEntryPage({
           {canEdit ? (
             <>
               {tab === "article" ? (
-                <EntryForm entry={entry} authors={authors} {...options} />
+                <EntryForm entry={entry} authors={authors} groups={groups} {...options} />
               ) : null}
               {parts && tab === "topics" ? (
                 <ChaptersEditor

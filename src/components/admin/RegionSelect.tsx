@@ -17,15 +17,23 @@ export function RegionSelect({
   options,
   defaultValue,
   emptyLabel = "— no region —",
+  onChange,
 }: {
   id?: string;
   name?: string;
   options: PlaceOption[];
   defaultValue: string | null | undefined;
   emptyLabel?: string;
+  /** The slug picked ("" for none). */
+  onChange?: (slug: string) => void;
 }) {
   return (
-    <Select id={id} name={name} defaultValue={defaultValue ?? ""}>
+    <Select
+      id={id}
+      name={name}
+      defaultValue={defaultValue ?? ""}
+      onChange={onChange ? (event) => onChange(event.target.value) : undefined}
+    >
       <option value="">{emptyLabel}</option>
       {options.map((option) => (
         <option key={option.slug} value={option.slug}>
