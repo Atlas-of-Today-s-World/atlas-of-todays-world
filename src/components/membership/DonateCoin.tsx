@@ -8,7 +8,7 @@ import { routes } from "@/config/routes";
 const EDGE = [-1, -0.5, 0, 0.5, 1];
 
 /**
- * Small glass button with a slowly turning gold coin, linking to the Atlas
+ * Small red pill with a slowly turning gold coin, linking to the Atlas
  * Patrons donation page. On narrow screens only the coin shows (the label
  * stays for screen readers). The pill is 35 px tall; an invisible margin keeps
  * the 44 px touch target.
@@ -21,7 +21,7 @@ export function DonateCoin({ label, className }: { label: string; className?: st
       prefetchOnIntent
       data-print="hide"
       className={cn(
-        glassVariants({ kind: "pill" }),
+        glassVariants({ kind: "pill", tone: "support" }),
         "group focus-visible:outline-[var(--color-gold)]",
         className,
       )}
