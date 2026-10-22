@@ -65,6 +65,7 @@ export function ArticleHero({
   title,
   subtitle,
   summary,
+  children,
 }: {
   image?: string | null;
   /** Alternative text of the photo (the page's title). */
@@ -84,6 +85,8 @@ export function ArticleHero({
   /** A short line under the title (a global issue's subtitle). */
   subtitle?: string;
   summary?: string;
+  /** More under the title, on the photo (an entry's author, dates and key points). */
+  children?: ReactNode;
 }) {
   const hero = safeUrl(image);
   return (
@@ -126,6 +129,7 @@ export function ArticleHero({
         {summary ? (
           <p className="mt-4 text-[15px] leading-relaxed text-white/80 sm:text-[17px]">{summary}</p>
         ) : null}
+        {children}
       </div>
       {credit ? <PhotoCredit>{credit}</PhotoCredit> : null}
     </header>

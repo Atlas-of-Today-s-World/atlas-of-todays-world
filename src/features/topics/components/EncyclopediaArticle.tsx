@@ -26,7 +26,7 @@ import type {
   EntryChapter as Chapter,
   LearnMoreTile,
 } from "@/features/entries/types";
-import { META_LINE, PlaceLinks } from "./ArticleFrame";
+import { PlaceLinks } from "./ArticleFrame";
 import { DossierExplorer } from "./DossierExplorer";
 import { OpenOnHash } from "./OpenOnHash";
 import { ReadingProgress } from "./ReadingProgress";
@@ -45,7 +45,7 @@ const CHEVRON = "size-4 transition-transform group-open:rotate-180";
 
 /**
  * Encyclopedia entry presented as a dossier on a full-width page (FullPage),
- * also for the preview: a photo header with the title, author and summary,
+ * also for the preview: a photo header with the title, author, dates and key points,
  * the row of chapter cards with the open chapter below, "Learn more" tiles,
  * FAQ and the author's bio. The globe window bottom left turns to the region.
  */
@@ -92,11 +92,13 @@ export async function EncyclopediaArticle({
           ]}
           share={share ? item.title : undefined}
           title={item.title}
-        />
+        >
+          <EntryHeader item={item} atlas={atlas} />
+        </ArticleHero>
 
         <div className={ARTICLE_BODY}>
           {/* Text runs the full width of the content, like the tile rows below. */}
-          <EntryHeader item={item} atlas={atlas} />
+          <InShort item={item} />
           {item.html ? <SafeHtml className="prose-atlas mt-7" html={item.html} /> : null}
           {/* The topic's history right after its intro; without events nothing is shown. */}
           {item.timeline ? (
@@ -163,7 +165,10 @@ export async function EncyclopediaArticle({
   );
 }
 
-/** Author with photo (click scrolls to the bio), dates and summary bullets. */
+/**
+ * On the photo, under the title: places and reading time, the key points at
+ * the left, the author (click scrolls to the bio) and dates at the right.
+ */
 async function EntryHeader({ item, atlas }: { item: Encyclopedia; atlas: Atlas }) {
   const t = (await getT()).article;
   const locale = getRequestLocale();
@@ -171,79 +176,82 @@ async function EntryHeader({ item, atlas }: { item: Encyclopedia; atlas: Atlas }
   const photo = cssBackgroundImage(author?.photo, PHOTO_WIDTH.avatar);
   return (
     <>
-      <p className={META_LINE}>
-        <PlaceLinks item={item} atlas={atlas} />
+      <p className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-white/75">
+        <PlaceLinks item={item} atlas={atlas} tone="dark" />
         {item.readingMinutes ? (
           <span>{format(t.minRead, { minutes: String(item.readingMinutes) })}</span>
         ) : null}
       </p>
 
-      <div className="mt-5 flex flex-wrap items-center gap-3">
-        {author ? (
-          <a
-            href={`#${AUTHOR_ID}`}
-            className="flex min-h-(--touch-min) items-center gap-3 rounded-full pr-3 transition hover:bg-[var(--color-line)]/30"
-          >
-            {photo ? (
-              <span
-                role="img"
-                aria-label={format(t.photoOf, { name: author.name })}
-                className="size-11 shrink-0 rounded-full bg-cover bg-center"
-                style={{ backgroundImage: photo }}
-              />
-            ) : null}
-            <span className="text-[13px] font-medium text-[var(--color-ink)]">
-              {format(t.by, { author: author.name })}
-            </span>
-          </a>
-        ) : item.author ? (
-          <span className="text-[13px] font-medium text-[var(--color-ink)]">
-            {format(t.by, { author: item.author })}
-          </span>
+      <div className="mt-5 grid gap-x-10 gap-y-5 md:grid-cols-[minmax(0,1fr)_minmax(0,17rem)]">
+        {item.summaryPoints.length ? (
+          <section id="key-points" aria-label={t.summary}>
+            <ul className="list-disc space-y-1.5 pl-5 text-[14px] leading-relaxed text-white/90 marker:text-white/60 sm:text-[15px]">
+              {item.summaryPoints.map((point) => (
+                <li key={point}>{point}</li>
+              ))}
+            </ul>
+          </section>
         ) : null}
-        <dl className="ml-auto grid grid-cols-[auto_auto] gap-x-2 text-[11.5px] text-[var(--color-ink-muted)]">
-          {item.published ? (
-            <>
-              <dt>{t.published}</dt>
-              <dd>
-                <time dateTime={item.published}>{formatLongDate(item.published, locale)}</time>
-              </dd>
-            </>
+
+        <div className="flex flex-col items-start gap-2 md:col-start-2">
+          {author ? (
+            <a
+              href={`#${AUTHOR_ID}`}
+              className="-ml-1 flex min-h-(--touch-min) items-center gap-3 rounded-full pr-3 pl-1 transition hover:bg-white/10"
+            >
+              {photo ? (
+                <span
+                  role="img"
+                  aria-label={format(t.photoOf, { name: author.name })}
+                  className="size-10 shrink-0 rounded-full bg-cover bg-center"
+                  style={{ backgroundImage: photo }}
+                />
+              ) : null}
+              <span className="text-[13px] font-medium text-white">
+                {format(t.by, { author: author.name })}
+              </span>
+            </a>
+          ) : item.author ? (
+            <span className="text-[13px] font-medium text-white">
+              {format(t.by, { author: item.author })}
+            </span>
           ) : null}
-          {item.updated && item.updated !== item.published ? (
-            <>
-              <dt>{t.updated}</dt>
-              <dd>
-                <time dateTime={item.updated}>{formatLongDate(item.updated, locale)}</time>
-              </dd>
-            </>
-          ) : null}
-        </dl>
+          <dl className="grid grid-cols-[auto_auto] gap-x-2 text-[11.5px] text-white/70">
+            {item.published ? (
+              <>
+                <dt>{t.published}</dt>
+                <dd className="text-white/90">
+                  <time dateTime={item.published}>{formatLongDate(item.published, locale)}</time>
+                </dd>
+              </>
+            ) : null}
+            {item.updated && item.updated !== item.published ? (
+              <>
+                <dt>{t.updated}</dt>
+                <dd className="text-white/90">
+                  <time dateTime={item.updated}>{formatLongDate(item.updated, locale)}</time>
+                </dd>
+              </>
+            ) : null}
+          </dl>
+        </div>
       </div>
-
-      {item.seo.geoSummary ? (
-        <section id="in-short" aria-label={t.inShort} className="mt-6">
-          <p className={kickerVariants()}>{t.inShort}</p>
-          <p className="mt-1.5 text-[14.5px] leading-relaxed text-[var(--color-ink)]">
-            {item.seo.geoSummary}
-          </p>
-        </section>
-      ) : null}
-
-      {item.summaryPoints.length ? (
-        <section
-          id="key-points"
-          aria-label={t.summary}
-          className="mt-6 rounded-xl bg-[var(--color-line)]/25 p-4"
-        >
-          <ul className="list-disc space-y-1.5 pl-5 text-[13.5px] leading-relaxed text-[var(--color-ink)]">
-            {item.summaryPoints.map((point) => (
-              <li key={point}>{point}</li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
     </>
+  );
+}
+
+/** The answer-first summary (GEO), at the top of the text. */
+async function InShort({ item }: { item: Encyclopedia }) {
+  if (!item.seo.geoSummary) return null;
+  const t = (await getT()).article;
+  return (
+    <section id="in-short" aria-label={t.inShort}>
+      <p className={kickerVariants()}>{t.inShort}</p>
+      <p className="mt-1.5 text-[14.5px] leading-relaxed text-[var(--color-ink)]">
+        {item.seo.geoSummary}
+      </p>
+    </section>
   );
 }
 

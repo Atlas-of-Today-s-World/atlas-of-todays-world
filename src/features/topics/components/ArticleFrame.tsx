@@ -12,6 +12,7 @@ import { categoryLabel } from "@/lib/content-types";
 import { safeUrl } from "@/lib/security/urls";
 import type { EntrySummary } from "@/features/entries/types";
 import { routes } from "@/config/routes";
+import { cn } from "@/lib/cn";
 
 /**
  * Shared frame for news items and encyclopedia entries: a map focused on the region,
@@ -86,7 +87,16 @@ export async function ArticleFrame({
 }
 
 /** The article's region and global issue as links in the details row. */
-export function PlaceLinks({ item, atlas }: { item: EntrySummary; atlas: Atlas }) {
+export function PlaceLinks({
+  item,
+  atlas,
+  tone = "light",
+}: {
+  item: EntrySummary;
+  atlas: Atlas;
+  /** `dark`: on a photo header (white text). */
+  tone?: "light" | "dark";
+}) {
   const region = item.region ? atlas.regionBySlug.get(item.region) : undefined;
   const issue = item.issue ? atlas.issueBySlug.get(item.issue) : undefined;
   return (
@@ -94,7 +104,10 @@ export function PlaceLinks({ item, atlas }: { item: EntrySummary; atlas: Atlas }
       {region ? (
         <Link
           href={routes.region(region.slug)}
-          className="font-medium text-[var(--color-link)] hover:underline"
+          className={cn(
+            "font-medium hover:underline",
+            tone === "dark" ? "text-white" : "text-[var(--color-link)]",
+          )}
         >
           {region.name}
         </Link>
@@ -103,7 +116,12 @@ export function PlaceLinks({ item, atlas }: { item: EntrySummary; atlas: Atlas }
         <Link
           href={routes.issue(issue.slug)}
           // A small chip in the details row; touch-hit keeps a 44 px target around it.
-          className="touch-hit relative rounded-full border border-[var(--color-line)] px-2 py-0.5 font-medium text-[var(--color-link)] transition hover:border-[var(--color-accent)]"
+          className={cn(
+            "touch-hit relative rounded-full border px-2 py-0.5 font-medium transition",
+            tone === "dark"
+              ? "border-white/40 text-white hover:border-white"
+              : "border-[var(--color-line)] text-[var(--color-link)] hover:border-[var(--color-accent)]",
+          )}
         >
           {issue.name}
         </Link>
