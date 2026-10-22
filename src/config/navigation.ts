@@ -40,6 +40,7 @@ export const MAIN_NAV: readonly NavItem[] = [
   // Over the globe the map itself leads to a country; the list waits in the full menu.
   { href: routes.countries, key: "countries", compactHidden: true },
   { href: routes.about, key: "about" },
+  { href: routes.careers, key: "careers" },
   { href: routes.membership, key: "patrons", primary: true },
 ];
 
