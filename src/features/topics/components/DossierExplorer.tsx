@@ -184,7 +184,7 @@ export function DossierExplorer({
         {topics.length ? (
           <section aria-labelledby="dossier-topics" className="lg:col-span-3">
             <h2 id="dossier-topics" className={DOSSIER_HEADING}>
-              {labels.articles ?? t.chapters}
+              {labels.articles ?? t.subtopics}
             </h2>
             <ul className={cn(SUBTOPIC_GRID, DOSSIER_GAP)}>
               {topics.map((topic, index) => {
@@ -278,7 +278,7 @@ export function DossierExplorer({
         <TopicJumpBar
           topics={topics}
           open={open}
-          heading={labels.articles ?? t.chapters}
+          heading={labels.articles ?? t.subtopics}
           after={tilesRef}
           // Like Previous / Next: open it and start reading from its top.
           onChoose={(id) => choose(id, "start")}

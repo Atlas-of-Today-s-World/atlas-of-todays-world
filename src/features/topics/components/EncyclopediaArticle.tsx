@@ -28,6 +28,7 @@ import type {
 } from "@/features/entries/types";
 import { PlaceLinks } from "./ArticleFrame";
 import { DossierExplorer } from "./DossierExplorer";
+import { FullReading } from "./FullReading";
 import { OpenOnHash } from "./OpenOnHash";
 import { ReadingProgress } from "./ReadingProgress";
 import { categoryLabel } from "@/lib/content-types";
@@ -313,18 +314,53 @@ async function TopicPanel({ chapter, index }: { chapter: Chapter; index: number 
       ) : null}
       <ShareButton title={chapter.title} hash={id} className="mt-3" />
       {chapter.summaryPoints.length ? (
-        <ul className="mt-4 list-disc space-y-1 pl-5 text-[14px] leading-relaxed text-[var(--color-ink-soft)]">
-          {chapter.summaryPoints.map((point) => (
-            <li key={point}>{point}</li>
-          ))}
-        </ul>
-      ) : null}
-      <EntryAudio src={chapter.audio} title={chapter.title} />
-      {chapter.html ? <SafeHtml className="prose-atlas mt-5" html={chapter.html} /> : null}
+        // The Overview box first; the whole text only on "Full Reading".
+        <FullReading
+          label={t.fullReading}
+          overview={
+            <>
+              <p className="inline-flex rounded-full bg-[var(--color-ink-muted)] px-2.5 py-0.5 text-[12px] font-semibold text-white">
+                {t.overview}
+              </p>
+              <Overview points={chapter.summaryPoints} />
+              <EntryAudio src={chapter.audio} title={chapter.title} />
+            </>
+          }
+        >
+          <ChapterText chapter={chapter} id={id} />
+        </FullReading>
+      ) : (
+        <>
+          <EntryAudio src={chapter.audio} title={chapter.title} />
+          <ChapterText chapter={chapter} id={id} />
+        </>
+      )}
+    </section>
+  );
+}
+
+/** A subtopic's overview: one point reads as a paragraph, more as a list. */
+function Overview({ points }: { points: string[] }) {
+  const text = "mt-3 text-[15px] leading-relaxed text-[var(--color-ink)]";
+  if (points.length === 1) return <p className={text}>{points[0]}</p>;
+  return (
+    <ul className={`${text} list-disc space-y-1.5 pl-5`}>
+      {points.map((point) => (
+        <li key={point}>{point}</li>
+      ))}
+    </ul>
+  );
+}
+
+/** A subtopic's whole text and its maps & charts. */
+function ChapterText({ chapter, id }: { chapter: Chapter; id: string }) {
+  return (
+    <>
+      {chapter.html ? <SafeHtml className="prose-atlas mt-6" html={chapter.html} /> : null}
       {chapter.visuals.length ? (
         <VisualsCarousel items={chapter.visuals} variant="inline" id={`${id}-maps`} />
       ) : null}
-    </section>
+    </>
   );
 }
 
