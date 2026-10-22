@@ -92,7 +92,6 @@ export async function EncyclopediaArticle({
           ]}
           share={share ? item.title : undefined}
           title={item.title}
-          summary={item.summary}
         />
 
         <div className={ARTICLE_BODY}>
