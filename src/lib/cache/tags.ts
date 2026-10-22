@@ -41,6 +41,8 @@ export const tags = {
   home: "home",
   /** One editable site page (site_pages: about, privacy, terms, accessibility). */
   sitePage: (slug: string) => `page:${slug}`,
+  /** Open positions on /careers (job_positions). */
+  careers: "careers",
   /** Site settings and social links (publisher facts, contact, SEO defaults, footer). */
   site: "site",
   /** The team's changes to the public UI texts (ui_text_overrides) — every public page uses them. */

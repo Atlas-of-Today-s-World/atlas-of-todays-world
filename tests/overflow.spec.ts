@@ -19,6 +19,8 @@ const PAGES = [
   "/membership",
   "/membership/checkout?period=monthly&amount=10",
   "/newsletter",
+  "/careers",
+  "/careers/editor",
   "/search?q=Japan",
   "/login",
   "/this-page-does-not-exist",

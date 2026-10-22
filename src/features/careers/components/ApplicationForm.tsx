@@ -1,0 +1,171 @@
+"use client";
+
+import { useEffect, useId, useRef } from "react";
+import Link from "@/components/i18n/Link";
+import { routes } from "@/config/routes";
+import { useMessages } from "@/components/i18n/LocaleProvider";
+import { ActionForm, useServerAction } from "@/components/ui/action-form";
+import { buttonVariants } from "@/components/ui/button";
+import { describedBy, FormField, Input, RequiredNote, Textarea } from "@/components/ui/field";
+import { Turnstile } from "@/components/ui/turnstile";
+import { useFormErrors } from "@/lib/use-form-errors";
+import { applyForPosition } from "../actions";
+import { CV_ACCEPT, CV_MAX_BYTES } from "../cv";
+import { MESSAGE_MAX } from "../limits";
+
+/**
+ * Application for one open position (Server Action `applyForPosition`): name,
+ * e-mail, a CV file and a message of a few paragraphs. Works like the
+ * volunteer form: explicit consent, honeypot `website`, field errors (message
+ * codes) under their fields, a thank-you note that takes the focus, and the
+ * Turnstile widget when `captcha` (both keys set on the server).
+ */
+export function ApplicationForm({ positionId, captcha }: { positionId: string; captcha: boolean }) {
+  const messages = useMessages();
+  const t = messages.careersPage.form;
+  const id = useId();
+  const [state, action, pending] = useServerAction(applyForPosition);
+  const texts: Record<string, string> = t.messages;
+  const text = (code: string) => texts[code] ?? texts.failed;
+  const { form, hasFieldErrors, errorsOf } = useFormErrors(state, text);
+  const thanksRef = useRef<HTMLParagraphElement>(null);
+  const formError = state.error && !hasFieldErrors ? text(state.error) : null;
+
+  useEffect(() => {
+    if (state.ok) thanksRef.current?.focus();
+  }, [state.ok]);
+
+  if (state.ok) {
+    return (
+      <p
+        ref={thanksRef}
+        role="status"
+        tabIndex={-1}
+        className="rounded-xl bg-[var(--color-success-soft)] p-5 text-[14px] text-[var(--color-success)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
+      >
+        {text(state.message ?? "thanks")}
+      </p>
+    );
+  }
+
+  const field = (name: string) => ({
+    id: `${id}-${name}`,
+    errors: errorsOf(name),
+  });
+  const name = field("name");
+  const email = field("email");
+  const cv = field("cv");
+  const message = field("message");
+  const consent = field("consent");
+
+  return (
+    <ActionForm ref={form} action={action} className="grid gap-4 sm:grid-cols-2">
+      <input type="hidden" name="position_id" value={positionId} />
+      <RequiredNote label={t.requiredNote} className="sm:col-span-2" />
+      <FormField {...name} label={t.name} required>
+        <Input
+          id={name.id}
+          name="name"
+          required
+          maxLength={120}
+          autoComplete="name"
+          {...describedBy(name.id, name)}
+        />
+      </FormField>
+      <FormField {...email} label={t.email} required>
+        <Input
+          id={email.id}
+          name="email"
+          type="email"
+          inputMode="email"
+          required
+          maxLength={254}
+          autoComplete="email"
+          {...describedBy(email.id, email)}
+        />
+      </FormField>
+      <FormField {...cv} label={t.cv} hint={t.cvHint} required className="sm:col-span-2">
+        <Input
+          id={cv.id}
+          name="cv"
+          type="file"
+          required
+          accept={CV_ACCEPT}
+          // Over the limit the request would be refused before our action runs: say so here.
+          onChange={(event) => {
+            const input = event.currentTarget;
+            const file = input.files?.[0];
+            input.setCustomValidity(file && file.size > CV_MAX_BYTES ? t.messages.cvTooLarge : "");
+            input.reportValidity();
+          }}
+          className="file:mr-3 file:rounded-md file:border-0 file:bg-[var(--color-surface-muted)] file:px-3 file:py-1.5 file:text-[13px] file:font-medium file:text-[var(--color-ink)]"
+          {...describedBy(cv.id, { hint: t.cvHint, errors: cv.errors })}
+        />
+      </FormField>
+      <FormField
+        {...message}
+        label={t.message}
+        hint={t.messageHint}
+        required
+        className="sm:col-span-2"
+      >
+        <Textarea
+          id={message.id}
+          name="message"
+          rows={9}
+          required
+          maxLength={MESSAGE_MAX}
+          {...describedBy(message.id, { hint: t.messageHint, errors: message.errors })}
+        />
+      </FormField>
+      <div className="sm:col-span-2">
+        <label className="flex items-start gap-2.5 text-[13px] leading-relaxed text-[var(--color-ink-soft)]">
+          <input
+            id={consent.id}
+            type="checkbox"
+            name="consent"
+            required
+            className="mt-1 size-4 shrink-0"
+            {...describedBy(consent.id, consent)}
+          />
+          <span>
+            {t.consent}{" "}
+            <Link href={routes.privacy} className="text-[var(--color-link)] underline">
+              {t.privacyLink}
+            </Link>
+            .
+            <span aria-hidden className="text-[var(--color-danger)]">
+              {" "}
+              *
+            </span>
+          </span>
+        </label>
+        {consent.errors ? (
+          <p id={`${consent.id}-error`} className="mt-1.5 text-[12px] text-[var(--color-danger)]">
+            {consent.errors[0]}
+          </p>
+        ) : null}
+      </div>
+      {captcha ? <Turnstile reset={state} className="sm:col-span-2" /> : null}
+      {/* Honeypot for bots: a field invisible to humans. */}
+      <input
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden
+        className="hidden"
+      />
+      <div className="flex flex-wrap items-center gap-4 sm:col-span-2">
+        <button type="submit" disabled={pending} className={buttonVariants({ size: "md" })}>
+          {pending ? messages.common.sending : t.submit}
+        </button>
+        {formError ? (
+          <p role="alert" className="text-[13px] text-[var(--color-danger)]">
+            {formError}
+          </p>
+        ) : null}
+      </div>
+    </ActionForm>
+  );
+}

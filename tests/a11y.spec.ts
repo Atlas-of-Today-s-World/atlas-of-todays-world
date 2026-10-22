@@ -16,6 +16,8 @@ const PAGES = [
   "/view/hdi",
   "/entries",
   "/about",
+  "/careers",
+  "/careers/editor",
   "/privacy",
   "/accessibility",
   "/login",

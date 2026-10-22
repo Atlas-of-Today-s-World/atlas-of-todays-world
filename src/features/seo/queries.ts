@@ -2,6 +2,7 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { BUILDER } from "@/config/organization";
 import { getAuthors } from "@/features/authors/queries";
+import { getOpenPositions } from "@/features/careers/queries";
 import { getEncyclopediaEntries } from "@/features/entries/queries";
 import type { Entry, EntrySummary } from "@/features/entries/types";
 import { getEncyclopediaEntry } from "@/features/entries/topic-queries";
@@ -71,11 +72,12 @@ export type SitemapName = (typeof SITEMAPS)[number];
 
 /** All URLs of the site, grouped into the child sitemaps of /sitemap.xml. */
 export async function getSitemaps(): Promise<Record<SitemapName, SitemapUrl[]>> {
-  const [atlas, entries, authors, stamps] = await Promise.all([
+  const [atlas, entries, authors, stamps, positions] = await Promise.all([
     getAtlas(),
     getEncyclopediaEntries(),
     getAuthors(),
     getLastModified(),
+    getOpenPositions(),
   ]);
   const dataChanged = latest(Object.values(stamps.indicator));
   const byAuthor = new Map<string, string[]>();
@@ -112,6 +114,11 @@ export async function getSitemaps(): Promise<Record<SitemapName, SitemapUrl[]>> 
       { path: routes.about, lastmod: dataChanged },
       { path: routes.newsletter },
       { path: routes.membership },
+      { path: routes.careers, lastmod: latest(positions.map((position) => position.updated_at)) },
+      ...positions.map((position) => ({
+        path: routes.career(position.slug),
+        lastmod: position.updated_at,
+      })),
       // The legal pages exist whatever the footer menu (Admin → Site menus) links to;
       // the Claude skills (English only) are linked from no menu at all.
       ...[routes.privacy, routes.terms, routes.accessibility, routes.skills].map((path) => ({

@@ -23,6 +23,7 @@ describe("routes", () => {
     expect(routes.view("hdi")).toBe("/view/hdi");
     expect(routes.view("hdi", "hun")).toBe("/view/hdi#hun");
     expect(routes.skill("atlas-web")).toBe("/skills/atlas-web");
+    expect(routes.career("editor")).toBe("/careers/editor");
   });
 
   it("builds the addresses of the skills' files", () => {
@@ -59,6 +60,7 @@ describe("routes", () => {
       about: "/about",
       search: "/search",
       newsletter: "/newsletter",
+      careers: "/careers",
       membership: "/membership",
       checkout: "/membership/checkout",
       thankYou: "/membership/thank-you",
@@ -128,6 +130,7 @@ describe("adminRoutes", () => {
       readers: "/admin/accounts?kind=readers",
       invitations: "/admin/accounts/invitations",
       volunteers: "/admin/volunteers",
+      careerApplications: "/admin/careers/applications",
       roles: "/admin/roles",
       audit: "/admin/roles/audit",
       members: "/admin/members",
@@ -158,6 +161,9 @@ describe("adminRoutes", () => {
     expect(adminRoutes.sitePages("about")).toBe("/admin/pages/about");
     expect(adminRoutes.patronFaq.new).toBe("/admin/patrons/faq/new");
     expect(adminRoutes.patronFaq("q1")).toBe("/admin/patrons/faq/q1");
+    expect(adminRoutes.careers.new).toBe("/admin/careers/new");
+    expect(adminRoutes.careers("p1")).toBe("/admin/careers/p1");
+    expect(adminRoutes.careerCv("a1")).toBe("/admin/careers/applications/a1/cv");
     expect(adminRoutes.siteSettings).toBe("/admin/site");
     expect(adminRoutes.socialLink("s1")).toBe("/admin/site/socials/s1");
     expect(adminRoutes.switches("maintenance")).toBe("/admin/switches/maintenance");

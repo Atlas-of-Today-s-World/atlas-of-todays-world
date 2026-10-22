@@ -66,6 +66,7 @@ flowchart TD
   Newsletter --> Patrons
   Newsletter --> Volunteer
   About["O projektu /about · Privacy · Terms · Accessibility"]
+  Careers["Kariéra /careers → pozice /careers/[slug]<br/>(přihláška: jméno, e-mail, CV, zpráva)"]
 ```
 
 Hlavní menu: Topics, News (jen když je zapnutý přepínač `news` ve feature flags), About,
@@ -181,6 +182,7 @@ timeline nezobrazují. Obsah ze starého webu: `scripts/webflow/import-portraits
 | Atlas Patrons (členství, dary) | `memberships` | Veřejně `/membership` → checkout → thank-you, `/membership/manage`; Admin → Patron memberships. |
 | Dobrovolní editoři | `volunteer_applications`, `volunteer_settings` | Formulář na `/membership#volunteer`; Admin → Volunteer editors. |
 | Newsletter | — (Mailchimp) | `/newsletter`, double opt-in mimo naši DB. |
+| Kariéra (pozice a přihlášky) | `job_positions`, `job_applications`, bucket `job-applications` (soukromý, CV) | Veřejně `/careers` (otevřené pozice) a `/careers/[slug]` (profil + formulář s CV); Admin → Careers (pozice: sekce `site` nebo `users`) a Careers → Applications (jen `users`, CV přes krátký podepsaný odkaz). |
 
 ## 3. Admin
 
@@ -200,6 +202,7 @@ timeline nezobrazují. Obsah ze starého webu: `scripts/webflow/import-portraits
 | Map appearance | `/admin/appearance` | `site_theme` |
 | Accounts & invitations, Roles & permissions | `/admin/accounts`, `/admin/roles` | účty, pozvánky, role (viz [Autentizace a role](06-autentizace-role.md)) |
 | Volunteer editors | `/admin/volunteers` | přihlášky dobrovolníků |
+| Careers | `/admin/careers`, `/admin/careers/applications` | `job_positions` (pozice na `/careers`), `job_applications` + CV |
 | Patron memberships | `/admin/members` | `memberships` |
 
 ## Stav k 7. 10. 2026 (po schůzce s týmem Atlasu)

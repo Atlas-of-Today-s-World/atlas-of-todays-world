@@ -680,6 +680,51 @@
     "editorText": "Know a country, a region or an issue well? Join our volunteer editors and help write and review entries.",
     "editorCta": "Apply as a volunteer editor"
   },
+  "careersPage": {
+    "title": "Careers",
+    "metaTitle": "Careers at the Atlas",
+    "description": "Join the team behind Atlas of Today’s World: open positions in editing, research and more. Apply online with your CV.",
+    "kicker": "Join the team",
+    "lead": "We are building an open, map-based encyclopedia of today’s world together with experts from around the globe. If you want to help, see the positions we are looking to fill below.",
+    "openTitle": "Open positions",
+    "none": "There are no open positions right now. You can still help: apply as a volunteer editor or follow our newsletter to hear when a position opens.",
+    "noneVolunteer": "Apply as a volunteer editor",
+    "noneNewsletter": "Sign up for the newsletter",
+    "details": "View the position",
+    "location": "Location",
+    "jobType": "Job type",
+    "allPositions": "All open positions",
+    "applyTitle": "Apply for this position",
+    "applyLead": "Send us your CV and a few paragraphs about yourself. We read every application and will get back to you.",
+    "applyCta": "Apply now",
+    "form": {
+      "name": "Your name",
+      "email": "E-mail",
+      "cv": "Your CV",
+      "cvHint": "PDF, Word (.doc, .docx) or OpenDocument (.odt), up to 4 MB.",
+      "message": "Your message",
+      "messageHint": "A few paragraphs: who you are, why this position, and links to relevant work samples.",
+      "consent": "I agree that the Atlas may keep these details and my CV to consider my application and contact me about it, as described in the",
+      "privacyLink": "privacy policy",
+      "submit": "Send application",
+      "requiredNote": "Required field",
+      "messages": {
+        "thanks": "Thank you! We have your application and will get in touch.",
+        "rateLimited": "Too many attempts. Try again in an hour.",
+        "invalidEmail": "Check the e-mail address.",
+        "name": "Enter your name.",
+        "message": "Write a few words about yourself.",
+        "tooLong": "That text is too long.",
+        "cv": "Attach your CV.",
+        "cvType": "Attach the CV as a PDF, Word or OpenDocument file.",
+        "cvTooLarge": "The CV is larger than 4 MB. Please send a smaller file.",
+        "closed": "This position is no longer open.",
+        "consent": "Please confirm the consent.",
+        "captcha": "Please complete the security check above the button, then send again.",
+        "failed": "Something went wrong. Try again later."
+      }
+    }
+  },
   "tab": {
     "comeBack": "Come back, we need you"
   },

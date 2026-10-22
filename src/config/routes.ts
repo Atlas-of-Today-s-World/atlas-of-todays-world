@@ -25,6 +25,7 @@ export const ROUTE_PREFIX = {
 const P = ROUTE_PREFIX;
 const SEARCH = "/search";
 const SKILLS = "/skills";
+const CAREERS = "/careers";
 const ADMIN = "/admin";
 const withAnchor = (path: string, anchor?: string | null) => (anchor ? `${path}#${anchor}` : path);
 /**
@@ -54,6 +55,8 @@ export const routes = {
   search: SEARCH,
   /** Newsletter sign-up page (the "Newsletter" button bottom right). */
   newsletter: "/newsletter",
+  /** Open positions in the team (features/careers); each has its own page with the application form. */
+  careers: CAREERS,
   /** Donation flow (Atlas Patrons). */
   membership: P.membership,
   checkout: `${P.membership}/checkout`,
@@ -93,6 +96,8 @@ export const routes = {
   /** An encyclopedia entry; `anchor` opens one of its subtopics. */
   entry: (slug: string, anchor?: string | null) => withAnchor(`${P.entries}/${slug}`, anchor),
   author: (slug: string) => `${P.author}/${slug}`,
+  /** One open position and its application form. */
+  career: (slug: string) => `${CAREERS}/${slug}`,
   /** One Claude skill as a page (its raw file and ZIPs: `skillFiles`). */
   skill: (name: string) => `${SKILLS}/${name}`,
   /** A data layer's ranking; `anchor` picks one country (`/view/hdi#hun`). */
@@ -218,6 +223,12 @@ export const adminRoutes = {
   readers: `${ADMIN}/accounts?kind=readers`,
   invitations: `${ADMIN}/accounts/invitations`,
   volunteers: `${ADMIN}/volunteers`,
+  /** Open positions by id (the /careers page). */
+  careers: editable(`${ADMIN}/careers`),
+  /** Applications to the positions, with their CVs. */
+  careerApplications: `${ADMIN}/careers/applications`,
+  /** One application's CV: a redirect to a short-lived signed URL (route handler). */
+  careerCv: (id: string) => `${ADMIN}/careers/applications/${id}/cv`,
   roles: `${ADMIN}/roles`,
   audit: `${ADMIN}/roles/audit`,
   members: `${ADMIN}/members`,

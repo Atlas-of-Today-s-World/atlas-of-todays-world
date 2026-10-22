@@ -18,6 +18,10 @@ const nextConfig: NextConfig = {
   // Usage: NEXT_DIST_DIR=.next-build npx next build
   distDir: process.env.NEXT_DIST_DIR || ".next",
   env: { MAPLIBRE_VERSION },
+  // A job application carries its CV (features/careers/cv.ts: at most 4 MB) through a
+  // Server Action; the default 1 MB would refuse most of them. Kept under Vercel's
+  // 4.5 MB request limit, so an oversized file gets our own error, not the platform's.
+  experimental: { serverActions: { bodySizeLimit: "4.5mb" } },
   // The published Claude skills are read from .claude/skills (features/skills/queries.ts).
   // Their pages and files are prerendered, but a page can re-render later (ISR of the
   // shared layout's data) and the admin list renders per request: ship the files with

@@ -1,5 +1,6 @@
 import {
   BadgeCheck,
+  BriefcaseBusiness,
   Brush,
   CircleUserRound,
   FileText,
@@ -112,6 +113,12 @@ export const ADMIN_NAV: readonly AdminNavItem[] = [
     icon: Users,
   },
   { href: adminRoutes.volunteers, label: "Volunteer editors", section: "users", icon: HandHeart },
+  {
+    href: adminRoutes.careers.list,
+    label: "Careers",
+    section: ["site", "users"],
+    icon: BriefcaseBusiness,
+  },
   {
     href: adminRoutes.roles,
     label: "Roles & permissions",

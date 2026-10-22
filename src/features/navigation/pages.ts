@@ -27,6 +27,7 @@ export const NAV_PAGE_CHOICES: readonly { label: string; href: string }[] = [
   { label: "About", href: routes.about },
   { label: "Atlas Patrons (membership)", href: routes.membership },
   { label: "Newsletter", href: routes.newsletter },
+  { label: "Careers", href: routes.careers },
   { label: "Search", href: routes.search },
   { label: "Privacy", href: routes.privacy },
   { label: "Terms", href: routes.terms },

@@ -1162,6 +1162,101 @@ export type Database = {
           },
         ]
       }
+      job_applications: {
+        Row: {
+          created_at: string
+          cv_name: string
+          cv_path: string
+          cv_size: number
+          email: string
+          id: string
+          message: string
+          name: string
+          position_id: string | null
+          position_title: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          cv_name: string
+          cv_path: string
+          cv_size: number
+          email: string
+          id?: string
+          message: string
+          name: string
+          position_id?: string | null
+          position_title: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          cv_name?: string
+          cv_path?: string
+          cv_size?: number
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          position_id?: string | null
+          position_title?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_applications_position_id_fkey"
+            columns: ["position_id"]
+            isOneToOne: false
+            referencedRelation: "job_positions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_positions: {
+        Row: {
+          body_html: string
+          created_at: string
+          id: string
+          job_type: string
+          location: string
+          opened_at: string | null
+          slug: string
+          status: string
+          summary: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body_html?: string
+          created_at?: string
+          id?: string
+          job_type?: string
+          location?: string
+          opened_at?: string | null
+          slug: string
+          status?: string
+          summary?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body_html?: string
+          created_at?: string
+          id?: string
+          job_type?: string
+          location?: string
+          opened_at?: string | null
+          slug?: string
+          status?: string
+          summary?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       learn_more_tiles: {
         Row: {
           background: string | null
@@ -3103,6 +3198,18 @@ export type Database = {
       }
       slugify_text: { Args: { p_text: string }; Returns: string }
       submit_entry: { Args: { p_entry: string }; Returns: undefined }
+      submit_job_application: {
+        Args: {
+          p_cv_name: string
+          p_cv_path: string
+          p_cv_size: number
+          p_email: string
+          p_message: string
+          p_name: string
+          p_position_id: string
+        }
+        Returns: undefined
+      }
       submit_volunteer_application: {
         Args: { p_email: string; p_message: string; p_name: string; p_topics: string }
         Returns: undefined
