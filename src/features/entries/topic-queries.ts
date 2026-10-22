@@ -25,6 +25,8 @@ export interface AuthorRow {
   photo_url: string | null;
   bio: string;
   positionality: string;
+  /** Missing in a preview from before the column (20261022000400). */
+  works_html?: string;
 }
 
 export interface ChapterRow {
@@ -161,6 +163,7 @@ export function toEncyclopedia(item: Entry, parts: EncyclopediaParts): Encyclope
           photo: author.photo_url ?? undefined,
           bio: author.bio,
           positionality: author.positionality,
+          worksHtml: sanitizeRichHtml(author.works_html ?? ""),
         }
       : undefined,
     chapters: [...parts.chapters].sort(byPosition).map((chapter) => ({

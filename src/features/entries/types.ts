@@ -59,7 +59,7 @@ export interface EntryChapter {
   title: string;
   /** Plain-text paragraphs of the Overview box (blank line between); "" = none. */
   overview: string;
-  /** 3–5 bullet points that open the chapter. */
+  /** Up to 6 bullet points in the chapter's Overview box. */
   summaryPoints: string[];
   /** Sanitized HTML of the whole chapter. */
   html: string;
@@ -82,6 +82,8 @@ export interface EntryAuthor {
   photo?: string;
   bio: string;
   positionality: string;
+  /** Sanitized HTML of the selected works; "" = none. */
+  worksHtml: string;
 }
 
 /** A "Learn more" tile of a dossier with what it holds in this dossier. */

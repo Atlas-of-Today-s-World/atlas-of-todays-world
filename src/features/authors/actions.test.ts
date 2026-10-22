@@ -52,6 +52,7 @@ function authorForm(overrides: Record<string, string> = {}) {
     photo_url: "",
     bio: "Writes about water.",
     positionality: "",
+    works_html: "",
     ...overrides,
   };
   for (const [key, value] of Object.entries(values)) form.set(key, value);

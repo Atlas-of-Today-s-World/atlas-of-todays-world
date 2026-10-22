@@ -171,6 +171,7 @@ export type Database = {
           positionality: string
           profile_id: string | null
           slug: string
+          works_html: string
         }
         Insert: {
           bio?: string
@@ -181,6 +182,7 @@ export type Database = {
           positionality?: string
           profile_id?: string | null
           slug: string
+          works_html?: string
         }
         Update: {
           bio?: string
@@ -191,6 +193,7 @@ export type Database = {
           positionality?: string
           profile_id?: string | null
           slug?: string
+          works_html?: string
         }
         Relationships: [
           {

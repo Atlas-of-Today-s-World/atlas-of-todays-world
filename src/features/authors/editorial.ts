@@ -5,7 +5,7 @@ import type { AuthorRow } from "./types";
 
 /** Reading authors for editors — under the user's session, no cache. */
 
-const COLUMNS = "id, name, slug, photo_url, bio, positionality";
+const COLUMNS = "id, name, slug, photo_url, bio, positionality, works_html";
 
 export async function listAuthors(): Promise<AuthorRow[]> {
   const supabase = await createServerClient();

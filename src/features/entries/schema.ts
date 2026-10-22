@@ -54,7 +54,7 @@ const lines = (value: unknown) =>
 /** Summary bullets for entries and chapters: at most 5 of 300 characters (DB `short_items`). */
 const summaryPoints = z.preprocess(
   lines,
-  z.array(text(300)).max(5, "At most 5 bullet points, one per line."),
+  z.array(text(300)).max(6, "At most 6 bullet points, one per line."),
 );
 
 /** News/entry editor input — limits matching the `entries` table. */

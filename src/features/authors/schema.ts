@@ -8,6 +8,9 @@ import {
   uuid,
 } from "@/lib/validation/common";
 
+/** Longest selected works HTML (DB `authors_works_html_length`). */
+export const AUTHOR_WORKS_MAX = 20_000;
+
 /**
  * Entry author (P9) — limits matching the `authors` table. `slug` is the
  * public URL (/authors/<slug>): empty on a new profile = generated from the
@@ -20,6 +23,11 @@ export const AuthorInput = z.object({
   photo_url: optionalHttpsUrl,
   bio: text(2000),
   positionality: text(2000),
+  /** Selected works: rich text (a list with links), sanitized when saved. */
+  works_html: z
+    .string()
+    .max(AUTHOR_WORKS_MAX, `At most ${AUTHOR_WORKS_MAX} characters.`)
+    .default(""),
 });
 export type AuthorInput = z.infer<typeof AuthorInput>;
 

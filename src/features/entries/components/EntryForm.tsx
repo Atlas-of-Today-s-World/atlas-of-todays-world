@@ -253,7 +253,7 @@ export function EntryForm({
           <FormField
             id="summary_points"
             label="Key points box (under the header)"
-            hint="3–5 points, one per line."
+            hint="3–6 points, one per line."
             errors={errors.summary_points}
           >
             <Textarea

@@ -163,7 +163,7 @@ function plan(topic) {
       kind: "entry",
       title: clip(topic.title, 200),
       summary: sentences(topic.chapters[0]?.teaser || topic.summaryPoints.join(" "), 600),
-      summary_points: topic.summaryPoints.slice(0, 5).map((point) => clip(point, 300)),
+      summary_points: topic.summaryPoints.slice(0, 6).map((point) => clip(point, 300)),
       category: CATEGORY[topic.lens] ?? "Society",
       cover_url: topic.hero ? https(topic.hero) : null,
       cover_credit: clip(topic.heroCredit, 300) || null,
@@ -178,6 +178,8 @@ function plan(topic) {
           name: author,
           bio: clip(topic.authorBio, 2000),
           positionality: clip(topic.positionality, 2000),
+          // Selected works (rich text); sanitized when written.
+          works_html: topic.worksHtml ?? "",
           photo_url: topic.authorPhoto ? https(topic.authorPhoto) : null,
         }
       : null,
@@ -225,7 +227,7 @@ async function writeSql(file) {
   const blocks = plans.map(({ entry, author, chapters, links, redirect }) => {
     const payload = JSON.stringify({
       entry,
-      author,
+      author: author && { ...author, works_html: sanitizeRichHtml(author.works_html) },
       place: PLACES[entry.slug] ?? null,
       chapters: chapters.map((chapter) => ({
         ...chapter,
@@ -246,13 +248,13 @@ begin
   if p -> 'author' <> 'null'::jsonb then
     select id into v_author from authors where name = p -> 'author' ->> 'name' limit 1;
     if v_author is null then
-      insert into authors (name, bio, positionality, photo_url, slug)
+      insert into authors (name, bio, positionality, works_html, photo_url, slug)
       values (p -> 'author' ->> 'name', p -> 'author' ->> 'bio', p -> 'author' ->> 'positionality',
-              p -> 'author' ->> 'photo_url', '')
+              p -> 'author' ->> 'works_html', p -> 'author' ->> 'photo_url', '')
       returning id into v_author;
     else
       update authors set bio = p -> 'author' ->> 'bio', positionality = p -> 'author' ->> 'positionality',
-                         photo_url = p -> 'author' ->> 'photo_url'
+                         works_html = p -> 'author' ->> 'works_html', photo_url = p -> 'author' ->> 'photo_url'
        where id = v_author;
     end if;
   end if;
@@ -371,7 +373,11 @@ for (const item of plans) {
       await db.from("authors").select("id").eq("name", author.name).limit(1),
       `author ${author.name}`,
     );
-    const row = { ...author, photo_url: await moveImage(author.photo_url) };
+    const row = {
+      ...author,
+      works_html: sanitizeRichHtml(author.works_html),
+      photo_url: await moveImage(author.photo_url),
+    };
     authorId = found[0]?.id
       ? must(
           await db.from("authors").update(row).eq("id", found[0].id).select("id").single(),

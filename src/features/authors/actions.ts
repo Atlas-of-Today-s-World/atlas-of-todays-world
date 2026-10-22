@@ -6,7 +6,8 @@ import { redirect } from "next/navigation";
 import { affected, failed, formAction, idAction } from "@/lib/actions";
 import { adminRoutes, routes } from "@/config/routes";
 import { tags } from "@/lib/cache/tags";
-import { AuthorAccountInput, AuthorInput } from "./schema";
+import { sanitizeRichHtml } from "@/lib/security/sanitize";
+import { AUTHOR_WORKS_MAX, AuthorAccountInput, AuthorInput } from "./schema";
 
 /** The author appears in entry headers: the lists and every article page are refreshed too. */
 function refreshAuthors() {
@@ -23,7 +24,16 @@ function refreshAuthors() {
  */
 export const saveAuthor = formAction(AuthorInput, async ({ data: input, supabase }) => {
   const { id, slug, ...fields } = input;
-  const row = { ...fields, photo_url: fields.photo_url ?? null };
+  const row = {
+    ...fields,
+    photo_url: fields.photo_url ?? null,
+    works_html: sanitizeRichHtml(fields.works_html),
+  };
+  // Sanitizing can lengthen the HTML (rel on links): check what will be stored.
+  if (row.works_html.length > AUTHOR_WORKS_MAX) {
+    const tooLong = `At most ${AUTHOR_WORKS_MAX} characters.`;
+    return { ok: false, error: tooLong, fieldErrors: { works_html: [tooLong] } };
+  }
 
   if (!id) {
     const { data, error } = await supabase

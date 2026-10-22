@@ -24,6 +24,7 @@ import {
   webPageNode,
 } from "@/features/seo/jsonld";
 import { routes } from "@/config/routes";
+import { SafeHtml } from "@/components/atlas/SafeHtml";
 
 export const dynamicParams = true;
 
@@ -100,6 +101,12 @@ export default async function AuthorPage({ params }: PageProps<"/[locale]/author
           <>
             <h2>{messages.article.positionality}</h2>
             <p className="whitespace-pre-line">{author.positionality}</p>
+          </>
+        ) : null}
+        {author.worksHtml ? (
+          <>
+            <h2>{messages.article.selectedWorks}</h2>
+            <SafeHtml html={author.worksHtml} />
           </>
         ) : null}
       </div>

@@ -38,9 +38,9 @@ describe("ChapterInput", () => {
     expect(parsed.audio_url).toBeUndefined();
   });
 
-  it("rejects more than 5 bullets, a long bullet, a non-https URL and an empty title", () => {
+  it("rejects more than 6 bullets, a long bullet, a non-https URL and an empty title", () => {
     const invalid = [
-      { ...chapter, summary_points: "1\n2\n3\n4\n5\n6" },
+      { ...chapter, summary_points: "1\n2\n3\n4\n5\n6\n7" },
       { ...chapter, summary_points: "x".repeat(301) },
       { ...chapter, summary_points: "", illustration_url: "http://x" },
       { ...chapter, summary_points: "", audio_url: "http://cdn.example/1.mp3" },

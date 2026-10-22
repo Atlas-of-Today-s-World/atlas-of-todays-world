@@ -2,10 +2,11 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { PUBLIC_REVALIDATE_SECONDS, tags } from "@/lib/cache/tags";
 import { must } from "@/lib/db/result";
+import { sanitizeRichHtml } from "@/lib/security/sanitize";
 import { createPublicClient } from "@/lib/supabase/public";
 
 /** The author columns anon may read (DB-08) — the profile page and a topic's byline. */
-export const PUBLIC_AUTHOR_COLUMNS = "slug, name, photo_url, bio, positionality";
+export const PUBLIC_AUTHOR_COLUMNS = "slug, name, photo_url, bio, positionality, works_html";
 
 /** Public author profile (/authors/<slug>) — the byline's page (G8, E-E-A-T). */
 export interface PublicAuthor {
@@ -14,6 +15,8 @@ export interface PublicAuthor {
   photo?: string;
   bio: string;
   positionality: string;
+  /** Sanitized HTML of the selected works; "" = none. */
+  worksHtml: string;
 }
 
 interface AuthorRow {
@@ -22,6 +25,7 @@ interface AuthorRow {
   photo_url: string | null;
   bio: string;
   positionality: string;
+  works_html: string;
 }
 
 const toAuthor = (row: AuthorRow): PublicAuthor => ({
@@ -30,6 +34,7 @@ const toAuthor = (row: AuthorRow): PublicAuthor => ({
   photo: row.photo_url ?? undefined,
   bio: row.bio,
   positionality: row.positionality,
+  worksHtml: sanitizeRichHtml(row.works_html),
 });
 
 /**

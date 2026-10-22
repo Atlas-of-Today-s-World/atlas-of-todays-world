@@ -88,6 +88,8 @@ function body(item: Entry, t: Messages["article"]): string {
       parts.push(
         `## ${t.aboutAuthor.replace("{name}", item.authorProfile.name)}\n\n${item.authorProfile.bio}`,
       );
+    if (item.authorProfile?.worksHtml)
+      parts.push(`### ${t.selectedWorks}\n\n${htmlToMarkdown(item.authorProfile.worksHtml)}`);
   }
   return parts.join("\n\n");
 }

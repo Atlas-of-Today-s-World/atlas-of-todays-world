@@ -34,7 +34,7 @@ const blank = (): Chapter => ({
 });
 
 /**
- * Subtopics of a topic (stored as entry chapters): each has a title, 3–5 summary
+ * Subtopics of a topic (stored as entry chapters): each has a title, 3–6 summary
  * bullets, a tile photo or colour, audio and full text. Fields are uncontrolled
  * and named the same in every subtopic — the Server Action reads them in page
  * order. The key keeps unsaved text when moving up/down.
@@ -150,7 +150,7 @@ export function ChaptersEditor({
               <FormField
                 id={id("summary")}
                 label="Key points (in the Overview box)"
-                hint="Optional: 3–5 bullet points, one per line."
+                hint="Optional: 3–6 bullet points, one per line."
               >
                 <Textarea
                   id={id("summary")}

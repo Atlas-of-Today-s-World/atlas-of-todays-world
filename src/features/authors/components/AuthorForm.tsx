@@ -7,6 +7,7 @@ import { SlugField, useSlug } from "@/components/admin/SlugField";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { FormField, Input, Select, Textarea, describedBy } from "@/components/ui/field";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { UploadField } from "@/components/admin/UploadField";
 import { adminRoutes, routes } from "@/config/routes";
 import { deleteAuthor, saveAuthor, saveAuthorAccount } from "../actions";
@@ -89,6 +90,21 @@ export function AuthorForm({ author }: { author: AuthorRow | null }) {
           {...field("positionality", "hint")}
         />
       </FormField>
+
+      <div className="grid gap-1.5">
+        <span className="text-[12.5px] font-medium text-[var(--color-ink-soft)]">
+          Selected works (shown under the bio)
+        </span>
+        <RichTextEditor
+          name="works_html"
+          initialHtml={author?.works_html ?? ""}
+          label="Selected works"
+          compact
+        />
+        {errors.works_html ? (
+          <p className="text-[12px] text-[var(--color-danger)]">{errors.works_html.join(" ")}</p>
+        ) : null}
+      </div>
 
       <div className="flex flex-wrap items-center gap-3">
         <SubmitButton pending="Saving…">

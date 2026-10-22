@@ -7,4 +7,5 @@ export interface AuthorRow {
   photo_url: string | null;
   bio: string;
   positionality: string;
+  works_html: string;
 }

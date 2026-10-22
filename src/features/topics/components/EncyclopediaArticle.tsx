@@ -443,7 +443,7 @@ function TilePanel({ tile }: { tile: LearnMoreTile }) {
   );
 }
 
-/** Author bio with positionality statement (collapsible, target of the header link). */
+/** Author bio with positionality statement and works (collapsible, target of the header link). */
 async function AuthorBio({ author }: { author: EntryAuthor }) {
   const messages = await getT();
   const t = messages.article;
@@ -477,6 +477,15 @@ async function AuthorBio({ author }: { author: EntryAuthor }) {
           <p className="mt-2 text-[13.5px] leading-relaxed whitespace-pre-line text-[var(--color-ink-soft)]">
             {author.positionality}
           </p>
+        </>
+      ) : null}
+      {author.worksHtml ? (
+        <>
+          <h3 className={`mt-5 ${kickerVariants()}`}>{t.selectedWorks}</h3>
+          <SafeHtml
+            className="prose-atlas prose-compact mt-2 text-[13.5px] text-[var(--color-ink-soft)]"
+            html={author.worksHtml}
+          />
         </>
       ) : null}
       {author.slug ? (
