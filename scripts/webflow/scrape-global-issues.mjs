@@ -15,7 +15,8 @@ import { dirname, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { chromium } from "@playwright/test";
 
-const ORIGIN = "https://www.atlasoftodaysworld.org";
+// The old Webflow site (www.atlasoftodaysworld.org serves the new site now).
+const ORIGIN = "https://atlasoftodaysworld.webflow.io";
 const { values: args } = parseArgs({
   options: { out: { type: "string", default: "scripts/webflow/data/global-issues.json" } },
 });
@@ -26,7 +27,7 @@ function readLenses() {
   const lenses = [];
   for (const link of document.querySelectorAll('a[href*="/articles-global-issues/"]')) {
     const href = new URL(link.getAttribute("href"), location.href);
-    if (!/atlasoftodaysworld\.org$/.test(href.hostname)) continue;
+    if (!/atlasoftodaysworld\.(org|webflow\.io)$/.test(href.hostname)) continue;
     // The lens is the nearest preceding block heading ("Migration", "Human Rights", …).
     let block = link.parentElement;
     let lens = "";
@@ -53,10 +54,25 @@ function readTopic() {
     el?.getAttribute("src") ?? el?.getAttribute("data-cookieblock-src") ?? null;
   let citation = 0;
 
-  /** Chapter body: Webflow keeps source popovers as escaped markup inside the rich text. */
+  /**
+   * Chapter body: Webflow keeps source popovers as escaped markup inside the
+   * rich text — sometimes with a space before "&gt;" or the outer "&lt;" lost.
+   */
   const POPOVER =
-    /&lt;span class="span"&gt;\s*&lt;span[^&]*?class="box-source"&gt;([\s\S]*?)&lt;\/span&gt;\s*&lt;div class="popover"&gt;([\s\S]*?)&lt;\/div&gt;\s*&lt;\/div&gt;\s*&lt;\/span&gt;/g;
+    /(?:&lt;)?span class="span"&gt;\s*&lt;span[^&]*?class="box-source"\s*&gt;([\s\S]*?)&lt;\/span&gt;\s*&lt;div class="popover"&gt;([\s\S]*?)&lt;\/div&gt;\s*&lt;\/div&gt;\s*&lt;\/span&gt;/g;
   const escapeAttr = (value) => value.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+  // http:// links don't pass the sanitizer; these hosts answer on https.
+  const HTTPS = ["cat-int.org", "www.millenniumassessment.org", "epapers.bham.ac.uk"];
+  const https = (href) =>
+    HTTPS.some((host) => href.startsWith(`http://${host}/`))
+      ? href.replace("http:", "https:")
+      : href;
+  /** One footnote per source; a source without a link keeps its text (title) only. */
+  const footnote = (href, title) => {
+    citation += 1;
+    const link = href ? `href="${escapeAttr(https(href))}" ` : "";
+    return `<sup><a ${link}title="${escapeAttr(title.slice(0, 300))}">[${citation}]</a></sup>`;
+  };
   const cleanBody = (source) => {
     const html = source.innerHTML
       // Highlight boxes were written as escaped <h6 class="textbox"> — keep them as quotes.
@@ -64,15 +80,22 @@ function readTopic() {
       .replace(/&lt;\/h6&gt;/g, "</blockquote>")
       .replace(POPOVER, (match, word, popover, offset, whole) => {
         const lead = /\s$/.test(whole.slice(0, offset)) ? "" : " ";
-        const holder = document.createElement("div");
-        holder.innerHTML = popover.replace(/&lt;\/?(div|br)[^&]*?&gt;/g, " ");
-        const href = holder.querySelector("a[href]")?.getAttribute("href");
-        if (!href) return `${lead}${word} `;
-        citation += 1;
-        const title = text(holder)
-          .replace(/^Source:\s*/, "")
-          .slice(0, 300);
-        return `${lead}${word}<sup><a href="${escapeAttr(href)}" title="${escapeAttr(title)}">[${citation}]</a></sup> `;
+        // A popover may list several sources, separated by "—" lines.
+        const notes = popover
+          .replace(/^\s*(<strong>)?\s*Source:?\s*(<\/strong>)?/i, "")
+          .split(/&lt;div&gt;\s*—\s*&lt;\/div&gt;/)
+          .map((part) => {
+            const holder = document.createElement("div");
+            holder.innerHTML = part.replace(/&lt;\/?(div|br)[^&]*?&gt;/g, " ");
+            const title = text(holder).replace(/^Source:\s*/, "");
+            return title
+              ? footnote(holder.querySelector("a[href]")?.getAttribute("href"), title)
+              : "";
+          })
+          .join("");
+        // No space before the punctuation that follows ("state[3]." rather than "state[3] .").
+        const tail = /^[.,;:!?)]/.test(whole.slice(offset + match.length)) ? "" : " ";
+        return `${lead}${word}${notes}${tail}`;
       });
     const root = document.createElement("div");
     // Any other escaped helper markup is dropped as text.

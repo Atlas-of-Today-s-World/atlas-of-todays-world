@@ -494,6 +494,13 @@ body {
   text-underline-offset: 2px;
 }
 
+/* A footnote whose source has no link: its text is the title, shown on hover. */
+.prose-atlas sup a:not([href]) {
+  color: var(--color-ink-muted);
+  text-decoration: none;
+  cursor: help;
+}
+
 .prose-atlas blockquote {
   border-left: 3px solid var(--color-accent);
   padding-left: 1rem;
