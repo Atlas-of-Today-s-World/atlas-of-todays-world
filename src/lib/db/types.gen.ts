@@ -546,6 +546,7 @@ export type Database = {
           id: string
           illustration_credit: string | null
           illustration_url: string | null
+          overview: string
           position: number
           search: unknown
           summary_points: string[]
@@ -563,6 +564,7 @@ export type Database = {
           id?: string
           illustration_credit?: string | null
           illustration_url?: string | null
+          overview?: string
           position: number
           search?: unknown
           summary_points?: string[]
@@ -580,6 +582,7 @@ export type Database = {
           id?: string
           illustration_credit?: string | null
           illustration_url?: string | null
+          overview?: string
           position?: number
           search?: unknown
           summary_points?: string[]

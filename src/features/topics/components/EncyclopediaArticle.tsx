@@ -313,7 +313,7 @@ async function TopicPanel({ chapter, index }: { chapter: Chapter; index: number 
         </p>
       ) : null}
       <ShareButton title={chapter.title} hash={id} className="mt-3" />
-      {chapter.summaryPoints.length ? (
+      {chapter.overview || chapter.summaryPoints.length ? (
         // The Overview box first; the whole text only on "Full Reading".
         <FullReading
           label={t.fullReading}
@@ -322,7 +322,7 @@ async function TopicPanel({ chapter, index }: { chapter: Chapter; index: number 
               <p className="inline-flex rounded-full bg-[var(--color-ink-muted)] px-2.5 py-0.5 text-[12px] font-semibold text-white">
                 {t.overview}
               </p>
-              <Overview points={chapter.summaryPoints} />
+              <Overview text={chapter.overview} points={chapter.summaryPoints} />
               <EntryAudio src={chapter.audio} title={chapter.title} />
             </>
           }
@@ -339,16 +339,32 @@ async function TopicPanel({ chapter, index }: { chapter: Chapter; index: number 
   );
 }
 
-/** A subtopic's overview: one point reads as a paragraph, more as a list. */
-function Overview({ points }: { points: string[] }) {
-  const text = "mt-3 text-[15px] leading-relaxed text-[var(--color-ink)]";
-  if (points.length === 1) return <p className={text}>{points[0]}</p>;
+/**
+ * A subtopic's overview: its paragraphs (a blank line between them in the
+ * admin), then the key points. A lone key point reads as a paragraph.
+ */
+function Overview({ text, points }: { text: string; points: string[] }) {
+  const paragraphs = text
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+  const type = "text-[15px] leading-relaxed text-[var(--color-ink)]";
   return (
-    <ul className={`${text} list-disc space-y-1.5 pl-5`}>
-      {points.map((point) => (
-        <li key={point}>{point}</li>
+    <>
+      {paragraphs.map((paragraph, index) => (
+        <p key={index} className={`mt-3 ${type}`}>
+          {paragraph}
+        </p>
       ))}
-    </ul>
+      {points.length === 1 ? <p className={`mt-3 ${type}`}>{points[0]}</p> : null}
+      {points.length > 1 ? (
+        <ul className={`mt-3 list-disc space-y-1.5 pl-5 ${type}`}>
+          {points.map((point) => (
+            <li key={point}>{point}</li>
+          ))}
+        </ul>
+      ) : null}
+    </>
   );
 }
 

@@ -14,6 +14,7 @@ import {
 } from "@/lib/validation/common";
 import { COLLECTIONS } from "@/features/portraits/schema";
 import {
+  CHAPTER_OVERVIEW_MAX,
   GEO_SUMMARY_MAX,
   MAP_LAYERS,
   MAX_LINKS,
@@ -92,6 +93,8 @@ export const ChapterInput = z.object({
   /** Kept so the subtopic keeps its "created by / when" (empty for a new one). */
   id: z.preprocess(blankToUndefined, uuid.optional()),
   title: requiredText(200),
+  /** Plain-text paragraphs (blank line between) in the Overview box. */
+  overview: text(CHAPTER_OVERVIEW_MAX).default(""),
   summary_points: summaryPoints,
   body_html: z.string().max(CHAPTER_HTML_MAX, CHAPTER_TOO_LONG),
   illustration_url: optionalHttpsUrl,
@@ -104,6 +107,7 @@ export type ChapterInput = z.infer<typeof ChapterInput>;
 
 export const CHAPTER_FIELD_LABEL: Record<string, string> = {
   title: "title",
+  overview: "overview",
   summary_points: "summary",
   body_html: "text",
   illustration_url: "illustration",

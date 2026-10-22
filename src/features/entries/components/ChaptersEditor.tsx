@@ -13,7 +13,7 @@ import { FormField, Input, Textarea } from "@/components/ui/field";
 import { IconAction } from "@/components/admin/IconAction";
 import { saveChapters } from "../parts-actions";
 import type { EditableChapter } from "@/features/entries/types";
-import { MAX_CHAPTERS } from "../constants";
+import { CHAPTER_OVERVIEW_MAX, MAX_CHAPTERS } from "../constants";
 import { EditStamp } from "./EditStamp";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { UploadField } from "@/components/admin/UploadField";
@@ -24,6 +24,7 @@ type Chapter = EditableChapter & { key: string };
 const blank = (): Chapter => ({
   key: crypto.randomUUID(),
   title: "",
+  overview: "",
   summary_points: [],
   body_html: "",
   illustration_url: null,
@@ -134,9 +135,22 @@ export function ChaptersEditor({
                 />
               </FormField>
               <FormField
+                id={id("overview")}
+                label="Overview (box at the top of the opened subtopic)"
+                hint="A short introduction; the full text opens under “Full Reading”. A blank line starts a new paragraph."
+              >
+                <Textarea
+                  id={id("overview")}
+                  name="overview"
+                  rows={6}
+                  maxLength={CHAPTER_OVERVIEW_MAX}
+                  defaultValue={chapter.overview}
+                />
+              </FormField>
+              <FormField
                 id={id("summary")}
-                label="Key points (top of the opened subtopic)"
-                hint="3–5 bullet points, one per line."
+                label="Key points (in the Overview box)"
+                hint="Optional: 3–5 bullet points, one per line."
               >
                 <Textarea
                   id={id("summary")}

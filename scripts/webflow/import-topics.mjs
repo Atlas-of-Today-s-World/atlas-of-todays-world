@@ -184,7 +184,9 @@ function plan(topic) {
     chapters: topic.chapters.slice(0, 12).map((chapter, position) => ({
       position,
       title: clip(chapter.title, 200),
-      summary_points: chapter.teaser ? [clip(chapter.teaser, 300)] : [],
+      // The old Overview box; files scraped before `overview` have only the flat teaser.
+      overview: clip(chapter.overview || chapter.teaser, 3000),
+      summary_points: [],
       body_html: chapter.bodyHtml,
       illustration_url: chapter.tileImage ? https(chapter.tileImage) : null,
       illustration_credit: clip(chapter.imageCredit, 300) || null,
@@ -269,8 +271,8 @@ begin
   returning id into v_entry;
 
   delete from entry_chapters where entry_id = v_entry;
-  insert into entry_chapters (entry_id, position, title, summary_points, body_html, illustration_url, illustration_credit)
-  select v_entry, (c ->> 'position')::int, c ->> 'title',
+  insert into entry_chapters (entry_id, position, title, overview, summary_points, body_html, illustration_url, illustration_credit)
+  select v_entry, (c ->> 'position')::int, c ->> 'title', c ->> 'overview',
          array(select jsonb_array_elements_text(c -> 'summary_points')), c ->> 'body_html',
          c ->> 'illustration_url', c ->> 'illustration_credit'
     from jsonb_array_elements(p -> 'chapters') c;

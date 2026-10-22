@@ -107,7 +107,7 @@ export async function getEntryParts(id: string) {
     supabase
       .from("entry_chapters")
       .select(
-        "id, title, summary_points, body_html, illustration_url, illustration_credit, audio_url, tile_background, created_at, created_by, updated_at, updated_by",
+        "id, title, overview, summary_points, body_html, illustration_url, illustration_credit, audio_url, tile_background, created_at, created_by, updated_at, updated_by",
       )
       .eq("entry_id", id)
       .order("position"),

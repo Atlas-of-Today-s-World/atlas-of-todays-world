@@ -103,6 +103,10 @@ function readTopic() {
         image: imgSrc(image),
         imageCredit: text(section.querySelector(".source-of-photo")).replace(/^Photo:\s*/, ""),
         teaser: text(teaser),
+        // The Overview box, paragraph by paragraph (a blank line between them).
+        overview: teaser
+          ? [...teaser.querySelectorAll("p")].map(text).filter(Boolean).join("\n\n") || text(teaser)
+          : "",
         bodyHtml: body ? cleanBody(body) : "",
       };
     })

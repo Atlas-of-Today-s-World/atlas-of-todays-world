@@ -62,6 +62,7 @@ function body(item: Entry, t: Messages["article"]): string {
       parts.push(
         [
           `## ${t.topic.replace("{number}", String(index + 1))}: ${chapter.title}`,
+          chapter.overview.trim(),
           chapter.summaryPoints.map((point) => `- ${point}`).join("\n"),
           htmlToMarkdown(chapter.html),
         ]

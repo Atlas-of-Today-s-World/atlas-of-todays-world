@@ -48,7 +48,8 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
   const column = (name: string) => formData.getAll(name).map(String);
   const titles = column("title");
   const ids = column("chapter_id");
-  const [points, bodies, illustrations, credits, audio, backgrounds] = [
+  const [overviews, points, bodies, illustrations, credits, audio, backgrounds] = [
+    column("overview"),
     column("summary_points"),
     column("body_html"),
     column("illustration_url"),
@@ -62,6 +63,7 @@ export async function saveChapters(_prev: ActionState, formData: FormData): Prom
     .safeParse(
       titles.map((title, index) => ({
         title,
+        overview: overviews[index],
         summary_points: points[index],
         body_html: bodies[index],
         illustration_url: illustrations[index],

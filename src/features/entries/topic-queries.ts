@@ -30,6 +30,8 @@ export interface AuthorRow {
 export interface ChapterRow {
   position: number;
   title: string;
+  /** Missing in a preview from before the column (20261022000100). */
+  overview?: string;
   summary_points: string[];
   body_html: string;
   illustration_url: string | null;
@@ -163,6 +165,7 @@ export function toEncyclopedia(item: Entry, parts: EncyclopediaParts): Encyclope
       : undefined,
     chapters: [...parts.chapters].sort(byPosition).map((chapter) => ({
       title: chapter.title,
+      overview: chapter.overview ?? "",
       summaryPoints: chapter.summary_points,
       html: sanitizeRichHtml(chapter.body_html),
       illustration: chapter.illustration_url ?? undefined,
@@ -200,7 +203,7 @@ const ENCYCLOPEDIA_COLUMNS = `${BASE_COLUMNS}, body_html, summary_points,
   seo_title, seo_description, og_image_url, seo_keywords, geo_summary, noindex,
   articles_label, learn_more_label, hero_background, timeline_title, timeline_subtitle,
   authors(${PUBLIC_AUTHOR_COLUMNS}),
-  entry_chapters(position, title, summary_points, body_html, illustration_url, illustration_credit, audio_url, tile_background, updated_at,
+  entry_chapters(position, title, overview, summary_points, body_html, illustration_url, illustration_credit, audio_url, tile_background, updated_at,
     visuals(${VISUAL_COLUMNS})),
   resources(position, kind, tile_id, title, source, url, image_url),
   learn_more_tiles!learn_more_tiles_entry_id_fkey(${TILE_COLUMNS}, position),

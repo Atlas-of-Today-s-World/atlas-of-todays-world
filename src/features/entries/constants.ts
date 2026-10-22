@@ -345,3 +345,6 @@ export const STATUS_LABEL: Record<EntryStatus, string> = {
   published: "Published",
   planned: "Scheduled",
 };
+
+/** Longest subtopic Overview (DB `entry_chapters_overview_length`). */
+export const CHAPTER_OVERVIEW_MAX = 3000;

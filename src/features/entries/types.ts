@@ -57,6 +57,8 @@ export interface AuthorArticle {
 
 export interface EntryChapter {
   title: string;
+  /** Plain-text paragraphs of the Overview box (blank line between); "" = none. */
+  overview: string;
   /** 3–5 bullet points that open the chapter. */
   summaryPoints: string[];
   /** Sanitized HTML of the whole chapter. */
@@ -169,6 +171,7 @@ export interface EditableChapter {
   /** Kept across saves, so the subtopic keeps who created it and when. */
   id?: string;
   title: string;
+  overview: string;
   summary_points: string[];
   body_html: string;
   illustration_url: string | null;

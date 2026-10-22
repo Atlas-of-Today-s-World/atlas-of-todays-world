@@ -60,7 +60,9 @@ describe("article Markdown", () => {
       authorSlug: undefined,
       html: "",
       summaryPoints: ["Point one"],
-      chapters: [{ title: "Routes", summaryPoints: ["Sea"], html: "<p>Text.</p>" }],
+      chapters: [
+        { title: "Routes", overview: "Overview.", summaryPoints: ["Sea"], html: "<p>Text.</p>" },
+      ],
       faq: [{ question: "What is it?", answer: "A crime." }],
       tiles: [
         {
@@ -79,7 +81,7 @@ describe("article Markdown", () => {
       "## In short\n\nMigrant smuggling is the paid facilitation of irregular border crossing.",
     );
     expect(markdown).toContain("## Summary\n\n- Point one");
-    expect(markdown).toContain("## Subtopic 1: Routes\n\n- Sea\n\nText.");
+    expect(markdown).toContain("## Subtopic 1: Routes\n\nOverview.\n\n- Sea\n\nText.");
     expect(markdown).toContain("## Questions and answers\n\n### What is it?\n\nA crime.");
     expect(markdown).toContain(
       "## Sources and further reading\n\n- [UNODC report](https://www.unodc.org/x) — UNODC",
