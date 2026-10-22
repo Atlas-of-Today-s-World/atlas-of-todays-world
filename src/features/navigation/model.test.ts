@@ -23,6 +23,7 @@ describe("built-in menus (fallback)", () => {
       ["Global issues", "/global-issues", false, false],
       ["Countries", "/countries", false, true],
       ["About", "/about", false, false],
+      ["Careers", "/careers", false, false],
       ["Atlas Patrons", "/membership", true, false],
     ]);
     expect(nav.legal.map((item) => [item.label, item.href])).toEqual([
@@ -38,7 +39,14 @@ describe("built-in menus (fallback)", () => {
 
   it("have no News item, whatever the news_menu switch (News was removed, 2026-10-17)", () => {
     const labels = navigationFrom(NAV_DEFAULT_ROWS, OFF).main.map((item) => item.label);
-    expect(labels).toEqual(["Entries", "Global issues", "Countries", "About", "Atlas Patrons"]);
+    expect(labels).toEqual([
+      "Entries",
+      "Global issues",
+      "Countries",
+      "About",
+      "Careers",
+      "Atlas Patrons",
+    ]);
     expect(navigationFrom(NAV_DEFAULT_ROWS, ON).main.map((item) => item.label)).toEqual(labels);
   });
 });
