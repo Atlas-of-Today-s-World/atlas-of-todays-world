@@ -25,7 +25,7 @@ export interface AuthorRow {
   photo_url: string | null;
   bio: string;
   positionality: string;
-  /** Missing in a preview from before the column (20261022000400). */
+  /** Missing in a preview from before the column (20261022001200). */
   works_html?: string;
 }
 
