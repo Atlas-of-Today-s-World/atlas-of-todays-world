@@ -1431,12 +1431,15 @@ test("entry: only the entry's editors save chapters and resources, in one transa
     { position: 1, title: "Today", summary_points: ["Four"] },
   ]);
 
-  // Six bullets or a non-https illustration roll back the whole call — chapters stay.
+  // Seven bullets (six since 20261022000400) or a non-https illustration roll
+  // back the whole call — chapters stay.
   await as(id.pubA, () =>
     refused(
       q(call, [
         entry,
-        JSON.stringify([{ title: "Too many", summary_points: ["1", "2", "3", "4", "5", "6"] }]),
+        JSON.stringify([
+          { title: "Too many", summary_points: ["1", "2", "3", "4", "5", "6", "7"] },
+        ]),
       ]),
     ),
   );
@@ -1512,11 +1515,13 @@ test("entry: everyone sees planned entries, but only title and classification", 
   assert.deepEqual(Object.keys(mine[0]).sort(), [
     "category",
     "countries",
+    "planned_stage",
     "region_slug",
     "special_slug",
     "title",
   ]);
   assert.deepEqual(mine[0].countries, ["BRA"]);
+  assert.equal(mine[0].planned_stage, "in_preparation");
   assert.equal(rows.filter((row) => row.title === "planned-news").length, 0);
   // Anonymous still can't see the row itself.
   await as(null, async () =>

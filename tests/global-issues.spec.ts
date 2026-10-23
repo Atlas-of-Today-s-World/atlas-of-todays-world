@@ -67,7 +67,8 @@ test("a global issue's full page is a full-width page like a topic", async ({ pa
   ).toBeVisible();
 
   // Its topics as subtopic tiles, or — with none yet — the call to write one.
-  const subtopics = page.getByRole("region", { name: "Entries", exact: true });
+  // The section first: its single row (a carousel) is also named "Entries".
+  const subtopics = page.getByRole("region", { name: "Entries", exact: true }).first();
   await expect(subtopics).toBeVisible();
   await expect(
     subtopics.locator('a[href^="/entries/"], a[href^="/membership"]').first(),

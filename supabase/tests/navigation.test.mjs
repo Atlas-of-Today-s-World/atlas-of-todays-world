@@ -115,6 +115,8 @@ test("nav items: the main menu is seeded with today's items, labels and styles",
       ["Countries", "/countries", false, true, null],
       ["News", "/news", false, true, "news_menu"],
       ["About", "/about", false, false, null],
+      // Added by 20261022002000, right after About.
+      ["Careers", "/careers", false, false, null],
       ["Atlas Patrons", "/membership", true, false, null],
     ],
   );
@@ -163,6 +165,8 @@ test("nav items: the legal links are seeded in today's order", async () => {
       ["Privacy", "/privacy"],
       ["Terms", "/terms"],
       ["Accessibility", "/accessibility"],
+      // Added by 20261022001000.
+      ["Careers", "/careers"],
     ],
   );
 });
@@ -182,6 +186,7 @@ test("nav items: anon reads only visible items and the public columns, and can't
       "Countries",
       "News",
       "About",
+      "Careers",
       "Atlas Patrons",
     ]);
     await refused(q("select updated_at from nav_items"), /permission denied/);
@@ -194,10 +199,10 @@ test("nav items: anon reads only visible items and the public columns, and can't
     await refused(q("select move_nav_item($1, true)", [hidden.id]), /permission denied/);
   });
   // The team with `site` "v" sees the hidden one too; other team members and readers don't.
-  assert.equal((await as(id.viewer, () => items("main"))).length, 8);
-  assert.equal((await as(id.editor, () => items("main"))).length, 8);
-  assert.equal((await as(id.observer, () => items("main"))).length, 6);
-  assert.equal((await as(id.reader, () => items("main"))).length, 6);
+  assert.equal((await as(id.viewer, () => items("main"))).length, 9);
+  assert.equal((await as(id.editor, () => items("main"))).length, 9);
+  assert.equal((await as(id.observer, () => items("main"))).length, 7);
+  assert.equal((await as(id.reader, () => items("main"))).length, 7);
   await q("delete from nav_items where id = $1", [hidden.id]);
 });
 
@@ -245,7 +250,7 @@ test("nav items: site c/e/d add, change and delete; without them nothing happens
   assert.deepEqual(actions, ["nav_items.insert", "nav_items.update"]);
 
   await as(id.editor, () => q("delete from nav_items where id = $1", [added.id]));
-  assert.equal((await as(id.editor, () => items("legal"))).length, 3);
+  assert.equal((await as(id.editor, () => items("legal"))).length, 4);
 });
 
 // ---------------------------------------------------------------------------
@@ -334,18 +339,19 @@ test("nav items: move swaps neighbours within one menu, only with site 'e'", asy
     "Countries",
     "About",
     "News",
+    "Careers",
     "Support the Atlas",
     "Atlas Patrons",
   ]);
   // The other menu is untouched.
-  assert.deepEqual(await labels("legal"), ["Privacy", "Terms", "Accessibility"]);
+  assert.deepEqual(await labels("legal"), ["Privacy", "Terms", "Accessibility", "Careers"]);
 
   await as(id.editor, () => q("select move_nav_item($1, false)", [about.id]));
   assert.deepEqual((await labels("main")).slice(3, 5), ["News", "About"]);
 
   // At the ends nothing moves (the first legal link doesn't jump into the main menu).
   await as(id.editor, () => q("select move_nav_item($1, true)", [privacy.id]));
-  assert.deepEqual(await labels("legal"), ["Privacy", "Terms", "Accessibility"]);
+  assert.deepEqual(await labels("legal"), ["Privacy", "Terms", "Accessibility", "Careers"]);
 
   for (const user of [id.observer, id.reader, id.viewer]) {
     await as(user, () =>

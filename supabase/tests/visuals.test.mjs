@@ -200,13 +200,14 @@ test("visuals: the old rows are copied — charts as embeds, the rest as images"
   assert.equal(chart.image_url, null);
   assert.equal(chart.caption, "UNHCR");
 
-  // The seed's images keep their region, order and URL.
+  // The seed's image (one since 02ffb54 dropped the placeholder map) keeps its
+  // region, order and URL.
   const seeded = await q(
     `select v.kind, v.title, v.image_url, v.position, e.url, e.position as old_position
        from visual_embeds e join visuals v on v.id = e.id
       where e.region_slug = 'eastern-europe-central-asia' order by e.position`,
   );
-  assert.equal(seeded.length, 2);
+  assert.equal(seeded.length, 1);
   for (const row of seeded) {
     assert.equal(row.kind, "image");
     assert.equal(row.image_url, row.url);
@@ -235,7 +236,7 @@ test("visuals: portrait() reads the new table, with the keys the old app needs",
     null,
     async () => (await one("select portrait('region', 'eastern-europe-central-asia') as p")).p,
   );
-  assert.equal(region.visuals.length, 2);
+  assert.equal(region.visuals.length, 1);
   assert.ok(region.visuals.every((v) => v.kind === "image" && v.image === v.image_url));
   assert.ok(region.visuals.every((v) => v.provider === null));
 });

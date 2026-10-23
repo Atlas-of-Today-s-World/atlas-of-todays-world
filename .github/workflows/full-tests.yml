@@ -46,14 +46,15 @@ jobs:
       - name: Vulnerable dependencies
         run: npm run check:audit
 
-  e2e:
-    name: e2e ${{ matrix.shard }}/3
+  # One production build for the e2e shards and Lighthouse. Each build
+  # prerenders ~400 pages against atlas-dev; four builds at once sent ~2,000
+  # requests to the free instance within a minute, the answers took 20-90 s and
+  # pages failed Next's 60 s limit ("Gateway Timeout", statement timeouts) —
+  # the nightly failures of 2026-10-20, 22 and 23.
+  build:
+    name: Build
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2, 3]
+    timeout-minutes: 15
     # Public values of the dev project (atlas-dev) — e2e never touches production.
     env:
       NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL_DEV }}
@@ -73,6 +74,42 @@ jobs:
           restore-keys: next-${{ hashFiles('package-lock.json') }}-
       - run: npm ci --no-audit --no-fund
       - run: npm run build
+      # The build and the MapLibre worker its prebuild copies (both gitignored);
+      # not the compiler cache, which actions/cache keeps.
+      - name: Pack the build
+        run: tar -cf "$RUNNER_TEMP/next-build.tar" --exclude=.next/cache .next public/maplibre
+      - uses: actions/upload-artifact@v7
+        with:
+          name: next-build
+          path: ${{ runner.temp }}/next-build.tar
+          retention-days: 1
+
+  e2e:
+    name: e2e ${{ matrix.shard }}/3
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL_DEV }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY_DEV }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - uses: actions/download-artifact@v8
+        with:
+          name: next-build
+          path: ${{ runner.temp }}
+      - run: tar -xf "$RUNNER_TEMP/next-build.tar"
       - name: Playwright (shard ${{ matrix.shard }} of 3)
         run: |
           npm run start &
@@ -93,6 +130,7 @@ jobs:
 
   lighthouse:
     name: Lighthouse
+    needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -106,13 +144,12 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-      - uses: actions/cache@v6
-        with:
-          path: .next/cache
-          key: next-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
-          restore-keys: next-${{ hashFiles('package-lock.json') }}-
       - run: npm ci --no-audit --no-fund
-      - run: npm run build
+      - uses: actions/download-artifact@v8
+        with:
+          name: next-build
+          path: ${{ runner.temp }}
+      - run: tar -xf "$RUNNER_TEMP/next-build.tar"
       - name: Lighthouse (performance and accessibility budgets, lighthouserc.json)
         run: |
           npm run start &

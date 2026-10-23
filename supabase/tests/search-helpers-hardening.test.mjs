@@ -532,6 +532,7 @@ const APP_RPCS = {
   replace_portrait_items: ["authenticated", "service_role"],
   replace_timeline: ["authenticated"],
   submit_volunteer_application: ["service_role"],
+  submit_job_application: ["service_role"],
   hit_rate_limit: ["service_role"],
   record_event: ["service_role"],
   stripe_event_seen: ["service_role"],
