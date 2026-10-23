@@ -351,7 +351,7 @@
     "newsletter": {
       "eyebrow": "Newsletter",
       "title": "Stay with the Atlas — free, about once a month",
-      "text": "Not ready to give? Get the new entries, data updates on the globe and a look behind the scenes straight to your inbox.",
+      "text": "Not ready to give? Get the new entries and data updates on the globe straight to your inbox.",
       "cta": "Sign up for the newsletter"
     },
     "volunteer": {
@@ -659,8 +659,8 @@
     "button": "Newsletter",
     "title": "The Atlas newsletter",
     "metaTitle": "Newsletter",
-    "description": "Sign up for the Atlas of Today’s World newsletter: new entries, data updates and what our editors are working on — about once a month.",
-    "lead": "About once a month we send what is new in the Atlas: fresh entries and subtopics, updated data on the map and a look at what our editors are working on.",
+    "description": "Sign up for the Atlas of Today’s World newsletter: new entries and data updates — about once a month.",
+    "lead": "About once a month we send what is new in the Atlas: fresh entries and subtopics and updated data on the map.",
     "points": [
       "New entries and subtopics as they are published",
       "Data updates and new layers on the globe"
