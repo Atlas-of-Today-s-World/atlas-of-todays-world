@@ -9,7 +9,7 @@ import type { ActionState } from "@/lib/action-state";
 import { cn } from "@/lib/cn";
 import { MAX_TEXT_LENGTH, placeholders } from "../model";
 
-export interface PageTextsField {
+interface PageTextsField {
   key: string;
   label: string;
   defaultText: string;

@@ -8,7 +8,7 @@ import { EDITABLE_TEXTS, type UiText } from "@/features/ui-texts/model";
  * Patron settings. No server dependency: the admin form imports it too.
  */
 
-export interface PageTextField extends UiText {
+interface PageTextField extends UiText {
   label: string;
   /** Shown with `RichText`: `**bold**` works. */
   rich: boolean;

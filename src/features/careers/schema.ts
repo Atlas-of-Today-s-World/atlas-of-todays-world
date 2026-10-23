@@ -16,8 +16,7 @@ import { MESSAGE_MAX } from "./limits";
  * DB accepts too).
  */
 
-export const POSITION_STATUSES = ["draft", "open", "closed"] as const;
-export type PositionStatus = (typeof POSITION_STATUSES)[number];
+const POSITION_STATUSES = ["draft", "open", "closed"] as const;
 
 export const APPLICATION_STATUSES = ["new", "contacted", "closed"] as const;
 

@@ -101,6 +101,7 @@ const MENU: Record<Exclude<(typeof ROLES)[number], "reader">, string[]> = {
     "Global issues",
     "Map data layers",
     "Switches & maintenance",
+    "Careers",
     "Patron settings",
   ],
   "content-approver": [
@@ -127,6 +128,7 @@ const MENU: Record<Exclude<(typeof ROLES)[number], "reader">, string[]> = {
     "Regions & countries",
     "Map data layers",
     "Switches & maintenance",
+    "Careers",
     "Patron settings",
   ],
   "data-editor": [
