@@ -7,7 +7,6 @@ import { ActionForm, useServerAction } from "@/components/ui/action-form";
 import { describedBy } from "@/components/ui/field";
 import { Turnstile } from "@/components/ui/turnstile";
 import { subscribe } from "@/features/newsletter/actions";
-import { NEWSLETTER_INTERESTS } from "@/features/newsletter/interests";
 import { useMessages } from "@/components/i18n/LocaleProvider";
 import { useFormErrors } from "@/lib/use-form-errors";
 import { useTrackSuccess } from "@/features/conversions/use-track";
@@ -29,7 +28,6 @@ export default function NewsletterForm({ captcha }: { captcha: boolean }) {
   const { form, hasFieldErrors, errorsOf } = useFormErrors(state, text);
   const errors = {
     email: errorsOf("email"),
-    interests: errorsOf("interests"),
     consent: errorsOf("consent"),
   };
   // Field errors stand under their field; the alert under the form carries the rest.
@@ -38,7 +36,6 @@ export default function NewsletterForm({ captcha }: { captcha: boolean }) {
   useTrackSuccess(state, "newsletter_signup");
   const ids = {
     email: `${id}-email`,
-    interests: `${id}-interests`,
     consent: `${id}-consent`,
   };
 
@@ -69,35 +66,6 @@ export default function NewsletterForm({ captcha }: { captcha: boolean }) {
         </button>
       </div>
       <FieldError id={ids.email} errors={errors.email} />
-
-      {/* What to receive: new content by default, organisation news on request. */}
-      <fieldset
-        className="mt-3"
-        aria-describedby={errors.interests ? `${ids.interests}-error` : undefined}
-      >
-        <legend className="text-[11.5px] font-medium text-white/75">
-          {t.newsletterForm.interestsLabel}
-        </legend>
-        <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1.5">
-          {NEWSLETTER_INTERESTS.map((interest) => (
-            <label
-              key={interest}
-              className="flex min-h-8 items-center gap-2 text-[12px] text-white/80"
-            >
-              <input
-                type="checkbox"
-                name="interests"
-                value={interest}
-                defaultChecked={interest === "topics"}
-                aria-invalid={errors.interests ? true : undefined}
-                className="h-4 w-4 shrink-0"
-              />
-              {t.newsletterForm.interests[interest]}
-            </label>
-          ))}
-        </div>
-        <FieldError id={ids.interests} errors={errors.interests} />
-      </fieldset>
 
       <label className="mt-2.5 flex items-start gap-2 text-[11.5px] leading-relaxed text-white/60">
         <input

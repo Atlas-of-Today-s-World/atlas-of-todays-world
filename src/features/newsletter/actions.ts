@@ -7,7 +7,6 @@ import type { ActionState } from "@/lib/action-state";
 import { serverEnv } from "@/lib/env.server";
 import { allowRequest } from "@/lib/security/rate-limit";
 import { passesCaptcha } from "@/lib/security/turnstile";
-import { INTEREST_TAGS } from "./interests";
 import { SubscribeInput } from "./schema";
 
 /**
@@ -33,7 +32,6 @@ export async function subscribe(_prev: ActionState, formData: FormData): Promise
   const parsed = SubscribeInput.safeParse({
     email: formData.get("email"),
     consent: formData.get("consent"),
-    interests: formData.getAll("interests"),
   });
   if (!parsed.success) return invalidCodes(parsed.error);
   if (!(await passesCaptcha(formData, request))) return { ok: false, error: "captcha" };
@@ -54,7 +52,6 @@ export async function subscribe(_prev: ActionState, formData: FormData): Promise
       body: JSON.stringify({
         email_address: parsed.data.email,
         status: "pending",
-        tags: parsed.data.interests.map((interest) => INTEREST_TAGS[interest]),
       }),
     },
   );

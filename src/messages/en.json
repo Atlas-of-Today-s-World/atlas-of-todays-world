@@ -537,12 +537,7 @@
   "newsletterForm": {
     "label": "New Atlas content in your inbox",
     "placeholder": "you@example.org",
-    "interestsLabel": "What would you like to receive?",
-    "interests": {
-      "topics": "New entries and subtopics",
-      "organisation": "News about the Atlas (fundraising, team)"
-    },
-    "consent": "Send me the emails I picked above. I can unsubscribe at any time. See our",
+    "consent": "Send me the Atlas newsletter. I can unsubscribe at any time. See our",
     "privacyLink": "privacy policy",
     "messages": {
       "confirm": "Almost there — confirm the email we just sent.",
@@ -552,8 +547,7 @@
       "rateLimited": "Too many attempts. Try again later.",
       "captcha": "Please complete the security check, then sign up again.",
       "notConnected": "The newsletter is not connected yet.",
-      "failed": "Sign-up failed. Try again later.",
-      "interests": "Pick at least one kind of email."
+      "failed": "Sign-up failed. Try again later."
     }
   },
   "authorPage": {
@@ -669,8 +663,7 @@
     "lead": "About once a month we send what is new in the Atlas: fresh entries and subtopics, updated data on the map and a look at what our editors are working on.",
     "points": [
       "New entries and subtopics as they are published",
-      "Data updates and new layers on the globe",
-      "Behind the scenes of an independent encyclopedia"
+      "Data updates and new layers on the globe"
     ],
     "note": "No spam and no tracking. Every e-mail has an unsubscribe link.",
     "off": "The newsletter is about to start — check back soon.",

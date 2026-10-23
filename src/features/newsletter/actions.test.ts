@@ -25,7 +25,6 @@ function form(answer?: string) {
   const data = new FormData();
   data.set("email", "ana@example.org");
   data.set("consent", "on");
-  data.append("interests", "topics");
   if (answer !== undefined) data.set("cf-turnstile-response", answer);
   return subscribe({ ok: false }, data);
 }

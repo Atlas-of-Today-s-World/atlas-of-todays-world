@@ -16,15 +16,12 @@ function rejected(result: { success: boolean; error?: Parameters<typeof invalidC
 
 describe("invalidCodes", () => {
   it("returns the newsletter codes per field and the first one as the error", () => {
-    const state = rejected(
-      SubscribeInput.safeParse({ email: "not-an-address", consent: null, interests: [] }),
-    );
+    const state = rejected(SubscribeInput.safeParse({ email: "not-an-address", consent: null }));
     expect(state.ok).toBe(false);
     expect(state.error).toBe("invalidEmail");
     expect(state.fieldErrors).toEqual({
       email: ["invalidEmail"],
       consent: ["consent"],
-      interests: ["interests"],
     });
   });
 
