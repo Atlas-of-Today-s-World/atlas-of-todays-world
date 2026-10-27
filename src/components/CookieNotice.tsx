@@ -115,11 +115,12 @@ export function CookieNotice() {
           {t.ok}
         </button>
       </div>
-      {/* Remaining time as a thin bar along the bottom edge. */}
+      {/* Remaining time as a thin bar along the bottom edge. Shrunk with a transform,
+          not its width: the compositor animates it without a layout on every frame. */}
       <div aria-hidden className="h-0.5 bg-white/10">
         <div
-          className="h-full bg-[var(--color-gold)] transition-[width] duration-1000 ease-linear"
-          style={{ width: `${(left / COOKIE_NOTICE_SECONDS) * 100}%` }}
+          className="h-full origin-left bg-[var(--color-gold)] transition-transform duration-1000 ease-linear"
+          style={{ transform: `scaleX(${left / COOKIE_NOTICE_SECONDS})` }}
         />
       </div>
     </section>
