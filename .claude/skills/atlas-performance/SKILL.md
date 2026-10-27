@@ -123,8 +123,9 @@ region pages, `maplibre-gl.mjs` 289 KB, `countries.geo.json` 163 KB transferred 
 - A page that only loads must stop drawing once the globe is shown: every frame of continuous
   animation is main-thread work (Total Blocking Time, Speed Index never settle). In software
   WebGL (SwiftShader in PageSpeed / headless Chrome, llvmpipe, Basic Render Driver;
-  `globe/lowPower.ts`) one globe frame costs 300–600 ms, so the globe drops to pixel ratio 1
-  and moves only when asked (rotate button). The spin also stops by itself after three steps
+  `globe/lowPower.ts`) one globe frame costs 300-600 ms, so the globe starts lean: pixel ratio 1,
+  no satellite imagery (each arriving tile is another frame), sea in plain `GLOBE_COLORS.sea`,
+  and it moves only when asked (rotate button). The spin also stops by itself after three steps
   over 250 ms (`slowStepWatch`). Any new animation needs the same guard.
 
 ### Long tasks and INP
