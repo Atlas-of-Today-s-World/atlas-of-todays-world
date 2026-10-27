@@ -9,17 +9,25 @@ import { cn } from "@/lib/cn";
  * On a phone with a panel open the globe waits for the visitor (globe/startGate):
  * the bottom sheet covers most of it, and its ~1 MB library would otherwise hold
  * up the page being read. This button over the placeholder sphere starts it —
- * as does any tap on the map above the sheet.
+ * as does any tap on the map above the sheet. A browser drawing WebGL in
+ * software (`everywhere`, globe/lowPower) waits the same way on every screen
+ * size, the button in the middle of the sphere.
  */
-export function GlobeWake({ onWake }: { onWake: () => void }) {
+export function GlobeWake({
+  onWake,
+  everywhere = false,
+}: {
+  onWake: () => void;
+  everywhere?: boolean;
+}) {
   const t = useMessages();
   return (
     <button
       type="button"
       onClick={onWake}
       className={cn(
-        "glass absolute left-1/2 inline-flex min-h-(--touch-min) -translate-x-1/2 items-center gap-2 rounded-full px-4 text-[13px] font-medium text-white transition hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none md:hidden",
-        GLOBE_WAKE_MOBILE,
+        "glass absolute left-1/2 inline-flex min-h-(--touch-min) -translate-x-1/2 items-center gap-2 rounded-full px-4 text-[13px] font-medium text-white transition hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none",
+        everywhere ? "top-1/2 -translate-y-1/2" : ["md:hidden", GLOBE_WAKE_MOBILE],
       )}
     >
       <Globe2 aria-hidden className="size-4" />

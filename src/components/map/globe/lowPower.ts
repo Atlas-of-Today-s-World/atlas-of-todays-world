@@ -10,7 +10,9 @@ import { LAYERS } from "../mapStyle";
  * Windows' Basic Render Driver. One frame of the globe then costs hundreds of
  * milliseconds of main-thread time, so the globe draws as few frames as it can:
  * pixel ratio 1, no satellite imagery (every arriving tile is another frame),
- * no idle motion (globe/useIdleSpin `auto`).
+ * no idle motion (globe/useIdleSpin `auto`) — and it starts only when the
+ * visitor asks for it (globe/startGate, the "Explore the globe" button): even a
+ * lean globe's first frames are seconds of main-thread work.
  */
 const SOFTWARE_RENDERER = /swiftshader|llvmpipe|softpipe|software|basic render/i;
 
@@ -19,12 +21,19 @@ export const isSoftwareRenderer = (renderer: string) => SOFTWARE_RENDERER.test(r
 /** Pixel ratio of the globe when drawn in software: each extra pixel is CPU work. */
 export const LOW_POWER_PIXEL_RATIO = 1;
 
+let softwareRendering: boolean | undefined;
+
 /**
- * Whether this browser draws WebGL in software, asked of a throwaway canvas
- * before the map exists (so the map is created lean right away). The probe's
- * context is released at once.
+ * Whether this browser draws WebGL in software, asked once of a throwaway
+ * canvas before the map exists (so the map is created lean right away). The
+ * probe's context is released at once.
  */
 export function drawsInSoftware(): boolean {
+  softwareRendering ??= probeRenderer();
+  return softwareRendering;
+}
+
+function probeRenderer(): boolean {
   const gl =
     document.createElement("canvas").getContext("webgl2") ??
     document.createElement("canvas").getContext("webgl");

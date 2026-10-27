@@ -105,6 +105,8 @@ export default function AtlasGlobe({
   const [waiting, setWaiting] = useState(false);
   // It did wait: the placeholder sphere held its place meanwhile and fades out once painted.
   const [waited, setWaited] = useState(false);
+  /** Why the globe waits for the visitor: an open panel on a phone, or WebGL drawn in software. */
+  const [waitReason, setWaitReason] = useState<"panel" | "software" | null>(null);
   // The map opened straight at the page's place (initialCamera), not over Europe.
   const [openedAtPlace, setOpenedAtPlace] = useState(false);
   const gateRef = useRef<GlobeStartGate | null>(null);
@@ -315,7 +317,20 @@ export default function AtlasGlobe({
     // moment, on a phone with a panel open the visitor's first tap on the map, a size.
     const gate = scheduleGlobeStart({
       container,
-      deferred: () => panelOpenRef.current && window.innerWidth < DESKTOP_MIN_PX,
+      deferred: () => {
+        // Without a graphics chip even the lean globe's first frames are seconds of
+        // main-thread work (globe/lowPower): it starts when the visitor asks for it.
+        if (drawsInSoftware()) {
+          setWaitReason("software");
+          setLowPower(true);
+          return true;
+        }
+        if (panelOpenRef.current && window.innerWidth < DESKTOP_MIN_PX) {
+          setWaitReason("panel");
+          return true;
+        }
+        return false;
+      },
       onWaiting: (value) => {
         if (cancelled) return;
         setWaiting(value);
@@ -334,10 +349,10 @@ export default function AtlasGlobe({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // The panel closed (or a page without one opened): a waiting globe starts.
+  // The panel closed (or a page without one opened): a globe waiting for it starts.
   useEffect(() => {
-    if (!panelOpen) gateRef.current?.release();
-  }, [panelOpen]);
+    if (!panelOpen && waitReason === "panel") gateRef.current?.release();
+  }, [panelOpen, waitReason]);
 
   // --- a metric layer, loaded when it is first switched on ---
   useEffect(() => {
@@ -426,7 +441,12 @@ export default function AtlasGlobe({
       {(isHome(pathname) || waited) && !mini && !failed ? (
         <GlobePlaceholder faded={painted || ready} />
       ) : null}
-      {waiting ? <GlobeWake onWake={() => gateRef.current?.release()} /> : null}
+      {waiting ? (
+        <GlobeWake
+          onWake={() => gateRef.current?.release()}
+          everywhere={waitReason === "software"}
+        />
+      ) : null}
       <GlobeUnavailable show={failed && !mini} />
       {mini ? <MiniGlobeLink /> : null}
       <GlobeZoomControls
