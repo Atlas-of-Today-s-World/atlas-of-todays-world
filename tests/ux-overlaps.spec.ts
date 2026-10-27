@@ -133,6 +133,9 @@ test.describe("map credits on phones", () => {
 
   test("the (i) stays above the open bottom sheet and can be tapped", async ({ page }) => {
     await page.setViewportSize(PHONE);
+    // CI draws WebGL in software, where the globe has no satellite imagery and so
+    // no credits (globe/lowPower); this test is about the credits, so the full globe.
+    await page.addInitScript(() => window.localStorage.setItem("atlas-globe", "full"));
     await page.goto("/country/ukraine");
     // On a phone with the sheet open the globe waits for the visitor (ADR-031,
     // map/globe/startGate): until then a placeholder sphere shows no tiles, so no

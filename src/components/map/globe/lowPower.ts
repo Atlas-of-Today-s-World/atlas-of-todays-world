@@ -24,12 +24,26 @@ export const LOW_POWER_PIXEL_RATIO = 1;
 let softwareRendering: boolean | undefined;
 
 /**
+ * Diagnostics and e2e tests: `localStorage["atlas-globe"] = "full"` draws the
+ * full globe even in software (the tests that check the satellite credits).
+ */
+const FULL_GLOBE_KEY = "atlas-globe";
+
+function fullGlobeForced(): boolean {
+  try {
+    return window.localStorage.getItem(FULL_GLOBE_KEY) === "full";
+  } catch {
+    return false; // storage blocked
+  }
+}
+
+/**
  * Whether this browser draws WebGL in software, asked once of a throwaway
  * canvas before the map exists (so the map is created lean right away). The
  * probe's context is released at once.
  */
 export function drawsInSoftware(): boolean {
-  softwareRendering ??= probeRenderer();
+  softwareRendering ??= !fullGlobeForced() && probeRenderer();
   return softwareRendering;
 }
 
