@@ -11,7 +11,8 @@ import { cn } from "@/lib/cn";
  * up the page being read. This button over the placeholder sphere starts it —
  * as does any tap on the map above the sheet. A browser drawing WebGL in
  * software (`everywhere`, globe/lowPower) waits the same way on every screen
- * size, the button in the middle of the sphere.
+ * size: on phones the button keeps its place above the sheet, on wider screens
+ * it sits in the middle of the sphere.
  */
 export function GlobeWake({
   onWake,
@@ -27,7 +28,8 @@ export function GlobeWake({
       onClick={onWake}
       className={cn(
         "glass absolute left-1/2 inline-flex min-h-(--touch-min) -translate-x-1/2 items-center gap-2 rounded-full px-4 text-[13px] font-medium text-white transition hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none",
-        everywhere ? "top-1/2 -translate-y-1/2" : ["md:hidden", GLOBE_WAKE_MOBILE],
+        GLOBE_WAKE_MOBILE,
+        everywhere ? "md:top-1/2 md:bottom-auto md:-translate-y-1/2" : "md:hidden",
       )}
     >
       <Globe2 aria-hidden className="size-4" />
