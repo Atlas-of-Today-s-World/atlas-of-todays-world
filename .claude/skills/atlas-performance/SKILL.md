@@ -118,8 +118,14 @@ region pages, `maplibre-gl.mjs` 289 KB, `countries.geo.json` 163 KB transferred 
 - Hover and selection use `setFeatureState` (`globe/featureState.ts`), never `setData`. Keep
   layers few, with `minzoom`/`maxzoom`.
 - On touch screens (`isTouchScreen()`) the globe does less: `TOUCH_MAP_OPTIONS` (no fades,
-  64-tile cache), `touchStyle`, idle spin at about 12 fps (`useIdleSpin`), first spin after the
-  reader's first input or 10 s. New animations follow the same rule.
+  64-tile cache), `touchStyle`, idle spin at about 12 fps (`useIdleSpin`), first spin only after
+  the reader's first input on the page. New animations follow the same rule.
+- A page that only loads must stop drawing once the globe is shown: every frame of continuous
+  animation is main-thread work (Total Blocking Time, Speed Index never settle). In software
+  WebGL (SwiftShader in PageSpeed / headless Chrome, llvmpipe, Basic Render Driver;
+  `globe/lowPower.ts`) one globe frame costs 300–600 ms, so the globe drops to pixel ratio 1
+  and moves only when asked (rotate button). The spin also stops by itself after three steps
+  over 250 ms (`slowStepWatch`). Any new animation needs the same guard.
 
 ### Long tasks and INP
 - Aim for no main-thread task over 50 ms after hydration; anything over 200 ms is a bug.
