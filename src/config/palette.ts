@@ -29,6 +29,8 @@ export const PLAIN_MAP_COLORS = {
 export const GLOBE_COLORS = {
   /** Countries before (or without) a colour layer. */
   land: "#7d8aa8",
+  /** Sea on a globe drawn without satellite imagery (software WebGL, globe/lowPower.ts). */
+  sea: "#1b2f52",
   /** Text of a topic count on its white pill (also `.topic-pulse` in globals.css). */
   badgeText: "#0b1220",
 } as const;

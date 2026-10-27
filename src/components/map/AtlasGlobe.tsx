@@ -48,7 +48,7 @@ import { useGlobeInteractions } from "./globe/useGlobeInteractions";
 import { GlobePlaceholder } from "./globe/GlobePlaceholder";
 import { GlobeUnavailable } from "./globe/GlobeUnavailable";
 import { GlobeZoomControls } from "./globe/GlobeZoomControls";
-import { drawsInSoftware, LOW_POWER_PIXEL_RATIO } from "./globe/lowPower";
+import { drawsInSoftware, LOW_POWER_PIXEL_RATIO, lowPowerStyle } from "./globe/lowPower";
 import { MiniGlobeLink } from "./globe/MiniGlobeLink";
 import { isTouchScreen, TOUCH_MAP_OPTIONS, touchStyle } from "./globe/touch";
 
@@ -213,7 +213,12 @@ export default function AtlasGlobe({
         await new Promise((resolve) => setTimeout(resolve, 0));
         if (cancelled || !containerRef.current) return;
         const touch = isTouchScreen();
-        const style = buildStyle(regionLabels, styleOptions);
+        // Drawn in software (globe/lowPower): every frame is CPU work, so the map starts
+        // lean: no satellite tiles, pixel ratio 1, no idle motion.
+        const lowPower = drawsInSoftware();
+        setLowPower(lowPower);
+        const base = buildStyle(regionLabels, styleOptions);
+        const style = lowPower ? lowPowerStyle(base) : base;
         // A country or region page: open right at its place (the home flies to the visitor's).
         const atPlace = homeRef.current || miniRef.current ? {} : initialCamera(focusRef.current);
         setOpenedAtPlace(Object.keys(atPlace).length > 0);
@@ -235,16 +240,13 @@ export default function AtlasGlobe({
           attributionControl: false,
           // Satellite imagery is 256 px raster; rendering above 1.5× only multiplies
           // GPU/CPU work (2.6× DPR phones paint ~3× the pixels) without visible gain.
-          pixelRatio: Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO),
+          pixelRatio: lowPower
+            ? LOW_POWER_PIXEL_RATIO
+            : Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO),
           dragRotate: true,
           maxPitch: 0,
         });
         mapRef.current = map;
-        // Drawn in software: every frame is CPU work, so fewer pixels and no idle motion.
-        if (drawsInSoftware(map.getCanvas())) {
-          map.setPixelRatio(LOW_POWER_PIXEL_RATIO);
-          setLowPower(true);
-        }
         map.addControl(new AttributionControl({ compact: true }), "bottom-left");
         // Only the ⓘ shows; its text opens on click.
         foldAttribution(containerRef.current);

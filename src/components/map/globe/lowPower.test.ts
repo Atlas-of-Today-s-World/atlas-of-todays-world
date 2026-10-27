@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { isSoftwareRenderer } from "./lowPower";
+import type { StyleSpecification } from "maplibre-gl";
+import { GLOBE_COLORS } from "@/config/palette";
+import { LAYERS } from "../mapStyle";
+import { isSoftwareRenderer, lowPowerStyle } from "./lowPower";
 
 describe("software WebGL detection", () => {
   it("recognises CPU renderers", () => {
@@ -25,5 +28,29 @@ describe("software WebGL detection", () => {
     ]) {
       expect(isSoftwareRenderer(name), name).toBe(false);
     }
+  });
+});
+
+describe("the lean style for software WebGL", () => {
+  const style = {
+    version: 8,
+    sources: {},
+    layers: [
+      { id: "space", type: "background", paint: { "background-color": "#000000" } },
+      { id: LAYERS.satellite, type: "raster", source: "satellite", paint: { "raster-opacity": 1 } },
+      { id: LAYERS.fill, type: "fill", source: "countries", paint: { "fill-opacity": 0.6 } },
+    ],
+  } as StyleSpecification;
+
+  it("hides the satellite imagery but keeps its layer for repaints", () => {
+    const satellite = lowPowerStyle(style).layers.find((layer) => layer.id === LAYERS.satellite);
+    expect(satellite?.layout).toEqual({ visibility: "none" });
+    expect(satellite).toMatchObject({ paint: { "raster-opacity": 1 } });
+  });
+
+  it("paints the sea a plain colour and leaves the countries alone", () => {
+    const [background, , fill] = lowPowerStyle(style).layers;
+    expect(background).toMatchObject({ paint: { "background-color": GLOBE_COLORS.sea } });
+    expect(fill).toBe(style.layers[2]);
   });
 });
