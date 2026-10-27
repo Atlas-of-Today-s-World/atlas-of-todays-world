@@ -12,6 +12,9 @@ export const RAIL = { vw: 38, rem: 27 } as const;
 /** Wide panel (region portrait, news item). */
 export const RAIL_WIDE = { vw: 52, rem: 46 } as const;
 
+/** Tailwind's `sm` breakpoint in px (`max-sm:hidden` hides below it). */
+export const SM_MIN_PX = 640;
+
 /**
  * Globe window bottom left on full-width pages, in px. Hidden on phones; from
  * Tailwind `sm` up a round button (`compact`); the full window (`desktop`)

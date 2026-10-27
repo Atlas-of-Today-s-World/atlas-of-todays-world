@@ -62,7 +62,7 @@ export default function ModeSwitch({
       <div
         role="radiogroup"
         aria-label={t.map.modes}
-        className={`glass pointer-events-auto flex rounded-full p-0.5 text-[12px] transition sm:text-[12.5px] ${
+        className={`glass pointer-events-auto flex rounded-full p-0.5 text-[12px] transition-colors sm:text-[12.5px] ${
           hinting ? "ring-1 ring-[var(--color-accent-bright)]/50" : ""
         }`}
       >

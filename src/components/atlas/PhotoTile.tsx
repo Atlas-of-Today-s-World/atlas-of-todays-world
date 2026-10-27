@@ -24,12 +24,15 @@ export function TilePhoto({
   image,
   width = PHOTO_WIDTH.tile,
   priority = false,
+  shownFrom,
   className,
 }: {
   image: string | null | undefined;
   width?: number;
   /** The first card of a page whose photo is its Largest Contentful Paint (Photo `priority`). */
   priority?: boolean;
+  /** Narrowest viewport that shows it (Photo `shownFrom`). */
+  shownFrom?: number;
   className?: string;
 }) {
   return (
@@ -41,6 +44,7 @@ export function TilePhoto({
       width={width}
       height={Math.round(width * TILE_PHOTO_RATIO)}
       priority={priority}
+      shownFrom={shownFrom}
       className={cn("absolute inset-0 h-full w-full object-cover", className)}
     />
   );
@@ -133,6 +137,10 @@ interface TileContent extends Omit<TileVariants, "active" | "disabled"> {
   background?: string | null;
   /** Width the photo is requested at (PHOTO_WIDTH). */
   width?: number;
+  /** The photo is the page's Largest Contentful Paint (TilePhoto `priority`). */
+  priority?: boolean;
+  /** Narrowest viewport that shows the tile; narrower ones download no photo (Photo `shownFrom`). */
+  photoShownFrom?: number;
   /** Before the text: an icon chip, a "Previous" label (push it to the top with `mb-auto`). */
   badge?: ReactNode;
   /** Small uppercase line over the title. */
@@ -173,6 +181,8 @@ export function PhotoTile(props: PhotoTileProps) {
     image,
     background,
     width,
+    priority,
+    photoShownFrom,
     badge,
     kicker: kickerText,
     title: titleText,
@@ -186,7 +196,13 @@ export function PhotoTile(props: PhotoTileProps) {
   const content = (
     <>
       {/* Under the shade (z -1), above the tile's colour. */}
-      <TilePhoto image={image} width={width} className="-z-20" />
+      <TilePhoto
+        image={image}
+        width={width}
+        priority={priority}
+        shownFrom={photoShownFrom}
+        className="-z-20"
+      />
       <span aria-hidden className={SHADE} />
       {badge}
       {kickerText ? <span className={kicker({ size })}>{kickerText}</span> : null}
