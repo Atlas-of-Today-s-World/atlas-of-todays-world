@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   SPIN_DEG_PER_SEC,
   isSpinEvent,
+  slowStepWatch,
   spinLongitude,
   spinResumeAt,
   SPIN_EVENT,
@@ -32,7 +33,6 @@ describe("idle globe spin", () => {
 describe("when the idle spin may turn", () => {
   const none = Number.NEGATIVE_INFINITY;
   const page = (overrides: Partial<NonNullable<SpinClock["touch"]>> = {}) => ({
-    readyAt: 1000,
     interacted: false,
     lastScrollAt: none,
     ...overrides,
@@ -43,8 +43,10 @@ describe("when the idle spin may turn", () => {
     expect(spinResumeAt({ startAt: 3500, lastInputAt: 4000, touch: null })).toBe(9000);
   });
 
-  it("touch: waits 10 s after ready while nobody has touched the page", () => {
-    expect(spinResumeAt({ startAt: 3500, lastInputAt: none, touch: page() })).toBe(11_000);
+  it("touch: never turns before the visitor's first input on the page", () => {
+    expect(spinResumeAt({ startAt: 3500, lastInputAt: none, touch: page() })).toBe(
+      Number.POSITIVE_INFINITY,
+    );
   });
 
   it("touch: the first input ends that wait; the usual pause after it still applies", () => {
@@ -65,5 +67,22 @@ describe("when the idle spin may turn", () => {
         expect(spinResumeAt({ startAt: 3500, lastInputAt, touch })).toBeGreaterThanOrEqual(desktop);
       }
     }
+  });
+});
+
+describe("slow devices stop the spin", () => {
+  it("stops after three slow steps in a row", () => {
+    const tooSlow = slowStepWatch();
+    expect([400, 450, 500].map(tooSlow)).toEqual([false, false, true]);
+  });
+
+  it("a single slow step (a tab coming back, a GC) doesn't count", () => {
+    const tooSlow = slowStepWatch();
+    expect([33, 900, 34, 600, 35, 700, 33].map(tooSlow)).toEqual(Array(7).fill(false));
+  });
+
+  it("normal steps on phones (~80 ms) and desktops (~33 ms) never stop it", () => {
+    const tooSlow = slowStepWatch();
+    expect([80, 96, 81, 33, 50, 120].some(tooSlow)).toBe(false);
   });
 });

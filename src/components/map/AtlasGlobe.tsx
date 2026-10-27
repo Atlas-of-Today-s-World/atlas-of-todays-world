@@ -48,6 +48,7 @@ import { useGlobeInteractions } from "./globe/useGlobeInteractions";
 import { GlobePlaceholder } from "./globe/GlobePlaceholder";
 import { GlobeUnavailable } from "./globe/GlobeUnavailable";
 import { GlobeZoomControls } from "./globe/GlobeZoomControls";
+import { drawsInSoftware, LOW_POWER_PIXEL_RATIO } from "./globe/lowPower";
 import { MiniGlobeLink } from "./globe/MiniGlobeLink";
 import { isTouchScreen, TOUCH_MAP_OPTIONS, touchStyle } from "./globe/touch";
 
@@ -122,6 +123,8 @@ export default function AtlasGlobe({
   const mini = isFullPage(pathname);
   // A phone-sized window: the smaller countries' pills come a zoom later (topicBadges).
   const [phone, setPhone] = useState(false);
+  /** WebGL drawn by the CPU (globe/lowPower): the globe moves only when asked to. */
+  const [lowPower, setLowPower] = useState(false);
   useEffect(() => {
     const query = window.matchMedia(`(max-width: ${DESKTOP_MIN_PX - 0.02}px)`);
     const sync = () => setPhone(query.matches);
@@ -170,23 +173,30 @@ export default function AtlasGlobe({
   // On the home map (and in the corner window) the globe turns slowly until the user grabs it,
   // and now and then two topic counts pulse to invite a click.
   const noPanel = !panelOpen;
-  const spin = useIdleSpin(mapRef, surfaceRef, ready, noPanel, () => {
-    const map = mapRef.current;
-    if (!map || document.hidden) return;
-    const key = modeRef.current;
-    pulseTopicBadges(
-      map,
-      key,
-      (place) => {
-        const done = topicCountsRef.current[key][place] ?? 0;
-        if (key === "issue") return String(done);
-        return `${done}/${Math.max(topicTotalsRef.current[key][place] ?? 0, done)}`;
-      },
-      (place) =>
-        key === "issue" ? undefined : (statusesRef.current[key][place] as RegionProgress),
-      phoneRef.current,
-    );
-  });
+  const spin = useIdleSpin(
+    mapRef,
+    surfaceRef,
+    ready,
+    noPanel,
+    () => {
+      const map = mapRef.current;
+      if (!map || document.hidden) return;
+      const key = modeRef.current;
+      pulseTopicBadges(
+        map,
+        key,
+        (place) => {
+          const done = topicCountsRef.current[key][place] ?? 0;
+          if (key === "issue") return String(done);
+          return `${done}/${Math.max(topicTotalsRef.current[key][place] ?? 0, done)}`;
+        },
+        (place) =>
+          key === "issue" ? undefined : (statusesRef.current[key][place] as RegionProgress),
+        phoneRef.current,
+      );
+    },
+    !lowPower,
+  );
 
   // --- map initialization (only once for the app's whole lifetime) ---
   useEffect(() => {
@@ -230,6 +240,11 @@ export default function AtlasGlobe({
           maxPitch: 0,
         });
         mapRef.current = map;
+        // Drawn in software: every frame is CPU work, so fewer pixels and no idle motion.
+        if (drawsInSoftware(map.getCanvas())) {
+          map.setPixelRatio(LOW_POWER_PIXEL_RATIO);
+          setLowPower(true);
+        }
         map.addControl(new AttributionControl({ compact: true }), "bottom-left");
         // Only the ⓘ shows; its text opens on click.
         foldAttribution(containerRef.current);
