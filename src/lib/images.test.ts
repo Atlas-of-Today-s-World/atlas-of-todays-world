@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { SITE_URL } from "@/lib/site";
-import { photoSrcSet, photoUrl } from "./images";
+import { photoSrcSet, photoUrl, isTrustedPhoto } from "./images";
 
 const WEBFLOW =
   "https://cdn.prod.website-files.com/635faa1d6c0ae075b5716e40/65e9_big%20picture.jpg";
@@ -19,6 +19,22 @@ describe("photo URLs", () => {
     expect(photoUrl(`${SITE_URL}${local}`, 828)).toBe(expected);
     // Elsewhere on our site (logos, data) stays as it is.
     expect(photoUrl(`${SITE_URL}/brand/logo.svg`, 828)).toBe(`${SITE_URL}/brand/logo.svg`);
+  });
+
+  it("also under the site's earlier addresses (photo URLs the database still holds)", () => {
+    const local = "/images/webflow/abc.webp";
+    const expected = `/_next/image?url=${encodeURIComponent(local)}&w=828&q=75`;
+    for (const origin of [
+      "https://atlas-of-todays-world.vercel.app",
+      "https://atlasoftodaysworld.org",
+      "https://www.atlasoftodaysworld.org",
+    ]) {
+      expect(photoUrl(`${origin}${local}`, 828), origin).toBe(expected);
+      expect(isTrustedPhoto(`${origin}${local}`), origin).toBe(true);
+    }
+    // A look-alike host is not ours.
+    const fake = `https://atlas-of-todays-world.vercel.app.example.com${local}`;
+    expect(photoUrl(fake, 828)).toBe(fake);
   });
 
   it("leaves other hosts, relative and invalid URLs alone (no open proxy)", () => {

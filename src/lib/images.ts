@@ -7,11 +7,11 @@
  * from the same list, so `/_next/image` is no open proxy — plus our own photos
  * under /images/ (the old site's photos now live in public/images/webflow,
  * scripts/webflow/mirror-images.mjs), whether written as a path or as an
- * absolute URL of this site. Anything else is returned unchanged.
+ * absolute URL of this site (any of SITE_ORIGINS). Anything else is returned unchanged.
  */
 
 // Relative imports: next.config loads this module too, without path aliases.
-import { SITE_URL } from "./site";
+import { SITE_ORIGINS } from "./site";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
@@ -60,9 +60,13 @@ function isPhotoOrigin(url: URL): boolean {
   );
 }
 
-/** Our own photo by its absolute address (the database stores https URLs). */
+/**
+ * Our own photo by its absolute address (the database stores https URLs), under
+ * any address the site has had: an old one would otherwise load the full-size
+ * original from another host, an extra connection before the hero paints.
+ */
 const isOwnPhoto = (url: URL) =>
-  url.origin === new URL(SITE_URL).origin && url.pathname.startsWith(LOCAL_PHOTOS);
+  SITE_ORIGINS.has(url.origin) && url.pathname.startsWith(LOCAL_PHOTOS);
 
 function parseUrl(src: string): URL | undefined {
   try {
