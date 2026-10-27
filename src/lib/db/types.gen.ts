@@ -2856,6 +2856,36 @@ export type Database = {
         }
         Relationships: []
       }
+      web_vitals_daily: {
+        Row: {
+          counts: number[]
+          day: string
+          device: string
+          metric: string
+          nav_type: string
+          path_group: string
+          updated_at: string
+        }
+        Insert: {
+          counts: number[]
+          day?: string
+          device: string
+          metric: string
+          nav_type: string
+          path_group: string
+          updated_at?: string
+        }
+        Update: {
+          counts?: number[]
+          day?: string
+          device?: string
+          metric?: string
+          nav_type?: string
+          path_group?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       members_overview: {
@@ -3087,6 +3117,20 @@ export type Database = {
       record_event: {
         Args: { event: string; path: string; ref: string }
         Returns: undefined
+      }
+      record_web_vitals: {
+        Args: { p_device: string; p_metrics: Json }
+        Returns: undefined
+      }
+      web_vitals_p75: {
+        Args: { p_by_day?: boolean; p_days: number }
+        Returns: {
+          day: string
+          device: string
+          metric: string
+          p75: number
+          samples: number
+        }[]
       }
       apply_stripe_subscription: {
         Args: {

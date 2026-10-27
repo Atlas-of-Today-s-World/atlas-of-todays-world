@@ -194,8 +194,10 @@ Checking the CDN: `curl -sI https://atlas-of-todays-world.vercel.app/topics | gr
    (render-blocking CSS/JS and fonts), not by images.
 4. No `preconnect` to the tile host (`server.arcgisonline.com`) in the server HTML; `warmUp()`
    adds it only when the globe starts, then about 31 tiles load.
-5. No field data: Vercel Analytics is installed, but no Speed Insights or
-   `useReportWebVitals`; low-traffic URLs have no CrUX data.
+5. Field data is young: since 2026-10-27 `WebVitalsReporter` (`features/web-vitals`,
+   ADR-033) sends real visitors' LCP, INP, CLS, FCP and TTFB cookie-less to `/api/v`; the
+   admin overview shows p75 per device for 7 and 28 days and the daily mobile trend. Check
+   it there a few days after a performance change; low-traffic URLs still have no CrUX data.
 6. Lighthouse CI runs only nightly (`full-tests.yml`) and only with the desktop preset.
 
 ## Sources

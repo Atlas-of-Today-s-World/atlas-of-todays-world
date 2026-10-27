@@ -47,6 +47,8 @@ const FAIL_CLOSED_SCOPES = new Set([
   "volunteer",
   // Conversion counter (/api/e): it writes rows, so an outage drops events.
   "event",
+  // Web vitals (/api/v): the same.
+  "vitals",
 ]);
 
 /**

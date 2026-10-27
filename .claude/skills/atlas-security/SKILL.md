@@ -179,8 +179,10 @@ checks for the user's sake, RLS decides for real (`atlas-architecture`, rule 1).
   `delete_my_personal_data()`), on `/account` for readers and `/admin/account` for the team.
   **A new table with personal data must be added to both and to
   `supabase/tests/gdpr-completeness.test.mjs`.** Export keys are only added, never renamed.
-- **Analytics are cookie-less** (Vercel Analytics in `src/app/layout.tsx`). Adding any tracker
-  that sets cookies or fingerprints needs owner approval and a consent mechanism first.
+- **Analytics are cookie-less** (Vercel Analytics in `src/app/layout.tsx`; our own conversion
+  counter `/api/e`, ADR-029, and Core Web Vitals `/api/v`, ADR-033: daily aggregates only, no
+  IP, user agent, account or full URL). Adding any tracker that sets cookies or fingerprints
+  needs owner approval and a consent mechanism first.
 - **Newsletter:** explicit consent checkbox + double opt-in (`status: "pending"` in
   `features/newsletter/actions.ts`), Mailchimp holds the list.
 - **Processors** (Supabase, Vercel, Mailchimp, Cloudflare, Google sign-in...) are listed on the

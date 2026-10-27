@@ -1,56 +1,6 @@
+import { Sparkline, daysAgoLabel } from "@/components/admin/Sparkline";
 import type { ConversionSummary, EventSummary } from "../summary";
 import { SUMMARY_DAYS } from "../summary";
-
-const SPARK = { width: 120, height: 28, pad: 2 } as const;
-
-/**
- * Thirty days of one event as a 2 px line; each day is a hover target with its
- * count (native tooltip). The total next to it is the reading — the line only
- * shows the shape, so it is hidden from screen readers.
- */
-function Sparkline({ daily }: { daily: number[] }) {
-  const max = Math.max(1, ...daily);
-  const step = (SPARK.width - SPARK.pad * 2) / Math.max(1, daily.length - 1);
-  const x = (index: number) => SPARK.pad + index * step;
-  const y = (count: number) =>
-    SPARK.height - SPARK.pad - (count / max) * (SPARK.height - SPARK.pad * 2);
-  const points = daily.map((count, index) => `${x(index)},${y(count)}`).join(" ");
-  const daysAgo = (index: number) => daily.length - 1 - index;
-  return (
-    <svg
-      aria-hidden
-      viewBox={`0 0 ${SPARK.width} ${SPARK.height}`}
-      width={SPARK.width}
-      height={SPARK.height}
-      className="shrink-0 overflow-visible text-[var(--color-accent)]"
-    >
-      <polyline
-        points={points}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={2}
-        strokeLinejoin="round"
-        strokeLinecap="round"
-      />
-      {daily.map((count, index) => (
-        <rect
-          key={index}
-          x={x(index) - step / 2}
-          y={0}
-          width={step}
-          height={SPARK.height}
-          fill="transparent"
-        >
-          <title>
-            {daysAgo(index) === 0
-              ? `Today: ${count}`
-              : `${daysAgo(index)} day${daysAgo(index) === 1 ? "" : "s"} ago: ${count}`}
-          </title>
-        </rect>
-      ))}
-    </svg>
-  );
-}
 
 function EventRow({ item }: { item: EventSummary }) {
   return (
@@ -59,7 +9,12 @@ function EventRow({ item }: { item: EventSummary }) {
         <span className="font-display block text-[24px] leading-none font-bold">{item.total}</span>
         <span className="mt-1 block text-[13px] text-[var(--color-ink-soft)]">{item.label}</span>
       </span>
-      <Sparkline daily={item.daily} />
+      <Sparkline
+        points={item.daily.map((count, index) => ({
+          value: count,
+          label: `${daysAgoLabel(item.daily.length - 1 - index)}: ${count}`,
+        }))}
+      />
     </li>
   );
 }

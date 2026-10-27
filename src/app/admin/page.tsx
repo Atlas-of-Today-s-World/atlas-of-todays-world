@@ -8,6 +8,8 @@ import { can, getAccess } from "@/features/auth/access";
 import { approvalQueue, listEntries } from "@/features/entries/editorial";
 import { ConversionsCard } from "@/features/conversions/components/ConversionsCard";
 import { conversionSummary } from "@/features/conversions/editorial";
+import { WebVitalsCard } from "@/features/web-vitals/components/WebVitalsCard";
+import { webVitalsSummary } from "@/features/web-vitals/editorial";
 
 export const metadata: Metadata = { title: "Overview" };
 
@@ -17,13 +19,15 @@ export default async function AdminHome() {
   if (!access) return null;
   const writes = can(access.permissions, "news", "v");
   const approves = can(access.permissions, "approvals", "v");
-  // Conversions belong to the people who look after patrons and supporters (RLS: members "v").
+  // Conversions and web vitals belong to the people who look after patrons and supporters
+  // (RLS: members "v").
   const seesConversions = can(access.permissions, "members", "v");
 
-  const [mine, queue, conversions] = await Promise.all([
+  const [mine, queue, conversions, vitals] = await Promise.all([
     writes ? listEntries({ mine: true, userId: access.userId }) : Promise.resolve([]),
     approves ? approvalQueue() : Promise.resolve([]),
     seesConversions ? conversionSummary() : Promise.resolve(null),
+    seesConversions ? webVitalsSummary() : Promise.resolve(null),
   ]);
   const returned = mine.filter((entry) => entry.status === "draft" && entry.review_note);
   const drafts = mine.filter((entry) => entry.status === "draft");
@@ -87,6 +91,7 @@ export default async function AdminHome() {
       ) : null}
 
       {seesConversions ? <ConversionsCard summary={conversions} /> : null}
+      {seesConversions ? <WebVitalsCard summary={vitals} /> : null}
 
       <section className="mt-10">
         <h2 className="font-display mb-3 text-[17px] font-bold">Sections you can open</h2>
