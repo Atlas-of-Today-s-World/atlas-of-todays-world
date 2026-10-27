@@ -1,6 +1,5 @@
 "use client";
 
-import "maplibre-gl/dist/maplibre-gl.css";
 import type * as MapLibre from "maplibre-gl";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { foldAttribution } from "@/components/map/attribution";
