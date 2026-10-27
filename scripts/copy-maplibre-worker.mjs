@@ -19,6 +19,9 @@ const target = join(root, "public", "maplibre", version);
 mkdirSync(target, { recursive: true });
 // The main module is loaded from here too (src/components/map/maplibre.ts), so
 // the main thread and the worker share a single maplibre-gl-shared.mjs.
+// Its stylesheet too: loadMapLibre adds it when a map starts, so it no longer
+// blocks the first paint of every page that only might show one.
+copyFileSync(join(dist, "maplibre-gl.css"), join(target, "maplibre-gl.css"));
 // Their source maps too: the modules point at them, and without them browsers'
 // dev tools (and Lighthouse's "valid source maps" check) report a 404. Some
 // releases ship without a map for a module; then there is nothing to copy.

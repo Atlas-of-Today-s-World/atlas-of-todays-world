@@ -18,6 +18,24 @@ const BASE = `/maplibre/${process.env.MAPLIBRE_VERSION}`;
 let loading: Promise<typeof MapLibre> | null = null;
 
 /**
+ * MapLibre's stylesheet (controls, attribution, canvas), from the same folder.
+ * Added only when a map starts: as an import it was a render-blocking ~80 kB
+ * stylesheet on every map page, long before the globe (which waits for the
+ * page's `load`). The map is created once it has applied, so no control
+ * flashes unstyled; a failed stylesheet doesn't keep the map away.
+ */
+function loadStylesheet(): Promise<void> {
+  return new Promise((resolve) => {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = `${BASE}/maplibre-gl.css`;
+    link.onload = () => resolve();
+    link.onerror = () => resolve();
+    document.head.append(link);
+  });
+}
+
+/**
  * Everything the first globe frame needs, requested at once instead of one after
  * another: the main module only reveals its static import of the shared module
  * once it has arrived, and tiles, glyphs and borders start only after the map
@@ -35,9 +53,10 @@ function warmUp() {
 
 export function loadMapLibre(): Promise<typeof MapLibre> {
   if (!loading) warmUp();
-  loading ??= import(
-    /* webpackIgnore: true */ /* turbopackIgnore: true */ `${BASE}/maplibre-gl.mjs`
-  ).then((module: typeof MapLibre) => {
+  loading ??= Promise.all([
+    import(/* webpackIgnore: true */ /* turbopackIgnore: true */ `${BASE}/maplibre-gl.mjs`),
+    loadStylesheet(),
+  ]).then(([module]: [typeof MapLibre, void]) => {
     module.setWorkerUrl(`${BASE}/maplibre-gl-worker.mjs`);
     return module;
   });
