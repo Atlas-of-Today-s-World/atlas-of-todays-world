@@ -30,6 +30,13 @@ const SLOW_STEP_MS = 250;
 const SLOW_STEPS_TO_STOP = 3;
 /** On touch screens a scroll (the page, a list) pauses it; it turns again this much later. */
 const SCROLL_SETTLE_MS = 1500;
+/**
+ * While the globe can't turn (waiting, paused, stopped) it checks again this
+ * often on a timer instead of every animation frame: an animation frame
+ * requested 60 times a second makes the browser compose the whole page each
+ * time, which without a graphics chip is most of the main thread's work.
+ */
+const IDLE_POLL_MS = 250;
 
 /** When the spin may turn, from the timestamps (performance.now()) it waits on. */
 export interface SpinClock {
@@ -193,6 +200,7 @@ export function useIdleSpin(
     const page = pageRef.current;
     const tooSlow = slowStepWatch();
     let frame = 0;
+    let timer = 0;
     let last = 0;
     let startAt = performance.now() + START_DELAY_MS;
     let beatAt = startAt + BEAT_MS;
@@ -204,8 +212,15 @@ export function useIdleSpin(
       setSpinning(value);
     };
 
-    const tick = (now: number) => {
+    // Turning: the next animation frame. Not turning: a look again later, no frames.
+    const next = () => {
       frame = requestAnimationFrame(tick);
+    };
+    const later = () => {
+      timer = window.setTimeout(() => tick(performance.now()), IDLE_POLL_MS);
+    };
+
+    const tick = (now: number) => {
       if (kickRef.current) {
         kickRef.current = false;
         startAt = now;
@@ -217,6 +232,7 @@ export function useIdleSpin(
       if (heldRef.current || !shownRef.current || (!autoRef.current && !manualRef.current)) {
         last = 0;
         report(false);
+        later();
         return;
       }
       // Someone else moves the camera (a flight, the user): wait, then pause before resuming.
@@ -224,6 +240,7 @@ export function useIdleSpin(
         startAt = now + START_DELAY_MS;
         last = 0;
         report(false);
+        later();
         return;
       }
       // Paused while the visitor uses the globe; the first pulse soon after it turns again.
@@ -236,14 +253,15 @@ export function useIdleSpin(
         beatAt = resumeAt + BEAT_MS / 2;
         last = 0;
         report(false);
+        later();
         return;
       }
       report(true);
-      if (now - last < frameMs) return;
+      if (now - last < frameMs) return next();
       // Touch screens: the expanded bottom sheet covers the globe (checked per step, not per frame).
       if (touch && document.querySelector('[data-sheet="expanded"]')) {
         last = now;
-        return;
+        return later();
       }
       const elapsed = last ? now - last : frameMs;
       last = now;
@@ -252,6 +270,7 @@ export function useIdleSpin(
         heldRef.current = true;
         manualRef.current = false;
         report(false);
+        later();
         return;
       }
       const center = map.getCenter();
@@ -260,10 +279,12 @@ export function useIdleSpin(
         beatAt = now + BEAT_MS;
         onBeatRef.current?.();
       }
+      next();
     };
-    frame = requestAnimationFrame(tick);
+    later();
     return () => {
       cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
       setSpinning(false);
     };
   }, [mapRef, ready, enabled, reducedMotion]);
