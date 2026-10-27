@@ -1,5 +1,6 @@
-import { NextResponse, type NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { EVENT_BODY_MAX_BYTES, EventInput } from "@/features/conversions/schema";
+import { beaconAnswer as answer, readBeacon } from "@/lib/beacon";
 import { serverEnv } from "@/lib/env.server";
 import { allowRequest } from "@/lib/security/rate-limit";
 import { createServiceClient } from "@/lib/supabase/service";
@@ -8,9 +9,6 @@ export const dynamic = "force-dynamic";
 
 /** How many events one address may send (shared Postgres limiter, hashed key). */
 const EVENT_LIMIT = { limit: 60, windowSeconds: 600 };
-
-const NO_STORE = { "Cache-Control": "no-store" } as const;
-const answer = (status: number) => new NextResponse(null, { status, headers: NO_STORE });
 
 /**
  * Cookie-less conversion counter (features/conversions): the browser's
@@ -24,21 +22,9 @@ const answer = (status: number) => new NextResponse(null, { status, headers: NO_
  * 429 over the limit.
  */
 export async function POST(request: NextRequest) {
-  const origin = request.headers.get("origin");
-  if (origin && origin !== request.nextUrl.origin) return answer(403);
-  if (Number(request.headers.get("content-length") ?? 0) > EVENT_BODY_MAX_BYTES) {
-    return answer(413);
-  }
-  const text = await request.text().catch(() => "");
-  if (new TextEncoder().encode(text).length > EVENT_BODY_MAX_BYTES) return answer(413);
-
-  let body: unknown;
-  try {
-    body = JSON.parse(text);
-  } catch {
-    return answer(400);
-  }
-  const parsed = EventInput.safeParse(body);
+  const read = await readBeacon(request, EVENT_BODY_MAX_BYTES);
+  if ("status" in read) return answer(read.status);
+  const parsed = EventInput.safeParse(read.body);
   if (!parsed.success) return answer(400);
 
   // Without the service key (local development) nothing is counted.

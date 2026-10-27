@@ -120,6 +120,8 @@ export const apiRoutes = {
   accountExport: "/api/account/export",
   /** Cookie-less conversion counter (a POST from `navigator.sendBeacon`, features/conversions). */
   event: "/api/e",
+  /** Cookie-less Core Web Vitals of real visitors (a POST from `navigator.sendBeacon`, features/web-vitals). */
+  vitals: "/api/v",
 } as const;
 
 /**

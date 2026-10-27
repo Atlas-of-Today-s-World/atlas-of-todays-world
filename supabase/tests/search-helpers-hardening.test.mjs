@@ -535,6 +535,8 @@ const APP_RPCS = {
   submit_job_application: ["service_role"],
   hit_rate_limit: ["service_role"],
   record_event: ["service_role"],
+  record_web_vitals: ["service_role"],
+  web_vitals_p75: ["authenticated"],
   stripe_event_seen: ["service_role"],
   stripe_event_forget: ["service_role"],
   apply_stripe_subscription: ["service_role"],
