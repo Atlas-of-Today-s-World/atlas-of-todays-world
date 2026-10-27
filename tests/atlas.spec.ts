@@ -35,6 +35,14 @@ test.describe("globus", () => {
       /\/maplibre\/[\d.]+\/maplibre-gl-worker\.mjs$/.test(r.url()),
     );
     await page.goto("/");
+    // A browser drawing WebGL in software (headless CI) gets the globe on request
+    // (globe/lowPower): the "Explore the globe" button starts it.
+    const wake = page.getByRole("button", { name: "Explore the globe" });
+    const started = await Promise.race([
+      worker.then(() => "started" as const),
+      wake.waitFor({ state: "visible", timeout: 30_000 }).then(() => "waiting" as const),
+    ]);
+    if (started === "waiting") await wake.click();
     expect((await worker).status()).toBe(200);
     // AtlasGlobe sets the attribute once the "countries" source is loaded
     // (requires a working MapLibre web worker).
