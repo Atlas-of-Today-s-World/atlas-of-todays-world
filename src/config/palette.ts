@@ -8,6 +8,7 @@ export const THEME_COLORS = {
   spaceDeep: "#070b16",
   inkDeep: "#0d1324",
   accent: "#3b4ce0",
+  accentBright: "#7f97ff",
   patron: "#2563eb",
   statusReady: "#1e9e5a",
   statusReadyText: "#16794a",

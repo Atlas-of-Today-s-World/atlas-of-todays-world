@@ -453,7 +453,8 @@
   },
   "og": {
     "site": "Atlas of Today's World",
-    "country": "Country profile",
+    "tagline": "A Global Portrait",
+    "country": "Country",
     "region": "World region",
     "issue": "Global issue",
     "entry": "Entry",

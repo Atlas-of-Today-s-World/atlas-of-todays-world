@@ -138,6 +138,11 @@ Every signal (title, canonical, sitemap, JSON-LD, dates) comes from one helper i
   an owner decision).
 - Share images: each slug route has an `opengraph-image.tsx` built with `ogImage()`
   (`src/features/seo/og-image.ts`, 1200×630). Editors can override it per article in the SEO form.
+  One look (`src/lib/og.tsx`): "Atlas of Today's World — A Global Portrait", the subject's label
+  and name, and a globe drawn from `public/data/countries.geo.json` (`src/lib/og-globe.ts`) turned
+  to the subject — `subjectGlobe` colours a country, region or issue, `worldGlobe` colours every
+  region (home `/og-image.png`, issues without member countries), `quietGlobe` mutes all (entries).
+  Fonts: Manrope TTFs in `src/assets/fonts` (Satori can't read woff2).
 
 ### Search engines
 - Verify the site in [Google Search Console](https://search.google.com/search-console?resource_id=https%3A%2F%2Fatlas-of-todays-world.vercel.app%2F)

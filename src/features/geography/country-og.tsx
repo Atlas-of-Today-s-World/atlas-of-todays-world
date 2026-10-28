@@ -1,5 +1,5 @@
 import { getAtlas } from "@/features/geography/queries";
-import { ogImage } from "@/features/seo/og-image";
+import { ogImage, quietGlobe, subjectGlobe } from "@/features/seo/og-image";
 
 /**
  * Share picture of a country, for both of its views (the panel preview and
@@ -8,10 +8,16 @@ import { ogImage } from "@/features/seo/og-image";
  */
 export const countryOgImage = ogImage<{ slug: string }>(async ({ slug, locale }, { og: t }) => {
   const country = (await getAtlas(locale)).countryBySlug.get(slug);
+  const region = country?.region;
+  if (!country) return { kicker: t.country, title: t.site, globe: quietGlobe };
+  const center: [number, number] =
+    country.labelLon !== null && country.labelLat !== null
+      ? [country.labelLon, country.labelLat]
+      : (region?.center ?? quietGlobe.center);
   return {
-    kicker: country?.region?.name ?? t.country,
-    title: country?.name ?? t.site,
-    subtitle: country?.profile.summary || country?.nameFormal || undefined,
-    accent: country?.region?.fill,
+    kicker: region ? `${t.country} · ${region.name}` : t.country,
+    title: country.name,
+    accent: region?.fill,
+    globe: subjectGlobe(center, [country.iso3], region?.fill ?? "#fff", true),
   };
 });
