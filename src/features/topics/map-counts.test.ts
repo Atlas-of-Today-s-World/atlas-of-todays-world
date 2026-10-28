@@ -134,4 +134,21 @@ describe("the entry plan on the globe", () => {
     expect(plan.regions).toEqual({});
     expect(plan.countries).toEqual({});
   });
+
+  it("keeps a planned topic of a region off the global issues of its countries", () => {
+    const planned = plannedPlaces([
+      {
+        title: "Syrian society",
+        category: "Society",
+        stage: "seeking_authors",
+        region: "mena",
+        issue: null,
+        countries: ["SYR"],
+      },
+    ]);
+    const plan = countTopics(planned, groups);
+    expect(plan.issues).toEqual({});
+    expect(plan.regions).toEqual({ mena: ["planned:0"] });
+    expect(plan.countries).toEqual({ SYR: ["planned:0"] });
+  });
 });

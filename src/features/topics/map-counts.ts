@@ -103,9 +103,11 @@ export function badgeNumbers(counts: Record<string, string[]>): Record<string, n
  * rules (`countTopics`). They have no slug or layers in public: each gets a
  * key of its own and every globe layer.
  *
- * A planned topic of a global issue belongs to that issue's plan only (owner's
- * decision of 2026-10-28): its countries don't carry it into their regions,
- * country pages or other issues, which have entry plans of their own.
+ * Regions and global issues keep separate entry plans (owner's decision of
+ * 2026-10-28): a planned topic of a global issue belongs to that issue only —
+ * its countries don't carry it into their regions, country pages or other
+ * issues — and a planned topic of a region stays off the global issues its
+ * countries belong to.
  */
 export function plannedPlaces(planned: readonly PlannedTopic[]): TopicPlace[] {
   return planned.map((topic, index) => ({
@@ -113,6 +115,11 @@ export function plannedPlaces(planned: readonly PlannedTopic[]): TopicPlace[] {
     title: topic.title,
     ...(topic.issue
       ? { region: null, issue: topic.issue, countries: [], layers: ["issues"] as const }
-      : { region: topic.region, issue: null, countries: topic.countries, layers: MAP_LAYERS }),
+      : {
+          region: topic.region,
+          issue: null,
+          countries: topic.countries,
+          layers: topic.region ? (["countries", "regions"] as const) : MAP_LAYERS,
+        }),
   }));
 }
