@@ -114,4 +114,24 @@ describe("the entry plan on the globe", () => {
     expect(badgeNumbers(plan.regions)).toEqual({ europe: 2, mena: 1 });
     expect(countryBadges(plan.regions, groups.regionOf)).toEqual({ CZE: 2, DEU: 2, SYR: 1 });
   });
+
+  it("keeps a planned topic of a global issue on that issue only", () => {
+    const planned = plannedPlaces([
+      {
+        title: "Lives of refugees",
+        category: "Society",
+        stage: "seeking_authors",
+        region: null,
+        issue: "migration-routes",
+        countries: ["SYR", "DEU"],
+      },
+    ]);
+    const plan = countTopics(planned, {
+      ...groups,
+      issues: [...groups.issues, { slug: "eu-borders", countries: ["DEU"] }],
+    });
+    expect(plan.issues).toEqual({ "migration-routes": ["planned:0"] });
+    expect(plan.regions).toEqual({});
+    expect(plan.countries).toEqual({});
+  });
 });
