@@ -128,7 +128,7 @@ describe("site settings (public read)", () => {
     expect(SITE_DEFAULTS).toMatchObject({
       name: "Atlas of Today's World",
       email: "info@atlasoftodaysworld.org",
-      seoTitle: "Atlas of Today's World — interactive atlas of every country",
+      seoTitle: "Atlas of Today's World — A Global Portrait",
       titleSuffix: "— Atlas of Today's World",
       ogImage: "/og-image.png",
       copyright: "© Atlas of Today’s World",

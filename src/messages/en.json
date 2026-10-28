@@ -471,8 +471,8 @@
     "notFoundCode": "404"
   },
   "home": {
-    "title": "Atlas of Today's World — interactive atlas of every country",
-    "description": "Spin the satellite globe, click any country and read its profile: human development, political regime, living conditions and the stories behind them.",
+    "title": "Atlas of Today's World — A Global Portrait",
+    "description": "So everyone can gain an accurate understanding of the overall socio-political situation in today’s world.",
     "intro": "An interactive encyclopedia of the present. Explore the world on a 3D satellite globe, switch between data layers such as the Human Development Index, political regime or corruption perceptions, and open the profile of any region or country.",
     "regions": "World regions",
     "browseAll": "Browse all countries and regions",

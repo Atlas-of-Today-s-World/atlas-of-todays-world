@@ -70,10 +70,10 @@ export const SITE_DEFAULTS: SiteSettings = {
   description: ORGANIZATION.description,
   wikidataId: ORGANIZATION.wikidataId,
   email: ORGANIZATION.email,
-  seoTitle: `${ORGANIZATION.name} — interactive atlas of every country`,
+  seoTitle: `${ORGANIZATION.name} — A Global Portrait`,
   titleSuffix: `— ${ORGANIZATION.name}`,
   seoDescription:
-    "Explore every country and world region on an interactive satellite globe: political systems, living conditions, human development and the stories behind them.",
+    "So everyone can gain an accurate understanding of the overall socio-political situation in today’s world.",
   ogImage: "/og-image.png",
   copyright: "© Atlas of Today’s World",
   sectionOrder: DEFAULT_SECTION_ORDER,
