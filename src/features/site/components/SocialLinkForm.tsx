@@ -17,8 +17,9 @@ const EMPTY: SocialValues = { label: "", url: "", icon: "", visible: true };
 
 /**
  * A social network profile: new (`addSocialLink`) or existing
- * (`updateSocialLink` bound to its id). The badge text is what the round
- * button in the header shows.
+ * (`updateSocialLink` bound to its id). Instagram, LinkedIn, Facebook and
+ * Bluesky show their logo (recognised by the address); any other network
+ * shows the badge text in its round button.
  */
 export function SocialLinkForm({
   action: save,
@@ -76,7 +77,7 @@ export function SocialLinkForm({
         <FormField
           id="social-icon"
           label="Badge"
-          hint="1–3 characters"
+          hint="Shown when the network has no logo"
           required
           errors={errors.icon}
         >
@@ -87,7 +88,10 @@ export function SocialLinkForm({
             maxLength={3}
             placeholder="IG"
             defaultValue={values.icon}
-            {...describedBy("social-icon", { hint: "1–3 characters", errors: errors.icon })}
+            {...describedBy("social-icon", {
+              hint: "Shown when the network has no logo",
+              errors: errors.icon,
+            })}
           />
         </FormField>
       </div>

@@ -56,7 +56,7 @@ export interface SiteSettings {
 export interface SocialLink {
   label: string;
   href: string;
-  /** Text of the round badge ("IG", "in"…). */
+  /** Badge text ("IG", "in"…), shown when the network has no logo (SocialIcon). */
   icon: string;
 }
 

@@ -43,7 +43,7 @@ export default function MenuDialog({
       role="dialog"
       aria-modal="true"
       aria-label={t.header.menu}
-      className="z-overlay pointer-events-auto fixed inset-0 flex flex-col bg-[#0b101f]/97 px-6 py-5 text-white backdrop-blur"
+      className="z-overlay pointer-events-auto fixed inset-0 flex flex-col overflow-y-auto overscroll-contain bg-[#0b101f]/97 px-6 py-5 text-white backdrop-blur"
     >
       <div className="flex items-center justify-between">
         <BrandLogo tone="light" className="h-5" />
@@ -68,7 +68,19 @@ export default function MenuDialog({
         ))}
       </nav>
 
-      <div className="mt-auto space-y-6 pb-2">
+      {/* Right under the menu, in the networks' colours: seen without scrolling. */}
+      {socials.length > 0 ? (
+        <div role="group" aria-labelledby="menu-follow" className="mt-6">
+          <p id="menu-follow" className="text-[12.5px] text-white/60">
+            {t.header.followUs}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-3">
+            <SocialLinks socials={socials} look="brand" />
+          </div>
+        </div>
+      ) : null}
+
+      <div className="mt-auto space-y-6 pt-8 pb-2">
         {newsletter ? <NewsletterForm captcha={captcha} /> : null}
 
         <nav aria-label={t.header.legal} className="flex gap-4 text-[12.5px] text-white/60">
@@ -82,11 +94,8 @@ export default function MenuDialog({
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
-          <SocialLinks socials={socials} className="size-(--touch-min) text-[12px]" />
-          <span className="ml-auto">
-            <AccountMenu look="menu" />
-          </span>
+        <div className="flex justify-end">
+          <AccountMenu look="menu" />
         </div>
       </div>
     </div>

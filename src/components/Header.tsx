@@ -14,7 +14,7 @@ import { cn } from "@/lib/cn";
 import { AccountMenu } from "./AccountMenu";
 import { BrandLogo } from "./atlas/BrandLogo";
 import { useMessages } from "./i18n/LocaleProvider";
-import { MenuLink, SocialLinks } from "./MenuLinks";
+import { FollowUs, MenuLink } from "./MenuLinks";
 
 // The full-screen menu (with the newsletter form and Turnstile) is its own chunk:
 // nothing shows it before the hamburger is pressed, so pages don't ship it up
@@ -32,9 +32,10 @@ const preloadMenuDialog = () => void loadMenuDialog();
  * On narrow screens the menu becomes a full-screen dialog behind a hamburger.
  * The person icon (all three places) opens the account menu (AccountMenu),
  * which asks who is signed in only then — the header itself never reads the session.
- * The menus come from Admin → Site menus and the social badges from Admin →
- * Site settings (`nav`, `socials`: read on the server, `nav` already filtered by
- * the feature switches — News shows only while news_menu is on).
+ * The menus come from Admin → Site menus and the social links ("Follow us",
+ * FollowUs) from Admin → Site settings (`nav`, `socials`: read on the server,
+ * `nav` already filtered by the feature switches — News shows only while
+ * news_menu is on).
  */
 export default function Header({
   newsletter = true,
@@ -84,6 +85,10 @@ export default function Header({
   // Full-width pages render the bar themselves, inside their own scrolling frame.
   if (!bar && isFullPage(pathname)) return null;
 
+  // The open menu lives inside the header, whose layer caps its own: the header
+  // rises with it, or the floating Newsletter / Support buttons sat on top of it.
+  const layer = menuOpen ? "z-overlay" : "z-header";
+
   const menuDialog = menuOpen ? (
     <MenuDialog
       nav={nav}
@@ -100,7 +105,8 @@ export default function Header({
       <header
         data-print="hide"
         className={cn(
-          "z-header bg-[var(--color-space-deep)] text-white",
+          "bg-[var(--color-space-deep)] text-white",
+          layer,
           bar ? "sticky top-0" : "absolute inset-x-0 top-0",
         )}
       >
@@ -142,6 +148,12 @@ export default function Header({
                   }
                 />
               ))}
+            {/* "Follow us" waits for xl: at lg it squeezed the logo. */}
+            <FollowUs
+              socials={socials}
+              label={t.header.followUs}
+              className="hidden bg-white/10 xl:flex"
+            />
             <AccountMenu look="bar" />
           </nav>
           <button
@@ -164,7 +176,10 @@ export default function Header({
   return (
     <header
       data-print="hide"
-      className="z-header pointer-events-none absolute inset-x-0 top-0 px-4 py-3 sm:px-7 sm:py-4"
+      className={cn(
+        "pointer-events-none absolute inset-x-0 top-0 px-4 py-3 sm:px-7 sm:py-4",
+        layer,
+      )}
     >
       <Link
         href="/"
@@ -179,8 +194,7 @@ export default function Header({
 
       {/*
         Desktop: from lg up — below that the links ran over the logo (768 px). The
-        social badges need still more room (and are small targets), so they wait
-        for xl; they are in the mobile menu either way. A shadow keeps the white
+        "Follow us" group drops its label below xl to fit. A shadow keeps the white
         text readable over the light parts of the globe (Greenland, Sahara).
       */}
       <nav
@@ -203,9 +217,11 @@ export default function Header({
               }
             />
           ))}
-        <span className="hidden items-center gap-2 [text-shadow:none] xl:flex">
-          <SocialLinks socials={socials} className="size-(--touch-min) text-[11px]" />
-        </span>
+        <FollowUs
+          socials={socials}
+          label={t.header.followUs}
+          className="glass [text-shadow:none]"
+        />
         <AccountMenu look="globe" />
       </nav>
 
