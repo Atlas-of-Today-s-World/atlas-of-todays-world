@@ -40,6 +40,11 @@
   --color-gold-deep: #a8740f;
   --color-gold-edge: #7c520a;
   --color-live: #22c55e;
+  /* The social networks' own colours (mobile menu, SocialLinks; white logo on top). */
+  --color-instagram: #e4405f;
+  --color-linkedin: #0a66c2;
+  --color-facebook: #1877f2;
+  --color-bluesky: #1185fe;
   /* Status tones (badges, KPIs, errors) — single source instead of amber/green/red classes. */
   --color-success: #166534;
   --color-success-soft: #dcfce7;

@@ -24,12 +24,12 @@ export function socialNetwork(href: string): Network | null {
   return match ? match[1] : null;
 }
 
-/** Each network's own colour (the mobile menu's round buttons; white glyph on top). */
+/** Each network's own colour (globals.css tokens; the mobile menu's round buttons). */
 export const NETWORK_BG: Record<Network, string> = {
-  instagram: "bg-[#E4405F]",
-  linkedin: "bg-[#0A66C2]",
-  facebook: "bg-[#1877F2]",
-  bluesky: "bg-[#1185FE]",
+  instagram: "bg-instagram",
+  linkedin: "bg-linkedin",
+  facebook: "bg-facebook",
+  bluesky: "bg-bluesky",
 };
 
 /** The network's logo in one colour (currentColor), drawn on a 24 px grid. */
