@@ -63,19 +63,23 @@ export default function MenuDialog({
             key={item.id}
             item={item}
             active={item.id === active}
-            className="font-display flex min-h-14 items-center font-bold"
+            className={
+              item.primary
+                ? "font-display mt-2 flex min-h-14 items-center justify-self-start rounded-full bg-[var(--color-patron)] px-6 font-bold text-white transition hover:bg-[var(--color-patron-strong)]"
+                : "font-display flex min-h-14 items-center font-bold"
+            }
           />
         ))}
       </nav>
 
-      {/* Right under the menu, in the networks' colours: seen without scrolling. */}
+      {/* Right under the menu, white like the header's: seen without scrolling. */}
       {socials.length > 0 ? (
         <div role="group" aria-labelledby="menu-follow" className="mt-6">
           <p id="menu-follow" className="text-[12.5px] text-white/60">
             {t.header.followUs}
           </p>
           <div className="mt-3 flex flex-wrap gap-3">
-            <SocialLinks socials={socials} look="brand" />
+            <SocialLinks socials={socials} size="lg" />
           </div>
         </div>
       ) : null}

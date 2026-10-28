@@ -2,7 +2,7 @@ import Link from "@/components/i18n/Link";
 import type { NavLink } from "@/features/navigation/model";
 import type { SocialLink } from "@/features/site/model";
 import { cn } from "@/lib/cn";
-import { NETWORK_BG, SocialIcon, socialNetwork } from "./SocialIcon";
+import { SocialIcon, socialNetwork } from "./SocialIcon";
 
 /**
  * One menu item (header, mobile menu and the footer of pages without the
@@ -37,16 +37,16 @@ export function MenuLink({
 
 /**
  * Social network links as round buttons with the network's logo (SocialIcon);
- * a network without a logo shows its badge text from the admin.
- * - quiet: white logos on a faint circle, inside the header's "Follow us" group;
- * - brand: big circles in each network's colour (mobile menu).
+ * a network without a logo shows its badge text from the admin. White logos on
+ * a faint circle: small in the header's "Follow us" group, large (`size="lg"`)
+ * in the mobile menu.
  */
 export function SocialLinks({
   socials,
-  look,
+  size = "sm",
 }: {
   socials: readonly SocialLink[];
-  look: "quiet" | "brand";
+  size?: "sm" | "lg";
 }) {
   return socials.map((social) => {
     const network = socialNetwork(social.href);
@@ -58,17 +58,12 @@ export function SocialLinks({
         rel="noreferrer"
         aria-label={social.label}
         className={cn(
-          "grid shrink-0 place-items-center rounded-full font-bold text-white transition focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none",
-          look === "quiet"
-            ? "size-8 bg-white/12 text-[11px] hover:bg-white hover:text-[var(--color-ink)]"
-            : cn(
-                "size-12 text-[13px] hover:brightness-110",
-                network ? NETWORK_BG[network] : "bg-white/15",
-              ),
+          "grid shrink-0 place-items-center rounded-full bg-white/12 font-bold text-white transition hover:bg-white hover:text-[var(--color-ink)] focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none",
+          size === "sm" ? "size-8 text-[11px]" : "size-12 text-[13px]",
         )}
       >
         {network ? (
-          <SocialIcon network={network} className={look === "quiet" ? "size-4" : "size-6"} />
+          <SocialIcon network={network} className={size === "sm" ? "size-4" : "size-6"} />
         ) : (
           social.icon
         )}
@@ -101,7 +96,7 @@ export function FollowUs({
       <span aria-hidden className="mr-1 text-[12px] whitespace-nowrap text-white/80 max-xl:hidden">
         {label}
       </span>
-      <SocialLinks socials={socials} look="quiet" />
+      <SocialLinks socials={socials} />
     </div>
   );
 }

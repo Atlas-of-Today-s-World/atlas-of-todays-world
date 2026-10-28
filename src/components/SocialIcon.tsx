@@ -24,14 +24,6 @@ export function socialNetwork(href: string): Network | null {
   return match ? match[1] : null;
 }
 
-/** Each network's own colour (globals.css tokens; the mobile menu's round buttons). */
-export const NETWORK_BG: Record<Network, string> = {
-  instagram: "bg-instagram",
-  linkedin: "bg-linkedin",
-  facebook: "bg-facebook",
-  bluesky: "bg-bluesky",
-};
-
 /** The network's logo in one colour (currentColor), drawn on a 24 px grid. */
 export function SocialIcon({ network, className }: { network: Network; className?: string }) {
   const svg = { viewBox: "0 0 24 24", "aria-hidden": true, focusable: false, className } as const;
