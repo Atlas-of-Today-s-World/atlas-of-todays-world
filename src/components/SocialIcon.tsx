@@ -20,8 +20,8 @@ export function socialNetwork(href: string): Network | null {
   } catch {
     return null;
   }
-  const domain = Object.keys(DOMAINS).find((d) => host === d || host.endsWith(`.${d}`));
-  return domain ? DOMAINS[domain] : null;
+  const match = Object.entries(DOMAINS).find(([d]) => host === d || host.endsWith(`.${d}`));
+  return match ? match[1] : null;
 }
 
 /** Each network's own colour (the mobile menu's round buttons; white glyph on top). */
