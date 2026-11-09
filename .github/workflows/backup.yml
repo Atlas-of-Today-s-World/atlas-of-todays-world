@@ -52,7 +52,7 @@ jobs:
             test -n "${!v}" || { echo "Chybí $v"; exit 1; }
           done
           case "$RECIPIENT" in age1*) ;; *) echo "BACKUP_AGE_RECIPIENT není age klíč"; exit 1;; esac
-      - uses: supabase/setup-cli@45a513f8c64c0bc8e0e3dfe572b5c95be85f6359 # v3 (pinned: runs next to production credentials)
+      - uses: supabase/setup-cli@689adcfb80d947100a1eab127289b97d1fb07b13 # v3 (pinned: runs next to production credentials)
         if: steps.config.outputs.skip != 'true'
         with:
           version: 2.120.0
